@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   coq-build:
-    name: Rocq 9.1 build + coqchk (self-hosted local trust cache)
+    name: Rocq 9.1 build + coqchk (single Live tree, cold build)
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v5
@@ -22,17 +22,14 @@ jobs:
       # ── AX-FORTRESS 防线挂点（20260925 施工单，R131 落树）────────────────────
       # 闸① 毒 token 守卫：pre-build fail-fast，秒级。exit 0 洁净／1 命中／2 树无效——
       # bash -e 下非零即 step 红且后续步不启（禁红后继续）。gate1 系扁平扫描（非递归）。
-      # 【R131 落树席偏离登记，候翻案】施工单原案三树（含 CW219_split），现测
-      # CW219_split 在册 5×Psatz（S11-S15 壳线，09-08 分裂波遗存，HEAD 在册、零脏态），
-      # 系 CW_219 消融波候 GO 施工面且不在 CI build/coqchk 认证面（cw_build/cw_chk
-      # 均 cd ConstructiveWorld_vo）——硬闸常咬已知有主面=哨兵信号归零，故本波
-      # gate1 只扫 Live+vo（恰=云端认证面+世系对称面）；升级方向：消融波断根后
-      # CW219_split 回补第三 --tree。本地预验：Live 679/vo 700 均 0 命中。
+      # 【SINGLE-TREE 20261007 重排（#C-S00c）】Set 仓自 #C-S00 起 vo 树整体退役
+      # （单 Live 树口径），gate1 只扫 ConstructiveWorld_Live——词表与扫描口径
+      # 零改动，仅拓扑与参数路径随单树设计移动。
       - name: gate1 poison-token guard (pre-build fail-fast)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           python scripts/gates/gate1_poison_guard.py \
-            --tree ConstructiveWorld_Live --tree ConstructiveWorld_vo \
+            --tree ConstructiveWorld_Live \
             --json gate1_ci.json --text
 
       # 闸④ 注释哨兵（comment hygiene hard-gate，R135 落树）：gate1 后顺位——
@@ -45,20 +42,19 @@ jobs:
       # 随 gate4_report.json 出。双树口径与 gate1 同款；升级方向：CW219_split
       # 消融波断根后回补第三 --tree。
       # 【CI-ARTIFACT-FIX 20260926 事实登记】report 先写后判：脚本在 exit 码裁决前
-      # 无条件落 gate4_report.json（v2.0/v2.1 同序，红/黄/绿三态均留证）。实证：
-      # run 36156662359(红) 与 36152669096 a1(红)/a2(取消) 三包内均含
-      # gate4_report.json+gate1_ci.json——红态 artifact 面可用，gate4 权威数以
-      # coqchk-logs 包内 report 为准，run log 扫描行降为旁证。
+      # 无条件落 gate4_report.json（v2.0/v2.1 同序，红/黄/绿三态均留证）。
       # 【--tree-recursive 裁决 20260926】默认关（守 1227 口径连续性，R135 1281→
       # R134 1245→LATEST 1227 对照链不破）；v2.1 脚本随下一波认证合流入库后，
       # 候探针件族归册/清偿 commit 落树再原子开启（vo 树 +22 盲区面如实入红账，
       # 红只增不减，禁降档）。
+      # 【SINGLE-TREE 20261007 重排（#C-S00c）】--tree 收窄为 ConstructiveWorld_Live
+      # 单树（vo 树已退役），词表/扫描单元/启发式口径零改动。
       - name: gate4 comment guard (pre-build, exit1=red exit2=yellow artifact-only)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           set +e
           python scripts/gates/gate4_comment_guard.py \
-            --tree ConstructiveWorld_Live --tree ConstructiveWorld_vo \
+            --tree ConstructiveWorld_Live \
             --json gate4_report.json
           rc=$?
           set -e
@@ -75,51 +71,25 @@ jobs:
             exit 1
           fi
 
-      # 闸③ 跨树 Require 毒面对称检查（E957 暗雷族／世系倒灌）。秒级，常开。
-      # SINGLE-TREE-POISON exit 1=红；REQUIRE-DRIFT 仅登记 exit 0（卫生信息）。
-      - name: gate3 cross-tree require-face diff
-        if: always()  # CI-ARTIFACT-FIX：gate4 红屏不阻断 gate3 出证（gate3_ci.json 随 coqchk-logs 上传，补红态证据链缺口）
+      # 【gate3 跨树 Require 毒面对称检查——步撤除 20261007（#C-S00c）】
+      # 撤除理由：gate3 的不变量是 Live↔vo 跨树 Require 面对称（E957 暗雷族/世系倒
+      # 灌守卫）。#C-S00 起本仓为单 Live 树设计，vo 树整体退役——跨树同步不变量
+      # 的对象集为空集，该闸无检查对象，属「不变量不适用」而非「降级豁免」。
+      # gate1（源面毒 token）与 gate5（vo 二进制依赖层检疫）两闸照常全量把守，
+      # 扫描词表零弱化；若未来重建第二世系树，gate3 须随树回补。
+
+      # Build：单 Live 树冷编（order.txt 拓扑，逐件真 RC，败出日志尾 30 行 fail-loud）。
+      # 仓内自足 bash 脚本（scripts/ci_build_live.sh）：SW2 全字面双 export
+      # COQLIB/ROCQLIB=9.1，cwd=仓根，-Q ConstructiveWorld_Live ""。
+      # 【seed 步撤除（#C-S00c）】无播种源可依（本仓 HEAD 在册 .vo=0，vo 树退役），
+      # 15 件冷编分钟级可忍；旧「从本地 vo 树播种吃指纹 SKIP」路径随单树设计退役。
+      - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          python scripts/gates/gate3_cross_tree_diff.py \
-            --tree-a ConstructiveWorld_Live --tree-b ConstructiveWorld_vo \
-            --json gate3_ci.json
+          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_build_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
 
-      # 本地信任缓存播种：自托管 runner 的检出目录是全新的，
-      # 从固定 vo 树复制 .vo 让 build.sh 吃指纹 SKIP（.vo 新于 .v 即跳）。
-      # 工具链=本机 Rocq Platform 9.1~2026.01（与该 vo 树 .vo 同源；PROBE91 实证 201 面 9.1 全绿。
-      # 原「magic 90001 / 9.0 防混装」预警随 2026-09-15 全库换装 9.1 作废——runner 侧
-      # cw_build.cmd / cw_chk.cmd 的 COQC/COQCHK 须同步指向 9.1，否则 coqchk 步将对 9.1 信任缓存红）。
-      - name: Seed trust cache from local vo tree
-        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
-        run: |
-          # 治本（E-STAGING-P9）：runner 侧 _work 检出目录持久非易失，
-          # 旧版纯 cp 只增不改，陈旧 .vo 跨轮幸存 → coqchk digest 撕裂单件红。
-          # 改为镜像删除语义：先清空再播种，保证 _work vo 树 = 本地信任缓存的真镜像。
-          rm -f ConstructiveWorld_vo/*.vo 2>/dev/null || true
-          cp /d/ComplexAnalysis/ConstructiveWorld-Main/ConstructiveWorld_vo/*.vo ConstructiveWorld_vo/ 2>/dev/null || true
-          mkdir -p ConstructiveWorld_vo/Local
-          rm -f ConstructiveWorld_vo/Local/*.vo 2>/dev/null || true
-          cp /d/ComplexAnalysis/ConstructiveWorld-Main/ConstructiveWorld_vo/Local/*.vo ConstructiveWorld_vo/Local/ 2>/dev/null || true
-          echo "seeded (mirror-deleted stale) $(ls ConstructiveWorld_vo/*.vo 2>/dev/null | wc -l) .vo"
-
-      - name: Build full tree (order topology, fingerprint skip, thermal-guarded)
-        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
-        run: |
-          # 温控协议已入库（仓库根 cpu_guard.ps1）：CPU 负载>LoadLimit(60%) 自动错峰冷却，绑核 CoreN 2 避免热集中。
-          # repair_tear 已摘除（2026-09-19 run#85 红 run 根因，fail-loud 存档）：镜像播种语义下
-          # （上一步 rm+cp 即本地信任缓存真镜像），repair_tear 的 mtime 启发式对字母序 cp 落盘
-          # 时差（G→U 跨分钟，远超 v2.2 的 5s 容差）误撕 → dep-missing 级联删除 → build 按检出
-          # HEAD 源重编，与本地按 M 态工作树源编译的种子 .vo 撞 digest
-          # （Inconsistent assumptions over PhysPredAblation）。播种即真镜像，无需自愈；
-          # 真撕裂由 coqchk 步 fail-loud 暴露、按「本地先全绿」教义本地治愈后重推。
-          pwsh -File cpu_guard.ps1 -Command "cmd /c D:\actions-runner\cw_build.cmd" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
-
-      # S7/PA4+PB6：全树模块计数自动化——六维计数（全树 .v／Live_X 顶层／UpAbl 顶层／
-      # attn 沙箱／order 行数／提交面数）三口径分列（注册面/侧树顶层/沙箱）；
-      # 论文引用口径固定=侧树顶层，防锈声明随 JSON 落盘（PB6）。
-      # 前置：scripts/gen_tree_stats.ps1 须与本 patch 同波（R11x 注册波）先行入库；
-      # 侧树/vo 树未挂载时该口径记 absent 不红屏（-CI record-only）；>5% fail-loud 门仅本地判。
+      # S7/PA4+PB6：全树模块计数自动化——六维计数三口径分列（注册面/侧树顶层/沙箱）；
+      # record-only，缺席口径不红屏（非硬闸，保持原样）。
       - name: Generate tree-stats (six-dimension counts, three-caliber breakdown)
         if: always()
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
@@ -134,27 +104,16 @@ jobs:
           name: tree-stats
           path: tree-stats.json
 
-      # 闸⑤ .vo/.vos/.vok 二进制依赖层检疫（GATE-VOQ 20260926，E-STAGING-AXFORENSIC-1 判例：
-      # 休眠毒代 .vo 播种激活——gate1 源面绿与 coqchk Axioms 现形两口径不相交，载体在源闸半径外的
-      # .vo 依赖串表层）。coqchk 消费闭包前对 vo 树递归全量：①解压感知 token 串扫描（raw+gzip+zlib，
-      # 裸 grep 有 glob 零命中假象）硬四族 Lra/Reals/ClassicalDedekindReals/FunctionalExtensionality
-      # （净主树 2474 件实测 0/0/0/0 校准；\b 词边界大小写敏感，ConstructiveReals/Qreals 不误配）；
-      # ②毒 digest 黑名单 v2 对照（25 枚 vendored scripts/gates/poison_digest_blacklist_v2.txt，
-      # 同名 vo 即净假设不成立，一切按 digest 对账）；③platform 对照组内建 SELF-HIT 校准
-      # （ClassicalDedekindReals.vo 必自命中，否则方法不可证）。Psatz 二进制层=信息档非硬
-      # （净主树 173 件串表携带=Lia 闭包 Q 域供给非毒，AXFORENSIC §1.1 判例；源面 Require Psatz
-      # 由 gate1 硬闸把守）。
-      # exit 0=洁净（扫全+对照过+零命中）；1=命中（红）；2=无可扫面/树无效/对照失效（红，
-      # 诊断文案分流，禁降档——gate2 GATE-BANNER-ABSENT 先例）。上游红时 if:always() 照 gate3
-      # 先例不阻断本闸出证；evidence=本步 stdout 全量 HIT 清单（gate5_vodep_report.json 落盘于
-      # 工作区根，artifact 收编候合流窗——Upload 步 path 清单本波禁改，登记于 _tgatevoq_ 报告 §四）。
+      # 闸⑤ .vo/.vos/.vok 二进制依赖层检疫（GATE-VOQ 20260926，E-STAGING-AXFORENSIC-1 判例）。
+      # 【SINGLE-TREE 20261007 重排（#C-S00c）】扫描面改指本步 build 的 Live .vo 产物面；
+      # 对照组 auto 定位（装机路径 SELF-HIT 校准）与词表/digest 黑名单口径零改动。
       - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
-        if: always()  # gate3 先例：上游红不阻断 gate5 出证
+        if: always()  # 上游红不阻断 gate5 出证（gate3 先例保留语义）
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           set +e
           python scripts/gates/gate5_vodep_quarantine.py \
-            --tree ConstructiveWorld_vo \
+            --tree ConstructiveWorld_Live \
             --json gate5_vodep_report.json
           rc=$?
           set -e
@@ -171,32 +130,34 @@ jobs:
             exit 1
           fi
 
+      # coqchk 认证：单 Live 树共享闭包单趟 -o（scripts/ci_coqchk_live.sh 自足实现，
+      # 判据=EXIT=0 且 "Modules were successfully checked" → COQCHK_ALL_PASS，
+      # 日志落 ConstructiveWorld_Live/_chk_all.log），温控包裹照旧。
       - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          # 温控协议（仓库根 cpu_guard.ps1）同样包裹 coqchk：负载过高时错峰，不叠加高负载任务。
-          pwsh -File cpu_guard.ps1 -Command "cmd /c D:\actions-runner\cw_chk.cmd" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
+          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
 
       # 闸② Axioms 段哨兵：块状态机解析（禁裸 grep——裸 -i error 假配 84 行／-i axiom
       # 假配 2213 行，E422/AX-MATRIX 实证；状态机段外假匹配结构性不可能）。
-      # 前置硬要求：coqchk_all.sh 已带 -o（无 Axioms 段=exit 2 不可判，一律红）。
+      # 前置硬要求：coqchk 已带 -o（无 Axioms 段=exit 2 不可判，一律红）。
       # exit 0 CLEAN／1 DIRTY／2 NO_AXIOMS_SECTION／3 LOG_INCOMPLETE——1/2/3 一律红（fail-loud）。
-      # 代际钉：banner 必须 Chicken 9.1.0（COQLIB 钉代防假红，SW2；8.3 落 9.0 陷阱免疫实证形）。
-      # log 缺失≠代际失守：gate4/build 夭折时 coqchk 被 skipped、无日志可查——
-      # 分支报 GATE-BANNER-ABSENT 指向上游红因（E-STAGING-R135GATE-1 连带红不指控下游域），
-      # 仍 exit 1 保持红（禁降档），仅诊断文案分流。
+      # 代际钉：banner 必须 Chicken 9.1.0（COQLIB 钉代防假红，SW2）。
+      # log 缺失≠代际失守：上游夭折时 coqchk 被 skipped、无日志可查——
+      # 分支报 GATE-BANNER-ABSENT 指向上游红因（连带红不指控下游域），仍 exit 1 保持红。
+      # 【SINGLE-TREE 20261007 重排（#C-S00c）】解析路径改指 ConstructiveWorld_Live/_chk_all.log。
       - name: gate2 axioms sentinel (block-state-machine, fail-loud)
         if: always()
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          if [ ! -f ConstructiveWorld_vo/_chk_all.log ]; then
-            echo "GATE-BANNER-ABSENT: _chk_all.log 不在盘——coqchk 未产出日志（上游 gate4/build 夭折连带，红因看上游步），非 COQLIB 代际失守"
+          if [ ! -f ConstructiveWorld_Live/_chk_all.log ]; then
+            echo "GATE-BANNER-ABSENT: ConstructiveWorld_Live/_chk_all.log 不在盘——coqchk 未产出日志（上游 gate4/build 夭折连带，红因看上游步），非 COQLIB 代际失守"
             exit 1
           fi
-          grep -q "Welcome to Chicken 9.1.0" ConstructiveWorld_vo/_chk_all.log \
+          grep -q "Welcome to Chicken 9.1.0" ConstructiveWorld_Live/_chk_all.log \
             || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.1（COQLIB 钉代失守，log 不可作公理判据）"; exit 1; }
           python scripts/gates/gate2_axioms_parser.py \
-            ConstructiveWorld_vo/_chk_all.log --json gate2_verdict.json
+            ConstructiveWorld_Live/_chk_all.log --json gate2_verdict.json
 
       - name: Upload coqchk logs
         if: always()
@@ -205,12 +166,14 @@ jobs:
           name: coqchk-logs
           # gate4_report.json 随本件搭车出证，无独立 gate4 artifact 名——
           # 按 artifact 名清点会误判「gate4 件缺席」（CI-ARTIFACT-FIX 20260926 三包实勘在案）。
+          # gate3_ci.json 随 gate3 步撤除同步移出清单（#C-S00c）。
           path: |
-            ConstructiveWorld_vo/_chk_*.log
+            ConstructiveWorld_Live/_chk_*.log
+            ConstructiveWorld_Live/_*.build.log
             gate1_ci.json
-            gate3_ci.json
             gate2_verdict.json
             gate4_report.json
+            gate5_vodep_report.json
 
       - name: Merged single-file build (retired with CW220 megafile; kept disabled for history)
         if: false
