@@ -1,27 +1,7 @@
-*.build.log
-*.log
-_tmp*/
-.lia.cache
-.nia.cache
-*.glob
 *.vo
-*.vos
 *.vok
+*.vos
 *.glob
 *.aux
-docs/analysis/论文1-*对齐版.md
-upkvdrift_probe.*
-_new_build.sh
-_test_*
-*.nra.cache
-
-# R2 tree-thaw wave-C additions (EX-1 20260926, R17 D5): repo-spread attn workspace, pycache, run outputs, p3tmp scratch
-attn/
-__pycache__/
-run*.json
-_p3tmp_*
-.nra.cache
-
-# R130 tail sweep (EX-FIN 20260927): E956-family extraction/g3out scratch dirs stay out of tree
-_*_extract/
-_*_g3out/
+*.ml
+*.mli
