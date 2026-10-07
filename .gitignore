@@ -3,5 +3,9 @@
 *.vos
 *.glob
 *.aux
+.*.aux
 *.ml
 *.mli
+.lia.cache
+.nia.cache
+.nra.cache
