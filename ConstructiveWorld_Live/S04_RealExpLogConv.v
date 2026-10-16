@@ -481,7 +481,7 @@ Fixpoint sum_R (f : nat -> R) (n : nat) : R :=
 
 (* 和的逐项保序：∀k<n, f k ≤ g k ⟹ Σf ≤ Σg *)
 Lemma sum_R_le : forall f g n,
-  (forall k, (k < n)%nat -> le (f k) (g k)) ->
+  (forall k, NatLe (Datatypes.S k) n -> le (f k) (g k)) ->
   le (sum_R f n) (sum_R g n).
 Proof.
   intros f g n H.
@@ -489,24 +489,32 @@ Proof.
   - apply le_refl.
   - apply (le_trans (plus (sum_R f m) (f m)) (plus (sum_R g m) (f m)) (plus (sum_R g m) (g m))).
     + apply (le_plus_compat (sum_R f m) (sum_R g m) (f m) (f m)).
-      * apply IH. intros k Hk. apply (H k). lia.
+      * apply IH. intros k Hk. apply (H k).
+        apply NatLe_lift.
+        assert (Hkle : (Datatypes.S k <= m)%nat) by (apply NatLe_drop; exact Hk).
+        lia.
       * apply le_refl.
     + apply (le_plus_compat (sum_R g m) (sum_R g m) (f m) (g m)).
       * apply le_refl.
-      * apply (H m (Nat.lt_succ_diag_r m)).
+      * apply (H m). apply NatLe_lift. apply Nat.le_refl.
 Qed.
 
 (* 和为零：全部项为零 ⟹ 和为零 *)
 Lemma sum_R_zero : forall f n,
-  (forall k, (k < n)%nat -> Id (f k) zero) ->
+  (forall k, NatLe (Datatypes.S k) n -> Id (f k) zero) ->
   Id (sum_R f n) zero.
 Proof.
   intros f n H.
   induction n as [| m IH]; simpl.
   - apply id_refl.
-  - apply (id_trans (id_cong2 plus (IH (fun k Hk => H k (Nat.lt_trans k m (Datatypes.S m) Hk (Nat.lt_succ_diag_r m))))
-                               (H m (Nat.lt_succ_diag_r m)))
-                  (plus_zero zero)).
+  - assert (IHw : forall k, NatLe (Datatypes.S k) m -> Id (f k) zero).
+    { intros k Hk. apply (H k). apply NatLe_lift.
+      assert (Hkle : (Datatypes.S k <= m)%nat) by (apply NatLe_drop; exact Hk).
+      lia. }
+    apply (id_trans (id_cong2 plus (IH IHw)
+                               (H m (NatLe_lift (Datatypes.S m) (Datatypes.S m)
+                                       (Nat.le_refl (Datatypes.S m)))))
+                    (plus_zero zero)).
 Qed.
 
 (* mult (1−x)·y == y + (−x)·y：distrib + mult_one *)
@@ -811,7 +819,7 @@ Qed.
 Lemma iterate_cauchy : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   forall eps : R, lt zero eps ->
-    sigT (fun N : nat => forall m n : nat, (N <= m)%nat -> (N <= n)%nat ->
+    sigT (fun N : nat => forall m n : nat, NatLe N m -> NatLe N n ->
       lt (metric (iterate dynamics m E_A) (iterate dynamics n E_A)) eps).
 Proof.
   intros E_A Hg0pos eps Hep.
@@ -824,6 +832,8 @@ Proof.
   destruct (r_arch_pow a Ha eps Hep) as [N0 HN0].
   exists N0.
   intros m n Hm Hn.
+  assert (Hm' : (N0 <= m)%nat) by (apply NatLe_drop; exact Hm).
+  assert (Hn' : (N0 <= n)%nat) by (apply NatLe_drop; exact Hn).
   apply (le_lt_trans _ (mult a (r_pow kappa (Nat.min m n))) _).
   - (* metric (x_m) (x_n) ≤ a·κ^{min m n} *)
     unfold a.
@@ -897,7 +907,7 @@ Theorem iterate_cauchy_explicit_N : forall (E_A : R),
       And (le (log (mult (mult (mult (abs eta) (abs (entropy_gradient (iterate dynamics 0 E_A)))) S)
                           (r_pow kappa N)))
               (log eps))
-          (forall m n : nat, (N <= m)%nat -> (N <= n)%nat ->
+          (forall m n : nat, NatLe N m -> NatLe N n ->
             lt (metric (iterate dynamics m E_A) (iterate dynamics n E_A)) eps)).
 Proof.
   intros E_A Hg0pos eps Hep.
@@ -912,6 +922,8 @@ Proof.
   split.
   - unfold a in HNlog. exact HNlog.
   - intros m n Hm Hn.
+    assert (Hm' : (N <= m)%nat) by (apply NatLe_drop; exact Hm).
+    assert (Hn' : (N <= n)%nat) by (apply NatLe_drop; exact Hn).
     apply (le_lt_trans _ (mult a (r_pow kappa (Nat.min m n))) _).
     + unfold a.
       apply (iterate_metric_min_bound E_A m n Hg0pos).
@@ -920,16 +932,6 @@ Proof.
         -- apply (lt_le_iff _ _ (inl Ha)).
         -- apply (r_pow_dec_iter N (Nat.min m n)). lia.
       * exact HNgeo.
-Qed.
-
-(* NatLe（Id 包裹）→ nat ≤：bool 判定后 Nat.leb_le 桥 *)
-Lemma natle_to_le : forall n m, NatLe n m -> (n <= m)%nat.
-Proof.
-  intros n m H.
-  unfold NatLe in H.
-  destruct (Nat.leb n m) eqn:E.
-  - apply (proj1 (Nat.leb_le n m)). exact E.
-  - inversion H.
 Qed.
 
 (* lim 存在：metric-柯西 ⟹ cauchy_complete ⟹ lim *)
@@ -943,7 +945,7 @@ Proof.
   destruct (iterate_cauchy E_A Hg0pos eps Hep) as [N HN].
   exists N.
   intros m n Hm Hn.
-  exact (HN m n (natle_to_le N m Hm) (natle_to_le N n Hn)).
+  exact (HN m n Hm Hn).
 Qed.
 
 (* ===== P2.5 可推部分：梯度绝对值单调衰减（strict_concavity 组装） =====
@@ -1101,7 +1103,7 @@ Proof.
         + apply (le_mult_compat_weak (r_pow kappa n) (r_pow kappa N2)
                                      (abs (entropy_gradient (iterate dynamics 0 E_A)))
                                      (abs_nonneg (entropy_gradient (iterate dynamics 0 E_A)))).
-          apply (r_pow_dec_iter N2 n). exact (natle_to_le N2 n Hn2).
+          apply (r_pow_dec_iter N2 n). exact (NatLe_drop N2 n Hn2).
         + apply (lt_id_l _ (mult (abs (entropy_gradient (iterate dynamics 0 E_A))) (r_pow kappa N2)) _).
           * apply (id_sym (mult_comm (abs (entropy_gradient (iterate dynamics 0 E_A))) (r_pow kappa N2))).
           * exact (HN2). }
@@ -1328,16 +1330,16 @@ Qed.
 Theorem gradient_iterate_abs_decay : forall (E_A : R) (n : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
-  (forall k : nat, (k <= Datatypes.S n)%nat -> lt zero (entropy_gradient (iterate dynamics k E_A))) ->
+  (forall k : nat, NatLe k (Datatypes.S n) -> lt zero (entropy_gradient (iterate dynamics k E_A))) ->
   le (abs (entropy_gradient (iterate dynamics (Datatypes.S n) E_A)))
      (mult (minus one (mult eta mu)) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
   intros E_A n Heta Heta_mu Hall.
   (* x := iterate dynamics n E_A；前提 g(x) > 0 和 g(dyn x) > 0 *)
   assert (Hgn : lt zero (entropy_gradient (iterate dynamics n E_A))).
-  { apply Hall. lia. }
+  { apply Hall. apply NatLe_lift. lia. }
   assert (Hgn1 : lt zero (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))).
-  { apply Hall. lia. }
+  { apply Hall. apply NatLe_lift. lia. }
   (* dynamics (iterate dynamics n E_A) 与 iterate (S n) E_A 定义性相等（iterate 是 Fixpoint） *)
   exact (gradient_step_abs_contraction (iterate dynamics n E_A) Heta Heta_mu Hgn Hgn1).
 Qed.
@@ -1347,7 +1349,7 @@ Qed.
 Theorem grad_decay_positive_iter : forall (E_A : R) (n k : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
-  (forall j : nat, (j <= n + k)%nat -> lt zero (entropy_gradient (iterate dynamics j E_A))) ->
+  (forall j : nat, NatLe j (n + k) -> lt zero (entropy_gradient (iterate dynamics j E_A))) ->
   le (abs (entropy_gradient (iterate dynamics (n + k) E_A)))
      (mult (r_pow (minus one (mult eta mu)) k) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
@@ -1367,11 +1369,15 @@ Proof.
     + (* 单步：K2 at (n+k)，前提 j ≤ S(n+k) 由 Hall 给（n + S k' == S(n+k)） *)
       rewrite (Nat.add_succ_r n k).
       apply (gradient_iterate_abs_decay E_A (n + k) Heta Heta_mu).
-      intros j Hj. apply Hall. lia.
+      intros j Hj. apply Hall. apply NatLe_lift.
+      assert (Hjle : (j <= Datatypes.S (n + k))%nat) by (apply NatLe_drop; exact Hj).
+      lia.
     + (* 归纳步：κ·(κ^{k'}·|g(x_n)|) == κ^{S k'}·|g(x_n)|（mult_assoc + comm 换形） *)
       assert (IH' : le (abs (entropy_gradient (iterate dynamics (n + k) E_A)))
                         (mult (r_pow (minus one (mult eta mu)) k) (abs (entropy_gradient (iterate dynamics n E_A))))).
-      { apply IH. intros j Hj. apply Hall. lia. }
+      { apply IH. intros j Hj. apply Hall. apply NatLe_lift.
+        assert (Hjle : (j <= n + k)%nat) by (apply NatLe_drop; exact Hj).
+        lia. }
       apply (le_id_r (mult (minus one (mult eta mu)) (abs (entropy_gradient (iterate dynamics (n + k) E_A))))
                      (mult (minus one (mult eta mu)) (mult (r_pow (minus one (mult eta mu)) k) (abs (entropy_gradient (iterate dynamics n E_A)))))
                      (mult (mult (minus one (mult eta mu)) (r_pow (minus one (mult eta mu)) k)) (abs (entropy_gradient (iterate dynamics n E_A))))
@@ -1635,15 +1641,15 @@ Qed.
 
 Lemma argmin_aux_snd_correct :
   forall prefix l best_token best_loss,
-    best_loss = total_loss (prefix ++ [best_token]) ->
-    snd (argmin_aux prefix l (best_token, best_loss)) =
-    total_loss (prefix ++ [fst (argmin_aux prefix l (best_token, best_loss))]).
+    Id best_loss (total_loss (prefix ++ [best_token])) ->
+    Id (snd (argmin_aux prefix l (best_token, best_loss)))
+       (total_loss (prefix ++ [fst (argmin_aux prefix l (best_token, best_loss))])).
 Proof.
   induction l as [| a rest IH]; intros best_token best_loss Hbest.
   - simpl. exact Hbest.
   - simpl.
     destruct (@ord_le_dec _ DO (total_loss (prefix ++ [a])) best_loss) as [Hle | Hnot].
-    + apply IH. reflexivity.
+    + apply IH. apply id_refl.
     + apply IH. exact Hbest.
 Qed.
 
@@ -1670,14 +1676,19 @@ Proof.
   - simpl.
     destruct (argmin_aux_correct prefix rest w0 (total_loss (prefix ++ [w0]))) as [Hbest Hmin].
     (* 获得 snd 与 fst 的关系 *)
-    assert (Hsnd := argmin_aux_snd_correct prefix rest w0 (total_loss (prefix ++ [w0])) eq_refl).
+    assert (Hsnd := argmin_aux_snd_correct prefix rest w0 (total_loss (prefix ++ [w0])) id_refl).
+    assert (Hsnde : snd (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0]))) =
+                    total_loss (prefix ++ [fst (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0])))]))
+      by exact (match Hsnd in (Id _ z) return
+                  (snd (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0]))) = z)
+                with | id_refl => eq_refl end).
     (* 分析 w 在 vocab 中的两种可能 *)
     inversion HIn as [Hw | HIn']; subst.
     + (* 情况1：w = w0 *)
-      rewrite <- Hsnd.
+      rewrite <- Hsnde.
       apply Hbest.
     + (* 情况2：w 在 rest 中 *)
-      rewrite <- Hsnd.
+      rewrite <- Hsnde.
       apply Hmin. assumption.
 Qed.
 
