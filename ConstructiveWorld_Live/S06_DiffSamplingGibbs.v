@@ -4516,7 +4516,7 @@ Theorem attention_iterate_converges :
   forall mu0, Id (sum_over_S mu0) one -> (forall s, le zero (mu0 s)) ->
   forall eps, lt zero eps ->
     lt zero (tv_dist mu0 boltzmann_dist_attn) ->
-    sigT (fun N : nat => forall n : nat, (N <= n)%nat ->
+    sigT (fun N : nat => forall n : nat, NatLe N n ->
       lt (tv_dist (iterate attention_step n mu0) boltzmann_dist_attn) eps).
 Proof.
   intros mu0 Hmu_norm Hmu_nonneg eps Hep Htv0.
@@ -4530,7 +4530,7 @@ Proof.
                                (r_pow (minus one delta) N)
                                (tv_dist mu0 boltzmann_dist_attn)).
       * exact (tv_dist_nonneg mu0 boltzmann_dist_attn).
-      * apply (r_pow_dec_iter_attn N n Hn).
+      * apply (r_pow_dec_iter_attn N n (NatLe_drop N n Hn)).
     + exact (lt_id_l (mult (r_pow (minus one delta) N) (tv_dist mu0 boltzmann_dist_attn))
                      (mult (tv_dist mu0 boltzmann_dist_attn) (r_pow (minus one delta) N))
                      eps
@@ -5146,15 +5146,15 @@ Definition keep_top_k_dec : forall s : S, Or (keep_top_k s) (Not (keep_top_k s))
    （比 s2 重的状态也是比 s1 重的——lt_trans 传递性；decider 撒谎分支归谬） *)
 Lemma count_heavier_mono : forall s1 s2 : S, forall l : list S,
   lt (boltzmann_factor s1) (boltzmann_factor s2) ->
-  (count_heavier s2 l <= count_heavier s1 l)%nat.
+  NatLe (count_heavier s2 l) (count_heavier s1 l).
 Proof.
   intros s1 s2 l. induction l as [| a rest IH]; intros Hlt.
-  - simpl. lia.
+  - simpl. apply NatLe_lift. lia.
   - simpl.
     destruct (lt_dec_field (boltzmann_factor s1) (boltzmann_factor a)) as [d1 | nd1];
     destruct (lt_dec_field (boltzmann_factor s2) (boltzmann_factor a)) as [d2 | nd2].
-    + specialize (IH Hlt). lia.
-    + specialize (IH Hlt). lia.
+    + pose proof (NatLe_drop _ _ (IH Hlt)) as IHle. apply NatLe_lift. lia.
+    + pose proof (NatLe_drop _ _ (IH Hlt)) as IHle. apply NatLe_lift. lia.
     + (* nd1 ∧ d2：矛盾（d2 : lt (f s2) (f a)，nd1 否定了 lt (f s1) (f a)） *)
       destruct nd1 as [Hid | Hlt_a_s1].
       * (* Hid : Id (f s1) (f a)：换写 d2 ⟹ lt (f s2) (f s1)，与 Hlt 矛盾 *)
@@ -5169,7 +5169,7 @@ Proof.
                            (lt_trans (boltzmann_factor a) (boltzmann_factor s1) (boltzmann_factor s2)
                               Hlt_a_s1 Hlt)
                            d2)) with end).
-    + specialize (IH Hlt). lia.
+    + pose proof (NatLe_drop _ _ (IH Hlt)) as IHle. apply NatLe_lift. lia.
 Qed.
 
 (* 计数 +1（InT 前提）：f s1 < f s2 且 s2 ∈ l ⟹ S (count_heavier s2 l) ≤ count_heavier s1 l
@@ -5177,7 +5177,7 @@ Qed.
 Lemma count_heavier_succ_le : forall s1 s2 : S, forall l : list S,
   lt (boltzmann_factor s1) (boltzmann_factor s2) ->
   InT s2 l ->
-  (Datatypes.S (count_heavier s2 l) <= count_heavier s1 l)%nat.
+  NatLe (Datatypes.S (count_heavier s2 l)) (count_heavier s1 l).
 Proof.
   intros s1 s2 l Hlt Hin.
   induction Hin as [l0 | a0 l0 Hin_ IH].
@@ -5187,10 +5187,10 @@ Proof.
     destruct (lt_dec_field (boltzmann_factor s2) (boltzmann_factor s2)) as [d2 | nd2].
     + (* d2 : lt (f s2) (f s2) → 矛盾（lt_irrefl） *)
       exact (match (lt_irrefl (boltzmann_factor s2) d2) with end).
-    + (* 目标：S (count_heavier s2 l0) ≤ S (count_heavier s1 l0) ← count_heavier_mono *)
-      assert (Hm : (count_heavier s2 l0 <= count_heavier s1 l0)%nat)
-        by exact (count_heavier_mono s1 s2 l0 Hlt).
-      lia.
+    + (* 目标：NatLe (S (count_heavier s2 l0)) (count_heavier s1 l0)，即 count_heavier_mono 的结论；
+         NatLe_drop／NatLe_lift 在 NatLe 形与 nat 层序间转换，末端由 lia 完成 *)
+      pose proof (NatLe_drop _ _ (count_heavier_mono s1 s2 l0 Hlt)) as Hm.
+      apply NatLe_lift. lia.
     + (* nd1 → 矛盾（Hlt : lt (f s1) (f s2)） *)
       destruct nd1 as [Hid | Hlt21].
       * exact (match (lt_irrefl (boltzmann_factor s1)
@@ -5211,8 +5211,8 @@ Proof.
     simpl.
     destruct (lt_dec_field (boltzmann_factor s1) (boltzmann_factor a0)) as [d1 | nd1];
     destruct (lt_dec_field (boltzmann_factor s2) (boltzmann_factor a0)) as [d2 | nd2].
-    + lia.
-    + lia.
+    + pose proof (NatLe_drop _ _ IH) as IHle. apply NatLe_lift. lia.
+    + pose proof (NatLe_drop _ _ IH) as IHle. apply NatLe_lift. lia.
     + (* nd1 ∧ d2：矛盾（同 count_heavier_mono 的 (nd1, d2) 情形） *)
       destruct nd1 as [Hid | Hlt_a_s1].
       * exact (match (lt_irrefl (boltzmann_factor s2)
@@ -5225,7 +5225,7 @@ Proof.
                          (lt_trans (boltzmann_factor a0) (boltzmann_factor s1) (boltzmann_factor s2)
                             Hlt_a_s1 Hlt)
                          d2)) with end).
-    + lia.
+    + pose proof (NatLe_drop _ _ IH) as IHle. apply NatLe_lift. lia.
 Qed.
 
 (* Top-K 支配性（文档 top_k_majorization 的完整证明）：
@@ -5241,8 +5241,9 @@ Proof.
   - (* Hnle ⟹ lt (f s1) (f s2)（not_le_lt）⟹ 计数矛盾 *)
     assert (Hlt : lt (boltzmann_factor s1) (boltzmann_factor s2))
       by exact (@not_le_lt _ DO (boltzmann_factor s2) (boltzmann_factor s1) Hnle).
-    assert (Hsucc : (Datatypes.S (count_heavier s2 S_enum) <= count_heavier s1 S_enum)%nat)
+    assert (Hsucc : NatLe (Datatypes.S (count_heavier s2 S_enum)) (count_heavier s1 S_enum))
       by exact (count_heavier_succ_le s1 s2 S_enum Hlt (S_finite_cover s2)).
+    pose proof (NatLe_drop _ _ Hsucc) as Hsucle.
     unfold keep_top_k, NatLt in Hk1, Hnk2.
     assert (Hlt1 : (count_heavier s1 S_enum < K)%nat).
     { apply (proj1 (Nat.ltb_lt _ _)).
@@ -5419,8 +5420,8 @@ Proof.
 Qed.
 
 (* firstn 对空表恒为 nil（firstn 先匹配 n，需按 k 消解） *)
-Lemma firstn_nil : forall (k : nat), firstn (A := S) k nil = nil.
-Proof. destruct k; reflexivity. Qed.
+Lemma firstn_nil : forall (k : nat), Id (firstn (A := S) k nil) nil.
+Proof. destruct k; simpl; apply id_refl. Qed.
 
 (* 前缀支配后缀：排序下 firstn k 的元素支配 skipn k 的元素（归纳于 k） *)
 Lemma firstn_head_dominates_skipn : forall (L : list S) (k : nat),
@@ -5430,7 +5431,14 @@ Lemma firstn_head_dominates_skipn : forall (L : list S) (k : nat),
   le (boltzmann_factor s') (boltzmann_factor s).
 Proof.
   intros L. induction L as [| a rest IH]; intros k Hsorted s Hs s' Hs'.
-  - rewrite firstn_nil in Hs. exact (match Hs with end).
+  - (* firstn_nil 给出 firstn k nil = nil（Id 形）；沿该等式作 Id 消元替换，
+       将 Hs : InT s (firstn k nil) 化为 InT s nil——空表无成员，
+       InT s nil 无构造案例，故目标随之成立 *)
+    assert (Hs0 : InT s nil).
+    { exact (match firstn_nil k in (Id _ y)
+               return (InT s (firstn (A := S) k nil) -> InT s y)
+             with | id_refl => fun H => H end Hs). }
+    exact (match Hs0 with end).
   - destruct k as [| k'].
     + exact (match Hs with end).
     + simpl.
@@ -6908,15 +6916,15 @@ Qed.
 
 (* snd 恒等于对应 fst 的损失（argmin 遍历不变式，自包含重述） *)
 Lemma argmin_aux_token_snd_correct_mp : forall prefix l best_token best_loss,
-  best_loss = total_loss (prefix ++ [best_token]) ->
-  snd (argmin_aux_token prefix l (best_token, best_loss)) =
-  total_loss (prefix ++ [fst (argmin_aux_token prefix l (best_token, best_loss))]).
+  Id best_loss (total_loss (prefix ++ [best_token])) ->
+  Id (snd (argmin_aux_token prefix l (best_token, best_loss)))
+     (total_loss (prefix ++ [fst (argmin_aux_token prefix l (best_token, best_loss))])).
 Proof.
   intros prefix l. induction l as [| a rest IH]; intros best_token best_loss Hinit.
   - simpl. exact Hinit.
   - simpl.
     destruct (@ord_le_dec _ DO (total_loss (prefix ++ [a])) best_loss) as [Hle | Hnot].
-    + exact (IH a (total_loss (prefix ++ [a])) eq_refl).
+    + exact (IH a (total_loss (prefix ++ [a])) id_refl).
     + exact (IH best_token best_loss Hinit).
 Qed.
 
@@ -6930,20 +6938,26 @@ Proof.
   destruct vocab as [| w0 rest].
   - inversion Hw.
   - destruct (argmin_aux_token_min_mp prefix rest w0 (total_loss (prefix ++ [w0]))) as [Hmin Hle].
-    assert (Hsnd : snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))) =
-                   total_loss (prefix ++ [fst (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0])))]))
-      by exact (argmin_aux_token_snd_correct_mp prefix rest w0 (total_loss (prefix ++ [w0])) eq_refl).
+    assert (Hsnd : Id (snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))))
+                      (total_loss (prefix ++ [fst (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0])))])))
+      by exact (argmin_aux_token_snd_correct_mp prefix rest w0 (total_loss (prefix ++ [w0])) id_refl).
     inversion Hw as [Hw0 | y0 l0 Hwrest]; subst.
     + assert (Hr : le (snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))))
                       (total_loss (prefix ++ [w0])))
         by exact Hle.
-      rewrite Hsnd in Hr.
-      exact Hr.
+      exact (match Hsnd in (Id _ y)
+               return (le (snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))))
+                          (total_loss (prefix ++ [w0]))
+                          -> le y (total_loss (prefix ++ [w0])))
+             with | id_refl => fun H => H end Hr).
     + assert (Hr : le (snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))))
                       (total_loss (prefix ++ [w])))
         by exact (Hmin w Hwrest).
-      rewrite Hsnd in Hr.
-      exact Hr.
+      exact (match Hsnd in (Id _ y)
+               return (le (snd (argmin_aux_token prefix rest (w0, total_loss (prefix ++ [w0]))))
+                          (total_loss (prefix ++ [w]))
+                          -> le y (total_loss (prefix ++ [w])))
+             with | id_refl => fun H => H end Hr).
 Qed.
 
 (* max 最大性：kernel w ≤ max（w ∈ vocab）——loss 最小 + temp 反单调 + inv ≥ 0 保序 *)
@@ -7131,13 +7145,13 @@ Qed.
 Lemma insert_kernel_head_ge : forall prefix w a l,
   le (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix a)
      (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix w) ->
-  insert_kernel prefix w (a :: l) = w :: a :: l.
+  Id (insert_kernel prefix w (a :: l)) (w :: a :: l).
 Proof.
   intros prefix w a l Hge.
   unfold insert_kernel.
   destruct (ord_le_dec (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix a)
                        (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix w)) as [Hle | Hnot].
-  - apply eq_refl.
+  - apply id_refl.
   - destruct (Hnot Hge).
 Qed.
 
@@ -7543,7 +7557,7 @@ Definition topk_keep_dec (K : nat) (prefix : list Token) (w : Token) :
 
 (* 诚实前提（排序正确性弱化，判例障碍绕行）：pick_max 在前 K 个中（K ≥ 1） *)
 Variable topk_pickmax_head : forall (K : nat) (prefix : list Token),
-  (1 <= K)%nat ->
+  NatLe 1 K ->
   topk_keep K prefix (pick_max_token Token vocab total_loss default_token prefix).
 
 (* ===== 联合保留：Min-P ∧ Top-k ===== *)
@@ -7579,7 +7593,7 @@ Proof. intros. unfold combined_topk_temp_sum. apply id_refl. Qed.
 
 (* ===== 非空：K ≥ 1 且 pick_max 满足 Min-P 且 ∈ Top-k（诚实前提）⟹ sum > 0 ===== *)
 Lemma combined_topk_temp_sum_pos : forall K prefix,
-  (1 <= K)%nat ->
+  NatLe 1 K ->
   lt zero (combined_topk_temp_sum K prefix).
 Proof.
   intros K prefix HK.
@@ -7645,7 +7659,7 @@ Qed.
 
 (* ===== 联合核 + 归一化（Σ=1，同 combined_markov_kernel_normalized 模式） ===== *)
 Definition combined_topk_markov_kernel (K : nat)
-  (HK : forall prefix, (1 <= K)%nat)
+  (HK : forall prefix, NatLe 1 K)
   (prefix : list Token) (w : Token) : R :=
   match combined_topk_keep_dec K prefix w with
   | inl _ => mult (temp_factor Token total_loss temperature temperature_pos prefix w)
@@ -7654,7 +7668,7 @@ Definition combined_topk_markov_kernel (K : nat)
   end.
 
 Theorem combined_topk_markov_kernel_normalized : forall (K : nat)
-  (HK : forall prefix, (1 <= K)%nat)
+  (HK : forall prefix, NatLe 1 K)
   (prefix : list Token),
   Id (list_sum Token (combined_topk_markov_kernel K HK prefix) vocab) one.
 Proof.
