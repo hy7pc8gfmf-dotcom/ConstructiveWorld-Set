@@ -6709,7 +6709,7 @@ Proof.
   intros Hrat.
   intros epsQ HepsQT.
   assert (HepsQ : Qlt 0 epsQ) by (apply QltT_to_Qlt; exact HepsQT).
-  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply q_half_pos; exact HepsQ).
+  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply QltT_to_Qlt; apply q_half_pos; exact HepsQT).
   assert (HhalfT : QltT 0 (epsQ / 2)) by (apply Qlt_to_QltT; exact HhalfQ).
   (* b5b_E_close_q (epsQ/2)：∃N0 g0>0：n≥N0、0<g≤g0 ⟹ |E_n(1−g)−E_n(1)| < epsQ/2 *)
   destruct (b5b_E_close_q (epsQ / 2) HhalfQ) as [N0 [g0 [Hg0pos Hclose]]].
@@ -7734,12 +7734,12 @@ Proof.
   destruct He as [eps0 [Heps0 [N0 HN0]]].
   exists (eps0 / 2)%Q.
   split.
-  - apply Qlt_to_QltT. apply (q_half_pos eps0). apply QltT_to_Qlt. exact Heps0.
+  - apply (q_half_pos eps0). exact Heps0.
   - apply (RealSetoid.real_lt_le_iff_req (real_const (eps0 / 2)) e). left.
     unfold real_lt.
     exists (eps0 / 2)%Q.
     split.
-    + apply Qlt_to_QltT. apply (q_half_pos eps0). apply QltT_to_Qlt. exact Heps0.
+    + apply (q_half_pos eps0). exact Heps0.
     + exists N0.
       intros n Hn.
       (* 坐标重写：projT1 (real_const (eps0/2)) n == eps0/2 *)
@@ -14011,7 +14011,7 @@ Proof.
   (* real_eq 的 eps 输入 + epsQ/2 半预算（b5b_endpoint L78064–78067 同款） *)
   intros epsQ HepsQT.
   assert (HepsQ : Qlt 0 epsQ) by (apply QltT_to_Qlt; exact HepsQT).
-  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply q_half_pos; exact HepsQ).
+  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply QltT_to_Qlt; apply q_half_pos; exact HepsQT).
   assert (HhalfT : QltT 0 (epsQ / 2)) by (apply Qlt_to_QltT; exact HhalfQ).
   (* 步骤 1：等度连续取窗——pair-close @ epsQ/2 得 [Nc, d0]        *)
   (*   d0 纯 Q 层、与 x 无关——先于坐标选择（无环，审查 R7）        *)

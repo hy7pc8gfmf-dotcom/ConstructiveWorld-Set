@@ -518,8 +518,7 @@ destruct Hle as [Hlt | Heq].
 exists N1.
 intros n Hn.
 apply (Qle_trans _ (projT1 M n) _).
-+ apply (q_lt_diff_le c1 (Qabs (projT1 a n)) (projT1 M n)).
-* apply QltT_to_Qlt.
++ apply QleT'_to_Qle. apply (q_lt_diff_le c1 (Qabs (projT1 a n)) (projT1 M n)).
 exact Hc1.
 * assert (Hq : Qlt c1 (projT1 M n - Qabs (projT1 a n))).
 { assert (Hq0 : Qlt c1 (projT1 M n - projT1 (real_abs a) n)).
@@ -527,7 +526,7 @@ exact Hc1.
 exact (HN1 n (NatLe_lift _ _ Hn)).
 }          setoid_rewrite (real_abs_proj a n) in Hq0.
 exact Hq0.
-}        exact Hq.
+}        apply Qlt_to_QltT. exact Hq.
 + apply (Qle_plus_nonneg_r (projT1 M n) c).
 apply Qlt_le_weak.
 apply QltT_to_Qlt.
@@ -1045,10 +1044,8 @@ exact (HNk n (NatLe_lift _ _ Hnk)).
 rewrite Hz.
 ring.
 }    assert (Hk1n : Qle 1 kn).
-{ apply (q_lt_diff_le c1 1 kn).
-- apply QltT_to_Qlt.
+{ apply QleT'_to_Qle. apply (q_lt_diff_le c1 1 kn).
 exact Hc1.
-- apply QltT_to_Qlt.
 exact (HN1 n (NatLe_lift _ _ Hn1)).
 }    assert (Hen : Qle 0 en).
 { apply (Qlt_le_weak 0 en).
@@ -1123,8 +1120,7 @@ rewrite (real_abs_proj h n).
 apply Qabs_nonneg.
 }    assert (Hhne : Qle hn e3n).
 { unfold hn, e3n.
-apply (q_lt_diff_le c1 hn e3n).
-- apply QltT_to_Qlt.
+apply QleT'_to_Qle. apply (q_lt_diff_le c1 hn e3n).
 exact Hc1.
 - assert (Hq0 : Qlt c1 (projT1 eps3 n - projT1 (real_abs h) n)).
 { apply QltT_to_Qlt.
@@ -1132,7 +1128,7 @@ exact (HN1 n (NatLe_lift _ _ Hn1)).
 }        setoid_rewrite (real_abs_proj h n) in Hq0.
 unfold hn, e3n.
 setoid_rewrite (real_abs_proj h n).
-exact Hq0.
+apply Qlt_to_QltT. exact Hq0.
 }    assert (Hepsn : Qlt e0 en').
 { unfold en'.
 apply (Qlt_le_trans _ (projT1 eps' n - projT1 real_zero n) _).
@@ -1310,8 +1306,8 @@ ring.
 }    assert (Hsn0 : Qle 0 sn).
 { apply (Qlt_le_weak 0 sn).
 apply (Qlt_trans _ (s0 / 2) _).
-- apply (q_half_pos s0).
-apply QltT_to_Qlt.
+- apply QltT_to_Qlt.
+apply (q_half_pos s0).
 exact Hs0.
 - exact Hsn.
 }    (* 主链：s0/2 < sn·(an+bn+cn+dn+1) − sn·an == sn·(bn+cn+dn+1) ≥ s0/2·1 *)    assert (Hmain : Qlt (s0 / 2) (sn * (bn + cn + dn + 1))).
@@ -5454,7 +5450,7 @@ Proof.
     {
       apply (Qle_trans _ (Qabs (projT1 (real_entropy_gradient (real_dynamics x)) n
                                + - projT1 (real_entropy_gradient x) n)) _).
-      - exact (q_le_abs (projT1 (real_entropy_gradient (real_dynamics x)) n
+      - apply QleT'_to_Qle. exact (q_le_abs (projT1 (real_entropy_gradient (real_dynamics x)) n
                          + - projT1 (real_entropy_gradient x) n)).
       - exact Hbd.
     }

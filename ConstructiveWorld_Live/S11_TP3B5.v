@@ -7117,7 +7117,7 @@ Proof.
       * (* eps/4 + eps/4 ≤ eps：差 == eps/2 ≥ 0（Qle_minus_iff 移项） *)
         apply (proj2 (Qle_minus_iff (Qplus (Qdiv eps 4) (Qdiv eps 4)) eps)).
         apply (Qle_trans _ (Qdiv eps 2) _).
-        -- apply (Qlt_le_weak 0 (Qdiv eps 2)). apply (q_half_pos eps Heps).
+        -- apply (Qlt_le_weak 0 (Qdiv eps 2)). apply QltT_to_Qlt. apply (q_half_pos eps (Qlt_to_QltT 0 eps Heps)).
         -- apply qeq_le. field.
 Qed.
 
@@ -7127,7 +7127,7 @@ Proof.
   intros d0 Hd0.
   exists (d0 / 2).
   split.
-  { apply Qlt_to_QltT. apply (q_half_pos d0). exact Hd0. }
+  { apply (q_half_pos d0). exact (Qlt_to_QltT 0 d0 Hd0). }
   { exists O. intros n Hn.
     apply Qlt_to_QltT.
     apply (Qlt_le_trans _ d0 _).
@@ -7150,7 +7150,7 @@ Lemma b5b_arctan_cont_unit : forall (x : Real) (Hx : cw_unit x) (epsQ : Q),
 Proof.
   intros x Hx epsQ Heps.
   assert (Hepsq : Qlt 0 epsQ) by (apply QltT_to_Qlt; exact Heps).
-  assert (Hhalf : Qlt 0 (epsQ / 2)) by (apply (q_half_pos epsQ); exact Hepsq).
+  assert (Hhalf : Qlt 0 (epsQ / 2)) by (apply QltT_to_Qlt; apply (q_half_pos epsQ); exact Heps).
   destruct (b5b_ap_uniform (epsQ / 2) Hhalf) as [M [d0 [Hd0 Hcore]]].
   exists (real_const d0).
   split.
@@ -11726,7 +11726,7 @@ Lemma b5b_endpoint : real_eq real_E_one real_zero.
 Proof.
   intros epsQ HepsQT.
   assert (HepsQ : Qlt 0 epsQ) by (apply QltT_to_Qlt; exact HepsQT).
-  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply q_half_pos; exact HepsQ).
+  assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply QltT_to_Qlt; apply q_half_pos; exact HepsQT).
   assert (HhalfT : QltT 0 (epsQ / 2)) by (apply Qlt_to_QltT; exact HhalfQ).
   (* b5b_E_close_q (epsQ/2)：∃N0 g0>0：n≥N0、0<g≤g0 ⟹ |E_n(1−g)−E_n(1)| < epsQ/2 *)
   destruct (b5b_E_close_q (epsQ / 2) HhalfQ) as [N0 [g0 [Hg0pos Hclose]]].
