@@ -182,3 +182,180 @@ jobs:
           eval "$(opam env)"
           cd releases
           coqc -async-proofs off -Q . "" CW_ConstructiveWorld_220.v
+
+
+  # ── macOS 观察档 job（#C-S00d 新增）─────────────────────────────────────
+  # 母版=Main 仓 coq.yml coq-build-macos（run#240 已验证模式：continue-on-error
+  # 观察档＋runs-on [self-hosted, macOS]＋bash -e {0}）。Set 单树适配：只
+  # ConstructiveWorld_Live、无 vo 树（seed/导出步随之撤除）、构建与 coqchk 内联
+  # Mac 形循环——scripts/ci_build_live.sh 与 ci_coqchk_live.sh 为 Windows 工具链
+  # 硬编码（C:/Rocq-Platform~9.1~2026.01），Mac 侧不可调用；内联循环逐件镜像其
+  # 语义（order.txt 拓扑／真 RC 逐件回显／败出日志尾 30 行；coqchk 共享闭包单趟
+  # -o·下划线守卫）。温控=本机 cpu_guard.sh（pmst 温控门+队列梯度）替代 Windows
+  # 侧 pwsh cpu_guard.ps1。工具链=本机 mac_rocq 9.1（SW2 全字面双 export 在步内）。
+  # Windows 认证 job（上方）字节零动；本 job 红/绿不影响 run 结论（观察档）。
+  coq-build-macos:
+    name: Rocq 9.1 build + coqchk (single Live tree, macOS observation)
+    runs-on: [self-hosted, macOS]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: gate1 poison-token guard (pre-build fail-fast)
+        shell: bash -e {0}
+        run: |
+          python3 scripts/gates/gate1_poison_guard.py \
+            --tree ConstructiveWorld_Live \
+            --json gate1_ci.json --text
+
+      - name: gate4 comment guard (pre-build, exit1=red exit2=yellow artifact-only)
+        shell: bash -e {0}
+        run: |
+          set +e
+          python3 scripts/gates/gate4_comment_guard.py \
+            --tree ConstructiveWorld_Live \
+            --json gate4_report.json
+          rc=$?
+          set -e
+          if [ "$rc" -eq 1 ]; then
+            echo "GATE4-RED: comment-guard hard violations — see gate4_report.json artifact"
+            exit 1
+          elif [ "$rc" -eq 2 ]; then
+            echo "GATE4-YELLOW: review-only findings — artifact-collected, not red"
+            exit 0
+          elif [ "$rc" -eq 0 ]; then
+            echo "GATE4-GREEN: all comment checks passed"
+          else
+            echo "GATE4-UNEXPECTED-EXIT rc=$rc — fail-loud, treat as red"
+            exit 1
+          fi
+
+      - name: Build Live tree (order topology, cold, thermal-guarded, macOS)
+        shell: bash -e {0}
+        run: |
+          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          COQC="/Users/apple/actions-runner/mac_rocq/bin/coqc"
+          cd "$GITHUB_WORKSPACE" || exit 1
+          # Mirror-clean products so a rerun never sees a stale .vo (same
+          # semantics as scripts/ci_build_live.sh on the Windows side).
+          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/_chk_all.log
+          fail=0
+          set +e
+          while IFS= read -r line || [ -n "$line" ]; do
+            f="${line%%\#*}"          # strip trailing #R-anchor
+            f="${f%$'\r'}"            # CRLF-safe
+            [ -z "$f" ] && continue
+            if [ ! -f "ConstructiveWorld_Live/$f" ]; then
+              echo "BUILD-FAIL: order entry $f missing from ConstructiveWorld_Live"
+              fail=1
+              continue
+            fi
+            log="ConstructiveWorld_Live/_${f%.v}.build.log"
+            bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -MaxWaitSec 1800 -- \
+              "$COQC" -native-compiler no -q -Q "ConstructiveWorld_Live" "" "ConstructiveWorld_Live/$f" > "$log" 2>&1
+            rc=$?
+            echo "$f EXIT=$rc"
+            if [ "$rc" -ne 0 ]; then
+              fail=1
+              echo "----- last 30 lines of $log -----"
+              tail -30 "$log"
+            fi
+          done < ConstructiveWorld_Live/order.txt
+          set -e
+          if [ "$fail" -ne 0 ]; then
+            echo "BUILD-FAIL: one or more files failed (true RC accounted above)"
+          fi
+          exit "$fail"
+
+      - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
+        if: always()
+        shell: bash -e {0}
+        run: |
+          # SW2 全字面双 export：gate5 对照组定位须 COQLIB/ROCQLIB 指 9.1 安装库
+          # （mac launchd 双 unset，CONTROL_BASES 缺路；环境供给非动闸逻辑）。
+          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          set +e
+          python3 scripts/gates/gate5_vodep_quarantine.py \
+            --tree ConstructiveWorld_Live \
+            --json gate5_vodep_report.json
+          rc=$?
+          set -e
+          if [ "$rc" -eq 1 ]; then
+            echo "GATE5-RED: poison token/digest hit in .vo/.vos/.vok binary layer — HIT list above; disposition per VO-RES-CLEAN (purge poison gen + rebuild consumer closure from clean source + Axioms=<none> recheck)"
+            exit 1
+          elif [ "$rc" -eq 2 ]; then
+            echo "GATE5-NOSCANNABLE: no scannable surface / tree missing / control SELF-HIT failed — treat as red (fail-loud, gate2 GATE-BANNER-ABSENT precedent; upstream red cause first)"
+            exit 1
+          elif [ "$rc" -eq 0 ]; then
+            echo "GATE5-GREEN: vo binary layer clean (hard token 0-hit + digest 0-hit + control SELF-HIT pass; Psatz soft counts in gate5_vodep_report.json)"
+          else
+            echo "GATE5-UNEXPECTED-EXIT rc=$rc — fail-loud, treat as red"
+            exit 1
+          fi
+
+      - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded, macOS)
+        shell: bash -e {0}
+        run: |
+          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          COQCHK="/Users/apple/actions-runner/mac_rocq/bin/coqchk"
+          cd "$GITHUB_WORKSPACE" || exit 1
+          log="ConstructiveWorld_Live/_chk_all.log"
+          mods=()
+          for vo in ConstructiveWorld_Live/*.vo; do
+            if [ -e "$vo" ]; then
+              b="$(basename "$vo" .vo)"
+              case "$b" in
+                _*) continue ;;
+              esac
+              mods+=("$b")
+            fi
+          done
+          if [ ! -e "ConstructiveWorld_Live" ] || [ "${#mods[@]}" -eq 0 ]; then
+            echo "COQCHK-FAIL: no certifiable modules in ConstructiveWorld_Live (build step missing?)"
+            exit 1
+          fi
+          echo "coqchk modules (${#mods[@]}): ${mods[*]}"
+          set +e
+          bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -MaxWaitSec 7200 -- \
+            "$COQCHK" -o -Q "ConstructiveWorld_Live" "" "${mods[@]}" > "$log" 2>&1
+          rc=$?
+          set -e
+          echo "COQCHK_EXIT=$rc"
+          if [ "$rc" -eq 0 ] && grep -q "Modules were successfully checked" "$log"; then
+            echo "COQCHK_ALL_PASS"
+            exit 0
+          fi
+          echo "COQCHK_ALL_FAIL: see $log"
+          tail -30 "$log"
+          exit 1
+
+      - name: gate2 axioms sentinel (block-state-machine, fail-loud)
+        if: always()
+        shell: bash -e {0}
+        run: |
+          if [ ! -f ConstructiveWorld_Live/_chk_all.log ]; then
+            echo "GATE-BANNER-ABSENT: ConstructiveWorld_Live/_chk_all.log 不在盘——coqchk 未产出日志（上游 gate4/build 夭折连带，红因看上游步），非 COQLIB 代际失守"
+            exit 1
+          fi
+          grep -q "Welcome to Chicken 9.1.0" ConstructiveWorld_Live/_chk_all.log \
+            || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.1（COQLIB 钉代失守，log 不可作公理判据）"; exit 1; }
+          python3 scripts/gates/gate2_axioms_parser.py \
+            ConstructiveWorld_Live/_chk_all.log --json gate2_verdict.json
+
+      - name: Upload coqchk logs (macOS)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coqchk-logs-macos
+          path: |
+            ConstructiveWorld_Live/_chk_all.log
+            ConstructiveWorld_Live/_*.build.log
+            gate1_ci.json
+            gate2_verdict.json
+            gate4_report.json
+            gate5_vodep_report.json
