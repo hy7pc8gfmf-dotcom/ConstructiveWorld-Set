@@ -1228,47 +1228,48 @@ Fixpoint cos_partial (n : nat) (x : Q) : Q :=
   end.
 
 (* ---- 符号因子 ---- *)
-Lemma sc_q_pow_one : forall j : nat, q_pow 1 j == 1.
+Lemma sc_q_pow_one : forall j : nat, QeqT (q_pow 1 j) (1).
 Proof.
   induction j as [| j IH]; simpl.
-  - reflexivity.
-  - rewrite IH. ring.
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ IH). ring.
 Qed.
 
-Lemma sc_q_abs_one : Qabs 1 == 1.
+Lemma sc_q_abs_one : QeqT (Qabs 1) (1).
 Proof. reflexivity. Qed.
 
-Lemma sc_abs_sign : forall j : nat, Qabs (q_pow (-1) j) == 1.
+Lemma sc_abs_sign : forall j : nat, QeqT (Qabs (q_pow (-1) j)) (1).
 Proof.
   intro j.
-  rewrite q_pow_abs.
-  rewrite (q_pow_wd (Qabs (-1)) 1 j).
-  - apply sc_q_pow_one.
-  - unfold Qabs. simpl. reflexivity.
+  apply qeq_imp_qeqT.
+  assert (HabsQ1 : Qabs (-1) == 1) by (unfold Qabs; simpl; reflexivity).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_abs (-1) j)).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_wd (Qabs (-1)) 1 j (qeq_imp_qeqT _ _ HabsQ1))).
+  apply qeqT_imp_qeq. apply sc_q_pow_one.
 Qed.
 
 (* ---- 项的绝对值 == 绝对级数项 ---- *)
-Lemma sc_abs_sin_term : forall (j : nat) (x : Q),
-  Qabs (sin_term j x) == q_pow (Qabs x) (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j)).
+Lemma sc_abs_sin_term : forall (j : nat) (x : Q), QeqT (Qabs (sin_term j x)) (q_pow (Qabs x) (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j))).
 Proof.
   intros j x.
+  apply qeq_imp_qeqT.
   unfold sin_term.
   rewrite Qabs_Qmult.
-  rewrite sc_abs_sign.
-  rewrite (q_abs_pow_fact x (2 * j)).
+  rewrite (qeqT_imp_qeq _ _ (sc_abs_sign _)).
+  rewrite (qeqT_imp_qeq _ _ (q_abs_pow_fact x (2 * j))).
   ring.
 Qed.
 
-Lemma sc_abs_cos_term : forall (j : nat) (x : Q),
-  Qabs (cos_term j x) == q_pow (Qabs x) (2 * j) / q_fact (2 * j).
+Lemma sc_abs_cos_term : forall (j : nat) (x : Q), QeqT (Qabs (cos_term j x)) (q_pow (Qabs x) (2 * j) / q_fact (2 * j)).
 Proof.
   intros j x.
+  apply qeq_imp_qeqT.
   unfold cos_term.
   rewrite Qabs_Qmult.
-  rewrite sc_abs_sign.
-  rewrite q_abs_div.
-  rewrite q_pow_abs.
-  rewrite (Qabs_pos (q_fact (2 * j)) (Qlt_le_weak 0 (q_fact (2 * j)) (q_fact_pos (2 * j)))).
+  rewrite (qeqT_imp_qeq _ _ (sc_abs_sign _)).
+  rewrite (qeqT_imp_qeq _ _ (q_abs_div _ _)).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_abs _ _)).
+  rewrite (Qabs_pos (q_fact (2 * j)) (Qlt_le_weak 0 (q_fact (2 * j)) (QltT_to_Qlt 0 (q_fact (2 * j)) (q_fact_pos (2 * j))))).
   ring.
 Qed.
 
@@ -1298,69 +1299,70 @@ Fixpoint cos_tail_abs (m : nat) (n : nat) (A : Q) : Q :=
   end.
 
 (* n ≤ m ⟹ 尾和为零 *)
-Lemma sc_sin_tail_le_m : forall m n x, (n <= m)%nat -> sin_tail m n x == 0.
+Lemma sc_sin_tail_le_m : forall m n x, (n <= m)%nat ->QeqT (sin_tail m n x) (0).
 Proof.
   intros m n x Hn. induction n as [| n IH]; simpl.
-  - reflexivity.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + exfalso. apply Nat.leb_le in E. lia.
     + assert (Hn' : (n <= m)%nat) by lia.
-      rewrite (IH Hn'). ring.
+      rewrite (qeqT_imp_qeq _ _ (IH Hn')). ring.
 Qed.
 
-Lemma sc_cos_tail_le_m : forall m n x, (n <= m)%nat -> cos_tail m n x == 0.
+Lemma sc_cos_tail_le_m : forall m n x, (n <= m)%nat ->QeqT (cos_tail m n x) (0).
 Proof.
   intros m n x Hn. induction n as [| n IH]; simpl.
-  - reflexivity.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + exfalso. apply Nat.leb_le in E. lia.
     + assert (Hn' : (n <= m)%nat) by lia.
-      rewrite (IH Hn'). ring.
+      rewrite (qeqT_imp_qeq _ _ (IH Hn')). ring.
 Qed.
 
-Lemma sc_sin_tail_abs_le_m : forall m n A, (n <= m)%nat -> sin_tail_abs m n A == 0.
+Lemma sc_sin_tail_abs_le_m : forall m n A, (n <= m)%nat ->QeqT (sin_tail_abs m n A) (0).
 Proof.
   intros m n A Hn. induction n as [| n IH]; simpl.
-  - reflexivity.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + exfalso. apply Nat.leb_le in E. lia.
     + assert (Hn' : (n <= m)%nat) by lia.
-      rewrite (IH Hn'). ring.
+      rewrite (qeqT_imp_qeq _ _ (IH Hn')). ring.
 Qed.
 
-Lemma sc_cos_tail_abs_le_m : forall m n A, (n <= m)%nat -> cos_tail_abs m n A == 0.
+Lemma sc_cos_tail_abs_le_m : forall m n A, (n <= m)%nat ->QeqT (cos_tail_abs m n A) (0).
 Proof.
   intros m n A Hn. induction n as [| n IH]; simpl.
-  - reflexivity.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + exfalso. apply Nat.leb_le in E. lia.
     + assert (Hn' : (n <= m)%nat) by lia.
-      rewrite (IH Hn'). ring.
+      rewrite (qeqT_imp_qeq _ _ (IH Hn')). ring.
 Qed.
 
 (* ---- 差恒等式：m ≤ n ⟹ partial n − partial m == tail (S m) (S n) ---- *)
 (* 先证 tail 归零引理（m = S n 情形） *)
-Lemma sc_sin_tail_self : forall n x, sin_tail (Datatypes.S n) (Datatypes.S n) x == 0.
+Lemma sc_sin_tail_self : forall n x, QeqT (sin_tail (Datatypes.S n) (Datatypes.S n) x) (0).
 Proof.
   intros n x.
-  apply (sc_sin_tail_le_m (Datatypes.S n) (Datatypes.S n) x). lia.
+  apply qeq_imp_qeqT.
+  apply qeqT_imp_qeq. apply (sc_sin_tail_le_m (Datatypes.S n) (Datatypes.S n) x). lia.
 Qed.
 
-Lemma sc_cos_tail_self : forall n x, cos_tail (Datatypes.S n) (Datatypes.S n) x == 0.
+Lemma sc_cos_tail_self : forall n x, QeqT (cos_tail (Datatypes.S n) (Datatypes.S n) x) (0).
 Proof.
   intros n x.
-  apply (sc_cos_tail_le_m (Datatypes.S n) (Datatypes.S n) x). lia.
+  apply qeq_imp_qeqT.
+  apply qeqT_imp_qeq. apply (sc_cos_tail_le_m (Datatypes.S n) (Datatypes.S n) x). lia.
 Qed.
 
-Lemma sc_sin_diff_tail : forall m n x, (m <= n)%nat ->
-  sin_partial n x - sin_partial m x == sin_tail (Datatypes.S m) (Datatypes.S n) x.
+Lemma sc_sin_diff_tail : forall m n x, (m <= n)%nat ->QeqT (sin_partial n x - sin_partial m x) (sin_tail (Datatypes.S m) (Datatypes.S n) x).
 Proof.
   intros m n x Hmn.
   revert Hmn.
   induction n as [| n IH]; intros Hmn.
-  - assert (Hm0 : (m = 0)%nat) by lia. subst m.
-    rewrite (sc_sin_tail_self 0 x). ring.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. assert (Hm0 : (m = 0)%nat) by lia. subst m.
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_tail_self 0 x)). ring.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + apply Nat.leb_le in E.
       change (sin_partial n x + sin_term (Datatypes.S n) x - sin_partial m x ==
               sin_tail (Datatypes.S m) (Datatypes.S n) x +
@@ -1369,7 +1371,7 @@ Proof.
                       (sin_partial n x - sin_partial m x) + sin_term (Datatypes.S n) x).
       { ring. }
       rewrite Hring.
-      rewrite (IH E).
+      rewrite (qeqT_imp_qeq _ _ (IH E)).
       assert (Hg : Nat.leb (Datatypes.S m) (Datatypes.S n) = true) by (apply Nat.leb_le; lia).
       rewrite Hg. reflexivity.
     + apply Nat.leb_gt in E.
@@ -1378,20 +1380,19 @@ Proof.
       change (sin_partial n x + sin_term (Datatypes.S n) x -
               (sin_partial n x + sin_term (Datatypes.S n) x) ==
               sin_tail (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x).
-      rewrite (sc_sin_tail_le_m (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x
-                                (Nat.le_refl (Datatypes.S (Datatypes.S n)))).
+      rewrite (qeqT_imp_qeq _ _ (sc_sin_tail_le_m (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x
+                                (Nat.le_refl (Datatypes.S (Datatypes.S n))))).
       ring.
 Qed.
 
-Lemma sc_cos_diff_tail : forall m n x, (m <= n)%nat ->
-  cos_partial n x - cos_partial m x == cos_tail (Datatypes.S m) (Datatypes.S n) x.
+Lemma sc_cos_diff_tail : forall m n x, (m <= n)%nat ->QeqT (cos_partial n x - cos_partial m x) (cos_tail (Datatypes.S m) (Datatypes.S n) x).
 Proof.
   intros m n x Hmn.
   revert Hmn.
   induction n as [| n IH]; intros Hmn.
-  - assert (Hm0 : (m = 0)%nat) by lia. subst m.
-    rewrite (sc_cos_tail_self 0 x). ring.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply qeq_imp_qeqT. assert (Hm0 : (m = 0)%nat) by lia. subst m.
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_tail_self 0 x)). ring.
+  - apply qeq_imp_qeqT. destruct (Nat.leb m n) eqn:E.
     + apply Nat.leb_le in E.
       change (cos_partial n x + cos_term (Datatypes.S n) x - cos_partial m x ==
               cos_tail (Datatypes.S m) (Datatypes.S n) x +
@@ -1400,7 +1401,7 @@ Proof.
                       (cos_partial n x - cos_partial m x) + cos_term (Datatypes.S n) x).
       { ring. }
       rewrite Hring.
-      rewrite (IH E).
+      rewrite (qeqT_imp_qeq _ _ (IH E)).
       assert (Hg : Nat.leb (Datatypes.S m) (Datatypes.S n) = true) by (apply Nat.leb_le; lia).
       rewrite Hg. reflexivity.
     + apply Nat.leb_gt in E.
@@ -1408,67 +1409,67 @@ Proof.
       change (cos_partial n x + cos_term (Datatypes.S n) x -
               (cos_partial n x + cos_term (Datatypes.S n) x) ==
               cos_tail (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x).
-      rewrite (sc_cos_tail_le_m (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x
-                                (Nat.le_refl (Datatypes.S (Datatypes.S n)))).
+      rewrite (qeqT_imp_qeq _ _ (sc_cos_tail_le_m (Datatypes.S (Datatypes.S n)) (Datatypes.S (Datatypes.S n)) x
+                                (Nat.le_refl (Datatypes.S (Datatypes.S n))))).
       ring.
 Qed.
 
 (* ---- 三角不等式：|tail| ≤ tail_abs ---- *)
 Lemma sc_sin_tail_abs_le : forall m n x,
-  Qle (Qabs (sin_tail m n x)) (sin_tail_abs m n (Qabs x)).
+  QleT' (Qabs (sin_tail m n x)) (sin_tail_abs m n (Qabs x)).
 Proof.
   intros m n x. induction n as [| n IH]; simpl.
-  - unfold Qle; simpl; lia.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply Qle_to_QleT'. unfold Qle; simpl; lia.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
     + apply (Qle_trans _ (Qabs (sin_tail m n x) + Qabs (sin_term n x)) _).
       * apply Qabs_triangle.
-      * apply Qplus_le_compat; [exact IH | apply qeq_le; apply (sc_abs_sin_term n x)].
+      * apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; (apply qeqT_imp_qeq; apply (sc_abs_sin_term n x))].
     + setoid_rewrite (Qplus_0_r (sin_tail_abs m n (Qabs x))).
       apply (Qle_trans _ (Qabs (sin_tail m n x)) _).
-      * apply qeq_le. apply (Qabs_wd (sin_tail m n x + 0) (sin_tail m n x)). ring.
-      * exact IH.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd (sin_tail m n x + 0) (sin_tail m n x)). ring.
+      * exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 Lemma sc_cos_tail_abs_le : forall m n x,
-  Qle (Qabs (cos_tail m n x)) (cos_tail_abs m n (Qabs x)).
+  QleT' (Qabs (cos_tail m n x)) (cos_tail_abs m n (Qabs x)).
 Proof.
   intros m n x. induction n as [| n IH]; simpl.
-  - unfold Qle; simpl; lia.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply Qle_to_QleT'. unfold Qle; simpl; lia.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
     + apply (Qle_trans _ (Qabs (cos_tail m n x) + Qabs (cos_term n x)) _).
       * apply Qabs_triangle.
-      * apply Qplus_le_compat; [exact IH | apply qeq_le; apply (sc_abs_cos_term n x)].
+      * apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; (apply qeqT_imp_qeq; apply (sc_abs_cos_term n x))].
     + setoid_rewrite (Qplus_0_r (cos_tail_abs m n (Qabs x))).
       apply (Qle_trans _ (Qabs (cos_tail m n x)) _).
-      * apply qeq_le. apply (Qabs_wd (cos_tail m n x + 0) (cos_tail m n x)). ring.
-      * exact IH.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd (cos_tail m n x + 0) (cos_tail m n x)). ring.
+      * exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* ---- 尾和绝对版非负、单调（第二参数）---- *)
-Lemma sc_sin_tail_abs_nonneg : forall m n A, Qle 0 A -> Qle 0 (sin_tail_abs m n A).
+Lemma sc_sin_tail_abs_nonneg : forall m n A, Qle 0 A -> QleT' 0 (sin_tail_abs m n A).
 Proof.
   intros m n A HA. induction n as [| n IH]; simpl.
-  - apply Qle_refl.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply Qle_to_QleT'. apply Qle_refl.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
     + apply (Qle_trans _ (sin_tail_abs m n A) _).
-      * exact IH.
+      * exact (QleT'_to_Qle _ _ IH).
       * apply (Qle_plus_nonneg_r (sin_tail_abs m n A) (q_pow A (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n)))).
-        apply q_pow_fact_nonneg. exact HA.
+        apply QleT'_to_Qle; apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HA.
     + setoid_replace (sin_tail_abs m n A + 0) with (sin_tail_abs m n A) by ring.
-      exact IH.
+      exact (QleT'_to_Qle _ _ IH).
 Qed.
 
-Lemma sc_cos_tail_abs_nonneg : forall m n A, Qle 0 A -> Qle 0 (cos_tail_abs m n A).
+Lemma sc_cos_tail_abs_nonneg : forall m n A, Qle 0 A -> QleT' 0 (cos_tail_abs m n A).
 Proof.
   intros m n A HA. induction n as [| n IH]; simpl.
-  - apply Qle_refl.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply Qle_to_QleT'. apply Qle_refl.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
     + apply (Qle_trans _ (cos_tail_abs m n A) _).
-      * exact IH.
+      * exact (QleT'_to_Qle _ _ IH).
       * apply (Qle_plus_nonneg_r (cos_tail_abs m n A) (q_pow A (2 * n) / q_fact (2 * n))).
-        apply q_pow_fact_nonneg. exact HA.
+        apply QleT'_to_Qle; apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HA.
     + setoid_replace (cos_tail_abs m n A + 0) with (cos_tail_abs m n A) by ring.
-      exact IH.
+      exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* ---- 逐项支配：sin/cos 尾和（奇/偶次）⊆ exp 尾和（全次）----
@@ -1478,81 +1479,73 @@ Qed.
    exp_tail_abs (S(2m)) (S(2n)) A：t ∈ [2m+2, 2n+1] ⊇ 偶 t ✓ *)
 
 (* exp_tail_abs 单步展开 *)
-Lemma sc_exp_tail_abs_step : forall m0 n A,
-  exp_tail_abs m0 (Datatypes.S n) A ==
-  exp_tail_abs m0 n A +
-  (if Nat.leb m0 n then q_pow A (Datatypes.S n) / q_fact (Datatypes.S n) else 0).
-Proof. intros. reflexivity. Qed.
+Lemma sc_exp_tail_abs_step : forall m0 n A, QeqT (exp_tail_abs m0 (Datatypes.S n) A) (exp_tail_abs m0 n A +
+  (if Nat.leb m0 n then q_pow A (Datatypes.S n) / q_fact (Datatypes.S n) else 0)).
+Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
 (* exp_tail_abs 两步行展开（与 sin 每步一个奇次项配对：偶次项多余非负） *)
-Lemma sc_exp_tail_abs_two : forall m0 n A,
-  exp_tail_abs m0 (Datatypes.S (Datatypes.S n)) A ==
-  exp_tail_abs m0 n A +
+Lemma sc_exp_tail_abs_two : forall m0 n A, QeqT (exp_tail_abs m0 (Datatypes.S (Datatypes.S n)) A) (exp_tail_abs m0 n A +
   (if Nat.leb m0 n then q_pow A (Datatypes.S n) / q_fact (Datatypes.S n) else 0) +
-  (if Nat.leb m0 (Datatypes.S n) then q_pow A (Datatypes.S (Datatypes.S n)) / q_fact (Datatypes.S (Datatypes.S n)) else 0).
-Proof. intros. reflexivity. Qed.
+  (if Nat.leb m0 (Datatypes.S n) then q_pow A (Datatypes.S (Datatypes.S n)) / q_fact (Datatypes.S (Datatypes.S n)) else 0)).
+Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
 (* sin_tail_abs 单步展开 *)
-Lemma sc_sin_tail_abs_step : forall m0 n A,
-  sin_tail_abs m0 (Datatypes.S n) A ==
-  sin_tail_abs m0 n A +
-  (if Nat.leb m0 n then q_pow A (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n)) else 0).
-Proof. intros. reflexivity. Qed.
+Lemma sc_sin_tail_abs_step : forall m0 n A, QeqT (sin_tail_abs m0 (Datatypes.S n) A) (sin_tail_abs m0 n A +
+  (if Nat.leb m0 n then q_pow A (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n)) else 0)).
+Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
-Lemma sc_cos_tail_abs_step : forall m0 n A,
-  cos_tail_abs m0 (Datatypes.S n) A ==
-  cos_tail_abs m0 n A +
-  (if Nat.leb m0 n then q_pow A (2 * n) / q_fact (2 * n) else 0).
-Proof. intros. reflexivity. Qed.
+Lemma sc_cos_tail_abs_step : forall m0 n A, QeqT (cos_tail_abs m0 (Datatypes.S n) A) (cos_tail_abs m0 n A +
+  (if Nat.leb m0 n then q_pow A (2 * n) / q_fact (2 * n) else 0)).
+Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
 Lemma sc_sin_tail_abs_mono : forall m n A B, Qle 0 A -> Qle A B ->
-  Qle (sin_tail_abs m n A) (sin_tail_abs m n B).
+  QleT' (sin_tail_abs m n A) (sin_tail_abs m n B).
 Proof.
   intros m n A B HA HAB. induction n as [| n IH]; simpl.
-  - apply Qle_refl.
-  - destruct (Nat.leb m n) eqn:E.
-    + apply Qplus_le_compat; [exact IH | apply (Qle_div_same_denom (q_pow A (Datatypes.S (2 * n))) (q_pow B (Datatypes.S (2 * n))) (q_fact (Datatypes.S (2 * n))))].
+  - apply Qle_to_QleT'. apply Qle_refl.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
+    + apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow A (Datatypes.S (2 * n))) (q_pow B (Datatypes.S (2 * n))) (q_fact (Datatypes.S (2 * n))))].
       * apply q_fact_pos.
-      * apply q_pow_mono; [exact HA | exact HAB].
+      * apply (q_pow_mono _ _ _ (Qle_to_QleT' _ _ HA) (Qle_to_QleT' _ _ HAB)).
     + setoid_replace (sin_tail_abs m n A + 0) with (sin_tail_abs m n A) by ring.
       setoid_replace (sin_tail_abs m n B + 0) with (sin_tail_abs m n B) by ring.
-      exact IH.
+      exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 Lemma sc_cos_tail_abs_mono : forall m n A B, Qle 0 A -> Qle A B ->
-  Qle (cos_tail_abs m n A) (cos_tail_abs m n B).
+  QleT' (cos_tail_abs m n A) (cos_tail_abs m n B).
 Proof.
   intros m n A B HA HAB. induction n as [| n IH]; simpl.
-  - apply Qle_refl.
-  - destruct (Nat.leb m n) eqn:E.
-    + apply Qplus_le_compat; [exact IH | apply (Qle_div_same_denom (q_pow A (2 * n)) (q_pow B (2 * n)) (q_fact (2 * n)))].
+  - apply Qle_to_QleT'. apply Qle_refl.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
+    + apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow A (2 * n)) (q_pow B (2 * n)) (q_fact (2 * n)))].
       * apply q_fact_pos.
-      * apply q_pow_mono; [exact HA | exact HAB].
+      * apply (q_pow_mono _ _ _ (Qle_to_QleT' _ _ HA) (Qle_to_QleT' _ _ HAB)).
     + setoid_replace (cos_tail_abs m n A + 0) with (cos_tail_abs m n A) by ring.
       setoid_replace (cos_tail_abs m n B + 0) with (cos_tail_abs m n B) by ring.
-      exact IH.
+      exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* sin 尾和 ≤ exp 尾和（窗 [2m+2, 2n+1] 覆盖奇次 t = 2j+1） *)
 Lemma sc_sin_tail_abs_le_exp : forall (m n : nat) (A : Q),
-  Qle 0 A -> Qle (sin_tail_abs (Datatypes.S m) (Datatypes.S n) A)
+  Qle 0 A -> QleT' (sin_tail_abs (Datatypes.S m) (Datatypes.S n) A)
                  (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A).
 Proof.
   intros m n A HA.
   induction n as [| n IH].
-  - (* n = 0：sin_tail_abs (S m) (S 0) == 0 == exp_tail_abs (2m+1) (S(2·0)) *)
-    rewrite (sc_sin_tail_abs_step (Datatypes.S m) 0 A).
+  - apply Qle_to_QleT'. (* n = 0：sin_tail_abs (S m) (S 0) == 0 == exp_tail_abs (2m+1) (S(2·0)) *)
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_tail_abs_step (Datatypes.S m) 0 A)).
     destruct (Nat.leb (Datatypes.S m) 0) eqn:E1; simpl.
     + exfalso. apply Nat.leb_le in E1. lia.
-    + rewrite (sc_exp_tail_abs_step (Datatypes.S (2 * m)) 0 A).
+    + rewrite (qeqT_imp_qeq _ _ (sc_exp_tail_abs_step (Datatypes.S (2 * m)) 0 A)).
       destruct (Nat.leb (Datatypes.S (2 * m)) 0) eqn:E2; simpl.
       * exfalso. apply Nat.leb_le in E2. lia.
       * unfold Qle; simpl; lia.
-  - (* 步：sin(S(S n)) ≤ exp(S(2(S n)))；换形 2(S n) → S(S(2n))（S 形，可与 IH 转换）
+  - apply Qle_to_QleT'. (* 步：sin(S(S n)) ≤ exp(S(2(S n)))；换形 2(S n) → S(S(2n))（S 形，可与 IH 转换）
        sin 顶项 t = S(S(S(2n))) == exp 第二新增项 Y；guard 均 ⟺ m ≤ n *)
-    rewrite (sc_sin_tail_abs_step (Datatypes.S m) (Datatypes.S n) A).
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_tail_abs_step (Datatypes.S m) (Datatypes.S n) A)).
     replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia.
-    rewrite (sc_exp_tail_abs_two (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A).
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_tail_abs_two (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A)).
     destruct (Nat.leb (Datatypes.S m) (Datatypes.S n)) eqn:E1.
     + destruct (Nat.leb (Datatypes.S (2 * m)) (Datatypes.S (2 * n))) eqn:E2.
       * destruct (Nat.leb (Datatypes.S (2 * m)) (Datatypes.S (Datatypes.S (2 * n)))) eqn:E3.
@@ -1560,12 +1553,12 @@ Proof.
            apply (Qle_trans _ (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A +
                                 (q_pow A (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))) _).
            ++ apply Qplus_le_compat.
-              ** exact IH.
+              ** exact (QleT'_to_Qle _ _ IH).
               ** apply Qle_refl.
            ++ apply Qplus_le_compat.
               ** apply (Qle_plus_nonneg_r (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A)
                      (q_pow A (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n))))).
-                 apply q_pow_fact_nonneg. exact HA.
+                 apply QleT'_to_Qle; apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HA.
               ** apply Qle_refl.
         -- exfalso. apply Nat.leb_le in E1. apply Nat.leb_gt in E3. lia.
       * exfalso. apply Nat.leb_le in E1. apply Nat.leb_gt in E2. lia.
@@ -1578,27 +1571,27 @@ Proof.
              with (sin_tail_abs (Datatypes.S m) (Datatypes.S n) A) by ring.
            setoid_replace (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A + 0 + 0)
              with (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A) by ring.
-           exact IH.
+           exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* cos 尾和 ≤ exp 尾和（窗 [2m+2, 2n+1] 覆盖偶次 t = 2j；顶项 t = 2n+2 == exp 第一新增项） *)
 Lemma sc_cos_tail_abs_le_exp : forall (m n : nat) (A : Q),
-  Qle 0 A -> Qle (cos_tail_abs (Datatypes.S m) (Datatypes.S n) A)
+  Qle 0 A -> QleT' (cos_tail_abs (Datatypes.S m) (Datatypes.S n) A)
                  (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A).
 Proof.
   intros m n A HA.
   induction n as [| n IH].
-  - rewrite (sc_cos_tail_abs_step (Datatypes.S m) 0 A).
+  - apply Qle_to_QleT'. rewrite (qeqT_imp_qeq _ _ (sc_cos_tail_abs_step (Datatypes.S m) 0 A)).
     destruct (Nat.leb (Datatypes.S m) 0) eqn:E1; simpl.
     + exfalso. apply Nat.leb_le in E1. lia.
-    + rewrite (sc_exp_tail_abs_step (Datatypes.S (2 * m)) 0 A).
+    + rewrite (qeqT_imp_qeq _ _ (sc_exp_tail_abs_step (Datatypes.S (2 * m)) 0 A)).
       destruct (Nat.leb (Datatypes.S (2 * m)) 0) eqn:E2; simpl.
       * exfalso. apply Nat.leb_le in E2. lia.
       * unfold Qle; simpl; lia.
-  - (* cos 顶项 t = 2(S n) = S(S(2n)) == exp 第一新增项 X；Y 多余非负 *)
-    rewrite (sc_cos_tail_abs_step (Datatypes.S m) (Datatypes.S n) A).
+  - apply Qle_to_QleT'. (* cos 顶项 t = 2(S n) = S(S(2n)) == exp 第一新增项 X；Y 多余非负 *)
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_tail_abs_step (Datatypes.S m) (Datatypes.S n) A)).
     replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia.
-    rewrite (sc_exp_tail_abs_two (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A).
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_tail_abs_two (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A)).
     destruct (Nat.leb (Datatypes.S m) (Datatypes.S n)) eqn:E1.
     + destruct (Nat.leb (Datatypes.S (2 * m)) (Datatypes.S (2 * n))) eqn:E2.
       * destruct (Nat.leb (Datatypes.S (2 * m)) (Datatypes.S (Datatypes.S (2 * n)))) eqn:E3.
@@ -1606,13 +1599,13 @@ Proof.
            apply (Qle_trans _ (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A +
                                 (q_pow A (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n))))) _).
            ++ apply Qplus_le_compat.
-              ** exact IH.
+              ** exact (QleT'_to_Qle _ _ IH).
               ** apply Qle_refl.
            ++ apply (Qle_plus_nonneg_r
                       (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A +
                        (q_pow A (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))))
                       (q_pow A (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))).
-              apply q_pow_fact_nonneg. exact HA.
+              apply QleT'_to_Qle; apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HA.
         -- exfalso. apply Nat.leb_le in E1. apply Nat.leb_gt in E3. lia.
       * exfalso. apply Nat.leb_le in E1. apply Nat.leb_gt in E2. lia.
     + destruct (Nat.leb (Datatypes.S (2 * m)) (Datatypes.S (2 * n))) eqn:E2.
@@ -1624,7 +1617,7 @@ Proof.
              with (cos_tail_abs (Datatypes.S m) (Datatypes.S n) A) by ring.
            setoid_replace (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A + 0 + 0)
              with (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) A) by ring.
-           exact IH.
+           exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* ---- 主界：m ≤ n、|y| ≤ B ⟹ |sin_partial n y − sin_partial m y| ≤ (B^{2m+1}/(2m+1)!)·2·C0 ---- *)
@@ -1633,23 +1626,25 @@ Lemma sc_sin_diff_bound2 : forall (y B : Q) (m n : nat),
   Qle 0 B -> Qle (Qabs y) B ->
   (forall t : nat, (Datatypes.S (2 * m) <= t)%nat -> Qle (Qmult (1 + 1)%Q B) (Z.of_nat (t + 1) # 1)) ->
   (m <= n)%nat ->
-  Qle (Qabs (sin_partial n y - sin_partial m y))
+  QleT' (Qabs (sin_partial n y - sin_partial m y))
       ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q).
 Proof.
   intros y B m n HB Hy Hgeom Hmn.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sin_tail_abs (Datatypes.S m) (Datatypes.S n) B) _).
   - apply (Qle_trans _ (sin_tail_abs (Datatypes.S m) (Datatypes.S n) (Qabs y)) _).
     + apply (Qle_trans _ (Qabs (sin_tail (Datatypes.S m) (Datatypes.S n) y)) _).
-      * apply qeq_le.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         apply (Qabs_wd (sin_partial n y - sin_partial m y) (sin_tail (Datatypes.S m) (Datatypes.S n) y)).
-        apply sc_sin_diff_tail. exact Hmn.
-      * apply sc_sin_tail_abs_le.
-    + apply sc_sin_tail_abs_mono; [apply Qabs_nonneg | exact Hy].
+        apply qeqT_imp_qeq. apply sc_sin_diff_tail. exact Hmn.
+      * apply QleT'_to_Qle. apply sc_sin_tail_abs_le.
+    + apply QleT'_to_Qle. apply sc_sin_tail_abs_mono; [apply Qabs_nonneg | exact Hy].
   - apply (Qle_trans _ (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) B) _).
-    + apply sc_sin_tail_abs_le_exp. exact HB.
-    + apply (exp_tail_abs_geom2 B (Datatypes.S (2 * m)) (Datatypes.S (2 * n))).
-      * exact HB.
-      * exact Hgeom.
+    + apply QleT'_to_Qle. apply sc_sin_tail_abs_le_exp. exact HB.
+    + apply QleT'_to_Qle.
+      apply (exp_tail_abs_geom2 B (Datatypes.S (2 * m)) (Datatypes.S (2 * n))
+               (Qle_to_QleT' _ _ HB)
+               (fun t Ht => Qle_to_QleT' _ _ (Hgeom t (NatLe_drop _ _ Ht)))).
       * lia.
 Qed.
 
@@ -1657,23 +1652,25 @@ Lemma sc_cos_diff_bound2 : forall (y B : Q) (m n : nat),
   Qle 0 B -> Qle (Qabs y) B ->
   (forall t : nat, (Datatypes.S (2 * m) <= t)%nat -> Qle (Qmult (1 + 1)%Q B) (Z.of_nat (t + 1) # 1)) ->
   (m <= n)%nat ->
-  Qle (Qabs (cos_partial n y - cos_partial m y))
+  QleT' (Qabs (cos_partial n y - cos_partial m y))
       ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q).
 Proof.
   intros y B m n HB Hy Hgeom Hmn.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (cos_tail_abs (Datatypes.S m) (Datatypes.S n) B) _).
   - apply (Qle_trans _ (cos_tail_abs (Datatypes.S m) (Datatypes.S n) (Qabs y)) _).
     + apply (Qle_trans _ (Qabs (cos_tail (Datatypes.S m) (Datatypes.S n) y)) _).
-      * apply qeq_le.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         apply (Qabs_wd (cos_partial n y - cos_partial m y) (cos_tail (Datatypes.S m) (Datatypes.S n) y)).
-        apply sc_cos_diff_tail. exact Hmn.
-      * apply sc_cos_tail_abs_le.
-    + apply sc_cos_tail_abs_mono; [apply Qabs_nonneg | exact Hy].
+        apply qeqT_imp_qeq. apply sc_cos_diff_tail. exact Hmn.
+      * apply QleT'_to_Qle. apply sc_cos_tail_abs_le.
+    + apply QleT'_to_Qle. apply sc_cos_tail_abs_mono; [apply Qabs_nonneg | exact Hy].
   - apply (Qle_trans _ (exp_tail_abs (Datatypes.S (2 * m)) (Datatypes.S (2 * n)) B) _).
-    + apply sc_cos_tail_abs_le_exp. exact HB.
-    + apply (exp_tail_abs_geom2 B (Datatypes.S (2 * m)) (Datatypes.S (2 * n))).
-      * exact HB.
-      * exact Hgeom.
+    + apply QleT'_to_Qle. apply sc_cos_tail_abs_le_exp. exact HB.
+    + apply QleT'_to_Qle.
+      apply (exp_tail_abs_geom2 B (Datatypes.S (2 * m)) (Datatypes.S (2 * n))
+               (Qle_to_QleT' _ _ HB)
+               (fun t Ht => Qle_to_QleT' _ _ (Hgeom t (NatLe_drop _ _ Ht)))).
       * lia.
 Qed.
 
@@ -1691,7 +1688,7 @@ Proof.
   assert (HN0' : forall t : nat, (N0' <= t)%nat -> Qle (Qmult (1 + 1)%Q B) (Z.of_nat (t + 1) # 1)).
   { intros t Ht. apply QleT'_to_Qle. apply (HN0 t). apply NatLe_lift. unfold N0'. lia. }
   set (C := (q_pow B N0' / q_fact N0') * (1 + 1)%Q).
-  assert (HC : QleT' 0 C) by (unfold C; apply Qle_to_QleT'; apply q_pow_fact2_nonneg; exact (QleT'_to_Qle _ _ HB)).
+  assert (HC : QleT' 0 C) by (unfold C; apply q_pow_fact2_nonneg; exact HB).
   destruct (arch_decay C eps HC Hep) as [t Hdec].
   exists (N0' + Datatypes.S t)%nat.
   intros m n Hm Hn y Hy.
@@ -1701,25 +1698,25 @@ Proof.
     (* 需要 |sin_partial n y − sin_partial m y| ≤ (B^{S(2m)}/(S(2m))!)·2 *)
     assert (Hbound : Qle (Qabs (sin_partial n y - sin_partial m y))
                          ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q)).
-    { apply (sc_sin_diff_bound2 y B m n (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
+    { apply QleT'_to_Qle. apply (sc_sin_diff_bound2 y B m n (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
       - intros u Hu. apply (HN0' u). lia.
       - exact Hmn. }
     assert (Hlt : Qlt ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q) eps).
     { (* 由 exp_tail_arch：b := S(2m) ≥ N0' + S t ⟹ (B^b/b!)·2 < eps *)
-      apply (exp_tail_arch B N0' t (Datatypes.S (2 * m)) eps (QleT'_to_Qle _ _ HB) HN0' (QltT_to_Qlt _ _ Hep) (QltT_to_Qlt _ _ Hdec)).
+      apply QltT_to_Qlt. apply (exp_tail_arch B N0' t (Datatypes.S (2 * m)) eps HB (fun u Hu => Qle_to_QleT' _ _ (HN0' u (NatLe_drop _ _ Hu))) Hep Hdec).
       unfold N0'. lia. }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ (Qabs (sin_partial n y - sin_partial m y)) _).
-    + apply qeq_le. rewrite (Qabs_Qminus (sin_partial m y) (sin_partial n y)). reflexivity.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite (Qabs_Qminus (sin_partial m y) (sin_partial n y)). reflexivity.
     + exact (Qle_lt_trans _ ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q) _ Hbound Hlt).
   - assert (Hnm : (n <= m)%nat) by (apply Nat.leb_gt in Emn; lia).
     assert (Hbound : Qle (Qabs (sin_partial m y - sin_partial n y))
                          ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q)).
-    { apply (sc_sin_diff_bound2 y B n m (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
+    { apply QleT'_to_Qle. apply (sc_sin_diff_bound2 y B n m (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
       - intros u Hu. apply (HN0' u). lia.
       - exact Hnm. }
     assert (Hlt : Qlt ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q) eps).
-    { apply (exp_tail_arch B N0' t (Datatypes.S (2 * n)) eps (QleT'_to_Qle _ _ HB) HN0' (QltT_to_Qlt _ _ Hep) (QltT_to_Qlt _ _ Hdec)).
+    { apply QltT_to_Qlt. apply (exp_tail_arch B N0' t (Datatypes.S (2 * n)) eps HB (fun u Hu => Qle_to_QleT' _ _ (HN0' u (NatLe_drop _ _ Hu))) Hep Hdec).
       unfold N0'. lia. }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q) _ Hbound Hlt).
@@ -1737,7 +1734,7 @@ Proof.
   assert (HN0' : forall t : nat, (N0' <= t)%nat -> Qle (Qmult (1 + 1)%Q B) (Z.of_nat (t + 1) # 1)).
   { intros t Ht. apply QleT'_to_Qle. apply (HN0 t). apply NatLe_lift. unfold N0'. lia. }
   set (C := (q_pow B N0' / q_fact N0') * (1 + 1)%Q).
-  assert (HC : QleT' 0 C) by (unfold C; apply Qle_to_QleT'; apply q_pow_fact2_nonneg; exact (QleT'_to_Qle _ _ HB)).
+  assert (HC : QleT' 0 C) by (unfold C; apply q_pow_fact2_nonneg; exact HB).
   destruct (arch_decay C eps HC Hep) as [t Hdec].
   exists (N0' + Datatypes.S t)%nat.
   intros m n Hm Hn y Hy.
@@ -1746,24 +1743,24 @@ Proof.
   - assert (Hmn : (m <= n)%nat) by (apply Nat.leb_le; exact Emn).
     assert (Hbound : Qle (Qabs (cos_partial n y - cos_partial m y))
                          ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q)).
-    { apply (sc_cos_diff_bound2 y B m n (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
+    { apply QleT'_to_Qle. apply (sc_cos_diff_bound2 y B m n (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
       - intros u Hu. apply (HN0' u). lia.
       - exact Hmn. }
     assert (Hlt : Qlt ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q) eps).
-    { apply (exp_tail_arch B N0' t (Datatypes.S (2 * m)) eps (QleT'_to_Qle _ _ HB) HN0' (QltT_to_Qlt _ _ Hep) (QltT_to_Qlt _ _ Hdec)).
+    { apply QltT_to_Qlt. apply (exp_tail_arch B N0' t (Datatypes.S (2 * m)) eps HB (fun u Hu => Qle_to_QleT' _ _ (HN0' u (NatLe_drop _ _ Hu))) Hep Hdec).
       unfold N0'. lia. }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ (Qabs (cos_partial n y - cos_partial m y)) _).
-    + apply qeq_le. rewrite (Qabs_Qminus (cos_partial m y) (cos_partial n y)). reflexivity.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite (Qabs_Qminus (cos_partial m y) (cos_partial n y)). reflexivity.
     + exact (Qle_lt_trans _ ((q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m))) * (1 + 1)%Q) _ Hbound Hlt).
   - assert (Hnm : (n <= m)%nat) by (apply Nat.leb_gt in Emn; lia).
     assert (Hbound : Qle (Qabs (cos_partial m y - cos_partial n y))
                          ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q)).
-    { apply (sc_cos_diff_bound2 y B n m (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
+    { apply QleT'_to_Qle. apply (sc_cos_diff_bound2 y B n m (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ Hy)).
       - intros u Hu. apply (HN0' u). lia.
       - exact Hnm. }
     assert (Hlt : Qlt ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q) eps).
-    { apply (exp_tail_arch B N0' t (Datatypes.S (2 * n)) eps (QleT'_to_Qle _ _ HB) HN0' (QltT_to_Qlt _ _ Hep) (QltT_to_Qlt _ _ Hdec)).
+    { apply QltT_to_Qlt. apply (exp_tail_arch B N0' t (Datatypes.S (2 * n)) eps HB (fun u Hu => Qle_to_QleT' _ _ (HN0' u (NatLe_drop _ _ Hu))) Hep Hdec).
       unfold N0'. lia. }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ ((q_pow B (Datatypes.S (2 * n)) / q_fact (Datatypes.S (2 * n))) * (1 + 1)%Q) _ Hbound Hlt).
@@ -1789,13 +1786,13 @@ Fixpoint sc_sin_deriv_series (n : nat) (B : Q) : Q :=
 
 (* cos 导数式级数 ≤ exp_series (2n) B：偶次项 ⊆ exp 前 2n 项 *)
 Lemma sc_cos_series_le_exp : forall n B, QleT' 0 B ->
-  Qle (sc_cos_series n B) (exp_series (2 * n) B).
+  QleT' (sc_cos_series n B) (exp_series (2 * n) B).
 Proof.
   intros n B HB.
   induction n as [| n IH].
-  - (* sc_cos_series 0 == 1；exp_series 0 == 1 *)
+  - apply Qle_to_QleT'. (* sc_cos_series 0 == 1；exp_series 0 == 1 *)
     unfold Qle; simpl; lia.
-  - (* cos_series (S n) = cos(n) + T（T := B^{S(S(2n))}/(S(S(2n)))!，定义性）；
+  - apply Qle_to_QleT'. (* cos_series (S n) = cos(n) + T（T := B^{S(S(2n))}/(S(S(2n)))!，定义性）；
        exp_series (2(S n)) B ≡ exp_series (S(S(2n))) B = (exp_series (2n) + U) + T，U := B^{S(2n)}/(S(2n))! ≥ 0 *)
     change (sc_cos_series n B +
             (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))) <=
@@ -1803,27 +1800,27 @@ Proof.
     replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia.
     apply (Qle_trans _ (exp_series (2 * n) B +
                          (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n))))) _).
-    + apply Qplus_le_compat; [exact IH | apply Qle_refl].
+    + apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply Qle_refl].
     + change (exp_series (2 * n) B +
               (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))) <=
               exp_series (Datatypes.S (2 * n)) B +
               (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n))))).
       apply Qplus_le_compat.
-      * apply exp_series_step_mono. exact (QleT'_to_Qle _ _ HB).
+      * apply QleT'_to_Qle; apply exp_series_step_mono; apply Qle_to_QleT'. exact (QleT'_to_Qle _ _ HB).
       * apply Qle_refl.
 Qed.
 
 (* sin 导数式级数 ≤ exp_series (S(2n)) B：奇次项 ⊆ exp 前 2n+1 项 *)
 Lemma sc_sin_deriv_series_le_exp : forall n B, QleT' 0 B ->
-  Qle (sc_sin_deriv_series n B) (exp_series (Datatypes.S (2 * n)) B).
+  QleT' (sc_sin_deriv_series n B) (exp_series (Datatypes.S (2 * n)) B).
 Proof.
   intros n B HB.
   induction n as [| n IH].
-  - (* n = 0：B^1/1! ≤ exp_series 1 B = 1 + B^1/1! *)
+  - apply Qle_to_QleT'. (* n = 0：B^1/1! ≤ exp_series 1 B = 1 + B^1/1! *)
     change (q_pow B 1 / q_fact 1 <= 1 + (q_pow B 1 / q_fact 1)).
     setoid_replace (1 + (q_pow B 1 / q_fact 1)) with ((q_pow B 1 / q_fact 1) + 1) by ring.
-    apply Qle_plus_nonneg_r. apply Qle_0_1.
-  - (* SDS (S n) = SDS(n) + Y（Y := B^{S(S(S(2n)))}/(S(S(S(2n))))!，定义性）；
+    apply Qle_plus_nonneg_r. apply QleT'_to_Qle. apply Qle_0_1.
+  - apply Qle_to_QleT'. (* SDS (S n) = SDS(n) + Y（Y := B^{S(S(S(2n)))}/(S(S(S(2n))))!，定义性）；
        exp_series (S(2(S n))) B ≡ exp_series (S(S(S(2n)))) B = (exp_series (S(S(2n))) + Y)，exp_series (S(S(2n))) = exp_series (S(2n)) + U' *)
     change (sc_sin_deriv_series n B +
             (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))) <=
@@ -1831,13 +1828,13 @@ Proof.
     replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia.
     apply (Qle_trans _ (exp_series (Datatypes.S (2 * n)) B +
                          (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))) _).
-    + apply Qplus_le_compat; [exact IH | apply Qle_refl].
+    + apply Qplus_le_compat; [exact (QleT'_to_Qle _ _ IH) | apply Qle_refl].
     + change (exp_series (Datatypes.S (2 * n)) B +
               (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))) <=
               exp_series (Datatypes.S (Datatypes.S (2 * n))) B +
               (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))).
       apply Qplus_le_compat.
-      * apply exp_series_step_mono. exact (QleT'_to_Qle _ _ HB).
+      * apply QleT'_to_Qle; apply exp_series_step_mono; apply Qle_to_QleT'. exact (QleT'_to_Qle _ _ HB).
       * apply Qle_refl.
 Qed.
 
@@ -1851,10 +1848,11 @@ Qed.
 (* sin 项差分：|Δsin_term j| ≤ |x−y|·B^{2j}/(2j)! *)
 Lemma sc_sin_term_diff : forall (x y B : Q) (j : nat),
   Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (sin_term j x - sin_term j y))
+  QleT' (Qabs (sin_term j x - sin_term j y))
       (Qmult (Qabs (x - y)) (q_pow B (2 * j) / q_fact (2 * j))).
 Proof.
   intros x y B j HB Hx Hy.
+  apply Qle_to_QleT'.
   unfold sin_term.
   (* sign·(x^{S(2j)}·inv f) − sign·(y^{S(2j)}·inv f) == sign·((x^{S(2j)}−y^{S(2j)})·inv f) *)
   assert (Halg : q_pow (-1) j * (q_pow x (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j))) -
@@ -1866,13 +1864,13 @@ Proof.
   apply (Qle_trans _ (Qabs ((q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))) *
                             Qinv (q_fact (Datatypes.S (2 * j))))) _).
   - (* |sign·t| ≤ |t|（|sign| == 1，先等式再 ≤） *)
-    apply qeq_le.
+    apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     rewrite Qabs_Qmult.
-    rewrite (sc_abs_sign j).
+    rewrite (qeqT_imp_qeq _ _ (sc_abs_sign j)).
     ring.
   - apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))))
                               (Qabs (Qinv (q_fact (Datatypes.S (2 * j)))))) _).
-    + apply qeq_le. apply Qabs_Qmult.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
     + apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))))
                                 (Qinv (q_fact (Datatypes.S (2 * j))))) _).
       * apply (Qmult_le_compat_nonneg
@@ -1884,8 +1882,8 @@ Proof.
         -- split.
            ++ apply Qabs_nonneg.
            ++ assert (Hinvpos : Qlt 0 (Qinv (q_fact (Datatypes.S (2 * j))))).
-              { apply Qinv_lt_0_compat. apply q_fact_pos. }
-              apply qeq_le.
+              { apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos. }
+              apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
               apply (Qabs_pos (Qinv (q_fact (Datatypes.S (2 * j))))
                               (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * j)))) Hinvpos)).
       * apply (Qle_trans _ (Qmult (Qmult (Qabs (x - y))
@@ -1895,9 +1893,9 @@ Proof.
                    (Qabs (q_pow x (Datatypes.S (2 * j)) - q_pow y (Datatypes.S (2 * j))))
                    (Qmult (Qabs (x - y)) (Qmult (Z.of_nat (Datatypes.S (2 * j)) # 1) (q_pow B (2 * j))))
                    (Qinv (q_fact (Datatypes.S (2 * j))))).
-           ++ apply (q_pow_diff_bound x y B (2 * j)); assumption.
+           ++ apply QleT'_to_Qle; apply (q_pow_diff_bound x y B (2 * j) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ Hx) (Qle_to_QleT' _ _ Hy)).
            ++ apply (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * j))))).
-              apply Qinv_lt_0_compat. apply q_fact_pos.
+              apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos.
         -- (* (|x−y|·((S(2j))#1·B^{2j}))·/((S(2j))!) == |x−y|·B^{2j}·/((2j)!) *)
            setoid_replace (Qmult (Qmult (Qabs (x - y))
                                         (Qmult (Z.of_nat (Datatypes.S (2 * j)) # 1) (q_pow B (2 * j))))
@@ -1905,17 +1903,18 @@ Proof.
              with (Qmult (Qabs (x - y))
                          (Qmult (Qmult (Z.of_nat (Datatypes.S (2 * j)) # 1) (q_pow B (2 * j)))
                                 (Qinv (q_fact (Datatypes.S (2 * j)))))) by ring.
-           rewrite (q_ratio_cancel_succ B (2 * j)).
+           rewrite (qeqT_imp_qeq _ _ (q_ratio_cancel_succ B (2 * j))).
            apply Qle_refl.
 Qed.
 
 (* cos 项差分（j = S m ≥ 1）：|Δcos_term (S m)| ≤ |x−y|·B^{S(2m)}/(S(2m))! *)
 Lemma sc_cos_term_diff : forall (x y B : Q) (m : nat),
   Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (cos_term (Datatypes.S m) x - cos_term (Datatypes.S m) y))
+  QleT' (Qabs (cos_term (Datatypes.S m) x - cos_term (Datatypes.S m) y))
       (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (2 * m)) / q_fact (Datatypes.S (2 * m)))).
 Proof.
   intros x y B m HB Hx Hy.
+  apply Qle_to_QleT'.
   unfold cos_term.
   (* 幂指标换形：2(S m) → S(2m+1) *)
   replace (2 * Datatypes.S m)%nat with (Datatypes.S (2 * m + 1))%nat by lia.
@@ -1927,13 +1926,13 @@ Proof.
   setoid_rewrite Halg.
   apply (Qle_trans _ (Qabs ((q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))) *
                             Qinv (q_fact (Datatypes.S (2 * m + 1))))) _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     rewrite Qabs_Qmult.
-    rewrite (sc_abs_sign (Datatypes.S m)).
+    rewrite (qeqT_imp_qeq _ _ (sc_abs_sign (Datatypes.S m))).
     ring.
   - apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))))
                               (Qabs (Qinv (q_fact (Datatypes.S (2 * m + 1)))))) _).
-    + apply qeq_le. apply Qabs_Qmult.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
     + apply (Qle_trans _ (Qmult (Qabs (q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))))
                                 (Qinv (q_fact (Datatypes.S (2 * m + 1))))) _).
       * apply (Qmult_le_compat_nonneg
@@ -1945,8 +1944,8 @@ Proof.
         -- split.
            ++ apply Qabs_nonneg.
            ++ assert (Hinvpos : Qlt 0 (Qinv (q_fact (Datatypes.S (2 * m + 1))))).
-              { apply Qinv_lt_0_compat. apply q_fact_pos. }
-              apply qeq_le.
+              { apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos. }
+              apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
               apply (Qabs_pos (Qinv (q_fact (Datatypes.S (2 * m + 1))))
                               (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * m + 1)))) Hinvpos)).
       * apply (Qle_trans _ (Qmult (Qmult (Qabs (x - y))
@@ -1956,9 +1955,9 @@ Proof.
                    (Qabs (q_pow x (Datatypes.S (2 * m + 1)) - q_pow y (Datatypes.S (2 * m + 1))))
                    (Qmult (Qabs (x - y)) (Qmult (Z.of_nat (Datatypes.S (2 * m + 1)) # 1) (q_pow B (2 * m + 1))))
                    (Qinv (q_fact (Datatypes.S (2 * m + 1))))).
-           ++ apply (q_pow_diff_bound x y B (2 * m + 1)); assumption.
+           ++ apply QleT'_to_Qle; apply (q_pow_diff_bound x y B (2 * m + 1) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ Hx) (Qle_to_QleT' _ _ Hy)).
            ++ apply (Qlt_le_weak 0 (Qinv (q_fact (Datatypes.S (2 * m + 1))))).
-              apply Qinv_lt_0_compat. apply q_fact_pos.
+              apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos.
         -- (* 重组使 ratio-cancel 模式成为直接子项，再指标换形 *)
            setoid_replace (Qmult (Qmult (Qabs (x - y))
                                 (Qmult (Z.of_nat (Datatypes.S (2 * m + 1)) # 1) (q_pow B (2 * m + 1))))
@@ -1966,7 +1965,7 @@ Proof.
              with (Qmult (Qabs (x - y))
                          (Qmult (Qmult (Z.of_nat (Datatypes.S (2 * m + 1)) # 1) (q_pow B (2 * m + 1)))
                                 (Qinv (q_fact (Datatypes.S (2 * m + 1)))))) by ring.
-           rewrite (q_ratio_cancel_succ B (2 * m + 1)).
+           rewrite (qeqT_imp_qeq _ _ (q_ratio_cancel_succ B (2 * m + 1))).
            replace (2 * m + 1)%nat with (Datatypes.S (2 * m))%nat by lia.
            apply Qle_refl.
 Qed.
@@ -1974,20 +1973,20 @@ Qed.
 (* sin 部分和 Lipschitz：|Δsin_partial n| ≤ |x−y|·sc_cos_series n B *)
 Lemma sc_sin_partial_lipschitz : forall (x y B : Q) (n : nat),
   QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B ->
-  Qle (Qabs (sin_partial n x - sin_partial n y))
+  QleT' (Qabs (sin_partial n x - sin_partial n y))
       (Qmult (Qabs (x - y)) (sc_cos_series n B)).
 Proof.
   intros x y B n HB Hx Hy.
   induction n as [| n IH].
-  - (* n = 0：Δ == x − y；cos_series 0 B == 1 *)
+  - apply Qle_to_QleT'. (* n = 0：Δ == x − y；cos_series 0 B == 1 *)
     assert (Hd : sin_partial 0 x - sin_partial 0 y == x - y).
     { change (sin_term 0 x - sin_term 0 y == x - y).
       unfold sin_term.
       assert (Hc : q_pow (-1) 0 == 1) by reflexivity.
       assert (Hx1 : q_pow x (Datatypes.S (2 * 0)) == x * 1).
-      { change (q_pow x 1 == x * 1). rewrite (q_pow_succ x 0). reflexivity. }
+      { change (q_pow x 1 == x * 1). rewrite (qeqT_imp_qeq _ _ (q_pow_succ x 0)). reflexivity. }
       assert (Hy1 : q_pow y (Datatypes.S (2 * 0)) == y * 1).
-      { change (q_pow y 1 == y * 1). rewrite (q_pow_succ y 0). reflexivity. }
+      { change (q_pow y 1 == y * 1). rewrite (qeqT_imp_qeq _ _ (q_pow_succ y 0)). reflexivity. }
       assert (Hf : q_fact (Datatypes.S (2 * 0)) == 1).
       { change (q_fact 1 == 1). reflexivity. }
       rewrite Hc. rewrite Hx1. rewrite Hy1. rewrite Hf.
@@ -2009,14 +2008,14 @@ Proof.
           + apply Qmult_1_r. }
       rewrite Hlx. rewrite Hly. reflexivity. }
     apply (Qle_trans _ (Qabs (x - y)) _).
-    + apply qeq_le. apply (Qabs_wd (sin_partial 0 x - sin_partial 0 y) (x - y)). exact Hd.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd (sin_partial 0 x - sin_partial 0 y) (x - y)). exact Hd.
     + change (Qabs (x - y) <= Qabs (x - y) * (q_pow B 0 / q_fact 0)).
-      apply qeq_le.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       assert (Hcs : q_pow B 0 / q_fact 0 == 1).
       { change (1 / 1 == 1). unfold Qdiv. reflexivity. }
       rewrite Hcs.
       rewrite Qmult_1_r. reflexivity.
-  - (* 步：Δ(S n) = Δ(n) + Δterm_{S n}；cos_series (S n) = cos_series n + B^{S(S(2n))}/(S(S(2n)))! *)
+  - apply Qle_to_QleT'. (* 步：Δ(S n) = Δ(n) + Δterm_{S n}；cos_series (S n) = cos_series n + B^{S(S(2n))}/(S(S(2n)))! *)
     assert (Hsplit : sin_partial (Datatypes.S n) x - sin_partial (Datatypes.S n) y ==
                      (sin_partial n x - sin_partial n y) + (sin_term (Datatypes.S n) x - sin_term (Datatypes.S n) y)).
     { change (sin_partial n x + sin_term (Datatypes.S n) x - (sin_partial n y + sin_term (Datatypes.S n) y) ==
@@ -2030,17 +2029,17 @@ Proof.
       assert (Hterm : Qle (Qabs (sin_term (Datatypes.S n) x - sin_term (Datatypes.S n) y))
                           (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))))).
       { apply (Qle_trans _ (Qmult (Qabs (x - y)) (q_pow B (2 * Datatypes.S n) / q_fact (2 * Datatypes.S n))) _).
-        - apply (sc_sin_term_diff x y B (Datatypes.S n));
+        - apply QleT'_to_Qle. apply (sc_sin_term_diff x y B (Datatypes.S n));
             [ exact (QleT'_to_Qle _ _ HB)
             | exact (QleT'_to_Qle _ _ Hx)
             | exact (QleT'_to_Qle _ _ Hy) ].
-        - apply qeq_le. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
+        - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
       apply (Qle_trans _ (Qplus (Qmult (Qabs (x - y)) (sc_cos_series n B))
                                   (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))))) _).
       * apply Qplus_le_compat.
-        -- exact IH.
+        -- exact (QleT'_to_Qle _ _ IH).
         -- exact Hterm.
-      * apply qeq_le.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         change (sc_cos_series (Datatypes.S n) B)
           with (sc_cos_series n B + q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n)))).
         ring.
@@ -2050,12 +2049,12 @@ Qed.
 (* cos 部分和 Lipschitz（S 形）：|Δcos_partial (S n)| ≤ |x−y|·sc_sin_deriv_series n B *)
 Lemma sc_cos_partial_lipschitz_succ : forall (x y B : Q) (n : nat),
   QleT' 0 B -> QleT' (Qabs x) B -> QleT' (Qabs y) B ->
-  Qle (Qabs (cos_partial (Datatypes.S n) x - cos_partial (Datatypes.S n) y))
+  QleT' (Qabs (cos_partial (Datatypes.S n) x - cos_partial (Datatypes.S n) y))
       (Qmult (Qabs (x - y)) (sc_sin_deriv_series n B)).
 Proof.
   intros x y B n HB Hx Hy.
   induction n as [| n IH].
-  - (* n = 0：Δcos_partial 1 == Δcos_term 1；SDS 0 == B^1/1! *)
+  - apply Qle_to_QleT'. (* n = 0：Δcos_partial 1 == Δcos_term 1；SDS 0 == B^1/1! *)
     assert (Hd : cos_partial 1 x - cos_partial 1 y == cos_term 1 x - cos_term 1 y).
     { change (cos_term 0 x + cos_term 1 x - (cos_term 0 y + cos_term 1 y) ==
               cos_term 1 x - cos_term 1 y).
@@ -2065,14 +2064,14 @@ Proof.
       { unfold cos_term. reflexivity. }
       rewrite Hc0x. rewrite Hc0y. ring. }
     apply (Qle_trans _ (Qabs (cos_term 1 x - cos_term 1 y)) _).
-    + apply qeq_le. apply (Qabs_wd (cos_partial 1 x - cos_partial 1 y) (cos_term 1 x - cos_term 1 y)). exact Hd.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd (cos_partial 1 x - cos_partial 1 y) (cos_term 1 x - cos_term 1 y)). exact Hd.
     + apply (Qle_trans _ (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (2 * 0)) / q_fact (Datatypes.S (2 * 0)))) _).
-      * apply (sc_cos_term_diff x y B 0);
+      * apply QleT'_to_Qle. apply (sc_cos_term_diff x y B 0);
           [ exact (QleT'_to_Qle _ _ HB)
           | exact (QleT'_to_Qle _ _ Hx)
           | exact (QleT'_to_Qle _ _ Hy) ].
-      * apply qeq_le. reflexivity.
-  - (* 步：Δ(S(S n)) = Δ(S n) + Δterm_{S(S n)}；SDS (S n) = SDS n + B^{S(S(S(2n)))}/(S(S(S(2n))))! *)
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. reflexivity.
+  - apply Qle_to_QleT'. (* 步：Δ(S(S n)) = Δ(S n) + Δterm_{S(S n)}；SDS (S n) = SDS n + B^{S(S(S(2n)))}/(S(S(S(2n))))! *)
     assert (Hsplit : cos_partial (Datatypes.S (Datatypes.S n)) x - cos_partial (Datatypes.S (Datatypes.S n)) y ==
                      (cos_partial (Datatypes.S n) x - cos_partial (Datatypes.S n) y) +
                      (cos_term (Datatypes.S (Datatypes.S n)) x - cos_term (Datatypes.S (Datatypes.S n)) y)).
@@ -2089,17 +2088,17 @@ Proof.
       assert (Hterm : Qle (Qabs (cos_term (Datatypes.S (Datatypes.S n)) x - cos_term (Datatypes.S (Datatypes.S n)) y))
                           (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))))).
       { apply (Qle_trans _ (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (2 * Datatypes.S n)) / q_fact (Datatypes.S (2 * Datatypes.S n)))) _).
-        - apply (sc_cos_term_diff x y B (Datatypes.S n));
+        - apply QleT'_to_Qle. apply (sc_cos_term_diff x y B (Datatypes.S n));
             [ exact (QleT'_to_Qle _ _ HB)
             | exact (QleT'_to_Qle _ _ Hx)
             | exact (QleT'_to_Qle _ _ Hy) ].
-        - apply qeq_le. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
+        - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. replace (2 * Datatypes.S n)%nat with (Datatypes.S (Datatypes.S (2 * n)))%nat by lia. reflexivity. }
       apply (Qle_trans _ (Qplus (Qmult (Qabs (x - y)) (sc_sin_deriv_series n B))
                                   (Qmult (Qabs (x - y)) (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))))) _).
       * apply Qplus_le_compat.
-        -- exact IH.
+        -- exact (QleT'_to_Qle _ _ IH).
         -- exact Hterm.
-      * apply qeq_le.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         change (sc_sin_deriv_series (Datatypes.S n) B)
           with (sc_sin_deriv_series n B + q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n))))).
         ring.
@@ -2107,56 +2106,56 @@ Qed.
 
 
 (* ---- 零点 / 壹值 ---- *)
-Lemma sc_q_pow_zero_ge1 : forall k : nat, (1 <= k)%nat -> q_pow 0 k == 0.
+Lemma sc_q_pow_zero_ge1 : forall k : nat, (1 <= k)%nat ->QeqT (q_pow 0 k) (0).
 Proof.
   intros k Hk. destruct k as [| k'].
-  - exfalso. lia.
-  - rewrite (q_pow_succ 0 k'). rewrite (Qmult_0_l (q_pow 0 k')). reflexivity.
+  - apply qeq_imp_qeqT. exfalso. lia.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ 0 k')). rewrite (Qmult_0_l (q_pow 0 k')). reflexivity.
 Qed.
 
-Lemma sc_sin_partial_zero : forall n : nat, sin_partial n 0 == 0.
+Lemma sc_sin_partial_zero : forall n : nat, QeqT (sin_partial n 0) (0).
 Proof.
   induction n as [| n IH].
-  - change (sin_term 0 0 == 0).
+  - apply qeq_imp_qeqT. change (sin_term 0 0 == 0).
     unfold sin_term.
     assert (Hpow : q_pow 0 (Datatypes.S (2 * 0)) == 0).
     { change (q_pow 0 1 == 0).
-      rewrite (q_pow_succ 0 0).
+      rewrite (qeqT_imp_qeq _ _ (q_pow_succ 0 0)).
       rewrite (Qmult_0_l (q_pow 0 0)). reflexivity. }
     rewrite Hpow.
     unfold Qdiv.
     rewrite (Qmult_0_l (Qinv (q_fact (Datatypes.S (2 * 0))))).
     rewrite (Qmult_0_r (q_pow (-1) 0)).
     reflexivity.
-  - change (sin_partial n 0 + sin_term (Datatypes.S n) 0 == 0).
+  - apply qeq_imp_qeqT. change (sin_partial n 0 + sin_term (Datatypes.S n) 0 == 0).
     unfold sin_term.
     assert (Hpow : q_pow 0 (Datatypes.S (2 * Datatypes.S n)) == 0).
-    { rewrite (q_pow_succ 0 (2 * Datatypes.S n)).
+    { rewrite (qeqT_imp_qeq _ _ (q_pow_succ 0 (2 * Datatypes.S n))).
       rewrite (Qmult_0_l (q_pow 0 (2 * Datatypes.S n))). reflexivity. }
     rewrite Hpow.
     unfold Qdiv.
     rewrite (Qmult_0_l (Qinv (q_fact (Datatypes.S (2 * Datatypes.S n))))).
-    rewrite IH.
+    rewrite (qeqT_imp_qeq _ _ IH).
     rewrite (Qmult_0_r (q_pow (-1) (Datatypes.S n))).
     reflexivity.
 Qed.
 
 
-Lemma sc_cos_partial_one : forall n : nat, cos_partial n 0 == 1.
+Lemma sc_cos_partial_one : forall n : nat, QeqT (cos_partial n 0) (1).
 Proof.
   induction n as [| n IH].
-  - change (cos_term 0 0 == 1).
+  - apply qeq_imp_qeqT. change (cos_term 0 0 == 1).
     unfold cos_term. reflexivity.
-  - change (cos_partial n 0 + cos_term (Datatypes.S n) 0 == 1).
+  - apply qeq_imp_qeqT. change (cos_partial n 0 + cos_term (Datatypes.S n) 0 == 1).
     unfold cos_term.
     assert (Hpow : q_pow 0 (2 * Datatypes.S n) == 0).
     { replace (2 * Datatypes.S n)%nat with (Datatypes.S (2 * n + 1))%nat by lia.
-      rewrite (q_pow_succ 0 (2 * n + 1)).
+      rewrite (qeqT_imp_qeq _ _ (q_pow_succ 0 (2 * n + 1))).
       rewrite (Qmult_0_l (q_pow 0 (2 * n + 1))). reflexivity. }
     rewrite Hpow.
     unfold Qdiv.
     rewrite (Qmult_0_l (Qinv (q_fact (2 * Datatypes.S n)))).
-    rewrite IH.
+    rewrite (qeqT_imp_qeq _ _ IH).
     rewrite (Qmult_0_r (q_pow (-1) (Datatypes.S n))).
     reflexivity.
 Qed.
@@ -2164,36 +2163,38 @@ Qed.
 
 
 (* ---- 奇偶（Q 层）---- *)
-Lemma sc_sin_term_neg : forall (j : nat) (x : Q), sin_term j (- x) == - sin_term j x.
+Lemma sc_sin_term_neg : forall (j : nat) (x : Q), QeqT (sin_term j (- x)) (- sin_term j x).
 Proof.
   intros j x.
+  apply qeq_imp_qeqT.
   unfold sin_term.
-  rewrite (q_pow_neg_odd x j).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_neg_odd x j)).
   unfold Qdiv. ring.
 Qed.
 
-Lemma sc_cos_term_neg : forall (j : nat) (x : Q), cos_term j (- x) == cos_term j x.
+Lemma sc_cos_term_neg : forall (j : nat) (x : Q), QeqT (cos_term j (- x)) (cos_term j x).
 Proof.
   intros j x.
+  apply qeq_imp_qeqT.
   unfold cos_term.
-  rewrite (q_pow_neg_even x j).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_neg_even x j)).
   reflexivity.
 Qed.
 
-Lemma sc_sin_partial_neg : forall (n : nat) (x : Q), sin_partial n (- x) == - sin_partial n x.
+Lemma sc_sin_partial_neg : forall (n : nat) (x : Q), QeqT (sin_partial n (- x)) (- sin_partial n x).
 Proof.
   intros n x.
   induction n as [| n IH]; simpl.
-  - apply sc_sin_term_neg.
-  - rewrite IH. rewrite (sc_sin_term_neg (Datatypes.S n) x). ring.
+  - apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply sc_sin_term_neg.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ IH). rewrite (qeqT_imp_qeq _ _ (sc_sin_term_neg (Datatypes.S n) x)). ring.
 Qed.
 
-Lemma sc_cos_partial_neg : forall (n : nat) (x : Q), cos_partial n (- x) == cos_partial n x.
+Lemma sc_cos_partial_neg : forall (n : nat) (x : Q), QeqT (cos_partial n (- x)) (cos_partial n x).
 Proof.
   intros n x.
   induction n as [| n IH]; simpl.
-  - apply sc_cos_term_neg.
-  - rewrite IH. rewrite (sc_cos_term_neg (Datatypes.S n) x). ring.
+  - apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply sc_cos_term_neg.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ IH). rewrite (qeqT_imp_qeq _ _ (sc_cos_term_neg (Datatypes.S n) x)). ring.
 Qed.
 
 (* ============================================================ *)
@@ -2204,36 +2205,36 @@ Qed.
 (* ============================================================ *)
 
 (* cos 项零指标 == 1（任意 x，纯计算） *)
-Lemma sc_cos_term_zero : forall x : Q, cos_term 0 x == 1.
-Proof. intro x. unfold cos_term. reflexivity. Qed.
+Lemma sc_cos_term_zero : forall x : Q, QeqT (cos_term 0 x) (1).
+Proof. intro x. apply qeq_imp_qeqT. unfold cos_term. reflexivity. Qed.
 
 (* cos_partial 0 == 1（任意 x） *)
-Lemma sc_cos_partial_zero_const : forall x : Q, cos_partial 0 x == 1.
-Proof. intro x. change (cos_term 0 x == 1). apply sc_cos_term_zero. Qed.
+Lemma sc_cos_partial_zero_const : forall x : Q, QeqT (cos_partial 0 x) (1).
+Proof. intro x. apply qeq_imp_qeqT. change (cos_term 0 x == 1). apply qeqT_imp_qeq. apply sc_cos_term_zero. Qed.
 
 (* 导数式级数非负（非负项和） *)
-Lemma sc_cos_series_nonneg : forall n B, QleT' 0 B -> Qle 0 (sc_cos_series n B).
+Lemma sc_cos_series_nonneg : forall n B, QleT' 0 B -> QleT' 0 (sc_cos_series n B).
 Proof.
   intros n B HB. induction n as [| n IH]; simpl.
-  - change (Qle 0 (q_pow B 0 / q_fact 0)).
-    apply (q_pow_fact_nonneg B 0). exact (QleT'_to_Qle _ _ HB).
-  - apply (Qle_trans _ (sc_cos_series n B) _).
-    + exact IH.
+  - apply Qle_to_QleT'. change (Qle 0 (q_pow B 0 / q_fact 0)).
+    apply QleT'_to_Qle; apply (q_pow_fact_nonneg B 0). exact HB.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sc_cos_series n B) _).
+    + exact (QleT'_to_Qle _ _ IH).
     + apply (Qle_plus_nonneg_r (sc_cos_series n B)
              (q_pow B (Datatypes.S (Datatypes.S (2 * n))) / q_fact (Datatypes.S (Datatypes.S (2 * n))))).
-      apply q_pow_fact_nonneg. exact (QleT'_to_Qle _ _ HB).
+      apply QleT'_to_Qle; apply q_pow_fact_nonneg. exact HB.
 Qed.
 
-Lemma sc_sin_deriv_series_nonneg : forall n B, QleT' 0 B -> Qle 0 (sc_sin_deriv_series n B).
+Lemma sc_sin_deriv_series_nonneg : forall n B, QleT' 0 B -> QleT' 0 (sc_sin_deriv_series n B).
 Proof.
   intros n B HB. induction n as [| n IH]; simpl.
-  - change (Qle 0 (q_pow B 1 / q_fact 1)).
-    apply (q_pow_fact_nonneg B 1). exact (QleT'_to_Qle _ _ HB).
-  - apply (Qle_trans _ (sc_sin_deriv_series n B) _).
-    + exact IH.
+  - apply Qle_to_QleT'. change (Qle 0 (q_pow B 1 / q_fact 1)).
+    apply QleT'_to_Qle; apply (q_pow_fact_nonneg B 1). exact HB.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sc_sin_deriv_series n B) _).
+    + exact (QleT'_to_Qle _ _ IH).
     + apply (Qle_plus_nonneg_r (sc_sin_deriv_series n B)
              (q_pow B (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))) / q_fact (Datatypes.S (Datatypes.S (Datatypes.S (2 * n)))))).
-      apply q_pow_fact_nonneg. exact (QleT'_to_Qle _ _ HB).
+      apply QleT'_to_Qle; apply q_pow_fact_nonneg. exact HB.
 Qed.
 
 (* ---- real_sin 定义（副本 cauchy_real_exp） ---- *)
@@ -2274,7 +2275,7 @@ Proof.
                          Qabs (sin_partial m (u n) - sin_partial n (u n))) _).
   { apply (Qle_trans _ (Qabs ((sin_partial m (u m) - sin_partial m (u n)) +
                                (sin_partial m (u n) - sin_partial n (u n)))) _).
-    { apply qeq_le. exact Habs. }
+    { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs. }
     { apply Qabs_triangle. } }
   { apply (Qle_lt_trans _ (Qplus (Qmult (Qabs (u m - u n)) C) (eps / 2)) _).
     { apply Qplus_le_compat.
@@ -2282,14 +2283,14 @@ Proof.
         assert (Hin : Qle (Qabs (sin_partial m (u m) - sin_partial m (u n)))
                           (Qmult (Qabs (u m - u n)) C)).
         { apply (Qle_trans _ (Qmult (Qabs (u m - u n)) (sc_cos_series m M)) _).
-          - apply (sc_sin_partial_lipschitz (u m) (u n) M m (qltT_leT' 0 M HMpos) (HM m) (HM n)).
+          - apply QleT'_to_Qle. apply (sc_sin_partial_lipschitz (u m) (u n) M m (qltT_leT' 0 M HMpos) (HM m) (HM n)).
           - apply (Qmult_le_compat_nonneg (Qabs (u m - u n)) (Qabs (u m - u n))
                                           (sc_cos_series m M) C).
             + split; [apply Qabs_nonneg | apply Qle_refl].
             + split.
-              * apply sc_cos_series_nonneg. exact (qltT_leT' 0 M HMpos).
+              * apply QleT'_to_Qle. apply sc_cos_series_nonneg. exact (qltT_leT' 0 M HMpos).
               * apply (Qle_trans _ (exp_series (2 * m) M) _).
-                -- apply sc_cos_series_le_exp. exact (qltT_leT' 0 M HMpos).
+                -- apply QleT'_to_Qle. apply sc_cos_series_le_exp. exact (qltT_leT' 0 M HMpos).
                  -- apply QleT'_to_Qle. apply (HC (2 * m)%nat). }
         exact Hin. }
       { apply (Qlt_le_weak (Qabs (sin_partial m (u n) - sin_partial n (u n))) (eps / 2)).
@@ -2309,14 +2310,14 @@ Proof.
               { apply NatLe_lift. apply (Nat.le_trans _ (Nat.max N1 N2) _); [lia | exact (NatLe_drop _ _ Hn)]. } } }
           { assert (Hc : Qmult (eps / (2 * C)) C == eps / 2).
             { unfold Qdiv. field.
-              all: try (apply q_neq_of_lt; apply (Qmult_lt_0_compat 2 C)).
+              all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ (Qmult_lt_0_compat 2 C (QltT_to_Qlt _ _ qltT_0_2) HCpos)) (qeq_imp_qeqT _ _ HzneA)) with end)).
               all: try (unfold Qlt; simpl; lia).
               all: try (exact HCpos).
               all: try (unfold Qeq; simpl; lia).
-              all: try (apply q_neq_of_lt; exact HCpos). }
-            apply qeq_le. exact Hc. } }
+              all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ HCpos) (qeq_imp_qeqT _ _ HzneA)) with end)). }
+            apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hc. } }
         { apply Qle_refl. } }
-      { apply qeq_le.
+      { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         unfold Qdiv. field.
         all: try (unfold Qeq; simpl; lia). } } }
 Defined.
@@ -2359,19 +2360,19 @@ Proof.
                          Qabs (cos_partial m (u n) - cos_partial n (u n))) _).
   { apply (Qle_trans _ (Qabs ((cos_partial m (u m) - cos_partial m (u n)) +
                                (cos_partial m (u n) - cos_partial n (u n)))) _).
-    { apply qeq_le. exact Habs. }
+    { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs. }
     { apply Qabs_triangle. } }
   { apply (Qle_lt_trans _ (Qplus (Qmult (Qabs (u m - u n)) C) (eps / 2)) _).
     { apply Qplus_le_compat.
       { (* 输入项：m 分支 *)
         destruct m as [| m'].
         - (* m = 0：cos_partial 0 == 1 两侧，差 0 *)
-          assert (Ha : cos_partial 0 (u 0%nat) == 1) by apply sc_cos_partial_zero_const.
-          assert (Hb : cos_partial 0 (u n) == 1) by apply sc_cos_partial_zero_const.
+          assert (Ha : cos_partial 0 (u 0%nat) == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
+          assert (Hb : cos_partial 0 (u n) == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
           assert (Hz : cos_partial 0 (u 0%nat) - cos_partial 0 (u n) == 0).
           { rewrite Ha. rewrite Hb. ring. }
           apply (Qle_trans _ 0 _).
-          + apply qeq_le. apply (Qabs_wd (cos_partial 0 (u 0%nat) - cos_partial 0 (u n)) 0). exact Hz.
+          + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd (cos_partial 0 (u 0%nat) - cos_partial 0 (u n)) 0). exact Hz.
           + apply (Qmult_le_0_compat (Qabs (u 0%nat - u n)) C).
             * apply Qabs_nonneg.
             * apply (Qlt_le_weak 0 C). exact HCpos.
@@ -2379,14 +2380,14 @@ Proof.
           assert (Hin : Qle (Qabs (cos_partial (Datatypes.S m') (u (Datatypes.S m')) - cos_partial (Datatypes.S m') (u n)))
                             (Qmult (Qabs (u (Datatypes.S m') - u n)) C)).
           { apply (Qle_trans _ (Qmult (Qabs (u (Datatypes.S m') - u n)) (sc_sin_deriv_series m' M)) _).
-            + apply (sc_cos_partial_lipschitz_succ (u (Datatypes.S m')) (u n) M m' (qltT_leT' 0 M HMpos) (HM (Datatypes.S m')) (HM n)).
+            + apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ (u (Datatypes.S m')) (u n) M m' (qltT_leT' 0 M HMpos) (HM (Datatypes.S m')) (HM n)).
             + apply (Qmult_le_compat_nonneg (Qabs (u (Datatypes.S m') - u n)) (Qabs (u (Datatypes.S m') - u n))
                                             (sc_sin_deriv_series m' M) C).
               * split; [apply Qabs_nonneg | apply Qle_refl].
               * split.
-                -- apply sc_sin_deriv_series_nonneg. exact (qltT_leT' 0 M HMpos).
+                -- apply QleT'_to_Qle. apply sc_sin_deriv_series_nonneg. exact (qltT_leT' 0 M HMpos).
                 -- apply (Qle_trans _ (exp_series (Datatypes.S (2 * m')) M) _).
-                   ++ apply sc_sin_deriv_series_le_exp. exact (qltT_leT' 0 M HMpos).
+                   ++ apply QleT'_to_Qle. apply sc_sin_deriv_series_le_exp. exact (qltT_leT' 0 M HMpos).
                    ++ apply QleT'_to_Qle. apply (HC (Datatypes.S (2 * m'))%nat). }
           exact Hin. }
       { apply (Qlt_le_weak (Qabs (cos_partial m (u n) - cos_partial n (u n))) (eps / 2)).
@@ -2406,29 +2407,28 @@ Proof.
               { apply NatLe_lift. apply (Nat.le_trans _ (Nat.max N1 N2) _); [lia | exact (NatLe_drop _ _ Hn)]. } } }
           { assert (Hc : Qmult (eps / (2 * C)) C == eps / 2).
             { unfold Qdiv. field.
-              all: try (apply q_neq_of_lt; apply (Qmult_lt_0_compat 2 C)).
+              all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ (Qmult_lt_0_compat 2 C (QltT_to_Qlt _ _ qltT_0_2) HCpos)) (qeq_imp_qeqT _ _ HzneA)) with end)).
               all: try (unfold Qlt; simpl; lia).
               all: try (exact HCpos).
               all: try (unfold Qeq; simpl; lia).
-              all: try (apply q_neq_of_lt; exact HCpos). }
-            apply qeq_le. exact Hc. } }
+              all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ HCpos) (qeq_imp_qeqT _ _ HzneA)) with end)). }
+            apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hc. } }
         { apply Qle_refl. } }
-      { apply qeq_le.
+      { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         unfold Qdiv. field.
         all: try (unfold Qeq; simpl; lia). } } }
 Defined.
 
 (* ---- 投影引理 ---- *)
 Lemma real_sin_proj : forall (h : Real) (n : nat),
-  projT1 (cauchy_real_sin h) n == sin_partial n (projT1 h n).
+  QeqT (projT1 (cauchy_real_sin h) n) (sin_partial n (projT1 h n)).
 Proof.
-  intros h n. destruct h as [u Hu]. reflexivity.
+  intros h n. apply qeq_imp_qeqT. destruct h as [u Hu]. reflexivity.
 Qed.
 
-Lemma real_cos_proj : forall (h : Real) (n : nat),
-  projT1 (cauchy_real_cos h) n == cos_partial n (projT1 h n).
+Lemma real_cos_proj : forall (h : Real) (n : nat), QeqT (projT1 (cauchy_real_cos h) n) (cos_partial n (projT1 h n)).
 Proof.
-  intros h n. destruct h as [u Hu]. reflexivity.
+  intros h n. apply qeq_imp_qeqT. destruct h as [u Hu]. reflexivity.
 Qed.
 
 (* ---- sin 0 == 0 / cos 0 == 1 ---- *)
@@ -2439,10 +2439,10 @@ Proof.
   intros n Hn.
   simpl.
   assert (H1 : sin_partial n 0 - 0 == 0).
-  { rewrite (sc_sin_partial_zero n). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_zero n)). ring. }
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ 0 _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     apply (Qabs_wd (sin_partial n 0 - 0) 0). exact H1.
   - apply QltT_to_Qlt. exact Heps.
 Qed.
@@ -2454,10 +2454,10 @@ Proof.
   intros n Hn.
   simpl.
   assert (H1 : cos_partial n 0 - 1 == 0).
-  { rewrite (sc_cos_partial_one n). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_one n)). ring. }
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ 0 _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     apply (Qabs_wd (cos_partial n 0 - 1) 0). exact H1.
   - apply QltT_to_Qlt. exact Heps.
 Qed.
@@ -2472,10 +2472,10 @@ Proof.
   intros n Hn.
   simpl.
   assert (H1 : sin_partial n (- u n) - (- sin_partial n (u n)) == 0).
-  { rewrite (sc_sin_partial_neg n (u n)). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_neg n (u n))). ring. }
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ 0 _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     apply (Qabs_wd (sin_partial n (- u n) - (- sin_partial n (u n))) 0). exact H1.
   - apply QltT_to_Qlt. exact Heps.
 Qed.
@@ -2489,10 +2489,10 @@ Proof.
   intros n Hn.
   simpl.
   assert (H1 : cos_partial n (- u n) - cos_partial n (u n) == 0).
-  { rewrite (sc_cos_partial_neg n (u n)). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_neg n (u n))). ring. }
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ 0 _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     apply (Qabs_wd (cos_partial n (- u n) - cos_partial n (u n)) 0). exact H1.
   - apply QltT_to_Qlt. exact Heps.
 Qed.
@@ -2505,24 +2505,25 @@ Qed.
 (* Q 层：cos_partial n 2 < −1/10，n ≥ 3
    链：cos n ≤ cos 3 + |Δ| ≤ cos 3 + (2^7/7!)·2 == −13/35 < −1/10 *)
 Lemma sc_cos_partial_ge3_lt_minus_tenth : forall n : nat, (3 <= n)%nat ->
-  Qlt (cos_partial n 2) (- (1/10)).
+  QltT (cos_partial n 2) (- (1/10)).
 Proof.
   intros n Hn.
+  apply Qlt_to_QltT.
   (* 界 1：|cos_partial n 2 − cos_partial 3 2| ≤ (2^7/7!)·2 *)
   assert (Hbound : Qle (Qabs (cos_partial n 2 - cos_partial 3 2))
                        ((q_pow 2 7 / q_fact 7) * (1 + 1))).
   { assert (Habs2eq : Qabs 2 == 2).
     { unfold Qabs. simpl. reflexivity. }
-    apply (sc_cos_diff_bound2 2 2 3 n).
+    apply QleT'_to_Qle. apply (sc_cos_diff_bound2 2 2 3 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact Habs2eq.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs2eq.
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   (* 界 2：cos n ≤ cos 3 + |Δ| *)
   assert (Hle1 : Qle (cos_partial n 2)
                     (cos_partial 3 2 + Qabs (cos_partial n 2 - cos_partial 3 2))).
   { apply (Qle_trans _ (cos_partial 3 2 + (cos_partial n 2 - cos_partial 3 2)) _).
-    - apply qeq_le. ring.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply Qplus_le_compat.
       + apply Qle_refl.
       + apply Qle_Qabs. }
@@ -2556,7 +2557,7 @@ Proof.
     rewrite Heq.
     (* cos_partial n 2 < −1/10 ⟹ 1/10 < −cos_partial n 2 *)
     assert (Hlt : Qlt (cos_partial n 2) (- (1/10))).
-    { apply sc_cos_partial_ge3_lt_minus_tenth. apply NatLe_drop in Hn. lia. }
+    { apply QltT_to_Qlt. apply sc_cos_partial_ge3_lt_minus_tenth. apply NatLe_drop in Hn. lia. }
     (* Hlt ⟹ 0 < −(1/10) − cos n（Qlt_minus_iff）；换形为 0 < −cos n − 1/10 *)
     pose proof (proj1 (Qlt_minus_iff (cos_partial n 2) (- (1/10))) Hlt) as Hm.
     assert (Hr : (- (1/10)) - cos_partial n 2 == (- cos_partial n 2) - (1/10)) by ring.
@@ -2569,29 +2570,31 @@ Qed.
 (* ============================================================ *)
 
 (* Q 层辅助：−|x| ≤ x *)
-Lemma sc_q_neg_abs_le : forall x : Q, Qle (- Qabs x) x.
+Lemma sc_q_neg_abs_le : forall x : Q, QleT' (- Qabs x) x.
 Proof.
   intro x.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (- (- x)) _).
   - apply Qopp_le_compat.
     apply (Qle_trans _ (Qabs (- x)) _).
     + apply Qle_Qabs.
-    + apply qeq_le. apply Qabs_opp.
-  - apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_opp.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* cos(1) 余量下界：n ≥ 2 ⟹ 1/10 < cos_partial n 1（cos n ≥ 13/24 − 1/60 == 21/40） *)
 Lemma sc_cos_partial_ge2_one_margin : forall n : nat, (2 <= n)%nat ->
-  Qlt (1/10) (cos_partial n 1).
+  QltT (1/10) (cos_partial n 1).
 Proof.
   intros n Hn.
+  apply Qlt_to_QltT.
   assert (Hbound : Qle (Qabs (cos_partial n 1 - cos_partial 2 1))
                        ((q_pow 1 5 / q_fact 5) * (1 + 1))).
   { assert (Habs1eq : Qabs 1 == 1).
     { unfold Qabs. simpl. reflexivity. }
-    apply (sc_cos_diff_bound2 1 1 2 n).
+    apply QleT'_to_Qle. apply (sc_cos_diff_bound2 1 1 2 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact Habs1eq.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs1eq.
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   assert (Hle2 : Qle (cos_partial 2 1 + (- Qabs (cos_partial n 1 - cos_partial 2 1)))
@@ -2599,8 +2602,8 @@ Proof.
   { apply (Qle_trans _ (cos_partial 2 1 + (cos_partial n 1 - cos_partial 2 1)) _).
     - apply Qplus_le_compat.
       + apply Qle_refl.
-      + apply sc_q_neg_abs_le.
-    - apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply sc_q_neg_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   apply (Qlt_le_trans _ (cos_partial 2 1 + (- ((q_pow 1 5 / q_fact 5) * (1 + 1)))) _).
   - (* 1/10 < cos 2 1 − 1/60 == 13/24 − 1/60 == 21/40 *)
     assert (Hval : cos_partial 2 1 == 13 / 24).
@@ -2619,16 +2622,17 @@ Qed.
 
 (* sin(1) 余量下界：n ≥ 2 ⟹ 1/10 < sin_partial n 1（sin n ≥ 101/120 − 1/60 == 33/40） *)
 Lemma sc_sin_partial_ge2_one_margin : forall n : nat, (2 <= n)%nat ->
-  Qlt (1/10) (sin_partial n 1).
+  QltT (1/10) (sin_partial n 1).
 Proof.
   intros n Hn.
+  apply Qlt_to_QltT.
   assert (Hbound : Qle (Qabs (sin_partial n 1 - sin_partial 2 1))
                        ((q_pow 1 5 / q_fact 5) * (1 + 1))).
   { assert (Habs1eq : Qabs 1 == 1).
     { unfold Qabs. simpl. reflexivity. }
-    apply (sc_sin_diff_bound2 1 1 2 n).
+    apply QleT'_to_Qle. apply (sc_sin_diff_bound2 1 1 2 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact Habs1eq.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs1eq.
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   assert (Hle2 : Qle (sin_partial 2 1 + (- Qabs (sin_partial n 1 - sin_partial 2 1)))
@@ -2636,8 +2640,8 @@ Proof.
   { apply (Qle_trans _ (sin_partial 2 1 + (sin_partial n 1 - sin_partial 2 1)) _).
     - apply Qplus_le_compat.
       + apply Qle_refl.
-      + apply sc_q_neg_abs_le.
-    - apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply sc_q_neg_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   apply (Qlt_le_trans _ (sin_partial 2 1 + (- ((q_pow 1 5 / q_fact 5) * (1 + 1)))) _).
   - assert (Hval : sin_partial 2 1 == 101 / 120).
     { unfold Qeq. simpl. lia. }
@@ -2666,7 +2670,7 @@ Proof.
     apply Qlt_to_QltT.
     assert (Heq : cos_partial n 1 - 0 == cos_partial n 1) by ring.
     rewrite Heq.
-    apply sc_cos_partial_ge2_one_margin. apply NatLe_drop in Hn. lia.
+    apply QltT_to_Qlt. apply sc_cos_partial_ge2_one_margin. apply NatLe_drop in Hn. lia.
 Qed.
 
 (* Real 层：sin(1) > 0 *)
@@ -2682,7 +2686,7 @@ Proof.
     apply Qlt_to_QltT.
     assert (Heq : sin_partial n 1 - 0 == sin_partial n 1) by ring.
     rewrite Heq.
-    apply sc_sin_partial_ge2_one_margin. apply NatLe_drop in Hn. lia.
+    apply QltT_to_Qlt. apply sc_sin_partial_ge2_one_margin. apply NatLe_drop in Hn. lia.
 Qed.
 (* ============================================================ *)
 (* 批 6（轮 5）：Leibniz π——偶数配对、奇数子列（递增）路线     *)
@@ -2703,58 +2707,62 @@ Fixpoint lp_odd (m : nat) : Q :=
 Definition lp_four : Q := 1 + 1 + 1 + 1.
 
 (* a 反单调（≤ 版）：k ≤ j ⟹ a_j ≤ a_k *)
-Lemma sc_lpa_decr_le : forall k j : nat, (k <= j)%nat -> Qle (lp_a j) (lp_a k).
+Lemma sc_lpa_decr_le : forall k j : nat, (k <= j)%nat -> QleT' (lp_a j) (lp_a k).
 Proof.
   intros k j Hkj.
   unfold lp_a.
   apply (q_le_div_le 1 (Qmake (Z.of_nat (2 * j + 1)) 1)
                        1 (Qmake (Z.of_nat (2 * k + 1)) 1)).
-  - unfold Qlt; simpl; lia.
-  - unfold Qlt; simpl; lia.
-  - setoid_replace (1 * (Z.of_nat (2 * k + 1) # 1)) with (Z.of_nat (2 * k + 1) # 1) by (apply Qmult_1_l).
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qle_to_QleT'.
+    setoid_replace (1 * (Z.of_nat (2 * k + 1) # 1)) with (Z.of_nat (2 * k + 1) # 1) by (apply Qmult_1_l).
     setoid_replace (1 * (Z.of_nat (2 * j + 1) # 1)) with (Z.of_nat (2 * j + 1) # 1) by (apply Qmult_1_l).
     unfold Qle; simpl; lia.
 Qed.
 
-Lemma sc_lpa_nonneg : forall k : nat, Qle 0 (lp_a k).
+Lemma sc_lpa_nonneg : forall k : nat, QleT' 0 (lp_a k).
 Proof.
   intro k.
   unfold lp_a.
   apply (q_le_div_le 0 1 1 (Qmake (Z.of_nat (2 * k + 1)) 1)).
-  - unfold Qlt; simpl; lia.
-  - unfold Qlt; simpl; lia.
-  - unfold Qle; simpl; lia.
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qle_to_QleT'. unfold Qle; simpl; lia.
 Qed.
 
-Lemma sc_lp_pair_nonneg : forall j : nat, Qle 0 (lp_pair j).
+Lemma sc_lp_pair_nonneg : forall j : nat, QleT' 0 (lp_pair j).
 Proof.
   intro j.
+  apply Qle_to_QleT'.
   unfold lp_pair.
   apply (proj1 (Qle_minus_iff (lp_a (2 * j + 1)) (lp_a (2 * j)))).
-  apply sc_lpa_decr_le. lia.
+  apply QleT'_to_Qle. apply sc_lpa_decr_le. lia.
 Qed.
 
-Lemma sc_lp_odd_mono : forall m : nat, Qle (lp_odd m) (lp_odd (Datatypes.S m)).
+Lemma sc_lp_odd_mono : forall m : nat, QleT' (lp_odd m) (lp_odd (Datatypes.S m)).
 Proof.
-intro m. change (Qle (lp_odd m) (lp_odd m + lp_pair (Datatypes.S m))). exact (Qle_plus_nonneg_r (lp_odd m) (lp_pair (Datatypes.S m)) (sc_lp_pair_nonneg (Datatypes.S m))).
+intro m. apply Qle_to_QleT'. change (Qle (lp_odd m) (lp_odd m + lp_pair (Datatypes.S m))). exact (Qle_plus_nonneg_r (lp_odd m) (lp_pair (Datatypes.S m)) (QleT'_to_Qle _ _ (sc_lp_pair_nonneg (Datatypes.S m)))).
 Qed.
 
 Lemma sc_lp_odd_chain : forall m n : nat, (m <= n)%nat ->
-  Qle (lp_odd m) (lp_odd n).
+  QleT' (lp_odd m) (lp_odd n).
 Proof.
   intros m n Hmn.
-  induction Hmn as [| n' Hmn' IH].
-  - apply Qle_refl.
-  - apply (Qle_trans _ (lp_odd n') _).
-    + exact IH.
-    + apply sc_lp_odd_mono.
+  revert m Hmn.
+  induction n as [| n IH]; intros m Hmn.
+  - apply Qle_to_QleT'. assert (Hm0 : (m = 0)%nat) by lia. subst m. apply Qle_refl.
+  - destruct (Nat.eq_dec m (Datatypes.S n)) as [Heq | Hne].
+    + subst m. apply Qle_to_QleT'. apply Qle_refl.
+    + apply Qle_to_QleT'. apply (Qle_trans _ (lp_odd n) _).
+      * apply QleT'_to_Qle. apply IH. lia.
+      * apply QleT'_to_Qle. apply sc_lp_odd_mono.
 Qed.
 
-Lemma sc_lp_odd_diff_step : forall m n : nat,
-  lp_odd (Datatypes.S n) - lp_odd m ==
-  (lp_odd n - lp_odd m) + lp_pair (Datatypes.S n).
+Lemma sc_lp_odd_diff_step : forall m n : nat, QeqT (lp_odd (Datatypes.S n) - lp_odd m) ((lp_odd n - lp_odd m) + lp_pair (Datatypes.S n)).
 Proof.
   intros m n.
+  apply qeq_imp_qeqT.
   change (lp_odd n + lp_pair (Datatypes.S n) - lp_odd m ==
           (lp_odd n - lp_odd m) + lp_pair (Datatypes.S n)).
   ring.
@@ -2762,64 +2770,66 @@ Qed.
 
 (* 两段界：m ≤ n ⟹ lp_odd n − lp_odd m ≤ a_{2m+2} − a_{2n+2} *)
 Lemma sc_lp_odd_diff2 : forall m n : nat, (m <= n)%nat ->
-  Qle (lp_odd n - lp_odd m) (lp_a (2 * m + 2) - lp_a (2 * n + 2)).
+  QleT' (lp_odd n - lp_odd m) (lp_a (2 * m + 2) - lp_a (2 * n + 2)).
 Proof.
   intros m n Hmn.
   revert m Hmn.
   induction n as [| n IH]; intros m Hmn.
-  - assert (Hm0 : (m = 0)%nat) by lia. subst m.
+  - apply Qle_to_QleT'. assert (Hm0 : (m = 0)%nat) by lia. subst m.
     unfold Qle; simpl; lia.
-  - destruct (Nat.leb m n) eqn:E.
+  - apply Qle_to_QleT'. destruct (Nat.leb m n) eqn:E.
     + apply Nat.leb_le in E.
-      rewrite (sc_lp_odd_diff_step m n).
+      rewrite (qeqT_imp_qeq _ _ (sc_lp_odd_diff_step m n)).
       replace (2 * Datatypes.S n)%nat with (2 * n + 2)%nat by lia.
       replace (2 * Datatypes.S n + 2)%nat with (2 * n + 4)%nat by lia.
       apply (Qle_trans _ ((lp_a (2 * m + 2) - lp_a (2 * n + 2)) +
                           (lp_a (2 * n + 2) - lp_a (2 * n + 3))) _).
       * apply Qplus_le_compat.
-        -- exact (IH m E).
+        -- exact (QleT'_to_Qle _ _ (IH m E)).
         -- unfold lp_pair.
            replace (2 * Datatypes.S n)%nat with (2 * n + 2)%nat by lia.
            replace (2 * n + 2 + 1)%nat with (2 * n + 3)%nat by lia.
            apply Qle_refl.
       * apply (Qle_trans _ (lp_a (2 * m + 2) - lp_a (2 * n + 3)) _).
-        -- apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
         -- apply Qplus_le_compat.
            ++ apply Qle_refl.
            ++ apply Qopp_le_compat.
-              apply sc_lpa_decr_le. lia.
+              apply QleT'_to_Qle. apply sc_lpa_decr_le. lia.
     + apply Nat.leb_gt in E.
       assert (Hm : (m = Datatypes.S n)%nat) by lia. subst m.
-      apply qeq_le. ring.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* 尾界：m ≤ n ⟹ lp_odd n − lp_odd m ≤ a_{2m+2} *)
 Lemma sc_lp_odd_diff_bound : forall m n : nat, (m <= n)%nat ->
-  Qle (lp_odd n - lp_odd m) (lp_a (2 * m + 2)).
+  QleT' (lp_odd n - lp_odd m) (lp_a (2 * m + 2)).
 Proof.
   intros m n Hmn.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (lp_a (2 * m + 2) - lp_a (2 * n + 2)) _).
-  - apply sc_lp_odd_diff2. exact Hmn.
+  - apply QleT'_to_Qle. apply sc_lp_odd_diff2. exact Hmn.
   - apply (Qle_trans _ (lp_a (2 * m + 2) + 0) _).
     + apply Qplus_le_compat.
       * apply Qle_refl.
       * apply (Qopp_le_compat 0 (lp_a (2 * n + 2))).
-        apply sc_lpa_nonneg.
-    + apply qeq_le. ring.
+        apply QleT'_to_Qle. apply sc_lpa_nonneg.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* 偶段（S_{2m+2}）递减：lp_odd (S m) + a_{2(S m)+2} ≤ lp_odd m + a_{2m+2} *)
 Lemma sc_lp_ev_decr : forall m : nat,
-  Qle (lp_odd (Datatypes.S m) + lp_a (2 * Datatypes.S m + 2))
+  QleT' (lp_odd (Datatypes.S m) + lp_a (2 * Datatypes.S m + 2))
       (lp_odd m + lp_a (2 * m + 2)).
 Proof.
   intro m.
+  apply Qle_to_QleT'.
   change (Qle (lp_odd m + lp_pair (Datatypes.S m) + lp_a (2 * Datatypes.S m + 2))
               (lp_odd m + lp_a (2 * m + 2))).
   replace (2 * Datatypes.S m + 2)%nat with (2 * m + 4)%nat by lia.
   replace (2 * Datatypes.S m)%nat with (2 * m + 2)%nat by lia.
   apply (Qle_trans _ (lp_odd m + lp_a (2 * m + 2) + (lp_a (2 * m + 4) - lp_a (2 * m + 3))) _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     unfold lp_pair.
     replace (2 * Datatypes.S m)%nat with (2 * m + 2)%nat by lia.
     replace (2 * m + 2 + 1)%nat with (2 * m + 3)%nat by lia.
@@ -2829,70 +2839,76 @@ Proof.
       * apply Qle_refl.
       * (* a_{2m+4} − a_{2m+3} ≤ 0 *)
         apply (Qle_trans _ (- (lp_a (2 * m + 3) - lp_a (2 * m + 4))) _).
-          -- apply qeq_le. ring.
+          -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
           -- apply (Qopp_le_compat 0 (lp_a (2 * m + 3) - lp_a (2 * m + 4))).
              apply (proj1 (Qle_minus_iff (lp_a (2 * m + 4)) (lp_a (2 * m + 3)))).
-             apply sc_lpa_decr_le. lia.
-    + apply qeq_le. ring.
+             apply QleT'_to_Qle. apply sc_lpa_decr_le. lia.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 Lemma sc_lp_ev_le_s2 : forall n : nat,
-  Qle (lp_odd n + lp_a (2 * n + 2)) (13 / 15).
+  QleT' (lp_odd n + lp_a (2 * n + 2)) (13 / 15).
 Proof.
   induction n as [| n IH].
-  - change (Qle (lp_odd 0 + lp_a 2) (13 / 15)).
-    apply qeq_le.
+  - apply Qle_to_QleT'. change (Qle (lp_odd 0 + lp_a 2) (13 / 15)).
+    apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     unfold lp_odd, lp_pair, lp_a. unfold Qeq. simpl. lia.
-  - apply (Qle_trans _ (lp_odd n + lp_a (2 * n + 2)) _).
-    + apply sc_lp_ev_decr.
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (lp_odd n + lp_a (2 * n + 2)) _).
+    + apply QleT'_to_Qle. apply sc_lp_ev_decr.
+    + exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* 上界：lp_odd n ≤ 13/15 *)
-Lemma sc_lp_odd_le_s2 : forall n : nat, Qle (lp_odd n) (13 / 15).
+Lemma sc_lp_odd_le_s2 : forall n : nat, QleT' (lp_odd n) (13 / 15).
 Proof.
   intro n.
+  apply Qle_to_QleT'.
   exact (Qle_trans (lp_odd n) (lp_odd n + lp_a (2 * n + 2)) (13 / 15)
     (Qle_plus_nonneg_r (lp_odd n) (lp_a (2 * n + 2))
-      (sc_lpa_nonneg (2 * n + 2)))
-    (sc_lp_ev_le_s2 n)).
+      (QleT'_to_Qle _ _ (sc_lpa_nonneg (2 * n + 2))))
+    (QleT'_to_Qle _ _ (sc_lp_ev_le_s2 n))).
 Qed.
 
 (* 下界（n ≥ 3）：lp_odd 3 ≤ lp_odd n *)
 Lemma sc_lp_three_le : forall n : nat, (3 <= n)%nat ->
-  Qle (lp_odd 3) (lp_odd n).
+  QleT' (lp_odd 3) (lp_odd n).
 Proof.
   intros n Hn.
-  apply sc_lp_odd_chain. lia.
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply sc_lp_odd_chain. lia.
 Qed.
 
 (* 具体值 1：4·lp_odd 3 == 8/3 + 8/35 + 8/99 + 8/195 *)
-Lemma sc_lp_three_value : lp_four * lp_odd 3 == 8 / 3 + 8 / 35 + 8 / 99 + 8 / 195.
+Lemma sc_lp_three_value : QeqT (lp_four * lp_odd 3) (8 / 3 + 8 / 35 + 8 / 99 + 8 / 195).
 Proof.
+  apply qeq_imp_qeqT.
   unfold lp_four, lp_odd, lp_pair, lp_a.
   unfold Qeq. simpl. lia.
 Qed.
 
 (* 具体比较：3 + 1/100 < 4·lp_odd 3 *)
-Lemma sc_lp_three_margin : Qlt (3 + 1 / 100) (lp_four * lp_odd 3).
+Lemma sc_lp_three_margin : QltT (3 + 1 / 100) (lp_four * lp_odd 3).
 Proof.
-  rewrite sc_lp_three_value.
+  apply Qlt_to_QltT.
+  rewrite (qeqT_imp_qeq _ _ (sc_lp_three_value)).
   unfold Qlt. simpl. lia.
 Qed.
 
 (* 具体比较：4·(13/15) < 4（52/15 < 4） *)
-Lemma sc_lp_s2_margin : Qlt (lp_four * (13 / 15)) 4.
+Lemma sc_lp_s2_margin : QltT (lp_four * (13 / 15)) 4.
 Proof.
+  apply Qlt_to_QltT.
   unfold lp_four. unfold Qlt. simpl. lia.
 Qed.
 (* 批 6b（轮 6）：Leibniz π Real 层——定义 + 夹逼 3 < π < 4     *)
 (* ============================================================ *)
 
-Lemma sc_lp_four_pos : Qlt 0 lp_four.
-Proof. unfold lp_four. unfold Qlt; simpl; lia. Qed.
+Lemma sc_lp_four_pos : QltT 0 lp_four.
+Proof. apply Qlt_to_QltT. unfold lp_four. unfold Qlt; simpl; lia. Qed.
 
-Lemma sc_lp_four_nonneg : Qle 0 lp_four.
+Lemma sc_lp_four_nonneg : QleT' 0 lp_four.
 Proof.
+  apply Qle_to_QleT'.
   (* ToyR 替换：Z 层直构（消 Qlt_le_weak→sc_lp_four_pos 转发链）：
      lp_four 定义展开为字面和，Qle 展开 = 交叉积 Z.le，线性判定闭合 *)
   unfold Qle, lp_four.
@@ -2902,16 +2918,17 @@ Qed.
 
 (* 差分归约：m ≤ n ⟹ lp_odd n − lp_odd m ≥ 0 *)
 Lemma sc_lp_odd_diff_nonneg : forall m n : nat, (m <= n)%nat ->
-  Qle 0 (lp_odd n - lp_odd m).
+  QleT' 0 (lp_odd n - lp_odd m).
 Proof.  intros m n Hmn.
-  exact (proj1 (Qle_minus_iff (lp_odd m) (lp_odd n)) (sc_lp_odd_chain m n Hmn)).
+  apply Qle_to_QleT'.
+  exact (proj1 (Qle_minus_iff (lp_odd m) (lp_odd n)) (QleT'_to_Qle _ _ (sc_lp_odd_chain m n Hmn))).
 Qed.
 
 (* |4(x−y)| == 4(y−x)（x ≤ y） *)
-Lemma sc_lp_abs_four : forall x y : Q, Qle x y ->
-  Qabs (lp_four * x - lp_four * y) == lp_four * (y - x).
+Lemma sc_lp_abs_four : forall x y : Q, Qle x y ->QeqT (Qabs (lp_four * x - lp_four * y)) (lp_four * (y - x)).
 Proof.
   intros x y Hxy.
+  apply qeq_imp_qeqT.
   (* A − B == 4(x−y)；4(x−y) == −(4(y−x))；|−t| == |t|；|4(y−x)| == 4(y−x)（非负） *)
   assert (Halg : lp_four * x - lp_four * y == lp_four * (x - y)).
   { ring. }
@@ -2919,7 +2936,7 @@ Proof.
   { ring. }
   assert (Hnonneg : Qle 0 (lp_four * (y - x))).
   { apply Qmult_le_0_compat.
-    - apply sc_lp_four_nonneg.
+    - apply QleT'_to_Qle. apply sc_lp_four_nonneg.
     - apply (proj1 (Qle_minus_iff x y)). exact Hxy. }
   apply (Qeq_trans _ (Qabs (lp_four * (x - y))) _).
   - apply (Qabs_wd (lp_four * x - lp_four * y) (lp_four * (x - y))). exact Halg.
@@ -2932,16 +2949,17 @@ Qed.
 
 (* 尾界 ≤ 阿基米德形：m ≥ N ⟹ lp_a (2m+2) ≤ 1/(N+2)#1 *)
 Lemma sc_lp_a_arch_le : forall m N : nat, (N <= m)%nat ->
-  Qle (lp_a (2 * m + 2)) (Qdiv 1 (Qmake (Z.of_nat (N + 2)) 1)).
+  QleT' (lp_a (2 * m + 2)) (Qdiv 1 (Qmake (Z.of_nat (N + 2)) 1)).
 Proof.
   intros m N HNm.
   unfold lp_a.
   replace (2 * (2 * m + 2) + 1)%nat with (4 * m + 5)%nat by lia.
   apply (q_le_div_le 1 (Qmake (Z.of_nat (4 * m + 5)) 1)
                        1 (Qmake (Z.of_nat (N + 2)) 1)).
-  - unfold Qlt; simpl; lia.
-  - unfold Qlt; simpl; lia.
-  - rewrite (Qmult_1_l (Qmake (Z.of_nat (N + 2)) 1)).
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+  - apply Qle_to_QleT'.
+    rewrite (Qmult_1_l (Qmake (Z.of_nat (N + 2)) 1)).
     rewrite (Qmult_1_l (Qmake (Z.of_nat (4 * m + 5)) 1)).
     unfold Qle; simpl; lia.
 Qed.
@@ -2949,25 +2967,27 @@ Qed.
 (* 4·(1/(N+2)#1) < eps：arch 链（1/(N+2) < eps/4 乘 4） *)
 Lemma sc_lp_four_arch_lt : forall (eps : Q) (N : nat),
   Qlt 0 eps -> Qlt (1 / (Z.of_nat (N + 2) # 1)) (eps / lp_four) ->
-  Qlt (lp_four * (1 / (Z.of_nat (N + 2) # 1))) eps.
+  QltT (lp_four * (1 / (Z.of_nat (N + 2) # 1))) eps.
 Proof.
   intros eps N Heps Harch.
+  apply Qlt_to_QltT.
   (* 4·(1/(N+2)) == (1/(N+2))·4 < (eps/4)·4 == eps *)
   apply (Qle_lt_trans _ ((1 / (Z.of_nat (N + 2) # 1)) * lp_four) _).
-  - apply qeq_le. ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
   - apply (Qlt_le_trans _ ((eps / lp_four) * lp_four) _).
     + apply (Qmult_lt_compat_r (1 / (Z.of_nat (N + 2) # 1)) (eps / lp_four) lp_four).
-      * exact sc_lp_four_pos.
+      * exact (QltT_to_Qlt _ _ (sc_lp_four_pos)).
       * exact Harch.
-    + apply qeq_le.
-      assert (Hnz : ~ lp_four == 0) by (apply q_neq_of_lt; exact sc_lp_four_pos).
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+      assert (Hnz : ~ lp_four == 0) by (intro Hzne; exact (match (q_neq_of_lt _ sc_lp_four_pos (qeq_imp_qeqT _ _ Hzne)) with end)).
       unfold Qdiv. field. exact Hnz.
 Qed.
 
 (* 对称分支太繁：直接用 |a − b| == |b − a|（q_abs_minus_sym 思路内联） *)
-Lemma sc_lp_abs_sym : forall a b : Q, Qabs (a - b) == Qabs (b - a).
+Lemma sc_lp_abs_sym : forall a b : Q, QeqT (Qabs (a - b)) (Qabs (b - a)).
 Proof.
   intros a b.
+  apply qeq_imp_qeqT.
   apply (Qeq_trans _ (Qabs (- (b - a))) _).
   - apply (Qabs_wd (a - b) (- (b - a))). ring.
   - rewrite (Qabs_opp (b - a)). reflexivity.
@@ -2981,62 +3001,61 @@ Proof.
   { unfold Qdiv.
     apply (Qmult_lt_0_compat eps (Qinv lp_four)).
     - apply QltT_to_Qlt. exact Heps.
-    - apply Qinv_lt_0_compat. exact sc_lp_four_pos. }
-  destruct (q_arch_inv (eps / lp_four) Hq) as [N1 HN1].
+    - apply Qinv_lt_0_compat. exact (QltT_to_Qlt _ _ (sc_lp_four_pos)). }
+  destruct (q_arch_inv (eps / lp_four) (Qlt_to_QltT _ _ Hq)) as [N1 HN1].
   exists N1.
   intros m n Hm Hn.
   destruct (Nat.leb m n) eqn:E.
   - apply Nat.leb_le in E.
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ (lp_four * (lp_odd n - lp_odd m)) _).
-    + apply qeq_le.
-      apply sc_lp_abs_four.
-      apply sc_lp_odd_chain. exact E.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+      apply qeqT_imp_qeq. apply sc_lp_abs_four.
+      apply QleT'_to_Qle. apply sc_lp_odd_chain. exact E.
     + apply (Qle_lt_trans _ (lp_four * lp_a (2 * m + 2)) _).
       * setoid_replace (lp_four * (lp_odd n - lp_odd m)) with ((lp_odd n - lp_odd m) * lp_four) by ring.
         setoid_replace (lp_four * lp_a (2 * m + 2)) with (lp_a (2 * m + 2) * lp_four) by ring.
         apply (Qmult_le_compat_r (lp_odd n - lp_odd m) (lp_a (2 * m + 2)) lp_four).
-        -- apply sc_lp_odd_diff_bound. exact E.
-        -- apply sc_lp_four_nonneg.
+        -- apply QleT'_to_Qle. apply sc_lp_odd_diff_bound. exact E.
+        -- apply QleT'_to_Qle. apply sc_lp_four_nonneg.
       * apply (Qle_lt_trans _ (lp_four * (1 / (Z.of_nat (N1 + 2) # 1))) _).
         -- setoid_replace (lp_four * (1 / (Z.of_nat (N1 + 2) # 1))) with ((1 / (Z.of_nat (N1 + 2) # 1)) * lp_four) by ring.
            setoid_replace (lp_four * lp_a (2 * m + 2)) with (lp_a (2 * m + 2) * lp_four) by ring.
            apply (Qmult_le_compat_r (lp_a (2 * m + 2)) (1 / (Z.of_nat (N1 + 2) # 1)) lp_four).
-           ++ apply sc_lp_a_arch_le. apply NatLe_drop in Hm. lia.
-           ++ apply sc_lp_four_nonneg.
-        -- apply sc_lp_four_arch_lt.
+           ++ apply QleT'_to_Qle. apply sc_lp_a_arch_le. apply NatLe_drop in Hm. lia.
+           ++ apply QleT'_to_Qle. apply sc_lp_four_nonneg.
+        -- apply QltT_to_Qlt. apply sc_lp_four_arch_lt.
            ++ apply QltT_to_Qlt. exact Heps.
-           ++ exact HN1.
+           ++ apply QltT_to_Qlt. exact HN1.
   - apply Nat.leb_gt in E.
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ (lp_four * (lp_odd m - lp_odd n)) _).
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       apply (Qeq_trans _ (Qabs (lp_four * lp_odd n - lp_four * lp_odd m)) _).
-      * apply sc_lp_abs_sym.
-      * apply sc_lp_abs_four.
-        apply sc_lp_odd_chain. lia.
+      * apply qeqT_imp_qeq. apply sc_lp_abs_sym.
+      * apply qeqT_imp_qeq. apply sc_lp_abs_four.
+        apply QleT'_to_Qle. apply sc_lp_odd_chain. lia.
     + apply (Qle_lt_trans _ (lp_four * lp_a (2 * n + 2)) _).
       * setoid_replace (lp_four * (lp_odd m - lp_odd n)) with ((lp_odd m - lp_odd n) * lp_four) by ring.
         setoid_replace (lp_four * lp_a (2 * n + 2)) with (lp_a (2 * n + 2) * lp_four) by ring.
         apply (Qmult_le_compat_r (lp_odd m - lp_odd n) (lp_a (2 * n + 2)) lp_four).
-        -- apply sc_lp_odd_diff_bound. lia.
-        -- apply sc_lp_four_nonneg.
+        -- apply QleT'_to_Qle. apply sc_lp_odd_diff_bound. lia.
+        -- apply QleT'_to_Qle. apply sc_lp_four_nonneg.
       * apply (Qle_lt_trans _ (lp_four * (1 / (Z.of_nat (N1 + 2) # 1))) _).
         -- setoid_replace (lp_four * (1 / (Z.of_nat (N1 + 2) # 1))) with ((1 / (Z.of_nat (N1 + 2) # 1)) * lp_four) by ring.
            setoid_replace (lp_four * lp_a (2 * n + 2)) with (lp_a (2 * n + 2) * lp_four) by ring.
            apply (Qmult_le_compat_r (lp_a (2 * n + 2)) (1 / (Z.of_nat (N1 + 2) # 1)) lp_four).
-           ++ apply sc_lp_a_arch_le. apply NatLe_drop in Hn. lia.
-           ++ apply sc_lp_four_nonneg.
-        -- apply sc_lp_four_arch_lt.
+           ++ apply QleT'_to_Qle. apply sc_lp_a_arch_le. apply NatLe_drop in Hn. lia.
+           ++ apply QleT'_to_Qle. apply sc_lp_four_nonneg.
+        -- apply QltT_to_Qlt. apply sc_lp_four_arch_lt.
            ++ apply QltT_to_Qlt. exact Heps.
-           ++ exact HN1.
+           ++ apply QltT_to_Qlt. exact HN1.
 Defined.
 
 (* 投影引理 *)
-Lemma real_pi_leibniz_proj : forall n : nat,
-  projT1 (cauchy_real_pi_leibniz) n == lp_four * lp_odd n.
+Lemma real_pi_leibniz_proj : forall n : nat, QeqT (projT1 (cauchy_real_pi_leibniz) n) (lp_four * lp_odd n).
 Proof.
-  intro n. reflexivity.
+  intro n. apply qeq_imp_qeqT. reflexivity.
 Qed.
 
 (* ---- 夹逼：3 < π（余量：v n ≥ 4·lp_odd 3 > 3 + 1/100，n ≥ 3） ---- *)
@@ -3057,14 +3076,14 @@ Proof.
       setoid_replace ((lp_four * lp_odd 3 - 3) - (1 / 100))
         with (lp_four * lp_odd 3 - (3 + 1 / 100)) by ring.
       apply (proj1 (Qlt_minus_iff (3 + 1 / 100) (lp_four * lp_odd 3))).
-      exact sc_lp_three_margin.
+      exact (QltT_to_Qlt _ _ (sc_lp_three_margin)).
     + (* 4·lp_odd 3 − 3 ≤ 4·lp_odd n − 3 *)
       apply Qplus_le_compat.
       * setoid_replace (lp_four * lp_odd 3) with (lp_odd 3 * lp_four) by ring.
         setoid_replace (lp_four * lp_odd n) with (lp_odd n * lp_four) by ring.
         apply (Qmult_le_compat_r (lp_odd 3) (lp_odd n) lp_four).
-        -- apply sc_lp_odd_chain. apply NatLe_drop in Hn. lia.
-        -- apply sc_lp_four_nonneg.
+        -- apply QleT'_to_Qle. apply sc_lp_odd_chain. apply NatLe_drop in Hn. lia.
+        -- apply QleT'_to_Qle. apply sc_lp_four_nonneg.
       * apply Qle_refl.
 Qed.
 
@@ -3093,8 +3112,8 @@ Proof.
         setoid_replace (lp_four * lp_odd n) with (lp_odd n * lp_four) by ring.
         setoid_replace (lp_four * (13 / 15)) with ((13 / 15) * lp_four) by ring.
         apply (Qmult_le_compat_r (lp_odd n) (13 / 15) lp_four).
-        -- apply sc_lp_odd_le_s2.
-        -- apply sc_lp_four_nonneg.
+        -- apply QleT'_to_Qle. apply sc_lp_odd_le_s2.
+        -- apply QleT'_to_Qle. apply sc_lp_four_nonneg.
 Qed.
 (* 批 7（轮 7）：cos 单调首证——cos(1) < 1 = cos(0) 与           *)
 (*   cos(2) < cos(1)（π 几何化需 cos 在 (0,2) 递减的证据起点）   *)
@@ -3102,23 +3121,24 @@ Qed.
 
 (* Q 层上界余量：n ≥ 2 ⟹ cos_partial n 1 < 1 − 1/10（cos n ≤ 13/24 + 1/60 == 67/120） *)
 Lemma sc_cos_partial_ge2_one_upper : forall n : nat, (2 <= n)%nat ->
-  Qle (cos_partial n 1) (13 / 24 + 1 / 60).
+  QleT' (cos_partial n 1) (13 / 24 + 1 / 60).
 Proof.
   intros n Hn.
+  apply Qle_to_QleT'.
   assert (Hbound : Qle (Qabs (cos_partial n 1 - cos_partial 2 1))
                        ((q_pow 1 5 / q_fact 5) * (1 + 1))).
   { assert (Habs1eq : Qabs 1 == 1).
     { unfold Qabs. simpl. reflexivity. }
-    apply (sc_cos_diff_bound2 1 1 2 n).
+    apply QleT'_to_Qle. apply (sc_cos_diff_bound2 1 1 2 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact Habs1eq.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Habs1eq.
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   (* cos n ≤ cos 2 + |Δ|（Δ == cos n − cos 2） *)
   assert (Hle1 : Qle (cos_partial n 1)
                     (cos_partial 2 1 + Qabs (cos_partial n 1 - cos_partial 2 1))).
   { apply (Qle_trans _ (cos_partial 2 1 + (cos_partial n 1 - cos_partial 2 1)) _).
-    - apply qeq_le. ring.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply Qplus_le_compat.
       + apply Qle_refl.
       + apply Qle_Qabs. }
@@ -3157,7 +3177,7 @@ Proof.
       apply Qplus_le_compat.
       * apply Qle_refl.
       * apply Qopp_le_compat.
-        apply sc_cos_partial_ge2_one_upper. apply NatLe_drop in Hn. lia.
+        apply QleT'_to_Qle. apply sc_cos_partial_ge2_one_upper. apply NatLe_drop in Hn. lia.
 Qed.
 
 (* Real 层：cos(2) < cos(1)（经 real_zero 传递：cos 2 < 0 < cos 1） *)
@@ -3203,23 +3223,24 @@ Qed.
 (*   手算：cos(3/2) ≈ 0.0705 > 1/20；cos(5/3) ≈ −0.0951 < −1/100 *)
 (* ============================================================ *)
 
-Lemma sc_q_abs_3h : Qabs (3 / 2) == 3 / 2.
-Proof. apply Qabs_pos. unfold Qle; simpl; lia. Qed.
+Lemma sc_q_abs_3h : QeqT (Qabs (3 / 2)) (3 / 2).
+Proof. apply qeq_imp_qeqT. apply Qabs_pos. unfold Qle; simpl; lia. Qed.
 
-Lemma sc_q_abs_5t : Qabs (5 / 3) == 5 / 3.
-Proof. apply Qabs_pos. unfold Qle; simpl; lia. Qed.
+Lemma sc_q_abs_5t : QeqT (Qabs (5 / 3)) (5 / 3).
+Proof. apply qeq_imp_qeqT. apply Qabs_pos. unfold Qle; simpl; lia. Qed.
 
 (* Q 层：n ≥ 4 ⟹ 1/20 < cos_partial n (3/2)（cos(3/2) > 0 的余量） *)
 Lemma sc_cos_partial_ge4_pos_3h : forall n : nat, (4 <= n)%nat ->
-  Qlt (1 / 20) (cos_partial n (3 / 2)).
+  QltT (1 / 20) (cos_partial n (3 / 2)).
 Proof.
   intros n Hn.
+  apply Qlt_to_QltT.
   (* 界 1：|cos n (3/2) − cos 4 (3/2)| ≤ (3/2)^9/9!·2 *)
   assert (Hbound : Qle (Qabs (cos_partial n (3 / 2) - cos_partial 4 (3 / 2)))
                        ((q_pow (3 / 2) 9 / q_fact 9) * (1 + 1))).
-  { apply (sc_cos_diff_bound2 (3 / 2) (3 / 2) 4 n).
+  { apply QleT'_to_Qle. apply (sc_cos_diff_bound2 (3 / 2) (3 / 2) 4 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact sc_q_abs_3h.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_q_abs_3h)).
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   (* 界 2：cos 4 − |Δ| ≤ cos n *)
@@ -3228,8 +3249,8 @@ Proof.
   { apply (Qle_trans _ (cos_partial 4 (3 / 2) + (cos_partial n (3 / 2) - cos_partial 4 (3 / 2))) _).
     - apply Qplus_le_compat.
       + apply Qle_refl.
-      + apply sc_q_neg_abs_le.
-    - apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply sc_q_neg_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   (* 组装：1/20 < cos 4 − 尾 ≤ cos n *)
   apply (Qlt_le_trans _ (cos_partial 4 (3 / 2) + (- ((q_pow (3 / 2) 9 / q_fact 9) * (1 + 1)))) _).
   - (* 1/20 < cos 4 (3/2) − (3/2)^9/9!·2（具体求值 == 40451/573440） *)
@@ -3243,22 +3264,23 @@ Qed.
 
 (* Q 层：n ≥ 4 ⟹ cos_partial n (5/3) < −1/100（cos(5/3) < 0 的余量） *)
 Lemma sc_cos_partial_ge4_neg_5t : forall n : nat, (4 <= n)%nat ->
-  Qlt (cos_partial n (5 / 3)) (- (1 / 100)).
+  QltT (cos_partial n (5 / 3)) (- (1 / 100)).
 Proof.
   intros n Hn.
+  apply Qlt_to_QltT.
   (* 界 1：|cos n (5/3) − cos 4 (5/3)| ≤ (5/3)^9/9!·2 *)
   assert (Hbound : Qle (Qabs (cos_partial n (5 / 3) - cos_partial 4 (5 / 3)))
                        ((q_pow (5 / 3) 9 / q_fact 9) * (1 + 1))).
-  { apply (sc_cos_diff_bound2 (5 / 3) (5 / 3) 4 n).
+  { apply QleT'_to_Qle. apply (sc_cos_diff_bound2 (5 / 3) (5 / 3) 4 n).
     - unfold Qle; simpl; lia.
-    - apply qeq_le. exact sc_q_abs_5t.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_q_abs_5t)).
     - intros t Ht. unfold Qle; simpl; lia.
     - lia. }
   (* 界 2：cos n ≤ cos 4 + |Δ| *)
   assert (Hle1 : Qle (cos_partial n (5 / 3))
                      (cos_partial 4 (5 / 3) + Qabs (cos_partial n (5 / 3) - cos_partial 4 (5 / 3)))).
   { apply (Qle_trans _ (cos_partial 4 (5 / 3) + (cos_partial n (5 / 3) - cos_partial 4 (5 / 3))) _).
-    - apply qeq_le. ring.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply Qplus_le_compat.
       + apply Qle_refl.
       + apply Qle_Qabs. }
@@ -3286,7 +3308,7 @@ Proof.
     apply Qlt_to_QltT.
     assert (Heq : cos_partial n (3 / 2) - 0 == cos_partial n (3 / 2)) by ring.
     rewrite Heq.
-    apply sc_cos_partial_ge4_pos_3h. apply NatLe_drop in Hn. lia.
+    apply QltT_to_Qlt. apply sc_cos_partial_ge4_pos_3h. apply NatLe_drop in Hn. lia.
 Qed.
 
 (* Real 层：cos(5/3) < 0 *)
@@ -3303,7 +3325,7 @@ Proof.
     assert (Heq : 0 - cos_partial n (5 / 3) == - cos_partial n (5 / 3)) by ring.
     rewrite Heq.
     assert (Hlt : Qlt (cos_partial n (5 / 3)) (- (1 / 100))).
-    { apply sc_cos_partial_ge4_neg_5t. apply NatLe_drop in Hn. lia. }
+    { apply QltT_to_Qlt. apply sc_cos_partial_ge4_neg_5t. apply NatLe_drop in Hn. lia. }
     pose proof (proj1 (Qlt_minus_iff (cos_partial n (5 / 3)) (- (1 / 100))) Hlt) as Hm.
     assert (Hr : (- (1 / 100)) - cos_partial n (5 / 3) == (- cos_partial n (5 / 3)) - (1 / 100)) by ring.
     rewrite Hr in Hm.
@@ -3347,33 +3369,36 @@ Fixpoint sc_nat_split (n : nat) : sc_parity n :=
   end.
 
 (* ---- 2x ≤ 2 与 2x < 2j+2 / 2x < 2j+1（x ≤ 1 推论） ---- *)
-Lemma sc_two_x_le_two : forall x : Q, Qle x 1 -> Qle (Qmult (1 + 1)%Q x) (1 + 1).
+Lemma sc_two_x_le_two : forall x : Q, Qle x 1 -> QleT' (Qmult (1 + 1)%Q x) (1 + 1).
 Proof.
   intros x Hx1.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (x * (1 + 1)) _).
-  - apply qeq_le. ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
   - apply (Qle_trans _ ((1 + 1) * 1) _).
     + apply (Qmult_le_compat_r x 1 (1 + 1)).
       * exact Hx1.
       * unfold Qle; simpl; lia.
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 Lemma sc_sin_alt_hlt : forall (x : Q) (j : nat), Qle x 1 -> (1 <= j)%nat ->
-  Qlt (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 2)) 1).
+  QltT (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 2)) 1).
 Proof.
   intros x j Hx1 Hj.
+  apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (1 + 1) _).
-  - apply sc_two_x_le_two. exact Hx1.
+  - apply QleT'_to_Qle. apply sc_two_x_le_two. exact Hx1.
   - unfold Qlt. simpl. lia.
 Qed.
 
 Lemma sc_cos_alt_hlt : forall (x : Q) (j : nat), Qle x 1 -> (1 <= j)%nat ->
-  Qlt (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 1)) 1).
+  QltT (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 1)) 1).
 Proof.
   intros x j Hx1 Hj.
+  apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (1 + 1) _).
-  - apply sc_two_x_le_two. exact Hx1.
+  - apply QleT'_to_Qle. apply sc_two_x_le_two. exact Hx1.
   - unfold Qlt. simpl. lia.
 Qed.
 
@@ -3381,19 +3406,22 @@ Qed.
 Lemma sc_sin_alt_decr : forall (x : Q) (j : nat),
   Qle 0 x -> (1 <= j)%nat ->
   Qlt (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 2)) 1) ->
-  Qle (sc_sin_alt (Datatypes.S j) x) (sc_sin_alt j x).
+  QleT' (sc_sin_alt (Datatypes.S j) x) (sc_sin_alt j x).
 Proof.
   intros x j Hx0 Hj Hlt.
+  apply Qle_to_QleT'.
   unfold sc_sin_alt.
   apply (Qle_trans _ (q_pow x (2 * Datatypes.S j) / q_fact (2 * Datatypes.S j)) _).
   - (* t_{S(2·S j)} ≤ t_{2·S j}：pow_fact_mono k = 2·S j *)
-    apply (pow_fact_mono x (2 * Datatypes.S j) Hx0).
+    apply QleT'_to_Qle; apply (pow_fact_mono x (2 * Datatypes.S j) (Qle_to_QleT' _ _ Hx0)).
+    apply Qlt_to_QltT.
     apply (Qlt_le_trans _ (Qmake (Z.of_nat (2 * j + 2)) 1) _).
     + exact Hlt.
     + unfold Qle. simpl. lia.
   - (* t_{2·S j} == t_{S(S(2j))} ≤ t_{S(2j)}：pow_fact_mono k = S(2j) *)
     replace (2 * Datatypes.S j)%nat with (Datatypes.S (Datatypes.S (2 * j))) by lia.
-    apply (pow_fact_mono x (Datatypes.S (2 * j)) Hx0).
+    apply QleT'_to_Qle; apply (pow_fact_mono x (Datatypes.S (2 * j)) (Qle_to_QleT' _ _ Hx0)).
+    apply Qlt_to_QltT.
     apply (Qlt_le_trans _ (Qmake (Z.of_nat (2 * j + 2)) 1) _).
     + exact Hlt.
     + unfold Qle. simpl. lia.
@@ -3402,44 +3430,46 @@ Qed.
 Lemma sc_cos_alt_decr : forall (x : Q) (j : nat),
   Qle 0 x -> (1 <= j)%nat ->
   Qlt (Qmult (1 + 1)%Q x) (Qmake (Z.of_nat (2 * j + 1)) 1) ->
-  Qle (sc_cos_alt (Datatypes.S j) x) (sc_cos_alt j x).
+  QleT' (sc_cos_alt (Datatypes.S j) x) (sc_cos_alt j x).
 Proof.
   intros x j Hx0 Hj Hlt.
+  apply Qle_to_QleT'.
   unfold sc_cos_alt.
   apply (Qle_trans _ (q_pow x (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j))) _).
   - (* t_{2·S j} == t_{S(S(2j))} ≤ t_{S(2j)}：pow_fact_mono k = S(2j)（需 2x < 2j+2） *)
     replace (2 * Datatypes.S j)%nat with (Datatypes.S (Datatypes.S (2 * j))) by lia.
-    apply (pow_fact_mono x (Datatypes.S (2 * j)) Hx0).
+    apply QleT'_to_Qle; apply (pow_fact_mono x (Datatypes.S (2 * j)) (Qle_to_QleT' _ _ Hx0)).
+    apply Qlt_to_QltT.
     apply (Qlt_le_trans _ (Qmake (Z.of_nat (2 * j + 1)) 1) _).
     + exact Hlt.
     + unfold Qle. simpl. lia.
   - (* t_{S(2j)} ≤ t_{2j}：pow_fact_mono k = 2·j（需 2x < 2j+1） *)
-    apply (pow_fact_mono x (2 * j) Hx0).
-    exact Hlt.
+    apply QleT'_to_Qle; apply (pow_fact_mono x (2 * j) (Qle_to_QleT' _ _ Hx0)).
+    apply Qlt_to_QltT. exact Hlt.
 Qed.
 
 (* ---- 绝对项非负 ---- *)
-Lemma sc_sin_alt_nonneg : forall (j : nat) (x : Q), Qle 0 x -> Qle 0 (sc_sin_alt j x).
+Lemma sc_sin_alt_nonneg : forall (j : nat) (x : Q), Qle 0 x -> QleT' 0 (sc_sin_alt j x).
 Proof.  intros j x Hx0. unfold sc_sin_alt.
   exact (q_div_nonneg (q_pow x (Datatypes.S (2 * j))) (q_fact (Datatypes.S (2 * j)))
-    (q_pow_nonneg x (Datatypes.S (2 * j)) Hx0) (q_fact_pos (Datatypes.S (2 * j)))).
+    (q_pow_nonneg x (Datatypes.S (2 * j)) (Qle_to_QleT' _ _ Hx0)) (q_fact_pos (Datatypes.S (2 * j)))).
 Qed.
 
-Lemma sc_cos_alt_nonneg : forall (j : nat) (x : Q), Qle 0 x -> Qle 0 (sc_cos_alt j x).
+Lemma sc_cos_alt_nonneg : forall (j : nat) (x : Q), Qle 0 x -> QleT' 0 (sc_cos_alt j x).
 Proof.  intros j x Hx0. unfold sc_cos_alt.
   exact (q_div_nonneg (q_pow x (2 * j)) (q_fact (2 * j))
-    (q_pow_nonneg x (2 * j) Hx0) (q_fact_pos (2 * j))).
+    (q_pow_nonneg x (2 * j) (Qle_to_QleT' _ _ Hx0)) (q_fact_pos (2 * j))).
 Qed.
 
 (* ---- 符号因子辅助：q_pow (−1) 在奇/偶指标 ---- *)
-Lemma sc_qpow_odd_neg_m : forall m : nat, q_pow (-1) (Datatypes.S (2 * m)%nat) == -1.
+Lemma sc_qpow_odd_neg_m : forall m : nat, QeqT (q_pow (-1) (Datatypes.S (2 * m)%nat)) (-1).
 Proof.
   intros m.
   replace (Datatypes.S (2 * m)%nat) with (2 * m + 1)%nat by lia.
   exact (q_pow_neg1_odd m).
 Qed.
 
-Lemma sc_qpow_even_pos_m : forall m : nat, q_pow (-1) (Datatypes.S (Datatypes.S (2 * m)%nat)) == 1.
+Lemma sc_qpow_even_pos_m : forall m : nat, QeqT (q_pow (-1) (Datatypes.S (Datatypes.S (2 * m)%nat))) (1).
 Proof.
   intros m.
   replace (Datatypes.S (Datatypes.S (2 * m)%nat)) with (2 * Datatypes.S m)%nat by lia.
@@ -3447,61 +3477,54 @@ Proof.
 Qed.
 
 (* ---- sin_term 符号恒等：奇负偶正 ---- *)
-Lemma sc_sin_term_odd_neg : forall (m : nat) (x : Q),
-  sin_term (Datatypes.S (2 * m)) x == - sc_sin_alt (Datatypes.S (2 * m)) x.
+Lemma sc_sin_term_odd_neg : forall (m : nat) (x : Q), QeqT (sin_term (Datatypes.S (2 * m)) x) (- sc_sin_alt (Datatypes.S (2 * m)) x).
 Proof.
-  intros m x. unfold sin_term, sc_sin_alt.
-  rewrite (sc_qpow_odd_neg_m m).
+  intros m x. apply qeq_imp_qeqT. unfold sin_term, sc_sin_alt.
+  rewrite (qeqT_imp_qeq _ _ (sc_qpow_odd_neg_m m)).
   ring.
 Qed.
 
-Lemma sc_sin_term_even_pos : forall (m : nat) (x : Q),
-  sin_term (Datatypes.S (Datatypes.S (2 * m))) x == sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x.
+Lemma sc_sin_term_even_pos : forall (m : nat) (x : Q), QeqT (sin_term (Datatypes.S (Datatypes.S (2 * m))) x) (sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x).
 Proof.
-  intros m x. unfold sin_term, sc_sin_alt.
-  rewrite (sc_qpow_even_pos_m m).
+  intros m x. apply qeq_imp_qeqT. unfold sin_term, sc_sin_alt.
+  rewrite (qeqT_imp_qeq _ _ (sc_qpow_even_pos_m m)).
   ring.
 Qed.
 
 (* ---- cos_term 符号恒等 ---- *)
-Lemma sc_cos_term_odd_neg : forall (m : nat) (x : Q),
-  cos_term (Datatypes.S (2 * m)) x == - sc_cos_alt (Datatypes.S (2 * m)) x.
+Lemma sc_cos_term_odd_neg : forall (m : nat) (x : Q), QeqT (cos_term (Datatypes.S (2 * m)) x) (- sc_cos_alt (Datatypes.S (2 * m)) x).
 Proof.
-  intros m x. unfold cos_term, sc_cos_alt.
-  rewrite (sc_qpow_odd_neg_m m).
+  intros m x. apply qeq_imp_qeqT. unfold cos_term, sc_cos_alt.
+  rewrite (qeqT_imp_qeq _ _ (sc_qpow_odd_neg_m m)).
   ring.
 Qed.
 
-Lemma sc_cos_term_even_pos : forall (m : nat) (x : Q),
-  cos_term (Datatypes.S (Datatypes.S (2 * m))) x == sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x.
+Lemma sc_cos_term_even_pos : forall (m : nat) (x : Q), QeqT (cos_term (Datatypes.S (Datatypes.S (2 * m))) x) (sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x).
 Proof.
-  intros m x. unfold cos_term, sc_cos_alt.
-  rewrite (sc_qpow_even_pos_m m).
+  intros m x. apply qeq_imp_qeqT. unfold cos_term, sc_cos_alt.
+  rewrite (qeqT_imp_qeq _ _ (sc_qpow_even_pos_m m)).
   ring.
 Qed.
 
 (* ---- 两步步进展开 ---- *)
-Lemma sc_sin_partial_step2 : forall (n : nat) (x : Q),
-  sin_partial (Datatypes.S (Datatypes.S n)) x ==
-  sin_partial n x + sin_term (Datatypes.S n) x + sin_term (Datatypes.S (Datatypes.S n)) x.
+Lemma sc_sin_partial_step2 : forall (n : nat) (x : Q), QeqT (sin_partial (Datatypes.S (Datatypes.S n)) x) (sin_partial n x + sin_term (Datatypes.S n) x + sin_term (Datatypes.S (Datatypes.S n)) x).
 Proof.
-  intros n x. simpl. ring.
+  intros n x. apply qeq_imp_qeqT. simpl. ring.
 Qed.
 
-Lemma sc_cos_partial_step2 : forall (n : nat) (x : Q),
-  cos_partial (Datatypes.S (Datatypes.S n)) x ==
-  cos_partial n x + cos_term (Datatypes.S n) x + cos_term (Datatypes.S (Datatypes.S n)) x.
+Lemma sc_cos_partial_step2 : forall (n : nat) (x : Q), QeqT (cos_partial (Datatypes.S (Datatypes.S n)) x) (cos_partial n x + cos_term (Datatypes.S n) x + cos_term (Datatypes.S (Datatypes.S n)) x).
 Proof.
-  intros n x. simpl. ring.
+  intros n x. apply qeq_imp_qeqT. simpl. ring.
 Qed.
 
 (* ---- 端点值 ---- *)
-Lemma sc_qinv_one : Qinv 1 == 1.
-Proof. unfold Qinv. simpl. reflexivity. Qed.
+Lemma sc_qinv_one : QeqT (Qinv 1) (1).
+Proof. apply qeq_imp_qeqT. unfold Qinv. simpl. reflexivity. Qed.
 
-Lemma sc_sin_partial_0_x : forall x : Q, sin_partial 0 x == x.
+Lemma sc_sin_partial_0_x : forall x : Q, QeqT (sin_partial 0 x) (x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   change (sin_term 0%nat x == x).
   unfold sin_term.
   simpl.
@@ -3509,55 +3532,60 @@ Proof.
   rewrite (Qmult_1_l ((x * 1) * Qinv (1 * 1))).
   rewrite (Qmult_1_r x).
   rewrite (Qmult_1_l 1).
-  rewrite sc_qinv_one.
+  rewrite (qeqT_imp_qeq _ _ (sc_qinv_one)).
   rewrite (Qmult_1_r x).
   reflexivity.
 Qed.
 
-Lemma sc_sin_term1_x : forall x : Q, sin_term 1 x == - sc_sin_alt 1 x.
+Lemma sc_sin_term1_x : forall x : Q, QeqT (sin_term 1 x) (- sc_sin_alt 1 x).
 Proof.
   intro x.
-  exact (sc_sin_term_odd_neg 0 x).
+  apply qeq_imp_qeqT.
+  exact (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg 0 x)).
 Qed.
 
-Lemma sc_cos_term1_x : forall x : Q, cos_term 1 x == - sc_cos_alt 1 x.
+Lemma sc_cos_term1_x : forall x : Q, QeqT (cos_term 1 x) (- sc_cos_alt 1 x).
 Proof.
   intro x.
-  exact (sc_cos_term_odd_neg 0 x).
+  apply qeq_imp_qeqT.
+  exact (qeqT_imp_qeq _ _ (sc_cos_term_odd_neg 0 x)).
 Qed.
 
-Lemma sc_sin_partial_1_x : forall x : Q, sin_partial 1 x == x - sc_sin_alt 1 x.
+Lemma sc_sin_partial_1_x : forall x : Q, QeqT (sin_partial 1 x) (x - sc_sin_alt 1 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : sin_partial 1 x == sin_partial 0 x + sin_term 1 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_sin_partial_0_x x).
-  rewrite (sc_sin_term1_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_0_x x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term1_x x)).
   ring.
 Qed.
 
-Lemma sc_cos_partial_1_x : forall x : Q, cos_partial 1 x == 1 - sc_cos_alt 1 x.
+Lemma sc_cos_partial_1_x : forall x : Q, QeqT (cos_partial 1 x) (1 - sc_cos_alt 1 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : cos_partial 1 x == cos_partial 0 x + cos_term 1 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_cos_partial_zero_const x).
-  rewrite (sc_cos_term1_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_zero_const x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term1_x x)).
   ring.
 Qed.
 
 (* ---- 子列单调：sin 偶 ↓ ---- *)
 Lemma sc_sin_even_decr : forall (m : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
-  Qle (sin_partial (2 * Datatypes.S m) x) (sin_partial (2 * m) x).
+  QleT' (sin_partial (2 * Datatypes.S m) x) (sin_partial (2 * m) x).
 Proof.
   intros m x Hx0 Hx1.
+  apply Qle_to_QleT'.
   replace (2 * Datatypes.S m)%nat with (Datatypes.S (Datatypes.S (2 * m))) by lia.
-  rewrite (sc_sin_partial_step2 (2 * m) x).
-  rewrite (sc_sin_term_odd_neg m x).
-  rewrite (sc_sin_term_even_pos m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_step2 (2 * m) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg m x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_even_pos m x)).
   apply (proj2 (Qle_minus_iff (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x) + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (sin_partial (2 * m) x))).
   assert (Heq : sin_partial (2 * m) x - (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x) + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x) ==
@@ -3565,21 +3593,22 @@ Proof.
   rewrite Heq.
   apply (proj1 (Qle_minus_iff (sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (sc_sin_alt (Datatypes.S (2 * m)) x))).
-  apply (sc_sin_alt_decr x (Datatypes.S (2 * m)) Hx0).
+  apply QleT'_to_Qle. apply (sc_sin_alt_decr x (Datatypes.S (2 * m)) Hx0).
   - lia.
-  - apply (sc_sin_alt_hlt x (Datatypes.S (2 * m)) Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_sin_alt_hlt x (Datatypes.S (2 * m)) Hx1). lia.
 Qed.
 
 (* ---- 子列单调：sin 奇 ↑ ---- *)
 Lemma sc_sin_odd_incr : forall (m : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
-  Qle (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
+  QleT' (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
 Proof.
   intros m x Hx0 Hx1.
-  rewrite (sc_sin_partial_step2 (Datatypes.S (2 * m)) x).
-  rewrite (sc_sin_term_even_pos m x).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_step2 (Datatypes.S (2 * m)) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_even_pos m x)).
   replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat with (Datatypes.S (2 * Datatypes.S m))%nat by lia.
-  rewrite (sc_sin_term_odd_neg (Datatypes.S m) x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg (Datatypes.S m) x)).
   assert (Heq : sin_partial (Datatypes.S (2 * m)) x + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x +
                 (- sc_sin_alt (Datatypes.S (2 * Datatypes.S m)) x) ==
                 sin_partial (Datatypes.S (2 * m)) x +
@@ -3589,52 +3618,55 @@ Proof.
   replace (Datatypes.S (2 * Datatypes.S m))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat by lia.
   apply (proj1 (Qle_minus_iff (sc_sin_alt (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x)
                               (sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x))).
-  apply (sc_sin_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
+  apply QleT'_to_Qle. apply (sc_sin_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
   - lia.
-  - apply (sc_sin_alt_hlt x (Datatypes.S (Datatypes.S (2 * m))) Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_sin_alt_hlt x (Datatypes.S (Datatypes.S (2 * m))) Hx1). lia.
 Qed.
 
 (* ---- 混合：sin S(2m) ≤ sin 2m（奇在偶下）---- *)
 Lemma sc_sin_mix_le : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (2 * m) x).
+  Qle 0 x -> QleT' (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (2 * m) x).
 Proof.
   intros m x Hx0.
+  apply Qle_to_QleT'.
   assert (Hstep : sin_partial (Datatypes.S (2 * m)) x == sin_partial (2 * m) x + sin_term (Datatypes.S (2 * m)) x).
   { simpl. ring. }
   rewrite Hstep.
-  rewrite (sc_sin_term_odd_neg m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg m x)).
   apply (proj2 (Qle_minus_iff (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x))
                               (sin_partial (2 * m) x))).
   assert (Heq : sin_partial (2 * m) x - (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x)) ==
                 sc_sin_alt (Datatypes.S (2 * m)) x) by ring.
   rewrite Heq.
-  apply sc_sin_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_sin_alt_nonneg. exact Hx0.
 Qed.
 
 (* ---- 混合：sin S(S(2m)) ≥ sin S(2m)（偶在奇上） ---- *)
 Lemma sc_sin_mix_ge : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (2 * m))) x).
+  Qle 0 x -> QleT' (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (2 * m))) x).
 Proof.
   intros m x Hx0.
+  apply Qle_to_QleT'.
   assert (Hstep : sin_partial (Datatypes.S (Datatypes.S (2 * m))) x ==
                   sin_partial (Datatypes.S (2 * m)) x + sin_term (Datatypes.S (Datatypes.S (2 * m))) x).
   { simpl. ring. }
   rewrite Hstep.
-  rewrite (sc_sin_term_even_pos m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_even_pos m x)).
   apply Qle_plus_nonneg_r.
-  apply sc_sin_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_sin_alt_nonneg. exact Hx0.
 Qed.
 
 (* ---- 子列单调：cos 偶 ↓ ---- *)
 Lemma sc_cos_even_decr : forall (m : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
-  Qle (cos_partial (2 * Datatypes.S m) x) (cos_partial (2 * m) x).
+  QleT' (cos_partial (2 * Datatypes.S m) x) (cos_partial (2 * m) x).
 Proof.
   intros m x Hx0 Hx1.
+  apply Qle_to_QleT'.
   replace (2 * Datatypes.S m)%nat with (Datatypes.S (Datatypes.S (2 * m))) by lia.
-  rewrite (sc_cos_partial_step2 (2 * m) x).
-  rewrite (sc_cos_term_odd_neg m x).
-  rewrite (sc_cos_term_even_pos m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_step2 (2 * m) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_odd_neg m x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_even_pos m x)).
   apply (proj2 (Qle_minus_iff (cos_partial (2 * m) x + (- sc_cos_alt (Datatypes.S (2 * m)) x) + sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (cos_partial (2 * m) x))).
   assert (Heq : cos_partial (2 * m) x - (cos_partial (2 * m) x + (- sc_cos_alt (Datatypes.S (2 * m)) x) + sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x) ==
@@ -3642,21 +3674,22 @@ Proof.
   rewrite Heq.
   apply (proj1 (Qle_minus_iff (sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (sc_cos_alt (Datatypes.S (2 * m)) x))).
-  apply (sc_cos_alt_decr x (Datatypes.S (2 * m)) Hx0).
+  apply QleT'_to_Qle. apply (sc_cos_alt_decr x (Datatypes.S (2 * m)) Hx0).
   - lia.
-  - apply (sc_cos_alt_hlt x (Datatypes.S (2 * m)) Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_cos_alt_hlt x (Datatypes.S (2 * m)) Hx1). lia.
 Qed.
 
 (* ---- 子列单调：cos 奇 ↑ ---- *)
 Lemma sc_cos_odd_incr : forall (m : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
-  Qle (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
+  QleT' (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
 Proof.
   intros m x Hx0 Hx1.
-  rewrite (sc_cos_partial_step2 (Datatypes.S (2 * m)) x).
-  rewrite (sc_cos_term_even_pos m x).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_step2 (Datatypes.S (2 * m)) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_even_pos m x)).
   replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat with (Datatypes.S (2 * Datatypes.S m))%nat by lia.
-  rewrite (sc_cos_term_odd_neg (Datatypes.S m) x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_odd_neg (Datatypes.S m) x)).
   assert (Heq : cos_partial (Datatypes.S (2 * m)) x + sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x +
                 (- sc_cos_alt (Datatypes.S (2 * Datatypes.S m)) x) ==
                 cos_partial (Datatypes.S (2 * m)) x +
@@ -3666,168 +3699,170 @@ Proof.
   replace (Datatypes.S (2 * Datatypes.S m))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat by lia.
   apply (proj1 (Qle_minus_iff (sc_cos_alt (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x)
                               (sc_cos_alt (Datatypes.S (Datatypes.S (2 * m))) x))).
-  apply (sc_cos_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
+  apply QleT'_to_Qle. apply (sc_cos_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
   - lia.
-  - apply (sc_cos_alt_hlt x (Datatypes.S (Datatypes.S (2 * m))) Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_cos_alt_hlt x (Datatypes.S (Datatypes.S (2 * m))) Hx1). lia.
 Qed.
 
 (* ---- 混合：cos S(2m) ≤ cos 2m（奇在偶下） ---- *)
 Lemma sc_cos_mix_le : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (2 * m) x).
+  Qle 0 x -> QleT' (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (2 * m) x).
 Proof.
   intros m x Hx0.
+  apply Qle_to_QleT'.
   assert (Hstep : cos_partial (Datatypes.S (2 * m)) x == cos_partial (2 * m) x + cos_term (Datatypes.S (2 * m)) x).
   { simpl. ring. }
   rewrite Hstep.
-  rewrite (sc_cos_term_odd_neg m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_odd_neg m x)).
   apply (proj2 (Qle_minus_iff (cos_partial (2 * m) x + (- sc_cos_alt (Datatypes.S (2 * m)) x))
                               (cos_partial (2 * m) x))).
   assert (Heq : cos_partial (2 * m) x - (cos_partial (2 * m) x + (- sc_cos_alt (Datatypes.S (2 * m)) x)) ==
                 sc_cos_alt (Datatypes.S (2 * m)) x) by ring.
   rewrite Heq.
-  apply sc_cos_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_cos_alt_nonneg. exact Hx0.
 Qed.
 
 (* ---- 混合：cos S(S(2m)) ≥ cos S(2m)（偶在奇上） ---- *)
 Lemma sc_cos_mix_ge : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (Datatypes.S (Datatypes.S (2 * m))) x).
+  Qle 0 x -> QleT' (cos_partial (Datatypes.S (2 * m)) x) (cos_partial (Datatypes.S (Datatypes.S (2 * m))) x).
 Proof.
   intros m x Hx0.
+  apply Qle_to_QleT'.
   assert (Hstep : cos_partial (Datatypes.S (Datatypes.S (2 * m))) x ==
                   cos_partial (Datatypes.S (2 * m)) x + cos_term (Datatypes.S (Datatypes.S (2 * m))) x).
   { simpl. ring. }
   rewrite Hstep.
-  rewrite (sc_cos_term_even_pos m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term_even_pos m x)).
   apply Qle_plus_nonneg_r.
-  apply sc_cos_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_cos_alt_nonneg. exact Hx0.
 Qed.
 
 (* ==================== 归纳链 ==================== *)
 (* sin 偶子列 ≤ x *)
 Lemma sc_sin_even_le_x : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (sin_partial (2 * m) x) x.
+  Qle 0 x -> Qle x 1 -> QleT' (sin_partial (2 * m) x) x.
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (2 * 0)%nat with 0%nat by lia.
-    rewrite (sc_sin_partial_0_x x).
+  - apply Qle_to_QleT'. replace (2 * 0)%nat with 0%nat by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_0_x x)).
     apply Qle_refl.
-  - apply (Qle_trans _ (sin_partial (2 * m') x) _).
-    + apply sc_sin_even_decr. exact Hx0. exact Hx1.
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sin_partial (2 * m') x) _).
+    + apply QleT'_to_Qle. apply sc_sin_even_decr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* sin 奇子列 ≥ x − c1 *)
 Lemma sc_sin_odd_ge_c1 : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (x - sc_sin_alt 1 x) (sin_partial (Datatypes.S (2 * m)) x).
+  Qle 0 x -> Qle x 1 -> QleT' (x - sc_sin_alt 1 x) (sin_partial (Datatypes.S (2 * m)) x).
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (Datatypes.S (2 * 0)) with 1%nat by lia.
-    rewrite (sc_sin_partial_1_x x).
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * 0)) with 1%nat by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_1_x x)).
     apply Qle_refl.
-  - replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
     apply (Qle_trans _ (sin_partial (Datatypes.S (2 * m')) x) _).
-    + exact IH.
-    + apply sc_sin_odd_incr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
+    + apply QleT'_to_Qle. apply sc_sin_odd_incr. exact Hx0. exact Hx1.
 Qed.
 
 (* cos 偶子列 ≤ 1 *)
 Lemma sc_cos_even_le_one : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (cos_partial (2 * m) x) 1.
+  Qle 0 x -> Qle x 1 -> QleT' (cos_partial (2 * m) x) 1.
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (2 * 0)%nat with 0%nat by lia.
-    rewrite (sc_cos_partial_zero_const x).
+  - apply Qle_to_QleT'. replace (2 * 0)%nat with 0%nat by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_zero_const x)).
     apply Qle_refl.
-  - apply (Qle_trans _ (cos_partial (2 * m') x) _).
-    + apply sc_cos_even_decr. exact Hx0. exact Hx1.
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (cos_partial (2 * m') x) _).
+    + apply QleT'_to_Qle. apply sc_cos_even_decr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* cos 奇子列 ≥ 1 − c'_1 *)
 Lemma sc_cos_odd_ge_c1 : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (1 - sc_cos_alt 1 x) (cos_partial (Datatypes.S (2 * m)) x).
+  Qle 0 x -> Qle x 1 -> QleT' (1 - sc_cos_alt 1 x) (cos_partial (Datatypes.S (2 * m)) x).
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (Datatypes.S (2 * 0)) with 1%nat by lia.
-    rewrite (sc_cos_partial_1_x x).
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * 0)) with 1%nat by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_1_x x)).
     apply Qle_refl.
-  - replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
     apply (Qle_trans _ (cos_partial (Datatypes.S (2 * m')) x) _).
-    + exact IH.
-    + apply sc_cos_odd_incr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
+    + apply QleT'_to_Qle. apply sc_cos_odd_incr. exact Hx0. exact Hx1.
 Qed.
 
 (* ==================== 最终夹逼（∀n） ==================== *)
 (* sin：sin_partial n x ≤ x *)
 Lemma sc_sin_partial_upper_x : forall (n : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (sin_partial n x) x.
+  Qle 0 x -> Qle x 1 -> QleT' (sin_partial n x) x.
 Proof.
   intros n x Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm. apply sc_sin_even_le_x. exact Hx0. exact Hx1.
-  - apply (Qle_trans _ (sin_partial (2 * m) x) _).
-    + rewrite Hm. apply sc_sin_mix_le. exact Hx0.
-    + apply sc_sin_even_le_x. exact Hx0. exact Hx1.
+  - apply Qle_to_QleT'. rewrite Hm. apply QleT'_to_Qle. apply sc_sin_even_le_x. exact Hx0. exact Hx1.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sin_partial (2 * m) x) _).
+    + rewrite Hm. apply QleT'_to_Qle. apply sc_sin_mix_le. exact Hx0.
+    + apply QleT'_to_Qle. apply sc_sin_even_le_x. exact Hx0. exact Hx1.
 Qed.
 
 (* sin：x − x³/6 ≤ sin_partial n x *)
 Lemma sc_sin_partial_lower_c1 : forall (n : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (x - sc_sin_alt 1 x) (sin_partial n x).
+  Qle 0 x -> Qle x 1 -> QleT' (x - sc_sin_alt 1 x) (sin_partial n x).
 Proof.
   intros n x Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - destruct m as [| m'].
+  - apply Qle_to_QleT'. destruct m as [| m'].
     + rewrite Hm.
       replace (2 * 0)%nat with 0%nat by lia.
-      rewrite (sc_sin_partial_0_x x).
+      rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_0_x x)).
       apply (proj2 (Qle_minus_iff (x - sc_sin_alt 1 x) x)).
       assert (Heq : x - (x - sc_sin_alt 1 x) == sc_sin_alt 1 x) by ring.
       rewrite Heq.
-      apply sc_sin_alt_nonneg. exact Hx0.
+      apply QleT'_to_Qle. apply sc_sin_alt_nonneg. exact Hx0.
     + apply (Qle_trans _ (sin_partial (Datatypes.S (2 * m')) x) _).
-      * apply sc_sin_odd_ge_c1. exact Hx0. exact Hx1.
+      * apply QleT'_to_Qle. apply sc_sin_odd_ge_c1. exact Hx0. exact Hx1.
       * rewrite Hm.
         replace (2 * Datatypes.S m')%nat with (Datatypes.S (Datatypes.S (2 * m'))) by lia.
-        apply sc_sin_mix_ge. exact Hx0.
-  - rewrite Hm. apply sc_sin_odd_ge_c1. exact Hx0. exact Hx1.
+        apply QleT'_to_Qle. apply sc_sin_mix_ge. exact Hx0.
+  - apply Qle_to_QleT'. rewrite Hm. apply QleT'_to_Qle. apply sc_sin_odd_ge_c1. exact Hx0. exact Hx1.
 Qed.
 
 (* cos：cos_partial n x ≤ 1 *)
 Lemma sc_cos_partial_upper_one : forall (n : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (cos_partial n x) 1.
+  Qle 0 x -> Qle x 1 -> QleT' (cos_partial n x) 1.
 Proof.
   intros n x Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm. apply sc_cos_even_le_one. exact Hx0. exact Hx1.
-  - apply (Qle_trans _ (cos_partial (2 * m) x) _).
-    + rewrite Hm. apply sc_cos_mix_le. exact Hx0.
-    + apply sc_cos_even_le_one. exact Hx0. exact Hx1.
+  - apply Qle_to_QleT'. rewrite Hm. apply QleT'_to_Qle. apply sc_cos_even_le_one. exact Hx0. exact Hx1.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (cos_partial (2 * m) x) _).
+    + rewrite Hm. apply QleT'_to_Qle. apply sc_cos_mix_le. exact Hx0.
+    + apply QleT'_to_Qle. apply sc_cos_even_le_one. exact Hx0. exact Hx1.
 Qed.
 
 (* cos：1 − x²/2 ≤ cos_partial n x *)
 Lemma sc_cos_partial_lower_c1 : forall (n : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (1 - sc_cos_alt 1 x) (cos_partial n x).
+  Qle 0 x -> Qle x 1 -> QleT' (1 - sc_cos_alt 1 x) (cos_partial n x).
 Proof.
   intros n x Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - destruct m as [| m'].
+  - apply Qle_to_QleT'. destruct m as [| m'].
     + rewrite Hm.
       replace (2 * 0)%nat with 0%nat by lia.
-      rewrite (sc_cos_partial_zero_const x).
+      rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_zero_const x)).
       apply (proj2 (Qle_minus_iff (1 - sc_cos_alt 1 x) 1)).
       assert (Heq : 1 - (1 - sc_cos_alt 1 x) == sc_cos_alt 1 x) by ring.
       rewrite Heq.
-      apply sc_cos_alt_nonneg. exact Hx0.
+      apply QleT'_to_Qle. apply sc_cos_alt_nonneg. exact Hx0.
     + apply (Qle_trans _ (cos_partial (Datatypes.S (2 * m')) x) _).
-      * apply sc_cos_odd_ge_c1. exact Hx0. exact Hx1.
+      * apply QleT'_to_Qle. apply sc_cos_odd_ge_c1. exact Hx0. exact Hx1.
       * rewrite Hm.
         replace (2 * Datatypes.S m')%nat with (Datatypes.S (Datatypes.S (2 * m'))) by lia.
-        apply sc_cos_mix_ge. exact Hx0.
-  - rewrite Hm. apply sc_cos_odd_ge_c1. exact Hx0. exact Hx1.
+        apply QleT'_to_Qle. apply sc_cos_mix_ge. exact Hx0.
+  - apply Qle_to_QleT'. rewrite Hm. apply QleT'_to_Qle. apply sc_cos_odd_ge_c1. exact Hx0. exact Hx1.
 Qed.
 
 (* ============================================================ *)
@@ -3840,132 +3875,135 @@ Qed.
 (* ============================================================ *)
 
 (* ---- 二阶部分和求值 ---- *)
-Lemma sc_sin_term2_x : forall x : Q, sin_term 2 x == sc_sin_alt 2 x.
+Lemma sc_sin_term2_x : forall x : Q, QeqT (sin_term 2 x) (sc_sin_alt 2 x).
 Proof.
-  intro x. exact (sc_sin_term_even_pos 0 x).
+  intro x. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_sin_term_even_pos 0 x)).
 Qed.
 
-Lemma sc_cos_term2_x : forall x : Q, cos_term 2 x == sc_cos_alt 2 x.
+Lemma sc_cos_term2_x : forall x : Q, QeqT (cos_term 2 x) (sc_cos_alt 2 x).
 Proof.
-  intro x. exact (sc_cos_term_even_pos 0 x).
+  intro x. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_cos_term_even_pos 0 x)).
 Qed.
 
-Lemma sc_sin_partial_2_val : forall x : Q,
-  sin_partial 2 x == x - sc_sin_alt 1 x + sc_sin_alt 2 x.
+Lemma sc_sin_partial_2_val : forall x : Q, QeqT (sin_partial 2 x) (x - sc_sin_alt 1 x + sc_sin_alt 2 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : sin_partial 2 x == sin_partial 1 x + sin_term 2 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_sin_partial_1_x x).
-  rewrite (sc_sin_term2_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_1_x x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term2_x x)).
   ring.
 Qed.
 
-Lemma sc_cos_partial_2_val : forall x : Q,
-  cos_partial 2 x == 1 - sc_cos_alt 1 x + sc_cos_alt 2 x.
+Lemma sc_cos_partial_2_val : forall x : Q, QeqT (cos_partial 2 x) (1 - sc_cos_alt 1 x + sc_cos_alt 2 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : cos_partial 2 x == cos_partial 1 x + cos_term 2 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_cos_partial_1_x x).
-  rewrite (sc_cos_term2_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_1_x x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term2_x x)).
   ring.
 Qed.
 
 (* ---- c 项二阶 ≤ 一阶（decr 直接） ---- *)
-Lemma sc_sin_c2_le_c1 : forall x : Q, Qle 0 x -> Qle x 1 -> Qle (sc_sin_alt 2 x) (sc_sin_alt 1 x).
+Lemma sc_sin_c2_le_c1 : forall x : Q, Qle 0 x -> Qle x 1 -> QleT' (sc_sin_alt 2 x) (sc_sin_alt 1 x).
 Proof.
   intros x Hx0 Hx1.
-  apply (sc_sin_alt_decr x 1 Hx0).
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply (sc_sin_alt_decr x 1 Hx0).
   - lia.
-  - apply (sc_sin_alt_hlt x 1 Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_sin_alt_hlt x 1 Hx1). lia.
 Qed.
 
-Lemma sc_cos_c2_le_c1 : forall x : Q, Qle 0 x -> Qle x 1 -> Qle (sc_cos_alt 2 x) (sc_cos_alt 1 x).
+Lemma sc_cos_c2_le_c1 : forall x : Q, Qle 0 x -> Qle x 1 -> QleT' (sc_cos_alt 2 x) (sc_cos_alt 1 x).
 Proof.
   intros x Hx0 Hx1.
-  apply (sc_cos_alt_decr x 1 Hx0).
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply (sc_cos_alt_decr x 1 Hx0).
   - lia.
-  - apply (sc_cos_alt_hlt x 1 Hx1). lia.
+  - apply QltT_to_Qlt. apply (sc_cos_alt_hlt x 1 Hx1). lia.
 Qed.
 
 (* ---- 偶子列 ≤ 二阶部分和（链） ---- *)
 Lemma sc_sin_even_le2_aux : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (sin_partial (2 * Datatypes.S m) x) (sin_partial 2 x).
+  Qle 0 x -> Qle x 1 -> QleT' (sin_partial (2 * Datatypes.S m) x) (sin_partial 2 x).
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
+  - apply Qle_to_QleT'. replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
     apply Qle_refl.
-  - apply (Qle_trans _ (sin_partial (2 * Datatypes.S m') x) _).
-    + apply sc_sin_even_decr. exact Hx0. exact Hx1.
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sin_partial (2 * Datatypes.S m') x) _).
+    + apply QleT'_to_Qle. apply sc_sin_even_decr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 Lemma sc_cos_even_le2_aux : forall (m : nat) (x : Q),
-  Qle 0 x -> Qle x 1 -> Qle (cos_partial (2 * Datatypes.S m) x) (cos_partial 2 x).
+  Qle 0 x -> Qle x 1 -> QleT' (cos_partial (2 * Datatypes.S m) x) (cos_partial 2 x).
 Proof.
   intros m x Hx0 Hx1.
   induction m as [| m' IH].
-  - replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
+  - apply Qle_to_QleT'. replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
     apply Qle_refl.
-  - apply (Qle_trans _ (cos_partial (2 * Datatypes.S m') x) _).
-    + apply sc_cos_even_decr. exact Hx0. exact Hx1.
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (cos_partial (2 * Datatypes.S m') x) _).
+    + apply QleT'_to_Qle. apply sc_cos_even_decr. exact Hx0. exact Hx1.
+    + exact (QleT'_to_Qle _ _ IH).
 Qed.
 
 (* ---- 全局（n ≥ 2）≤ 二阶部分和 ---- *)
 Lemma sc_sin_le_s2_ge2 : forall (n : nat) (x : Q),
-  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> Qle (sin_partial n x) (sin_partial 2 x).
+  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> QleT' (sin_partial n x) (sin_partial 2 x).
 Proof.
   intros n x Hn Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm in Hn.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
-      apply (sc_sin_even_le2_aux m' x Hx0 Hx1).
-  - rewrite Hm in Hn.
+      apply QleT'_to_Qle. apply (sc_sin_even_le2_aux m' x Hx0 Hx1).
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
       apply (Qle_trans _ (sin_partial (2 * Datatypes.S m') x) _).
-      * apply sc_sin_mix_le. exact Hx0.
-      * apply (sc_sin_even_le2_aux m' x Hx0 Hx1).
+      * apply QleT'_to_Qle. apply sc_sin_mix_le. exact Hx0.
+      * apply QleT'_to_Qle. apply (sc_sin_even_le2_aux m' x Hx0 Hx1).
 Qed.
 
 Lemma sc_cos_le_c2_ge2 : forall (n : nat) (x : Q),
-  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> Qle (cos_partial n x) (cos_partial 2 x).
+  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> QleT' (cos_partial n x) (cos_partial 2 x).
 Proof.
   intros n x Hn Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm in Hn.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
-      apply (sc_cos_even_le2_aux m' x Hx0 Hx1).
-  - rewrite Hm in Hn.
+      apply QleT'_to_Qle. apply (sc_cos_even_le2_aux m' x Hx0 Hx1).
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
       apply (Qle_trans _ (cos_partial (2 * Datatypes.S m') x) _).
-      * apply sc_cos_mix_le. exact Hx0.
-      * apply (sc_cos_even_le2_aux m' x Hx0 Hx1).
+      * apply QleT'_to_Qle. apply sc_cos_mix_le. exact Hx0.
+      * apply QleT'_to_Qle. apply (sc_cos_even_le2_aux m' x Hx0 Hx1).
 Qed.
 
 (* ---- 差分下界：x − sin ≥ c1 − c2（n ≥ 2） ---- *)
 Lemma sc_sin_diff_lower_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (sc_sin_alt 1 x - sc_sin_alt 2 x) (x - sin_partial n x).
+  QleT' (sc_sin_alt 1 x - sc_sin_alt 2 x) (x - sin_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   apply (proj2 (Qle_minus_iff (sc_sin_alt 1 x - sc_sin_alt 2 x) (x - sin_partial n x))).
   assert (Hle : Qle (sin_partial n x) (sin_partial 2 x)).
-  { apply sc_sin_le_s2_ge2. exact Hn. exact Hx0. exact Hx1. }
+  { apply QleT'_to_Qle. apply sc_sin_le_s2_ge2. exact Hn. exact Hx0. exact Hx1. }
   pose proof (proj1 (Qle_minus_iff (sin_partial n x) (sin_partial 2 x)) Hle) as Hm.
-  rewrite (sc_sin_partial_2_val x) in Hm.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_2_val x)) in Hm.
   assert (Heq2 : (x - sc_sin_alt 1 x + sc_sin_alt 2 x) - sin_partial n x ==
                  (x - sin_partial n x) - (sc_sin_alt 1 x - sc_sin_alt 2 x)) by ring.
   rewrite Heq2 in Hm.
@@ -3975,14 +4013,15 @@ Qed.
 (* ---- 差分下界：1 − cos ≥ c'_1 − c'_2（n ≥ 2） ---- *)
 Lemma sc_cos_diff_lower_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (sc_cos_alt 1 x - sc_cos_alt 2 x) (1 - cos_partial n x).
+  QleT' (sc_cos_alt 1 x - sc_cos_alt 2 x) (1 - cos_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   apply (proj2 (Qle_minus_iff (sc_cos_alt 1 x - sc_cos_alt 2 x) (1 - cos_partial n x))).
   assert (Hle : Qle (cos_partial n x) (cos_partial 2 x)).
-  { apply sc_cos_le_c2_ge2. exact Hn. exact Hx0. exact Hx1. }
+  { apply QleT'_to_Qle. apply sc_cos_le_c2_ge2. exact Hn. exact Hx0. exact Hx1. }
   pose proof (proj1 (Qle_minus_iff (cos_partial n x) (cos_partial 2 x)) Hle) as Hm.
-  rewrite (sc_cos_partial_2_val x) in Hm.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_2_val x)) in Hm.
   assert (Heq2 : (1 - sc_cos_alt 1 x + sc_cos_alt 2 x) - cos_partial n x ==
                  (1 - cos_partial n x) - (sc_cos_alt 1 x - sc_cos_alt 2 x)) by ring.
   rewrite Heq2 in Hm.
@@ -3990,14 +4029,15 @@ Proof.
 Qed.
 
 (* ---- q_pow 三次严格单调：0 < a < b → a³ < b³ ---- *)
-Lemma sc_qmul_lt_l : forall x y z : Q, Qlt 0 x -> Qlt y z -> Qlt (x * y) (x * z).
+Lemma sc_qmul_lt_l : forall x y z : Q, Qlt 0 x -> Qlt y z -> QltT (x * y) (x * z).
 Proof.
-intros x y z Hx Hyz. rewrite (Qmult_comm x y). rewrite (Qmult_comm x z). exact (Qmult_lt_compat_r y z x Hx Hyz).
+intros x y z Hx Hyz. apply Qlt_to_QltT. rewrite (Qmult_comm x y). rewrite (Qmult_comm x z). exact (Qmult_lt_compat_r y z x Hx Hyz).
 Qed.
 
-Lemma sc_qpow3_lt : forall a b : Q, Qlt 0 a -> Qlt a b -> Qlt (q_pow a 3) (q_pow b 3).
+Lemma sc_qpow3_lt : forall a b : Q, Qlt 0 a -> Qlt a b -> QltT (q_pow a 3) (q_pow b 3).
 Proof.
   intros a b Ha0 Hab.
+  apply Qlt_to_QltT.
   assert (Ha3 : q_pow a 3 == a * a * a) by (unfold q_pow; simpl; ring).
   assert (Hb3 : q_pow b 3 == b * b * b) by (unfold q_pow; simpl; ring).
   rewrite Ha3, Hb3.
@@ -4005,11 +4045,11 @@ Proof.
   assert (Haa_bb : Qlt (a * a) (b * b)).
   { apply (Qlt_trans _ (b * a) _).
     - apply (Qmult_lt_compat_r a b a). exact Ha0. exact Hab.
-    - apply (sc_qmul_lt_l b a b Hb0). exact Hab. }
+    - apply QltT_to_Qlt. apply (sc_qmul_lt_l b a b Hb0). exact Hab. }
   assert (Hbb0 : Qlt 0 (b * b)) by (apply Qmult_lt_0_compat; [exact Hb0 | exact Hb0]).
   apply (Qlt_trans _ ((b * b) * a) _).
   - apply (Qmult_lt_compat_r (a * a) (b * b) a). exact Ha0. exact Haa_bb.
-  - apply (sc_qmul_lt_l (b * b) a b Hbb0). exact Hab.
+  - apply QltT_to_Qlt. apply (sc_qmul_lt_l (b * b) a b Hbb0). exact Hab.
 Qed.
 (* ============================================================ *)
 (* 批 12（轮 12）：sin Real 层一阶界——Q 层差分补充 + Real 组装 *)
@@ -4020,39 +4060,39 @@ Qed.
 From Stdlib Require Import QArith.QArith QArith.Qabs QArith.Qround
                Lists.List Bool.Bool Arith.Arith.
 Lemma sc_qpow_dec : forall (x : Q) (m : nat), Qle 0 x -> Qle x 1 ->
-  Qle (q_pow x (Datatypes.S m)) (q_pow x m).
+  QleT' (q_pow x (Datatypes.S m)) (q_pow x m).
 Proof.
-intros x m Hx0 Hx1. rewrite (q_pow_succ x m). exact (Qle_trans (x * q_pow x m) (1 * q_pow x m) (q_pow x m) (Qmult_le_compat_r x 1 (q_pow x m) Hx1 (q_pow_nonneg x m Hx0)) (qeq_le (1 * q_pow x m) (q_pow x m) (Qmult_1_l (q_pow x m)))).
+intros x m Hx0 Hx1. apply Qle_to_QleT'. rewrite (qeqT_imp_qeq _ _ (q_pow_succ x m)). exact (Qle_trans (x * q_pow x m) (1 * q_pow x m) (q_pow x m) (Qmult_le_compat_r x 1 (q_pow x m) Hx1 (QleT'_to_Qle _ _ (q_pow_nonneg x m (Qle_to_QleT' _ _ Hx0)))) (QleT'_to_Qle _ _ (qeq_le (1 * q_pow x m) (q_pow x m) (qeq_imp_qeqT _ _ (Qmult_1_l (q_pow x m)))))).
 Qed.
 
 (* ---- q_pow 正 ---- *)
-Lemma sc_qpow_pos : forall (n : nat) (y : Q), Qlt 0 y -> Qlt 0 (q_pow y n).
+Lemma sc_qpow_pos : forall (n : nat) (y : Q), Qlt 0 y -> QltT 0 (q_pow y n).
 Proof.
   intros n y Hy0.
   induction n as [| n' IH].
-  - replace (q_pow y 0) with 1%Q by reflexivity.
+  - apply Qlt_to_QltT. replace (q_pow y 0) with 1%Q by reflexivity.
     unfold Qlt; simpl; lia.
-  - rewrite (q_pow_succ y n').
-    apply Qmult_lt_0_compat; [exact Hy0 | exact IH].
+  - apply Qlt_to_QltT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ y n')).
+    apply Qmult_lt_0_compat; [exact Hy0 | exact (QltT_to_Qlt _ _ IH)].
 Qed.
 
 (* ---- q_pow 严格升幂（0 ≤ x < y，n ≥ 1）：x^n < y^n ---- *)
 Lemma sc_qpow_lt : forall (n : nat) (x y : Q),
-  Qle 0 x -> Qlt x y -> (1 <= n)%nat -> Qlt (q_pow x n) (q_pow y n).
+  Qle 0 x -> Qlt x y -> (1 <= n)%nat -> QltT (q_pow x n) (q_pow y n).
 Proof.
   intros n x y Hx0 Hxy Hn.
   induction n as [| n' IH].
-  - lia.
-  - destruct n' as [| n''].
+  - apply Qlt_to_QltT. lia.
+  - apply Qlt_to_QltT. destruct n' as [| n''].
     + assert (Hx1 : q_pow x 1 == x) by (unfold q_pow; simpl; ring).
       assert (Hy1 : q_pow y 1 == y) by (unfold q_pow; simpl; ring).
       rewrite Hx1, Hy1.
       exact Hxy.
-    + rewrite (q_pow_succ x (Datatypes.S n'')).
-      rewrite (q_pow_succ y (Datatypes.S n'')).
+    + rewrite (qeqT_imp_qeq _ _ (q_pow_succ x (Datatypes.S n''))).
+      rewrite (qeqT_imp_qeq _ _ (q_pow_succ y (Datatypes.S n''))).
       assert (Hmid : Qlt (q_pow x (Datatypes.S n'')) (q_pow y (Datatypes.S n''))).
-      { rewrite (q_pow_succ x n''). rewrite (q_pow_succ y n'').
-        apply IH. lia. }
+        { rewrite (qeqT_imp_qeq _ _ (q_pow_succ x n'')). rewrite (qeqT_imp_qeq _ _ (q_pow_succ y n'')).
+        apply QltT_to_Qlt. apply IH. lia. }
       assert (Hy0 : Qlt 0 y) by (apply (Qle_lt_trans 0 x y Hx0 Hxy)).
       apply (Qle_lt_trans _ (x * q_pow y (Datatypes.S n'')) _).
       * rewrite (Qmult_comm x (q_pow x (Datatypes.S n''))).
@@ -4061,98 +4101,100 @@ Proof.
         -- apply (Qlt_le_weak (q_pow x (Datatypes.S n'')) (q_pow y (Datatypes.S n''))). exact Hmid.
         -- exact Hx0.
       * apply (Qmult_lt_compat_r x y (q_pow y (Datatypes.S n''))).
-        -- apply sc_qpow_pos. exact Hy0.
+        -- apply QltT_to_Qlt. apply sc_qpow_pos. exact Hy0.
         -- exact Hxy.
 Qed.
 
 (* ---- S_3 求值：sin_term 3 与 sin_partial 3 ---- *)
-Lemma sc_sin_term3_x : forall x : Q, sin_term 3 x == - sc_sin_alt 3 x.
+Lemma sc_sin_term3_x : forall x : Q, QeqT (sin_term 3 x) (- sc_sin_alt 3 x).
 Proof.
-  intro x. exact (sc_sin_term_odd_neg 1 x).
+  intro x. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg 1 x)).
 Qed.
 
-Lemma sc_sin_partial_3_val : forall x : Q,
-  sin_partial 3 x == x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x.
+Lemma sc_sin_partial_3_val : forall x : Q, QeqT (sin_partial 3 x) (x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : sin_partial 3 x == sin_partial 2 x + sin_term 3 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_sin_partial_2_val x).
-  rewrite (sc_sin_term3_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_2_val x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term3_x x)).
   ring.
 Qed.
 
 (* ---- S_3 ≤ S_2 ---- *)
-Lemma sc_sin_s3_le_s2 : forall x : Q, Qle 0 x -> Qle (sin_partial 3 x) (sin_partial 2 x).
+Lemma sc_sin_s3_le_s2 : forall x : Q, Qle 0 x -> QleT' (sin_partial 3 x) (sin_partial 2 x).
 Proof.
   intros x Hx0.
-  rewrite (sc_sin_partial_3_val x).
-  rewrite (sc_sin_partial_2_val x).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_3_val x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_2_val x)).
   apply (proj2 (Qle_minus_iff (x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x)
                               (x - sc_sin_alt 1 x + sc_sin_alt 2 x))).
   assert (Heq : (x - sc_sin_alt 1 x + sc_sin_alt 2 x) -
                 (x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x) ==
                 sc_sin_alt 3 x) by ring.
   rewrite Heq.
-  apply sc_sin_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_sin_alt_nonneg. exact Hx0.
 Qed.
 
 (* ---- 奇子列 ≥ S_3（m ≥ 1） ---- *)
 Lemma sc_sin_odd_ge3 : forall (m : nat) (x : Q),
   (1 <= m)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (sin_partial 3 x) (sin_partial (Datatypes.S (2 * m)) x).
+  QleT' (sin_partial 3 x) (sin_partial (Datatypes.S (2 * m)) x).
 Proof.
   intros m x Hm Hx0 Hx1.
   induction m as [| m' IH].
-  - lia.
-  - destruct m' as [| m''].
+  - apply Qle_to_QleT'. lia.
+  - apply Qle_to_QleT'. destruct m' as [| m''].
     + replace (Datatypes.S (2 * Datatypes.S 0))%nat with 3%nat by lia.
       apply Qle_refl.
     + apply (Qle_trans _ (sin_partial (Datatypes.S (2 * Datatypes.S m'')) x) _).
-      * apply IH. lia.
+      * apply QleT'_to_Qle. apply IH. lia.
       * replace (Datatypes.S (2 * Datatypes.S (Datatypes.S m'')))%nat with
                  (Datatypes.S (Datatypes.S (Datatypes.S (2 * Datatypes.S m''))))%nat by lia.
-        apply sc_sin_odd_incr. exact Hx0. exact Hx1.
+        apply QleT'_to_Qle. apply sc_sin_odd_incr. exact Hx0. exact Hx1.
 Qed.
 
 (* ---- n ≥ 2 → sin_partial n x ≥ S_3 ---- *)
 Lemma sc_sin_ge_s3_ge2 : forall (n : nat) (x : Q),
-  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> Qle (sin_partial 3 x) (sin_partial n x).
+  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> QleT' (sin_partial 3 x) (sin_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm in Hn.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + destruct m' as [| m''].
       * rewrite Hm.
         replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
-        apply sc_sin_s3_le_s2. exact Hx0.
+        apply QleT'_to_Qle. apply sc_sin_s3_le_s2. exact Hx0.
       * rewrite Hm.
         apply (Qle_trans _ (sin_partial (Datatypes.S (2 * Datatypes.S m'')) x) _).
-        -- apply sc_sin_odd_ge3. lia. exact Hx0. exact Hx1.
+        -- apply QleT'_to_Qle. apply sc_sin_odd_ge3. lia. exact Hx0. exact Hx1.
         -- replace (2 * Datatypes.S (Datatypes.S m''))%nat with
                    (Datatypes.S (Datatypes.S (2 * Datatypes.S m'')))%nat by lia.
-           apply sc_sin_mix_ge. exact Hx0.
-  - rewrite Hm in Hn.
+           apply QleT'_to_Qle. apply sc_sin_mix_ge. exact Hx0.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
-      apply sc_sin_odd_ge3. lia. exact Hx0. exact Hx1.
+      apply QleT'_to_Qle. apply sc_sin_odd_ge3. lia. exact Hx0. exact Hx1.
 Qed.
 
 (* ---- 下界差分：sin − (x − c1) ≥ c2 − c3（n ≥ 2） ---- *)
 Lemma sc_sin_lower_diff_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (sc_sin_alt 2 x - sc_sin_alt 3 x) (sin_partial n x - (x - sc_sin_alt 1 x)).
+  QleT' (sc_sin_alt 2 x - sc_sin_alt 3 x) (sin_partial n x - (x - sc_sin_alt 1 x)).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   apply (proj2 (Qle_minus_iff (sc_sin_alt 2 x - sc_sin_alt 3 x)
                               (sin_partial n x - (x - sc_sin_alt 1 x)))).
   assert (Hge : Qle (sin_partial 3 x) (sin_partial n x)).
-  { apply sc_sin_ge_s3_ge2. exact Hn. exact Hx0. exact Hx1. }
-  rewrite (sc_sin_partial_3_val x) in Hge.
+  { apply QleT'_to_Qle. apply sc_sin_ge_s3_ge2. exact Hn. exact Hx0. exact Hx1. }
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_3_val x)) in Hge.
   pose proof (proj1 (Qle_minus_iff (x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x)
                                    (sin_partial n x)) Hge) as Hm.
   assert (Heq2 : sin_partial n x - (x - sc_sin_alt 1 x + sc_sin_alt 2 x - sc_sin_alt 3 x) ==
@@ -4162,25 +4204,25 @@ Proof.
 Qed.
 
 (* ---- c 求值：c1 == x³/6、c2 == x⁵/120、c3 == x⁷/5040 ---- *)
-Lemma sc_sin_alt1_cube : forall x : Q, sc_sin_alt 1 x == q_pow x 3 / 6.
+Lemma sc_sin_alt1_cube : forall x : Q, QeqT (sc_sin_alt 1 x) (q_pow x 3 / 6).
 Proof.
-  intro x. unfold sc_sin_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_sin_alt.
   replace (Datatypes.S (2 * 1))%nat with 3%nat by lia.
   assert (Hf : q_fact 3 == 6) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
 Qed.
 
-Lemma sc_sin_alt2_five : forall x : Q, sc_sin_alt 2 x == q_pow x 5 / 120.
+Lemma sc_sin_alt2_five : forall x : Q, QeqT (sc_sin_alt 2 x) (q_pow x 5 / 120).
 Proof.
-  intro x. unfold sc_sin_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_sin_alt.
   replace (Datatypes.S (2 * 2))%nat with 5%nat by lia.
   assert (Hf : q_fact 5 == 120) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
 Qed.
 
-Lemma sc_sin_alt3_seven : forall x : Q, sc_sin_alt 3 x == q_pow x 7 / 5040.
+Lemma sc_sin_alt3_seven : forall x : Q, QeqT (sc_sin_alt 3 x) (q_pow x 7 / 5040).
 Proof.
-  intro x. unfold sc_sin_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_sin_alt.
   replace (Datatypes.S (2 * 3))%nat with 7%nat by lia.
   assert (Hf : q_fact 7 == 5040) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
@@ -4189,21 +4231,22 @@ Qed.
 (* ---- 上界差分三次下界：x − sin ≥ x³·19/120（n ≥ 2） ---- *)
 Lemma sc_sin_upper_diff_cube_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle ((q_pow x 3) * (19 / 120)) (x - sin_partial n x).
+  QleT' ((q_pow x 3) * (19 / 120)) (x - sin_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   assert (Hd : Qle (sc_sin_alt 1 x - sc_sin_alt 2 x) (x - sin_partial n x)).
-  { apply sc_sin_diff_lower_ge2. exact Hn. exact Hx0. exact Hx1. }
-  rewrite (sc_sin_alt1_cube x) in Hd.
-  rewrite (sc_sin_alt2_five x) in Hd.
+  { apply QleT'_to_Qle. apply sc_sin_diff_lower_ge2. exact Hn. exact Hx0. exact Hx1. }
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_alt1_cube x)) in Hd.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_alt2_five x)) in Hd.
   assert (Hx5 : Qle (q_pow x 5) (q_pow x 3)).
   { apply (Qle_trans _ (q_pow x 4) _).
-    - apply sc_qpow_dec. exact Hx0. exact Hx1.
-    - apply sc_qpow_dec. exact Hx0. exact Hx1. }
+    - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
+    - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1. }
   assert (Hd2 : Qle (q_pow x 5 / 120) (q_pow x 3 / 120)).
-  { apply (Qle_div_same_denom (q_pow x 5) (q_pow x 3) 120).
-    - unfold Qlt; simpl; lia.
-    - exact Hx5. }
+  { apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow x 5) (q_pow x 3) 120).
+    - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+    - apply Qle_to_QleT'. exact Hx5. }
   assert (Heq : q_pow x 3 / 6 - q_pow x 3 / 120 == (q_pow x 3) * (19 / 120)).
   { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
   apply (Qle_trans _ (q_pow x 3 / 6 - q_pow x 5 / 120) _).
@@ -4218,31 +4261,32 @@ Qed.
 (* ---- 下界差分五次：sin − (x − x³/6) ≥ x⁵·41/5040（n ≥ 2） ---- *)
 Lemma sc_sin_lower_diff_q5_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle ((q_pow x 5) * (41 / 5040)) (sin_partial n x - (x - q_pow x 3 / 6)).
+  QleT' ((q_pow x 5) * (41 / 5040)) (sin_partial n x - (x - q_pow x 3 / 6)).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   assert (Hs : sin_partial n x - (x - q_pow x 3 / 6) ==
                sin_partial n x - (x - sc_sin_alt 1 x)).
-  { rewrite (sc_sin_alt1_cube x). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_sin_alt1_cube x)). ring. }
   rewrite Hs.
   assert (Hd : Qle (sc_sin_alt 2 x - sc_sin_alt 3 x)
                    (sin_partial n x - (x - sc_sin_alt 1 x))).
-  { apply sc_sin_lower_diff_ge2. exact Hn. exact Hx0. exact Hx1. }
+  { apply QleT'_to_Qle. apply sc_sin_lower_diff_ge2. exact Hn. exact Hx0. exact Hx1. }
   assert (Hc23 : sc_sin_alt 2 x - sc_sin_alt 3 x ==
                  q_pow x 5 / 120 - q_pow x 7 / 5040).
-  { rewrite (sc_sin_alt2_five x). rewrite (sc_sin_alt3_seven x). reflexivity. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_sin_alt2_five x)). rewrite (qeqT_imp_qeq _ _ (sc_sin_alt3_seven x)). reflexivity. }
   rewrite Hc23 in Hd.
   apply (Qle_trans _ (q_pow x 5 / 120 - q_pow x 7 / 5040) _).
   - assert (Hx7 : Qle (q_pow x 7) (q_pow x 5)).
     { apply (Qle_trans _ (q_pow x 6) _).
-      - apply sc_qpow_dec. exact Hx0. exact Hx1.
+      - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
       - apply (Qle_trans _ (q_pow x 5) _).
-        + apply sc_qpow_dec. exact Hx0. exact Hx1.
+        + apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
         + apply Qle_refl. }
     assert (Hd2 : Qle (q_pow x 7 / 5040) (q_pow x 5 / 5040)).
-    { apply (Qle_div_same_denom (q_pow x 7) (q_pow x 5) 5040).
-      - unfold Qlt; simpl; lia.
-      - exact Hx7. }
+    { apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow x 7) (q_pow x 5) 5040).
+      - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+      - apply Qle_to_QleT'. exact Hx7. }
     assert (Heq : q_pow x 5 / 120 - q_pow x 5 / 5040 == (q_pow x 5) * (41 / 5040)).
     { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
     apply (Qle_trans _ (q_pow x 5 / 120 - q_pow x 5 / 5040) _).
@@ -4254,9 +4298,10 @@ Proof.
 Qed.
 
 (* ---- x³/6 与 x·(x·x)·(1/6) 形态桥 ---- *)
-Lemma sc_qpow3_6form : forall x : Q, q_pow x 3 / 6 == (x * (x * x)) * (1 / 6).
+Lemma sc_qpow3_6form : forall x : Q, QeqT (q_pow x 3 / 6) ((x * (x * x)) * (1 / 6)).
 Proof.
   intros x.
+  apply qeq_imp_qeqT.
   assert (Hp : q_pow x 3 == x * (x * x)) by (unfold q_pow; simpl; ring).
   rewrite Hp.
   field. all: try (unfold Qeq; simpl; lia).
@@ -4279,7 +4324,7 @@ Proof.
     apply Qmult_lt_0_compat.
     - apply (QltT_to_Qlt 0 (q_pow eps0 3)).
       apply Qlt_to_QltT.
-      apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
+      apply QltT_to_Qlt. apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
     - unfold Qlt; simpl; lia. }
   exists eps.
   split.
@@ -4306,12 +4351,12 @@ Proof.
     assert (Hu1le : Qle (u n) 1) by (apply Qlt_le_weak; exact Hu1).
     (* 目标：QltT eps (u n − sin_partial n (u n)) *)
     assert (Hd : Qle ((q_pow (u n) 3) * (19 / 120)) (u n - sin_partial n (u n))).
-    { apply sc_sin_upper_diff_cube_ge2. exact Hn2. exact Hu0. exact Hu1le. }
+    { apply QleT'_to_Qle. apply sc_sin_upper_diff_cube_ge2. exact Hn2. exact Hu0. exact Hu1le. }
     apply (Qlt_le_trans _ ((q_pow (u n) 3) * (19 / 120)) _).
     + unfold eps.
       apply (Qmult_lt_compat_r (q_pow eps0 3) (q_pow (u n) 3) (19 / 120)).
       * unfold Qlt; simpl; lia.
-      * apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
+      * apply QltT_to_Qlt. apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
         exact Hupos. lia.
     + exact Hd.
 Qed.
@@ -4333,7 +4378,7 @@ Proof.
     apply Qmult_lt_0_compat.
     - apply (QltT_to_Qlt 0 (q_pow eps0 5)).
       apply Qlt_to_QltT.
-      apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
+      apply QltT_to_Qlt. apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
     - unfold Qlt; simpl; lia. }
   exists eps.
   split.
@@ -4361,10 +4406,10 @@ Proof.
     (* 目标：QltT eps (sin_partial n (u n) − (u n − (u n·(u n·u n))·(1/6))) *)
     simpl.
     assert (Hform : (u n * (u n * u n)) * (1 / 6) == q_pow (u n) 3 / 6).
-    { rewrite (sc_qpow3_6form (u n)). ring. }
+    { rewrite (qeqT_imp_qeq _ _ (sc_qpow3_6form (u n))). ring. }
     assert (Hdiff : Qle ((q_pow (u n) 5) * (41 / 5040))
                         (sin_partial n (u n) - (u n - q_pow (u n) 3 / 6))).
-    { apply sc_sin_lower_diff_q5_ge2. exact Hn2. exact Hu0. exact Hu1le. }
+    { apply QleT'_to_Qle. apply sc_sin_lower_diff_q5_ge2. exact Hn2. exact Hu0. exact Hu1le. }
     assert (Heq : sin_partial n (u n) - (u n - (u n * (u n * u n)) * (1 / 6)) ==
                   sin_partial n (u n) - (u n - q_pow (u n) 3 / 6)).
     { rewrite Hform. reflexivity. }
@@ -4373,7 +4418,7 @@ Proof.
     + unfold eps.
       apply (Qmult_lt_compat_r (q_pow eps0 5) (q_pow (u n) 5) (41 / 5040)).
       * unfold Qlt; simpl; lia.
-      * apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
+      * apply QltT_to_Qlt. apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
         exact Hupos. lia.
     + exact Hdiff.
 Qed.
@@ -4385,93 +4430,95 @@ Qed.
 (* ============================================================ *)
 From Stdlib Require Import QArith.QArith QArith.Qabs QArith.Qround
                Lists.List Bool.Bool Arith.Arith.
-Lemma sc_cos_term3_x : forall x : Q, cos_term 3 x == - sc_cos_alt 3 x.
+Lemma sc_cos_term3_x : forall x : Q, QeqT (cos_term 3 x) (- sc_cos_alt 3 x).
 Proof.
-  intro x. exact (sc_cos_term_odd_neg 1 x).
+  intro x. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_cos_term_odd_neg 1 x)).
 Qed.
 
-Lemma sc_cos_partial_3_val : forall x : Q,
-  cos_partial 3 x == 1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x.
+Lemma sc_cos_partial_3_val : forall x : Q, QeqT (cos_partial 3 x) (1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x).
 Proof.
   intro x.
+  apply qeq_imp_qeqT.
   assert (Hstep : cos_partial 3 x == cos_partial 2 x + cos_term 3 x).
   { reflexivity. }
   rewrite Hstep.
-  rewrite (sc_cos_partial_2_val x).
-  rewrite (sc_cos_term3_x x).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_2_val x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_term3_x x)).
   ring.
 Qed.
 
 (* ---- C_3 ≤ C_2 ---- *)
-Lemma sc_cos_s3_le_s2 : forall x : Q, Qle 0 x -> Qle (cos_partial 3 x) (cos_partial 2 x).
+Lemma sc_cos_s3_le_s2 : forall x : Q, Qle 0 x -> QleT' (cos_partial 3 x) (cos_partial 2 x).
 Proof.
   intros x Hx0.
-  rewrite (sc_cos_partial_3_val x).
-  rewrite (sc_cos_partial_2_val x).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_3_val x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_2_val x)).
   apply (proj2 (Qle_minus_iff (1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x)
                               (1 - sc_cos_alt 1 x + sc_cos_alt 2 x))).
   assert (Heq : (1 - sc_cos_alt 1 x + sc_cos_alt 2 x) -
                 (1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x) ==
                 sc_cos_alt 3 x) by ring.
   rewrite Heq.
-  apply sc_cos_alt_nonneg. exact Hx0.
+  apply QleT'_to_Qle. apply sc_cos_alt_nonneg. exact Hx0.
 Qed.
 
 (* ---- 奇子列 ≥ C_3（m ≥ 1） ---- *)
 Lemma sc_cos_odd_ge3 : forall (m : nat) (x : Q),
   (1 <= m)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (cos_partial 3 x) (cos_partial (Datatypes.S (2 * m)) x).
+  QleT' (cos_partial 3 x) (cos_partial (Datatypes.S (2 * m)) x).
 Proof.
   intros m x Hm Hx0 Hx1.
   induction m as [| m' IH].
-  - lia.
-  - destruct m' as [| m''].
+  - apply Qle_to_QleT'. lia.
+  - apply Qle_to_QleT'. destruct m' as [| m''].
     + replace (Datatypes.S (2 * Datatypes.S 0))%nat with 3%nat by lia.
       apply Qle_refl.
     + apply (Qle_trans _ (cos_partial (Datatypes.S (2 * Datatypes.S m'')) x) _).
-      * apply IH. lia.
+      * apply QleT'_to_Qle. apply IH. lia.
       * replace (Datatypes.S (2 * Datatypes.S (Datatypes.S m'')))%nat with
                  (Datatypes.S (Datatypes.S (Datatypes.S (2 * Datatypes.S m''))))%nat by lia.
-        apply sc_cos_odd_incr. exact Hx0. exact Hx1.
+        apply QleT'_to_Qle. apply sc_cos_odd_incr. exact Hx0. exact Hx1.
 Qed.
 
 (* ---- n ≥ 2 → cos_partial n x ≥ C_3 ---- *)
 Lemma sc_cos_ge_c3_ge2 : forall (n : nat) (x : Q),
-  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> Qle (cos_partial 3 x) (cos_partial n x).
+  (2 <= n)%nat -> Qle 0 x -> Qle x 1 -> QleT' (cos_partial 3 x) (cos_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - rewrite Hm in Hn.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + destruct m' as [| m''].
       * rewrite Hm.
         replace (2 * Datatypes.S 0)%nat with 2%nat by lia.
-        apply sc_cos_s3_le_s2. exact Hx0.
+        apply QleT'_to_Qle. apply sc_cos_s3_le_s2. exact Hx0.
       * rewrite Hm.
         apply (Qle_trans _ (cos_partial (Datatypes.S (2 * Datatypes.S m'')) x) _).
-        -- apply sc_cos_odd_ge3. lia. exact Hx0. exact Hx1.
+        -- apply QleT'_to_Qle. apply sc_cos_odd_ge3. lia. exact Hx0. exact Hx1.
         -- replace (2 * Datatypes.S (Datatypes.S m''))%nat with
                    (Datatypes.S (Datatypes.S (2 * Datatypes.S m'')))%nat by lia.
-           apply sc_cos_mix_ge. exact Hx0.
-  - rewrite Hm in Hn.
+           apply QleT'_to_Qle. apply sc_cos_mix_ge. exact Hx0.
+  - apply Qle_to_QleT'. rewrite Hm in Hn.
     destruct m as [| m'].
     + lia.
     + rewrite Hm.
-      apply sc_cos_odd_ge3. lia. exact Hx0. exact Hx1.
+      apply QleT'_to_Qle. apply sc_cos_odd_ge3. lia. exact Hx0. exact Hx1.
 Qed.
 
 (* ---- 下界差分：cos − (1 − c'_1) ≥ c'_2 − c'_3（n ≥ 2） ---- *)
 Lemma sc_cos_lower_diff_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle (sc_cos_alt 2 x - sc_cos_alt 3 x) (cos_partial n x - (1 - sc_cos_alt 1 x)).
+  QleT' (sc_cos_alt 2 x - sc_cos_alt 3 x) (cos_partial n x - (1 - sc_cos_alt 1 x)).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   apply (proj2 (Qle_minus_iff (sc_cos_alt 2 x - sc_cos_alt 3 x)
                               (cos_partial n x - (1 - sc_cos_alt 1 x)))).
   assert (Hge : Qle (cos_partial 3 x) (cos_partial n x)).
-  { apply sc_cos_ge_c3_ge2. exact Hn. exact Hx0. exact Hx1. }
-  rewrite (sc_cos_partial_3_val x) in Hge.
+  { apply QleT'_to_Qle. apply sc_cos_ge_c3_ge2. exact Hn. exact Hx0. exact Hx1. }
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_3_val x)) in Hge.
   pose proof (proj1 (Qle_minus_iff (1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x)
                                    (cos_partial n x)) Hge) as Hm.
   assert (Heq2 : cos_partial n x - (1 - sc_cos_alt 1 x + sc_cos_alt 2 x - sc_cos_alt 3 x) ==
@@ -4481,25 +4528,25 @@ Proof.
 Qed.
 
 (* ---- c' 求值 ---- *)
-Lemma sc_cos_alt1_half : forall x : Q, sc_cos_alt 1 x == q_pow x 2 / 2.
+Lemma sc_cos_alt1_half : forall x : Q, QeqT (sc_cos_alt 1 x) (q_pow x 2 / 2).
 Proof.
-  intro x. unfold sc_cos_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_cos_alt.
   replace (2 * 1)%nat with 2%nat by lia.
   assert (Hf : q_fact 2 == 2) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
 Qed.
 
-Lemma sc_cos_alt2_quar : forall x : Q, sc_cos_alt 2 x == q_pow x 4 / 24.
+Lemma sc_cos_alt2_quar : forall x : Q, QeqT (sc_cos_alt 2 x) (q_pow x 4 / 24).
 Proof.
-  intro x. unfold sc_cos_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_cos_alt.
   replace (2 * 2)%nat with 4%nat by lia.
   assert (Hf : q_fact 4 == 24) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
 Qed.
 
-Lemma sc_cos_alt3_720 : forall x : Q, sc_cos_alt 3 x == q_pow x 6 / 720.
+Lemma sc_cos_alt3_720 : forall x : Q, QeqT (sc_cos_alt 3 x) (q_pow x 6 / 720).
 Proof.
-  intro x. unfold sc_cos_alt.
+  intro x. apply qeq_imp_qeqT. unfold sc_cos_alt.
   replace (2 * 3)%nat with 6%nat by lia.
   assert (Hf : q_fact 6 == 720) by (unfold Qeq; simpl; lia).
   rewrite Hf. reflexivity.
@@ -4508,21 +4555,22 @@ Qed.
 (* ---- 上界差分二次下界：1 − cos ≥ x²·11/24（n ≥ 2） ---- *)
 Lemma sc_cos_upper_diff_sq_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle ((q_pow x 2) * (11 / 24)) (1 - cos_partial n x).
+  QleT' ((q_pow x 2) * (11 / 24)) (1 - cos_partial n x).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   assert (Hd : Qle (sc_cos_alt 1 x - sc_cos_alt 2 x) (1 - cos_partial n x)).
-  { apply sc_cos_diff_lower_ge2. exact Hn. exact Hx0. exact Hx1. }
-  rewrite (sc_cos_alt1_half x) in Hd.
-  rewrite (sc_cos_alt2_quar x) in Hd.
+  { apply QleT'_to_Qle. apply sc_cos_diff_lower_ge2. exact Hn. exact Hx0. exact Hx1. }
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_alt1_half x)) in Hd.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_alt2_quar x)) in Hd.
   assert (Hx4 : Qle (q_pow x 4) (q_pow x 2)).
   { apply (Qle_trans _ (q_pow x 3) _).
-    - apply sc_qpow_dec. exact Hx0. exact Hx1.
-    - apply sc_qpow_dec. exact Hx0. exact Hx1. }
+    - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
+    - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1. }
   assert (Hd2 : Qle (q_pow x 4 / 24) (q_pow x 2 / 24)).
-  { apply (Qle_div_same_denom (q_pow x 4) (q_pow x 2) 24).
-    - unfold Qlt; simpl; lia.
-    - exact Hx4. }
+  { apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow x 4) (q_pow x 2) 24).
+    - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+    - apply Qle_to_QleT'. exact Hx4. }
   assert (Heq : q_pow x 2 / 2 - q_pow x 2 / 24 == (q_pow x 2) * (11 / 24)).
   { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
   apply (Qle_trans _ (q_pow x 2 / 2 - q_pow x 4 / 24) _).
@@ -4537,31 +4585,32 @@ Qed.
 (* ---- 下界差分四次：cos − (1 − x²/2) ≥ x⁴·29/720（n ≥ 2） ---- *)
 Lemma sc_cos_lower_diff_q4_ge2 : forall (n : nat) (x : Q),
   (2 <= n)%nat -> Qle 0 x -> Qle x 1 ->
-  Qle ((q_pow x 4) * (29 / 720)) (cos_partial n x - (1 - q_pow x 2 / 2)).
+  QleT' ((q_pow x 4) * (29 / 720)) (cos_partial n x - (1 - q_pow x 2 / 2)).
 Proof.
   intros n x Hn Hx0 Hx1.
+  apply Qle_to_QleT'.
   assert (Hs : cos_partial n x - (1 - q_pow x 2 / 2) ==
                cos_partial n x - (1 - sc_cos_alt 1 x)).
-  { rewrite (sc_cos_alt1_half x). ring. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_cos_alt1_half x)). ring. }
   rewrite Hs.
   assert (Hd : Qle (sc_cos_alt 2 x - sc_cos_alt 3 x)
                    (cos_partial n x - (1 - sc_cos_alt 1 x))).
-  { apply sc_cos_lower_diff_ge2. exact Hn. exact Hx0. exact Hx1. }
+  { apply QleT'_to_Qle. apply sc_cos_lower_diff_ge2. exact Hn. exact Hx0. exact Hx1. }
   assert (Hc23 : sc_cos_alt 2 x - sc_cos_alt 3 x ==
                  q_pow x 4 / 24 - q_pow x 6 / 720).
-  { rewrite (sc_cos_alt2_quar x). rewrite (sc_cos_alt3_720 x). reflexivity. }
+  { rewrite (qeqT_imp_qeq _ _ (sc_cos_alt2_quar x)). rewrite (qeqT_imp_qeq _ _ (sc_cos_alt3_720 x)). reflexivity. }
   rewrite Hc23 in Hd.
   apply (Qle_trans _ (q_pow x 4 / 24 - q_pow x 6 / 720) _).
   - assert (Hx6 : Qle (q_pow x 6) (q_pow x 4)).
     { apply (Qle_trans _ (q_pow x 5) _).
-      - apply sc_qpow_dec. exact Hx0. exact Hx1.
+      - apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
       - apply (Qle_trans _ (q_pow x 4) _).
-        + apply sc_qpow_dec. exact Hx0. exact Hx1.
+        + apply QleT'_to_Qle. apply sc_qpow_dec. exact Hx0. exact Hx1.
         + apply Qle_refl. }
     assert (Hd2 : Qle (q_pow x 6 / 720) (q_pow x 4 / 720)).
-    { apply (Qle_div_same_denom (q_pow x 6) (q_pow x 4) 720).
-      - unfold Qlt; simpl; lia.
-      - exact Hx6. }
+    { apply QleT'_to_Qle; apply (Qle_div_same_denom (q_pow x 6) (q_pow x 4) 720).
+      - apply Qlt_to_QltT. unfold Qlt; simpl; lia.
+      - apply Qle_to_QleT'. exact Hx6. }
     assert (Heq : q_pow x 4 / 24 - q_pow x 4 / 720 == (q_pow x 4) * (29 / 720)).
     { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
     apply (Qle_trans _ (q_pow x 4 / 24 - q_pow x 4 / 720) _).
@@ -4573,17 +4622,19 @@ Proof.
 Qed.
 
 (* ---- 形态桥：x⁴ == (x·x)·(x·x)、x²/2 与 x⁴/24 序列形态 ---- *)
-Lemma sc_qpow2_2form : forall x : Q, q_pow x 2 / 2 == (x * x) * (1 / 2).
+Lemma sc_qpow2_2form : forall x : Q, QeqT (q_pow x 2 / 2) ((x * x) * (1 / 2)).
 Proof.
   intros x.
+  apply qeq_imp_qeqT.
   assert (Hp : q_pow x 2 == x * x) by (unfold q_pow; simpl; ring).
   rewrite Hp.
   field. all: try (unfold Qeq; simpl; lia).
 Qed.
 
-Lemma sc_qpow4_24form : forall x : Q, q_pow x 4 / 24 == ((x * x) * (x * x)) * (1 / 24).
+Lemma sc_qpow4_24form : forall x : Q, QeqT (q_pow x 4 / 24) (((x * x) * (x * x)) * (1 / 24)).
 Proof.
   intros x.
+  apply qeq_imp_qeqT.
   assert (Hp : q_pow x 4 == (x * x) * (x * x)) by (unfold q_pow; simpl; ring).
   rewrite Hp.
   field. all: try (unfold Qeq; simpl; lia).
@@ -4606,7 +4657,7 @@ Proof.
     apply Qmult_lt_0_compat.
     - apply (QltT_to_Qlt 0 (q_pow eps0 2)).
       apply Qlt_to_QltT.
-      apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
+      apply QltT_to_Qlt. apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
     - unfold Qlt; simpl; lia. }
   exists eps.
   split.
@@ -4633,12 +4684,12 @@ Proof.
     assert (Hu1le : Qle (u n) 1) by (apply Qlt_le_weak; exact Hu1).
     (* 目标：QltT eps (1 − cos_partial n (u n)) *)
     assert (Hd : Qle ((q_pow (u n) 2) * (11 / 24)) (1 - cos_partial n (u n))).
-    { apply sc_cos_upper_diff_sq_ge2. exact Hn2. exact Hu0. exact Hu1le. }
+    { apply QleT'_to_Qle. apply sc_cos_upper_diff_sq_ge2. exact Hn2. exact Hu0. exact Hu1le. }
     apply (Qlt_le_trans _ ((q_pow (u n) 2) * (11 / 24)) _).
     + unfold eps.
       apply (Qmult_lt_compat_r (q_pow eps0 2) (q_pow (u n) 2) (11 / 24)).
       * unfold Qlt; simpl; lia.
-      * apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
+      * apply QltT_to_Qlt. apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
         exact Hupos. lia.
     + exact Hd.
 Qed.
@@ -4661,7 +4712,7 @@ Proof.
     apply Qmult_lt_0_compat.
     - apply (QltT_to_Qlt 0 (q_pow eps0 4)).
       apply Qlt_to_QltT.
-      apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
+      apply QltT_to_Qlt. apply sc_qpow_pos. apply QltT_to_Qlt. exact Heps0.
     - unfold Qlt; simpl; lia. }
   exists eps.
   split.
@@ -4689,10 +4740,10 @@ Proof.
     (* 目标：QltT eps (cos_partial n (u n) − (1 − (u n·u n)·(1/2))) *)
     simpl.
     assert (Hform : (u n * u n) * (1 / 2) == q_pow (u n) 2 / 2).
-    { rewrite (sc_qpow2_2form (u n)). ring. }
+    { rewrite (qeqT_imp_qeq _ _ (sc_qpow2_2form (u n))). ring. }
     assert (Hdiff : Qle ((q_pow (u n) 4) * (29 / 720))
                         (cos_partial n (u n) - (1 - q_pow (u n) 2 / 2))).
-    { apply sc_cos_lower_diff_q4_ge2. exact Hn2. exact Hu0. exact Hu1le. }
+    { apply QleT'_to_Qle. apply sc_cos_lower_diff_q4_ge2. exact Hn2. exact Hu0. exact Hu1le. }
     assert (Heq : cos_partial n (u n) - (1 - (u n * u n) * (1 / 2)) ==
                   cos_partial n (u n) - (1 - q_pow (u n) 2 / 2)).
     { rewrite Hform. reflexivity. }
@@ -4701,7 +4752,7 @@ Proof.
     + unfold eps.
       apply (Qmult_lt_compat_r (q_pow eps0 4) (q_pow (u n) 4) (29 / 720)).
       * unfold Qlt; simpl; lia.
-      * apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
+      * apply QltT_to_Qlt. apply sc_qpow_lt. apply (Qlt_le_weak 0 eps0). apply QltT_to_Qlt. exact Heps0.
         exact Hupos. lia.
     + exact Hdiff.
 Qed.
@@ -4735,7 +4786,7 @@ Proof.
     - apply (HMy n).
     - apply (qleT'_trans My (My + Mx) (Mx + My)).
       + apply (qleT'_plus_nonneg_rT My Mx). apply qltT_leT'. exact HMxpos.
-      + apply Qle_to_QleT'. apply qeq_imp_qle. ring. }
+      + apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
   destruct (exp_series_arch B HBT) as [C [HC1 HC]].
   assert (HCpos : Qlt 0 C).
   { apply (Qlt_le_trans _ 1 _); [unfold Qlt; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]. }
@@ -4752,14 +4803,14 @@ Proof.
   assert (Hle : Qle (Qabs (sin_partial n (u n) - sin_partial n (v n)))
                     (Qmult (Qabs (u n - v n)) C)).
   { apply (Qle_trans _ (Qmult (Qabs (u n - v n)) (sc_cos_series n B)) _).
-    - apply (sc_sin_partial_lipschitz (u n) (v n) B n HBT (HBxT n) (HByT n)).
+    - apply QleT'_to_Qle. apply (sc_sin_partial_lipschitz (u n) (v n) B n HBT (HBxT n) (HByT n)).
     - apply (Qmult_le_compat_nonneg (Qabs (u n - v n)) (Qabs (u n - v n))
                                     (sc_cos_series n B) C).
       + split; [apply Qabs_nonneg | apply Qle_refl].
       + split.
-        * apply sc_cos_series_nonneg. exact HBT.
+        * apply QleT'_to_Qle. apply sc_cos_series_nonneg. exact HBT.
         * apply (Qle_trans _ (exp_series (2 * n) B) _).
-          -- apply sc_cos_series_le_exp. exact HBT.
+          -- apply QleT'_to_Qle. apply sc_cos_series_le_exp. exact HBT.
           -- apply QleT'_to_Qle. exact (HC (2 * n)%nat). }
   apply (Qle_lt_trans _ (Qmult (Qabs (u n - v n)) C) _).
   - exact Hle.
@@ -4767,9 +4818,9 @@ Proof.
     + apply (Qmult_lt_compat_r (Qabs (u n - v n)) (eps / C) C).
       * exact HCpos.
       * apply QltT_to_Qlt. exact He.
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       unfold Qdiv. field.
-      all: try (apply q_neq_of_lt; exact HCpos).
+      all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ HCpos) (qeq_imp_qeqT _ _ HzneA)) with end)).
 Qed.
 
 (* ---- cos 的 real_eq 兼容 ---- *)
@@ -4795,7 +4846,7 @@ Proof.
     - apply (HMy n).
     - apply (qleT'_trans My (My + Mx) (Mx + My)).
       + apply (qleT'_plus_nonneg_rT My Mx). apply qltT_leT'. exact HMxpos.
-      + apply Qle_to_QleT'. apply qeq_imp_qle. ring. }
+      + apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
   destruct (exp_series_arch B HBT) as [C [HC1 HC]].
   assert (HCpos : Qlt 0 C).
   { apply (Qlt_le_trans _ 1 _); [unfold Qlt; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]. }
@@ -4812,8 +4863,8 @@ Proof.
   destruct n as [| n'].
   - (* n = 0：cos_partial 0 == 1 双侧 *)
     assert (Hsmall : Qlt (Qabs (cos_partial 0%nat (u 0%nat) - cos_partial 0%nat (v 0%nat))) eps).
-    { assert (Hc0x : cos_partial 0%nat (u 0%nat) == 1) by (apply sc_cos_partial_zero_const).
-      assert (Hc0y : cos_partial 0%nat (v 0%nat) == 1) by (apply sc_cos_partial_zero_const).
+    { assert (Hc0x : cos_partial 0%nat (u 0%nat) == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
+      assert (Hc0y : cos_partial 0%nat (v 0%nat) == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
       assert (Heq0 : cos_partial 0%nat (u 0%nat) == cos_partial 0%nat (v 0%nat)).
       { rewrite Hc0x. rewrite <- Hc0y. reflexivity. }
       rewrite Heq0.
@@ -4826,14 +4877,14 @@ Proof.
   - assert (Hle : Qle (Qabs (cos_partial (Datatypes.S n') (u (Datatypes.S n')) - cos_partial (Datatypes.S n') (v (Datatypes.S n'))))
                       (Qmult (Qabs (u (Datatypes.S n') - v (Datatypes.S n'))) C)).
     { apply (Qle_trans _ (Qmult (Qabs (u (Datatypes.S n') - v (Datatypes.S n'))) (sc_sin_deriv_series n' B)) _).
-      - apply (sc_cos_partial_lipschitz_succ (u (Datatypes.S n')) (v (Datatypes.S n')) B n' HBT (HBxT (Datatypes.S n')) (HByT (Datatypes.S n'))).
+      - apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ (u (Datatypes.S n')) (v (Datatypes.S n')) B n' HBT (HBxT (Datatypes.S n')) (HByT (Datatypes.S n'))).
       - apply (Qmult_le_compat_nonneg (Qabs (u (Datatypes.S n') - v (Datatypes.S n'))) (Qabs (u (Datatypes.S n') - v (Datatypes.S n')))
                                       (sc_sin_deriv_series n' B) C).
         + split; [apply Qabs_nonneg | apply Qle_refl].
         + split.
-          * apply sc_sin_deriv_series_nonneg. exact HBT.
+          * apply QleT'_to_Qle. apply sc_sin_deriv_series_nonneg. exact HBT.
           * apply (Qle_trans _ (exp_series (Datatypes.S (2 * n')) B) _).
-            -- apply sc_sin_deriv_series_le_exp. exact HBT.
+            -- apply QleT'_to_Qle. apply sc_sin_deriv_series_le_exp. exact HBT.
             -- apply QleT'_to_Qle. exact (HC (Datatypes.S (2 * n'))%nat). }
     apply (Qle_lt_trans _ (Qmult (Qabs (u (Datatypes.S n') - v (Datatypes.S n'))) C) _).
     + exact Hle.
@@ -4841,9 +4892,9 @@ Proof.
       * apply (Qmult_lt_compat_r (Qabs (u (Datatypes.S n') - v (Datatypes.S n'))) (eps / C) C).
         -- exact HCpos.
         -- apply QltT_to_Qlt. exact He.
-      * apply qeq_le.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         unfold Qdiv. field.
-        all: try (apply q_neq_of_lt; exact HCpos).
+        all: try (intro HzneA; exact (match (q_neq_of_lt _ (Qlt_to_QltT _ _ HCpos) (qeq_imp_qeqT _ _ HzneA)) with end)).
 Qed.
 
 (* ---- 端点：sin(1) < 1（差 ≥ 19/120，eps := 19/240） ---- *)
@@ -4860,10 +4911,10 @@ Proof.
     assert (Hn2 : (2 <= n)%nat) by (apply NatLe_drop in Hn; lia).
     assert (Hd : Qle (19 / 120) (1 - sin_partial n 1)).
     { apply (Qle_trans _ ((q_pow 1 3) * (19 / 120)) _).
-      - apply qeq_le.
-        assert (Hp : q_pow 1 3 == 1) by (apply sc_q_pow_one).
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+        assert (Hp : q_pow 1 3 == 1) by (apply qeqT_imp_qeq; apply sc_q_pow_one).
         rewrite Hp. ring.
-      - apply (sc_sin_upper_diff_cube_ge2 n 1 Hn2).
+      - apply QleT'_to_Qle. apply (sc_sin_upper_diff_cube_ge2 n 1 Hn2).
         + unfold Qle; simpl; lia.
         + unfold Qle; simpl; lia. }
     apply (Qlt_le_trans _ (19 / 120) _).
@@ -4887,15 +4938,15 @@ Proof.
     { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
     assert (Hd : Qle (41 / 5040) (sin_partial n 1 - 5 / 6)).
     { apply (Qle_trans _ ((q_pow 1 5) * (41 / 5040)) _).
-      - apply qeq_le.
-        assert (Hp : q_pow 1 5 == 1) by (apply sc_q_pow_one).
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+        assert (Hp : q_pow 1 5 == 1) by (apply qeqT_imp_qeq; apply sc_q_pow_one).
         rewrite Hp. ring.
       - apply (Qle_trans _ (sin_partial n 1 - (1 - q_pow 1 3 / 6)) _).
-        + apply (sc_sin_lower_diff_q5_ge2 n 1 Hn2).
+        + apply QleT'_to_Qle. apply (sc_sin_lower_diff_q5_ge2 n 1 Hn2).
           * unfold Qle; simpl; lia.
           * unfold Qle; simpl; lia.
-        + apply qeq_le.
-          assert (Hp3 : q_pow 1 3 == 1) by (apply sc_q_pow_one).
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+          assert (Hp3 : q_pow 1 3 == 1) by (apply qeqT_imp_qeq; apply sc_q_pow_one).
           rewrite Hp3.
           assert (Hv2 : (1 - 1 / 6) == 5 / 6).
           { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
@@ -4921,15 +4972,15 @@ Proof.
     { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
     assert (Hd : Qle (29 / 720) (cos_partial n 1 - 1 / 2)).
     { apply (Qle_trans _ ((q_pow 1 4) * (29 / 720)) _).
-      - apply qeq_le.
-        assert (Hp : q_pow 1 4 == 1) by (apply sc_q_pow_one).
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+        assert (Hp : q_pow 1 4 == 1) by (apply qeqT_imp_qeq; apply sc_q_pow_one).
         rewrite Hp. ring.
       - apply (Qle_trans _ (cos_partial n 1 - (1 - q_pow 1 2 / 2)) _).
-        + apply (sc_cos_lower_diff_q4_ge2 n 1 Hn2).
+        + apply QleT'_to_Qle. apply (sc_cos_lower_diff_q4_ge2 n 1 Hn2).
           * unfold Qle; simpl; lia.
           * unfold Qle; simpl; lia.
-        + apply qeq_le.
-          assert (Hp2 : q_pow 1 2 == 1) by (apply sc_q_pow_one).
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
+          assert (Hp2 : q_pow 1 2 == 1) by (apply qeqT_imp_qeq; apply sc_q_pow_one).
           rewrite Hp2.
           assert (Hv2 : (1 - 1 / 2) == 1 / 2).
           { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
@@ -4958,7 +5009,8 @@ Qed.
 Lemma real_one_req_const_one : real_eq real_one (real_const 1).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite (real_const_proj 1 n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj 1 n)).
   assert (Ho : projT1 real_one n == 1) by reflexivity.
   rewrite Ho. ring.
 Qed.
@@ -5007,13 +5059,14 @@ Lemma real_x_cube_poly_const1_eval :
           (real_const (5 / 6)).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6)))) n).
-  rewrite (real_opp_proj (real_mult (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6))) n).
-  rewrite (real_mult_proj (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6)) n).
-  rewrite (real_mult_proj (real_const 1) (real_mult (real_const 1) (real_const 1)) n).
-  rewrite (real_mult_proj (real_const 1) (real_const 1) n).
-  rewrite (real_const_proj 1 n). rewrite (real_const_proj (1 / 6) n).
-  rewrite (real_const_proj (5 / 6) n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6)))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_opp_proj (real_mult (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_mult (real_const 1) (real_mult (real_const 1) (real_const 1))) (real_const (1 / 6)) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_const 1) (real_mult (real_const 1) (real_const 1)) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_const 1) (real_const 1) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj 1 n)). rewrite (qeqT_imp_qeq _ _ (real_const_proj (1 / 6) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj (5 / 6) n)).
   assert (Hz : (1 + -((1 * (1 * 1)) * (1 / 6))) - (5 / 6) == 0).
   { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
   rewrite Hz. reflexivity.
@@ -5025,12 +5078,13 @@ Lemma real_x_cube_poly_zero_eval :
           real_zero.
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite (real_plus_proj real_zero (real_opp (real_mult (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6)))) n).
-  rewrite (real_opp_proj (real_mult (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6))) n).
-  rewrite (real_mult_proj (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6)) n).
-  rewrite (real_mult_proj real_zero (real_mult real_zero real_zero) n).
-  rewrite (real_mult_proj real_zero real_zero n).
-  rewrite (real_const_proj (1 / 6) n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj real_zero (real_opp (real_mult (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6)))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_opp_proj (real_mult (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_mult real_zero (real_mult real_zero real_zero)) (real_const (1 / 6)) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj real_zero (real_mult real_zero real_zero) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj real_zero real_zero n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj (1 / 6) n)).
   assert (Hrz : projT1 real_zero n == 0) by reflexivity.
   rewrite Hrz.
   assert (Hz : (0 + -((0 * (0 * 0)) * (1 / 6))) - 0 == 0).
@@ -5044,11 +5098,12 @@ Lemma real_half_sq_poly_const1_eval :
           (real_const (1 / 2)).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2)))) n).
-  rewrite (real_opp_proj (real_mult (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2))) n).
-  rewrite (real_mult_proj (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2)) n).
-  rewrite (real_mult_proj (real_const 1) (real_const 1) n).
-  rewrite (real_const_proj 1 n). rewrite (real_const_proj (1 / 2) n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2)))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_opp_proj (real_mult (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_mult (real_const 1) (real_const 1)) (real_const (1 / 2)) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_const 1) (real_const 1) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj 1 n)). rewrite (qeqT_imp_qeq _ _ (real_const_proj (1 / 2) n)).
   assert (Hz : (1 + -((1 * 1) * (1 / 2))) - (1 / 2) == 0).
   { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
   rewrite Hz. reflexivity.
@@ -5060,14 +5115,15 @@ Lemma real_half_sq_poly_zero_eval :
           (real_const 1).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult real_zero real_zero) (real_const (1 / 2)))) n).
-  rewrite (real_opp_proj (real_mult (real_mult real_zero real_zero) (real_const (1 / 2))) n).
-  rewrite (real_mult_proj (real_mult real_zero real_zero) (real_const (1 / 2)) n).
-  rewrite (real_mult_proj real_zero real_zero n).
-  rewrite (real_const_proj (1 / 2) n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj (real_const 1) (real_opp (real_mult (real_mult real_zero real_zero) (real_const (1 / 2)))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_opp_proj (real_mult (real_mult real_zero real_zero) (real_const (1 / 2))) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_mult real_zero real_zero) (real_const (1 / 2)) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj real_zero real_zero n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj (1 / 2) n)).
   assert (Hrz : projT1 real_zero n == 0) by reflexivity.
   rewrite Hrz.
-  rewrite (real_const_proj 1 n).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj 1 n)).
   assert (Hz : (1 + -((0 * 0) * (1 / 2))) - 1 == 0).
   { unfold Qdiv. field. all: try (unfold Qeq; simpl; lia). }
   rewrite Hz. reflexivity.
@@ -5221,47 +5277,52 @@ Qed.
 (* 纪律：纯构造性 Set 层、零 承认、零经典。                    *)
 (* ============================================================ *)
 (* 桥：部分和 == sum_upto 形式 *)
-Lemma sc_sin_partial_upto : forall (n : nat) (x : Q),
-  sin_partial n x == sum_upto (Datatypes.S n) (fun j : nat => sin_term j x).
+Lemma sc_sin_partial_upto : forall (n : nat) (x : Q), QeqT (sin_partial n x) (sum_upto (Datatypes.S n) (fun j : nat => sin_term j x)).
 Proof.
   intros n x. induction n as [| n' IH]; simpl.
-  - ring.
-  - rewrite IH. reflexivity.
+  - apply qeq_imp_qeqT. ring.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ IH). reflexivity.
 Qed.
 
-Lemma sc_cos_partial_upto : forall (n : nat) (x : Q),
-  cos_partial n x == sum_upto (Datatypes.S n) (fun j : nat => cos_term j x).
+Lemma sc_cos_partial_upto : forall (n : nat) (x : Q), QeqT (cos_partial n x) (sum_upto (Datatypes.S n) (fun j : nat => cos_term j x)).
 Proof.
   intros n x. induction n as [| n' IH]; simpl.
-  - ring.
-  - rewrite IH. reflexivity.
+  - apply qeq_imp_qeqT. ring.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ IH). reflexivity.
 Qed.
 
 (* ---- B 部分（检验 16a 成果，原样复用） ---- *)
-Lemma sc_cs_eo_raw : forall (m : nat), (1 <= m)%nat ->
-  sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))) ==
-  sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))).
+Lemma sc_cs_eo_raw : forall (m : nat), (1 <= m)%nat ->QeqT (sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i)))) (sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)))).
 Proof.
   intros m Hm.
+  apply qeq_imp_qeqT.
   assert (Hz : altf (2 * m) == 0).
-  { apply altf_zero. lia. }
-  rewrite altf_as_sum_upto in Hz.
-  rewrite (sum_upto_even_split_odd m
-            (fun u : nat => q_pow (-1) u / (q_fact u * q_fact (2 * m - u)))) in Hz.
-  rewrite (sum_upto_ext (m + 1)
+  { apply qeqT_imp_qeq. apply altf_zero. lia. }
+  rewrite (qeqT_imp_qeq _ _ (altf_as_sum_upto (2 * m))) in Hz.
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_even_split_odd m
+            (fun u : nat => q_pow (-1) u / (q_fact u * q_fact (2 * m - u))))) in Hz.
+  assert (HextA : forall j : nat, QeqT
+    (q_pow (-1) (2 * j) / (q_fact (2 * j) * q_fact (2 * m - 2 * j)))
+    (Qinv (q_fact (2 * j) * q_fact (2 * m - 2 * j)))).
+  { intro j. apply qeq_imp_qeqT. unfold Qdiv.
+    rewrite (qeqT_imp_qeq _ _ (q_pow_neg1_even j)). ring. }
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_ext (m + 1)
     (fun j : nat => q_pow (-1) (2 * j) / (q_fact (2 * j) * q_fact (2 * m - 2 * j)))
-    (fun j : nat => Qinv (q_fact (2 * j) * q_fact (2 * m - 2 * j)))) in Hz.
-  2: { intro j. unfold Qdiv. rewrite (q_pow_neg1_even j). ring. }
-  rewrite (sum_upto_ext m
+    (fun j : nat => Qinv (q_fact (2 * j) * q_fact (2 * m - 2 * j))) HextA)) in Hz.
+  assert (HextB : forall j : nat, QeqT
+    (q_pow (-1) (2 * j + 1) / (q_fact (2 * j + 1) * q_fact (2 * m - (2 * j + 1))))
+    (- Qinv (q_fact (2 * j + 1) * q_fact (2 * m - 2 * j - 1)))).
+  { intro j. apply qeq_imp_qeqT. unfold Qdiv.
+    rewrite (qeqT_imp_qeq _ _ (q_pow_neg1_odd j)).
+    assert (Hfeq : (2 * m - (2 * j + 1) = 2 * m - 2 * j - 1)%nat) by lia.
+    rewrite (qeqT_imp_qeq _ _ (q_fact_nat_eq (2 * m - (2 * j + 1)) (2 * m - 2 * j - 1) Hfeq)).
+    ring. }
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_ext m
     (fun j : nat => q_pow (-1) (2 * j + 1) / (q_fact (2 * j + 1) * q_fact (2 * m - (2 * j + 1))))
-    (fun j : nat => - Qinv (q_fact (2 * j + 1) * q_fact (2 * m - 2 * j - 1)))) in Hz.
-  2: { intro j. unfold Qdiv. rewrite (q_pow_neg1_odd j).
-       rewrite (q_fact_nat_eq (2 * m - (2 * j + 1)) (2 * m - 2 * j - 1)).
-       2: { lia. }
-       ring. }
+    (fun j : nat => - Qinv (q_fact (2 * j + 1) * q_fact (2 * m - 2 * j - 1))) HextB)) in Hz.
   assert (Hneg : sum_upto m (fun j : nat => - Qinv (q_fact (2 * j + 1) * q_fact (2 * m - 2 * j - 1))) ==
                  - sum_upto m (fun j : nat => Qinv (q_fact (2 * j + 1) * q_fact (2 * m - 2 * j - 1)))).
-  { apply sum_upto_neg. }
+  { apply qeqT_imp_qeq. apply sum_upto_neg. }
   rewrite Hneg in Hz.
   assert (Hring : sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))) ==
                   sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))) +
@@ -5273,12 +5334,11 @@ Proof.
   exact Hring.
 Qed.
 
-Lemma sc_cs_cpair_form : forall (t : Q) (m i : nat), (i <= m)%nat ->
-  cos_term i t * cos_term (m - i)%nat t ==
-  (q_pow (-1) m * q_pow t (2 * m)) *
-    Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i)).
+Lemma sc_cs_cpair_form : forall (t : Q) (m i : nat), (i <= m)%nat ->QeqT (cos_term i t * cos_term (m - i)%nat t) ((q_pow (-1) m * q_pow t (2 * m)) *
+    Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))).
 Proof.
   intros t m i Hi.
+  apply qeq_imp_qeqT.
   unfold cos_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow t (2 * i) * Qinv (q_fact (2 * i)))) *
                 (q_pow (-1) (m - i) * (q_pow t (2 * (m - i)) * Qinv (q_fact (2 * (m - i))))) ==
@@ -5289,26 +5349,25 @@ Proof.
   rewrite Hre.
   assert (Hsi : q_pow (-1) i * q_pow (-1) (m - i) == q_pow (-1) m).
   { assert (Hadd : (i + (m - i) = m)%nat) by lia.
-    rewrite <- (q_pow_add (-1) i (m - i)).
+    rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i (m - i))).
     rewrite Hadd. reflexivity. }
   rewrite Hsi.
   assert (Hti : q_pow t (2 * i) * q_pow t (2 * (m - i)) == q_pow t (2 * m)).
   { assert (Hadd2 : (2 * i + 2 * (m - i) = 2 * m)%nat) by lia.
-    rewrite <- (q_pow_add t (2 * i) (2 * (m - i))).
+    rewrite <- (qeqT_imp_qeq _ _ (q_pow_add t (2 * i) (2 * (m - i)))).
     rewrite Hadd2. reflexivity. }
   rewrite Hti.
   rewrite <- (Qinv_mult_distr (q_fact (2 * i)) (q_fact (2 * (m - i)))) by (apply q_neq_of_lt; apply q_fact_pos).
   assert (Hf1 : (2 * (m - i) = 2 * m - 2 * i)%nat) by lia.
-  rewrite (q_fact_nat_eq (2 * (m - i)) (2 * m - 2 * i) Hf1).
+  rewrite (qeqT_imp_qeq _ _ (q_fact_nat_eq (2 * (m - i)) (2 * m - 2 * i) Hf1)).
   ring.
 Qed.
 
-Lemma sc_cs_dpair_form : forall (t : Q) (m i : nat), (1 <= m)%nat -> (i <= m - 1)%nat ->
-  sin_term i t * sin_term (m - 1 - i)%nat t ==
-  (q_pow (-1) (m - 1) * q_pow t (2 * m)) *
-    Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)).
+Lemma sc_cs_dpair_form : forall (t : Q) (m i : nat), (1 <= m)%nat -> (i <= m - 1)%nat ->QeqT (sin_term i t * sin_term (m - 1 - i)%nat t) ((q_pow (-1) (m - 1) * q_pow t (2 * m)) *
+    Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))).
 Proof.
   intros t m i Hm1 Hi.
+  apply qeq_imp_qeqT.
   unfold sin_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow t (Datatypes.S (2 * i)) * Qinv (q_fact (Datatypes.S (2 * i))))) *
                 (q_pow (-1) (m - 1 - i) * (q_pow t (Datatypes.S (2 * (m - 1 - i))) * Qinv (q_fact (Datatypes.S (2 * (m - 1 - i)))))) ==
@@ -5319,64 +5378,68 @@ Proof.
   rewrite Hre.
   assert (Hsi : q_pow (-1) i * q_pow (-1) (m - 1 - i) == q_pow (-1) (m - 1)).
   { assert (Hadd : (i + (m - 1 - i) = m - 1)%nat) by lia.
-    rewrite <- (q_pow_add (-1) i (m - 1 - i)).
+    rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i (m - 1 - i))).
     rewrite Hadd. reflexivity. }
   rewrite Hsi.
   assert (Hti : q_pow t (Datatypes.S (2 * i)) * q_pow t (Datatypes.S (2 * (m - 1 - i))) == q_pow t (2 * m)).
   { assert (Hadd2 : (Datatypes.S (2 * i) + Datatypes.S (2 * (m - 1 - i)) = 2 * m)%nat) by lia.
-    rewrite <- (q_pow_add t (Datatypes.S (2 * i)) (Datatypes.S (2 * (m - 1 - i)))).
+    rewrite <- (qeqT_imp_qeq _ _ (q_pow_add t (Datatypes.S (2 * i)) (Datatypes.S (2 * (m - 1 - i))))).
     rewrite Hadd2. reflexivity. }
   rewrite Hti.
   rewrite <- (Qinv_mult_distr (q_fact (Datatypes.S (2 * i))) (q_fact (Datatypes.S (2 * (m - 1 - i))))) by (apply q_neq_of_lt; apply q_fact_pos).
   assert (Hf1 : (Datatypes.S (2 * (m - 1 - i)) = 2 * m - 2 * i - 1)%nat) by lia.
-  rewrite (q_fact_nat_eq (Datatypes.S (2 * (m - 1 - i))) (2 * m - 2 * i - 1) Hf1).
+  rewrite (qeqT_imp_qeq _ _ (q_fact_nat_eq (Datatypes.S (2 * (m - 1 - i))) (2 * m - 2 * i - 1) Hf1)).
   assert (Hf0 : (2 * i + 1 = Datatypes.S (2 * i))%nat) by lia.
-  rewrite (q_fact_nat_eq (2 * i + 1) (Datatypes.S (2 * i)) Hf0).
+  rewrite (qeqT_imp_qeq _ _ (q_fact_nat_eq (2 * i + 1) (Datatypes.S (2 * i)) Hf0)).
   ring.
 Qed.
 
-Lemma sc_cs_cdeg_sum : forall (t : Q) (m : nat),
-  sum_upto (m + 1) (fun i : nat => cos_term i t * cos_term (m - i)%nat t) ==
-  (q_pow (-1) m * q_pow t (2 * m)) *
-    sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))).
+Lemma sc_cs_cdeg_sum : forall (t : Q) (m : nat), QeqT (sum_upto (m + 1) (fun i : nat => cos_term i t * cos_term (m - i)%nat t)) ((q_pow (-1) m * q_pow t (2 * m)) *
+    sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i)))).
 Proof.
   intros t m.
-  rewrite <- (sum_upto_scale (m + 1) (q_pow (-1) m * q_pow t (2 * m))
-            (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i)))).
+  apply qeq_imp_qeqT.
+  rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale (m + 1) (q_pow (-1) m * q_pow t (2 * m))
+            (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))))).
+  apply qeqT_imp_qeq.
   apply (sum_upto_ext_below (m + 1)
     (fun i : nat => cos_term i t * cos_term (m - i)%nat t)
     (fun i : nat => (q_pow (-1) m * q_pow t (2 * m)) * Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i)))).
   intro i. intro Hi.
-  rewrite (sc_cs_cpair_form t m i).
-  2: { lia. }
+  apply qeq_imp_qeqT.
+  pose proof (NatLe_drop (Datatypes.S i) (m + 1) Hi) as Hinm.
+  assert (Him : (i <= m)%nat) by lia.
+  rewrite (qeqT_imp_qeq _ _ (sc_cs_cpair_form t m i Him)).
   reflexivity.
 Qed.
 
-Lemma sc_cs_ddeg_sum : forall (t : Q) (m : nat), (1 <= m)%nat ->
-  sum_upto m (fun i : nat => sin_term i t * sin_term (m - 1 - i)%nat t) ==
-  (q_pow (-1) (m - 1) * q_pow t (2 * m)) *
-    sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))).
+Lemma sc_cs_ddeg_sum : forall (t : Q) (m : nat), (1 <= m)%nat ->QeqT (sum_upto m (fun i : nat => sin_term i t * sin_term (m - 1 - i)%nat t)) ((q_pow (-1) (m - 1) * q_pow t (2 * m)) *
+    sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)))).
 Proof.
   intros t m Hm.
-  rewrite <- (sum_upto_scale m (q_pow (-1) (m - 1) * q_pow t (2 * m))
-            (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)))).
+  apply qeq_imp_qeqT.
+  rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale m (q_pow (-1) (m - 1) * q_pow t (2 * m))
+            (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))))).
+  apply qeqT_imp_qeq.
   apply (sum_upto_ext_below m
     (fun i : nat => sin_term i t * sin_term (m - 1 - i)%nat t)
     (fun i : nat => (q_pow (-1) (m - 1) * q_pow t (2 * m)) * Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)))).
   intro i. intro Hi.
-  rewrite (sc_cs_dpair_form t m i Hm).
-  2: { lia. }
+  apply qeq_imp_qeqT.
+  pose proof (NatLe_drop (Datatypes.S i) m Hi) as Hinm.
+  assert (Him : (i <= m - 1)%nat) by lia.
+  rewrite (qeqT_imp_qeq _ _ (sc_cs_dpair_form t m i Hm Him)).
   reflexivity.
 Qed.
 
-Lemma sc_cs_deg_van : forall (t : Q) (m : nat), (1 <= m)%nat ->
-  sum_upto (m + 1) (fun i : nat => cos_term i t * cos_term (m - i)%nat t) +
-  sum_upto m (fun i : nat => sin_term i t * sin_term (m - 1 - i)%nat t) == 0.
+Lemma sc_cs_deg_van : forall (t : Q) (m : nat), (1 <= m)%nat ->QeqT (sum_upto (m + 1) (fun i : nat => cos_term i t * cos_term (m - i)%nat t) +
+  sum_upto m (fun i : nat => sin_term i t * sin_term (m - 1 - i)%nat t)) (0).
 Proof.
   intros t m Hm.
-  rewrite (sc_cs_cdeg_sum t m).
-  rewrite (sc_cs_ddeg_sum t m Hm).
-  pose proof (sc_cs_eo_raw m Hm) as Heq.
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_cs_cdeg_sum t m)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cs_ddeg_sum t m Hm)).
+  pose proof (qeqT_imp_qeq _ _ (sc_cs_eo_raw m Hm)) as Heq.
   rewrite Heq.
   assert (Hfac : (q_pow (-1) m * q_pow t (2 * m)) *
                    sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))) +
@@ -5392,62 +5455,60 @@ Proof.
     rewrite Hpred at 1.
     apply (Qeq_trans _ (q_pow (-1) (m - 1) + q_pow (-1) (Datatypes.S (m - 1))) _).
     - exact (Qplus_comm (q_pow (-1) (Datatypes.S (m - 1))) (q_pow (-1) (m - 1))).
-    - exact (q_pow_neg_alt (m - 1)). }
+    - exact (qeqT_imp_qeq _ _ (q_pow_neg_alt (m - 1))). }
   rewrite Halt.
   rewrite (Qmult_0_r (sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))))).
   rewrite (Qmult_0_r (q_pow t (2 * m))). reflexivity.
 Qed.
 
 (* ---- C0：行拆分（检验 16b 成果） ---- *)
-Lemma sc_sum_tail_split : forall (n m : nat) (h : nat -> Q), (m <= n)%nat ->
-  sum_upto (Datatypes.S n) h ==
-  sum_upto (Datatypes.S (n - m)) h +
-  sum_upto m (fun k : nat => h (Datatypes.S (n - m) + k)%nat).
+Lemma sc_sum_tail_split : forall (n m : nat) (h : nat -> Q), (m <= n)%nat ->QeqT (sum_upto (Datatypes.S n) h) (sum_upto (Datatypes.S (n - m)) h +
+  sum_upto m (fun k : nat => h (Datatypes.S (n - m) + k)%nat)).
 Proof.
   intros n m h Hm.
+  apply qeq_imp_qeqT.
   assert (Hadd : (Datatypes.S n = Datatypes.S (n - m) + m)%nat) by lia.
-  rewrite (sum_upto_nat_eq (Datatypes.S n) (Datatypes.S (n - m) + m) h Hadd).
-  rewrite (sum_upto_add (Datatypes.S (n - m)) m h).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S n) (Datatypes.S (n - m) + m) h Hadd)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_add (Datatypes.S (n - m)) m h)).
   reflexivity.
 Qed.
 
-Lemma sc_sq_rect_split : forall (a : nat -> Q) (n : nat),
-  sum_upto (Datatypes.S n) a * sum_upto (Datatypes.S n) a ==
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => a j * a i)) +
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => a j * a (Datatypes.S (n - j) + k)%nat)).
+Lemma sc_sq_rect_split : forall (a : nat -> Q) (n : nat), QeqT (sum_upto (Datatypes.S n) a * sum_upto (Datatypes.S n) a) (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => a j * a i)) +
+  sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => a j * a (Datatypes.S (n - j) + k)%nat))).
 Proof.
   intros a n.
-  rewrite (sum_upto_prod n n a a).
-  rewrite <- (sum_upto_plus (Datatypes.S n)
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_prod n n a a)).
+  rewrite <- (qeqT_imp_qeq _ _ (sum_upto_plus (Datatypes.S n)
     (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => a j * a i))
-    (fun j : nat => sum_upto j (fun k : nat => a j * a (Datatypes.S (n - j) + k)%nat))).
+    (fun j : nat => sum_upto j (fun k : nat => a j * a (Datatypes.S (n - j) + k)%nat)))).
   apply Qeq_sym.
+  apply qeqT_imp_qeq.
   apply (sum_upto_ext_below (Datatypes.S n)
     (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => a j * a i) +
                     sum_upto j (fun k : nat => a j * a (Datatypes.S (n - j) + k)%nat))
     (fun j : nat => sum_upto (Datatypes.S n) (fun i : nat => a j * a i))).
   intros j Hj.
+  pose proof (NatLe_drop (Datatypes.S j) (Datatypes.S n) Hj) as Hjn.
+  apply qeq_imp_qeqT.
   apply Qeq_sym.
-  apply (sc_sum_tail_split n j (fun i : nat => a j * a i)).
+  apply qeqT_imp_qeq. apply (sc_sum_tail_split n j (fun i : nat => a j * a i)).
   lia.
 Qed.
 
-Lemma sc_cos_sq_split : forall (t : Q) (n : nat),
-  cos_partial n t * cos_partial n t ==
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t)) +
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t)).
+Lemma sc_cos_sq_split : forall (t : Q) (n : nat), QeqT (cos_partial n t * cos_partial n t) (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t)) +
+  sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))).
 Proof.
-intros t n. rewrite (sc_cos_partial_upto n t). exact (sc_sq_rect_split (fun j : nat => cos_term j t) n).
+intros t n. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n t)). exact (qeqT_imp_qeq _ _ (sc_sq_rect_split (fun j : nat => cos_term j t) n)).
 Qed.
 
-Lemma sc_sin_sq_split : forall (t : Q) (n : nat),
-  sin_partial n t * sin_partial n t ==
-  sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t)) +
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)).
+Lemma sc_sin_sq_split : forall (t : Q) (n : nat), QeqT (sin_partial n t * sin_partial n t) (sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t)) +
+  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))).
 Proof.
   intros t n.
-  rewrite (sc_sin_partial_upto n t).
-  rewrite (sum_upto_prod n n (fun j : nat => sin_term j t) (fun i : nat => sin_term i t)).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n t)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun j : nat => sin_term j t) (fun i : nat => sin_term i t))).
   assert (Hbsp : sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)) ==
                  sum_upto n (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)) +
                  sum_upto (Datatypes.S n) (fun k : nat => sin_term n t * sin_term (n - n + k)%nat t)).
@@ -5461,36 +5522,41 @@ Proof.
   assert (Hrows : sum_upto n (fun j : nat => sum_upto (Datatypes.S n) (fun i : nat => sin_term j t * sin_term i t)) ==
                   sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t) +
                                              sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))).
-  { apply (sum_upto_ext_below n
+  { apply qeqT_imp_qeq.
+    apply (sum_upto_ext_below n
       (fun j : nat => sum_upto (Datatypes.S n) (fun i : nat => sin_term j t * sin_term i t))
       (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t) +
                       sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))).
     intros j Hj.
-    assert (Hjn : (Datatypes.S j <= n)%nat) by lia.
+    apply qeq_imp_qeqT.
+    assert (Hjn : (Datatypes.S j <= n)%nat) by (exact (NatLe_drop _ _ Hj)).
     assert (Hidx : forall k : nat, (Datatypes.S (n - Datatypes.S j) + k = n - j + k)%nat) by (intro k; lia).
     assert (Hbrid : (Datatypes.S (n - Datatypes.S j) = Datatypes.S (n - 1 - j))%nat) by lia.
     set (h := fun i : nat => sin_term j t * sin_term i t).
     transitivity (sum_upto (Datatypes.S (n - Datatypes.S j)) h +
                   sum_upto (Datatypes.S j) (fun k : nat => h (Datatypes.S (n - Datatypes.S j) + k)%nat)).
-    - exact (sc_sum_tail_split n (Datatypes.S j) h Hjn).
-    - rewrite (sum_upto_nat_eq (Datatypes.S (n - Datatypes.S j)) (Datatypes.S (n - 1 - j)) h Hbrid).
+    - exact (qeqT_imp_qeq _ _ (sc_sum_tail_split n (Datatypes.S j) h Hjn)).
+    - rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (n - Datatypes.S j)) (Datatypes.S (n - 1 - j)) h Hbrid)).
       assert (H2 : sum_upto (Datatypes.S j) (fun k : nat => h (Datatypes.S (n - Datatypes.S j) + k)%nat) ==
                    sum_upto (Datatypes.S j) (fun k : nat => h (n - j + k)%nat)).
-      { apply (sum_upto_ext_below (Datatypes.S j)
+      { apply qeqT_imp_qeq.
+        apply (sum_upto_ext_below (Datatypes.S j)
           (fun k : nat => h (Datatypes.S (n - Datatypes.S j) + k)%nat)
           (fun k : nat => h (n - j + k)%nat)).
-        intros k Hk. unfold h. rewrite (Hidx k). reflexivity. }
+        intros k Hk. apply qeq_imp_qeqT. unfold h. rewrite (Hidx k). reflexivity. }
       rewrite H2. reflexivity. }
   rewrite Hrows.
-  rewrite (sum_upto_plus n
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_plus n
     (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t))
-    (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))).
+    (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)))).
   assert (Hrn : sum_upto (Datatypes.S n) (fun k : nat => sin_term n t * sin_term (n - n + k)%nat t) ==
                 sum_upto (Datatypes.S n) (fun i : nat => sin_term n t * sin_term i t)).
-  { apply (sum_upto_ext (Datatypes.S n)
+  { apply qeqT_imp_qeq.
+    apply (sum_upto_ext (Datatypes.S n)
       (fun k : nat => sin_term n t * sin_term (n - n + k)%nat t)
       (fun i : nat => sin_term n t * sin_term i t)).
     intro k.
+    apply qeq_imp_qeqT.
     assert (Hnn : (n - n = 0)%nat) by lia.
     rewrite Hnn. reflexivity. }
   rewrite Hrn.
@@ -5500,55 +5566,54 @@ Qed.
 (* ============ C3：三角平方和 == 1 ============ *)
 
 (* C3.1 度向 X 形消去：X_c(m)E(m) + X_d(m)O(m) == 0（m ≥ 1） *)
-Lemma sc_cs_deg_van_x : forall (t : Q) (m : nat), (1 <= m)%nat ->
-  (q_pow (-1) m * q_pow t (2 * m)) *
+Lemma sc_cs_deg_van_x : forall (t : Q) (m : nat), (1 <= m)%nat ->QeqT ((q_pow (-1) m * q_pow t (2 * m)) *
     sum_upto (m + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * m - 2 * i))) +
   (q_pow (-1) (m - 1) * q_pow t (2 * m)) *
-    sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1))) == 0.
+    sum_upto m (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * m - 2 * i - 1)))) (0).
 Proof.
-intros t m Hm. rewrite <- (sc_cs_cdeg_sum t m). rewrite <- (sc_cs_ddeg_sum t m Hm). exact (sc_cs_deg_van t m Hm).
+intros t m Hm. apply qeq_imp_qeqT. rewrite <- (qeqT_imp_qeq _ _ (sc_cs_cdeg_sum t m)). rewrite <- (qeqT_imp_qeq _ _ (sc_cs_ddeg_sum t m Hm)). exact (qeqT_imp_qeq _ _ (sc_cs_deg_van t m Hm)).
 Qed.
 
 (* C3.2 三角 cos 侧 == 对角和：tri_c == Σ_{k=0}^{n} X_c(k)·E_raw(k) *)
-Lemma sc_cs_tri_c_eval : forall (t : Q) (n : nat),
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t)) ==
-  sum_upto (Datatypes.S n) (fun k : nat =>
+Lemma sc_cs_tri_c_eval : forall (t : Q) (n : nat), QeqT (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t))) (sum_upto (Datatypes.S n) (fun k : nat =>
     (q_pow (-1) k * q_pow t (2 * k)) *
-      sum_upto (k + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * k - 2 * i)))).
+      sum_upto (k + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * k - 2 * i))))).
 Proof.
   intros t n.
-  rewrite <- (exp_cauchy_swap n (fun j : nat => cos_term j t) (fun j : nat => cos_term j t)).
+  apply qeq_imp_qeqT.
+  rewrite <- (qeqT_imp_qeq _ _ (exp_cauchy_swap n (fun j : nat => cos_term j t) (fun j : nat => cos_term j t))).
+  apply qeqT_imp_qeq.
   apply (sum_upto_ext_below (Datatypes.S n)
     (fun k : nat => sum_upto (Datatypes.S k) (fun j : nat => cos_term j t * cos_term (k - j)%nat t))
     (fun k : nat => (q_pow (-1) k * q_pow t (2 * k)) *
         sum_upto (k + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * k - 2 * i))))).
   intros k Hk.
+  apply qeq_imp_qeqT.
   assert (Hsk : (Datatypes.S k = k + 1)%nat) by lia.
-  rewrite (sum_upto_nat_eq (Datatypes.S k) (k + 1)
-            (fun j : nat => cos_term j t * cos_term (k - j)%nat t) Hsk).
-  rewrite (sc_cs_cdeg_sum t k).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S k) (k + 1)
+            (fun j : nat => cos_term j t * cos_term (k - j)%nat t) Hsk)).
+  rewrite (qeqT_imp_qeq _ _ (sc_cs_cdeg_sum t k)).
   reflexivity.
 Qed.
 
 (* C3.3 三角 sin 侧 == 对角和（m := S k 移标）：tri_d == Σ_{k=0}^{n−1} X_d(S k)·O_raw(S k)，n ≥ 1 *)
-Lemma sc_cs_tri_d_eval : forall (t : Q) (n : nat), (1 <= n)%nat ->
-  sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t)) ==
-  sum_upto n (fun k : nat =>
+Lemma sc_cs_tri_d_eval : forall (t : Q) (n : nat), (1 <= n)%nat ->QeqT (sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t))) (sum_upto n (fun k : nat =>
     (q_pow (-1) (Datatypes.S k - 1) * q_pow t (2 * (Datatypes.S k))) *
-      sum_upto (Datatypes.S k) (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * (Datatypes.S k) - 2 * i - 1)))).
+      sum_upto (Datatypes.S k) (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * (Datatypes.S k) - 2 * i - 1))))).
 Proof.
   intros t n Hn.
+  apply qeq_imp_qeqT.
   set (Sd := fun k : nat =>
         (q_pow (-1) (Datatypes.S k - 1) * q_pow t (2 * (Datatypes.S k))) *
           sum_upto (Datatypes.S k) (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * (Datatypes.S k) - 2 * i - 1)))).
   (* 目标 RHS 外指标 n 桥到 S(n−1)（swap 尺度一致） *)
   assert (Houter : (n = Datatypes.S (n - 1))%nat) by lia.
-  rewrite (sum_upto_nat_eq n (Datatypes.S (n - 1)) Sd Houter).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq n (Datatypes.S (n - 1)) Sd Houter)).
   (* tri_d 的嵌套和 == swap (n−1) 的 RHS（同函数 g，外指标桥） *)
   set (g := fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t)).
   assert (Ht1 : sum_upto n g == sum_upto (Datatypes.S (n - 1)) g).
-  { apply (sum_upto_nat_eq n (Datatypes.S (n - 1)) g). exact Houter. }
-  assert (Hswap := exp_cauchy_swap (n - 1) (fun j : nat => sin_term j t) (fun j : nat => sin_term j t)).
+  { apply qeqT_imp_qeq. apply (sum_upto_nat_eq n (Datatypes.S (n - 1)) g). exact Houter. }
+  assert (Hswap := qeqT_imp_qeq _ _ (exp_cauchy_swap (n - 1) (fun j : nat => sin_term j t) (fun j : nat => sin_term j t))).
   (* 目标：tri_d == Σ Sd：transitivity 到 swap-LHS *)
   transitivity (sum_upto (Datatypes.S (n - 1))
     (fun k : nat => sum_upto (Datatypes.S k) (fun j : nat => sin_term j t * sin_term (k - j)%nat t))).
@@ -5557,17 +5622,21 @@ Proof.
     + unfold g. exact Ht1.
     + apply Qeq_sym. exact Hswap.
   - (* swap-LHS == Σ Sd：逐 k（k ≤ n−1）用 ddeg_sum (S k) 的 RHS 形态 *)
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below (Datatypes.S (n - 1))
       (fun k : nat => sum_upto (Datatypes.S k) (fun j : nat => sin_term j t * sin_term (k - j)%nat t))
       Sd).
     intros k Hk.
+    apply qeq_imp_qeqT.
     assert (Hm1 : (1 <= Datatypes.S k)%nat) by lia.
     unfold Sd.
-    rewrite <- (sc_cs_ddeg_sum t (Datatypes.S k) Hm1).
+    rewrite <- (qeqT_imp_qeq _ _ (sc_cs_ddeg_sum t (Datatypes.S k) Hm1)).
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below (Datatypes.S k)
       (fun j : nat => sin_term j t * sin_term (k - j)%nat t)
       (fun j : nat => sin_term j t * sin_term (Datatypes.S k - 1 - j)%nat t)).
     intros j Hj.
+    apply qeq_imp_qeqT.
     assert (Hsb : (Datatypes.S k - 1 - j = k - j)%nat) by lia.
     rewrite Hsb. reflexivity.
 Qed.
@@ -5575,61 +5644,60 @@ Qed.
 (* ============ C4：三角平方和 == 1 + 误差精确分解 ============ *)
 
 (* C4.1 三角平方和：tri_c(n) + tri_d(n) == 1 *)
-Lemma sc_cs_tri_sq_one : forall (t : Q) (n : nat),
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t)) +
-  sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t)) == 1.
+Lemma sc_cs_tri_sq_one : forall (t : Q) (n : nat), QeqT (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S (n - j)) (fun i : nat => cos_term j t * cos_term i t)) +
+  sum_upto n (fun j : nat => sum_upto (Datatypes.S (n - 1 - j)) (fun i : nat => sin_term j t * sin_term i t))) (1).
 Proof.
   intros t n.
   destruct n as [| n'].
-  - (* n = 0：tri_c == c_0·c_0 == 1，tri_d == 0 *)
+  - apply qeq_imp_qeqT. (* n = 0：tri_c == c_0·c_0 == 1，tri_d == 0 *)
     simpl.
-    rewrite (sc_cos_term_zero t).
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_term_zero t)).
     ring.
-  - (* n = S n' ≥ 1 *)
+  - apply qeq_imp_qeqT. (* n = S n' ≥ 1 *)
     assert (Hn1 : (1 <= Datatypes.S n')%nat) by lia.
-    rewrite (sc_cs_tri_c_eval t (Datatypes.S n')).
-    rewrite (sc_cs_tri_d_eval t (Datatypes.S n') Hn1).
+    rewrite (qeqT_imp_qeq _ _ (sc_cs_tri_c_eval t (Datatypes.S n'))).
+    rewrite (qeqT_imp_qeq _ _ (sc_cs_tri_d_eval t (Datatypes.S n') Hn1)).
     set (A := fun k : nat => (q_pow (-1) k * q_pow t (2 * k)) *
                 sum_upto (k + 1) (fun i : nat => Qinv (q_fact (2 * i) * q_fact (2 * k - 2 * i)))).
     set (Sd := fun k : nat =>
         (q_pow (-1) (Datatypes.S k - 1) * q_pow t (2 * (Datatypes.S k))) *
           sum_upto (Datatypes.S k) (fun i : nat => Qinv (q_fact (2 * i + 1) * q_fact (2 * (Datatypes.S k) - 2 * i - 1)))).
-    rewrite (sum_upto_rot (Datatypes.S n') A).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_rot (Datatypes.S n') A)).
     rewrite <- (Qplus_assoc (A 0%nat) (sum_upto (Datatypes.S n') (fun i : nat => A (Datatypes.S i))) (sum_upto (Datatypes.S n') Sd)).
-    rewrite <- (sum_upto_plus (Datatypes.S n') (fun i : nat => A (Datatypes.S i)) Sd).
+    rewrite <- (qeqT_imp_qeq _ _ (sum_upto_plus (Datatypes.S n') (fun i : nat => A (Datatypes.S i)) Sd)).
     assert (Hsum : sum_upto (Datatypes.S n') (fun i : nat => A (Datatypes.S i) + Sd i) == 0).
     { assert (Hext : sum_upto (Datatypes.S n') (fun i : nat => A (Datatypes.S i) + Sd i) ==
                     sum_upto (Datatypes.S n') (fun _ : nat => 0)).
-      { apply (sum_upto_ext_below (Datatypes.S n')
+      { apply qeqT_imp_qeq.
+        apply (sum_upto_ext_below (Datatypes.S n')
           (fun i : nat => A (Datatypes.S i) + Sd i)
           (fun _ : nat => 0)).
         intros i Hi.
         unfold A. unfold Sd.
         apply (sc_cs_deg_van_x t (Datatypes.S i)).
         lia. }
-      rewrite (sum_upto_zero (Datatypes.S n')) in Hext.
+      rewrite (qeqT_imp_qeq _ _ (sum_upto_zero (Datatypes.S n'))) in Hext.
       exact Hext. }
     rewrite Hsum.
     assert (HA0 : A 0%nat == 1).
     { unfold A.
-      rewrite <- (sc_cs_cdeg_sum t 0).
+      rewrite <- (qeqT_imp_qeq _ _ (sc_cs_cdeg_sum t 0)).
       simpl.
-      rewrite (sc_cos_term_zero t).
-      rewrite (sc_cos_term_zero t).
+      rewrite (qeqT_imp_qeq _ _ (sc_cos_term_zero t)).
+      rewrite (qeqT_imp_qeq _ _ (sc_cos_term_zero t)).
       reflexivity. }
     rewrite HA0. ring.
 Qed.
 
 (* C4.2 主分解：cos_partial n t² + sin_partial n t² − 1 == band_c(n) + band_d(n)（精确） *)
-Lemma sc_cs_sq_err_decomp : forall (t : Q) (n : nat),
-  cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1 ==
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t)) +
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)).
+Lemma sc_cs_sq_err_decomp : forall (t : Q) (n : nat), QeqT (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1) (sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t)) +
+  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))).
 Proof.
   intros t n.
-  rewrite (sc_cos_sq_split t n).
-  rewrite (sc_sin_sq_split t n).
-  rewrite <- (sc_cs_tri_sq_one t n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_sq_split t n)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_sq_split t n)).
+  rewrite <- (qeqT_imp_qeq _ _ (sc_cs_tri_sq_one t n)).
   ring.
 Qed.
 
@@ -5652,104 +5720,102 @@ Qed.
 (* ============================================================ *)
 (* A1：非负逐项 ⟹ 和 ≥ 0 *)
 Lemma sc_sum_nonneg : forall (n : nat) (f : nat -> Q),
-  (forall m : nat, Qle 0 (f m)) -> Qle 0 (sum_upto n f).
+  (forall m : nat, Qle 0 (f m)) -> QleT' 0 (sum_upto n f).
 Proof.
   intros n f Hf.
   induction n as [| n' IH]; simpl.
-  - unfold Qle; simpl; lia.
-  - apply (Qle_trans _ (0 + 0) _).
-    + apply qeq_le. ring.
+  - apply Qle_to_QleT'. unfold Qle; simpl; lia.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (0 + 0) _).
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     + apply (Qplus_le_compat 0 (sum_upto n' f) 0 (f n')).
-      * exact IH.
+      * exact (QleT'_to_Qle _ _ IH).
       * exact (Hf n').
 Qed.
 
 (* A2：移位块子和 ≤ 全和：a+j ≤ M 且 g 非负 ⟹ Σ_{k<j} g(a+k) ≤ Σ_{m<M} g m *)
 Lemma sc_sum_shift_sub_le : forall (a j M : nat) (g : nat -> Q),
   (forall m : nat, Qle 0 (g m)) -> (a + j <= M)%nat ->
-  Qle (sum_upto j (fun k : nat => g (a + k)%nat)) (sum_upto M g).
+  QleT' (sum_upto j (fun k : nat => g (a + k)%nat)) (sum_upto M g).
 Proof.
   intros a j M g Hg Hle.
+  apply Qle_to_QleT'.
   assert (Hsp : (M = a + j + (M - a - j))%nat) by lia.
-  rewrite (sum_upto_nat_eq M (a + j + (M - a - j)) g Hsp).
-  rewrite (sum_upto_nat_eq (a + j + (M - a - j)) (a + (j + (M - a - j))) g).
-  2: { lia. }
-  rewrite (sum_upto_add a (j + (M - a - j)) g).
-  rewrite (sum_upto_add j (M - a - j) (fun k : nat => g (a + k)%nat)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq M (a + j + (M - a - j)) g Hsp)).
+  assert (Hsp2 : (a + j + (M - a - j) = a + (j + (M - a - j)))%nat) by lia.
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (a + j + (M - a - j)) (a + (j + (M - a - j))) g Hsp2)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_add a (j + (M - a - j)) g)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_add j (M - a - j) (fun k : nat => g (a + k)%nat))).
   (* 目标：Σ_j g(a+·) ≤ Σ_a g + (Σ_j g(a+·) + Σ_rest)（Σ_rest ≥ 0、Σ_a ≥ 0） *)
   apply (Qle_trans _ (sum_upto j (fun k : nat => g (a + k)%nat) +
                       sum_upto (M - a - j) (fun i : nat => g (a + (j + i))%nat)) _).
   - apply (Qle_plus_nonneg_r (sum_upto j (fun k : nat => g (a + k)%nat))
             (sum_upto (M - a - j) (fun i : nat => g (a + (j + i))%nat))).
-    apply sc_sum_nonneg. intro m. exact (Hg (a + (j + m))%nat).
+    apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. exact (Hg (a + (j + m))%nat).
   - apply (Qle_trans _ ((sum_upto j (fun k : nat => g (a + k)%nat) +
                          sum_upto (M - a - j) (fun i : nat => g (a + (j + i))%nat)) +
                         sum_upto a g) _).
     + apply (Qle_plus_nonneg_r (sum_upto j (fun k : nat => g (a + k)%nat) +
                                 sum_upto (M - a - j) (fun i : nat => g (a + (j + i))%nat))
               (sum_upto a g)).
-      apply sc_sum_nonneg. intro m. exact (Hg m).
-    + apply qeq_le. ring.
+      apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. exact (Hg m).
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* A3：尾部块拆分：a ≤ n ⟹ Σ_{0..n} X == Σ_{0..a} X + Σ_{a+1..n} X（第二和 m ↦ X (S a + m)） *)
-Lemma sc_sum_after_split : forall (a n : nat) (X : nat -> Q), (a <= n)%nat ->
-  sum_upto (Datatypes.S n) X ==
-  sum_upto (Datatypes.S a) X + sum_upto (n - a) (fun m : nat => X (Datatypes.S a + m)%nat).
+Lemma sc_sum_after_split : forall (a n : nat) (X : nat -> Q), (a <= n)%nat ->QeqT (sum_upto (Datatypes.S n) X) (sum_upto (Datatypes.S a) X + sum_upto (n - a) (fun m : nat => X (Datatypes.S a + m)%nat)).
 Proof.
   intros a n X Ha.
+  apply qeq_imp_qeqT.
   assert (Hadd : (Datatypes.S n = Datatypes.S a + (n - a))%nat) by lia.
-  rewrite (sum_upto_nat_eq (Datatypes.S n) (Datatypes.S a + (n - a)) X Hadd).
-  rewrite (sum_upto_add (Datatypes.S a) (n - a) X).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S n) (Datatypes.S a + (n - a)) X Hadd)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_add (Datatypes.S a) (n - a) X)).
   reflexivity.
 Qed.
 
 (* A4：偶奇配对和 == exp_series (2n+1) B：Σ_{j=0}^{n} (G_{2j}+G_{2j+1}) == exp_series (2n+1) B *)
-Lemma sc_cs_evenodd_exp : forall (B : Q) (n : nat),
-  sum_upto (n + 1) (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) +
-                                   q_pow B (2 * j + 1) / q_fact (2 * j + 1)) ==
-  exp_series (2 * n + 1) B.
+Lemma sc_cs_evenodd_exp : forall (B : Q) (n : nat), QeqT (sum_upto (n + 1) (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) +
+                                   q_pow B (2 * j + 1) / q_fact (2 * j + 1))) (exp_series (2 * n + 1) B).
 Proof.
   intros B n.
+  apply qeq_imp_qeqT.
   exact (Qeq_trans _ _ _
-    (sum_upto_plus (n + 1)
+    (qeqT_imp_qeq _ _ (sum_upto_plus (n + 1)
       (fun j : nat => q_pow B (2 * j) / q_fact (2 * j))
-      (fun j : nat => q_pow B (2 * j + 1) / q_fact (2 * j + 1)))
+      (fun j : nat => q_pow B (2 * j + 1) / q_fact (2 * j + 1))))
     (Qeq_trans _ _ _
-      (Qeq_sym _ _ (sum_upto_even_split (n + 1) (fun k : nat => q_pow B k / q_fact k)))
+      (Qeq_sym _ _ (qeqT_imp_qeq _ _ (sum_upto_even_split (n + 1) (fun k : nat => q_pow B k / q_fact k))))
       (Qeq_trans _ _ _
-        (sum_upto_nat_eq (2 * (n + 1)) (Datatypes.S (2 * n + 1))
-           (fun k : nat => q_pow B k / q_fact k) (ltac: (lia)))
+        (qeqT_imp_qeq _ _ (sum_upto_nat_eq (2 * (n + 1)) (Datatypes.S (2 * n + 1))
+           (fun k : nat => q_pow B k / q_fact k) (ltac: (lia))))
         (Qeq_trans _ _ _
-          (Qeq_sym _ _ (exp_partial_sum (2 * n + 1) B))
-          (exp_partial_eq_series (2 * n + 1) B))))).
+          (Qeq_sym _ _ (qeqT_imp_qeq _ _ (exp_partial_sum (2 * n + 1) B)))
+          (qeqT_imp_qeq _ _ (exp_partial_eq_series (2 * n + 1) B)))))).
 Qed.
 
 (* A5：偶奇配对尾差分（下界 a）：a ≤ n ⟹ Σ_{i=a+1}^{n} (G_{2i}+G_{2i+1}) == exp_series(2n+1) − exp_series(2a+1) *)
-Lemma sc_cs_evenodd_tail_diff : forall (B : Q) (a n : nat), (a <= n)%nat ->
-  sum_upto (n - a) (fun m : nat => q_pow B (2 * (Datatypes.S a + m)) / q_fact (2 * (Datatypes.S a + m)) +
-                                   q_pow B (2 * (Datatypes.S a + m) + 1) / q_fact (2 * (Datatypes.S a + m) + 1)) ==
-  exp_series (2 * n + 1) B - exp_series (2 * a + 1) B.
+Lemma sc_cs_evenodd_tail_diff : forall (B : Q) (a n : nat), (a <= n)%nat ->QeqT (sum_upto (n - a) (fun m : nat => q_pow B (2 * (Datatypes.S a + m)) / q_fact (2 * (Datatypes.S a + m)) +
+                                   q_pow B (2 * (Datatypes.S a + m) + 1) / q_fact (2 * (Datatypes.S a + m) + 1))) (exp_series (2 * n + 1) B - exp_series (2 * a + 1) B).
 Proof.
   intros B a n Han.
+  apply qeq_imp_qeqT.
   pose proof (sc_sum_after_split a n (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) +
                                                       q_pow B (2 * i + 1) / q_fact (2 * i + 1)) Han) as Hsplit.
-  pose proof (sc_cs_evenodd_exp B n) as Hen.
-  pose proof (sc_cs_evenodd_exp B a) as Hea.
+  pose proof (qeqT_imp_qeq _ _ (sc_cs_evenodd_exp B n)) as Hen.
+  pose proof (qeqT_imp_qeq _ _ (sc_cs_evenodd_exp B a)) as Hea.
   transitivity (sum_upto (Datatypes.S n) (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) +
                                                           q_pow B (2 * i + 1) / q_fact (2 * i + 1)) -
                 sum_upto (Datatypes.S a) (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) +
                                                           q_pow B (2 * i + 1) / q_fact (2 * i + 1))).
   - apply Qeq_sym.
-    rewrite Hsplit.
+    rewrite (qeqT_imp_qeq _ _ Hsplit).
     ring.
   - (* 桥 S n == n+1、S a == a+1（rewrite 语法匹配盲区）后 rewrite Hen/Hea *)
     assert (Hn : (Datatypes.S n = n + 1)%nat) by lia.
     assert (Ha : (Datatypes.S a = a + 1)%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S n) (n + 1)
-              (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1)) Hn).
-    rewrite (sum_upto_nat_eq (Datatypes.S a) (a + 1)
-              (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1)) Ha).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S n) (n + 1)
+              (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1)) Hn)).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S a) (a + 1)
+              (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1)) Ha)).
     rewrite Hen. rewrite Hea. reflexivity.
 Qed.
 
@@ -5757,25 +5823,26 @@ Qed.
 
 
 (* B0：偶幂绝对值：q_pow (|x|) (2i)/q_fact (2i) == |q_pow x (2i)/q_fact (2i)| *)
-Lemma sc_qabs_pow_even : forall (x : Q) (i : nat),
-  q_pow (Qabs x) (2 * i) / q_fact (2 * i) == Qabs (q_pow x (2 * i) / q_fact (2 * i)).
+Lemma sc_qabs_pow_even : forall (x : Q) (i : nat), QeqT (q_pow (Qabs x) (2 * i) / q_fact (2 * i)) (Qabs (q_pow x (2 * i) / q_fact (2 * i))).
 Proof.
   intros x i.
+  apply qeq_imp_qeqT.
   unfold Qdiv.
   rewrite Qabs_Qmult.
-  rewrite q_pow_abs.
+  rewrite (qeqT_imp_qeq _ _ (q_pow_abs x (2 * i))).
   rewrite (Qabs_pos (Qinv (q_fact (2 * i)))).
   2: { apply (Qlt_le_weak 0 (Qinv (q_fact (2 * i)))).
-       apply Qinv_lt_0_compat. apply q_fact_pos. }
+       apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos. }
   reflexivity.
 Qed.
 (* B1：0 ≤ B ∧ |t| ≤ B ⟹ |cos_term i t| ≤ G_{2i} + G_{2i+1}（i 任意） *)
 Lemma sc_cs_cabs_pair : forall (t B : Q) (i : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (Qabs (cos_term i t)) (q_pow B (2 * i) / q_fact (2 * i) +
+  QleT' (Qabs (cos_term i t)) (q_pow B (2 * i) / q_fact (2 * i) +
                               q_pow B (2 * i + 1) / q_fact (2 * i + 1)).
 Proof.
   intros t B i HB HtB.
+  apply Qle_to_QleT'.
   exact (Qle_trans (Qabs (cos_term i t))
     (q_pow B (2 * i) / q_fact (2 * i))
     (q_pow B (2 * i) / q_fact (2 * i) +
@@ -5783,34 +5850,37 @@ Proof.
     (Qle_trans (Qabs (cos_term i t))
       (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
       (q_pow B (2 * i) / q_fact (2 * i))
-      (qeq_le (Qabs (cos_term i t))
-        (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
-        (sc_abs_cos_term i t))
+      (QleT'_to_Qle _ _
+        (qeq_le (Qabs (cos_term i t))
+          (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
+          (sc_abs_cos_term i t)))
       (Qle_trans (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
         (Qabs (q_pow t (2 * i) / q_fact (2 * i)))
         (q_pow B (2 * i) / q_fact (2 * i))
-        (qeq_le (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
-          (Qabs (q_pow t (2 * i) / q_fact (2 * i)))
-          (sc_qabs_pow_even t i))
-        (q_abs_pow_fact_le t B (2 * i) HB HtB)))
+        (QleT'_to_Qle _ _
+          (qeq_le (q_pow (Qabs t) (2 * i) / q_fact (2 * i))
+            (Qabs (q_pow t (2 * i) / q_fact (2 * i)))
+            (sc_qabs_pow_even t i)))
+        (QleT'_to_Qle _ _ (q_abs_pow_fact_le t B (2 * i) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ HtB)))))
     (Qle_plus_nonneg_r (q_pow B (2 * i) / q_fact (2 * i))
       (q_pow B (2 * i + 1) / q_fact (2 * i + 1))
-      (q_pow_fact_nonneg B (2 * i + 1) HB))).
+      (QleT'_to_Qle _ _ (q_pow_fact_nonneg B (2 * i + 1) (Qle_to_QleT' _ _ HB))))).
 Qed.
 
 (* B2：0 ≤ B ∧ |t| ≤ B ⟹ |sin_term i t| ≤ G_{2i} + G_{2i+1} *)
 Lemma sc_cs_dabs_pair : forall (t B : Q) (i : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (Qabs (sin_term i t)) (q_pow B (2 * i) / q_fact (2 * i) +
+  QleT' (Qabs (sin_term i t)) (q_pow B (2 * i) / q_fact (2 * i) +
                               q_pow B (2 * i + 1) / q_fact (2 * i + 1)).
 Proof.
   intros t B i HB HtB.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (q_pow B (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * i))) _).
   - apply (Qle_trans _ (q_pow (Qabs t) (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * i))) _).
-    + apply qeq_le. exact (sc_abs_sin_term i t).
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_abs_sin_term i t)).
     + apply (Qle_trans _ (Qabs (q_pow t (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * i)))) _).
-      * apply qeq_le. apply Qeq_sym. apply (q_abs_pow_fact t (2 * i)).
-      * apply (q_abs_pow_fact_le t B (Datatypes.S (2 * i))); assumption.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. apply (qeqT_imp_qeq _ _ (q_abs_pow_fact t (2 * i))).
+      * apply QleT'_to_Qle. apply (q_abs_pow_fact_le t B (Datatypes.S (2 * i)) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ HtB)).
   - (* G_{S(2i)} ≤ G_{2i} + G_{2i+1}：先 nat-Leibniz 桥 (2i+1) → S(2i) *)
     assert (Hsi : (2 * i + 1 = Datatypes.S (2 * i))%nat) by lia.
     rewrite Hsi.
@@ -5818,8 +5888,8 @@ Proof.
                         q_pow B (2 * i) / q_fact (2 * i)) _).
     + apply (Qle_plus_nonneg_r (q_pow B (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * i)))
             (q_pow B (2 * i) / q_fact (2 * i))).
-      apply (q_pow_fact_nonneg B (2 * i)). exact HB.
-    + apply qeq_le.
+      apply QleT'_to_Qle. apply (q_pow_fact_nonneg B (2 * i)). apply Qle_to_QleT'. exact HB.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       exact (Qplus_comm (q_pow B (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * i)))
                         (q_pow B (2 * i) / q_fact (2 * i))).
 Qed.
@@ -5829,96 +5899,111 @@ Qed.
 (* C1：Σ_{i=0}^{n}|c_i| ≤ exp_series (2n+1) B *)
 Lemma sc_cs_c_full_le : forall (t B : Q) (n : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t)))
+  QleT' (sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t)))
       (exp_series (2 * n + 1) B).
 Proof.
   intros t B n HB HtB.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) +
                                                                q_pow B (2 * i + 1) / q_fact (2 * i + 1))) _).
-  - apply (sum_upto_le_ext (Datatypes.S n)
+  - apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (Datatypes.S n)
       (fun i : nat => Qabs (cos_term i t))
       (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1))).
     intros k Hk. apply (sc_cs_cabs_pair t B k HB HtB).
   - assert (Hn : (Datatypes.S n = n + 1)%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S n) (n + 1)
-      (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) + q_pow B (2 * j + 1) / q_fact (2 * j + 1)) Hn).
-    rewrite (sc_cs_evenodd_exp B n). apply Qle_refl.
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S n) (n + 1)
+      (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) + q_pow B (2 * j + 1) / q_fact (2 * j + 1)) Hn)).
+    rewrite (qeqT_imp_qeq _ _ (sc_cs_evenodd_exp B n)). apply Qle_refl.
 Qed.
 
 (* C2：Σ_{i=0}^{n}|d_i| ≤ exp_series (2n+1) B *)
 Lemma sc_cs_d_full_le : forall (t B : Q) (n : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t)))
+  QleT' (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t)))
       (exp_series (2 * n + 1) B).
 Proof.
   intros t B n HB HtB.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) +
                                                                q_pow B (2 * i + 1) / q_fact (2 * i + 1))) _).
-  - apply (sum_upto_le_ext (Datatypes.S n)
+  - apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (Datatypes.S n)
       (fun i : nat => Qabs (sin_term i t))
       (fun i : nat => q_pow B (2 * i) / q_fact (2 * i) + q_pow B (2 * i + 1) / q_fact (2 * i + 1))).
     intros k Hk. apply (sc_cs_dabs_pair t B k HB HtB).
   - assert (Hn : (Datatypes.S n = n + 1)%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S n) (n + 1)
-      (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) + q_pow B (2 * j + 1) / q_fact (2 * j + 1)) Hn).
-    rewrite (sc_cs_evenodd_exp B n). apply Qle_refl.
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S n) (n + 1)
+      (fun j : nat => q_pow B (2 * j) / q_fact (2 * j) + q_pow B (2 * j + 1) / q_fact (2 * j + 1)) Hn)).
+    rewrite (qeqT_imp_qeq _ _ (sc_cs_evenodd_exp B n)). apply Qle_refl.
 Qed.
 
 (* C3：c 尾（自 d+1）：Σ_{m<n−d}|c_{S d + m}| ≤ exp_series(2n+1) − exp_series(2d+1)（d ≤ n） *)
 Lemma sc_cs_c_tail_diff_le : forall (t B : Q) (d n : nat),
   Qle 0 B -> Qle (Qabs t) B -> (d <= n)%nat ->
-  Qle (sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t)))
+  QleT' (sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t)))
       (exp_series (2 * n + 1) B - exp_series (2 * d + 1) B).
 Proof.
   intros t B d n HB HtB Hdn.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sum_upto (n - d) (fun m : nat => q_pow B (2 * (Datatypes.S d + m)) / q_fact (2 * (Datatypes.S d + m)) +
                                                        q_pow B (2 * (Datatypes.S d + m) + 1) / q_fact (2 * (Datatypes.S d + m) + 1))) _).
-  - apply (sum_upto_le_ext (n - d)
+  - apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (n - d)
       (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))
       (fun m : nat => q_pow B (2 * (Datatypes.S d + m)) / q_fact (2 * (Datatypes.S d + m)) +
                       q_pow B (2 * (Datatypes.S d + m) + 1) / q_fact (2 * (Datatypes.S d + m) + 1))).
     intros k Hk.
+    apply Qle_to_QleT'.
     assert (Habs : Qle (Qabs (cos_term (Datatypes.S d + k)%nat t))
                        (q_pow B (2 * (Datatypes.S d + k)) / q_fact (2 * (Datatypes.S d + k)) +
                         q_pow B (2 * (Datatypes.S d + k) + 1) / q_fact (2 * (Datatypes.S d + k) + 1))).
-    { apply (sc_cs_cabs_pair t B (Datatypes.S d + k) HB HtB). }
+    { apply QleT'_to_Qle. apply (sc_cs_cabs_pair t B (Datatypes.S d + k) HB HtB). }
     exact Habs.
-  - rewrite (sc_cs_evenodd_tail_diff B d n Hdn). apply Qle_refl.
+  - rewrite (qeqT_imp_qeq _ _ (sc_cs_evenodd_tail_diff B d n Hdn)). apply Qle_refl.
 Qed.
 
 
 
 (* C5：exp_series 指标桥 *)
-Lemma sc_exp_series_idx : forall (n m : nat) (B : Q), n = m -> exp_series n B == exp_series m B.
+Lemma sc_exp_series_idx : forall (n m : nat) (B : Q), n = m ->QeqT (exp_series n B) (exp_series m B).
 Proof.
   intros n m B H.
-  rewrite <- (exp_partial_eq_series n B).
-  rewrite <- (exp_partial_eq_series m B).
+  apply qeq_imp_qeqT.
+  rewrite <- (qeqT_imp_qeq _ _ (exp_partial_eq_series n B)).
+  rewrite <- (qeqT_imp_qeq _ _ (exp_partial_eq_series m B)).
   rewrite H. reflexivity.
 Qed.
 (* C4：d 尾（自 d，d ≥ 1）：Σ_{m<S(n−d)}|d_{d+m}| ≤ exp_series(2n+1) − exp_series(2d−1) *)
 Lemma sc_cs_d_tail_diff_le : forall (t B : Q) (d n : nat),
   Qle 0 B -> Qle (Qabs t) B -> (1 <= d)%nat -> (d <= n)%nat ->
-  Qle (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t)))
+  QleT' (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t)))
       (exp_series (2 * n + 1) B - exp_series (2 * d - 1) B).
 Proof.
   intros t B d n HB HtB Hd1 Hdn.
+  apply Qle_to_QleT'.
   (* 指标 m ↦ d+m == S(d−1)+m *)
   assert (Hd : (d = Datatypes.S (d - 1))%nat) by lia.
-  rewrite (sum_upto_ext_below (Datatypes.S (n - d))
+  assert (HliftA : forall m : nat, NatLe (Datatypes.S m) (Datatypes.S (n - d)) -> QeqT
+    (Qabs (sin_term (d + m)%nat t))
+    (Qabs (sin_term (Datatypes.S (d - 1) + m)%nat t))).
+  { intros m Hm. apply qeq_imp_qeqT.
+    assert (Hdm : (d + m = Datatypes.S (d - 1) + m)%nat) by lia.
+    rewrite Hdm. reflexivity. }
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below (Datatypes.S (n - d))
     (fun m : nat => Qabs (sin_term (d + m)%nat t))
-    (fun m : nat => Qabs (sin_term (Datatypes.S (d - 1) + m)%nat t))).
-  2: { intros m Hm.
-       assert (Hdm : (d + m = Datatypes.S (d - 1) + m)%nat) by lia.
-       rewrite Hdm. reflexivity. }
+    (fun m : nat => Qabs (sin_term (Datatypes.S (d - 1) + m)%nat t))
+    HliftA)).
   apply (Qle_trans _ (sum_upto (Datatypes.S (n - d))
       (fun m : nat => q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
                       q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m))))) _).
-  - apply (sum_upto_le_ext (Datatypes.S (n - d))
+  - apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (Datatypes.S (n - d))
       (fun m : nat => Qabs (sin_term (Datatypes.S (d - 1) + m)%nat t))
       (fun m : nat => q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
                       q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m))))).
     intros k Hk.
+    apply Qle_to_QleT'.
     (* per-term：|d_j| ≤ G_{2j} + G_{S(2j)}，j := S(d−1)+k：先经 sc_cs_dabs_pair 的 S(2j) 形 *)
     apply (Qle_trans _ (q_pow B (2 * (Datatypes.S (d - 1) + k)) / q_fact (2 * (Datatypes.S (d - 1) + k)) +
                         q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + k))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + k)))) _).
@@ -5931,54 +6016,61 @@ Proof.
     + (* |d_j| ≤ G_{S(2j)}（经 sc_abs_sin_term 直接） *)
       apply (Qle_trans _ (q_pow B (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j))) _).
       * apply (Qle_trans _ (q_pow (Qabs t) (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j))) _).
-        -- apply qeq_le. exact (sc_abs_sin_term j t).
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (sc_abs_sin_term j t)).
         -- apply (Qle_trans _ (Qabs (q_pow t (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j)))) _).
-           ++ apply qeq_le. apply Qeq_sym. apply (q_abs_pow_fact t (2 * j)).
-           ++ apply (q_abs_pow_fact_le t B (Datatypes.S (2 * j))); assumption.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. apply (qeqT_imp_qeq _ _ (q_abs_pow_fact t (2 * j))).
+           ++ apply QleT'_to_Qle. apply (q_abs_pow_fact_le t B (Datatypes.S (2 * j)) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ HtB)).
       * apply (Qle_plus_nonneg_r (q_pow B (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j)))
               (q_pow B (2 * j) / q_fact (2 * j))).
-        apply (q_pow_fact_nonneg B (2 * j)). exact HB.
+        apply QleT'_to_Qle. apply (q_pow_fact_nonneg B (2 * j)). apply Qle_to_QleT'. exact HB.
     + (* G_{S(2j)} + G_{2j} == G_{2j} + G_{S(2j)}（目标函数的第二项是 G_{2j} + G_{S(2j)} 序）
        这里目标顺序已是 G_{2j} + G_{S(2j)}，直接 comm 反向 *)
-      apply qeq_le.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       exact (Qplus_comm (q_pow B (Datatypes.S (2 * j)) / q_fact (Datatypes.S (2 * j)))
                         (q_pow B (2 * j) / q_fact (2 * j))).
   - (* 配对尾和 == 尾差分（a := d−1，指标 2(d−1+m)+1 的 (2m+1) 形桥） *)
     assert (Hlen : (Datatypes.S (n - d) = n - (d - 1))%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S (n - d)) (n - (d - 1))
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (n - d)) (n - (d - 1))
       (fun m : nat => q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
-                      q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m)))) Hlen).
+                      q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m)))) Hlen)).
     (* 奇项桥回 (2x+1) 形（nat-Leibniz per-m） *)
-    rewrite (sum_upto_ext_below (n - (d - 1))
+    assert (HliftB : forall m : nat, NatLe (Datatypes.S m) (n - (d - 1)) -> QeqT
+      (q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
+       q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m))))
+      (q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
+       q_pow B (2 * (Datatypes.S (d - 1) + m) + 1) / q_fact (2 * (Datatypes.S (d - 1) + m) + 1))).
+    { intros m Hm. apply qeq_imp_qeqT.
+      assert (Hodd : (Datatypes.S (2 * (Datatypes.S (d - 1) + m)) = 2 * (Datatypes.S (d - 1) + m) + 1)%nat) by lia.
+      rewrite Hodd. reflexivity. }
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below (n - (d - 1))
       (fun m : nat => q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
                       q_pow B (Datatypes.S (2 * (Datatypes.S (d - 1) + m))) / q_fact (Datatypes.S (2 * (Datatypes.S (d - 1) + m))))
       (fun m : nat => q_pow B (2 * (Datatypes.S (d - 1) + m)) / q_fact (2 * (Datatypes.S (d - 1) + m)) +
-                      q_pow B (2 * (Datatypes.S (d - 1) + m) + 1) / q_fact (2 * (Datatypes.S (d - 1) + m) + 1))).
-    2: { intros m Hm.
-         assert (Hodd : (Datatypes.S (2 * (Datatypes.S (d - 1) + m)) = 2 * (Datatypes.S (d - 1) + m) + 1)%nat) by lia.
-         rewrite Hodd. reflexivity. }
-    rewrite (sc_cs_evenodd_tail_diff B (d - 1) n).
-    2: { lia. }
+                      q_pow B (2 * (Datatypes.S (d - 1) + m) + 1) / q_fact (2 * (Datatypes.S (d - 1) + m) + 1))
+      HliftB)).
+    assert (H1616dn : (d - 1 <= n)%nat) by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_cs_evenodd_tail_diff B (d - 1) n H1616dn)).
     assert (Hidx : (2 * (d - 1) + 1 = 2 * d - 1)%nat) by lia.
-    rewrite (sc_exp_series_idx (2 * (d - 1) + 1) (2 * d - 1) B Hidx).
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_series_idx (2 * (d - 1) + 1) (2 * d - 1) B Hidx)).
     apply Qle_refl.
 Qed.
 
 (* ---- band_c 界：|Σ_{j≤n} Σ_{k<j} c_j·c_{S(n−j)+k}| ≤ 2·F_c·T_c ---- *)
 Lemma sc_cs_band_c_le : forall (t : Q) (n d : nat), (2 * d <= n)%nat ->
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))))
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))))
       ((1 + 1) *
        (sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))) *
        (sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t)))).
 Proof.
   intros t n d H2d.
+  apply Qle_to_QleT'.
   assert (Hdn : (d <= n)%nat) by lia.
   set (F := sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))).
   set (T := sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))).
   set (G := fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t)).
   (* 1. |Σ_j G j| ≤ Σ_j |G j| *)
   assert (Htri : Qle (Qabs (sum_upto (Datatypes.S n) G)) (sum_upto (Datatypes.S n) (fun j : nat => Qabs (G j)))).
-  { unfold G. apply sum_upto_abs_le. }
+  { unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le. }
   (* 2. 逐 j：|G j| ≤ |c_j|·W_j（W_j := Σ_{k<j}|c_{S(n−j)+k}|） *)
   assert (Hper : forall j : nat, (j <= n)%nat ->
     Qle (Qabs (G j))
@@ -5986,26 +6078,32 @@ Proof.
          sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t)))).
   { intros j Hj.
     apply (Qle_trans _ (sum_upto j (fun k : nat => Qabs (cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))) _).
-    - unfold G. apply sum_upto_abs_le.
-    - apply qeq_le.
+    - unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       transitivity (sum_upto j (fun k : nat => Qabs (cos_term j t) * Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))).
-      + apply (sum_upto_ext j
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_ext j
           (fun k : nat => Qabs (cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))
           (fun k : nat => Qabs (cos_term j t) * Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))).
-        intro k. apply Qabs_Qmult.
-      + apply (sum_upto_scale j (Qabs (cos_term j t))
+        intro k. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_scale j (Qabs (cos_term j t))
           (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))). }
   (* 3. W_j ≤ T（j ≤ d：内带指标 ⊆ [d+1, n]） *)
   assert (HwT : forall j : nat, (j <= d)%nat ->
     Qle (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) T).
   { intros j Hjd.
     assert (Ha : forall k : nat, (Datatypes.S (n - j) + k = Datatypes.S d + ((n - j - d) + k))%nat) by (intro k; lia).
-    rewrite (sum_upto_ext_below j
+    assert (HliftC : forall k : nat, NatLe (Datatypes.S k) j -> QeqT
+      (Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))
+      (Qabs (cos_term (Datatypes.S d + ((n - j - d) + k))%nat t))).
+    { intros k Hk. apply qeq_imp_qeqT. rewrite (Ha k). reflexivity. }
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below j
       (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))
-      (fun k : nat => Qabs (cos_term (Datatypes.S d + ((n - j - d) + k))%nat t))).
-    2: { intros k Hk. rewrite (Ha k). reflexivity. }
+      (fun k : nat => Qabs (cos_term (Datatypes.S d + ((n - j - d) + k))%nat t))
+      HliftC)).
     apply (Qle_trans _ (sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))) _).
-    - apply (sc_sum_shift_sub_le (n - j - d) j (n - d)
+    - apply QleT'_to_Qle. apply (sc_sum_shift_sub_le (n - j - d) j (n - d)
         (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))).
       + intro m. apply Qabs_nonneg.
       + lia.
@@ -6015,7 +6113,7 @@ Proof.
     Qle (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) F).
   { intros j Hjn.
     apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))) _).
-    - apply (sc_sum_shift_sub_le (Datatypes.S (n - j)) j (Datatypes.S n)
+    - apply QleT'_to_Qle. apply (sc_sum_shift_sub_le (Datatypes.S (n - j)) j (Datatypes.S n)
         (fun i : nat => Qabs (cos_term i t))).
       + intro m. apply Qabs_nonneg.
       + lia.
@@ -6024,116 +6122,135 @@ Proof.
   assert (Hsplit := sc_sum_after_split d n (fun j : nat => Qabs (G j)) Hdn).
   apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j : nat => Qabs (G j))) _).
   - exact Htri.
-  - rewrite Hsplit.
+  - rewrite (qeqT_imp_qeq _ _ Hsplit).
     apply (Qle_trans _ (sum_upto (Datatypes.S d) (fun j : nat => Qabs (cos_term j t) * T) +
                         sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t) * F)) _).
     + apply Qplus_le_compat.
-      * apply (sum_upto_le_ext (Datatypes.S d)
+      * apply QleT'_to_Qle.
+        apply (sum_upto_le_ext (Datatypes.S d)
           (fun j : nat => Qabs (G j))
           (fun j : nat => Qabs (cos_term j t) * T)).
         intros j Hj.
+        pose proof (NatLe_drop (Datatypes.S j) (Datatypes.S d) Hj) as Hjdd.
+        apply Qle_to_QleT'.
         apply (Qle_trans _ (Qabs (cos_term j t) *
                 sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) _).
         2: { apply (Qle_trans _ (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t)) * Qabs (cos_term j t)) _).
              2: { apply (Qle_trans _ (T * Qabs (cos_term j t)) _).
-                  2: { apply qeq_le.
+                  2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                        exact (Qeq_sym _ _ (Qmult_comm (Qabs (cos_term j t)) T)). }
                   apply (Qmult_le_compat_r (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) T (Qabs (cos_term j t))).
                   - apply (HwT j). lia.
                   - apply Qabs_nonneg. }
-             apply qeq_le.
+             apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
              exact (Qmult_comm (Qabs (cos_term j t))
                 (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t)))). }
         apply (Hper j). lia.
-      * apply (sum_upto_le_ext (n - d)
+      * apply QleT'_to_Qle.
+        apply (sum_upto_le_ext (n - d)
           (fun m : nat => Qabs (G ((Datatypes.S d + m)%nat)))
           (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t) * F)).
         intros m Hm.
+        apply Qle_to_QleT'.
         set (j := (Datatypes.S d + m)%nat).
+        pose proof (NatLe_drop (Datatypes.S m) (n - d) Hm) as Hmd.
         assert (Hjn : (j <= n)%nat) by (unfold j; lia).
         apply (Qle_trans _ (Qabs (cos_term j t) *
                 sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) _).
         2: { apply (Qle_trans _ (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t)) *
                               Qabs (cos_term j t)) _).
              2: { apply (Qle_trans _ (F * Qabs (cos_term j t)) _).
-                  2: { apply qeq_le.
+                  2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                        exact (Qeq_sym _ _ (Qmult_comm (Qabs (cos_term j t)) F)). }
                   apply (Qmult_le_compat_r (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t))) F (Qabs (cos_term j t))).
                   - apply (HwF j). exact Hjn.
                   - apply Qabs_nonneg. }
-             apply qeq_le.
+             apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
              exact (Qmult_comm (Qabs (cos_term j t))
                 (sum_upto j (fun k : nat => Qabs (cos_term (Datatypes.S (n - j) + k)%nat t)))). }
         apply (Hper j). exact Hjn.
     + apply (Qle_trans _ (T * F + F * T) _).
-      2: { apply qeq_le. ring. }
+      2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
       1: { apply Qplus_le_compat.
-           2: { apply qeq_le.
+           2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                 transitivity (sum_upto (n - d) (fun m : nat => F * Qabs (cos_term (Datatypes.S d + m)%nat t))).
-                2: { apply (sum_upto_scale (n - d) F (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))). }
-                1: { apply (sum_upto_ext (n - d)
+                2: { apply qeqT_imp_qeq.
+                     apply (sum_upto_scale (n - d) F (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))). }
+                1: { apply qeqT_imp_qeq.
+                     apply (sum_upto_ext (n - d)
                       (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t) * F)
                       (fun m : nat => F * Qabs (cos_term (Datatypes.S d + m)%nat t))).
-                     intro j. exact (Qmult_comm (Qabs (cos_term (Datatypes.S d + j)%nat t)) F). } }
+                     intro j.
+                     apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (cos_term (Datatypes.S d + j)%nat t)) F). } }
            1: { apply (Qle_trans _ (T * sum_upto (Datatypes.S d) (fun j : nat => Qabs (cos_term j t))) _).
                 2: { apply (Qle_trans _ (F * T) _).
-                     2: { apply qeq_le. exact (Qmult_comm F T). }
+                     2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm F T). }
                      1: { apply (Qle_trans _ (sum_upto (Datatypes.S d) (fun j : nat => Qabs (cos_term j t)) * T) _).
                           2: { apply (Qmult_le_compat_r (sum_upto (Datatypes.S d) (fun j : nat => Qabs (cos_term j t))) F T).
-                               2: { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
-                               1: { apply (sc_sum_shift_sub_le 0 (Datatypes.S d) (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))).
+                               2: { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+                               1: { apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 0 (Datatypes.S d) (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))).
                                     2: { lia. }
                                     1: { intro m. apply Qabs_nonneg. } } }
-                          1: { apply qeq_le.
+                          1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                                exact (Qmult_comm T (sum_upto (Datatypes.S d) (fun j : nat => Qabs (cos_term j t)))). } } }
-                1: { apply qeq_le.
+                1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                      transitivity (sum_upto (Datatypes.S d) (fun j : nat => T * Qabs (cos_term j t))).
-                     2: { apply (sum_upto_scale (Datatypes.S d) T (fun j : nat => Qabs (cos_term j t))). }
-                     1: { apply (sum_upto_ext (Datatypes.S d)
+                     2: { apply qeqT_imp_qeq.
+                          apply (sum_upto_scale (Datatypes.S d) T (fun j : nat => Qabs (cos_term j t))). }
+                     1: { apply qeqT_imp_qeq.
+                          apply (sum_upto_ext (Datatypes.S d)
                            (fun j : nat => Qabs (cos_term j t) * T)
                            (fun j : nat => T * Qabs (cos_term j t))).
-                          intro j. exact (Qmult_comm (Qabs (cos_term j t)) T). } } } }
+                          intro j.
+                          apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (cos_term j t)) T). } } } }
 Qed.
 
 (* ---- band_d 界：|Σ_{j≤n} Σ_{k≤j} d_j·d_{n−j+k}| ≤ 2·F_d·T_d ---- *)
 Lemma sc_cs_band_d_le : forall (t : Q) (n d : nat), (2 * d <= n)%nat ->
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))))
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t))))
       ((1 + 1) *
        (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))) *
        (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t)))).
 Proof.
   intros t n d H2d.
+  apply Qle_to_QleT'.
   assert (Hdn : (d <= n)%nat) by lia.
   set (F := sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))).
   set (T := sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t))).
   set (G := fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)).
   assert (Htri : Qle (Qabs (sum_upto (Datatypes.S n) G)) (sum_upto (Datatypes.S n) (fun j : nat => Qabs (G j)))).
-  { unfold G. apply sum_upto_abs_le. }
+  { unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le. }
   assert (Hper : forall j : nat, (j <= n)%nat ->
     Qle (Qabs (G j))
         (Qabs (sin_term j t) *
          sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t)))).
   { intros j Hj.
     apply (Qle_trans _ (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term j t * sin_term (n - j + k)%nat t))) _).
-    - unfold G. apply sum_upto_abs_le.
-    - apply qeq_le.
+    - unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       transitivity (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term j t) * Qabs (sin_term (n - j + k)%nat t))).
-      + apply (sum_upto_ext (Datatypes.S j)
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_ext (Datatypes.S j)
           (fun k : nat => Qabs (sin_term j t * sin_term (n - j + k)%nat t))
           (fun k : nat => Qabs (sin_term j t) * Qabs (sin_term (n - j + k)%nat t))).
-        intro k. apply Qabs_Qmult.
-      + apply (sum_upto_scale (Datatypes.S j) (Qabs (sin_term j t))
+        intro k. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_scale (Datatypes.S j) (Qabs (sin_term j t))
           (fun k : nat => Qabs (sin_term (n - j + k)%nat t))). }
   assert (HwT : forall j : nat, (j <= d)%nat ->
     Qle (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) T).
   { intros j Hjd.
     assert (Ha : forall k : nat, (n - j + k = d + ((n - j - d) + k))%nat) by (intro k; lia).
-    rewrite (sum_upto_ext_below (Datatypes.S j)
+    assert (HliftD : forall k : nat, NatLe (Datatypes.S k) (Datatypes.S j) -> QeqT
+      (Qabs (sin_term (n - j + k)%nat t))
+      (Qabs (sin_term (d + ((n - j - d) + k))%nat t))).
+    { intros k Hk. apply qeq_imp_qeqT. rewrite (Ha k). reflexivity. }
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below (Datatypes.S j)
       (fun k : nat => Qabs (sin_term (n - j + k)%nat t))
-      (fun k : nat => Qabs (sin_term (d + ((n - j - d) + k))%nat t))).
-    2: { intros k Hk. rewrite (Ha k). reflexivity. }
+      (fun k : nat => Qabs (sin_term (d + ((n - j - d) + k))%nat t))
+      HliftD)).
     apply (Qle_trans _ (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t))) _).
-    - apply (sc_sum_shift_sub_le (n - j - d) (Datatypes.S j) (Datatypes.S (n - d))
+    - apply QleT'_to_Qle. apply (sc_sum_shift_sub_le (n - j - d) (Datatypes.S j) (Datatypes.S (n - d))
         (fun m : nat => Qabs (sin_term (d + m)%nat t))).
       + intro m. apply Qabs_nonneg.
       + lia.
@@ -6142,7 +6259,7 @@ Proof.
     Qle (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) F).
   { intros j Hjn.
     apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))) _).
-    - apply (sc_sum_shift_sub_le (n - j) (Datatypes.S j) (Datatypes.S n)
+    - apply QleT'_to_Qle. apply (sc_sum_shift_sub_le (n - j) (Datatypes.S j) (Datatypes.S n)
         (fun i : nat => Qabs (sin_term i t))).
       + intro m. apply Qabs_nonneg.
       + lia.
@@ -6153,14 +6270,14 @@ Proof.
             sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) _).
     - apply (Hper j). lia.
     - apply (Qle_trans _ (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t)) * Qabs (sin_term j t)) _).
-      + apply qeq_le.
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         exact (Qmult_comm (Qabs (sin_term j t))
           (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t)))).
       + apply (Qle_trans _ (T * Qabs (sin_term j t)) _).
         * apply (Qmult_le_compat_r (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) T (Qabs (sin_term j t))).
           -- apply (HwT j). exact Hjd.
           -- apply Qabs_nonneg.
-        * apply qeq_le.
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
           exact (Qeq_sym _ _ (Qmult_comm (Qabs (sin_term j t)) T)). }
   assert (HperF : forall j : nat, (j <= n)%nat -> Qle (Qabs (G j)) (Qabs (sin_term j t) * F)).
   { intros j Hjn.
@@ -6168,32 +6285,37 @@ Proof.
             sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) _).
     - apply (Hper j). exact Hjn.
     - apply (Qle_trans _ (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t)) * Qabs (sin_term j t)) _).
-      + apply qeq_le.
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
         exact (Qmult_comm (Qabs (sin_term j t))
           (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t)))).
       + apply (Qle_trans _ (F * Qabs (sin_term j t)) _).
         * apply (Qmult_le_compat_r (sum_upto (Datatypes.S j) (fun k : nat => Qabs (sin_term (n - j + k)%nat t))) F (Qabs (sin_term j t))).
           -- apply (HwF j). exact Hjn.
           -- apply Qabs_nonneg.
-        * apply qeq_le.
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
           exact (Qeq_sym _ _ (Qmult_comm (Qabs (sin_term j t)) F)). }
   assert (Hsplit := sc_sum_after_split d n (fun j : nat => Qabs (G j)) Hdn).
   assert (H1 : Qle (sum_upto (Datatypes.S d) (fun j : nat => Qabs (G j)))
                  (sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t) * T))).
-  { apply (sum_upto_le_ext (Datatypes.S d)
+  { apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (Datatypes.S d)
       (fun j : nat => Qabs (G j))
       (fun j : nat => Qabs (sin_term j t) * T)).
-    intros j Hj. apply (HperT j). lia. }
+    intros j Hj. pose proof (NatLe_drop (Datatypes.S j) (Datatypes.S d) Hj) as Hjdd.
+    apply Qle_to_QleT'. apply (HperT j). lia. }
   assert (H2 : Qle (sum_upto (n - d) (fun m : nat => Qabs (G ((Datatypes.S d + m)%nat))))
                    (sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t) * F))).
-  { apply (sum_upto_le_ext (n - d)
+  { apply QleT'_to_Qle.
+    apply (sum_upto_le_ext (n - d)
       (fun m : nat => Qabs (G ((Datatypes.S d + m)%nat)))
       (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t) * F)).
     intros m Hm.
+    pose proof (NatLe_drop (Datatypes.S m) (n - d) Hm) as Hmd.
+    apply Qle_to_QleT'.
     apply (HperF ((Datatypes.S d + m)%nat)). lia. }
   apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j : nat => Qabs (G j))) _).
   - exact Htri.
-  - rewrite Hsplit.
+  - rewrite (qeqT_imp_qeq _ _ Hsplit).
     apply (Qle_trans _ (sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t) * T) +
                         sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t) * F)) _).
     + apply Qplus_le_compat; assumption.
@@ -6202,57 +6324,68 @@ Proof.
         2: { apply (Qle_trans _ (F * sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t))) _).
              2: { apply (Qle_trans _ (sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t)) * F) _).
                   2: { apply (Qle_trans _ (T * F) _).
-                       2: { apply qeq_le. exact (Qmult_comm T F). }
+                       2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm T F). }
                        1: { apply (Qmult_le_compat_r (sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t))) T F).
-                            2: { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+                            2: { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
                             1: { apply (Qle_trans _ (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t))) _).
                                  2: { apply Qle_refl. }
-                                 1: { rewrite (sum_upto_ext_below (n - d)
+                                 1: { assert (HliftE : forall m0 : nat, NatLe (Datatypes.S m0) (n - d) -> QeqT
+                                       (Qabs (sin_term (Datatypes.S d + m0)%nat t))
+                                       (Qabs (sin_term (d + (1 + m0))%nat t))).
+                                      { intros m0 Hm0. apply qeq_imp_qeqT.
+                                        assert (Hio : (Datatypes.S d + m0 = d + (1 + m0))%nat) by lia.
+                                        rewrite Hio. reflexivity. }
+                                      rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below (n - d)
                                        (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t))
-                                       (fun m : nat => Qabs (sin_term (d + (1 + m))%nat t))).
-                                      2: { intros m0 Hm0.
-                                           assert (Hio : (Datatypes.S d + m0 = d + (1 + m0))%nat) by lia.
-                                           rewrite Hio. reflexivity. }
-                                      apply (sc_sum_shift_sub_le 1 (n - d) (Datatypes.S (n - d))
+                                       (fun m : nat => Qabs (sin_term (d + (1 + m))%nat t))
+                                       HliftE)).
+                                      apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 1 (n - d) (Datatypes.S (n - d))
                                            (fun m : nat => Qabs (sin_term (d + m)%nat t))).
                                       2: { lia. }
                                       1: { intro m. apply Qabs_nonneg. } } } } }
-                  1: { apply qeq_le.
+                  1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                        exact (Qmult_comm F (sum_upto (n - d) (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t)))). } }
-             1: { apply qeq_le.
+             1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                   transitivity (sum_upto (n - d) (fun m : nat => F * Qabs (sin_term (Datatypes.S d + m)%nat t))).
-                  2: { apply (sum_upto_scale (n - d) F (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t))). }
-                  1: { apply (sum_upto_ext (n - d)
+                  2: { apply qeqT_imp_qeq.
+                       apply (sum_upto_scale (n - d) F (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t))). }
+                  1: { apply qeqT_imp_qeq.
+                       apply (sum_upto_ext (n - d)
                         (fun m : nat => Qabs (sin_term (Datatypes.S d + m)%nat t) * F)
                         (fun m : nat => F * Qabs (sin_term (Datatypes.S d + m)%nat t))).
-                       intro j. exact (Qmult_comm (Qabs (sin_term (Datatypes.S d + j)%nat t)) F). } } }
+                       intro j.
+                       apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (sin_term (Datatypes.S d + j)%nat t)) F). } } }
         1: { apply (Qle_trans _ (T * sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t))) _).
              2: { apply (Qle_trans _ (F * T) _).
-                  2: { apply qeq_le. exact (Qmult_comm F T). }
+                  2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm F T). }
                   1: { apply (Qle_trans _ (sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t)) * T) _).
                        2: { apply (Qmult_le_compat_r (sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t))) F T).
-                            2: { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+                            2: { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
                             1: { apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))) _).
                                  2: { apply Qle_refl. }
-                                 1: { apply (sc_sum_shift_sub_le 0 (Datatypes.S d) (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))).
+                                 1: { apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 0 (Datatypes.S d) (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))).
                                       2: { lia. }
                                       1: { intro m. apply Qabs_nonneg. } } } }
-                       1: { apply qeq_le.
+                       1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                             exact (Qmult_comm T (sum_upto (Datatypes.S d) (fun j : nat => Qabs (sin_term j t)))). } } }
-             1: { apply qeq_le.
+             1: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
                   transitivity (sum_upto (Datatypes.S d) (fun j : nat => T * Qabs (sin_term j t))).
-                  2: { apply (sum_upto_scale (Datatypes.S d) T (fun j : nat => Qabs (sin_term j t))). }
-                  1: { apply (sum_upto_ext (Datatypes.S d)
+                  2: { apply qeqT_imp_qeq.
+                       apply (sum_upto_scale (Datatypes.S d) T (fun j : nat => Qabs (sin_term j t))). }
+                  1: { apply qeqT_imp_qeq.
+                       apply (sum_upto_ext (Datatypes.S d)
                         (fun j : nat => Qabs (sin_term j t) * T)
                         (fun j : nat => T * Qabs (sin_term j t))).
-                       intro j. exact (Qmult_comm (Qabs (sin_term j t)) T). } } }      * apply qeq_le. ring.
+                       intro j.
+                       apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (sin_term j t)) T). } } }      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ---- Qeq→Qabs 桥：x == y 时 |x| ≤ B ⟸ |y| ≤ B ---- *)
 Lemma sc_qabs_qeq_le : forall (x y B : Q),
-  x == y -> Qle (Qabs y) B -> Qle (Qabs x) B.
+  x == y -> Qle (Qabs y) B -> QleT' (Qabs x) B.
 Proof.
   intros x y B Heq Hy.
+  apply Qle_to_QleT'.
   assert (Hy' : Qle (- B) y /\ Qle y B).
   { apply (proj1 (Qabs_Qle_condition y B)). exact Hy. }
   destruct Hy' as [Hy1 Hy2].
@@ -6260,15 +6393,15 @@ Proof.
   split.
   - apply (Qle_trans _ y _).
     + exact Hy1.
-    + apply (qeq_le y x (Qeq_sym _ _ Heq)).
+    + apply (QleT'_to_Qle _ _ (qeq_le y x (qeq_imp_qeqT _ _ (Qeq_sym _ _ Heq)))).
   - apply (Qle_trans _ y _).
-    + apply (qeq_le x y Heq).
+    + apply (QleT'_to_Qle _ _ (qeq_le x y (qeq_imp_qeqT _ _ Heq))).
     + exact Hy2.
 Qed.
 
 (* ---- |E| 带界：|c_n²+s_n²−1| ≤ 2F_cT_c + 2F_dT_d（经 decomp + 三角 + 带界） ---- *)
 Lemma sc_cs_sq_err_le : forall (t : Q) (n d : nat), (2 * d <= n)%nat ->
-  Qle (Qabs (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1))
+  QleT' (Qabs (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1))
       ((1 + 1) *
        (sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))) *
        (sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))) +
@@ -6277,7 +6410,8 @@ Lemma sc_cs_sq_err_le : forall (t : Q) (n d : nat), (2 * d <= n)%nat ->
        (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t)))).
 Proof.
   intros t n d H2d.
-  apply (sc_qabs_qeq_le
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply (sc_qabs_qeq_le
     (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1)
     (sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t)) +
      sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)))
@@ -6287,23 +6421,24 @@ Proof.
      (1 + 1) *
      (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i t))) *
      (sum_upto (Datatypes.S (n - d)) (fun m : nat => Qabs (sin_term (d + m)%nat t))))).
-  - exact (sc_cs_sq_err_decomp t n).
+  - exact (qeqT_imp_qeq _ _ (sc_cs_sq_err_decomp t n)).
   - apply (Qle_trans _ (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto j (fun k : nat => cos_term j t * cos_term (Datatypes.S (n - j) + k)%nat t))) +
                          Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (Datatypes.S j) (fun k : nat => sin_term j t * sin_term (n - j + k)%nat t)))) _).
     + apply Qabs_triangle.
     + apply Qplus_le_compat.
-      * exact (sc_cs_band_c_le t n d H2d).
-      * exact (sc_cs_band_d_le t n d H2d).
+      * exact (QleT'_to_Qle _ _ (sc_cs_band_c_le t n d H2d)).
+      * exact (QleT'_to_Qle _ _ (sc_cs_band_d_le t n d H2d)).
 Qed.
 
 (* ---- L1：|E| ≤ 4·exp_series(2n+1)·exp_tail_abs(2d−1)(2n+1)（d := div2 n 用；1≤d、2d≤n） ---- *)
 Lemma sc_cs_sq_err_tail_le : forall (t B : Q) (d n : nat),
   Qle 0 B -> Qle (Qabs t) B -> (1 <= d)%nat -> (2 * d <= n)%nat ->
-  Qle (Qabs (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1))
+  QleT' (Qabs (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1))
       (((1 + 1) * (1 + 1)) *
        (exp_series (2 * n + 1)%nat B * exp_tail_abs (2 * d - 1)%nat (2 * n + 1)%nat B)).
 Proof.
   intros t B d n HB HtB Hd1 H2d.
+  apply Qle_to_QleT'.
   assert (Hdn : (d <= n)%nat) by lia.
   set (Fc := sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i t))).
   set (Tc := sum_upto (n - d) (fun m : nat => Qabs (cos_term (Datatypes.S d + m)%nat t))).
@@ -6316,67 +6451,67 @@ Proof.
   set (Dd := exp_series (2 * n + 1)%nat B - exp_series (2 * d - 1)%nat B).
   set (G := exp_tail_abs (2 * d - 1)%nat (2 * n + 1)%nat B).
   assert (H0 : Qle (Qabs (cos_partial n t * cos_partial n t + sin_partial n t * sin_partial n t - 1)) (Bc + Bd)).
-  { unfold Bc, Bd, Fc, Tc, Fd, Td. exact (sc_cs_sq_err_le t n d H2d). }
-  assert (HcF : Qle Fc En). { unfold Fc, En. apply (sc_cs_c_full_le t B n HB HtB). }
-  assert (HdF : Qle Fd En). { unfold Fd, En. apply (sc_cs_d_full_le t B n HB HtB). }
-  assert (HcT : Qle Tc Dc). { unfold Tc, Dc. apply (sc_cs_c_tail_diff_le t B d n HB HtB Hdn). }
-  assert (HdT : Qle Td Dd). { unfold Td, Dd. apply (sc_cs_d_tail_diff_le t B d n HB HtB Hd1 Hdn). }
+  { unfold Bc, Bd, Fc, Tc, Fd, Td. exact (QleT'_to_Qle _ _ (sc_cs_sq_err_le t n d H2d)). }
+  assert (HcF : Qle Fc En). { unfold Fc, En. apply QleT'_to_Qle. apply (sc_cs_c_full_le t B n HB HtB). }
+  assert (HdF : Qle Fd En). { unfold Fd, En. apply QleT'_to_Qle. apply (sc_cs_d_full_le t B n HB HtB). }
+  assert (HcT : Qle Tc Dc). { unfold Tc, Dc. apply QleT'_to_Qle. apply (sc_cs_c_tail_diff_le t B d n HB HtB Hdn). }
+  assert (HdT : Qle Td Dd). { unfold Td, Dd. apply QleT'_to_Qle. apply (sc_cs_d_tail_diff_le t B d n HB HtB Hd1 Hdn). }
   assert (Hdc : Qle Dc Dd).
   { apply (proj2 (Qle_minus_iff Dc Dd)).
     apply (Qle_trans _ (exp_series (2 * d + 1)%nat B - exp_series (2 * d - 1)%nat B) _).
     - apply (proj1 (Qle_minus_iff (exp_series (2 * d - 1)%nat B) (exp_series (2 * d + 1)%nat B))).
-      apply exp_series_mono; [exact HB | lia].
-    - apply qeq_le. unfold Dd, Dc, Qdiv. ring. }
+      apply QleT'_to_Qle. apply exp_series_mono; [exact (Qle_to_QleT' _ _ HB) | lia].
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Dd, Dc, Qdiv. ring. }
   assert (HG : Qle Dd G).
-  { unfold Dd, G. apply (exp_series_tail_le B (2 * d - 1)%nat (2 * n + 1)%nat HB). lia. }
-  assert (Htwo0 : Qle 0 (1 + 1)) by apply Q2_nonneg.
+  { unfold Dd, G. apply QleT'_to_Qle. apply (exp_series_tail_le B (2 * d - 1)%nat (2 * n + 1)%nat (Qle_to_QleT' _ _ HB)). lia. }
+  assert (Htwo0 : Qle 0 (1 + 1)) by (apply QleT'_to_Qle; apply Q2_nonneg).
   assert (Hfour0 : Qle 0 ((1 + 1) * (1 + 1))) by (apply Qmult_le_0_compat; [exact Htwo0 | exact Htwo0]).
-  assert (HEn0 : Qle 0 En) by (unfold En; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HEn0 : Qle 0 En) by (unfold En; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
   assert (HTwoEn0 : Qle 0 ((1 + 1) * En)) by (apply Qmult_le_0_compat; [exact Htwo0 | exact HEn0]).
-  assert (HTc0 : Qle 0 Tc) by (unfold Tc; apply sc_sum_nonneg; intro m; apply Qabs_nonneg).
-  assert (HTd0 : Qle 0 Td) by (unfold Td; apply sc_sum_nonneg; intro m; apply Qabs_nonneg).
+  assert (HTc0 : Qle 0 Tc) by (unfold Tc; (apply QleT'_to_Qle; apply sc_sum_nonneg); intro m; apply Qabs_nonneg).
+  assert (HTd0 : Qle 0 Td) by (unfold Td; (apply QleT'_to_Qle; apply sc_sum_nonneg); intro m; apply Qabs_nonneg).
   assert (H1c : Qle Bc (((1 + 1) * En) * Dc)).
   { unfold Bc.
     apply (Qle_trans _ (((1 + 1) * En) * Tc) _).
     - apply (Qmult_le_compat_r ((1 + 1) * Fc) ((1 + 1) * En) Tc).
       + apply (Qle_trans _ (Fc * (1 + 1)) _).
-        * apply qeq_le. exact (Qmult_comm (1 + 1) Fc).
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm (1 + 1) Fc).
         * apply (Qle_trans _ (En * (1 + 1)) _).
           -- apply (Qmult_le_compat_r Fc En (1 + 1)); [exact HcF | exact Htwo0].
-          -- apply qeq_le. ring.
+          -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
       + exact HTc0.
     - apply (Qle_trans _ (Tc * ((1 + 1) * En)) _).
-      + apply qeq_le. ring.
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
       + apply (Qle_trans _ (Dc * ((1 + 1) * En)) _).
         * apply (Qmult_le_compat_r Tc Dc ((1 + 1) * En)); [exact HcT | exact HTwoEn0].
-        * apply qeq_le. ring. }
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   assert (H1d : Qle Bd (((1 + 1) * En) * Dd)).
   { unfold Bd.
     apply (Qle_trans _ (((1 + 1) * En) * Td) _).
     - apply (Qmult_le_compat_r ((1 + 1) * Fd) ((1 + 1) * En) Td).
       + apply (Qle_trans _ (Fd * (1 + 1)) _).
-        * apply qeq_le. exact (Qmult_comm (1 + 1) Fd).
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm (1 + 1) Fd).
         * apply (Qle_trans _ (En * (1 + 1)) _).
           -- apply (Qmult_le_compat_r Fd En (1 + 1)); [exact HdF | exact Htwo0].
-          -- apply qeq_le. ring.
+          -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
       + exact HTd0.
     - apply (Qle_trans _ (Td * ((1 + 1) * En)) _).
-      + apply qeq_le. ring.
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
       + apply (Qle_trans _ (Dd * ((1 + 1) * En)) _).
         * apply (Qmult_le_compat_r Td Dd ((1 + 1) * En)); [exact HdT | exact HTwoEn0].
-        * apply qeq_le. ring. }
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   assert (H3 : Qle (((1 + 1) * En) * Dc) (((1 + 1) * En) * Dd)).
   { apply (Qle_trans _ (Dc * ((1 + 1) * En)) _).
-    - apply qeq_le. ring.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply (Qle_trans _ (Dd * ((1 + 1) * En)) _).
       + apply (Qmult_le_compat_r Dc Dd ((1 + 1) * En)); [exact Hdc | exact HTwoEn0].
-      + apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   assert (HED : Qle (En * Dd) (En * G)).
   { apply (Qle_trans _ (Dd * En) _).
-    - apply qeq_le. ring.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply (Qle_trans _ (G * En) _).
       + apply (Qmult_le_compat_r Dd G En); [exact HG | exact HEn0].
-      + apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   apply (Qle_trans _ (Bc + Bd) _).
   - exact H0.
   - apply (Qle_trans _ (((1 + 1) * En) * Dc + ((1 + 1) * En) * Dd) _).
@@ -6384,40 +6519,46 @@ Proof.
     + apply (Qle_trans _ (((1 + 1) * En) * Dd + ((1 + 1) * En) * Dd) _).
       * apply Qplus_le_compat; [exact H3 | apply Qle_refl].
       * apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (En * Dd)) _).
-        -- apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
         -- apply (Qle_trans _ ((En * Dd) * ((1 + 1) * (1 + 1))) _).
-           ++ apply qeq_le. ring.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
            ++ apply (Qle_trans _ ((En * G) * ((1 + 1) * (1 + 1))) _).
               ** apply (Qmult_le_compat_r (En * Dd) (En * G) ((1 + 1) * (1 + 1))); [exact HED | exact Hfour0].
-              ** apply qeq_le. ring.
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 (* ---- 辅助：div2 基本界（lt_wf_ind；div2 0=0、div2 1=0、div2 (S(S m)) = S(div2 m)） ---- *)
-Lemma sc_div2_le : forall n : nat, (2 * Nat.div2 n <= n)%nat.
+Lemma sc_div2_le : forall n : nat, NatLe (2 * Nat.div2 n) n.
 Proof.
-  induction n as [n IH] using lt_wf_ind.
+  induction n as [n IH] using lt_wf_rec.
   destruct n as [| [| m]].
-  - simpl. lia.
-  - simpl. lia.
-  - simpl. assert (H : (2 * Nat.div2 m <= m)%nat) by (apply IH; lia). lia.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. assert (H : NatLe (2 * Nat.div2 m) m) by (apply IH; lia).
+    apply NatLe_lift. apply NatLe_drop in H. simpl. lia.
 Qed.
 
-Lemma sc_div2_ge : forall (M n : nat), (2 * M <= n)%nat -> (M <= Nat.div2 n)%nat.
+Lemma sc_div2_ge : forall (M n : nat), (2 * M <= n)%nat -> NatLe M (Nat.div2 n).
 Proof.
-  intros M n. revert M. induction n as [n IH] using lt_wf_ind.
+  intros M n. revert M.
+  induction n as [n IH] using lt_wf_rec.
   intros M HMn. destruct n as [| [| m]].
-  - simpl. lia.
-  - simpl. lia.
   - simpl. destruct M as [| M'].
-    + auto with arith.
-    + assert (Hm : (2 * M' <= m)%nat) by lia.
-      assert (Hd : (M' <= Nat.div2 m)%nat) by (apply (IH m); [lia | exact Hm]).
-      lia.
+    + apply id_refl.
+    + simpl in HMn. exfalso. lia.
+  - simpl. destruct M as [| M'].
+    + apply id_refl.
+    + simpl in HMn. exfalso. lia.
+  - simpl. destruct M as [| M'].
+    + apply id_refl.
+    + simpl in HMn.
+      assert (Hd : NatLe M' (Nat.div2 m)) by (apply (IH m); lia).
+      apply NatLe_lift. apply NatLe_drop in Hd. simpl. lia.
 Qed.
 
 (* ---- 辅助：左乘单调（Qmult_le_compat_r 只给右乘；此经 comm 双跳） ---- *)
-Lemma sc_qmult_le_l : forall (a b c : Q), Qle a b -> Qle 0 c -> Qle (c * a) (c * b).
+Lemma sc_qmult_le_l : forall (a b c : Q), Qle a b -> Qle 0 c -> QleT' (c * a) (c * b).
 Proof.
-intros a b c Hab Hc0. exact (Qle_trans (c * a) (a * c) (c * b) (qeq_le (c * a) (a * c) (Qmult_comm c a)) (Qle_trans (a * c) (b * c) (c * b) (Qmult_le_compat_r a b c Hab Hc0) (qeq_le (b * c) (c * b) (Qmult_comm b c)))).
+intros a b c Hab Hc0. apply Qle_to_QleT'. exact (Qle_trans (c * a) (a * c) (c * b) (QleT'_to_Qle _ _ (qeq_le (c * a) (a * c) (qeq_imp_qeqT _ _ (Qmult_comm c a)))) (Qle_trans (a * c) (b * c) (c * b) (Qmult_le_compat_r a b c Hab Hc0) (QleT'_to_Qle _ _ (qeq_le (b * c) (c * b) (qeq_imp_qeqT _ _ (Qmult_comm b c)))))).
 Qed.
 
 (* ---- 模量：∀eps ∃N，n ≥ N、|t| ≤ B ⟹ |c_n²+s_n²−1| < eps ---- *)
@@ -6430,7 +6571,7 @@ Proof.
   destruct (q_arch_geom B) as [N0 HN0].
   destruct (exp_series_arch B HB) as [C [HC1 HC]].
   assert (HC0 : Qle 0 C) by (apply (Qle_trans _ 1 _); [unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]).
-  assert (Htwo0 : Qle 0 (1 + 1)) by apply Q2_nonneg.
+  assert (Htwo0 : Qle 0 (1 + 1)) by (apply QleT'_to_Qle; apply Q2_nonneg).
   assert (Hfour0 : Qle 0 ((1 + 1) * (1 + 1))) by (apply Qmult_le_0_compat; [exact Htwo0 | exact Htwo0]).
   set (P := ((1 + 1) * (1 + 1)) * (C * ((q_pow B N0 / q_fact N0) * (1 + 1)))).
   assert (HP0 : Qle 0 P).
@@ -6438,46 +6579,46 @@ Proof.
     - exact Hfour0.
     - apply (Qmult_le_0_compat C ((q_pow B N0 / q_fact N0) * (1 + 1))).
       + exact HC0.
-      + apply q_pow_fact2_nonneg. exact (QleT'_to_Qle _ _ HB). }
+      + apply QleT'_to_Qle. apply q_pow_fact2_nonneg. exact HB. }
   destruct (arch_decay P eps (Qle_to_QleT' _ _ HP0) Hep) as [t Ht].
   exists (2 * (N0 + Datatypes.S t + 1))%nat.
   intros t0 n HNn HtB0.
   set (d := Nat.div2 n).
   assert (Hd : (N0 + Datatypes.S t + 1 <= d)%nat).
-  { unfold d. apply sc_div2_ge. exact (NatLe_drop _ _ HNn). }
+  { unfold d. apply NatLe_drop. apply sc_div2_ge. exact (NatLe_drop _ _ HNn). }
   assert (Hd1 : (1 <= d)%nat) by lia.
   assert (H2d : (2 * d <= n)%nat).
-  { unfold d. exact (sc_div2_le n). }
+  { unfold d. exact (NatLe_drop _ _ (sc_div2_le n)). }
   set (X := q_pow B (2 * d - 1) / q_fact (2 * d - 1)).
   set (G := exp_tail_abs (2 * d - 1)%nat (2 * n + 1)%nat B).
   assert (Hj : (Datatypes.S t <= 2 * d - 1 - N0)%nat) by lia.
   assert (HG2 : Qle G (X * (1 + 1))).
   { unfold G, X.
-    apply (exp_tail_abs_geom2 B (2 * d - 1)%nat (2 * n + 1)%nat (QleT'_to_Qle _ _ HB)).
-    - intros u Hu. apply QleT'_to_Qle. apply (HN0 u). apply NatLe_lift. lia.
+    apply QleT'_to_Qle. apply (exp_tail_abs_geom2 B (2 * d - 1)%nat (2 * n + 1)%nat HB).
+    - intros u Hu. apply (HN0 u). apply NatLe_lift. pose proof (NatLe_drop _ _ Hu). lia.
     - lia. }
   assert (HXY : Qle X ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * d - 1 - N0))).
-  { unfold X. apply (pow_fact_decay B N0 (2 * d - 1)%nat (QleT'_to_Qle _ _ HB) (fun u Hu => QleT'_to_Qle _ _ (HN0 u (NatLe_lift _ _ Hu)))). lia. }
+  { unfold X. apply QleT'_to_Qle. apply (pow_fact_decay B N0 (2 * d - 1)%nat HB (fun u Hu => HN0 u Hu)). lia. }
   assert (HEnC : Qle (exp_series (2 * n + 1)%nat B) C) by (apply QleT'_to_Qle; exact (HC (2 * n + 1)%nat)).
-  assert (HG0 : Qle 0 G) by (unfold G; apply exp_tail_abs_nonneg; exact (QleT'_to_Qle _ _ HB)).
+  assert (HG0 : Qle 0 G) by (unfold G; apply QleT'_to_Qle; apply exp_tail_abs_nonneg; exact HB).
   assert (HL1 := sc_cs_sq_err_tail_le t0 B d n (QleT'_to_Qle _ _ HB) (QleT'_to_Qle _ _ HtB0) Hd1 H2d).
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (P * q_pow (1 / 2)%Q (Datatypes.S t)) _).
   - apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (exp_series (2 * n + 1)%nat B * G)) _).
-    + exact HL1.
+    + apply QleT'_to_Qle. exact HL1.
     + apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * G)) _).
-      * apply (sc_qmult_le_l (exp_series (2 * n + 1)%nat B * G) (C * G) ((1 + 1) * (1 + 1))).
+      * apply QleT'_to_Qle. apply (sc_qmult_le_l (exp_series (2 * n + 1)%nat B * G) (C * G) ((1 + 1) * (1 + 1))).
         -- apply (Qmult_le_compat_r (exp_series (2 * n + 1)%nat B) C G); [exact HEnC | exact HG0].
         -- exact Hfour0.
       * apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * (X * (1 + 1)))) _).
-        -- apply (sc_qmult_le_l (C * G) (C * (X * (1 + 1))) ((1 + 1) * (1 + 1))).
-           ++ apply (sc_qmult_le_l G (X * (1 + 1)) C); [exact HG2 | exact HC0].
+        -- apply QleT'_to_Qle. apply (sc_qmult_le_l (C * G) (C * (X * (1 + 1))) ((1 + 1) * (1 + 1))).
+           ++ apply QleT'_to_Qle. apply (sc_qmult_le_l G (X * (1 + 1)) C); [exact HG2 | exact HC0].
            ++ exact Hfour0.
         -- apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * d - 1 - N0)) * (1 + 1)))) _).
-           ++ apply (sc_qmult_le_l (C * (X * (1 + 1)))
+           ++ apply QleT'_to_Qle. apply (sc_qmult_le_l (C * (X * (1 + 1)))
                                    (C * (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * d - 1 - N0)) * (1 + 1)))
                                    ((1 + 1) * (1 + 1))).
-              ** apply (sc_qmult_le_l (X * (1 + 1))
+              ** apply QleT'_to_Qle. apply (sc_qmult_le_l (X * (1 + 1))
                                       (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * d - 1 - N0)) * (1 + 1))
                                       C).
                  --- apply (Qmult_le_compat_r X ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * d - 1 - N0)) (1 + 1));
@@ -6485,9 +6626,9 @@ Proof.
                  --- exact HC0.
               ** exact Hfour0.
            ++ apply (Qle_trans _ (P * q_pow (1 / 2)%Q (2 * d - 1 - N0)) _).
-              ** apply qeq_le. unfold P. ring.
-              ** apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * d - 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t)) P).
-                 --- apply (q_half_pow_mono (2 * d - 1 - N0) (Datatypes.S t)). exact Hj.
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold P. ring.
+              ** apply QleT'_to_Qle. apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * d - 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t)) P).
+                 --- apply QleT'_to_Qle. apply (q_half_pow_mono (2 * d - 1 - N0) (Datatypes.S t)). exact Hj.
                  --- exact HP0.
   - exact (QltT_to_Qlt _ _ Ht).
 Qed.
@@ -6508,26 +6649,28 @@ Proof.
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (Qabs (cos_partial n (projT1 X n) * cos_partial n (projT1 X n) +
                               sin_partial n (projT1 X n) * sin_partial n (projT1 X n) - 1)) _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le.
+  apply qeq_imp_qeqT.
     apply (Qabs_wd (projT1 (real_plus (real_mult (cauchy_real_cos X) (cauchy_real_cos X))
                                       (real_mult (cauchy_real_sin X) (cauchy_real_sin X))) n - projT1 real_one n)
                    (cos_partial n (projT1 X n) * cos_partial n (projT1 X n) +
                     sin_partial n (projT1 X n) * sin_partial n (projT1 X n) - 1)).
-    rewrite real_plus_proj.
-    rewrite !real_mult_proj.
-    rewrite !real_cos_proj.
-    rewrite !real_sin_proj.
+    rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _)).
+    rewrite !(qeqT_imp_qeq _ _ (real_mult_proj _ _ _)).
+    rewrite !(qeqT_imp_qeq _ _ (real_cos_proj _ _)).
+    rewrite !(qeqT_imp_qeq _ _ (real_sin_proj _ _)).
     reflexivity.
   - apply QltT_to_Qlt.
     exact (HN (projT1 X n) n Hn (HM n)).
 Qed.
 
 (* ---- 桥：x < 2 ⟹ 2x < 4 ---- *)
-Lemma sc_two_x_lt_four : forall x : Q, Qlt x 2 -> Qlt (Qmult (1 + 1) x) ((1 + 1) * (1 + 1)).
+Lemma sc_two_x_lt_four : forall x : Q, Qlt x 2 -> QltT (Qmult (1 + 1) x) ((1 + 1) * (1 + 1)).
 Proof.
   intros x Hx2.
+  apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (x * (1 + 1)) _).
-  - apply qeq_le. ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
   - apply (Qmult_lt_compat_r x 2 (1 + 1)).
     + change (Qlt 0 (1 + 1)). compute. reflexivity.
     + exact Hx2.
@@ -6535,24 +6678,26 @@ Qed.
 
 (* ---- sin 侧 hlt 的 x<2 版：x < 2、j ≥ 1 ⟹ 2x < 2j+2 ---- *)
 Lemma sc_sin_alt_hlt2 : forall (x : Q) (j : nat), Qlt x 2 -> (1 <= j)%nat ->
-  Qlt (Qmult (1 + 1) x) (Qmake (Z.of_nat (2 * j + 2)) 1).
+  QltT (Qmult (1 + 1) x) (Qmake (Z.of_nat (2 * j + 2)) 1).
 Proof.
   intros x j Hx2 Hj.
+  apply Qlt_to_QltT.
   apply (Qlt_le_trans _ ((1 + 1) * (1 + 1)) _).
-  - apply sc_two_x_lt_four. exact Hx2.
+  - apply QltT_to_Qlt. apply sc_two_x_lt_four. exact Hx2.
   - unfold Qle. simpl. lia.
 Qed.
 
 (* ---- 子列单调（x<2 版）：sin 偶 ↓ ---- *)
 Lemma sc_sin_even_decr2 : forall (m : nat) (x : Q),
   Qle 0 x -> Qlt x 2 ->
-  Qle (sin_partial (2 * Datatypes.S m) x) (sin_partial (2 * m) x).
+  QleT' (sin_partial (2 * Datatypes.S m) x) (sin_partial (2 * m) x).
 Proof.
   intros m x Hx0 Hx2.
+  apply Qle_to_QleT'.
   replace (2 * Datatypes.S m)%nat with (Datatypes.S (Datatypes.S (2 * m))) by lia.
-  rewrite (sc_sin_partial_step2 (2 * m) x).
-  rewrite (sc_sin_term_odd_neg m x).
-  rewrite (sc_sin_term_even_pos m x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_step2 (2 * m) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg m x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_even_pos m x)).
   apply (proj2 (Qle_minus_iff (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x) + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (sin_partial (2 * m) x))).
   assert (Heq : sin_partial (2 * m) x - (sin_partial (2 * m) x + (- sc_sin_alt (Datatypes.S (2 * m)) x) + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x) ==
@@ -6560,21 +6705,22 @@ Proof.
   rewrite Heq.
   apply (proj1 (Qle_minus_iff (sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x)
                               (sc_sin_alt (Datatypes.S (2 * m)) x))).
-  apply (sc_sin_alt_decr x (Datatypes.S (2 * m)) Hx0).
+  apply QleT'_to_Qle. apply (sc_sin_alt_decr x (Datatypes.S (2 * m)) Hx0).
   - lia.
-  - apply (sc_sin_alt_hlt2 x (Datatypes.S (2 * m)) Hx2). lia.
+  - apply QltT_to_Qlt. apply (sc_sin_alt_hlt2 x (Datatypes.S (2 * m)) Hx2). lia.
 Qed.
 
 (* ---- 子列单调（x<2 版）：sin 奇 ↑ ---- *)
 Lemma sc_sin_odd_incr2 : forall (m : nat) (x : Q),
   Qle 0 x -> Qlt x 2 ->
-  Qle (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
+  QleT' (sin_partial (Datatypes.S (2 * m)) x) (sin_partial (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x).
 Proof.
   intros m x Hx0 Hx2.
-  rewrite (sc_sin_partial_step2 (Datatypes.S (2 * m)) x).
-  rewrite (sc_sin_term_even_pos m x).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_step2 (Datatypes.S (2 * m)) x)).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_even_pos m x)).
   replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat with (Datatypes.S (2 * Datatypes.S m))%nat by lia.
-  rewrite (sc_sin_term_odd_neg (Datatypes.S m) x).
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_term_odd_neg (Datatypes.S m) x)).
   assert (Heq : sin_partial (Datatypes.S (2 * m)) x + sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x +
                 (- sc_sin_alt (Datatypes.S (2 * Datatypes.S m)) x) ==
                 sin_partial (Datatypes.S (2 * m)) x +
@@ -6584,57 +6730,58 @@ Proof.
   replace (Datatypes.S (2 * Datatypes.S m))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))%nat by lia.
   apply (proj1 (Qle_minus_iff (sc_sin_alt (Datatypes.S (Datatypes.S (Datatypes.S (2 * m)))) x)
                               (sc_sin_alt (Datatypes.S (Datatypes.S (2 * m))) x))).
-  apply (sc_sin_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
+  apply QleT'_to_Qle. apply (sc_sin_alt_decr x (Datatypes.S (Datatypes.S (2 * m))) Hx0).
   - lia.
-  - apply (sc_sin_alt_hlt2 x (Datatypes.S (Datatypes.S (2 * m))) Hx2). lia.
+  - apply QltT_to_Qlt. apply (sc_sin_alt_hlt2 x (Datatypes.S (Datatypes.S (2 * m))) Hx2). lia.
 Qed.
 
 (* ---- 奇子列 ≥ x − c1（x<2 版） ---- *)
 Lemma sc_sin_odd_ge_c1_2 : forall (m : nat) (x : Q),
-  Qle 0 x -> Qlt x 2 -> Qle (x - sc_sin_alt 1 x) (sin_partial (Datatypes.S (2 * m)) x).
+  Qle 0 x -> Qlt x 2 -> QleT' (x - sc_sin_alt 1 x) (sin_partial (Datatypes.S (2 * m)) x).
 Proof.
   intros m x Hx0 Hx2.
   induction m as [| m' IH].
-  - replace (Datatypes.S (2 * 0)) with 1%nat by lia.
-    rewrite (sc_sin_partial_1_x x).
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * 0)) with 1%nat by lia.
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_1_x x)).
     apply Qle_refl.
-  - replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
+  - apply Qle_to_QleT'. replace (Datatypes.S (2 * Datatypes.S m'))%nat with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))%nat by lia.
     apply (Qle_trans _ (sin_partial (Datatypes.S (2 * m')) x) _).
-    + exact IH.
-    + apply sc_sin_odd_incr2. exact Hx0. exact Hx2.
+    + exact (QleT'_to_Qle _ _ IH).
+    + apply QleT'_to_Qle. apply sc_sin_odd_incr2. exact Hx0. exact Hx2.
 Qed.
 
 (* ---- sin：x − x³/6 ≤ sin_partial n x（x<2 版） ---- *)
 Lemma sc_sin_partial_lower_c1_2 : forall (n : nat) (x : Q),
-  Qle 0 x -> Qlt x 2 -> Qle (x - sc_sin_alt 1 x) (sin_partial n x).
+  Qle 0 x -> Qlt x 2 -> QleT' (x - sc_sin_alt 1 x) (sin_partial n x).
 Proof.
   intros n x Hx0 Hx2.
   destruct (sc_nat_split n) as [m Hm | m Hm].
-  - destruct m as [| m'].
+  - apply Qle_to_QleT'. destruct m as [| m'].
     + rewrite Hm.
       replace (2 * 0)%nat with 0%nat by lia.
-      rewrite (sc_sin_partial_0_x x).
+      rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_0_x x)).
       apply (proj2 (Qle_minus_iff (x - sc_sin_alt 1 x) x)).
       assert (Heq : x - (x - sc_sin_alt 1 x) == sc_sin_alt 1 x) by ring.
       rewrite Heq.
-      apply sc_sin_alt_nonneg. exact Hx0.
+      apply QleT'_to_Qle. apply sc_sin_alt_nonneg. exact Hx0.
     + apply (Qle_trans _ (sin_partial (Datatypes.S (2 * m')) x) _).
-      * apply sc_sin_odd_ge_c1_2. exact Hx0. exact Hx2.
+      * apply QleT'_to_Qle. apply sc_sin_odd_ge_c1_2. exact Hx0. exact Hx2.
       * rewrite Hm.
         replace (2 * Datatypes.S m')%nat with (Datatypes.S (Datatypes.S (2 * m'))) by lia.
-        apply sc_sin_mix_ge. exact Hx0.
-  - rewrite Hm. apply sc_sin_odd_ge_c1_2. exact Hx0. exact Hx2.
+        apply QleT'_to_Qle. apply sc_sin_mix_ge. exact Hx0.
+  - apply Qle_to_QleT'. rewrite Hm. apply QleT'_to_Qle. apply sc_sin_odd_ge_c1_2. exact Hx0. exact Hx2.
 Qed.
 
 (* ---- 严格下界：0 < x < 2 ⟹ x/3 < sin_partial n x ---- *)
 Lemma sc_sin_partial_gt_third : forall (n : nat) (x : Q),
-  Qlt 0 x -> Qlt x 2 -> Qlt (x / 3) (sin_partial n x).
+  Qlt 0 x -> Qlt x 2 -> QltT (x / 3) (sin_partial n x).
 Proof.
   intros n x Hx0 Hx2.
+  apply Qlt_to_QltT.
   apply (Qlt_le_trans _ (x - sc_sin_alt 1 x) _).
   - (* x/3 < x − x³/6：差 x·(4−x²)/6 > 0 *)
-    rewrite (sc_sin_alt1_cube x).
-    rewrite (sc_qpow3_6form x).
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_alt1_cube x)).
+    rewrite (qeqT_imp_qeq _ _ (sc_qpow3_6form x)).
     apply (proj2 (Qlt_minus_iff (x / 3) (x - (x * (x * x)) * (1 / 6)))).
     assert (Hring : (x - (x * (x * x)) * (1 / 6)) - x / 3 == x * (4 - x * x) * (1 / 6)).
     { field. all: try (unfold Qeq; simpl; lia). }
@@ -6649,12 +6796,12 @@ Proof.
            ++ apply (Qlt_le_weak x 2). exact Hx2.
            ++ apply (Qlt_le_weak 0 x). exact Hx0.
         -- apply (Qle_lt_trans _ (x * 2) _).
-           ++ apply qeq_le. ring.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
            ++ apply (Qmult_lt_compat_r x 2 2).
               ** change (Qlt 0 2). compute. reflexivity.
               ** exact Hx2.
     + change (Qlt 0 (1 / 6)). unfold Qdiv. compute. reflexivity.
-  - apply sc_sin_partial_lower_c1_2.
+  - apply QleT'_to_Qle. apply sc_sin_partial_lower_c1_2.
     + apply (Qlt_le_weak 0 x). exact Hx0.
     + exact Hx2.
 Qed.
@@ -6711,7 +6858,7 @@ Proof.
     + simpl.
       assert (Hz0 : sin_partial n (u n) - 0 == sin_partial n (u n)) by ring.
       rewrite Hz0.
-      apply (sc_sin_partial_gt_third n (u n)); [exact Hu0 | exact Hu2].
+      apply QltT_to_Qlt. apply (sc_sin_partial_gt_third n (u n)); [exact Hu0 | exact Hu2].
 Qed.
 
 (* ============================================================ *)
@@ -6723,57 +6870,55 @@ Qed.
 (* ============================================================ *)
 
 (* B0：(x·x)^k == x^{2k} *)
-Lemma sc_qpow_sq : forall (x : Q) (k : nat), q_pow (x * x) k == q_pow x (2 * k).
+Lemma sc_qpow_sq : forall (x : Q) (k : nat), QeqT (q_pow (x * x) k) (q_pow x (2 * k)).
 Proof.
   intros x k.
   induction k as [| k' IH].
-  - simpl. reflexivity.
-  - rewrite q_pow_succ. rewrite IH.
+  - apply qeq_imp_qeqT. simpl. reflexivity.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). rewrite (qeqT_imp_qeq _ _ IH).
     assert (H : (2 * Datatypes.S k' = Datatypes.S (Datatypes.S (2 * k')))%nat) by lia.
     rewrite H.
-    rewrite q_pow_succ. rewrite q_pow_succ.
+    rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)).
     ring.
 Qed.
 
 (* B1：0 ≤ p ≤ q ⟹ p^k ≤ q^k *)
 Lemma sc_qpow_le : forall (p q : Q) (k : nat),
-  Qle 0 p -> Qle p q -> Qle (q_pow p k) (q_pow q k).
+  Qle 0 p -> Qle p q -> QleT' (q_pow p k) (q_pow q k).
 Proof.
   intros p q k Hp0 Hpq.
   induction k as [| k' IH].
-  - simpl. apply Qle_refl.
-  - rewrite q_pow_succ. rewrite q_pow_succ.
+  - apply Qle_to_QleT'. simpl. apply Qle_refl.
+  - apply Qle_to_QleT'. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)).
     assert (Hq0 : Qle 0 q) by (apply (Qle_trans _ p _); [exact Hp0 | exact Hpq]).
     apply (Qle_trans _ (p * q_pow q k') _).
-    + apply (sc_qmult_le_l (q_pow p k') (q_pow q k') p).
-      * exact IH.
+    + apply QleT'_to_Qle. apply (sc_qmult_le_l (q_pow p k') (q_pow q k') p).
+      * exact (QleT'_to_Qle _ _ IH).
       * exact Hp0.
     + apply (Qmult_le_compat_r p q (q_pow q k')).
       * exact Hpq.
-      * apply q_pow_nonneg. exact Hq0.
+      * apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hq0.
 Qed.
 
 (* B2：常和：Σ_{i<n} c == (n#1)·c *)
-Lemma sc_sum_const : forall (n : nat) (c : Q), sum_upto n (fun _ : nat => c) == (Z.of_nat n # 1) * c.
+Lemma sc_sum_const : forall (n : nat) (c : Q), QeqT (sum_upto n (fun _ : nat => c)) ((Z.of_nat n # 1) * c).
 Proof.
   intros n c.
   induction n as [| n' IH].
-  - simpl. ring.
-  - simpl. rewrite IH.
+  - apply qeq_imp_qeqT. simpl. ring.
+  - apply qeq_imp_qeqT. simpl. rewrite (qeqT_imp_qeq _ _ IH).
     assert (Hplus : (Z.of_nat (Datatypes.S n') # 1) == (Z.of_nat n' # 1) + 1).
     { unfold Qeq. simpl. lia. }
     rewrite Hplus. ring.
 Qed.
 
 (* B3：幂差分因子（对称形）：q^k − p^k == (q−p)·Σ_{i<k} q^{k−1−i}·p^i *)
-Lemma sc_qpow_diff_factor : forall (p q : Q) (k : nat),
-  q_pow q k - q_pow p k ==
-  (q - p) * sum_upto k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i).
+Lemma sc_qpow_diff_factor : forall (p q : Q) (k : nat), QeqT (q_pow q k - q_pow p k) ((q - p) * sum_upto k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
 Proof.
   intros p q k.
   induction k as [| k' IH].
-  - simpl. ring.
-  - rewrite q_pow_succ. rewrite q_pow_succ.
+  - apply qeq_imp_qeqT. simpl. ring.
+  - apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)).
     transitivity (q * q_pow q k' - p * q_pow p k').
     + reflexivity.
     + assert (Hsum : sum_upto (Datatypes.S k') (fun i : nat => q_pow q (Datatypes.S k' - 1 - i) * q_pow p i) ==
@@ -6785,19 +6930,20 @@ Proof.
         { assert (Hz : (Datatypes.S k' - 1 - k' = 0)%nat) by lia.
           rewrite Hz. simpl. ring. }
         rewrite H0.
-        rewrite (sum_upto_ext_below k'
+        assert (Hpre : forall i : nat, NatLe (Datatypes.S i) k' -> QeqT (q_pow q (Datatypes.S k' - 1 - i) * q_pow p i) (q * (q_pow q (k' - 1 - i) * q_pow p i))).
+        { intros i Hi. apply NatLe_drop in Hi.
+          assert (Hidx : (Datatypes.S k' - 1 - i = Datatypes.S (k' - 1 - i))%nat) by lia.
+          rewrite Hidx. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). ring. }
+        rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below k'
           (fun i : nat => q_pow q (Datatypes.S k' - 1 - i) * q_pow p i)
-          (fun i : nat => q * (q_pow q (k' - 1 - i) * q_pow p i))).
-        2: { intros i Hi.
-             assert (Hidx : (Datatypes.S k' - 1 - i = Datatypes.S (k' - 1 - i))%nat) by lia.
-             rewrite Hidx. rewrite q_pow_succ. ring. }
-        rewrite (sum_upto_scale k' q (fun i : nat => q_pow q (k' - 1 - i) * q_pow p i)).
+          (fun i : nat => q * (q_pow q (k' - 1 - i) * q_pow p i)) Hpre)).
+        rewrite (qeqT_imp_qeq _ _ (sum_upto_scale k' q (fun i : nat => q_pow q (k' - 1 - i) * q_pow p i))).
         ring. }
       rewrite Hsum.
       assert (Hdist : (q - p) * (q_pow p k' + q * sum_upto k' (fun i : nat => q_pow q (k' - 1 - i) * q_pow p i)) ==
                       (q - p) * q_pow p k' + q * ((q - p) * sum_upto k' (fun i : nat => q_pow q (k' - 1 - i) * q_pow p i))).
       { ring. }
-      rewrite Hdist. rewrite <- IH. ring.
+      rewrite Hdist. rewrite <- (qeqT_imp_qeq _ _ IH). ring.
 Qed.
 
 
@@ -6807,18 +6953,18 @@ Definition sc_A (p q : Q) (k : nat) : Q :=
 
 (* C0：0 ≤ p、0 ≤ q ⟹ 0 ≤ A_k *)
 Lemma sc_A_nonneg : forall (p q : Q) (k : nat),
-  Qle 0 p -> Qle 0 q -> Qle 0 (sc_A p q k).
+  Qle 0 p -> Qle 0 q -> QleT' 0 (sc_A p q k).
 Proof.
-  intros p q k Hp0 Hq0. unfold sc_A. apply sc_sum_nonneg. intro m.
+  intros p q k Hp0 Hq0. apply Qle_to_QleT'. unfold sc_A. apply QleT'_to_Qle. apply sc_sum_nonneg. intro m.
   exact (Qmult_le_0_compat (q_pow q (k - 1 - m)) (q_pow p m)
-    (q_pow_nonneg q (k - 1 - m) Hq0) (q_pow_nonneg p m Hp0)).
+    (QleT'_to_Qle _ _ (q_pow_nonneg q (k - 1 - m) (Qle_to_QleT' _ _ Hq0))) (QleT'_to_Qle _ _ (q_pow_nonneg p m (Qle_to_QleT' _ _ Hp0)))).
 Qed.
 
 (* 辅助：sum_upto 1 (fun k => g (a+k)) == g a *)
-Lemma sc_sum_upto1_shift : forall (a : nat) (g : nat -> Q),
-  sum_upto 1 (fun k : nat => g ((a + k)%nat)) == g a.
+Lemma sc_sum_upto1_shift : forall (a : nat) (g : nat -> Q), QeqT (sum_upto 1 (fun k : nat => g ((a + k)%nat))) (g a).
 Proof.
   intros a g.
+  apply qeq_imp_qeqT.
   change (sum_upto 1 (fun k : nat => g ((a + k)%nat))) with
     (sum_upto 0 (fun k : nat => g ((a + k)%nat)) + g ((a + 0)%nat)).
   simpl. rewrite (Qplus_0_l (g ((a + 0)%nat))). rewrite (Nat.add_0_r a). reflexivity.
@@ -6826,53 +6972,57 @@ Qed.
 
 (* C1：k ≥ 1 ⟹ A_k ≥ q^{k−1}（i=0 项） *)
 Lemma sc_A_ge_q : forall (p q : Q) (k : nat),
-  Qle 0 p -> Qle 0 q -> (1 <= k)%nat -> Qle (q_pow q (k - 1)) (sc_A p q k).
+  Qle 0 p -> Qle 0 q -> (1 <= k)%nat -> QleT' (q_pow q (k - 1)) (sc_A p q k).
 Proof.
   intros p q k Hp0 Hq0 Hk.
+  apply Qle_to_QleT'.
   unfold sc_A.
   apply (Qle_trans _ (q_pow q (k - 1) * q_pow p 0) _).
-  - apply qeq_le. simpl (q_pow p 0). ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. simpl (q_pow p 0). ring.
   - apply (Qle_trans _ (sum_upto 1 (fun k0 : nat => q_pow q (k - 1 - (0 + k0)) * q_pow p (0 + k0))) _).
     + assert (He : q_pow q (k - 1) * q_pow p 0 == q_pow q (k - 1 - 0) * q_pow p 0).
       { assert (Hn0 : (k - 1 - 0 = k - 1)%nat) by lia. rewrite Hn0. reflexivity. }
       apply (Qle_trans _ (q_pow q (k - 1 - 0) * q_pow p 0) _).
-      * apply qeq_le. exact He.
-      * apply qeq_le.
-        apply (Qeq_sym _ _ (sc_sum_upto1_shift 0 (fun i : nat => q_pow q (k - 1 - i) * q_pow p i))).
-    + apply (sc_sum_shift_sub_le 0 1 k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact He.
+      * apply QleT'_to_Qle. apply qeq_le.
+      apply qeq_imp_qeqT.
+        apply (Qeq_sym _ _ (qeqT_imp_qeq _ _ (sc_sum_upto1_shift 0 (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)))).
+    + apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 0 1 k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
       * intro m. apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg. exact Hq0.
-        -- apply q_pow_nonneg. exact Hp0.
+        -- apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hq0.
+        -- apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hp0.
       * lia.
 Qed.
 
 (* C1'：k ≥ 1 ⟹ A_k ≥ p^{k−1}（i=k−1 项） *)
 Lemma sc_A_ge_p : forall (p q : Q) (k : nat),
-  Qle 0 p -> Qle 0 q -> (1 <= k)%nat -> Qle (q_pow p (k - 1)) (sc_A p q k).
+  Qle 0 p -> Qle 0 q -> (1 <= k)%nat -> QleT' (q_pow p (k - 1)) (sc_A p q k).
 Proof.
   intros p q k Hp0 Hq0 Hk.
+  apply Qle_to_QleT'.
   unfold sc_A.
   apply (Qle_trans _ (q_pow q 0 * q_pow p (k - 1)) _).
-  - apply qeq_le. simpl (q_pow q 0). ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. simpl (q_pow q 0). ring.
   - apply (Qle_trans _ (sum_upto 1 (fun k0 : nat => q_pow q (k - 1 - ((k - 1) + k0)) * q_pow p ((k - 1) + k0))) _).
     + assert (He : q_pow q 0 * q_pow p (k - 1) == q_pow q (k - 1 - (k - 1)) * q_pow p (k - 1)).
       { assert (Hn0 : (k - 1 - (k - 1) = 0)%nat) by lia. rewrite Hn0. reflexivity. }
       apply (Qle_trans _ (q_pow q (k - 1 - (k - 1)) * q_pow p (k - 1)) _).
-      * apply qeq_le. exact He.
-      * apply qeq_le.
-        apply (Qeq_sym _ _ (sc_sum_upto1_shift (k - 1) (fun i : nat => q_pow q (k - 1 - i) * q_pow p i))).
-    + apply (sc_sum_shift_sub_le (k - 1) 1 k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact He.
+      * apply QleT'_to_Qle. apply qeq_le.
+      apply qeq_imp_qeqT.
+        apply (Qeq_sym _ _ (qeqT_imp_qeq _ _ (sc_sum_upto1_shift (k - 1) (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)))).
+    + apply QleT'_to_Qle. apply (sc_sum_shift_sub_le (k - 1) 1 k (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
       * intro m. apply Qmult_le_0_compat.
-        -- apply q_pow_nonneg. exact Hq0.
-        -- apply q_pow_nonneg. exact Hp0.
+        -- apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hq0.
+        -- apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hp0.
       * lia.
 Qed.
 
 (* C3：递推 A (S k) == q·A_k + p^k *)
-Lemma sc_A_succ : forall (p q : Q) (k : nat),
-  sc_A p q (Datatypes.S k) == q * sc_A p q k + q_pow p k.
+Lemma sc_A_succ : forall (p q : Q) (k : nat), QeqT (sc_A p q (Datatypes.S k)) (q * sc_A p q k + q_pow p k).
 Proof.
   intros p q k.
+  apply qeq_imp_qeqT.
   unfold sc_A.
   change (sum_upto (Datatypes.S k) (fun i : nat => q_pow q (Datatypes.S k - 1 - i) * q_pow p i))
     with (sum_upto k (fun i : nat => q_pow q (Datatypes.S k - 1 - i) * q_pow p i) +
@@ -6881,21 +7031,22 @@ Proof.
   { assert (Hz : (Datatypes.S k - 1 - k = 0)%nat) by lia.
     rewrite Hz. simpl. ring. }
   rewrite H0.
-  rewrite (sum_upto_ext_below k
+  assert (Hpre : forall i : nat, NatLe (Datatypes.S i) k -> QeqT (q_pow q (Datatypes.S k - 1 - i) * q_pow p i) (q * (q_pow q (k - 1 - i) * q_pow p i))).
+  { intros i Hi. apply NatLe_drop in Hi.
+    assert (Hidx : (Datatypes.S k - 1 - i = Datatypes.S (k - 1 - i))%nat) by lia.
+    rewrite Hidx. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). ring. }
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below k
     (fun i : nat => q_pow q (Datatypes.S k - 1 - i) * q_pow p i)
-    (fun i : nat => q * (q_pow q (k - 1 - i) * q_pow p i))).
-  2: { intros i Hi.
-       assert (Hidx : (Datatypes.S k - 1 - i = Datatypes.S (k - 1 - i))%nat) by lia.
-       rewrite Hidx. rewrite q_pow_succ. ring. }
-  rewrite (sum_upto_scale k q (fun i : nat => q_pow q (k - 1 - i) * q_pow p i)).
+    (fun i : nat => q * (q_pow q (k - 1 - i) * q_pow p i)) Hpre)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_scale k q (fun i : nat => q_pow q (k - 1 - i) * q_pow p i))).
   ring.
 Qed.
 
 (* C4a：8 ≤ (2k+1)(2k+2)（k ≥ 1） *)
 Lemma sc_M_ge8 : forall (k : nat), (1 <= k)%nat ->
-  Qle 8 ((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
+  QleT' 8 ((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
 Proof.
-  intros k Hk. unfold Qle. simpl.
+  intros k Hk. apply Qle_to_QleT'. unfold Qle. simpl.
   change (8 <= Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2) * 1)%Z.
   rewrite (Z.mul_1_r (Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2))).
   apply (Z.le_trans _ 12 _); [lia | ].
@@ -6904,24 +7055,22 @@ Proof.
 Qed.
 
 (* C4b：q_fact 双跳（S 形） *)
-Lemma sc_qfact_2succ : forall (k : nat),
-  q_fact (2 * Datatypes.S k) ==
-  (Z.of_nat (Datatypes.S (Datatypes.S (2 * k))) # 1) *
-  (Z.of_nat (Datatypes.S (2 * k)) # 1) * q_fact (2 * k).
+Lemma sc_qfact_2succ : forall (k : nat), QeqT (q_fact (2 * Datatypes.S k)) ((Z.of_nat (Datatypes.S (Datatypes.S (2 * k))) # 1) *
+  (Z.of_nat (Datatypes.S (2 * k)) # 1) * q_fact (2 * k)).
 Proof.
   intro k.
+  apply qeq_imp_qeqT.
   assert (Hn : (2 * Datatypes.S k = Datatypes.S (Datatypes.S (2 * k)))%nat) by lia.
   rewrite Hn.
-  rewrite q_fact_succ. rewrite q_fact_succ.
+  rewrite (qeqT_imp_qeq _ _ (q_fact_succ _)). rewrite (qeqT_imp_qeq _ _ (q_fact_succ _)).
   ring.
 Qed.
 
-Lemma sc_M_qmult : forall (k : nat),
-  (Z.of_nat (Datatypes.S (Datatypes.S (2 * k))) # 1) *
-  (Z.of_nat (Datatypes.S (2 * k)) # 1) ==
-  (Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1.
+Lemma sc_M_qmult : forall (k : nat), QeqT ((Z.of_nat (Datatypes.S (Datatypes.S (2 * k))) # 1) *
+  (Z.of_nat (Datatypes.S (2 * k)) # 1)) ((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
 Proof.
   intro k.
+  apply qeq_imp_qeqT.
   assert (Ha : (Datatypes.S (Datatypes.S (2 * k)) = 2 * k + 2)%nat) by lia.
   assert (Hb : (Datatypes.S (2 * k) = 2 * k + 1)%nat) by lia.
   rewrite Ha. rewrite Hb.
@@ -6930,28 +7079,30 @@ Qed.
 
 (* 除式交叉：0<c、0<d、a·d ≤ b·c ⟹ a/c ≤ b/d *)
 Lemma sc_qle_div_cross : forall (a b c d : Q), Qlt 0 c -> Qlt 0 d ->
-  Qle (a * d) (b * c) -> Qle (a / c) (b / d).
+  Qle (a * d) (b * c) -> QleT' (a / c) (b / d).
 Proof.
   intros a b c d Hc Hd H.
+  apply Qle_to_QleT'.
   apply (Qle_shift_div_r a c (b / d)).
   - exact Hc.
   - apply (Qle_trans _ ((b * c) / d) _).
     + apply (Qle_shift_div_l a (b * c) d).
       * exact Hd.
       * exact H.
-    + apply qeq_le. unfold Qdiv. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. ring.
 Qed.
 
 (* C4c：q·A_k + p^k ≤ M_k·A_k *)
 Lemma sc_A_succ_bound : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle p q -> Qle q 4 -> (1 <= k)%nat ->
-  Qle (q * sc_A p q k + q_pow p k)
+  QleT' (q * sc_A p q k + q_pow p k)
       (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) * sc_A p q k).
 Proof.
   intros p q k Hp0 Hpq Hq4 Hk.
+  apply Qle_to_QleT'.
   set (M := (Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1).
   assert (Hq0 : Qle 0 q) by (apply (Qle_trans _ p _); [exact Hp0 | exact Hpq]).
-  assert (HM8 : Qle 8 M) by (unfold M; apply sc_M_ge8; exact Hk).
+  assert (HM8 : Qle 8 M) by (unfold M; (apply QleT'_to_Qle; apply sc_M_ge8); exact Hk).
   assert (HpqM : Qle (p + q) M).
   { apply (Qle_trans _ (4 + 4) _).
     - apply Qplus_le_compat.
@@ -6967,52 +7118,53 @@ Proof.
   assert (H1 : Qle (q * sc_A p q k) (M * sc_A p q k)).
   { apply (Qmult_le_compat_r q M (sc_A p q k)).
     - exact HqM.
-    - apply (sc_A_nonneg p q k Hp0 Hq0). }
+    - apply QleT'_to_Qle. apply (sc_A_nonneg p q k Hp0 Hq0). }
   assert (H2 : Qle (q_pow p k) ((M - q) * sc_A p q k)).
   { assert (Hk1 : (k = Datatypes.S (k - 1))%nat) by lia.
-    rewrite Hk1. rewrite q_pow_succ.
+    rewrite Hk1. rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)).
     apply (Qle_trans _ ((M - q) * q_pow p (k - 1)) _).
     - apply (Qmult_le_compat_r p (M - q) (q_pow p (k - 1))).
       + exact HpMq.
-      + apply q_pow_nonneg. exact Hp0.
-    - apply (sc_qmult_le_l (q_pow p (k - 1)) (sc_A p q (Datatypes.S (k - 1))) (M - q)).
+      + apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hp0.
+    - apply QleT'_to_Qle. apply (sc_qmult_le_l (q_pow p (k - 1)) (sc_A p q (Datatypes.S (k - 1))) (M - q)).
       + assert (He : q_pow p (k - 1) == q_pow p (Datatypes.S (k - 1) - 1)).
         { assert (Hn : (Datatypes.S (k - 1) - 1 = k - 1)%nat) by lia. rewrite Hn. reflexivity. }
         apply (Qle_trans _ (q_pow p (Datatypes.S (k - 1) - 1)) _).
-        * apply qeq_le. exact He.
-        * apply (sc_A_ge_p p q (Datatypes.S (k - 1)) Hp0 Hq0). lia.
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact He.
+        * apply QleT'_to_Qle. apply (sc_A_ge_p p q (Datatypes.S (k - 1)) Hp0 Hq0). lia.
       + apply (proj1 (Qle_minus_iff q M)).
         apply (Qle_trans _ 4 _); [exact Hq4 | apply (Qle_trans _ 8 _); [unfold Qle; simpl; lia | exact HM8]]. }
   apply (Qle_trans _ (q * sc_A p q k + (M - q) * sc_A p q k) _).
   - apply Qplus_le_compat.
     + apply Qle_refl.
     + exact H2.
-  - apply qeq_le. unfold M. ring.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold M. ring.
 Qed.
 
 (* C4 主：t_{k+1} ≤ t_k *)
 Lemma sc_t_dec : forall (p q : Q) (k : nat),
   Qle 0 p -> Qle p q -> Qle q 4 -> (1 <= k)%nat ->
-  Qle (sc_A p q (Datatypes.S k) / q_fact (2 * Datatypes.S k))
+  QleT' (sc_A p q (Datatypes.S k) / q_fact (2 * Datatypes.S k))
       (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros p q k Hp0 Hpq Hq4 Hk.
-  rewrite (sc_A_succ p q k).
-  apply (sc_qle_div_cross (q * sc_A p q k + q_pow p k) (sc_A p q k)
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_A_succ p q k)).
+  apply QleT'_to_Qle. apply (sc_qle_div_cross (q * sc_A p q k + q_pow p k) (sc_A p q k)
                           (q_fact (2 * Datatypes.S k)) (q_fact (2 * k))).
-  - apply q_fact_pos.
-  - apply q_fact_pos.
+  - apply QltT_to_Qlt. apply q_fact_pos.
+  - apply QltT_to_Qlt. apply q_fact_pos.
   - assert (Hsb := sc_A_succ_bound p q k Hp0 Hpq Hq4 Hk).
     apply (Qle_trans _ (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) *
                         sc_A p q k * q_fact (2 * k)) _).
     + apply (Qmult_le_compat_r (q * sc_A p q k + q_pow p k)
              (((Z.of_nat (2 * k + 1) * Z.of_nat (2 * k + 2)) # 1) * sc_A p q k)
              (q_fact (2 * k))).
-      * exact Hsb.
-      * apply (Qlt_le_weak 0 (q_fact (2 * k))). apply q_fact_pos.
-    + rewrite (sc_qfact_2succ k).
-      rewrite (sc_M_qmult k).
-      apply qeq_le. unfold Qdiv. ring.
+      * apply QleT'_to_Qle. exact Hsb.
+      * apply (Qlt_le_weak 0 (q_fact (2 * k))). apply QltT_to_Qlt. apply q_fact_pos.
+    + rewrite (qeqT_imp_qeq _ _ (sc_qfact_2succ k)).
+      rewrite (qeqT_imp_qeq _ _ (sc_M_qmult k)).
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. ring.
 Qed.
 
 (* ---- P_N := Σ_{k<N} (−1)^{k−1}·A_k/(2k)!（t_0 项为 0 无害） ---- *)
@@ -7021,22 +7173,22 @@ Definition sc_P (p q : Q) (N : nat) : Q :=
 
 (* t_k ≥ 0 *)
 Lemma sc_t_nonneg : forall (p q : Q) (k : nat),
-  Qle 0 p -> Qle 0 q -> Qle 0 (sc_A p q k / q_fact (2 * k)).
+  Qle 0 p -> Qle 0 q -> QleT' 0 (sc_A p q k / q_fact (2 * k)).
 Proof.
   intros p q k Hp0 Hq0.
+  apply Qle_to_QleT'.
   unfold Qdiv.
   exact (Qmult_le_0_compat (sc_A p q k) (Qinv (q_fact (2 * k)))
-    (sc_A_nonneg p q k Hp0 Hq0)
+    (QleT'_to_Qle _ _ (sc_A_nonneg p q k Hp0 Hq0))
     (Qlt_le_weak 0 (Qinv (q_fact (2 * k)))
-      (Qinv_lt_0_compat (q_fact (2 * k)) (q_fact_pos (2 * k))))).
+      (Qinv_lt_0_compat (q_fact (2 * k)) (QltT_to_Qlt 0 (q_fact (2 * k)) (q_fact_pos (2 * k)))))).
 Qed.
 
 (* 单步恒等 *)
-Lemma sc_P_step1 : forall (p q : Q) (N : nat),
-  sc_P p q (Datatypes.S N) ==
-  sc_P p q N + q_pow (-1) (N - 1) * (sc_A p q N / q_fact (2 * N)).
+Lemma sc_P_step1 : forall (p q : Q) (N : nat), QeqT (sc_P p q (Datatypes.S N)) (sc_P p q N + q_pow (-1) (N - 1) * (sc_A p q N / q_fact (2 * N))).
 Proof.
   intros p q N.
+  apply qeq_imp_qeqT.
   unfold sc_P.
   set (f := fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k))).
   change (sum_upto (Datatypes.S N) f) with (sum_upto N f + f N).
@@ -7044,13 +7196,12 @@ Proof.
 Qed.
 
 (* 双步恒等 *)
-Lemma sc_P_step2 : forall (p q : Q) (N : nat),
-  sc_P p q (Datatypes.S (Datatypes.S N)) ==
-  sc_P p q N +
+Lemma sc_P_step2 : forall (p q : Q) (N : nat), QeqT (sc_P p q (Datatypes.S (Datatypes.S N))) (sc_P p q N +
   q_pow (-1) (N - 1) * (sc_A p q N / q_fact (2 * N)) +
-  q_pow (-1) (Datatypes.S N - 1) * (sc_A p q (Datatypes.S N) / q_fact (2 * Datatypes.S N)).
+  q_pow (-1) (Datatypes.S N - 1) * (sc_A p q (Datatypes.S N) / q_fact (2 * Datatypes.S N))).
 Proof.
   intros p q N.
+  apply qeq_imp_qeqT.
   unfold sc_P.
   set (f := fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k))).
   change (sum_upto (Datatypes.S (Datatypes.S N)) f) with (sum_upto (Datatypes.S N) f + f (Datatypes.S N)).
@@ -7061,19 +7212,20 @@ Qed.
 (* 增量：P(S(S(S(2m)))) ≥ P(S(2m))（+t_{S(2m)} − t_{S(S(2m))} ≥ 0） *)
 Lemma sc_P_inc : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 ->
-  Qle (sc_P p q (Datatypes.S (2 * m)))
+  QleT' (sc_P p q (Datatypes.S (2 * m)))
       (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
 Proof.
   intros p q m Hp0 Hq0 Hpq Hq4.
-  rewrite (sc_P_step2 p q (Datatypes.S (2 * m))).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_P_step2 p q (Datatypes.S (2 * m)))).
   assert (Ha : (Datatypes.S (2 * m) - 1 = 2 * m)%nat) by lia.
   rewrite Ha.
-  rewrite (q_pow_neg1_even m).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_neg1_even m)).
   assert (Ho : q_pow (-1) (Datatypes.S (Datatypes.S (2 * m)) - 1) == -1).
   { assert (Hbo : (Datatypes.S (Datatypes.S (2 * m)) - 1 = Datatypes.S (2 * m))%nat) by lia.
     rewrite Hbo.
     assert (Hbo2 : (Datatypes.S (2 * m) = 2 * m + 1)%nat) by lia.
-    rewrite Hbo2. exact (q_pow_neg1_odd m). }
+    rewrite Hbo2. exact (qeqT_imp_qeq _ _ (q_pow_neg1_odd m)). }
   rewrite Ho.
   set (T1 := sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m))).
   set (T2 := sc_A p q (Datatypes.S (Datatypes.S (2 * m))) / q_fact (2 * Datatypes.S (Datatypes.S (2 * m)))).
@@ -7081,58 +7233,59 @@ Proof.
   - apply (Qle_plus_nonneg_r (sc_P p q (Datatypes.S (2 * m))) (T1 - T2)).
     apply (proj1 (Qle_minus_iff T2 T1)).
     unfold T1, T2.
-    apply (sc_t_dec p q (Datatypes.S (2 * m)) Hp0 Hpq Hq4). lia.
-  - apply qeq_le. unfold T1, T2, Qdiv. ring.
+    apply QleT'_to_Qle. apply (sc_t_dec p q (Datatypes.S (2 * m)) Hp0 Hpq Hq4). lia.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold T1, T2, Qdiv. ring.
 Qed.
 
 (* 奇延伸：P(S(S(2m))) ≥ P(S(2m))（+t_{S(2m)} ≥ 0） *)
 Lemma sc_P_odd_ge : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q ->
-  Qle (sc_P p q (Datatypes.S (2 * m)))
+  QleT' (sc_P p q (Datatypes.S (2 * m)))
       (sc_P p q (Datatypes.S (Datatypes.S (2 * m)))).
 Proof.
   intros p q m Hp0 Hq0.
-  rewrite (sc_P_step1 p q (Datatypes.S (2 * m))).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_P_step1 p q (Datatypes.S (2 * m)))).
   assert (Ha : (Datatypes.S (2 * m) - 1 = 2 * m)%nat) by lia.
   rewrite Ha.
-  rewrite (q_pow_neg1_even m).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_neg1_even m)).
   rewrite (Qmult_1_l (sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m)))).
   apply (Qle_plus_nonneg_r (sc_P p q (Datatypes.S (2 * m)))
           (sc_A p q (Datatypes.S (2 * m)) / q_fact (2 * Datatypes.S (2 * m)))).
-  apply (sc_t_nonneg p q (Datatypes.S (2 * m)) Hp0 Hq0).
+  apply QleT'_to_Qle. apply (sc_t_nonneg p q (Datatypes.S (2 * m)) Hp0 Hq0).
 Qed.
 
 (* 偶子列：P_{2m} ≥ P_2（sc_P (S(2m)) ≥ sc_P 3，m ≥ 1） *)
 Lemma sc_P_even_ge : forall (p q : Q) (m : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 ->
-  Qle (sc_P p q 3) (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
+  QleT' (sc_P p q 3) (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m))))).
 Proof.
   intros p q m Hp0 Hq0 Hpq Hq4.
   induction m as [| m' IH].
-  - replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * 0)))) with 3%nat by lia.
+  - apply Qle_to_QleT'. replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * 0)))) with 3%nat by lia.
     apply Qle_refl.
-  - apply (Qle_trans _ (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))) _).
-    + exact IH.
+  - apply Qle_to_QleT'. apply (Qle_trans _ (sc_P p q (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'))))) _).
+    + exact (QleT'_to_Qle _ _ IH).
     + replace (Datatypes.S (Datatypes.S (Datatypes.S (2 * m')))) with (Datatypes.S (2 * Datatypes.S m')) by lia.
-      apply (sc_P_inc p q (Datatypes.S m') Hp0 Hq0 Hpq Hq4).
+      apply QleT'_to_Qle. apply (sc_P_inc p q (Datatypes.S m') Hp0 Hq0 Hpq Hq4).
 Qed.
 
 (* 总下界：N ≥ 3 ⟹ P_2 ≤ P_N *)
 Lemma sc_P_ge_P2 : forall (p q : Q) (N : nat),
   Qle 0 p -> Qle 0 q -> Qle p q -> Qle q 4 -> (3 <= N)%nat ->
-  Qle (sc_P p q 3) (sc_P p q N).
+  QleT' (sc_P p q 3) (sc_P p q N).
 Proof.
   intros p q N Hp0 Hq0 Hpq Hq4 HN.
   destruct (sc_nat_split (N - 1)) as [m Hm | m Hm].
-  - (* N−1 = 2m：N = S(2m) = S(S(S(2m'')))（m = S m''，N ≥ 3 ⟹ m'' 存在） *)
+  - apply Qle_to_QleT'. (* N−1 = 2m：N = S(2m) = S(S(S(2m'')))（m = S m''，N ≥ 3 ⟹ m'' 存在） *)
     destruct m as [| m''].
     + assert (Hz : (3 <= Datatypes.S (2 * 0))%nat -> False) by lia.
       exfalso. apply Hz. lia.
     + assert (HN' : (N = Datatypes.S (2 * Datatypes.S m''))%nat) by lia.
       rewrite HN'.
       replace (Datatypes.S (2 * Datatypes.S m'')) with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'')))) by lia.
-      apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
-  - (* N−1 = S(2m)：N = S(S(2m))，m ≥ 1（N ≥ 4） *)
+      apply QleT'_to_Qle. apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
+  - apply Qle_to_QleT'. (* N−1 = S(2m)：N = S(S(2m))，m ≥ 1（N ≥ 4） *)
     assert (Hm1 : (1 <= m)%nat) by lia.
     assert (HN' : (N = Datatypes.S (Datatypes.S (2 * m)))%nat) by lia.
     rewrite HN'.
@@ -7141,22 +7294,22 @@ Proof.
       * assert (Hz : (3 <= Datatypes.S (Datatypes.S (2 * 0)))%nat -> False) by lia.
         exfalso. apply Hz. lia.
       * replace (Datatypes.S (2 * Datatypes.S m'')) with (Datatypes.S (Datatypes.S (Datatypes.S (2 * m'')))) by lia.
-        apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
-    + apply (sc_P_odd_ge p q m Hp0 Hq0).
+        apply QleT'_to_Qle. apply (sc_P_even_ge p q m'' Hp0 Hq0 Hpq Hq4).
+    + apply QleT'_to_Qle. apply (sc_P_odd_ge p q m Hp0 Hq0).
 Qed.
 
 (* A_1 == 1、A_2 == p+q *)
-Lemma sc_A_1 : forall (p q : Q), sc_A p q 1 == 1.
+Lemma sc_A_1 : forall (p q : Q), QeqT (sc_A p q 1) (1).
 Proof.
-  intros p q. unfold sc_A.
+  intros p q. apply qeq_imp_qeqT. unfold sc_A.
   change (sum_upto 1 (fun i : nat => q_pow q (1 - 1 - i) * q_pow p i)) with
          (sum_upto 0 (fun i : nat => q_pow q (1 - 1 - i) * q_pow p i) + q_pow q (1 - 1 - 0) * q_pow p 0).
   simpl. ring.
 Qed.
 
-Lemma sc_A_2 : forall (p q : Q), sc_A p q 2 == p + q.
+Lemma sc_A_2 : forall (p q : Q), QeqT (sc_A p q 2) (p + q).
 Proof.
-  intros p q. unfold sc_A.
+  intros p q. apply qeq_imp_qeqT. unfold sc_A.
   change (sum_upto 2 (fun i : nat => q_pow q (2 - 1 - i) * q_pow p i)) with
          (sum_upto 1 (fun i : nat => q_pow q (2 - 1 - i) * q_pow p i) + q_pow q (2 - 1 - 1) * q_pow p 1).
   change (sum_upto 1 (fun i : nat => q_pow q (2 - 1 - i) * q_pow p i)) with
@@ -7165,9 +7318,9 @@ Proof.
 Qed.
 
 (* P_2 == 1/2 − (p+q)/24 *)
-Lemma sc_P2_val : forall (p q : Q), sc_P p q 3 == 1 / 2 - (p + q) / 24.
+Lemma sc_P2_val : forall (p q : Q), QeqT (sc_P p q 3) (1 / 2 - (p + q) / 24).
 Proof.
-  intros p q. unfold sc_P.
+  intros p q. apply qeq_imp_qeqT. unfold sc_P.
   change (sum_upto 3 (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k)))) with
          (sum_upto 2 (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k))) + q_pow (-1) 1 * (sc_A p q 2 / q_fact 4)).
   change (sum_upto 2 (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k)))) with
@@ -7175,7 +7328,7 @@ Proof.
   change (sum_upto 1 (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k)))) with
          (sum_upto 0 (fun k : nat => q_pow (-1) (k - 1) * (sc_A p q k / q_fact (2 * k))) + q_pow (-1) 0 * (sc_A p q 0 / q_fact 0)).
   simpl.
-  rewrite (sc_A_1 p q). rewrite (sc_A_2 p q).
+  rewrite (qeqT_imp_qeq _ _ (sc_A_1 p q)). rewrite (qeqT_imp_qeq _ _ (sc_A_2 p q)).
   assert (Hf2 : q_fact 2 == 2) by (vm_compute; reflexivity).
   assert (Hf4 : q_fact 4 == 24) by (vm_compute; reflexivity).
   rewrite Hf2. rewrite Hf4.
@@ -7186,10 +7339,11 @@ Qed.
 
 (* P_2 ≥ 1/6 *)
 Lemma sc_P2_ge_sixth : forall (p q : Q),
-  Qle 0 p -> Qle p q -> Qle q 4 -> Qle (1 / 6) (sc_P p q 3).
+  Qle 0 p -> Qle p q -> Qle q 4 -> QleT' (1 / 6) (sc_P p q 3).
 Proof.
   intros p q Hp0 Hpq Hq4.
-  rewrite (sc_P2_val p q).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_P2_val p q)).
   apply (proj2 (Qle_minus_iff (1 / 6) (1 / 2 - (p + q) / 24))).
   assert (Hpq8 : Qle (p + q) 8).
   { apply (Qle_trans _ (4 + 4) _).
@@ -7209,83 +7363,81 @@ Proof.
 Qed.
 
 (* 幂差分因子（桥到 x^{2k} 形，p := x·x、q := y·y） *)
-Lemma sc_qpow2_diff : forall (x y : Q) (k : nat),
-  q_pow x (2 * k) - q_pow y (2 * k) ==
-  - ((y * y - x * x) * sum_upto k (fun i : nat => q_pow (y * y) (k - 1 - i) * q_pow (x * x) i)).
+Lemma sc_qpow2_diff : forall (x y : Q) (k : nat), QeqT (q_pow x (2 * k) - q_pow y (2 * k)) (- ((y * y - x * x) * sum_upto k (fun i : nat => q_pow (y * y) (k - 1 - i) * q_pow (x * x) i))).
 Proof.
   intros x y k.
-  assert (H1 : q_pow x (2 * k) == q_pow (x * x) k) by (apply Qeq_sym; apply (sc_qpow_sq x k)).
-  assert (H2 : q_pow y (2 * k) == q_pow (y * y) k) by (apply Qeq_sym; apply (sc_qpow_sq y k)).
+  apply qeq_imp_qeqT.
+  assert (H1 : q_pow x (2 * k) == q_pow (x * x) k) by (apply Qeq_sym; (apply qeqT_imp_qeq; apply (sc_qpow_sq x k))).
+  assert (H2 : q_pow y (2 * k) == q_pow (y * y) k) by (apply Qeq_sym; (apply qeqT_imp_qeq; apply (sc_qpow_sq y k))).
   rewrite H1. rewrite H2.
-  rewrite <- (sc_qpow_diff_factor (x * x) (y * y) k).
+  rewrite <- (qeqT_imp_qeq _ _ (sc_qpow_diff_factor (x * x) (y * y) k)).
   ring.
 Qed.
 
 (* 符号桥：k ≥ 1 ⟹ (−1)^k·(−1) == (−1)^{k−1} *)
-Lemma sc_q_pow_pred : forall (k : nat), (1 <= k)%nat ->
-  q_pow (-1) k * -1 == q_pow (-1) (k - 1).
+Lemma sc_q_pow_pred : forall (k : nat), (1 <= k)%nat ->QeqT (q_pow (-1) k * -1) (q_pow (-1) (k - 1)).
 Proof.
   intros k Hk.
   destruct k as [| k'].
-  - lia.
-  - assert (Hn : (Datatypes.S k' - 1 = k')%nat) by lia.
+  - apply qeq_imp_qeqT. lia.
+  - apply qeq_imp_qeqT. assert (Hn : (Datatypes.S k' - 1 = k')%nat) by lia.
     rewrite Hn.
-    rewrite q_pow_succ. ring.
+    rewrite (qeqT_imp_qeq _ _ (q_pow_succ _ _)). ring.
 Qed.
 
 (* 逐项：cos_term k x − cos_term k y == (y²−x²)·(−1)^{k−1}·A_k/(2k)!（∀k） *)
-Lemma sc_cos_diff_term : forall (x y : Q) (k : nat),
-  cos_term k x - cos_term k y ==
-  (y * y - x * x) * (q_pow (-1) (k - 1) * (sc_A (x * x) (y * y) k / q_fact (2 * k))).
+Lemma sc_cos_diff_term : forall (x y : Q) (k : nat), QeqT (cos_term k x - cos_term k y) ((y * y - x * x) * (q_pow (-1) (k - 1) * (sc_A (x * x) (y * y) k / q_fact (2 * k)))).
 Proof.
   intros x y k.
   destruct k as [| k'].
-  - (* k = 0：两侧均 0（A_0 = 0） *)
+  - apply qeq_imp_qeqT. (* k = 0：两侧均 0（A_0 = 0） *)
     unfold sc_A, cos_term. simpl. unfold Qdiv.
     field. all: try (unfold Qeq; simpl; lia).
     all: try (unfold Qeq; simpl; discriminate).
-  - (* k = S k' ≥ 1：主路径 *)
+  - apply qeq_imp_qeqT. (* k = S k' ≥ 1：主路径 *)
     unfold cos_term, sc_A.
     (* 1. 同分母合成 *)
     assert (Hc : q_pow (-1) (Datatypes.S k') * (q_pow x (2 * Datatypes.S k') / q_fact (2 * Datatypes.S k')) -
                  q_pow (-1) (Datatypes.S k') * (q_pow y (2 * Datatypes.S k') / q_fact (2 * Datatypes.S k')) ==
                  q_pow (-1) (Datatypes.S k') * (q_pow x (2 * Datatypes.S k') - q_pow y (2 * Datatypes.S k')) / q_fact (2 * Datatypes.S k')).
-    { unfold Qdiv. field. apply (q_neq_of_lt (q_fact (2 * Datatypes.S k')) (q_fact_pos (2 * Datatypes.S k'))). }
+    { unfold Qdiv. field. intro Hc. exact (match q_neq_of_lt _ (q_fact_pos (2 * Datatypes.S k')) (qeq_imp_qeqT _ _ Hc) with end). }
     rewrite Hc.
     (* 2. 幂差分因子 *)
-    rewrite (sc_qpow2_diff x y (Datatypes.S k')).
+    rewrite (qeqT_imp_qeq _ _ (sc_qpow2_diff x y (Datatypes.S k'))).
     (* 3. 符号桥提负号 *)
     set (X := (y * y - x * x) * sum_upto (Datatypes.S k') (fun i : nat => q_pow (y * y) (Datatypes.S k' - 1 - i) * q_pow (x * x) i)).
     assert (Hsg : q_pow (-1) (Datatypes.S k') * - X == q_pow (-1) (Datatypes.S k' - 1) * X).
     { assert (Hneg : - X == -1 * X) by ring.
       rewrite Hneg.
-      rewrite <- (sc_q_pow_pred (Datatypes.S k')); [ring | lia]. }
+      assert (H1616 : (1 <= Datatypes.S k')%nat) by lia.
+      rewrite <- (qeqT_imp_qeq _ _ (sc_q_pow_pred (Datatypes.S k') H1616)); [ring]. }
     rewrite Hsg.
     unfold X. unfold Qdiv. ring.
 Qed.
 (* 和恒等：cos_partial n x − cos_partial n y == (y²−x²)·sc_P (x·x) (y·y) (S n) *)
-Lemma sc_cos_partial_diff_eq : forall (n : nat) (x y : Q),
-  cos_partial n x - cos_partial n y ==
-  (y * y - x * x) * sc_P (x * x) (y * y) (Datatypes.S n).
+Lemma sc_cos_partial_diff_eq : forall (n : nat) (x y : Q), QeqT (cos_partial n x - cos_partial n y) ((y * y - x * x) * sc_P (x * x) (y * y) (Datatypes.S n)).
 Proof.
   intros n x y.
-  rewrite (sc_cos_partial_upto n x). rewrite (sc_cos_partial_upto n y).
-  rewrite <- (sum_upto_minus (Datatypes.S n) (fun j : nat => cos_term j x) (fun j : nat => cos_term j y)).
-  rewrite (sum_upto_ext (Datatypes.S n)
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n x)). rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n y)).
+  rewrite <- (qeqT_imp_qeq _ _ (sum_upto_minus (Datatypes.S n) (fun j : nat => cos_term j x) (fun j : nat => cos_term j y))).
+  assert (Hpre : forall j : nat, QeqT (cos_term j x - cos_term j y) ((y * y - x * x) * (q_pow (-1) (j - 1) * (sc_A (x * x) (y * y) j / q_fact (2 * j))))).
+  { intro j. exact (sc_cos_diff_term x y j). }
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_ext (Datatypes.S n)
     (fun j : nat => cos_term j x - cos_term j y)
-    (fun j : nat => (y * y - x * x) * (q_pow (-1) (j - 1) * (sc_A (x * x) (y * y) j / q_fact (2 * j))))).
-  2: { intro j. apply (sc_cos_diff_term x y j). }
-  rewrite (sum_upto_scale (Datatypes.S n) (y * y - x * x)
-            (fun j : nat => q_pow (-1) (j - 1) * (sc_A (x * x) (y * y) j / q_fact (2 * j)))).
+    (fun j : nat => (y * y - x * x) * (q_pow (-1) (j - 1) * (sc_A (x * x) (y * y) j / q_fact (2 * j)))) Hpre)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S n) (y * y - x * x)
+            (fun j : nat => q_pow (-1) (j - 1) * (sc_A (x * x) (y * y) j / q_fact (2 * j))))).
   unfold sc_P. reflexivity.
 Qed.
 
 (* 主引理：0 ≤ x ≤ y ≤ 2、n ≥ 2 ⟹ cos_partial n y ≤ cos_partial n x − (y²−x²)/6 *)
 Lemma sc_cos_partial_diff_le : forall (n : nat) (x y : Q),
   Qle 0 x -> Qle x y -> Qle y 2 -> (2 <= n)%nat ->
-  Qle (cos_partial n y) (cos_partial n x - (y * y - x * x) * (1 / 6)).
+  QleT' (cos_partial n y) (cos_partial n x - (y * y - x * x) * (1 / 6)).
 Proof.
   intros n x y Hx0 Hxy Hy2 Hn.
+  apply Qle_to_QleT'.
   set (p := x * x). set (q := y * y).
   assert (Hp0 : Qle 0 p) by (unfold p; apply Qmult_le_0_compat; [exact Hx0 | exact Hx0]).
   assert (Hq0 : Qle 0 q).
@@ -7299,7 +7451,7 @@ Proof.
     - apply (Qmult_le_compat_r x y x).
       + exact Hxy.
       + exact Hx0.
-    - apply (sc_qmult_le_l x y y).
+    - apply QleT'_to_Qle. apply (sc_qmult_le_l x y y).
       + exact Hxy.
       + exact Hy0. }
   assert (Hq4 : Qle q 4).
@@ -7309,20 +7461,20 @@ Proof.
       + exact Hy2.
       + exact Hy0.
     - apply (Qle_trans _ (2 * 2) _).
-      + apply (sc_qmult_le_l y 2 2).
+      + apply QleT'_to_Qle. apply (sc_qmult_le_l y 2 2).
         * exact Hy2.
         * unfold Qle. simpl. lia.
-      + apply qeq_le. ring. }
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   assert (Hpq0 : Qle 0 (q - p)).
   { apply (proj1 (Qle_minus_iff p q)). exact Hpq. }
   assert (Hsix : Qle (1 / 6) (sc_P p q (Datatypes.S n))).
   { apply (Qle_trans _ (sc_P p q 3) _).
-    - apply (sc_P2_ge_sixth p q Hp0 Hpq Hq4).
-    - apply (sc_P_ge_P2 p q (Datatypes.S n) Hp0 Hq0 Hpq Hq4).
+    - apply QleT'_to_Qle. apply (sc_P2_ge_sixth p q Hp0 Hpq Hq4).
+    - apply QleT'_to_Qle. apply (sc_P_ge_P2 p q (Datatypes.S n) Hp0 Hq0 Hpq Hq4).
       lia. }
   assert (Hge : Qle ((q - p) * (1 / 6)) (cos_partial n x - cos_partial n y)).
-  { rewrite (sc_cos_partial_diff_eq n x y).
-    apply (sc_qmult_le_l (1 / 6) (sc_P p q (Datatypes.S n)) (q - p)).
+  { rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_diff_eq n x y)).
+    apply QleT'_to_Qle. apply (sc_qmult_le_l (1 / 6) (sc_P p q (Datatypes.S n)) (q - p)).
     - exact Hsix.
     - exact Hpq0. }
   apply (proj2 (Qle_minus_iff (cos_partial n y) (cos_partial n x - (q - p) * (1 / 6)))).
@@ -7357,7 +7509,7 @@ Proof.
   assert (Heps_pos : QltT 0 eps).
   { unfold eps. apply Qlt_to_QltT.
     apply Qmult_lt_0_compat.
-    - apply sc_qpow_pos. exact Heps0Q.
+    - apply QltT_to_Qlt. apply sc_qpow_pos. exact Heps0Q.
     - change (Qlt 0 (1 / 6)). unfold Qdiv. compute. reflexivity. }
   exists eps.
   split.
@@ -7431,7 +7583,7 @@ Proof.
       { apply (Qlt_le_trans eps0 (v n - u n) (v n + u n)); [exact Hd0 | exact Hge]. }
       (* eps0² < eps0·(vn+un) < (vn−un)·(vn+un) *)
       apply (Qlt_trans _ (eps0 * (v n + u n)) _).
-      - apply (sc_qmul_lt_l eps0 eps0 (v n + u n)); [exact Heps0Q | exact Hesu].
+      - apply QltT_to_Qlt. apply (sc_qmul_lt_l eps0 eps0 (v n + u n)); [exact Heps0Q | exact Hesu].
       - apply (Qmult_lt_compat_r eps0 (v n - u n) (v n + u n)); [exact Hsu | exact Hd0]. }
     (* eps < cos_partial n (u n) − cos_partial n (v n)：
        Q 层主界（右端 ≥ (vn²−un²)/6）接 Hsq 放大 *)
@@ -7450,7 +7602,7 @@ Proof.
         rewrite Hr.
         apply (proj1 (Qle_minus_iff (cos_partial n (v n))
                       (cos_partial n (u n) - ((v n) * (v n) - (u n) * (u n)) * (1 / 6)))).
-        exact Hmain. }
+        apply QleT'_to_Qle. exact Hmain. }
     (* 目标：QltT eps (cos_partial n (u n) − cos_partial n (v n))（投影已定义性归约） *)
     apply Qlt_to_QltT.
     exact Hgt.
@@ -7467,31 +7619,31 @@ Qed.
 
 (* cos 点模量（副本 exp_partial_cauchy；经 sc_cos_partial_cauchy_bounded + 平凡界 |x| ≤ |x|） *)
 Lemma cos_partial_cauchy : forall (x : Q) (eps : Q), Qlt 0 eps ->
-  sigT (fun N : nat => forall m n : nat, (N <= m)%nat -> (N <= n)%nat ->
+  sigT (fun N : nat => forall m n : nat, NatLe N m -> NatLe N n ->
     QltT (Qabs (cos_partial m x - cos_partial n x)) eps).
 Proof.
   intros x eps Hep.
   destruct (sc_cos_partial_cauchy_bounded (Qabs x) eps (Qle_to_QleT' _ _ (Qabs_nonneg x)) (Qlt_to_QltT _ _ Hep)) as [N HN].
   exists N.
   intros m n Hm Hn.
-  apply (HN m n (NatLe_lift _ _ Hm) (NatLe_lift _ _ Hn) x). apply Qle_to_QleT'. apply Qle_refl.
+  apply (HN m n Hm Hn x). apply Qle_to_QleT'. apply Qle_refl.
 Qed.
 
 (* 测试常量（d4 := eps/16 常数；K1 := cos 在 m 的模量点；q := cos_partial K1 m ≈ cos m 误差 < d4） *)
 Definition cos_K1_eps (m : Q) (eps : Q) (Heps : Qlt 0 eps) : nat :=
-  projT1 (cos_partial_cauchy m (eps / 16) (q_eps16_pos eps Heps)).
+  projT1 (cos_partial_cauchy m (eps / 16) (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))).
 Definition cos_q_eps (m : Q) (eps : Q) (Heps : Qlt 0 eps) : Q :=
   cos_partial (cos_K1_eps m eps Heps) m.
 
 (* 决定测试（目标 0 精确）：cos m < 0（A）/ 0 < cos m（B）/ 双假 ⟹ |cos m| ≤ 3·d4 缺陷 *)
 Definition cos_testA_eps (m : Q) (eps : Q) (Heps : Qlt 0 eps) : bool :=
   let d4 := eps / 16 in
-  let K1 := projT1 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps)) in
+  let K1 := projT1 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))) in
   Qlt_bool (cos_partial K1 m + 2 * d4) 0.
 
 Definition cos_testB_eps (m : Q) (eps : Q) (Heps : Qlt 0 eps) : bool :=
   let d4 := eps / 16 in
-  let K1 := projT1 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps)) in
+  let K1 := projT1 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))) in
   Qlt_bool (2 * d4) (cos_partial K1 m).
 
 (* 决策 A 真 ⟹ cos m < 0：见证 0 − q − 2d4 == −q − 2d4 *)
@@ -7503,18 +7655,18 @@ Proof.
   unfold cos_testA_eps in HA.
   cbn in HA.
   pose (d4 := eps / 16).
-  pose (K1 := projT1 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps))).
+  pose (K1 := projT1 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps))))).
   pose (q := cos_partial K1 m).
   assert (Hlt : Qlt (q + 2 * d4) 0).
   { apply QltT_to_Qlt.
     apply RealSetoid.eq_Id.
     exact HA. }
-  assert (Hd0 : Qlt 0 d4) by (unfold d4; apply q_eps16_pos; exact Heps).
+  assert (Hd0 : Qlt 0 d4) by (unfold d4; apply QltT_to_Qlt; apply q_eps16_pos; exact (Qlt_to_QltT _ _ Heps)).
   assert (Heps4 : QltT 0 (- q - 2 * d4)).
   { apply Qlt_to_QltT.
     apply (Qlt_le_trans _ (0 + - (q + 2 * d4)) _).
     - apply (proj1 (Qlt_minus_iff (q + 2 * d4) 0)). exact Hlt.
-    - apply qeq_le. ring. }
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   exists (- q - 2 * d4).
   split.
   - exact Heps4.
@@ -7524,21 +7676,21 @@ Proof.
     assert (Hem : Qlt (Qabs (projT1 (cauchy_real_cos (real_const m)) n - q)) d4).
     { apply QltT_to_Qlt.
       cbn [projT1].
-      apply (projT2 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps)) n K1).
-      - exact (NatLe_drop _ _ Hn).
-      - apply Nat.le_refl. }
+      apply (projT2 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))) n K1).
+      - exact Hn.
+      - apply NatLe_lift. apply Nat.le_refl. }
     assert (Hr0 : Qlt (Qabs (projT1 real_zero n - 0)) d4).
     { assert (Hz : Qabs (projT1 real_zero n - 0) == Qabs 0).
       { apply Qabs_wd. change (0 - 0 == 0). ring. }
       assert (Hz2 : Qabs 0 == 0) by reflexivity.
       rewrite Hz, Hz2. exact Hd0. }
     apply (Qle_lt_trans _ ((0 - d4) - (q + d4)) _).
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     + apply (Qplus_lt_compat (0 - d4) (projT1 real_zero n)
                              (Qopp (q + d4)) (Qopp (projT1 (cauchy_real_cos (real_const m)) n))).
-      * apply (q_abs_lt_minus (projT1 real_zero n) 0 d4). exact Hr0.
+      * apply QltT_to_Qlt. apply (q_abs_lt_minus (projT1 real_zero n) 0 d4). apply Qlt_to_QltT. exact Hr0.
       * apply (Qopp_lt_compat (projT1 (cauchy_real_cos (real_const m)) n) (q + d4)).
-        apply (q_abs_lt_lower (projT1 (cauchy_real_cos (real_const m)) n) q d4). exact Hem.
+        apply QltT_to_Qlt. apply (q_abs_lt_lower (projT1 (cauchy_real_cos (real_const m)) n) q d4). apply Qlt_to_QltT. exact Hem.
 Qed.
 
 (* 决策 B 真 ⟹ 0 < cos m：见证 q − 0 − 2d4 == q − 2d4 *)
@@ -7550,18 +7702,18 @@ Proof.
   unfold cos_testB_eps in HB.
   cbn in HB.
   pose (d4 := eps / 16).
-  pose (K1 := projT1 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps))).
+  pose (K1 := projT1 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps))))).
   pose (q := cos_partial K1 m).
   assert (Hlt : Qlt (2 * d4) q).
   { apply QltT_to_Qlt.
     apply RealSetoid.eq_Id.
     exact HB. }
-  assert (Hd0 : Qlt 0 d4) by (unfold d4; apply q_eps16_pos; exact Heps).
+  assert (Hd0 : Qlt 0 d4) by (unfold d4; apply QltT_to_Qlt; apply q_eps16_pos; exact (Qlt_to_QltT _ _ Heps)).
   assert (Heps4 : QltT 0 (q - 0 - 2 * d4)).
   { apply Qlt_to_QltT.
     apply (Qlt_le_trans _ (q + - (2 * d4)) _).
     - apply (proj1 (Qlt_minus_iff (2 * d4) q)). exact Hlt.
-    - apply qeq_le. ring. }
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
   exists (q - 0 - 2 * d4).
   split.
   - exact Heps4.
@@ -7571,59 +7723,60 @@ Proof.
     assert (Hem : Qlt (Qabs (projT1 (cauchy_real_cos (real_const m)) n - q)) d4).
     { apply QltT_to_Qlt.
       cbn [projT1].
-      apply (projT2 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps)) n K1).
-      - exact (NatLe_drop _ _ Hn).
-      - apply Nat.le_refl. }
+      apply (projT2 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))) n K1).
+      - exact Hn.
+      - apply NatLe_lift. apply Nat.le_refl. }
     assert (Hr0 : Qlt (Qabs (projT1 real_zero n - 0)) d4).
     { assert (Hz : Qabs (projT1 real_zero n - 0) == Qabs 0).
       { apply Qabs_wd. change (0 - 0 == 0). ring. }
       assert (Hz2 : Qabs 0 == 0) by reflexivity.
       rewrite Hz, Hz2. exact Hd0. }
     apply (Qle_lt_trans _ ((q - d4) - (0 + d4)) _).
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     + apply (Qplus_lt_compat (q - d4) (projT1 (cauchy_real_cos (real_const m)) n)
                              (Qopp (0 + d4)) (Qopp (projT1 real_zero n))).
-      * apply (q_abs_lt_minus (projT1 (cauchy_real_cos (real_const m)) n) q d4). exact Hem.
+      * apply QltT_to_Qlt. apply (q_abs_lt_minus (projT1 (cauchy_real_cos (real_const m)) n) q d4). apply Qlt_to_QltT. exact Hem.
       * apply (Qopp_lt_compat (projT1 real_zero n) (0 + d4)).
-        apply (q_abs_lt_lower (projT1 real_zero n) 0 d4). exact Hr0.
+        apply QltT_to_Qlt. apply (q_abs_lt_lower (projT1 real_zero n) 0 d4). apply Qlt_to_QltT. exact Hr0.
 Qed.
 
 (* 双假 ⟹ |cos m − 0| ≤ 3·d4（逐点，k ≥ K1；目标 0 精确故无 4·d4 的 r 侧项） *)
 Lemma cos_test_mid_bound : forall (m : Q) (eps : Q) (Heps : Qlt 0 eps),
   cos_testA_eps m eps Heps = false -> cos_testB_eps m eps Heps = false ->
   forall n : nat, (cos_K1_eps m eps Heps <= n)%nat ->
-    Qle (Qabs (projT1 (cauchy_real_cos (real_const m)) n - projT1 real_zero n))
+    QleT' (Qabs (projT1 (cauchy_real_cos (real_const m)) n - projT1 real_zero n))
         (3 * (eps / 16)).
 Proof.
   intros m eps Heps HA HB n Hn.
+  apply Qle_to_QleT'.
   unfold cos_testA_eps in HA. unfold cos_testB_eps in HB. cbn in HA, HB.
   pose (d4 := eps / 16).
-  pose (K1 := projT1 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps))).
+  pose (K1 := projT1 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps))))).
   pose (q := cos_partial K1 m).
   change (Qlt_bool (q + 2 * d4) 0 = false) in HA.
   change (Qlt_bool (2 * d4) q = false) in HB.
   pose (HnA := qlt_bool_false_not (q + 2 * d4) 0 HA).
   pose (HnB := qlt_bool_false_not (2 * d4) q HB).
-  assert (Hqle : Qle q (2 * d4)) by (apply Qnot_lt_le; exact HnB).
+  assert (Hqle : Qle q (2 * d4)) by (apply Qnot_lt_le; intro Hl; exact (match HnB (Qlt_to_QltT _ _ Hl) with end)).
   assert (Hql : Qle (- q) (2 * d4)).
   { apply (proj2 (Qle_minus_iff (- q) (2 * d4))).
     assert (Hc : 2 * d4 - - q == q + 2 * d4) by ring.
     rewrite Hc.
-    apply Qnot_lt_le. exact HnA. }
+    apply Qnot_lt_le. intro Hl. exact (match HnA (Qlt_to_QltT _ _ Hl) with end). }
   assert (Hqr : Qle (Qabs q) (2 * d4)).
   { apply (proj2 (Qabs_Qle_condition q (2 * d4))).
     split.
     - apply (proj2 (Qle_minus_iff (- (2 * d4)) q)).
       assert (Hc : q - - (2 * d4) == q + 2 * d4) by ring.
       rewrite Hc.
-      apply Qnot_lt_le. exact HnA.
+      apply Qnot_lt_le. intro Hl. exact (match HnA (Qlt_to_QltT _ _ Hl) with end).
     - exact Hqle. }
   assert (Hem : Qlt (Qabs (projT1 (cauchy_real_cos (real_const m)) n - q)) d4).
   { apply QltT_to_Qlt.
     cbn [projT1].
-    apply (projT2 (cos_partial_cauchy m d4 (q_eps16_pos eps Heps)) n K1).
-    - apply (Nat.le_trans _ (cos_K1_eps m eps Heps) _); [apply Nat.le_refl | exact Hn].
-    - apply Nat.le_refl. }
+    apply (projT2 (cos_partial_cauchy m d4 (QltT_to_Qlt _ _ (q_eps16_pos eps (Qlt_to_QltT _ _ Heps)))) n K1).
+    - apply NatLe_lift. apply (Nat.le_trans _ (cos_K1_eps m eps Heps) _); [apply Nat.le_refl | exact Hn].
+    - apply NatLe_lift. apply Nat.le_refl. }
   apply (Qle_trans _ (Qabs (projT1 (cauchy_real_cos (real_const m)) n - q) + Qabs q) _).
   - assert (Hsum : projT1 (cauchy_real_cos (real_const m)) n - projT1 real_zero n ==
                    (projT1 (cauchy_real_cos (real_const m)) n - q) + q).
@@ -7631,14 +7784,14 @@ Proof.
               (projT1 (cauchy_real_cos (real_const m)) n - q) + q).
       ring. }
     apply (Qle_trans _ (Qabs ((projT1 (cauchy_real_cos (real_const m)) n - q) + q)) _).
-    + apply qeq_le. apply Qabs_wd. exact Hsum.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd. exact Hsum.
     + apply Qabs_triangle.
   - apply (Qle_trans _ (d4 + 2 * d4) _).
     + apply (Qplus_le_compat (Qabs (projT1 (cauchy_real_cos (real_const m)) n - q))
                              d4 (Qabs q) (2 * d4)).
       * apply Qlt_le_weak. exact Hem.
       * exact Hqr.
-    + apply qeq_le. unfold d4. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold d4. ring.
 Qed.
 
 (* ============================================================ *)
@@ -7658,9 +7811,9 @@ Fixpoint cos_scan (a b : Q) (Hab : Qlt a b) (eps : Q) (Heps : Qlt 0 eps) (n : na
   | Datatypes.S n' =>
       let m := log_m_eps a b in
       if cos_testA_eps m eps Heps then
-        cos_scan a m (log_a_lt_mid a b Hab) eps Heps n'
+        cos_scan a m (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT a b Hab))) eps Heps n'
       else if cos_testB_eps m eps Heps then
-        cos_scan m b (log_mid_lt_b a b Hab) eps Heps n'
+        cos_scan m b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT a b Hab))) eps Heps n'
       else (existT (fun ab : Q * Q => QltT (fst ab) (snd ab)) (a, b) (Qlt_to_QltT a b Hab), false)
   end.
 
@@ -7668,9 +7821,9 @@ Fixpoint cos_scan (a b : Q) (Hab : Qlt a b) (eps : Q) (Heps : Qlt 0 eps) (n : na
 Lemma cos_scan_S : forall (a b : Q) (Hab : Qlt a b) (eps : Q) (Heps : Qlt 0 eps) (n : nat),
   cos_scan a b Hab eps Heps (Datatypes.S n) =
   (if cos_testA_eps (log_m_eps a b) eps Heps then
-     cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n
+     cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT a b Hab))) eps Heps n
    else if cos_testB_eps (log_m_eps a b) eps Heps then
-     cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n
+     cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT a b Hab))) eps Heps n
    else (existT (fun ab : Q * Q => QltT (fst ab) (snd ab)) (a, b) (Qlt_to_QltT a b Hab), false)).
 Proof. intros. reflexivity. Qed.
 
@@ -7687,8 +7840,8 @@ Lemma cos_scan_spec : forall (a b : Q) (Hab : Qlt a b) (eps : Q) (Heps : Qlt 0 e
                          ((b - a) * q_pow (1 / 2) n)))))
     (And (Id (snd (cos_scan a b Hab eps Heps n)) false)
          (forall k : nat,
-           (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan a b Hab eps Heps n))))
-                                   (snd (projT1 (fst (cos_scan a b Hab eps Heps n))))) eps Heps <= k)%nat ->
+           NatLe (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan a b Hab eps Heps n))))
+                                   (snd (projT1 (fst (cos_scan a b Hab eps Heps n))))) eps Heps) k ->
             QleT' (Qabs (projT1 (cauchy_real_cos (real_const
               (log_m_eps (fst (projT1 (fst (cos_scan a b Hab eps Heps n))))
                          (snd (projT1 (fst (cos_scan a b Hab eps Heps n))))))) k - projT1 real_zero k))
@@ -7706,21 +7859,21 @@ Proof.
       assert (Hmb : real_lt (cauchy_real_cos (real_const (log_m_eps a b))) real_zero)
         by (apply (cos_testA_eps_true_lt (log_m_eps a b) eps Heps); exact EA).
       assert (HIH : Or
-        (And (Id (snd (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n)) true)
-             (And (real_lt real_zero (cauchy_real_cos (real_const (fst (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n)))))))
-                  (And (real_lt (cauchy_real_cos (real_const (snd (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n)))))) real_zero)
-                       (QeqT (snd (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))) -
-                         fst (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))))
+        (And (Id (snd (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n)) true)
+             (And (real_lt real_zero (cauchy_real_cos (real_const (fst (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n)))))))
+                  (And (real_lt (cauchy_real_cos (real_const (snd (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n)))))) real_zero)
+                       (QeqT (snd (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))) -
+                         fst (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
                          ((log_m_eps a b - a) * q_pow (1 / 2) n)))))
-        (And (Id (snd (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n)) false)
+        (And (Id (snd (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n)) false)
              (forall k : nat,
-               (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))))
-                                       (snd (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))))) eps Heps <= k)%nat ->
+               NatLe (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
+                                       (snd (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))) eps Heps) k ->
                 QleT' (Qabs (projT1 (cauchy_real_cos (real_const
-                  (log_m_eps (fst (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))))
-                             (snd (projT1 (fst (cos_scan a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps n))))))) k - projT1 real_zero k))
+                  (log_m_eps (fst (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
+                             (snd (projT1 (fst (cos_scan a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))))) k - projT1 real_zero k))
                     (3 * log_d4_eps eps))))
-        by (apply (IH a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps); [exact Hla | exact Hmb]).
+        by (apply (IH a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps); [exact Hla | exact Hmb]).
       destruct HIH as [Hfull | Hdef].
       { left.
         destruct Hfull as [Hfl [Hla' [Hrb' Hlen]]].
@@ -7731,7 +7884,7 @@ Proof.
         apply (Qeq_trans _ ((log_m_eps a b - a) * q_pow (1 / 2) n) _).
         { apply qeqT_imp_qeq. exact Hlen. }
         { assert (Ha : log_m_eps a b - a == (b - a) / 2).
-          { unfold log_m_eps. apply log_step_len_am. exact Hab. }
+          { unfold log_m_eps. apply qeqT_imp_qeq. apply log_step_len_am. exact (Qlt_to_QltT _ _ Hab). }
           rewrite Ha.
           unfold Qdiv.
           cbn [q_pow].
@@ -7742,21 +7895,21 @@ Proof.
         assert (Ham : real_lt real_zero (cauchy_real_cos (real_const (log_m_eps a b))))
           by (apply (cos_testB_eps_true_gt (log_m_eps a b) eps Heps); exact EB).
         assert (HIH : Or
-          (And (Id (snd (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n)) true)
-               (And (real_lt real_zero (cauchy_real_cos (real_const (fst (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n)))))))
-                    (And (real_lt (cauchy_real_cos (real_const (snd (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n)))))) real_zero)
-                         (QeqT (snd (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))) -
-                           fst (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))))
+          (And (Id (snd (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n)) true)
+               (And (real_lt real_zero (cauchy_real_cos (real_const (fst (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n)))))))
+                    (And (real_lt (cauchy_real_cos (real_const (snd (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n)))))) real_zero)
+                         (QeqT (snd (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))) -
+                           fst (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
                            ((b - log_m_eps a b) * q_pow (1 / 2) n)))))
-          (And (Id (snd (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n)) false)
+          (And (Id (snd (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n)) false)
                (forall k : nat,
-                 (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))))
-                                         (snd (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))))) eps Heps <= k)%nat ->
+                 NatLe (cos_K1_eps (log_m_eps (fst (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
+                                         (snd (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))) eps Heps) k ->
                   QleT' (Qabs (projT1 (cauchy_real_cos (real_const
-                    (log_m_eps (fst (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))))
-                               (snd (projT1 (fst (cos_scan (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps n))))))) k - projT1 real_zero k))
+                    (log_m_eps (fst (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))
+                               (snd (projT1 (fst (cos_scan (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps n))))))) k - projT1 real_zero k))
                       (3 * log_d4_eps eps))))
-          by (apply (IH (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps); [exact Ham | exact Hrb]).
+          by (apply (IH (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps); [exact Ham | exact Hrb]).
         destruct HIH as [Hfull | Hdef].
         { left.
           destruct Hfull as [Hfl [Hla' [Hrb' Hlen]]].
@@ -7767,7 +7920,7 @@ Proof.
           apply (Qeq_trans _ ((b - log_m_eps a b) * q_pow (1 / 2) n) _).
           { apply qeqT_imp_qeq. exact Hlen. }
           { assert (Hb : b - log_m_eps a b == (b - a) / 2).
-            { unfold log_m_eps. apply log_step_len_mb. exact Hab. }
+            { unfold log_m_eps. apply qeqT_imp_qeq. apply log_step_len_mb. exact (Qlt_to_QltT _ _ Hab). }
             rewrite Hb.
             unfold Qdiv.
             cbn [q_pow].
@@ -7777,7 +7930,7 @@ Proof.
         right. split; [reflexivity | ].
         intros k Hk.
         apply Qle_to_QleT'.
-        apply (cos_test_mid_bound (log_m_eps a b) eps Heps); [exact EA | exact EB | exact Hk].
+        apply QleT'_to_Qle. apply (cos_test_mid_bound (log_m_eps a b) eps Heps); [exact EA | exact EB | exact (NatLe_drop _ _ Hk)].
 Qed.
 
 (* 嵌套：扫描区间始终 ⊆ [a, b] *)
@@ -7790,20 +7943,20 @@ Proof.
   induction n as [| n IH]; intros a b Hab eps Heps.
   - simpl. split; apply Qle_to_QleT'; apply Qle_refl.
   - destruct (cos_testA_eps (log_m_eps a b) eps Heps) eqn:EA.
-    + destruct (IH a (log_m_eps a b) (log_a_lt_mid a b Hab) eps Heps) as [H1 H2].
+    + destruct (IH a (log_m_eps a b) (QltT_to_Qlt _ _ (log_a_lt_mid a b (Qlt_to_QltT _ _ Hab))) eps Heps) as [H1 H2].
       split.
       * rewrite (cos_scan_S a b Hab eps Heps n). rewrite EA. exact H1.
       * apply Qle_to_QleT'.
         apply (Qle_trans _ (log_m_eps a b) _).
         -- rewrite (cos_scan_S a b Hab eps Heps n). rewrite EA.
            apply QleT'_to_Qle in H2. exact H2.
-        -- apply (Qlt_le_weak _ _). apply log_mid_lt_b. exact Hab.
+        -- apply (Qlt_le_weak _ _). apply QltT_to_Qlt. apply log_mid_lt_b. exact (Qlt_to_QltT _ _ Hab).
     + destruct (cos_testB_eps (log_m_eps a b) eps Heps) eqn:EB.
-      * destruct (IH (log_m_eps a b) b (log_mid_lt_b a b Hab) eps Heps) as [H1 H2].
+      * destruct (IH (log_m_eps a b) b (QltT_to_Qlt _ _ (log_mid_lt_b a b (Qlt_to_QltT _ _ Hab))) eps Heps) as [H1 H2].
         split.
         -- apply Qle_to_QleT'.
            apply (Qle_trans _ (log_m_eps a b) _).
-           ++ apply (Qlt_le_weak _ _). apply log_a_lt_mid. exact Hab.
+           ++ apply (Qlt_le_weak _ _). apply QltT_to_Qlt. apply log_a_lt_mid. exact (Qlt_to_QltT _ _ Hab).
            ++ rewrite (cos_scan_S a b Hab eps Heps n). rewrite EA. rewrite EB.
               apply QleT'_to_Qle in H1. exact H1.
         -- rewrite (cos_scan_S a b Hab eps Heps n). rewrite EA. rewrite EB. exact H2.
@@ -7825,15 +7978,15 @@ Qed.
 Lemma cos_span_lipschitz : forall (a b B C : Q) (n : nat),
   Qle a b -> Qle 0 B -> Qle (Qabs a) B -> Qle (Qabs b) B ->
   (forall n : nat, QleT' (exp_series n B) C) ->
-  Qle (Qabs (projT1 (cauchy_real_cos (real_const b)) n - projT1 (cauchy_real_cos (real_const a)) n))
+  QleT' (Qabs (projT1 (cauchy_real_cos (real_const b)) n - projT1 (cauchy_real_cos (real_const a)) n))
       ((b - a) * C).
 Proof.
   intros a b B C n Hab HB Ha Hb HC.
   destruct n as [| m].
-  - (* n = 0：cos_partial 0 == 1 两侧 ⟹ 差 0 *)
+  - apply Qle_to_QleT'. (* n = 0：cos_partial 0 == 1 两侧 ⟹ 差 0 *)
     change (Qle (Qabs (cos_partial 0 b - cos_partial 0 a)) ((b - a) * C)).
-    assert (Hba : cos_partial 0 b == 1) by apply sc_cos_partial_zero_const.
-    assert (Haa : cos_partial 0 a == 1) by apply sc_cos_partial_zero_const.
+    assert (Hba : cos_partial 0 b == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
+    assert (Haa : cos_partial 0 a == 1) by (apply qeqT_imp_qeq; apply sc_cos_partial_zero_const).
     rewrite Hba, Haa.
     assert (Hz : Qabs (1 - 1) == 0).
     { assert (H1 : 1 - 1 == 0) by ring.
@@ -7845,19 +7998,20 @@ Proof.
     { apply (Qle_trans _ 1 _); [change (Qle 0 1); unfold Qle; simpl; lia | ].
       apply QleT'_to_Qle. apply (HC 0%nat). }
     apply (Qmult_le_0_compat (b - a) C); [exact Hbma | exact HC0].
-  - (* n = S m：sc_cos_partial_lipschitz_succ + SDS ≤ exp_series ≤ C *)
+  - apply Qle_to_QleT'. (* n = S m：sc_cos_partial_lipschitz_succ + SDS ≤ exp_series ≤ C *)
     change (Qle (Qabs (cos_partial (Datatypes.S m) b - cos_partial (Datatypes.S m) a)) ((b - a) * C)).
     apply (Qle_trans _ (Qmult (Qabs (b - a)) C) _).
     + apply (Qle_trans _ (Qmult (Qabs (b - a)) (sc_sin_deriv_series m B)) _).
-      * apply (sc_cos_partial_lipschitz_succ b a B m (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ Hb) (Qle_to_QleT' _ _ Ha)).
+      * apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ b a B m (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ Hb) (Qle_to_QleT' _ _ Ha)).
       * apply (Qmult_le_compat_nonneg (Qabs (b - a)) (Qabs (b - a)) (sc_sin_deriv_series m B) C).
         -- split; [apply Qabs_nonneg | apply Qle_refl].
         -- split.
-           ++ apply sc_sin_deriv_series_nonneg. apply Qle_to_QleT'. exact HB.
+           ++ apply QleT'_to_Qle. apply sc_sin_deriv_series_nonneg. apply Qle_to_QleT'. exact HB.
            ++ apply (Qle_trans _ (exp_series (Datatypes.S (2 * m)) B) _).
-              ** apply sc_sin_deriv_series_le_exp. apply Qle_to_QleT'. exact HB.
+              ** apply QleT'_to_Qle. apply sc_sin_deriv_series_le_exp. apply Qle_to_QleT'. exact HB.
               ** apply QleT'_to_Qle. apply (HC (Datatypes.S (2 * m))).
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       assert (Hbma : Qabs (b - a) == b - a).
       { apply Qabs_pos. apply (proj1 (Qle_minus_iff a b)). exact Hab. }
       rewrite Hbma. reflexivity.
@@ -7873,33 +8027,33 @@ Lemma approx_span_pt_cos : forall (a b : Q) (HaNbN : Qlt a b) (B C : Q)
   real_lt real_zero (real_const a) ->
   real_lt (real_const b) (real_const 2) ->
   sigT (fun N0 : nat => forall k : nat, (N0 <= k)%nat ->
-    Qle (Qabs (projT1 (cauchy_real_cos (real_const (log_m_eps a b))) k - projT1 real_zero k))
+    QleT' (Qabs (projT1 (cauchy_real_cos (real_const (log_m_eps a b))) k - projT1 real_zero k))
         ((b - a) * C)).
 Proof.
   intros a b HaNbN B C Hla Hrb HB HaB HbB HC Hpos Hlt2.
   set (m := log_m_eps a b).
-  destruct (log_mid_strict a b HaNbN) as [Ham Hmb].
+  destruct (log_mid_strict a b (Qlt_to_QltT _ _ HaNbN)) as [Ham Hmb].
   apply QltT_to_Qlt in Ham. apply QltT_to_Qlt in Hmb.
   (* cos m < cos a（严格递减 (a,m)）；cos b < cos m（严格递减 (m,b)） *)
   assert (Hm2 : real_lt (real_const (log_m_eps a b)) (real_const 2)).
   { apply (real_lt_trans (real_const (log_m_eps a b)) (real_const b) (real_const 2)).
-    - apply real_const_lt. exact Hmb.
+    - apply real_const_lt. exact (Qlt_to_QltT _ _ Hmb).
     - exact Hlt2. }
   assert (Hcm : real_lt (cauchy_real_cos (real_const (log_m_eps a b)))
                         (cauchy_real_cos (real_const a))).
   { unfold m. apply (real_cos_strict_decr (real_const a) (real_const (log_m_eps a b))).
     - exact Hpos.
-    - apply real_const_lt. exact Ham.
+    - apply real_const_lt. exact (Qlt_to_QltT _ _ Ham).
     - exact Hm2. }
   assert (H0m : real_lt real_zero (real_const (log_m_eps a b))).
   { unfold m. apply (real_lt_trans real_zero (real_const a) (real_const (log_m_eps a b))).
     - exact Hpos.
-    - apply real_const_lt. exact Ham. }
+    - apply real_const_lt. exact (Qlt_to_QltT _ _ Ham). }
   assert (Hcb : real_lt (cauchy_real_cos (real_const b))
                         (cauchy_real_cos (real_const (log_m_eps a b)))).
   { unfold m. apply (real_cos_strict_decr (real_const (log_m_eps a b)) (real_const b)).
     - exact H0m.
-    - apply real_const_lt. exact Hmb.
+    - apply real_const_lt. exact (Qlt_to_QltT _ _ Hmb).
     - exact Hlt2. }
   destruct (real_lt_pt_lt real_zero (cauchy_real_cos (real_const a)) Hla) as [N1 HN1].
   destruct (real_lt_pt_lt (cauchy_real_cos (real_const b)) real_zero Hrb) as [N2 HN2].
@@ -7919,20 +8073,21 @@ Proof.
   set (zk := projT1 real_zero k).
   assert (Hcbca : Qlt cb ca).
   { apply (Qlt_trans cb cm ca).
-    - exact (HN4 k Hk4).
-    - exact (HN3 k Hk3). }
+    - exact (QltT_to_Qlt _ _ (HN4 k (NatLe_lift _ _ Hk4))).
+    - exact (QltT_to_Qlt _ _ (HN3 k (NatLe_lift _ _ Hk3))). }
   assert (Hspan : Qle (Qabs (cm - zk)) (ca - cb)).
-  { apply (q_abs_le_span cb ca cm zk).
-    - apply (Qlt_le_weak _ _). exact (HN4 k Hk4).
-    - apply (Qlt_le_weak _ _). exact (HN3 k Hk3).
-    - apply (Qlt_le_weak _ _). exact (HN2 k Hk2).
-    - apply (Qlt_le_weak _ _). exact (HN1 k Hk1). }
+  { apply QleT'_to_Qle. apply (q_abs_le_span cb ca cm zk).
+    - apply Qle_to_QleT'. apply (Qlt_le_weak _ _). exact (QltT_to_Qlt _ _ (HN4 k (NatLe_lift _ _ Hk4))).
+    - apply Qle_to_QleT'. apply (Qlt_le_weak _ _). exact (QltT_to_Qlt _ _ (HN3 k (NatLe_lift _ _ Hk3))).
+    - apply Qle_to_QleT'. apply (Qlt_le_weak _ _). exact (QltT_to_Qlt _ _ (HN2 k (NatLe_lift _ _ Hk2))).
+    - apply Qle_to_QleT'. apply (Qlt_le_weak _ _). exact (QltT_to_Qlt _ _ (HN1 k (NatLe_lift _ _ Hk1))). }
   assert (Hspan2 : Qle (ca - cb) ((b - a) * C)).
   { apply (Qle_trans _ (Qabs (ca - cb)) _).
-    - apply qeq_le. apply Qeq_sym. apply Qabs_pos.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. apply Qabs_pos.
       apply (proj1 (Qle_minus_iff cb ca)). apply (Qlt_le_weak _ _). exact Hcbca.
     - rewrite (Qabs_Qminus ca cb).
-      apply (cos_span_lipschitz a b B C k (Qlt_le_weak a b HaNbN) HB HaB HbB HC). }
+      apply QleT'_to_Qle. apply (cos_span_lipschitz a b B C k (Qlt_le_weak a b HaNbN) HB HaB HbB HC). }
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (ca - cb) _).
   - exact Hspan.
   - exact Hspan2.
@@ -7968,13 +8123,13 @@ Proof.
                        (real_const (3 * log_d4_eps eps + eps / 4))
                        (real_const eps)).
   - exact Hlift.
-  - apply real_const_lt.
+  - apply real_const_lt. apply Qlt_to_QltT.
     apply (proj2 (Qlt_minus_iff (3 * log_d4_eps eps + eps / 4) eps)).
     apply (Qlt_le_trans 0 ((9 / 16) * eps) (eps - (3 * log_d4_eps eps + eps / 4))).
     + apply (Qmult_lt_0_compat (9 / 16) eps).
       * change (Qlt 0 (9 / 16)). unfold Qdiv. compute. reflexivity.
       * exact Heps.
-    + apply qeq_le. unfold log_d4_eps. field.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold log_d4_eps. field.
 Qed.
 
 (* 主定理：approx_root_cos——∀eps>0, ∃x:Q（3/2 < x < 5/3）|cos x − 0| < eps
@@ -7996,15 +8151,15 @@ Proof.
   set (B := Qabs a0 + Qabs b0).
   assert (HB : Qle 0 B).
   { unfold B. apply (Qplus_le_compat 0 (Qabs a0) 0 (Qabs b0)); apply Qabs_nonneg. }
-  assert (Ha0B : Qle (Qabs a0) B) by (unfold B; apply q_abs_sum_bound).
-  assert (Hb0B : Qle (Qabs b0) B) by (unfold B; apply q_abs_sum_bound_r).
+  assert (Ha0B : Qle (Qabs a0) B) by (unfold B; apply QleT'_to_Qle; apply q_abs_sum_bound).
+  assert (Hb0B : Qle (Qabs b0) B) by (unfold B; apply QleT'_to_Qle; apply q_abs_sum_bound_r).
   destruct (exp_series_arch B (Qle_to_QleT' _ _ HB)) as [C [HC1 HC]].
   set (D := (b0 - a0) * C).
   assert (HD : Qle 0 D).
   { unfold D. apply Qmult_le_0_compat.
-    - apply (q_le_minus a0 b0). apply (Qlt_le_weak a0 b0). exact Ha0b0.
+    - apply QleT'_to_Qle. apply (q_le_minus a0 b0). apply Qle_to_QleT'. apply (Qlt_le_weak a0 b0). exact Ha0b0.
     - apply (Qle_trans _ 1 _); [change (Qle 0 1); unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]. }
-  destruct (q_pow_arch D eps HD Heps) as [N HN].
+  destruct (q_pow_arch D eps (Qle_to_QleT' _ _ HD) (Qlt_to_QltT _ _ Heps)) as [N HN].
   destruct (cos_scan_spec a0 b0 Ha0b0 eps Heps N Ha0_y Hy_b0) as [Hfull | Hdef].
   - destruct Hfull as [Hfl [HlaN [HrbN Hlen]]].
     set (abN := projT1 (fst (cos_scan a0 b0 Ha0b0 eps Heps N))).
@@ -8019,15 +8174,15 @@ Proof.
       - apply (Qlt_le_weak _ _). exact HaNbN.
       - exact HbN_b0. }
     assert (HaN_B : Qle (Qabs aN) B).
-    { unfold B. apply (q_interval_abs_bound a0 aN b0).
-      - exact Ha0aN.
-      - exact HaNb0. }
+    { unfold B. apply QleT'_to_Qle. apply (q_interval_abs_bound a0 aN b0).
+      - exact (Qle_to_QleT' _ _ Ha0aN).
+      - exact (Qle_to_QleT' _ _ HaNb0). }
     assert (HbN_B : Qle (Qabs bN) B).
-    { unfold B. apply (q_interval_abs_bound a0 bN b0).
-      - apply (Qle_trans _ aN _).
+    { unfold B. apply QleT'_to_Qle. apply (q_interval_abs_bound a0 bN b0).
+      - apply Qle_to_QleT'. apply (Qle_trans _ aN _).
         + exact Ha0aN.
         + apply (Qlt_le_weak _ _). exact HaNbN.
-      - exact HbN_b0. }
+      - exact (Qle_to_QleT' _ _ HbN_b0). }
     assert (Hpos_aN : real_lt real_zero (real_const aN)).
     { exists 1.
       split.
@@ -8042,7 +8197,7 @@ Proof.
         + change (Qlt 1 (3 / 2)). unfold Qdiv. compute. reflexivity.
         + exact Ha0aN. }
     assert (Hlt2_bN : real_lt (real_const bN) (real_const 2)).
-    { apply real_const_lt.
+    { apply real_const_lt. apply Qlt_to_QltT.
       apply (Qle_lt_trans bN (5 / 3) 2).
       - exact HbN_b0.
       - change (Qlt (5 / 3) 2). unfold Qdiv. compute. reflexivity. }
@@ -8054,30 +8209,30 @@ Proof.
       apply Qlt_to_QltT.
       apply (Qle_lt_trans (3 / 2) aN (log_m_eps aN bN)).
       * exact Ha0aN.
-      * apply (QltT_to_Qlt aN (log_m_eps aN bN) (fst (log_mid_strict aN bN HaNbN))).
+      * apply (QltT_to_Qlt aN (log_m_eps aN bN) (fst (log_mid_strict aN bN (Qlt_to_QltT _ _ HaNbN)))).
     + split.
       * (* mN < 5/3：mN < bN ≤ b0 *)
         unfold b0, mN.
         apply Qlt_to_QltT.
         apply (Qlt_le_trans (log_m_eps aN bN) bN (5 / 3)).
-        -- apply (QltT_to_Qlt (log_m_eps aN bN) bN (snd (log_mid_strict aN bN HaNbN))).
+        -- apply (QltT_to_Qlt (log_m_eps aN bN) bN (snd (log_mid_strict aN bN (Qlt_to_QltT _ _ HaNbN)))).
         -- exact HbN_b0.
       * assert (Hγ : Qlt 0 ((eps - D * q_pow (1 / 2) N) / 2)).
         { apply (Qlt_shift_div_l 0 (eps - D * q_pow (1 / 2) N) 2).
           - change (Qlt 0 2). compute. reflexivity.
-          - simpl. apply (proj1 (Qlt_minus_iff (D * q_pow (1 / 2) N) eps)). exact HN. }
+          - simpl. apply (proj1 (Qlt_minus_iff (D * q_pow (1 / 2) N) eps)). exact (QltT_to_Qlt _ _ HN). }
         assert (Hlift : real_lt (real_abs (real_plus (cauchy_real_cos (real_const mN)) (real_opp real_zero)))
                                 (real_const ((bN - aN) * C + (eps - D * q_pow (1 / 2) N) / 2))).
         { apply (cos_abs_lift mN ((bN - aN) * C) ((eps - D * q_pow (1 / 2) N) / 2) N0 Hγ).
-          intros k Hk. exact (HN0 k Hk). }
+          intros k Hk. apply QleT'_to_Qle. exact (HN0 k Hk). }
         apply (real_lt_trans (real_abs (real_plus (cauchy_real_cos (real_const mN)) (real_opp real_zero)))
                              (real_const ((bN - aN) * C + (eps - D * q_pow (1 / 2) N) / 2))
                              (real_const eps)).
         -- exact Hlift.
         -- apply real_const_lt.
            apply (approx_const_lt bN aN D C ((eps - D * q_pow (1 / 2) N) / 2) eps N HN).
-           ** unfold aN, bN, abN in Hlen. apply (len_mul_D bN aN b0 a0 C N). apply qeqT_imp_qeq. exact Hlen.
-           ** reflexivity.
+           ** unfold aN, bN, abN in Hlen. apply (len_mul_D bN aN b0 a0 C N). exact Hlen.
+           ** apply qeq_imp_qeqT. reflexivity.
   - destruct Hdef as [Hdf Hpt].
     set (abN := projT1 (fst (cos_scan a0 b0 Ha0b0 eps Heps N))).
     set (mN := log_m_eps (fst abN) (snd abN)).
@@ -8091,19 +8246,19 @@ Proof.
       apply (Qle_lt_trans (3 / 2) (fst abN) (log_m_eps (fst abN) (snd abN))).
       * apply (QleT'_to_Qle a0 (fst abN)).
         exact (fst (cos_scan_nested a0 b0 Ha0b0 eps Heps N)).
-      * apply (QltT_to_Qlt (fst abN) (log_m_eps (fst abN) (snd abN)) (fst (log_mid_strict (fst abN) (snd abN) HabN))).
+      * apply (QltT_to_Qlt (fst abN) (log_m_eps (fst abN) (snd abN)) (fst (log_mid_strict (fst abN) (snd abN) (Qlt_to_QltT _ _ HabN)))).
     + split.
       * (* mN < 5/3：mN < snd abN ≤ b0 *)
         unfold b0, mN.
         assert (HabN' : Qlt (fst abN) (snd abN)) by (unfold abN; exact (QltT_to_Qlt _ _ (projT2 (fst (cos_scan a0 b0 Ha0b0 eps Heps N))))).
         apply Qlt_to_QltT.
         apply (Qlt_le_trans (log_m_eps (fst abN) (snd abN)) (snd abN) (5 / 3)).
-        -- apply (QltT_to_Qlt (log_m_eps (fst abN) (snd abN)) (snd abN) (snd (log_mid_strict (fst abN) (snd abN) HabN'))).
+        -- apply (QltT_to_Qlt (log_m_eps (fst abN) (snd abN)) (snd abN) (snd (log_mid_strict (fst abN) (snd abN) (Qlt_to_QltT _ _ HabN')))).
         -- apply (QleT'_to_Qle (snd abN) b0).
            exact (snd (cos_scan_nested a0 b0 Ha0b0 eps Heps N)).
       * assert (HptN0 : forall k : nat, (N0 <= k)%nat ->
           Qle (Qabs (projT1 (cauchy_real_cos (real_const mN)) k - projT1 real_zero k)) (3 * log_d4_eps eps)).
-        { intros k Hk. unfold mN, N0 in Hpt, Hk. apply QleT'_to_Qle. apply (Hpt k). exact Hk. }
+        { intros k Hk. unfold mN, N0 in Hpt, Hk. apply QleT'_to_Qle. apply (Hpt k). apply NatLe_lift. exact Hk. }
         apply (approx_def_test_cos mN eps Heps N0). exact HptN0.
 Qed.
 
@@ -8117,66 +8272,69 @@ Qed.
 
 (* cos 零点序列：z_n := approx_root_cos (log_eps n) 的返回值（Q 层） *)
 Definition cos_zero_seq (n : nat) : Q :=
-  projT1 (approx_root_cos (log_eps n) (log_eps_pos n)).
+  projT1 (approx_root_cos (log_eps n) (QltT_to_Qlt _ _ (log_eps_pos n))).
 
 (* 下界：3/2 < cos_zero_seq n（approx_root_cos 区间界） *)
-Lemma cos_zero_lower : forall n : nat, Qlt (3 / 2) (cos_zero_seq n).
+Lemma cos_zero_lower : forall n : nat, QltT (3 / 2) (cos_zero_seq n).
 Proof.
-  intros n. unfold cos_zero_seq.
-  destruct (approx_root_cos (log_eps n) (log_eps_pos n)) as [x [Hlow [Hup Hpt]]].
+  intros n. apply Qlt_to_QltT. unfold cos_zero_seq.
+  destruct (approx_root_cos (log_eps n) (QltT_to_Qlt _ _ (log_eps_pos n))) as [x [Hlow [Hup Hpt]]].
   apply QltT_to_Qlt. exact Hlow.
 Qed.
 
 (* 上界：cos_zero_seq n < 5/3 *)
-Lemma cos_zero_upper : forall n : nat, Qlt (cos_zero_seq n) (5 / 3).
+Lemma cos_zero_upper : forall n : nat, QltT (cos_zero_seq n) (5 / 3).
 Proof.
-  intros n. unfold cos_zero_seq.
-  destruct (approx_root_cos (log_eps n) (log_eps_pos n)) as [x [Hlow [Hup Hpt]]].
+  intros n. apply Qlt_to_QltT. unfold cos_zero_seq.
+  destruct (approx_root_cos (log_eps n) (QltT_to_Qlt _ _ (log_eps_pos n))) as [x [Hlow [Hup Hpt]]].
   apply QltT_to_Qlt. exact Hup.
 Qed.
 
 (* 推论：0 ≤ z_n、z_n ≤ 2（diff-le 前提） *)
-Lemma cos_zero_nonneg : forall n : nat, Qle 0 (cos_zero_seq n).
+Lemma cos_zero_nonneg : forall n : nat, QleT' 0 (cos_zero_seq n).
 Proof.
   intros n.
-  apply (Qle_trans _ (3 / 2) _); [ | apply Qlt_le_weak; apply cos_zero_lower].
-  change (Qle 0 (3 / 2)). unfold Qle, Qdiv. simpl. lia.
+  apply (qleT'_trans 0 (3 / 2) (cos_zero_seq n)).
+  - apply Qle_to_QleT'. change (Qle 0 (3 / 2)). unfold Qle, Qdiv. simpl. lia.
+  - apply qltT_leT'. apply cos_zero_lower.
 Qed.
 
-Lemma cos_zero_le_two : forall n : nat, Qle (cos_zero_seq n) 2.
+Lemma cos_zero_le_two : forall n : nat, QleT' (cos_zero_seq n) 2.
 Proof.
   intros n.
+  apply Qle_to_QleT'.
   apply Qlt_le_weak.
   apply (Qle_lt_trans (cos_zero_seq n) (5 / 3) 2).
-  - apply Qlt_le_weak. apply cos_zero_upper.
+  - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_upper.
   - change (Qlt (5 / 3) 2). unfold Qdiv. compute. reflexivity.
 Qed.
 
 (* 逐点：approx_root_cos 界逐点化 ⟹ ∀k ≥ N_n：|cos z_n_k − 0_k| < log_eps n *)
 Lemma cos_root_pt_bound : forall (n : nat),
-  sigT (fun N : nat => forall k : nat, (N <= k)%nat ->
-    Qlt (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) k - projT1 real_zero k))
+  sigT (fun N : nat => forall k : nat, NatLe N k ->
+    QltT (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) k - projT1 real_zero k))
         (log_eps n)).
 Proof.
   intros n.
   unfold cos_zero_seq.
-  destruct (approx_root_cos (log_eps n) (log_eps_pos n)) as [x [Hlow [Hup Hpt]]].
+  destruct (approx_root_cos (log_eps n) (QltT_to_Qlt _ _ (log_eps_pos n))) as [x [Hlow [Hup Hpt]]].
   destruct (real_lt_pt_lt (real_abs (real_plus (cauchy_real_cos (real_const x)) (real_opp real_zero)))
                           (real_const (log_eps n)) Hpt) as [N HN].
   exists N.
   intros k Hk.
   assert (Hp : projT1 (real_abs (real_plus (cauchy_real_cos (real_const x)) (real_opp real_zero))) k ==
                 Qabs (projT1 (cauchy_real_cos (real_const x)) k - projT1 real_zero k)).
-  { rewrite (real_abs_proj (real_plus (cauchy_real_cos (real_const x)) (real_opp real_zero)) k).
-    rewrite (real_plus_proj (cauchy_real_cos (real_const x)) (real_opp real_zero) k).
-    rewrite (real_opp_proj real_zero k). reflexivity. }
+  { rewrite (qeqT_imp_qeq _ _ (real_abs_proj (real_plus (cauchy_real_cos (real_const x)) (real_opp real_zero)) k)).
+    rewrite (qeqT_imp_qeq _ _ (real_plus_proj (cauchy_real_cos (real_const x)) (real_opp real_zero) k)).
+    rewrite (qeqT_imp_qeq _ _ (real_opp_proj real_zero k)). reflexivity. }
+  apply Qlt_to_QltT.
   apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const x)) k - projT1 real_zero k))
                       (projT1 (real_abs (real_plus (cauchy_real_cos (real_const x)) (real_opp real_zero))) k)
                       (log_eps n)).
-  - apply qeq_le. apply Qeq_sym. exact Hp.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. exact Hp.
   - apply (Qlt_le_trans _ (projT1 (real_const (log_eps n)) k) _).
-    + exact (HN k Hk).
-    + apply qeq_le. apply Qeq_sym. apply (real_const_proj (log_eps n) k).
+    + apply QltT_to_Qlt. exact (HN k Hk).
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (qeqT_imp_qeq _ _ (real_const_proj (log_eps n) k)).
 Qed.
 
 (* 逐点逆界核心：k ≥ 2、0 ≤ u ≤ v ≤ 2、|cos u_k − 0| < du、|cos v_k − 0| < dv
@@ -8185,13 +8343,14 @@ Lemma cos_inv_pt : forall (u v : Q) (k : nat) (du dv : Q),
   (2 <= k)%nat -> Qle 0 u -> Qle u v -> Qle v 2 ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const u)) k - projT1 real_zero k)) du ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const v)) k - projT1 real_zero k)) dv ->
-  Qlt ((v * v - u * u) * (1 / 6)) (du + dv).
+  QltT ((v * v - u * u) * (1 / 6)) (du + dv).
 Proof.
   intros u v k du dv Hk Hu0 Huv Hv2 Hdu Hdv.
+  apply Qlt_to_QltT.
   change (Qlt ((v * v - u * u) * (1 / 6))
               (du + dv)).
   assert (Hmain : Qle (cos_partial k v) (cos_partial k u - (v * v - u * u) * (1 / 6))).
-  { apply (sc_cos_partial_diff_le k u v Hu0 Huv Hv2 Hk). }
+  { apply QleT'_to_Qle. apply (sc_cos_partial_diff_le k u v Hu0 Huv Hv2 Hk). }
   (* (v²−u²)/6 ≤ cos u_k − cos v_k *)
   assert (Hd : Qle ((v * v - u * u) * (1 / 6)) (cos_partial k u - cos_partial k v)).
   { apply (proj2 (Qle_minus_iff ((v * v - u * u) * (1 / 6)) (cos_partial k u - cos_partial k v))).
@@ -8220,7 +8379,7 @@ Proof.
         { apply Qabs_wd. cbn [projT1 real_zero]. ring. }
         apply (Qle_trans _ (Qabs ((cos_partial k u - projT1 real_zero k) +
                                   (projT1 real_zero k - cos_partial k v))) _).
-        -- apply qeq_le. exact Hsum.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hsum.
         -- apply Qabs_triangle.
     + apply (Qplus_lt_compat (Qabs (cos_partial k u - projT1 real_zero k))
                              du (Qabs (projT1 real_zero k - cos_partial k v)) dv).
@@ -8229,7 +8388,7 @@ Proof.
         { apply (Qle_lt_trans (Qabs (cos_partial k v - projT1 real_zero k))
                               (Qabs (projT1 (cauchy_real_cos (real_const v)) k - projT1 real_zero k))
                               dv).
-          - apply qeq_le. apply Qabs_wd.
+          - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
             assert (Heq : projT1 (cauchy_real_cos (real_const v)) k - projT1 real_zero k ==
                           cos_partial k v - projT1 real_zero k).
             { cbn [projT1 cauchy_real_cos real_const real_zero]. ring. }
@@ -8244,15 +8403,16 @@ Lemma cos_inv_dist : forall (u v du dv : Q) (k : nat),
   (2 <= k)%nat -> Qle (3 / 2) u -> Qle u v -> Qle v (5 / 3) ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const u)) k - projT1 real_zero k)) du ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const v)) k - projT1 real_zero k)) dv ->
-  Qlt (v - u) (2 * (du + dv)).
+  QltT (v - u) (2 * (du + dv)).
 Proof.
   intros u v du dv k Hk Hu0 Huv Hv2 Hdu Hdv.
+  apply Qlt_to_QltT.
   (* 0 ≤ u、v ≤ 2（cos_inv_pt 前提） *)
   assert (Hu0' : Qle 0 u) by (apply (Qle_trans _ (3 / 2) _); [change (Qle 0 (3 / 2)); unfold Qle, Qdiv; simpl; lia | exact Hu0]).
   assert (Hv2' : Qle v 2) by (apply (Qle_trans _ (5 / 3) _); [exact Hv2 | change (Qle (5 / 3) 2); unfold Qle, Qdiv; simpl; lia]).
   (* (v²−u²)/6 < du + dv *)
   assert (Hq : Qlt ((v * v - u * u) * (1 / 6)) (du + dv)).
-  { apply (cos_inv_pt u v k du dv Hk Hu0' Huv Hv2' Hdu Hdv). }
+  { apply QltT_to_Qlt. apply (cos_inv_pt u v k du dv Hk Hu0' Huv Hv2' Hdu Hdv). }
   (* v²−u² == (v−u)(v+u) 且 v+u ≥ 3：3(v−u) ≤ v²−u² *)
   assert (Hprod : (v - u) * (v + u) == v * v - u * u) by ring.
   assert (Hvu3 : Qle ((v - u) * 3) ((v - u) * (v + u))).
@@ -8261,7 +8421,7 @@ Proof.
     - split; [change (Qle 0 3); unfold Qle; simpl; lia | ].
       assert (H3 : Qle 3 (v + u)).
       { apply (Qle_trans _ (3 / 2 + 3 / 2) _).
-        - apply qeq_le. unfold Qdiv. field.
+        - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. field.
         - apply (Qplus_le_compat (3 / 2) v (3 / 2) u).
           + apply (Qle_trans _ u _); [exact Hu0 | exact Huv].
           + exact Hu0. }
@@ -8271,30 +8431,31 @@ Proof.
   { apply (Qle_lt_trans (v - u) ((v * v - u * u) * (1 / 3)) (2 * (du + dv))).
     - (* v−u ≤ (v²−u²)/3：v−u == (v−u)·3·(1/3) ≤ (v²−u²)·(1/3) *)
       apply (Qle_trans _ (((v - u) * 3) * (1 / 3)) _).
-      + apply qeq_le.
+      + apply QleT'_to_Qle. apply qeq_le.
+      apply qeq_imp_qeqT.
         assert (Hr3 : ((v - u) * 3) * (1 / 3) == v - u) by (unfold Qdiv; field; unfold Qeq; simpl; lia).
         apply Qeq_sym. exact Hr3.
       + apply (Qmult_le_compat_r ((v - u) * 3) (v * v - u * u) (1 / 3)).
         * apply (Qle_trans _ ((v - u) * (v + u)) _).
           -- exact Hvu3.
-          -- apply qeq_le. exact Hprod.
+          -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hprod.
         * apply (Qlt_le_weak 0 (1 / 3)). change (Qlt 0 (1 / 3)). unfold Qdiv. compute. reflexivity.
     - (* (v²−u²)/3 < 2(du+dv) *)
       assert (Hm : (v * v - u * u) * (1 / 3) == ((v * v - u * u) * (1 / 6)) * 2) by (unfold Qdiv; field; unfold Qeq; simpl; lia).
       assert (Hm2 : (du + dv) * 2 == 2 * (du + dv)) by ring.
       apply (Qlt_le_trans ((v * v - u * u) * (1 / 3)) ((du + dv) * 2) (2 * (du + dv))).
       * apply (Qle_lt_trans ((v * v - u * u) * (1 / 3)) (((v * v - u * u) * (1 / 6)) * 2) ((du + dv) * 2)).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (Qmult_lt_compat_r ((v * v - u * u) * (1 / 6)) (du + dv) 2).
            ++ change (Qlt 0 2). compute. reflexivity.
            ++ exact Hq.
-      * apply qeq_le. exact Hm2. }
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm2. }
   exact Hq2.
 Qed.
 
 (* 柯西性：|z_m − z_n| → 0（逆界 cos_inv_dist + log_eps → 0） *)
 Lemma cos_seq_cauchy : forall (eps : Q) (Heps : QltT 0 eps),
-  sigT (fun N : nat => forall m n : nat, (N <= m)%nat -> (N <= n)%nat ->
+  sigT (fun N : nat => forall m n : nat, NatLe N m -> NatLe N n ->
     QltT (Qabs (cos_zero_seq m - cos_zero_seq n)) eps).
 Proof.
   intros eps Heps.
@@ -8302,19 +8463,17 @@ Proof.
   { apply (Qlt_shift_div_l 0 eps 8).
     - change (Qlt 0 8). compute. reflexivity.
     - simpl. exact (QltT_to_Qlt _ _ Heps). }
-  destruct (q_pow_arch 1 (eps / 8)) as [t Ht].
-  { apply Qlt_le_weak. change (Qlt 0 1). compute. reflexivity. }
-  { exact Heps8. }
+  destruct (q_pow_arch 1 (eps / 8) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Heps8)) as [t Ht].
   exists (Datatypes.S t).
   intros m n Hm Hn.
   assert (Heps_m_lt : Qlt (log_eps m) (eps / 8)).
-  { apply (log_eps_lt_delta (eps / 8) t m).
+  { apply QltT_to_Qlt. apply (log_eps_lt_delta (eps / 8) t m).
     - exact Ht.
-    - exact Hm. }
+    - exact (NatLe_drop _ _ Hm). }
   assert (Heps_n_lt : Qlt (log_eps n) (eps / 8)).
-  { apply (log_eps_lt_delta (eps / 8) t n).
+  { apply QltT_to_Qlt. apply (log_eps_lt_delta (eps / 8) t n).
     - exact Ht.
-    - exact Hn. }
+    - exact (NatLe_drop _ _ Hn). }
   (* 尾链：2·(eps_n + eps_m) < eps（eps_n, eps_m < eps/8） *)
   assert (Htail : Qlt (2 * (log_eps n + log_eps m)) eps).
   { assert (Hcom : 2 * (log_eps n + log_eps m) == (log_eps n + log_eps m) * 2) by ring.
@@ -8322,20 +8481,20 @@ Proof.
     assert (Hsum : Qlt (log_eps n + log_eps m) (eps / 4)).
     { apply (Qlt_le_trans (log_eps n + log_eps m) (eps / 8 + eps / 8) (eps / 4)).
       - apply (Qplus_lt_compat (log_eps n) (eps / 8) (log_eps m) (eps / 8)); [exact Heps_n_lt | exact Heps_m_lt].
-      - apply qeq_le. unfold Qdiv. field. }
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. field. }
     apply (Qle_lt_trans ((log_eps n + log_eps m) * 2) ((eps / 4) * 2) eps).
     - apply (Qmult_le_compat_r (log_eps n + log_eps m) (eps / 4) 2).
       + apply Qlt_le_weak. exact Hsum.
       + apply Qlt_le_weak. change (Qlt 0 2). compute. reflexivity.
     - assert (He : (eps / 4) * 2 == eps / 2) by (unfold Qdiv; field).
       apply (Qle_lt_trans ((eps / 4) * 2) (eps / 2) eps).
-      + apply qeq_le. exact He.
+      + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact He.
       + apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
         apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
         * apply (Qlt_shift_div_l 0 eps 2).
           -- change (Qlt 0 2). compute. reflexivity.
           -- simpl. exact (QltT_to_Qlt _ _ Heps).
-        * apply qeq_le. unfold Qminus. field. }
+        * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qminus. field. }
   destruct (Qlt_le_dec (cos_zero_seq n) (cos_zero_seq m)) as [Hnm_lt | Hmn].
   - (* z_n < z_m：u := z_n、v := z_m *)
     destruct (cos_root_pt_bound n) as [Nn HNn].
@@ -8344,16 +8503,16 @@ Proof.
     assert (Hk0n : (Nn <= k0)%nat) by (unfold k0; apply (Nat.le_trans _ (Nat.max Nn Nm) _); [apply Nat.le_max_l | apply Nat.le_max_r]).
     assert (Hk0m : (Nm <= k0)%nat) by (unfold k0; apply (Nat.le_trans _ (Nat.max Nn Nm) _); [apply Nat.le_max_r | apply Nat.le_max_r]).
     assert (Hd : Qlt (cos_zero_seq m - cos_zero_seq n) (2 * (log_eps n + log_eps m))).
-    { apply (cos_inv_dist (cos_zero_seq n) (cos_zero_seq m) (log_eps n) (log_eps m) k0).
+    { apply QltT_to_Qlt. apply (cos_inv_dist (cos_zero_seq n) (cos_zero_seq m) (log_eps n) (log_eps m) k0).
       - unfold k0. apply Nat.le_max_l.
-      - apply Qlt_le_weak. apply cos_zero_lower.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_lower.
       - apply Qlt_le_weak. exact Hnm_lt.
-      - apply Qlt_le_weak. apply cos_zero_upper.
-      - apply (HNn k0). exact Hk0n.
-      - apply (HMm k0). exact Hk0m. }
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_upper.
+      - apply QltT_to_Qlt. apply (HNn k0). exact (NatLe_lift _ _ Hk0n).
+      - apply QltT_to_Qlt. apply (HMm k0). exact (NatLe_lift _ _ Hk0m). }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans (Qabs (cos_zero_seq m - cos_zero_seq n)) (cos_zero_seq m - cos_zero_seq n) eps).
-    + apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (cos_zero_seq m))). apply Qlt_le_weak. exact Hnm_lt.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (cos_zero_seq m))). apply Qlt_le_weak. exact Hnm_lt.
     + apply (Qle_lt_trans (cos_zero_seq m - cos_zero_seq n) (2 * (log_eps n + log_eps m)) eps).
       * apply Qlt_le_weak. exact Hd.
       * exact Htail.
@@ -8364,17 +8523,17 @@ Proof.
     assert (Hk0m : (Nm <= k0)%nat) by (unfold k0; apply (Nat.le_trans _ (Nat.max Nm Nn) _); [apply Nat.le_max_l | apply Nat.le_max_r]).
     assert (Hk0n : (Nn <= k0)%nat) by (unfold k0; apply (Nat.le_trans _ (Nat.max Nm Nn) _); [apply Nat.le_max_r | apply Nat.le_max_r]).
     assert (Hd : Qlt (cos_zero_seq n - cos_zero_seq m) (2 * (log_eps m + log_eps n))).
-    { apply (cos_inv_dist (cos_zero_seq m) (cos_zero_seq n) (log_eps m) (log_eps n) k0).
+    { apply QltT_to_Qlt. apply (cos_inv_dist (cos_zero_seq m) (cos_zero_seq n) (log_eps m) (log_eps n) k0).
       - unfold k0. apply Nat.le_max_l.
-      - apply Qlt_le_weak. apply cos_zero_lower.
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_lower.
       - exact Hmn.
-      - apply Qlt_le_weak. apply cos_zero_upper.
-      - apply (HMm k0). exact Hk0m.
-      - apply (HNn k0). exact Hk0n. }
+      - apply Qlt_le_weak. apply QltT_to_Qlt. apply cos_zero_upper.
+      - apply QltT_to_Qlt. apply (HMm k0). exact (NatLe_lift _ _ Hk0m).
+      - apply QltT_to_Qlt. apply (HNn k0). exact (NatLe_lift _ _ Hk0n). }
     apply Qlt_to_QltT.
     apply (Qle_lt_trans (Qabs (cos_zero_seq m - cos_zero_seq n)) (cos_zero_seq n - cos_zero_seq m) eps).
     + rewrite (Qabs_Qminus (cos_zero_seq m) (cos_zero_seq n)).
-      apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq m) (cos_zero_seq n))). exact Hmn.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq m) (cos_zero_seq n))). exact Hmn.
     + apply (Qle_lt_trans (cos_zero_seq n - cos_zero_seq m) (2 * (log_eps m + log_eps n)) eps).
       * apply Qlt_le_weak. exact Hd.
       * assert (Hcom : 2 * (log_eps m + log_eps n) == 2 * (log_eps n + log_eps m)) by ring.
@@ -8397,28 +8556,29 @@ Lemma cos_seq_cauchyT : forall eps : Q, QltT 0 eps ->
 Proof.
   intros eps HepsT.
   destruct (cos_seq_cauchy eps HepsT) as [N HN].
-  exists N. intros m n Hm Hn. exact (HN m n (NatLe_drop _ _ Hm) (NatLe_drop _ _ Hn)).
+  exists N. intros m n Hm Hn. exact (HN m n Hm Hn).
 Qed.
 
 Definition cos_pi_half : Real :=
   existT _ cos_zero_seq cos_seq_cauchyT.
 
 (* 投影：projT1 cos_pi_half n == z_n *)
-Lemma cos_pi_half_proj : forall n : nat, projT1 cos_pi_half n == cos_zero_seq n.
+Lemma cos_pi_half_proj : forall n : nat, QeqT (projT1 cos_pi_half n) (cos_zero_seq n).
 Proof.
-  intros n. reflexivity.
+  intros n. apply qeq_imp_qeqT. reflexivity.
 Qed.
 
 (* |z_n| ≤ 2（Lipschitz 界 B := 2 用） *)
-Lemma cos_zero_abs_le_two : forall n : nat, Qle (Qabs (cos_zero_seq n)) 2.
+Lemma cos_zero_abs_le_two : forall n : nat, QleT' (Qabs (cos_zero_seq n)) 2.
 Proof.
   intros n.
+  apply Qle_to_QleT'.
   apply (proj2 (Qabs_Qle_condition (cos_zero_seq n) 2)).
   split.
   - apply (Qle_trans _ 0 _).
     + change (Qle (- 2) 0). unfold Qle; simpl. lia.
-    + apply cos_zero_nonneg.
-  - apply cos_zero_le_two.
+    + apply QleT'_to_Qle. apply cos_zero_nonneg.
+  - apply QleT'_to_Qle. apply cos_zero_le_two.
 Qed.
 
 (* 主定理：cos(cos_pi_half) == 0（逐 eps：柯西 + Lipschitz + 根逐点界） *)
@@ -8442,21 +8602,19 @@ Proof.
     - apply Qinv_lt_0_compat. exact H2C. }
   (* N0 := max（柯西点 Nc）(S t)（t：log_eps (S t) < eps/2）——固定配对点 *)
   destruct (cos_seq_cauchy (eps / (2 * C)) (Qlt_to_QltT _ _ Heps2C)) as [Nc HNc].
-  destruct (q_pow_arch 1 (eps / 2)) as [t Ht].
-  { apply Qlt_le_weak. change (Qlt 0 1). compute. reflexivity. }
-  { exact Heps2. }
+  destruct (q_pow_arch 1 (eps / 2) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Heps2)) as [t Ht].
   set (N0 := Nat.max Nc (Datatypes.S t)).
   assert (HN0c : (Nc <= N0)%nat) by (unfold N0; apply Nat.le_max_l).
   assert (HN0t : (Datatypes.S t <= N0)%nat) by (unfold N0; apply Nat.le_max_r).
   assert (HepsN0 : Qlt (log_eps N0) (eps / 2)).
-  { apply (log_eps_lt_delta (eps / 2) t N0).
+  { apply QltT_to_Qlt. apply (log_eps_lt_delta (eps / 2) t N0).
     - exact Ht.
     - exact HN0t. }
-  destruct (cos_root_pt_bound N0) as [N2 HN2].
+  destruct ((cos_root_pt_bound N0)) as [N2 HN2].
   (* 逐点根界：|cos n (z_{N0}) − 0| < log_eps N0（n ≥ N2） *)
   assert (HptN0 : forall n : nat, (N2 <= n)%nat ->
     Qlt (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq N0))) n - projT1 real_zero n)) (log_eps N0)).
-  { intros n Hn. exact (HN2 n Hn). }
+  { intros n Hn. apply QltT_to_Qlt. exact (HN2 n (NatLe_lift _ _ Hn)). }
   exists (Nat.max 2 (Nat.max Nc N2)).
   intros n Hn.
   apply NatLe_drop in Hn.
@@ -8470,7 +8628,7 @@ Proof.
   rewrite Hproj.
   (* 柯西：|z_n − z_{N0}| < eps/(2C) *)
   assert (Hcauchy : Qlt (Qabs (cos_zero_seq n - cos_zero_seq N0)) (eps / (2 * C))).
-  { apply QltT_to_Qlt. apply (HNc n N0 HnNc HN0c). }
+  { apply QltT_to_Qlt. apply (HNc n N0 (NatLe_lift _ _ HnNc) (NatLe_lift _ _ HN0c)). }
   (* 三角链 *)
   assert (Hsum : cos_partial n (cos_zero_seq n) - projT1 real_zero n ==
                   (cos_partial n (cos_zero_seq n) - cos_partial n (cos_zero_seq N0)) +
@@ -8481,7 +8639,7 @@ Proof.
                       eps).
   - apply (Qle_trans _ (Qabs ((cos_partial n (cos_zero_seq n) - cos_partial n (cos_zero_seq N0)) +
                               (cos_partial n (cos_zero_seq N0) - projT1 real_zero n))) _).
-    + apply qeq_le. apply Qabs_wd. exact Hsum.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd. exact Hsum.
     + apply Qabs_triangle.
   - apply (Qlt_le_trans _ (eps / 2 + eps / 2) _).
     + apply (Qplus_lt_compat (Qabs (cos_partial n (cos_zero_seq n) - cos_partial n (cos_zero_seq N0)))
@@ -8496,18 +8654,18 @@ Proof.
            ++ exfalso. lia.
            ++ apply (Qle_trans _ (Qmult (Qabs (cos_zero_seq (Datatypes.S m') - cos_zero_seq N0))
                                         (sc_sin_deriv_series m' 2)) _).
-              ** apply (sc_cos_partial_lipschitz_succ (cos_zero_seq (Datatypes.S m')) (cos_zero_seq N0) 2 m').
+              ** apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ (cos_zero_seq (Datatypes.S m')) (cos_zero_seq N0) 2 m').
                  --- apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl. lia.
-                 --- apply Qle_to_QleT'. apply cos_zero_abs_le_two.
-                 --- apply Qle_to_QleT'. apply cos_zero_abs_le_two.
+                 --- apply Qle_to_QleT'. apply QleT'_to_Qle. apply cos_zero_abs_le_two.
+                 --- apply Qle_to_QleT'. apply QleT'_to_Qle. apply cos_zero_abs_le_two.
               ** apply (Qmult_le_compat_nonneg (Qabs (cos_zero_seq (Datatypes.S m') - cos_zero_seq N0))
                                                (Qabs (cos_zero_seq (Datatypes.S m') - cos_zero_seq N0))
                                                (sc_sin_deriv_series m' 2) C).
                  --- split; [apply Qabs_nonneg | apply Qle_refl].
                  --- split.
-                     +++ apply sc_sin_deriv_series_nonneg. apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl. lia.
+                     +++ apply QleT'_to_Qle. apply sc_sin_deriv_series_nonneg. apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl. lia.
                      +++ apply (Qle_trans _ (exp_series (Datatypes.S (2 * m')) 2) _).
-                         *** apply sc_sin_deriv_series_le_exp. apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl. lia.
+                         *** apply QleT'_to_Qle. apply sc_sin_deriv_series_le_exp. apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl. lia.
                          *** apply QleT'_to_Qle. apply (HC (Datatypes.S (2 * m'))).
         -- (* C·|diff| < eps/2：C·|diff| < C·(eps/(2C)) == eps/2 *)
            apply (Qlt_le_trans (Qmult (Qabs (cos_zero_seq n - cos_zero_seq N0)) C)
@@ -8516,26 +8674,26 @@ Proof.
            ++ assert (Hcom : Qabs (cos_zero_seq n - cos_zero_seq N0) * C ==
                              C * Qabs (cos_zero_seq n - cos_zero_seq N0)) by ring.
               rewrite Hcom.
-              apply (sc_qmul_lt_l C (Qabs (cos_zero_seq n - cos_zero_seq N0)) (eps / (2 * C))).
+              apply QltT_to_Qlt. apply (sc_qmul_lt_l C (Qabs (cos_zero_seq n - cos_zero_seq N0)) (eps / (2 * C))).
               ** exact HCpos.
               ** apply (Qle_lt_trans (Qabs (cos_zero_seq n - cos_zero_seq N0)) (Qabs (cos_zero_seq N0 - cos_zero_seq n)) (eps / (2 * C))).
-                 --- apply qeq_le. rewrite (Qabs_Qminus (cos_zero_seq n) (cos_zero_seq N0)). reflexivity.
+                 --- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite (Qabs_Qminus (cos_zero_seq n) (cos_zero_seq N0)). reflexivity.
                  --- rewrite (Qabs_Qminus (cos_zero_seq n) (cos_zero_seq N0)) in Hcauchy. exact Hcauchy.
-           ++ apply qeq_le.
+           ++ apply QleT'_to_Qle. apply qeq_le.
+           apply qeq_imp_qeqT.
               assert (He : C * (eps / (2 * C)) == eps / 2).
                { unfold Qdiv. field.
-                 all: try (apply q_neq_of_lt; apply (Qmult_lt_0_compat 2 C)).
-                 all: try (unfold Qlt; simpl; lia).
-                 all: try (exact HCpos).
                  all: try (unfold Qeq; simpl; lia).
-                 all: try (apply q_neq_of_lt; exact HCpos). }
+                 intro Hz.
+                 exact (Qlt_not_eq 0 C HCpos (Qeq_sym C 0 Hz)). }
               exact He.
       * apply (Qlt_trans (Qabs (cos_partial n (cos_zero_seq N0) - projT1 real_zero n))
                          (log_eps N0)
                          (eps / 2)).
         -- exact (HptN0 n HnN2).
         -- exact HepsN0.
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       assert (He : eps / 2 + eps / 2 == eps) by (unfold Qdiv; field; unfold Qeq; simpl; lia).
       exact He.
 Qed.
@@ -8555,13 +8713,12 @@ Definition real_pi_geom : Real := real_mult (real_const 2) cos_pi_half.
 Lemma cos_eq_zero_diag_bound : forall (w : Real) (Hw : real_eq (cauchy_real_cos w) real_zero)
   (delta : Q) (Hdelta : Qlt 0 delta),
   sigT (fun N : nat => forall n : nat, (N <= n)%nat ->
-    Qlt (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n)) delta).
+    QltT (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n)) delta).
 Proof.
   intros w Hw delta Hdelta.
   destruct (Hw delta (Qlt_to_QltT 0 delta Hdelta)) as [N HN].
   exists N.
   intros n Hn.
-  apply QltT_to_Qlt.
   apply (HN n (NatLe_lift _ _ Hn)).
 Qed.
 
@@ -8577,13 +8734,13 @@ Proof.
   - apply (proj2 (Qlt_minus_iff a (a + eps))).
     apply (Qlt_le_trans 0 eps ((a + eps) - a)).
     + apply QltT_to_Qlt. exact Heps.
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
   - apply (Qlt_le_weak _ _).
     apply (proj2 (Qlt_minus_iff (a + eps) (projT1 w k))).
     apply (Qlt_le_trans 0 (projT1 w k - a - eps) ((projT1 w k) - (a + eps))).
     + apply (proj1 (Qlt_minus_iff eps (projT1 w k - a))).
       apply QltT_to_Qlt. apply (HN k (NatLe_lift _ _ Hk)).
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* 端点逐点上界：w < real_const b ⟹ 逐点 w_n < b *)
@@ -8622,11 +8779,9 @@ Proof.
   (* 逐点界来源：w 侧（端点 + cos w == 0 对角）、z 侧（cos_zero_lower/upper + cos z == 0 对角） *)
   destruct (real_lt_lower_pt (3 / 2) w Hlow) as [Nlo HNlo].
   destruct (real_lt_upper_pt (5 / 3) w Hup) as [Nup HNup].
-  destruct (cos_eq_zero_diag_bound w Hw0 (eps / 8) Heps8) as [Nwd Hwd].
-  destruct (cos_eq_zero_diag_bound cos_pi_half real_cos_pi_half_zero (eps / 8) Heps8) as [Nzd Hzd].
-  destruct (q_pow_arch 1 (eps / 8)) as [t Ht].
-  { apply Qlt_le_weak. change (Qlt 0 1). compute. reflexivity. }
-  { exact Heps8. }
+  destruct ((cos_eq_zero_diag_bound w Hw0 (eps / 8) Heps8)) as [Nwd Hwd].
+  destruct ((cos_eq_zero_diag_bound cos_pi_half real_cos_pi_half_zero (eps / 8) Heps8)) as [Nzd Hzd].
+  destruct (q_pow_arch 1 (eps / 8) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Heps8)) as [t Ht].
   set (A := Nat.max Nlo (Nat.max Nup (Nat.max Nwd Nzd))).
   exists (Nat.max 2 (Nat.max A (Datatypes.S t))).
   intros n Hn.
@@ -8651,18 +8806,18 @@ Proof.
   (* w_n ∈ (3/2, 5/3)、z_n ∈ (3/2, 5/3)（Q 层） *)
   assert (Hwlo : Qle (3 / 2) (projT1 w n)) by (apply Qlt_le_weak; apply (HNlo n); exact Hnlo).
   assert (Hwup : Qle (projT1 w n) (5 / 3)) by (apply Qlt_le_weak; apply (HNup n); exact Hnup).
-  assert (Hzlo : Qle (3 / 2) (cos_zero_seq n)) by (apply Qlt_le_weak; apply cos_zero_lower).
-  assert (Hzup : Qle (cos_zero_seq n) (5 / 3)) by (apply Qlt_le_weak; apply cos_zero_upper).
+  assert (Hzlo : Qle (3 / 2) (cos_zero_seq n)) by (apply Qlt_le_weak; (apply QltT_to_Qlt; apply cos_zero_lower)).
+  assert (Hzup : Qle (cos_zero_seq n) (5 / 3)) by (apply Qlt_le_weak; (apply QltT_to_Qlt; apply cos_zero_upper)).
   (* cos w_n 与 cos z_n 的对角界 < eps/8 *)
   assert (Hwpt : Qlt (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n)) (eps / 8)).
-  { apply (Hwd n). exact Hnwd. }
+  { apply QltT_to_Qlt. apply (Hwd n). exact Hnwd. }
   assert (Hzpt : Qlt (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n)) (eps / 8)).
-  { apply (Hzd n). exact Hnzd. }
+  { apply QltT_to_Qlt. apply (Hzd n). exact Hnzd. }
   (* 分支：|w_n − z_n| ≤ eps/2 < eps（逆界，u := 小者） *)
   destruct (Qlt_le_dec (cos_zero_seq n) (projT1 w n)) as [Hzw | Hwz].
   - (* z_n < w_n：u := z_n、v := w_n *)
     assert (Hd : Qlt (projT1 w n - cos_zero_seq n) (2 * (eps / 8 + eps / 8))).
-    { apply (cos_inv_dist (cos_zero_seq n) (projT1 w n) (eps / 8) (eps / 8) n).
+    { apply QltT_to_Qlt. apply (cos_inv_dist (cos_zero_seq n) (projT1 w n) (eps / 8) (eps / 8) n).
       - exact Hn2.
       - exact Hzlo.
       - apply Qlt_le_weak. exact Hzw.
@@ -8670,7 +8825,7 @@ Proof.
       - apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n - projT1 real_zero n))
                             (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n))
                             (eps / 8)).
-        + apply qeq_le. apply Qabs_wd.
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
           assert (Hp : projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n ==
                        projT1 (cauchy_real_cos cos_pi_half) n).
           { cbn [projT1 cauchy_real_cos cos_pi_half real_const]. reflexivity. }
@@ -8680,38 +8835,38 @@ Proof.
         { apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n))
                               (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n))
                               (eps / 8)).
-          - apply qeq_le. apply Qabs_wd.
+          - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
             assert (Hq : projT1 (cauchy_real_cos (real_const (projT1 w n))) n == projT1 (cauchy_real_cos w) n).
-            { rewrite (real_cos_proj (real_const (projT1 w n)) n). rewrite (real_cos_proj w n). reflexivity. }
+            { rewrite (qeqT_imp_qeq _ _ (real_cos_proj (real_const (projT1 w n)) n)). rewrite (qeqT_imp_qeq _ _ (real_cos_proj w n)). reflexivity. }
             rewrite Hq. reflexivity.
           - exact Hwpt. }
         exact Hwpt'.
     }
     apply (Qle_lt_trans (Qabs (projT1 w n - cos_zero_seq n)) (projT1 w n - cos_zero_seq n) eps).
-    + apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (projT1 w n))). apply Qlt_le_weak. exact Hzw.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (projT1 w n))). apply Qlt_le_weak. exact Hzw.
     + apply (Qle_lt_trans _ (2 * (eps / 8 + eps / 8)) _).
       * apply Qlt_le_weak. exact Hd.
       * assert (Hm : 2 * (eps / 8 + eps / 8) == eps / 2) by (unfold Qdiv; field).
         apply (Qle_lt_trans (2 * (eps / 8 + eps / 8)) (eps / 2) eps).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
            apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
            ++ apply (Qlt_shift_div_l 0 eps 2).
               ** change (Qlt 0 2). compute. reflexivity.
               ** simpl. exact HepsQ.
-           ++ apply qeq_le. unfold Qminus. field.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qminus. field.
   - (* w_n ≤ z_n：u := w_n、v := z_n（对称） *)
     assert (Hwpt' : Qlt (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n)) (eps / 8)).
     { apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n))
                           (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n))
                           (eps / 8)).
-      - apply qeq_le. apply Qabs_wd.
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
         assert (Hq : projT1 (cauchy_real_cos (real_const (projT1 w n))) n == projT1 (cauchy_real_cos w) n).
-        { rewrite (real_cos_proj (real_const (projT1 w n)) n). rewrite (real_cos_proj w n). reflexivity. }
+        { rewrite (qeqT_imp_qeq _ _ (real_cos_proj (real_const (projT1 w n)) n)). rewrite (qeqT_imp_qeq _ _ (real_cos_proj w n)). reflexivity. }
         rewrite Hq. reflexivity.
       - exact Hwpt. }
     assert (Hd : Qlt (cos_zero_seq n - projT1 w n) (2 * (eps / 8 + eps / 8))).
-    { apply (cos_inv_dist (projT1 w n) (cos_zero_seq n) (eps / 8) (eps / 8) n).
+    { apply QltT_to_Qlt. apply (cos_inv_dist (projT1 w n) (cos_zero_seq n) (eps / 8) (eps / 8) n).
       - exact Hn2.
       - exact Hwlo.
       - exact Hwz.
@@ -8720,7 +8875,7 @@ Proof.
       - apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n - projT1 real_zero n))
                             (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n))
                             (eps / 8)).
-        + apply qeq_le. apply Qabs_wd.
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
           assert (Hp : projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n ==
                        projT1 (cauchy_real_cos cos_pi_half) n).
           { cbn [projT1 cauchy_real_cos cos_pi_half real_const]. reflexivity. }
@@ -8728,18 +8883,18 @@ Proof.
         + exact Hzpt. }
     apply (Qle_lt_trans (Qabs (projT1 w n - cos_zero_seq n)) (cos_zero_seq n - projT1 w n) eps).
     + rewrite (Qabs_Qminus (projT1 w n) (cos_zero_seq n)).
-      apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (projT1 w n) (cos_zero_seq n))). exact Hwz.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (projT1 w n) (cos_zero_seq n))). exact Hwz.
     + apply (Qle_lt_trans _ (2 * (eps / 8 + eps / 8)) _).
       * apply Qlt_le_weak. exact Hd.
       * assert (Hm : 2 * (eps / 8 + eps / 8) == eps / 2) by (unfold Qdiv; field).
         apply (Qle_lt_trans (2 * (eps / 8 + eps / 8)) (eps / 2) eps).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
            apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
            ++ apply (Qlt_shift_div_l 0 eps 2).
               ** change (Qlt 0 2). compute. reflexivity.
               ** simpl. exact HepsQ.
-           ++ apply qeq_le. unfold Qminus. field.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qminus. field.
 Qed.
 
 (* ============================================================ *)
@@ -8756,50 +8911,52 @@ Qed.
 
 (* E_n 的 S6 上界（n ≥ 2）：E_{2+k} ≤ E_2（E 递减链下降至 E_2） *)
 Lemma sc_lp_ev_le_s6 : forall n : nat, (2 <= n)%nat ->
-  Qle (lp_odd n + lp_a (2 * n + 2)) (lp_odd 2 + lp_a 6).
+  QleT' (lp_odd n + lp_a (2 * n + 2)) (lp_odd 2 + lp_a 6).
 Proof.
   induction n as [| n IH]; intros Hn.
-  - exfalso. lia.
-  - destruct n as [| n'].
+  - apply Qle_to_QleT'. exfalso. lia.
+  - apply Qle_to_QleT'. destruct n as [| n'].
     + exfalso. lia.
     + destruct n' as [| n''].
       * (* n = 2：E_2 ≤ E_2 *)
         apply Qle_refl.
       * (* n = S (Datatypes.S (Datatypes.S n''))：E_n ≤ E_{S(Datatypes.S n'')} ≤ E_2 *)
         apply (Qle_trans _ (lp_odd (Datatypes.S (Datatypes.S n'')) + lp_a (2 * Datatypes.S (Datatypes.S n'') + 2)) _).
-        -- apply (sc_lp_ev_decr (Datatypes.S (Datatypes.S n''))).
-        -- apply IH. simpl in Hn. lia.
+        -- apply QleT'_to_Qle. apply (sc_lp_ev_decr (Datatypes.S (Datatypes.S n''))).
+        -- apply QleT'_to_Qle. apply IH. simpl in Hn. lia.
 Qed.
 
 (* 全 n 上界：lp_odd n ≤ S6（n≤2 经单调 + 非负尾；n≥2 经 E_n ≤ E_2） *)
-Lemma sc_lp_odd_le_s6 : forall n : nat, Qle (lp_odd n) (lp_odd 2 + lp_a 6).
+Lemma sc_lp_odd_le_s6 : forall n : nat, QleT' (lp_odd n) (lp_odd 2 + lp_a 6).
 Proof.
   intro n.
   destruct (Nat.leb 2 n) eqn:E2n.
-  - apply Nat.leb_le in E2n.
+  - apply Qle_to_QleT'. apply Nat.leb_le in E2n.
     apply (Qle_trans _ (lp_odd n + lp_a (2 * n + 2)) _).
     + apply (Qle_plus_nonneg_r (lp_odd n) (lp_a (2 * n + 2))).
-      apply sc_lpa_nonneg.
-    + apply sc_lp_ev_le_s6. exact E2n.
-  - apply Nat.leb_gt in E2n.
+      apply QleT'_to_Qle. apply sc_lpa_nonneg.
+    + apply QleT'_to_Qle. apply sc_lp_ev_le_s6. exact E2n.
+  - apply Qle_to_QleT'. apply Nat.leb_gt in E2n.
     assert (Hn2 : (n <= 2)%nat) by lia.
     apply (Qle_trans _ (lp_odd 2) _).
-    + apply sc_lp_odd_chain. exact Hn2.
+    + apply QleT'_to_Qle. apply sc_lp_odd_chain. exact Hn2.
     + apply (Qle_plus_nonneg_r (lp_odd 2) (lp_a 6)).
-      apply sc_lpa_nonneg.
+      apply QleT'_to_Qle. apply sc_lpa_nonneg.
 Qed.
 
 (* 具体比较：4·S6 == 147916/45045（S6 := lp_odd 2 + lp_a 6） *)
-Lemma sc_lp_six_value : lp_four * (lp_odd 2 + lp_a 6) == 147916 / 45045.
+Lemma sc_lp_six_value : QeqT (lp_four * (lp_odd 2 + lp_a 6)) (147916 / 45045).
 Proof.
+  apply qeq_imp_qeqT.
   unfold lp_four, lp_odd, lp_pair, lp_a.
   unfold Qeq. simpl. lia.
 Qed.
 
 (* 余量：1/60 < 10/3 − 4·S6（10/3 − 147916/45045 == 2234/45045 > 1/60） *)
-Lemma sc_lp_six_margin : Qlt (1 / 60) ((10 / 3) - lp_four * (lp_odd 2 + lp_a 6)).
+Lemma sc_lp_six_margin : QltT (1 / 60) ((10 / 3) - lp_four * (lp_odd 2 + lp_a 6)).
 Proof.
-  rewrite sc_lp_six_value.
+  apply Qlt_to_QltT.
+  rewrite (qeqT_imp_qeq _ _ (sc_lp_six_value)).
   unfold Qlt. simpl. lia.
 Qed.
 
@@ -8815,15 +8972,15 @@ Proof.
     simpl.
     apply Qlt_to_QltT.
     apply (Qlt_le_trans _ ((10 / 3) - lp_four * (lp_odd 2 + lp_a 6)) _).
-    + exact sc_lp_six_margin.
+    + exact (QltT_to_Qlt _ _ (sc_lp_six_margin)).
     + apply Qplus_le_compat.
       * apply Qle_refl.
       * apply Qopp_le_compat.
         setoid_replace (lp_four * lp_odd n) with (lp_odd n * lp_four) by ring.
         setoid_replace (lp_four * (lp_odd 2 + lp_a 6)) with ((lp_odd 2 + lp_a 6) * lp_four) by ring.
         apply (Qmult_le_compat_r (lp_odd n) (lp_odd 2 + lp_a 6) lp_four).
-        -- apply sc_lp_odd_le_s6.
-        -- apply sc_lp_four_nonneg.
+        -- apply QleT'_to_Qle. apply sc_lp_odd_le_s6.
+        -- apply QleT'_to_Qle. apply sc_lp_four_nonneg.
 Qed.
 
 (* 上界合取（供论文/下游引用）：3 < π_L < 10/3 *)
@@ -8840,9 +8997,10 @@ Qed.
 
 (* ---- 1a Q 层：0 ≤ q ⟹ |q−1| ≤ |q²−1|（正平方根==1 桥的 Q 内核） ---- *)
 Lemma sc_q_abs_minus_one_le_sq : forall q : Q, Qle 0 q ->
-  Qle (Qabs (q - 1)) (Qabs (q * q - 1)).
+  QleT' (Qabs (q - 1)) (Qabs (q * q - 1)).
 Proof.
   intros q Hq0.
+  apply Qle_to_QleT'.
   (* q² − 1 == (q−1)·(q+1) *)
   assert (Hring : q * q - 1 == (q - 1) * (q + 1)) by ring.
   rewrite Hring.
@@ -8878,7 +9036,7 @@ Proof.
     setoid_replace (cos_zero_seq n - 0) with (cos_zero_seq n) by ring.
     apply (Qlt_trans 1 (3 / 2) (cos_zero_seq n)).
     + change (Qlt 1 (3 / 2)). compute. reflexivity.
-    + exact (cos_zero_lower n).
+    + exact (QltT_to_Qlt _ _ (cos_zero_lower n)).
 Qed.
 
 (* π/2 < 2：z_n < 5/3 == 2 − 1/3 点态 ∀n（eps := 1/3，N := 0） *)
@@ -8892,14 +9050,14 @@ Proof.
     intros n Hn.
     cbn [projT1 cos_pi_half].
     apply Qlt_to_QltT.
-    setoid_rewrite (real_const_proj 2 n).
+    setoid_rewrite (qeqT_imp_qeq _ _ (real_const_proj 2 n)).
     (* 目标：Qlt (1/3) (2 − z_n) ⟺ z_n < 2 − 1/3 == 5/3（cos_zero_upper） *)
     apply (proj2 (Qlt_minus_iff (1 / 3) (2 - cos_zero_seq n))).
     assert (Heq : (2 - cos_zero_seq n) + - (1 / 3) == (5 / 3) - cos_zero_seq n).
     { unfold Qminus. field. }
     rewrite Heq.
     apply (proj1 (Qlt_minus_iff (cos_zero_seq n) (5 / 3))).
-    exact (cos_zero_upper n).
+    exact (QltT_to_Qlt _ _ (cos_zero_upper n)).
 Qed.
 
 (* ---- 1c：sin(π/2) > 0（real_sin_pos_lt_two 于 X := cos_pi_half） ---- *)
@@ -8937,11 +9095,11 @@ Proof.
   { apply Qlt_le_weak. apply (Qlt_trans _ m _); [exact Hm0q | exact Hxn]. }
   (* |x_n − 1| ≤ |x_n² − 1|（Q 层，1a 内核） *)
   assert (Hq : Qle (Qabs (projT1 x n - 1)) (Qabs (projT1 x n * projT1 x n - 1))).
-  { apply (sc_q_abs_minus_one_le_sq (projT1 x n)). exact Hxn0. }
+  { apply QleT'_to_Qle. apply (sc_q_abs_minus_one_le_sq (projT1 x n)). exact Hxn0. }
   (* |x_n² − 1| < eps（N1 起，real_eq (x·x) real_one 的点态） *)
   assert (Hsqn : Qlt (Qabs (projT1 (real_mult x x) n - projT1 real_one n)) eps).
   { apply QltT_to_Qlt. exact (HN1 n Hn1). }
-  rewrite (real_mult_proj x x n) in Hsqn.
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj x x n)) in Hsqn.
   assert (Ho : projT1 real_one n == 1) by (cbn [projT1]; reflexivity).
   rewrite Ho in Hsqn.
   apply (Qle_lt_trans _ (Qabs (projT1 x n * projT1 x n - 1)) _).
@@ -8994,11 +9152,12 @@ Qed.
 (* ============================================================ *)
 
 (* ---------- 通用：0 < c → a < c·b → a/c < b ---------- *)
-Lemma sc_qdiv_lt_rcancel : forall (a c b : Q), Qlt 0 c -> Qlt a (c * b) -> Qlt (a / c) b.
+Lemma sc_qdiv_lt_rcancel : forall (a c b : Q), Qlt 0 c -> Qlt a (c * b) -> QltT (a / c) b.
 Proof.
   intros a c b Hc Hab.
+  apply Qlt_to_QltT.
   apply (proj2 (Qlt_minus_iff (a / c) b)).
-  assert (Hm : b - a / c == (c * b - a) / c) by (unfold Qdiv; field; apply q_neq_of_lt; exact Hc).
+  assert (Hm : b - a / c == (c * b - a) / c) by (unfold Qdiv; field; intro Hz; exact (Qlt_not_eq 0 c Hc (Qeq_sym c 0 Hz))).
   rewrite Hm.
   apply (Qlt_shift_div_l 0 (c * b - a) c).
   - exact Hc.
@@ -9008,9 +9167,10 @@ Qed.
 (* ---------- A1：a > 1/20 ∧ b < 1/80 ⟹ 3/80 < a − b ---------- *)
 Lemma sc_q_gap_pos : forall (a b : Q),
   Qlt (1 / 20) a -> Qlt b (1 / 80) ->
-  Qlt (3 / 80) (a - b).
+  QltT (3 / 80) (a - b).
 Proof.
   intros a b Ha Hb.
+  apply Qlt_to_QltT.
   apply (proj2 (Qlt_minus_iff (3 / 80) (a - b))).
   assert (H3 : 3 / 80 == 1 / 20 - 1 / 80) by (unfold Qeq; simpl; lia).
   assert (Hm : a - b + - (3 / 80) == (a - 1 / 20) + (1 / 80 - b)).
@@ -9028,7 +9188,7 @@ Lemma sc_q_abs_three_halves_le_two_T : QleT' (Qabs (3 / 2)) 2.
 Proof.
   apply Qle_to_QleT'.
   apply (Qle_trans _ (3 / 2) _).
-  - apply qeq_le. apply (Qabs_pos (3 / 2)). unfold Qle; simpl; lia.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_pos (3 / 2)). unfold Qle; simpl; lia.
   - unfold Qle; simpl; lia.
 Qed.
 
@@ -9036,13 +9196,14 @@ Qed.
 Lemma sc_cos_partial_lip_arch : forall (C : Q) (m : nat) (z : Q),
   (forall mm : nat, QleT' (exp_series mm 2) C) ->
   QleT' (Qabs z) 2 ->
-  Qle (Qabs (cos_partial (Datatypes.S m) (3 / 2) - cos_partial (Datatypes.S m) z))
+  QleT' (Qabs (cos_partial (Datatypes.S m) (3 / 2) - cos_partial (Datatypes.S m) z))
       (Qabs (3 / 2 - z) * C).
 Proof.
   intros C m z HC Hz.
+  apply Qle_to_QleT'.
   assert (Hl : Qle (Qabs (cos_partial (Datatypes.S m) (3 / 2) - cos_partial (Datatypes.S m) z))
                    (Qabs (3 / 2 - z) * sc_sin_deriv_series m 2)).
-  { apply (sc_cos_partial_lipschitz_succ (3 / 2) z 2 m).
+  { apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ (3 / 2) z 2 m).
     - apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
     - exact sc_q_abs_three_halves_le_two_T.
     - exact Hz. }
@@ -9050,7 +9211,7 @@ Proof.
   - exact Hl.
   - assert (Hle : Qle (sc_sin_deriv_series m 2) C).
     { apply (Qle_trans _ (exp_series (Datatypes.S (2 * m)) 2) _).
-      - apply (sc_sin_deriv_series_le_exp m 2). apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
+      - apply QleT'_to_Qle. apply (sc_sin_deriv_series_le_exp m 2). apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
       - apply QleT'_to_Qle. apply HC. }
     setoid_rewrite (Qmult_comm (Qabs (3 / 2 - z)) (sc_sin_deriv_series m 2)).
     setoid_rewrite (Qmult_comm (Qabs (3 / 2 - z)) C).
@@ -9063,18 +9224,19 @@ Qed.
 Lemma sc_cos_partial_lip_arch53 : forall (C : Q) (m : nat) (z : Q),
   (forall mm : nat, QleT' (exp_series mm 2) C) ->
   QleT' (Qabs z) 2 ->
-  Qle (Qabs (cos_partial (Datatypes.S m) z - cos_partial (Datatypes.S m) (5 / 3)))
+  QleT' (Qabs (cos_partial (Datatypes.S m) z - cos_partial (Datatypes.S m) (5 / 3)))
       (Qabs (z - 5 / 3) * C).
 Proof.
   intros C m z HC Hz.
+  apply Qle_to_QleT'.
   assert (H53T : QleT' (Qabs (5 / 3)) 2).
   { apply Qle_to_QleT'.
     apply (Qle_trans _ (5 / 3) _).
-    - apply qeq_le. apply (Qabs_pos (5 / 3)). unfold Qle; simpl; lia.
+    - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_pos (5 / 3)). unfold Qle; simpl; lia.
     - unfold Qle; simpl; lia. }
   assert (Hl : Qle (Qabs (cos_partial (Datatypes.S m) z - cos_partial (Datatypes.S m) (5 / 3)))
                    (Qabs (z - 5 / 3) * sc_sin_deriv_series m 2)).
-  { apply (sc_cos_partial_lipschitz_succ z (5 / 3) 2 m).
+  { apply QleT'_to_Qle. apply (sc_cos_partial_lipschitz_succ z (5 / 3) 2 m).
     - apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
     - exact Hz.
     - exact H53T. }
@@ -9082,7 +9244,7 @@ Proof.
   - exact Hl.
   - assert (Hle : Qle (sc_sin_deriv_series m 2) C).
     { apply (Qle_trans _ (exp_series (Datatypes.S (2 * m)) 2) _).
-      - apply (sc_sin_deriv_series_le_exp m 2). apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
+      - apply QleT'_to_Qle. apply (sc_sin_deriv_series_le_exp m 2). apply Qle_to_QleT'. change (Qle 0 2). unfold Qle; simpl; lia.
       - apply QleT'_to_Qle. apply HC. }
     setoid_rewrite (Qmult_comm (Qabs (z - 5 / 3)) (sc_sin_deriv_series m 2)).
     setoid_rewrite (Qmult_comm (Qabs (z - 5 / 3)) C).
@@ -9103,12 +9265,13 @@ Lemma sc_cos_zero_lower_margin_gen : forall (C : Q) (n k : nat) (z : Q),
   QleT' (Qabs z) 2 ->
   Qlt (Qabs (cos_partial k z - 0)) (log_eps n) ->
   Qlt (3 / 2) z ->
-  Qlt ((3 / 80) / C) (z - 3 / 2).
+  QltT ((3 / 80) / C) (z - 3 / 2).
 Proof.
   intros C n k z Hk4 HC1 HC Hlog Hz Hroot H32z.
+  apply Qlt_to_QltT.
   destruct k as [|[|k'']]; [lia | lia |].
   assert (Hc32 : Qlt (1 / 20) (cos_partial (Datatypes.S (Datatypes.S k'')) (3 / 2)))
-    by (apply sc_cos_partial_ge4_pos_3h; lia).
+    by (apply QltT_to_Qlt; apply sc_cos_partial_ge4_pos_3h; lia).
   (* cos_partial z < log_eps n：|x−0|<e ⟹ x<e *)
   assert (Hczlog : Qlt (cos_partial (Datatypes.S (Datatypes.S k'')) z) (log_eps n)).
   { setoid_replace (cos_partial (Datatypes.S (Datatypes.S k'')) z - 0)
@@ -9121,12 +9284,12 @@ Proof.
     by (apply (Qlt_trans _ (log_eps n) _); [exact Hczlog | exact Hlog]).
   assert (Hgap : Qlt (3 / 80)
                        (cos_partial (Datatypes.S (Datatypes.S k'')) (3 / 2) - cos_partial (Datatypes.S (Datatypes.S k'')) z))
-    by (apply sc_q_gap_pos; [exact Hc32 | exact Hcz]).
+    by (apply QltT_to_Qlt; apply sc_q_gap_pos; [exact Hc32 | exact Hcz]).
   (* S m = S(S k'') ⟹ m := S k''：Lipschitz *)
   assert (Hlip : Qle (Qabs (cos_partial (Datatypes.S (Datatypes.S k'')) (3 / 2) -
                                cos_partial (Datatypes.S (Datatypes.S k'')) z))
                       (Qabs (3 / 2 - z) * C)).
-  { apply (sc_cos_partial_lip_arch C (Datatypes.S k'') z); [exact HC | exact Hz]. }
+  { apply QleT'_to_Qle. apply (sc_cos_partial_lip_arch C (Datatypes.S k'') z); [exact HC | exact Hz]. }
   assert (Habs : Qle (cos_partial (Datatypes.S (Datatypes.S k'')) (3 / 2) -
                         cos_partial (Datatypes.S (Datatypes.S k'')) z)
                      (Qabs (cos_partial (Datatypes.S (Datatypes.S k'')) (3 / 2) -
@@ -9153,7 +9316,7 @@ Proof.
     rewrite (Qmult_comm C (z - 3 / 2)).
     reflexivity. }
   rewrite Hm in HltC.
-  apply (sc_qdiv_lt_rcancel (3 / 80) C (z - 3 / 2)).
+  apply QltT_to_Qlt. apply (sc_qdiv_lt_rcancel (3 / 80) C (z - 3 / 2)).
   + apply (Qlt_le_trans _ 1 _).
     * change (Qlt 0 1). compute. reflexivity.
     * apply QleT'_to_Qle. exact HC1.
@@ -9165,16 +9328,15 @@ Qed.
    - z_n := cos_zero_seq n（projT1 cos_pi_half n）
    - 取 k := 满足 cos_root_pt_bound n 的模（∃k ≥ 4 且 |cos_partial k (z_n)| < log_eps n）——
      但 margin 引理要求同一 k 同时有 cos(3/2)_k > 1/20（k ≥ 4）与根界。
-     cos_root_pt_bound n 的 k 独立于 n 的任意大 k：直接取 k := Nat.max 4 (projT1 (cos_root_pt_bound n))。
+     cos_root_pt_bound n 的 k 独立于 n 的任意大 k：直接取 k := Nat.max 4 (projT1 ((cos_root_pt_bound n)))。
    - log_eps n < 1/80 需 n ≥ N₂（q_pow_arch）。 *)
 Lemma real_lt_three_halves_cos_pi_half : real_lt (real_const (3 / 2)) cos_pi_half.
 Proof.
   destruct (exp_series_arch 2 (qltT_leT' 0 2 qltT_0_2)) as [C [HC1 HC]].
-  destruct (q_pow_arch 1 (1 / 80)) as [t Ht].
-  { unfold Qle; simpl; lia. }
-  { unfold Qlt; simpl; lia. }
+  assert (Hq80 : Qlt 0 (1 / 80)) by (change (Qlt 0 (1 / 80)); compute; reflexivity).
+  destruct (q_pow_arch 1 (1 / 80) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Hq80)) as [t Ht].
   assert (HlogN : forall n : nat, (Datatypes.S t <= n)%nat -> Qlt (log_eps n) (1 / 80)).
-  { intros n Hn. apply (log_eps_lt_delta (1 / 80) t n). exact Ht. exact Hn. }
+  { intros n Hn. apply QltT_to_Qlt. apply (log_eps_lt_delta (1 / 80) t n). exact Ht. exact Hn. }
   unfold real_lt.
   exists ((1 / 80) / C).
   split.
@@ -9185,24 +9347,25 @@ Proof.
   - exists (Datatypes.S t).
     intros n Hn.
     assert (Hlog : Qlt (log_eps n) (1 / 80)) by (apply HlogN; exact (NatLe_drop _ _ Hn)).
-    destruct (cos_root_pt_bound n) as [N1 HN1].
+    destruct ((cos_root_pt_bound n)) as [N1 HN1].
     set (k := Nat.max 4 N1).
     assert (Hk4 : (4 <= k)%nat) by (unfold k; apply Nat.le_max_l).
     assert (HkN1 : (N1 <= k)%nat) by (unfold k; apply Nat.le_max_r).
     (* |cos_partial k (cos_zero_seq n) − 0| < log_eps n：投影展开 cos(real_const z) == cos_partial k z *)
     assert (Hroot : Qlt (Qabs (cos_partial k (cos_zero_seq n) - 0)) (log_eps n)).
-    { apply (HN1 k HkN1). }
+    { apply QltT_to_Qlt. apply (HN1 k (NatLe_lift _ _ HkN1)). }
     (* 逐点 3/2 < z_n *)
-    assert (Hz32 : Qlt (3 / 2) (cos_zero_seq n)) by (apply cos_zero_lower).
+    assert (Hz32 : Qlt (3 / 2) (cos_zero_seq n)) by (apply QltT_to_Qlt; apply cos_zero_lower).
     (* |z_n| ≤ 2（QleT'） *)
-    assert (HzT : QleT' (Qabs (cos_zero_seq n)) 2) by (apply Qle_to_QleT'; apply cos_zero_abs_le_two).
+    assert (HzT : QleT' (Qabs (cos_zero_seq n)) 2) by (apply Qle_to_QleT'; (apply QleT'_to_Qle; apply cos_zero_abs_le_two)).
     (* margin 引理：(3/80)/C < z_n − 3/2 *)
     assert (Hmgn : Qlt ((3 / 80) / C) (cos_zero_seq n - 3 / 2)).
-    { apply (sc_cos_zero_lower_margin_gen C n k (cos_zero_seq n) Hk4 HC1 HC Hlog HzT Hroot Hz32). }
+    { apply QltT_to_Qlt. apply (sc_cos_zero_lower_margin_gen C n k (cos_zero_seq n) Hk4 HC1 HC Hlog HzT Hroot Hz32). }
     (* (1/80)/C < (3/80)/C：差 == (1/40)/C，Qlt_shift_div_l *)
+    assert (HCpos : Qlt 0 C) by (apply (Qlt_le_trans 0 1 C); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1]).
     assert (Hlt_eps : Qlt ((1 / 80) / C) ((3 / 80) / C)).
     { apply (proj2 (Qlt_minus_iff ((1 / 80) / C) ((3 / 80) / C))).
-      assert (Hm : (3 / 80) / C + - ((1 / 80) / C) == (1 / 40) / C) by (unfold Qdiv; field; apply q_neq_of_lt; apply (Qlt_le_trans 0 1 C); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1]).
+      assert (Hm : (3 / 80) / C + - ((1 / 80) / C) == (1 / 40) / C) by (unfold Qdiv; field; intro Hz; exact (Qlt_not_eq 0 C HCpos (Qeq_sym C 0 Hz))).
       rewrite Hm.
       apply (Qlt_shift_div_l 0 (1 / 40) C).
       + apply (Qlt_le_trans _ 1 _); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1].
@@ -9216,8 +9379,8 @@ Proof.
       with (cos_zero_seq n - 3 / 2).
     + exact Hfinal.
     + apply Qeq_sym.
-      assert (Hp : projT1 cos_pi_half n == cos_zero_seq n) by (apply cos_pi_half_proj).
-      assert (Hc : projT1 (real_const (3 / 2)) n == 3 / 2) by (apply real_const_proj).
+      assert (Hp : projT1 cos_pi_half n == cos_zero_seq n) by (apply qeqT_imp_qeq; apply cos_pi_half_proj).
+      assert (Hc : projT1 (real_const (3 / 2)) n == 3 / 2) by (apply (qeqT_imp_qeq _ _ (real_const_proj (3 / 2) n))).
       rewrite Hp. rewrite Hc. reflexivity.
 Qed.
 
@@ -9234,10 +9397,11 @@ Lemma sc_cos_zero_upper_margin_gen : forall (C : Q) (n k : nat) (z : Q),
   QleT' (Qabs z) 2 ->
   Qlt (Qabs (cos_partial k z - 0)) (log_eps n) ->
   Qlt z (5 / 3) ->
-  Qlt ((3 / 400) / C) (5 / 3 - z).
+  QltT ((3 / 400) / C) (5 / 3 - z).
 Proof.
   intros C n k z Hk4 HC1 HC Hlog Hz Hroot H53z.
-  assert (Hc53 : Qlt (cos_partial k (5 / 3)) (- (1 / 100))) by (apply sc_cos_partial_ge4_neg_5t; exact Hk4).
+  apply Qlt_to_QltT.
+  assert (Hc53 : Qlt (cos_partial k (5 / 3)) (- (1 / 100))) by (apply QltT_to_Qlt; apply sc_cos_partial_ge4_neg_5t; exact Hk4).
   (* cos z > −log_eps n（|x−0|<e 的左半） *)
   assert (Hczlog : Qlt (- log_eps n) (cos_partial k z)).
   { setoid_replace (cos_partial k z - 0) with (cos_partial k z) in Hroot by ring.
@@ -9266,7 +9430,7 @@ Proof.
   assert (Hlip : Qle (Qabs (cos_partial (Datatypes.S (Datatypes.S k'')) z -
                                cos_partial (Datatypes.S (Datatypes.S k'')) (5 / 3)))
                       (Qabs (z - 5 / 3) * C)).
-  { apply (sc_cos_partial_lip_arch53 C (Datatypes.S k'') z); [exact HC | exact Hz]. }
+  { apply QleT'_to_Qle. apply (sc_cos_partial_lip_arch53 C (Datatypes.S k'') z); [exact HC | exact Hz]. }
   assert (Habs : Qle (cos_partial (Datatypes.S (Datatypes.S k'')) z - cos_partial (Datatypes.S (Datatypes.S k'')) (5 / 3))
                      (Qabs (cos_partial (Datatypes.S (Datatypes.S k'')) z - cos_partial (Datatypes.S (Datatypes.S k'')) (5 / 3))))
     by (apply Qle_Qabs).
@@ -9290,7 +9454,7 @@ Proof.
     rewrite (Qmult_comm C (5 / 3 - z)).
     reflexivity. }
   rewrite Hm in HltC.
-  apply (sc_qdiv_lt_rcancel (3 / 400) C (5 / 3 - z)).
+  apply QltT_to_Qlt. apply (sc_qdiv_lt_rcancel (3 / 400) C (5 / 3 - z)).
   + apply (Qlt_le_trans _ 1 _).
     * change (Qlt 0 1). compute. reflexivity.
     * apply QleT'_to_Qle. exact HC1.
@@ -9302,11 +9466,10 @@ Qed.
 Lemma real_lt_cos_pi_half_five_thirds : real_lt cos_pi_half (real_const (5 / 3)).
 Proof.
   destruct (exp_series_arch 2 (qltT_leT' 0 2 qltT_0_2)) as [C [HC1 HC]].
-  destruct (q_pow_arch 1 (1 / 400)) as [t Ht].
-  { unfold Qle; simpl; lia. }
-  { unfold Qlt; simpl; lia. }
+  assert (Hq400 : Qlt 0 (1 / 400)) by (change (Qlt 0 (1 / 400)); compute; reflexivity).
+  destruct (q_pow_arch 1 (1 / 400) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Hq400)) as [t Ht].
   assert (HlogN : forall n : nat, (Datatypes.S t <= n)%nat -> Qlt (log_eps n) (1 / 400)).
-  { intros n Hn. apply (log_eps_lt_delta (1 / 400) t n). exact Ht. exact Hn. }
+  { intros n Hn. apply QltT_to_Qlt. apply (log_eps_lt_delta (1 / 400) t n). exact Ht. exact Hn. }
   unfold real_lt.
   exists ((1 / 400) / C).
   split.
@@ -9317,19 +9480,20 @@ Proof.
   - exists (Datatypes.S t).
     intros n Hn.
     assert (Hlog : Qlt (log_eps n) (1 / 400)) by (apply HlogN; exact (NatLe_drop _ _ Hn)).
-    destruct (cos_root_pt_bound n) as [N1 HN1].
+    destruct ((cos_root_pt_bound n)) as [N1 HN1].
     set (k := Nat.max 4 N1).
     assert (Hk4 : (4 <= k)%nat) by (unfold k; apply Nat.le_max_l).
     assert (HkN1 : (N1 <= k)%nat) by (unfold k; apply Nat.le_max_r).
     assert (Hroot : Qlt (Qabs (cos_partial k (cos_zero_seq n) - 0)) (log_eps n)).
-    { apply (HN1 k HkN1). }
-    assert (Hz53 : Qlt (cos_zero_seq n) (5 / 3)) by (apply cos_zero_upper).
-    assert (HzT : QleT' (Qabs (cos_zero_seq n)) 2) by (apply Qle_to_QleT'; apply cos_zero_abs_le_two).
+    { apply QltT_to_Qlt. apply (HN1 k (NatLe_lift _ _ HkN1)). }
+    assert (Hz53 : Qlt (cos_zero_seq n) (5 / 3)) by (apply QltT_to_Qlt; apply cos_zero_upper).
+    assert (HzT : QleT' (Qabs (cos_zero_seq n)) 2) by (apply Qle_to_QleT'; (apply QleT'_to_Qle; apply cos_zero_abs_le_two)).
     assert (Hmgn : Qlt ((3 / 400) / C) (5 / 3 - cos_zero_seq n)).
-    { apply (sc_cos_zero_upper_margin_gen C n k (cos_zero_seq n) Hk4 HC1 HC Hlog HzT Hroot Hz53). }
+    { apply QltT_to_Qlt. apply (sc_cos_zero_upper_margin_gen C n k (cos_zero_seq n) Hk4 HC1 HC Hlog HzT Hroot Hz53). }
+    assert (HCpos : Qlt 0 C) by (apply (Qlt_le_trans 0 1 C); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1]).
     assert (Hlt_eps : Qlt ((1 / 400) / C) ((3 / 400) / C)).
     { apply (proj2 (Qlt_minus_iff ((1 / 400) / C) ((3 / 400) / C))).
-      assert (Hm : (3 / 400) / C + - ((1 / 400) / C) == (1 / 200) / C) by (unfold Qdiv; field; apply q_neq_of_lt; apply (Qlt_le_trans 0 1 C); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1]).
+      assert (Hm : (3 / 400) / C + - ((1 / 400) / C) == (1 / 200) / C) by (unfold Qdiv; field; intro Hz; exact (Qlt_not_eq 0 C HCpos (Qeq_sym C 0 Hz))).
       rewrite Hm.
       apply (Qlt_shift_div_l 0 (1 / 200) C).
       + apply (Qlt_le_trans _ 1 _); [change (Qlt 0 1); compute; reflexivity | apply QleT'_to_Qle; exact HC1].
@@ -9343,8 +9507,8 @@ Proof.
       with (5 / 3 - cos_zero_seq n).
     + exact Hfinal.
     + apply Qeq_sym.
-      assert (Hp : projT1 cos_pi_half n == cos_zero_seq n) by (apply cos_pi_half_proj).
-      assert (Hc : projT1 (real_const (5 / 3)) n == 5 / 3) by (apply real_const_proj).
+      assert (Hp : projT1 cos_pi_half n == cos_zero_seq n) by (apply qeqT_imp_qeq; apply cos_pi_half_proj).
+      assert (Hc : projT1 (real_const (5 / 3)) n == 5 / 3) by (apply (qeqT_imp_qeq _ _ (real_const_proj (5 / 3) n))).
       rewrite Hc. rewrite Hp. reflexivity.
 Qed.
 
@@ -9360,12 +9524,13 @@ Proof.
   - (* 3 == 2·(3/2)：等价常数 real_eq（sym 后逐点 field） *)
     apply real_eq_sym.
     apply real_eq_of_zero_diff. intro n.
-    rewrite (real_mult_proj (real_const 2) (real_const (3 / 2)) n).
-    rewrite (real_const_proj 2 n). rewrite (real_const_proj (3 / 2) n).
-    rewrite (real_const_proj 3 n). field.
+    apply qeq_imp_qeqT.
+    rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_const 2) (real_const (3 / 2)) n)).
+    rewrite (qeqT_imp_qeq _ _ (real_const_proj 2 n)). rewrite (qeqT_imp_qeq _ _ (real_const_proj (3 / 2) n)).
+    rewrite (qeqT_imp_qeq _ _ (real_const_proj 3 n)). field.
   - apply (real_lt_mult_compat (real_const (3 / 2)) cos_pi_half (real_const 2)).
     + (* 0 < 2 *)
-      apply real_const_lt. change (Qlt 0 2). compute. reflexivity.
+      apply real_const_lt. exact qltT_0_2.
     + exact real_lt_three_halves_cos_pi_half.
 Qed.
 
@@ -9375,12 +9540,13 @@ Proof.
   (* 2·π/2 < 2·(5/3) == 10/3 *)
   apply (real_lt_eq_lt _ (real_mult (real_const 2) (real_const (5 / 3))) _).
   - apply (real_lt_mult_compat cos_pi_half (real_const (5 / 3)) (real_const 2)).
-    + apply real_const_lt. change (Qlt 0 2). compute. reflexivity.
+    + apply real_const_lt. exact qltT_0_2.
     + exact real_lt_cos_pi_half_five_thirds.
   - apply real_eq_of_zero_diff. intro n.
-    rewrite (real_mult_proj (real_const 2) (real_const (5 / 3)) n).
-    rewrite (real_const_proj 2 n). rewrite (real_const_proj (5 / 3) n).
-    rewrite (real_const_proj (10 / 3) n). field.
+    apply qeq_imp_qeqT.
+    rewrite (qeqT_imp_qeq _ _ (real_mult_proj (real_const 2) (real_const (5 / 3)) n)).
+    rewrite (qeqT_imp_qeq _ _ (real_const_proj 2 n)). rewrite (qeqT_imp_qeq _ _ (real_const_proj (5 / 3) n)).
+    rewrite (qeqT_imp_qeq _ _ (real_const_proj (10 / 3) n)). field.
 Qed.
 
 Lemma real_pi_geom_between :
@@ -9404,15 +9570,16 @@ Lemma cos_inv_dist_le2 : forall (u v du dv : Q) (k : nat),
   (2 <= k)%nat -> Qle (3 / 2) u -> Qle u v -> Qle v 2 ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const u)) k - projT1 real_zero k)) du ->
   Qlt (Qabs (projT1 (cauchy_real_cos (real_const v)) k - projT1 real_zero k)) dv ->
-  Qlt (v - u) (2 * (du + dv)).
+  QltT (v - u) (2 * (du + dv)).
 Proof.
   intros u v du dv k Hk Hu0 Huv Hv2 Hdu Hdv.
+  apply Qlt_to_QltT.
   (* 0 ≤ u、v ≤ 2（cos_inv_pt 前提） *)
   assert (Hu0' : Qle 0 u) by (apply (Qle_trans _ (3 / 2) _); [change (Qle 0 (3 / 2)); unfold Qle, Qdiv; simpl; lia | exact Hu0]).
   assert (Hv2' : Qle v 2) by exact Hv2.
   (* (v²−u²)/6 < du + dv *)
   assert (Hq : Qlt ((v * v - u * u) * (1 / 6)) (du + dv)).
-  { apply (cos_inv_pt u v k du dv Hk Hu0' Huv Hv2' Hdu Hdv). }
+  { apply QltT_to_Qlt. apply (cos_inv_pt u v k du dv Hk Hu0' Huv Hv2' Hdu Hdv). }
   (* v²−u² == (v−u)(v+u) 且 v+u ≥ 3：3(v−u) ≤ v²−u² *)
   assert (Hprod : (v - u) * (v + u) == v * v - u * u) by ring.
   assert (Hvu3 : Qle ((v - u) * 3) ((v - u) * (v + u))).
@@ -9421,7 +9588,7 @@ Proof.
     - split; [change (Qle 0 3); unfold Qle; simpl; lia | ].
       assert (H3 : Qle 3 (v + u)).
       { apply (Qle_trans _ (3 / 2 + 3 / 2) _).
-        - apply qeq_le. unfold Qdiv. field.
+        - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. field.
         - apply (Qplus_le_compat (3 / 2) v (3 / 2) u).
           + apply (Qle_trans _ u _); [exact Hu0 | exact Huv].
           + exact Hu0. }
@@ -9431,24 +9598,25 @@ Proof.
   { apply (Qle_lt_trans (v - u) ((v * v - u * u) * (1 / 3)) (2 * (du + dv))).
     - (* v−u ≤ (v²−u²)/3：v−u == (v−u)·3·(1/3) ≤ (v²−u²)·(1/3) *)
       apply (Qle_trans _ (((v - u) * 3) * (1 / 3)) _).
-      + apply qeq_le.
+      + apply QleT'_to_Qle. apply qeq_le.
+      apply qeq_imp_qeqT.
         assert (Hr3 : ((v - u) * 3) * (1 / 3) == v - u) by (unfold Qdiv; field; unfold Qeq; simpl; lia).
         apply Qeq_sym. exact Hr3.
       + apply (Qmult_le_compat_r ((v - u) * 3) (v * v - u * u) (1 / 3)).
         * apply (Qle_trans _ ((v - u) * (v + u)) _).
           -- exact Hvu3.
-          -- apply qeq_le. exact Hprod.
+          -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hprod.
         * apply (Qlt_le_weak 0 (1 / 3)). change (Qlt 0 (1 / 3)). unfold Qdiv. compute. reflexivity.
     - (* (v²−u²)/3 < 2(du+dv) *)
       assert (Hm : (v * v - u * u) * (1 / 3) == ((v * v - u * u) * (1 / 6)) * 2) by (unfold Qdiv; field; unfold Qeq; simpl; lia).
       assert (Hm2 : (du + dv) * 2 == 2 * (du + dv)) by ring.
       apply (Qlt_le_trans ((v * v - u * u) * (1 / 3)) ((du + dv) * 2) (2 * (du + dv))).
       * apply (Qle_lt_trans ((v * v - u * u) * (1 / 3)) (((v * v - u * u) * (1 / 6)) * 2) ((du + dv) * 2)).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (Qmult_lt_compat_r ((v * v - u * u) * (1 / 6)) (du + dv) 2).
            ++ change (Qlt 0 2). compute. reflexivity.
            ++ exact Hq.
-      * apply qeq_le. exact Hm2. }
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm2. }
   exact Hq2.
 Qed.
 
@@ -9469,13 +9637,11 @@ Proof.
     - change (Qlt 0 8). compute. reflexivity.
     - simpl. exact HepsQ. }
   (* 逐点界来源：w 侧（端点 + cos w == 0 对角）、z 侧（cos_zero_lower/upper + cos z == 0 对角） *)
-  destruct (real_lt_lower_pt (3 / 2) w Hlow) as [Nlo HNlo].
-  destruct (real_lt_upper_pt 2 w Hup) as [Nup HNup].
-  destruct (cos_eq_zero_diag_bound w Hw0 (eps / 8) Heps8) as [Nwd Hwd].
-  destruct (cos_eq_zero_diag_bound cos_pi_half real_cos_pi_half_zero (eps / 8) Heps8) as [Nzd Hzd].
-  destruct (q_pow_arch 1 (eps / 8)) as [t Ht].
-  { apply Qlt_le_weak. change (Qlt 0 1). compute. reflexivity. }
-  { exact Heps8. }
+  destruct ((real_lt_lower_pt (3 / 2) w Hlow)) as [Nlo HNlo].
+  destruct ((real_lt_upper_pt 2 w Hup)) as [Nup HNup].
+  destruct ((cos_eq_zero_diag_bound w Hw0 (eps / 8) Heps8)) as [Nwd Hwd].
+  destruct ((cos_eq_zero_diag_bound cos_pi_half real_cos_pi_half_zero (eps / 8) Heps8)) as [Nzd Hzd].
+  destruct (q_pow_arch 1 (eps / 8) (qltT_leT' 0 1 qltT_0_1) (Qlt_to_QltT _ _ Heps8)) as [t Ht].
   set (A := Nat.max Nlo (Nat.max Nup (Nat.max Nwd Nzd))).
   exists (Nat.max 2 (Nat.max A (Datatypes.S t))).
   intros n Hn.
@@ -9500,21 +9666,21 @@ Proof.
   (* w_n ∈ (3/2, 2)、z_n ∈ (3/2, 5/3)（Q 层） *)
   assert (Hwlo : Qle (3 / 2) (projT1 w n)) by (apply Qlt_le_weak; apply (HNlo n); exact Hnlo).
   assert (Hwup : Qle (projT1 w n) 2) by (apply Qlt_le_weak; apply (HNup n); exact Hnup).
-  assert (Hzlo : Qle (3 / 2) (cos_zero_seq n)) by (apply Qlt_le_weak; apply cos_zero_lower).
-  assert (Hzup : Qle (cos_zero_seq n) (5 / 3)) by (apply Qlt_le_weak; apply cos_zero_upper).
+  assert (Hzlo : Qle (3 / 2) (cos_zero_seq n)) by (apply Qlt_le_weak; (apply QltT_to_Qlt; apply cos_zero_lower)).
+  assert (Hzup : Qle (cos_zero_seq n) (5 / 3)) by (apply Qlt_le_weak; (apply QltT_to_Qlt; apply cos_zero_upper)).
   (* z 侧 v ≤ 2（5/3 ≤ 2 传递，cos_inv_dist_le2 前提） *)
   assert (Hzup2 : Qle (cos_zero_seq n) 2).
   { apply (Qle_trans _ (5 / 3) _); [exact Hzup | change (Qle (5 / 3) 2); unfold Qle, Qdiv; simpl; lia]. }
   (* cos w_n 与 cos z_n 的对角界 < eps/8 *)
   assert (Hwpt : Qlt (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n)) (eps / 8)).
-  { apply (Hwd n). exact Hnwd. }
+  { apply QltT_to_Qlt. apply (Hwd n). exact Hnwd. }
   assert (Hzpt : Qlt (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n)) (eps / 8)).
-  { apply (Hzd n). exact Hnzd. }
+  { apply QltT_to_Qlt. apply (Hzd n). exact Hnzd. }
   (* 分支：|w_n − z_n| ≤ eps/2 < eps（逆界，u := 小者） *)
   destruct (Qlt_le_dec (cos_zero_seq n) (projT1 w n)) as [Hzw | Hwz].
   - (* z_n < w_n：u := z_n、v := w_n *)
     assert (Hd : Qlt (projT1 w n - cos_zero_seq n) (2 * (eps / 8 + eps / 8))).
-    { apply (cos_inv_dist_le2 (cos_zero_seq n) (projT1 w n) (eps / 8) (eps / 8) n).
+    { apply QltT_to_Qlt. apply (cos_inv_dist_le2 (cos_zero_seq n) (projT1 w n) (eps / 8) (eps / 8) n).
       - exact Hn2.
       - exact Hzlo.
       - apply Qlt_le_weak. exact Hzw.
@@ -9522,7 +9688,7 @@ Proof.
       - apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n - projT1 real_zero n))
                             (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n))
                             (eps / 8)).
-        + apply qeq_le. apply Qabs_wd.
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
           assert (Hp : projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n ==
                        projT1 (cauchy_real_cos cos_pi_half) n).
           { cbn [projT1 cauchy_real_cos cos_pi_half real_const]. reflexivity. }
@@ -9532,38 +9698,38 @@ Proof.
         { apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n))
                               (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n))
                               (eps / 8)).
-          - apply qeq_le. apply Qabs_wd.
+          - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
             assert (Hq : projT1 (cauchy_real_cos (real_const (projT1 w n))) n == projT1 (cauchy_real_cos w) n).
-            { rewrite (real_cos_proj (real_const (projT1 w n)) n). rewrite (real_cos_proj w n). reflexivity. }
+            { rewrite (qeqT_imp_qeq _ _ (real_cos_proj (real_const (projT1 w n)) n)). rewrite (qeqT_imp_qeq _ _ (real_cos_proj w n)). reflexivity. }
             rewrite Hq. reflexivity.
           - exact Hwpt. }
         exact Hwpt'.
     }
     apply (Qle_lt_trans (Qabs (projT1 w n - cos_zero_seq n)) (projT1 w n - cos_zero_seq n) eps).
-    + apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (projT1 w n))). apply Qlt_le_weak. exact Hzw.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (cos_zero_seq n) (projT1 w n))). apply Qlt_le_weak. exact Hzw.
     + apply (Qle_lt_trans _ (2 * (eps / 8 + eps / 8)) _).
       * apply Qlt_le_weak. exact Hd.
       * assert (Hm : 2 * (eps / 8 + eps / 8) == eps / 2) by (unfold Qdiv; field).
         apply (Qle_lt_trans (2 * (eps / 8 + eps / 8)) (eps / 2) eps).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
            apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
            ++ apply (Qlt_shift_div_l 0 eps 2).
               ** change (Qlt 0 2). compute. reflexivity.
               ** simpl. exact HepsQ.
-           ++ apply qeq_le. unfold Qminus. field.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qminus. field.
   - (* w_n ≤ z_n：u := w_n、v := z_n（对称） *)
     assert (Hwpt' : Qlt (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n)) (eps / 8)).
     { apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (projT1 w n))) n - projT1 real_zero n))
                           (Qabs (projT1 (cauchy_real_cos w) n - projT1 real_zero n))
                           (eps / 8)).
-      - apply qeq_le. apply Qabs_wd.
+      - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
         assert (Hq : projT1 (cauchy_real_cos (real_const (projT1 w n))) n == projT1 (cauchy_real_cos w) n).
-        { rewrite (real_cos_proj (real_const (projT1 w n)) n). rewrite (real_cos_proj w n). reflexivity. }
+        { rewrite (qeqT_imp_qeq _ _ (real_cos_proj (real_const (projT1 w n)) n)). rewrite (qeqT_imp_qeq _ _ (real_cos_proj w n)). reflexivity. }
         rewrite Hq. reflexivity.
       - exact Hwpt. }
     assert (Hd : Qlt (cos_zero_seq n - projT1 w n) (2 * (eps / 8 + eps / 8))).
-    { apply (cos_inv_dist_le2 (projT1 w n) (cos_zero_seq n) (eps / 8) (eps / 8) n).
+    { apply QltT_to_Qlt. apply (cos_inv_dist_le2 (projT1 w n) (cos_zero_seq n) (eps / 8) (eps / 8) n).
       - exact Hn2.
       - exact Hwlo.
       - exact Hwz.
@@ -9572,7 +9738,7 @@ Proof.
       - apply (Qle_lt_trans (Qabs (projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n - projT1 real_zero n))
                             (Qabs (projT1 (cauchy_real_cos cos_pi_half) n - projT1 real_zero n))
                             (eps / 8)).
-        + apply qeq_le. apply Qabs_wd.
+        + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd.
           assert (Hp : projT1 (cauchy_real_cos (real_const (cos_zero_seq n))) n ==
                        projT1 (cauchy_real_cos cos_pi_half) n).
           { cbn [projT1 cauchy_real_cos cos_pi_half real_const]. reflexivity. }
@@ -9580,18 +9746,18 @@ Proof.
         + exact Hzpt. }
     apply (Qle_lt_trans (Qabs (projT1 w n - cos_zero_seq n)) (cos_zero_seq n - projT1 w n) eps).
     + rewrite (Qabs_Qminus (projT1 w n) (cos_zero_seq n)).
-      apply qeq_le. apply Qabs_pos. apply (proj1 (Qle_minus_iff (projT1 w n) (cos_zero_seq n))). exact Hwz.
+      apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_pos. apply (proj1 (Qle_minus_iff (projT1 w n) (cos_zero_seq n))). exact Hwz.
     + apply (Qle_lt_trans _ (2 * (eps / 8 + eps / 8)) _).
       * apply Qlt_le_weak. exact Hd.
       * assert (Hm : 2 * (eps / 8 + eps / 8) == eps / 2) by (unfold Qdiv; field).
         apply (Qle_lt_trans (2 * (eps / 8 + eps / 8)) (eps / 2) eps).
-        -- apply qeq_le. exact Hm.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hm.
         -- apply (proj2 (Qlt_minus_iff (eps / 2) eps)).
            apply (Qlt_le_trans 0 (eps / 2) (eps - eps / 2)).
            ++ apply (Qlt_shift_div_l 0 eps 2).
               ** change (Qlt 0 2). compute. reflexivity.
               ** simpl. exact HepsQ.
-           ++ apply qeq_le. unfold Qminus. field.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qminus. field.
 Qed.
 
 (* ============================================================ *)
@@ -9643,9 +9809,10 @@ Proof.
     (* D == exp x·(exp h − 1 − h)：exp_diff_factor + 减法提因子 *)
     assert (Hxxh : real_eq (real_plus (real_plus x h) (real_opp x)) h).
     { apply real_eq_of_zero_diff. intro n.
-      setoid_rewrite (real_plus_proj (real_plus x h) (real_opp x) n).
-      setoid_rewrite (real_plus_proj x h n).
-      setoid_rewrite (real_opp_proj x n).
+      apply qeq_imp_qeqT.
+      rewrite (qeqT_imp_qeq _ _ (real_plus_proj (real_plus x h) (real_opp x) n)).
+      rewrite (qeqT_imp_qeq _ _ (real_plus_proj x h n)).
+      rewrite (qeqT_imp_qeq _ _ (real_opp_proj x n)).
       simpl. ring. }
     assert (Hmain_eq : real_eq (real_plus (cauchy_real_exp (real_plus x h))
                       (real_opp (real_plus (cauchy_real_exp x) (real_mult (cauchy_real_exp x) h))))
@@ -9776,23 +9943,25 @@ Lemma real_half_const_three : real_eq (real_mult (real_const (1 / 2)) (real_cons
                                      (real_const (3 / 2)).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite !(real_mult_proj (real_const (1 / 2)) (real_const 3) n).
-  rewrite !(real_const_proj (1 / 2) n). rewrite !(real_const_proj 3 n).
-  rewrite (real_const_proj (3 / 2) n). field.
+  apply qeq_imp_qeqT.
+  rewrite !(qeqT_imp_qeq _ _ (real_mult_proj (real_const (1 / 2)) (real_const 3) n)).
+  rewrite !(qeqT_imp_qeq _ _ (real_const_proj (1 / 2) n)). rewrite !(qeqT_imp_qeq _ _ (real_const_proj 3 n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj (3 / 2) n)). field.
 Qed.
 
 Lemma real_half_const_ten_thirds : real_eq (real_mult (real_const (1 / 2)) (real_const (10 / 3)))
                                          (real_const (5 / 3)).
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite !(real_mult_proj (real_const (1 / 2)) (real_const (10 / 3)) n).
-  rewrite !(real_const_proj (1 / 2) n). rewrite !(real_const_proj (10 / 3) n).
-  rewrite (real_const_proj (5 / 3) n). field.
+  apply qeq_imp_qeqT.
+  rewrite !(qeqT_imp_qeq _ _ (real_mult_proj (real_const (1 / 2)) (real_const (10 / 3)) n)).
+  rewrite !(qeqT_imp_qeq _ _ (real_const_proj (1 / 2) n)). rewrite !(qeqT_imp_qeq _ _ (real_const_proj (10 / 3) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_const_proj (5 / 3) n)). field.
 Qed.
 
 Lemma real_half_pos : real_lt real_zero (real_const (1 / 2)).
 Proof.
-  apply real_const_lt. change (Qlt 0 (1 / 2)). compute. reflexivity.
+  apply real_const_lt. apply Qlt_to_QltT. change (Qlt 0 (1 / 2)). compute. reflexivity.
 Qed.
 
 (* (1/2)·π_L == π_L·(1/2)（w 的换序） *)
@@ -9840,8 +10009,9 @@ Qed.
 Lemma real_two_half_one : real_eq (real_mult (real_const 2) (real_const (1 / 2))) real_one.
 Proof.
   apply real_eq_of_zero_diff. intro n.
-  rewrite !(real_mult_proj (real_const 2) (real_const (1 / 2)) n).
-  rewrite !(real_const_proj 2 n). rewrite !(real_const_proj (1 / 2) n).
+  apply qeq_imp_qeqT.
+  rewrite !(qeqT_imp_qeq _ _ (real_mult_proj (real_const 2) (real_const (1 / 2)) n)).
+  rewrite !(qeqT_imp_qeq _ _ (real_const_proj 2 n)). rewrite !(qeqT_imp_qeq _ _ (real_const_proj (1 / 2) n)).
   cbn [projT1 real_one]. field.
 Qed.
 
@@ -9866,7 +10036,8 @@ Proof.
            ++ exact real_two_half_one.
         -- (* x·1 == x（逐点 ring） *)
            apply real_eq_of_zero_diff. intro n.
-           rewrite (real_mult_proj x real_one n).
+           apply qeq_imp_qeqT.
+           rewrite (qeqT_imp_qeq _ _ (real_mult_proj x real_one n)).
            cbn [projT1 real_one]. ring.
 Qed.
 
@@ -9876,21 +10047,20 @@ Qed.
 (*   Real 层装配前置（sE 续作）                              *)
 (* ============================================================ *)
 
-Lemma sc_add_q_pow_ext : forall (x : Q) (n m : nat), n = m -> q_pow x n == q_pow x m.
+Lemma sc_add_q_pow_ext : forall (x : Q) (n m : nat), n = m ->QeqT (q_pow x n) (q_pow x m).
 Proof.
-  intros x n m H. rewrite H. reflexivity.
+  intros x n m H. apply qeq_imp_qeqT. rewrite H. reflexivity.
 Qed.
 
 (* ============================================================ *)
 (* A：cos_term i x · sin_term k y 的「组合分母」形式            *)
 (*   == (−1)^{i+k} · x^{2i} · y^{S(2k)} · /((2i)!·(S(2k))!)     *)
 (* ============================================================ *)
-Lemma sc_add_csin_pair : forall (x y : Q) (i k : nat),
-  cos_term i x * sin_term k y ==
-  q_pow (-1) (i + k) * (q_pow x (2 * i) * q_pow y (Datatypes.S (2 * k))) *
-    Qinv (q_fact (2 * i) * q_fact (Datatypes.S (2 * k))).
+Lemma sc_add_csin_pair : forall (x y : Q) (i k : nat), QeqT (cos_term i x * sin_term k y) (q_pow (-1) (i + k) * (q_pow x (2 * i) * q_pow y (Datatypes.S (2 * k))) *
+    Qinv (q_fact (2 * i) * q_fact (Datatypes.S (2 * k)))).
 Proof.
   intros x y i k.
+  apply qeq_imp_qeqT.
   unfold cos_term, sin_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow x (2 * i) * Qinv (q_fact (2 * i)))) *
                 (q_pow (-1) k * (q_pow y (Datatypes.S (2 * k)) * Qinv (q_fact (Datatypes.S (2 * k))))) ==
@@ -9900,7 +10070,7 @@ Proof.
   { ring. }
   rewrite Hre.
   rewrite <- (Qinv_mult_distr (q_fact (2 * i)) (q_fact (Datatypes.S (2 * k)))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite <- (q_pow_add (-1) i k).
+  rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i k)).
   ring.
 Qed.
 
@@ -9908,12 +10078,11 @@ Qed.
 (* B：sin_term i x · cos_term k y == (−1)^{i+k} x^{S(2i)} y^{2k} *)
 (*    / ((S(2i))!·(2k)!)                                        *)
 (* ============================================================ *)
-Lemma sc_add_sinc_pair : forall (x y : Q) (i k : nat),
-  sin_term i x * cos_term k y ==
-  q_pow (-1) (i + k) * (q_pow x (Datatypes.S (2 * i)) * q_pow y (2 * k)) *
-    Qinv (q_fact (Datatypes.S (2 * i)) * q_fact (2 * k)).
+Lemma sc_add_sinc_pair : forall (x y : Q) (i k : nat), QeqT (sin_term i x * cos_term k y) (q_pow (-1) (i + k) * (q_pow x (Datatypes.S (2 * i)) * q_pow y (2 * k)) *
+    Qinv (q_fact (Datatypes.S (2 * i)) * q_fact (2 * k))).
 Proof.
   intros x y i k.
+  apply qeq_imp_qeqT.
   unfold sin_term, cos_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow x (Datatypes.S (2 * i)) * Qinv (q_fact (Datatypes.S (2 * i))))) *
                 (q_pow (-1) k * (q_pow y (2 * k) * Qinv (q_fact (2 * k)))) ==
@@ -9923,7 +10092,7 @@ Proof.
   { ring. }
   rewrite Hre.
   rewrite <- (Qinv_mult_distr (q_fact (Datatypes.S (2 * i))) (q_fact (2 * k))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite <- (q_pow_add (-1) i k).
+  rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i k)).
   ring.
 Qed.
 
@@ -9931,12 +10100,11 @@ Qed.
 (* C：cos_term i x · cos_term k y == (−1)^{i+k} x^{2i} y^{2k}    *)
 (*    / ((2i)!·(2k)!)                                           *)
 (* ============================================================ *)
-Lemma sc_add_cc_pair : forall (x y : Q) (i k : nat),
-  cos_term i x * cos_term k y ==
-  q_pow (-1) (i + k) * (q_pow x (2 * i) * q_pow y (2 * k)) *
-    Qinv (q_fact (2 * i) * q_fact (2 * k)).
+Lemma sc_add_cc_pair : forall (x y : Q) (i k : nat), QeqT (cos_term i x * cos_term k y) (q_pow (-1) (i + k) * (q_pow x (2 * i) * q_pow y (2 * k)) *
+    Qinv (q_fact (2 * i) * q_fact (2 * k))).
 Proof.
   intros x y i k.
+  apply qeq_imp_qeqT.
   unfold cos_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow x (2 * i) * Qinv (q_fact (2 * i)))) *
                 (q_pow (-1) k * (q_pow y (2 * k) * Qinv (q_fact (2 * k)))) ==
@@ -9946,7 +10114,7 @@ Proof.
   { ring. }
   rewrite Hre.
   rewrite <- (Qinv_mult_distr (q_fact (2 * i)) (q_fact (2 * k))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite <- (q_pow_add (-1) i k).
+  rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i k)).
   ring.
 Qed.
 
@@ -9954,12 +10122,11 @@ Qed.
 (* D：sin_term i x · sin_term k y == (−1)^{i+k} x^{S(2i)} y^{S(2k)} *)
 (*    / ((S(2i))!·(S(2k))!)                                     *)
 (* ============================================================ *)
-Lemma sc_add_ss_pair : forall (x y : Q) (i k : nat),
-  sin_term i x * sin_term k y ==
-  q_pow (-1) (i + k) * (q_pow x (Datatypes.S (2 * i)) * q_pow y (Datatypes.S (2 * k))) *
-    Qinv (q_fact (Datatypes.S (2 * i)) * q_fact (Datatypes.S (2 * k))).
+Lemma sc_add_ss_pair : forall (x y : Q) (i k : nat), QeqT (sin_term i x * sin_term k y) (q_pow (-1) (i + k) * (q_pow x (Datatypes.S (2 * i)) * q_pow y (Datatypes.S (2 * k))) *
+    Qinv (q_fact (Datatypes.S (2 * i)) * q_fact (Datatypes.S (2 * k)))).
 Proof.
   intros x y i k.
+  apply qeq_imp_qeqT.
   unfold sin_term. unfold Qdiv.
   assert (Hre : (q_pow (-1) i * (q_pow x (Datatypes.S (2 * i)) * Qinv (q_fact (Datatypes.S (2 * i))))) *
                 (q_pow (-1) k * (q_pow y (Datatypes.S (2 * k)) * Qinv (q_fact (Datatypes.S (2 * k))))) ==
@@ -9969,7 +10136,7 @@ Proof.
   { ring. }
   rewrite Hre.
   rewrite <- (Qinv_mult_distr (q_fact (Datatypes.S (2 * i))) (q_fact (Datatypes.S (2 * k)))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite <- (q_pow_add (-1) i k).
+  rewrite <- (qeqT_imp_qeq _ _ (q_pow_add (-1) i k)).
   ring.
 Qed.
 
@@ -9979,20 +10146,19 @@ Qed.
 (*   sin_partial n (X n)·cos_partial n (Y n) +                   *)
 (*   cos_partial n (X n)·sin_partial n (Y n)                     *)
 (* ============================================================ *)
-Lemma rs_add_sin_rhs_proj : forall (X Y : Real) (n : nat),
-  projT1 (real_plus (real_mult (cauchy_real_sin X) (cauchy_real_cos Y))
-                     (real_mult (cauchy_real_cos X) (cauchy_real_sin Y))) n ==
-  sin_partial n (projT1 X n) * cos_partial n (projT1 Y n) +
-  cos_partial n (projT1 X n) * sin_partial n (projT1 Y n).
+Lemma rs_add_sin_rhs_proj : forall (X Y : Real) (n : nat), QeqT (projT1 (real_plus (real_mult (cauchy_real_sin X) (cauchy_real_cos Y))
+                     (real_mult (cauchy_real_cos X) (cauchy_real_sin Y))) n) (sin_partial n (projT1 X n) * cos_partial n (projT1 Y n) +
+  cos_partial n (projT1 X n) * sin_partial n (projT1 Y n)).
 Proof.
   intros X Y n.
-  rewrite real_plus_proj.
-  rewrite (real_mult_proj (cauchy_real_sin X) (cauchy_real_cos Y) n).
-  rewrite (real_mult_proj (cauchy_real_cos X) (cauchy_real_sin Y) n).
-  rewrite (real_cos_proj Y n).
-  rewrite (real_sin_proj X n).
-  rewrite (real_cos_proj X n).
-  rewrite (real_sin_proj Y n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_sin X) (cauchy_real_cos Y) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_cos X) (cauchy_real_sin Y) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_cos_proj Y n)).
+  rewrite (qeqT_imp_qeq _ _ (real_sin_proj X n)).
+  rewrite (qeqT_imp_qeq _ _ (real_cos_proj X n)).
+  rewrite (qeqT_imp_qeq _ _ (real_sin_proj Y n)).
   reflexivity.
 Qed.
 
@@ -10001,30 +10167,30 @@ Qed.
 (*   cos_partial n (X n)·cos_partial n (Y n) −                   *)
 (*   sin_partial n (X n)·sin_partial n (Y n)                     *)
 (* ============================================================ *)
-Lemma rs_add_cos_rhs_proj : forall (X Y : Real) (n : nat),
-  projT1 (real_plus (real_mult (cauchy_real_cos X) (cauchy_real_cos Y))
-                     (real_opp (real_mult (cauchy_real_sin X) (cauchy_real_sin Y)))) n ==
-  cos_partial n (projT1 X n) * cos_partial n (projT1 Y n) -
-  sin_partial n (projT1 X n) * sin_partial n (projT1 Y n).
+Lemma rs_add_cos_rhs_proj : forall (X Y : Real) (n : nat), QeqT (projT1 (real_plus (real_mult (cauchy_real_cos X) (cauchy_real_cos Y))
+                     (real_opp (real_mult (cauchy_real_sin X) (cauchy_real_sin Y)))) n) (cos_partial n (projT1 X n) * cos_partial n (projT1 Y n) -
+  sin_partial n (projT1 X n) * sin_partial n (projT1 Y n)).
 Proof.
   intros X Y n.
-  rewrite real_plus_proj.
-  rewrite (real_mult_proj (cauchy_real_cos X) (cauchy_real_cos Y) n).
-  rewrite real_opp_proj.
-  rewrite (real_mult_proj (cauchy_real_sin X) (cauchy_real_sin Y) n).
-  rewrite (real_cos_proj X n).
-  rewrite (real_cos_proj Y n).
-  rewrite (real_sin_proj X n).
-  rewrite (real_sin_proj Y n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_cos X) (cauchy_real_cos Y) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_opp_proj _ _)).
+  rewrite (qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_sin X) (cauchy_real_sin Y) n)).
+  rewrite (qeqT_imp_qeq _ _ (real_cos_proj X n)).
+  rewrite (qeqT_imp_qeq _ _ (real_cos_proj Y n)).
+  rewrite (qeqT_imp_qeq _ _ (real_sin_proj X n)).
+  rewrite (qeqT_imp_qeq _ _ (real_sin_proj Y n)).
   reflexivity.
 Qed.
 
-Lemma sc_add_neg_sign : forall (j : nat), (1 <= j)%nat -> q_pow (-1) j == - q_pow (-1) (j - 1).
+Lemma sc_add_neg_sign : forall (j : nat), (1 <= j)%nat ->QeqT (q_pow (-1) j) (- q_pow (-1) (j - 1)).
 Proof.
   intros j Hj.
+  apply qeq_imp_qeqT.
   assert (HjS : (j = Datatypes.S (j - 1))%nat) by lia.
   rewrite HjS at 1.
-  rewrite (q_pow_succ (-1) (j - 1)).
+  rewrite (qeqT_imp_qeq _ _ (q_pow_succ (-1) (j - 1))).
   ring.
 Qed.
 
@@ -10033,23 +10199,21 @@ Qed.
 (*   == (cos_term i x)·(sin_term (j−i) y)                        *)
 (*   (−1)^j·C(S(2j),2i)·x^{2i}·y^{S(2j)−2i} / (S(2j))!           *)
 (* ============================================================ *)
-Lemma sc_add_sin_even_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->
-  q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (2 * i) * q_pow x (2 * i) *
-                  q_pow y (Nat.sub (Datatypes.S (2 * j)) (2 * i))) / q_fact (Datatypes.S (2 * j))) ==
-  cos_term i x * sin_term (j - i) y.
+Lemma sc_add_sin_even_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->QeqT (q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (2 * i) * q_pow x (2 * i) *
+                  q_pow y (Nat.sub (Datatypes.S (2 * j)) (2 * i))) / q_fact (Datatypes.S (2 * j)))) (cos_term i x * sin_term (j - i) y).
 Proof.
   intros x y j i Hij.
-  unfold Qdiv.
-  (* LHS：把 C·QinvF 从乘积中抽出成 C/F 形式（q_choose_div_fact 落点） *)
+  apply qeq_imp_qeqT.
+  (* LHS：把 C/F 从乘积中抽出（q_choose_div_fact 落点·/ 形对齐世界 S07:1398） *)
   assert (Hr : q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (2 * i) * q_pow x (2 * i) *
-                               q_pow y (Nat.sub (Datatypes.S (2 * j)) (2 * i))) * Qinv (q_fact (Datatypes.S (2 * j)))) ==
+                               q_pow y (Nat.sub (Datatypes.S (2 * j)) (2 * i))) / q_fact (Datatypes.S (2 * j))) ==
                q_pow (-1) j * (q_pow x (2 * i) * q_pow y (Nat.sub (Datatypes.S (2 * j)) (2 * i))) *
-               (q_choose (Datatypes.S (2 * j)) (2 * i) * Qinv (q_fact (Datatypes.S (2 * j))))).
-  { ring. }
+               (q_choose (Datatypes.S (2 * j)) (2 * i) / q_fact (Datatypes.S (2 * j)))).
+  { unfold Qdiv. ring. }
   rewrite Hr.
-  rewrite (q_choose_div_fact (Datatypes.S (2 * j)) (2 * i)).
+  rewrite (qeqT_imp_qeq _ _ (q_choose_div_fact (Datatypes.S (2 * j)) (2 * i))).
   rewrite <- (Qinv_mult_distr (q_fact (2 * i)) (q_fact (Nat.sub (Datatypes.S (2 * j)) (2 * i)))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite (sc_add_csin_pair x y i (j - i)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_csin_pair x y i (j - i))).
   assert (Hnat : (Nat.sub (Datatypes.S (2 * j)) (2 * i) = Datatypes.S (2 * (j - i)))%nat) by lia.
   rewrite Hnat.
   assert (Hexp : (i + (j - i) = j)%nat) by lia.
@@ -10061,22 +10225,20 @@ Qed.
 (* sin 奇片：j ≥ i ⟹ (x+y)^{S(2j)} 展开中 a = 2i+1 的系数片      *)
 (*   == (sin_term i x)·(cos_term (j−i) y)                        *)
 (* ============================================================ *)
-Lemma sc_add_sin_odd_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->
-  q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
-                  q_pow y (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))) / q_fact (Datatypes.S (2 * j))) ==
-  sin_term i x * cos_term (j - i) y.
+Lemma sc_add_sin_odd_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->QeqT (q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
+                  q_pow y (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))) / q_fact (Datatypes.S (2 * j)))) (sin_term i x * cos_term (j - i) y).
 Proof.
   intros x y j i Hij.
-  unfold Qdiv.
+  apply qeq_imp_qeqT.
   assert (Hr : q_pow (-1) j * ((q_choose (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
-                               q_pow y (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))) * Qinv (q_fact (Datatypes.S (2 * j)))) ==
+                               q_pow y (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))) / q_fact (Datatypes.S (2 * j))) ==
                q_pow (-1) j * (q_pow x (Datatypes.S (2 * i)) * q_pow y (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))) *
-               (q_choose (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) * Qinv (q_fact (Datatypes.S (2 * j))))).
-  { ring. }
+               (q_choose (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) / q_fact (Datatypes.S (2 * j)))).
+  { unfold Qdiv. ring. }
   rewrite Hr.
-  rewrite (q_choose_div_fact (Datatypes.S (2 * j)) (Datatypes.S (2 * i))).
+  rewrite (qeqT_imp_qeq _ _ (q_choose_div_fact (Datatypes.S (2 * j)) (Datatypes.S (2 * i)))).
   rewrite <- (Qinv_mult_distr (q_fact (Datatypes.S (2 * i))) (q_fact (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i))))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite (sc_add_sinc_pair x y i (j - i)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sinc_pair x y i (j - i))).
   assert (Hnat : (Nat.sub (Datatypes.S (2 * j)) (Datatypes.S (2 * i)) = 2 * (j - i))%nat) by lia.
   rewrite Hnat.
   assert (Hexp : (i + (j - i) = j)%nat) by lia.
@@ -10089,22 +10251,20 @@ Qed.
 (*   == (cos_term i x)·(cos_term (j−i) y)                        *)
 (*   (−1)^j·C(2j,2i)·x^{2i}·y^{2j−2i} / (2j)!                    *)
 (* ============================================================ *)
-Lemma sc_add_cos_cc_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->
-  q_pow (-1) j * ((q_choose (2 * j) (2 * i) * q_pow x (2 * i) *
-                  q_pow y (Nat.sub (2 * j) (2 * i))) / q_fact (2 * j)) ==
-  cos_term i x * cos_term (j - i) y.
+Lemma sc_add_cos_cc_piece : forall (x y : Q) (j i : nat), (i <= j)%nat ->QeqT (q_pow (-1) j * ((q_choose (2 * j) (2 * i) * q_pow x (2 * i) *
+                  q_pow y (Nat.sub (2 * j) (2 * i))) / q_fact (2 * j))) (cos_term i x * cos_term (j - i) y).
 Proof.
   intros x y j i Hij.
-  unfold Qdiv.
+  apply qeq_imp_qeqT.
   assert (Hr : q_pow (-1) j * ((q_choose (2 * j) (2 * i) * q_pow x (2 * i) *
-                               q_pow y (Nat.sub (2 * j) (2 * i))) * Qinv (q_fact (2 * j))) ==
+                               q_pow y (Nat.sub (2 * j) (2 * i))) / q_fact (2 * j)) ==
                q_pow (-1) j * (q_pow x (2 * i) * q_pow y (Nat.sub (2 * j) (2 * i))) *
-               (q_choose (2 * j) (2 * i) * Qinv (q_fact (2 * j)))).
-  { ring. }
+               (q_choose (2 * j) (2 * i) / q_fact (2 * j))).
+  { unfold Qdiv. ring. }
   rewrite Hr.
-  rewrite (q_choose_div_fact (2 * j) (2 * i)).
+  rewrite (qeqT_imp_qeq _ _ (q_choose_div_fact (2 * j) (2 * i))).
   rewrite <- (Qinv_mult_distr (q_fact (2 * i)) (q_fact (Nat.sub (2 * j) (2 * i)))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite (sc_add_cc_pair x y i (j - i)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_cc_pair x y i (j - i))).
   assert (Hnat : (Nat.sub (2 * j) (2 * i) = 2 * (j - i))%nat) by lia.
   rewrite Hnat.
   assert (Hexp : (i + (j - i) = j)%nat) by lia.
@@ -10117,40 +10277,37 @@ Qed.
 (*   == −(sin_term i x)·(sin_term (j−1−i) y)（负号来自          *)
 (*      (−1)^j 与 (−1)^{j−1} 差一个负号）                        *)
 (* ============================================================ *)
-Lemma sc_add_cos_ss_piece : forall (x y : Q) (j i : nat), (i < j)%nat ->
-  q_pow (-1) j * ((q_choose (2 * j) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
-                  q_pow y (Nat.sub (2 * j) (Datatypes.S (2 * i)))) / q_fact (2 * j)) ==
-  - (sin_term i x * sin_term (j - 1 - i) y).
+Lemma sc_add_cos_ss_piece : forall (x y : Q) (j i : nat), (i < j)%nat ->QeqT (q_pow (-1) j * ((q_choose (2 * j) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
+                  q_pow y (Nat.sub (2 * j) (Datatypes.S (2 * i)))) / q_fact (2 * j))) (- (sin_term i x * sin_term (j - 1 - i) y)).
 Proof.
   intros x y j i Hij.
-  unfold Qdiv.
+  apply qeq_imp_qeqT.
   assert (Hr : q_pow (-1) j * ((q_choose (2 * j) (Datatypes.S (2 * i)) * q_pow x (Datatypes.S (2 * i)) *
-                               q_pow y (Nat.sub (2 * j) (Datatypes.S (2 * i)))) * Qinv (q_fact (2 * j))) ==
+                               q_pow y (Nat.sub (2 * j) (Datatypes.S (2 * i)))) / q_fact (2 * j)) ==
                q_pow (-1) j * (q_pow x (Datatypes.S (2 * i)) * q_pow y (Nat.sub (2 * j) (Datatypes.S (2 * i)))) *
-               (q_choose (2 * j) (Datatypes.S (2 * i)) * Qinv (q_fact (2 * j)))).
-  { ring. }
+               (q_choose (2 * j) (Datatypes.S (2 * i)) / q_fact (2 * j))).
+  { unfold Qdiv. ring. }
   rewrite Hr.
-  rewrite (q_choose_div_fact (2 * j) (Datatypes.S (2 * i))).
+  rewrite (qeqT_imp_qeq _ _ (q_choose_div_fact (2 * j) (Datatypes.S (2 * i)))).
   rewrite <- (Qinv_mult_distr (q_fact (Datatypes.S (2 * i))) (q_fact (Nat.sub (2 * j) (Datatypes.S (2 * i))))) by (apply q_neq_of_lt; apply q_fact_pos).
-  rewrite (sc_add_ss_pair x y i (j - 1 - i)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_ss_pair x y i (j - 1 - i))).
   assert (Hnat : (Nat.sub (2 * j) (Datatypes.S (2 * i)) = Datatypes.S (2 * (j - 1 - i)))%nat) by lia.
   rewrite Hnat.
   assert (Hexp : (i + (j - 1 - i) = j - 1)%nat) by lia.
   rewrite Hexp.
   (* 左符号 (−1)^j == −(−1)^{j−1}：改写左侧（1 ≤ j 由 i < j 推出） *)
   assert (Hj1 : (1 <= j)%nat) by lia.
-  rewrite (sc_add_neg_sign j Hj1).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_neg_sign j Hj1)).
   ring.
 Qed.
 
-Lemma sc_add_sin_diag_term : forall (x y : Q) (j : nat),
-  sin_term j (x + y) ==
-  sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * sin_term (Nat.sub j i) y) +
-  sum_upto (Datatypes.S j) (fun i : nat => sin_term i x * cos_term (Nat.sub j i) y).
+Lemma sc_add_sin_diag_term : forall (x y : Q) (j : nat), QeqT (sin_term j (x + y)) (sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * sin_term (Nat.sub j i) y) +
+  sum_upto (Datatypes.S j) (fun i : nat => sin_term i x * cos_term (Nat.sub j i) y)).
 Proof.
   intros x y j.
+  apply qeq_imp_qeqT.
   unfold sin_term.
-  rewrite (q_binom x y (Datatypes.S (Nat.mul 2 j))).
+  rewrite (qeqT_imp_qeq _ _ (q_binom x y (Datatypes.S (Nat.mul 2 j)))).
   set (F := fun a : nat =>
         q_choose (Datatypes.S (Nat.mul 2 j)) a * q_pow x a *
         q_pow y (Nat.sub (Datatypes.S (Nat.mul 2 j)) a)).
@@ -10167,7 +10324,7 @@ Proof.
     rewrite Ha.
     assert (Hb : q_pow (-1) j * sum_upto (Datatypes.S (Datatypes.S (Nat.mul 2 j))) F ==
                  sum_upto (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (fun a : nat => q_pow (-1) j * F a)).
-    { rewrite <- (sum_upto_scale (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (q_pow (-1) j) F). reflexivity. }
+    { rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (q_pow (-1) j) F)). reflexivity. }
     rewrite Hb.
     assert (Hc : sum_upto (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (fun a : nat => q_pow (-1) j * F a) *
                  Qinv (q_fact (Datatypes.S (Nat.mul 2 j))) ==
@@ -10175,35 +10332,38 @@ Proof.
                  sum_upto (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (fun a : nat => q_pow (-1) j * F a)).
     { ring. }
     rewrite Hc.
-    rewrite <- (sum_upto_scale (Datatypes.S (Datatypes.S (Nat.mul 2 j)))
+    rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S (Datatypes.S (Nat.mul 2 j)))
                  (Qinv (q_fact (Datatypes.S (Nat.mul 2 j))))
-                 (fun a : nat => q_pow (-1) j * F a)).
+                 (fun a : nat => q_pow (-1) j * F a))).
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below (Datatypes.S (Datatypes.S (Nat.mul 2 j)))
       (fun a : nat => Qinv (q_fact (Datatypes.S (Nat.mul 2 j))) * (q_pow (-1) j * F a))
       (fun a : nat => q_pow (-1) j * (F a * Qinv (q_fact (Datatypes.S (Nat.mul 2 j)))))).
-    intros k Hk. ring. }
+    intros k Hk. apply qeq_imp_qeqT. ring. }
   rewrite Hdist.
   set (G := fun a : nat => q_pow (-1) j * (F a / q_fact (Datatypes.S (Nat.mul 2 j)))).
   (* 偶/奇拆分：Σ_{a=0}^{2j+1} == Σ_{i=0}^{j} 偶 + Σ_{i=0}^{j} 奇 *)
   assert (Hidx : (Datatypes.S (Datatypes.S (Nat.mul 2 j)) = Nat.mul 2 (Datatypes.S j))%nat) by lia.
-  rewrite (sum_upto_nat_eq (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (Nat.mul 2 (Datatypes.S j)) G Hidx).
-  rewrite (sum_upto_even_split (Datatypes.S j) G).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (Datatypes.S (Nat.mul 2 j))) (Nat.mul 2 (Datatypes.S j)) G Hidx)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_even_split (Datatypes.S j) G)).
   (* 偶片：G(2i) == cos i x · sin (j−i) y *)
   assert (Heven : sum_upto (Datatypes.S j) (fun i : nat => G (Nat.mul 2 i)) ==
                   sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * sin_term (Nat.sub j i) y)).
-  { apply (sum_upto_ext_below (Datatypes.S j)
+  { apply qeqT_imp_qeq.
+    apply (sum_upto_ext_below (Datatypes.S j)
       (fun i : nat => G (Nat.mul 2 i))
       (fun i : nat => cos_term i x * sin_term (Nat.sub j i) y)).
-    intros i Hi.
+    intros i Hi. apply NatLe_drop in Hi.
     unfold G, F.
     apply (sc_add_sin_even_piece x y j i). lia. }
   (* 奇片：G(2i+1) == sin i x · cos (j−i) y *)
   assert (Hodd : sum_upto (Datatypes.S j) (fun i : nat => G (Nat.add (Nat.mul 2 i) 1)) ==
                  sum_upto (Datatypes.S j) (fun i : nat => sin_term i x * cos_term (Nat.sub j i) y)).
-  { apply (sum_upto_ext_below (Datatypes.S j)
+  { apply qeqT_imp_qeq.
+    apply (sum_upto_ext_below (Datatypes.S j)
       (fun i : nat => G (Nat.add (Nat.mul 2 i) 1))
       (fun i : nat => sin_term i x * cos_term (Nat.sub j i) y)).
-    intros i Hi.
+    intros i Hi. apply NatLe_drop in Hi.
     unfold G, F.
     assert (Hrew : (Nat.add (Nat.mul 2 i) 1 = Datatypes.S (Nat.mul 2 i))%nat) by lia.
     rewrite Hrew.
@@ -10217,14 +10377,13 @@ Qed.
 (*   Σ_{i=0}^{j} (cos_term i x)·(cos_term (j−i) y) −            *)
 (*   Σ_{i=0}^{j−1} (sin_term i x)·(sin_term (j−1−i) y)          *)
 (* ============================================================ *)
-Lemma sc_add_cos_diag_term : forall (x y : Q) (j : nat),
-  cos_term j (x + y) ==
-  sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y) -
-  sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y).
+Lemma sc_add_cos_diag_term : forall (x y : Q) (j : nat), QeqT (cos_term j (x + y)) (sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y) -
+  sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y)).
 Proof.
   intros x y j.
+  apply qeq_imp_qeqT.
   unfold cos_term.
-  rewrite (q_binom x y (Nat.mul 2 j)).
+  rewrite (qeqT_imp_qeq _ _ (q_binom x y (Nat.mul 2 j))).
   set (F := fun a : nat =>
         q_choose (Nat.mul 2 j) a * q_pow x a *
         q_pow y (Nat.sub (Nat.mul 2 j) a)).
@@ -10240,7 +10399,7 @@ Proof.
     rewrite Ha.
     assert (Hb : q_pow (-1) j * sum_upto (Datatypes.S (Nat.mul 2 j)) F ==
                  sum_upto (Datatypes.S (Nat.mul 2 j)) (fun a : nat => q_pow (-1) j * F a)).
-    { rewrite <- (sum_upto_scale (Datatypes.S (Nat.mul 2 j)) (q_pow (-1) j) F). reflexivity. }
+    { rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S (Nat.mul 2 j)) (q_pow (-1) j) F)). reflexivity. }
     rewrite Hb.
     assert (Hc : sum_upto (Datatypes.S (Nat.mul 2 j)) (fun a : nat => q_pow (-1) j * F a) *
                  Qinv (q_fact (Nat.mul 2 j)) ==
@@ -10248,38 +10407,41 @@ Proof.
                  sum_upto (Datatypes.S (Nat.mul 2 j)) (fun a : nat => q_pow (-1) j * F a)).
     { ring. }
     rewrite Hc.
-    rewrite <- (sum_upto_scale (Datatypes.S (Nat.mul 2 j))
+    rewrite <- (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S (Nat.mul 2 j))
                  (Qinv (q_fact (Nat.mul 2 j)))
-                 (fun a : nat => q_pow (-1) j * F a)).
+                 (fun a : nat => q_pow (-1) j * F a))).
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below (Datatypes.S (Nat.mul 2 j))
       (fun a : nat => Qinv (q_fact (Nat.mul 2 j)) * (q_pow (-1) j * F a))
       (fun a : nat => q_pow (-1) j * (F a * Qinv (q_fact (Nat.mul 2 j))))).
-    intros k Hk. ring. }
+    intros k Hk. apply qeq_imp_qeqT. ring. }
   rewrite Hdist.
   set (G := fun a : nat => q_pow (-1) j * (F a / q_fact (Nat.mul 2 j))).
   (* 偶/奇拆分（奇数项数）：Σ_{a=0}^{2j} == Σ_{i=0}^{j} 偶 + Σ_{i=0}^{j−1} 奇 *)
   assert (Hidx : (Datatypes.S (Nat.mul 2 j) = Nat.add (Nat.mul 2 j) 1)%nat) by lia.
-  rewrite (sum_upto_nat_eq (Datatypes.S (Nat.mul 2 j)) (Nat.add (Nat.mul 2 j) 1) G Hidx).
-  rewrite (sum_upto_even_split_odd j G).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (Nat.mul 2 j)) (Nat.add (Nat.mul 2 j) 1) G Hidx)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_even_split_odd j G)).
   (* 偶片：G(2i) == cos i x · cos (j−i) y *)
   assert (Heven : sum_upto (j + 1) (fun i : nat => G (Nat.mul 2 i)) ==
                   sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y)).
   { assert (Hidx2 : (j + 1 = Datatypes.S j)%nat) by lia.
-    rewrite (sum_upto_nat_eq (j + 1) (Datatypes.S j) (fun i : nat => G (Nat.mul 2 i)) Hidx2).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (j + 1) (Datatypes.S j) (fun i : nat => G (Nat.mul 2 i)) Hidx2)).
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below (Datatypes.S j)
       (fun i : nat => G (Nat.mul 2 i))
       (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y)).
-    intros i Hi.
+    intros i Hi. apply NatLe_drop in Hi.
     unfold G, F.
     apply (sc_add_cos_cc_piece x y j i). lia. }
   (* 奇片：G(2i+1) == −(sin i x · sin (j−1−i) y) *)
   assert (Hodd : sum_upto j (fun i : nat => G (Nat.add (Nat.mul 2 i) 1)) ==
                  - sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y)).
-  { rewrite <- (sum_upto_neg j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y)).
+  { rewrite <- (qeqT_imp_qeq _ _ (sum_upto_neg j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))).
+    apply qeqT_imp_qeq.
     apply (sum_upto_ext_below j
       (fun i : nat => G (Nat.add (Nat.mul 2 i) 1))
       (fun i : nat => - (sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))).
-    intros i Hi.
+    intros i Hi. apply NatLe_drop in Hi.
     unfold G, F.
     assert (Hrew : (Nat.add (Nat.mul 2 i) 1 = Datatypes.S (Nat.mul 2 i))%nat) by lia.
     rewrite Hrew.
@@ -10300,36 +10462,36 @@ Qed.
 (*   Σ_{j'≤J} Σ_{i≤j'} (cos i x)(sin (j'−i) y) +                *)
 (*   Σ_{j'≤J} Σ_{i≤j'} (sin i x)(cos (j'−i) y)                  *)
 (* ============================================================ *)
-Lemma sc_add_sin_partial_diag : forall (x y : Q) (J : nat),
-  sin_partial J (x + y) ==
-  sum_upto (Datatypes.S J) (fun j' : nat =>
+Lemma sc_add_sin_partial_diag : forall (x y : Q) (J : nat), QeqT (sin_partial J (x + y)) (sum_upto (Datatypes.S J) (fun j' : nat =>
     sum_upto (Datatypes.S j') (fun i : nat => cos_term i x * sin_term (Nat.sub j' i) y)) +
   sum_upto (Datatypes.S J) (fun j' : nat =>
-    sum_upto (Datatypes.S j') (fun i : nat => sin_term i x * cos_term (Nat.sub j' i) y)).
+    sum_upto (Datatypes.S j') (fun i : nat => sin_term i x * cos_term (Nat.sub j' i) y))).
 Proof.
   intros x y J.
-  rewrite (sc_sin_partial_upto J (x + y)).
-  rewrite <- (sum_upto_plus (Datatypes.S J)
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto J (x + y))).
+  rewrite <- (qeqT_imp_qeq _ _ (sum_upto_plus (Datatypes.S J)
     (fun j' : nat => sum_upto (Datatypes.S j') (fun i : nat => cos_term i x * sin_term (Nat.sub j' i) y))
-    (fun j' : nat => sum_upto (Datatypes.S j') (fun i : nat => sin_term i x * cos_term (Nat.sub j' i) y))).
+    (fun j' : nat => sum_upto (Datatypes.S j') (fun i : nat => sin_term i x * cos_term (Nat.sub j' i) y)))).
+  apply qeqT_imp_qeq.
   apply (sum_upto_ext_below (Datatypes.S J)
     (fun j' : nat => sin_term j' (x + y))
     (fun j' : nat => sum_upto (Datatypes.S j') (fun i : nat => cos_term i x * sin_term (Nat.sub j' i) y) +
                      sum_upto (Datatypes.S j') (fun i : nat => sin_term i x * cos_term (Nat.sub j' i) y))).
   intros j' Hj'.
-  rewrite (sc_add_sin_diag_term x y j').
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sin_diag_term x y j')).
   reflexivity.
 Qed.
 
-Lemma sc_add_sin_partial_swap : forall (x y : Q) (J : nat),
-  sin_partial J (x + y) ==
-  sum_upto (Datatypes.S J) (fun j : nat =>
+Lemma sc_add_sin_partial_swap : forall (x y : Q) (J : nat), QeqT (sin_partial J (x + y)) (sum_upto (Datatypes.S J) (fun j : nat =>
     sum_upto (Datatypes.S (J - j)) (fun i : nat => cos_term j x * sin_term i y)) +
   sum_upto (Datatypes.S J) (fun j : nat =>
-    sum_upto (Datatypes.S (J - j)) (fun i : nat => sin_term j x * cos_term i y)).
+    sum_upto (Datatypes.S (J - j)) (fun i : nat => sin_term j x * cos_term i y))).
 Proof.
   intros x y J.
-  rewrite (sc_add_sin_partial_diag x y J).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sin_partial_diag x y J)).
   (* 第一族（cos·sin）对角双和 == 三角分离形态 *)
   assert (H1 : sum_upto (Datatypes.S J)
                  (fun j' : nat => sum_upto (Datatypes.S j')
@@ -10337,7 +10499,7 @@ Proof.
                sum_upto (Datatypes.S J)
                  (fun j : nat => sum_upto (Datatypes.S (J - j))
                    (fun i : nat => cos_term j x * sin_term i y))).
-  { exact (exp_cauchy_swap J (fun j : nat => cos_term j x) (fun j : nat => sin_term j y)). }
+  { exact (qeqT_imp_qeq _ _ (exp_cauchy_swap J (fun j : nat => cos_term j x) (fun j : nat => sin_term j y))). }
   (* 第二族（sin·cos）同构 *)
   assert (H2 : sum_upto (Datatypes.S J)
                  (fun j' : nat => sum_upto (Datatypes.S j')
@@ -10345,13 +10507,11 @@ Proof.
                sum_upto (Datatypes.S J)
                  (fun j : nat => sum_upto (Datatypes.S (J - j))
                    (fun i : nat => sin_term j x * cos_term i y))).
-  { exact (exp_cauchy_swap J (fun j : nat => sin_term j x) (fun j : nat => cos_term j y)). }
+  { exact (qeqT_imp_qeq _ _ (exp_cauchy_swap J (fun j : nat => sin_term j x) (fun j : nat => cos_term j y))). }
   rewrite H1. rewrite H2. reflexivity.
 Qed.
 
-Lemma sc_add_sin_prod_decomp : forall (x y : Q) (n : nat),
-  sin_partial (2 * n) (x + y) ==
-  (sin_partial n x * cos_partial n y + cos_partial n x * sin_partial n y) +
+Lemma sc_add_sin_prod_decomp : forall (x y : Q) (n : nat), QeqT (sin_partial (2 * n) (x + y)) ((sin_partial n x * cos_partial n y + cos_partial n x * sin_partial n y) +
   (sum_upto (Datatypes.S n) (fun j : nat =>
       sum_upto (n - j) (fun k : nat => cos_term j x * sin_term (Datatypes.S n + k)%nat y)) +
    sum_upto n (fun j : nat =>
@@ -10359,11 +10519,12 @@ Lemma sc_add_sin_prod_decomp : forall (x y : Q) (n : nat),
    sum_upto (Datatypes.S n) (fun j : nat =>
       sum_upto (n - j) (fun k : nat => sin_term j x * cos_term (Datatypes.S n + k)%nat y)) +
    sum_upto n (fun j : nat =>
-      sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term (Datatypes.S n + j)%nat x * cos_term i y))).
+      sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term (Datatypes.S n + j)%nat x * cos_term i y)))).
 Proof.
   intros x y n.
+  apply qeq_imp_qeqT.
   (* 1. LHS → 三角分离双和（q1） *)
-  rewrite (sc_add_sin_partial_swap x y (2 * n)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sin_partial_swap x y (2 * n))).
   (* 2a. cos·sin 族：tri1 == sq1 + top1 + right1（exp_trunc_decomp 实例） *)
   assert (HT1 :
     sum_upto (Datatypes.S (2 * n)) (fun j : nat =>
@@ -10382,7 +10543,7 @@ Proof.
                   sum_upto (Datatypes.S n) (fun j : nat =>
                     sum_upto (Datatypes.S n) (fun i : nat => cos_term j x * sin_term i y))).
     - ring.
-    - rewrite Hd. ring. }
+    - rewrite (qeqT_imp_qeq _ _ Hd). ring. }
   (* 2b. sin·cos 族：tri2 == sq2 + top2 + right2 *)
   assert (HT2 :
     sum_upto (Datatypes.S (2 * n)) (fun j : nat =>
@@ -10401,7 +10562,7 @@ Proof.
                   sum_upto (Datatypes.S n) (fun j : nat =>
                     sum_upto (Datatypes.S n) (fun i : nat => sin_term j x * cos_term i y))).
     - ring.
-    - rewrite Hd. ring. }
+    - rewrite (qeqT_imp_qeq _ _ Hd). ring. }
   rewrite HT1. rewrite HT2.
   (* 3. 方块 == 乘积（sum_upto_prod + partial_upto 桥） *)
   assert (HsqA :
@@ -10409,192 +10570,207 @@ Proof.
       sum_upto (Datatypes.S n) (fun i : nat => cos_term j x * sin_term i y)) ==
     cos_partial n x * sin_partial n y).
   { apply Qeq_sym.
-    rewrite (sc_cos_partial_upto n x).
-    rewrite (sc_sin_partial_upto n y).
-    exact (sum_upto_prod n n (fun j : nat => cos_term j x) (fun j : nat => sin_term j y)). }
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n x)).
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n y)).
+    exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun j : nat => cos_term j x) (fun j : nat => sin_term j y))). }
   assert (HsqB :
     sum_upto (Datatypes.S n) (fun j : nat =>
       sum_upto (Datatypes.S n) (fun i : nat => sin_term j x * cos_term i y)) ==
     sin_partial n x * cos_partial n y).
   { apply Qeq_sym.
-    rewrite (sc_sin_partial_upto n x).
-    rewrite (sc_cos_partial_upto n y).
-    exact (sum_upto_prod n n (fun j : nat => sin_term j x) (fun j : nat => cos_term j y)). }
+    rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n x)).
+    rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n y)).
+    exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun j : nat => sin_term j x) (fun j : nat => cos_term j y))). }
   rewrite <- HsqB. rewrite <- HsqA.
   ring.
 Qed.
 
 Lemma sc_band_top_FT : forall (f g : nat -> Q) (n : nat),
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
         sum_upto (n - j) (fun k : nat => f j * g (Datatypes.S n + k)%nat))))
       ((sum_upto (Datatypes.S n) (fun i : nat => Qabs (f i))) *
        (sum_upto n (fun m : nat => Qabs (g (Datatypes.S n + m)%nat)))).
 Proof.
   intros f g n.
+  apply Qle_to_QleT'.
   set (F := sum_upto (Datatypes.S n) (fun i : nat => Qabs (f i))).
   set (T := sum_upto n (fun m : nat => Qabs (g (Datatypes.S n + m)%nat))).
   set (G := fun j : nat => sum_upto (n - j) (fun k : nat => f j * g (Datatypes.S n + k)%nat)).
   change (Qle (Qabs (sum_upto (Datatypes.S n) G)) (F * T)).
   assert (Htri : Qle (Qabs (sum_upto (Datatypes.S n) G))
                     (sum_upto (Datatypes.S n) (fun j => Qabs (G j)))).
-  { unfold G. apply sum_upto_abs_le. }
+  { unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le. }
   assert (Hper : forall j : nat, (j <= n)%nat ->
     Qle (Qabs (G j)) (Qabs (f j) * sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat)))).
   { intros j Hj.
     apply (Qle_trans _ (sum_upto (n - j) (fun k => Qabs (f j * g (Datatypes.S n + k)%nat))) _).
-    - unfold G. apply sum_upto_abs_le.
-    - apply qeq_le.
+    - unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       transitivity (sum_upto (n - j) (fun k => Qabs (f j) * Qabs (g (Datatypes.S n + k)%nat))).
-      + apply (sum_upto_ext (n - j)
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_ext (n - j)
           (fun k => Qabs (f j * g (Datatypes.S n + k)%nat))
           (fun k => Qabs (f j) * Qabs (g (Datatypes.S n + k)%nat))).
-        intro k. apply Qabs_Qmult.
-      + apply (sum_upto_scale (n - j) (Qabs (f j))
+        intro k. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_scale (n - j) (Qabs (f j))
           (fun k => Qabs (g (Datatypes.S n + k)%nat))). }
   assert (HwT : forall j : nat, (j <= n)%nat ->
     Qle (sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat))) T).
   { intros j Hj. unfold T.
-    apply (sc_sum_shift_sub_le 0 (n - j) n (fun m => Qabs (g (Datatypes.S n + m)%nat))).
+    apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 0 (n - j) n (fun m => Qabs (g (Datatypes.S n + m)%nat))).
     - intro m. apply Qabs_nonneg.
     - lia. }
   apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j => Qabs (G j))) _).
   - exact Htri.
   - apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j => Qabs (f j) * T)) _).
-    + apply (sum_upto_le_ext (Datatypes.S n) (fun j => Qabs (G j)) (fun j => Qabs (f j) * T)).
-      intros j Hj.
+    + apply QleT'_to_Qle. apply (sum_upto_le_ext (Datatypes.S n) (fun j => Qabs (G j)) (fun j => Qabs (f j) * T)).
+      intros j Hj. apply NatLe_drop in Hj. apply Qle_to_QleT'.
       apply (Qle_trans _ (Qabs (f j) * sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat))) _).
       2: { apply (Qle_trans _ (sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat)) * Qabs (f j)) _).
            2: { apply (Qle_trans _ (T * Qabs (f j)) _).
-                2: { apply qeq_le. exact (Qeq_sym _ _ (Qmult_comm (Qabs (f j)) T)). }
+                2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qeq_sym _ _ (Qmult_comm (Qabs (f j)) T)). }
                 apply (Qmult_le_compat_r (sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat))) T (Qabs (f j))).
                 - apply (HwT j). lia.
                 - apply Qabs_nonneg. }
-           apply qeq_le. exact (Qmult_comm (Qabs (f j))
+           apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (f j))
               (sum_upto (n - j) (fun k => Qabs (g (Datatypes.S n + k)%nat)))). }
       apply (Hper j). lia.
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       transitivity (T * sum_upto (Datatypes.S n) (fun i => Qabs (f i))).
       * transitivity (sum_upto (Datatypes.S n) (fun j => T * Qabs (f j))).
-        -- apply (sum_upto_ext (Datatypes.S n) (fun j => Qabs (f j) * T) (fun j => T * Qabs (f j))).
-           intro j. apply Qmult_comm.
-        -- exact (sum_upto_scale (Datatypes.S n) T (fun i => Qabs (f i))).
+        -- apply qeqT_imp_qeq.
+           apply (sum_upto_ext (Datatypes.S n) (fun j => Qabs (f j) * T) (fun j => T * Qabs (f j))).
+           intro j. apply qeq_imp_qeqT. apply Qmult_comm.
+        -- exact (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S n) T (fun i => Qabs (f i)))).
       * unfold F. apply Qmult_comm.
 Qed.
 
 (* ---- 泛型右带界：|Σ_{j<n}Σ_{i≤2n−Sn−j} f(Sn+j)·g i| ≤ Fr·U ---- *)
 Lemma sc_band_right_FT : forall (f g : nat -> Q) (n : nat),
-  Qle (Qabs (sum_upto n (fun j : nat =>
+  QleT' (Qabs (sum_upto n (fun j : nat =>
         sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => f (Datatypes.S n + j)%nat * g i))))
       ((sum_upto n (fun m : nat => Qabs (f (Datatypes.S n + m)%nat))) *
        (sum_upto n (fun i : nat => Qabs (g i)))).
 Proof.
   intros f g n.
+  apply Qle_to_QleT'.
   set (Fr := sum_upto n (fun m : nat => Qabs (f (Datatypes.S n + m)%nat))).
   set (U := sum_upto n (fun i : nat => Qabs (g i))).
   set (G := fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j))
                   (fun i : nat => f (Datatypes.S n + j)%nat * g i)).
   change (Qle (Qabs (sum_upto n G)) (Fr * U)).
   assert (Htri : Qle (Qabs (sum_upto n G)) (sum_upto n (fun j => Qabs (G j)))).
-  { unfold G. apply sum_upto_abs_le. }
+  { unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le. }
   assert (Hper : forall j : nat, (j < n)%nat ->
     Qle (Qabs (G j)) (Qabs (f (Datatypes.S n + j)%nat) * sum_upto (Datatypes.S (2 * n - Datatypes.S n - j))
                         (fun i => Qabs (g i)))).
   { intros j Hj.
     apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j))
                         (fun i => Qabs (f (Datatypes.S n + j)%nat * g i))) _).
-    - unfold G. apply sum_upto_abs_le.
-    - apply qeq_le.
+    - unfold G. apply QleT'_to_Qle. apply sum_upto_abs_le.
+    - apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       transitivity (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j))
                       (fun i => Qabs (f (Datatypes.S n + j)%nat) * Qabs (g i))).
-      + apply (sum_upto_ext (Datatypes.S (2 * n - Datatypes.S n - j))
+      + apply qeqT_imp_qeq.
+        apply (sum_upto_ext (Datatypes.S (2 * n - Datatypes.S n - j))
           (fun i => Qabs (f (Datatypes.S n + j)%nat * g i))
           (fun i => Qabs (f (Datatypes.S n + j)%nat) * Qabs (g i))).
-        intro i. apply Qabs_Qmult.
-      + apply (sum_upto_scale (Datatypes.S (2 * n - Datatypes.S n - j))
-          (Qabs (f (Datatypes.S n + j)%nat)) (fun i => Qabs (g i))). }
+        intro i. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      + apply (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S (2 * n - Datatypes.S n - j))
+          (Qabs (f (Datatypes.S n + j)%nat)) (fun i => Qabs (g i)))). }
   assert (HwU : forall j : nat, (j < n)%nat ->
     Qle (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i => Qabs (g i))) U).
   { intros j Hj. unfold U.
     assert (Hcnt : (Datatypes.S (2 * n - Datatypes.S n - j) = n - j)%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S (2 * n - Datatypes.S n - j)) (n - j) (fun i => Qabs (g i)) Hcnt).
-    apply (sc_sum_shift_sub_le 0 (n - j) n (fun m => Qabs (g m))).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (2 * n - Datatypes.S n - j)) (n - j) (fun i => Qabs (g i)) Hcnt)).
+    apply QleT'_to_Qle. apply (sc_sum_shift_sub_le 0 (n - j) n (fun m => Qabs (g m))).
     - intro m. apply Qabs_nonneg.
     - lia. }
   apply (Qle_trans _ (sum_upto n (fun j => Qabs (G j))) _).
   - exact Htri.
   - apply (Qle_trans _ (sum_upto n (fun j => Qabs (f (Datatypes.S n + j)%nat) * U)) _).
-    + apply (sum_upto_le_ext n (fun j => Qabs (G j)) (fun j => Qabs (f (Datatypes.S n + j)%nat) * U)).
-      intros j Hj.
+    + apply QleT'_to_Qle. apply (sum_upto_le_ext n (fun j => Qabs (G j)) (fun j => Qabs (f (Datatypes.S n + j)%nat) * U)).
+      intros j Hj. apply NatLe_drop in Hj. apply Qle_to_QleT'.
       apply (Qle_trans _ (Qabs (f (Datatypes.S n + j)%nat) *
                           sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i => Qabs (g i))) _).
       2: { apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i => Qabs (g i)) *
                               Qabs (f (Datatypes.S n + j)%nat)) _).
            2: { apply (Qle_trans _ (U * Qabs (f (Datatypes.S n + j)%nat)) _).
-                2: { apply qeq_le. exact (Qeq_sym _ _ (Qmult_comm (Qabs (f (Datatypes.S n + j)%nat)) U)). }
+                2: { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qeq_sym _ _ (Qmult_comm (Qabs (f (Datatypes.S n + j)%nat)) U)). }
                 apply (Qmult_le_compat_r (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i => Qabs (g i)))
                                          U (Qabs (f (Datatypes.S n + j)%nat))).
                 - apply (HwU j). exact Hj.
                 - apply Qabs_nonneg. }
-           apply qeq_le. exact (Qmult_comm (Qabs (f (Datatypes.S n + j)%nat))
+           apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact (Qmult_comm (Qabs (f (Datatypes.S n + j)%nat))
               (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i => Qabs (g i)))). }
-      apply (Hper j). exact Hj.
-    + apply qeq_le.
+      apply (Hper j). lia.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       transitivity (U * sum_upto n (fun m => Qabs (f (Datatypes.S n + m)%nat))).
       * transitivity (sum_upto n (fun m => U * Qabs (f (Datatypes.S n + m)%nat))).
-        -- apply (sum_upto_ext n (fun m => Qabs (f (Datatypes.S n + m)%nat) * U)
-                                  (fun m => U * Qabs (f (Datatypes.S n + m)%nat))).
-           intro m. apply Qmult_comm.
-        -- exact (sum_upto_scale n U (fun m => Qabs (f (Datatypes.S n + m)%nat))).
+        -- apply qeqT_imp_qeq.
+           apply (sum_upto_ext n (fun m => Qabs (f (Datatypes.S n + m)%nat) * U)
+                                (fun m => U * Qabs (f (Datatypes.S n + m)%nat))).
+           intro m. apply qeq_imp_qeqT. apply Qmult_comm.
+        -- exact (qeqT_imp_qeq _ _ (sum_upto_scale n U (fun m => Qabs (f (Datatypes.S n + m)%nat)))).
       * unfold Fr. apply Qmult_comm.
 Qed.
 
 (* ---- 实例化：q2 分解的四条带 ---- *)
 (* 上带 cos·sin *)
 Lemma sc_add_band_top_cs_le : forall (x y : Q) (n : nat),
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
         sum_upto (n - j) (fun k : nat => cos_term j x * sin_term (Datatypes.S n + k)%nat y))))
       ((sum_upto (Datatypes.S n) (fun i : nat => Qabs (cos_term i x))) *
        (sum_upto n (fun m : nat => Qabs (sin_term (Datatypes.S n + m)%nat y)))).
 Proof.
   intros x y n.
-  exact (sc_band_top_FT (fun j : nat => cos_term j x) (fun j : nat => sin_term j y) n).
+  apply Qle_to_QleT'.
+  exact (QleT'_to_Qle _ _ (sc_band_top_FT (fun j : nat => cos_term j x) (fun j : nat => sin_term j y) n)).
 Qed.
 
 (* 上带 sin·cos *)
 Lemma sc_add_band_top_sc_le : forall (x y : Q) (n : nat),
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat =>
         sum_upto (n - j) (fun k : nat => sin_term j x * cos_term (Datatypes.S n + k)%nat y))))
       ((sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x))) *
        (sum_upto n (fun m : nat => Qabs (cos_term (Datatypes.S n + m)%nat y)))).
 Proof.
   intros x y n.
-  exact (sc_band_top_FT (fun j : nat => sin_term j x) (fun j : nat => cos_term j y) n).
+  apply Qle_to_QleT'.
+  exact (QleT'_to_Qle _ _ (sc_band_top_FT (fun j : nat => sin_term j x) (fun j : nat => cos_term j y) n)).
 Qed.
 
 (* 右带 cos·sin *)
 Lemma sc_add_band_right_cs_le : forall (x y : Q) (n : nat),
-  Qle (Qabs (sum_upto n (fun j : nat =>
+  QleT' (Qabs (sum_upto n (fun j : nat =>
         sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term (Datatypes.S n + j)%nat x * sin_term i y))))
       ((sum_upto n (fun m : nat => Qabs (cos_term (Datatypes.S n + m)%nat x))) *
        (sum_upto n (fun i : nat => Qabs (sin_term i y)))).
 Proof.
   intros x y n.
-  exact (sc_band_right_FT (fun j : nat => cos_term j x) (fun j : nat => sin_term j y) n).
+  apply Qle_to_QleT'.
+  exact (QleT'_to_Qle _ _ (sc_band_right_FT (fun j : nat => cos_term j x) (fun j : nat => sin_term j y) n)).
 Qed.
 
 (* 右带 sin·cos *)
 Lemma sc_add_band_right_sc_le : forall (x y : Q) (n : nat),
-  Qle (Qabs (sum_upto n (fun j : nat =>
+  QleT' (Qabs (sum_upto n (fun j : nat =>
         sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term (Datatypes.S n + j)%nat x * cos_term i y))))
       ((sum_upto n (fun m : nat => Qabs (sin_term (Datatypes.S n + m)%nat x))) *
        (sum_upto n (fun i : nat => Qabs (cos_term i y)))).
 Proof.
   intros x y n.
-  exact (sc_band_right_FT (fun j : nat => sin_term j x) (fun j : nat => cos_term j y) n).
+  apply Qle_to_QleT'.
+  exact (QleT'_to_Qle _ _ (sc_band_right_FT (fun j : nat => sin_term j x) (fun j : nat => cos_term j y) n)).
 Qed.
 
 Lemma sc_add_sin_err_band_le : forall (x y : Q) (n : nat),
-  Qle (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y -
+  QleT' (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y -
              cos_partial n x * sin_partial n y))
       ((((sum_upto (Datatypes.S n) (fun i => Qabs (cos_term i x))) *
          (sum_upto n (fun m => Qabs (sin_term (Datatypes.S n + m)%nat y)))) +
@@ -10606,6 +10782,7 @@ Lemma sc_add_sin_err_band_le : forall (x y : Q) (n : nat),
          (sum_upto n (fun i => Qabs (cos_term i y)))))).
 Proof.
   intros x y n.
+  apply Qle_to_QleT'.
   (* 1. 误差 == 4 带（q2 分解 + ring 对消 P） *)
   assert (Hqq :
     (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y -
@@ -10618,8 +10795,8 @@ Proof.
         sum_upto (n - j) (fun k : nat => sin_term j x * cos_term (Datatypes.S n + k)%nat y))) +
     sum_upto n (fun j : nat =>
       sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term (Datatypes.S n + j)%nat x * cos_term i y))).
-  { rewrite (sc_add_sin_prod_decomp x y n). ring. }
-  apply (sc_qabs_qeq_le _ _ _ Hqq).
+  { rewrite (qeqT_imp_qeq _ _ (sc_add_sin_prod_decomp x y n)). ring. }
+  apply QleT'_to_Qle. apply (sc_qabs_qeq_le _ _ _ Hqq).
   (* 2. 命名四带与四界（set；body 与 q3/q2 文本一致，转换即可） *)
   set (b1 := sum_upto (Datatypes.S n) (fun j : nat =>
         sum_upto (n - j) (fun k : nat => cos_term j x * sin_term (Datatypes.S n + k)%nat y))).
@@ -10656,20 +10833,20 @@ Proof.
   - exact Htri.
   - (* Σ|带| ≤ Σ F·T：四条带界 *)
     assert (H1 : Qle (Qabs b1) (F1 * T1)).
-    { exact (sc_add_band_top_cs_le x y n). }
+    { exact (QleT'_to_Qle _ _ (sc_add_band_top_cs_le x y n)). }
     assert (H2 : Qle (Qabs b2) (F2 * U2)).
-    { exact (sc_add_band_right_cs_le x y n). }
+    { exact (QleT'_to_Qle _ _ (sc_add_band_right_cs_le x y n)). }
     assert (H3 : Qle (Qabs b3) (F3 * T3)).
-    { exact (sc_add_band_top_sc_le x y n). }
+    { exact (QleT'_to_Qle _ _ (sc_add_band_top_sc_le x y n)). }
     assert (H4 : Qle (Qabs b4) (F4 * U4)).
-    { exact (sc_add_band_right_sc_le x y n). }
+    { exact (QleT'_to_Qle _ _ (sc_add_band_right_sc_le x y n)). }
     apply (Qle_trans _ ((Qabs b1 + Qabs b2) + (Qabs b3 + Qabs b4)) _).
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     + apply (Qle_trans _ ((F1 * T1 + F2 * U2) + (F3 * T3 + F4 * U4)) _).
       * apply Qplus_le_compat.
         -- apply Qplus_le_compat; assumption.
         -- apply Qplus_le_compat; assumption.
-      * apply qeq_le. ring.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 
@@ -10679,50 +10856,44 @@ Qed.
 (*   子代理 sE 产出（审查并入）                              *)
 (* ============================================================ *)
 
-Lemma sc_add_sin_diag_swap : forall (x y : Q) (J : nat),
-  sin_partial J (x + y) ==
-  sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (Nat.sub J i)) (fun k : nat => cos_term i x * sin_term k y)) +
-  sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (Nat.sub J i)) (fun k : nat => sin_term i x * cos_term k y)).
+Lemma sc_add_sin_diag_swap : forall (x y : Q) (J : nat), QeqT (sin_partial J (x + y)) (sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (Nat.sub J i)) (fun k : nat => cos_term i x * sin_term k y)) +
+  sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (Nat.sub J i)) (fun k : nat => sin_term i x * cos_term k y))).
 Proof.
   intros x y J.
-  rewrite (sc_add_sin_partial_diag x y J).
-  setoid_rewrite (exp_cauchy_swap J (fun i : nat => cos_term i x) (fun k : nat => sin_term k y)).
-  setoid_rewrite (exp_cauchy_swap J (fun i : nat => sin_term i x) (fun k : nat => cos_term k y)).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sin_partial_diag x y J)).
+  setoid_rewrite (qeqT_imp_qeq _ _ (exp_cauchy_swap J (fun i : nat => cos_term i x) (fun k : nat => sin_term k y))).
+  setoid_rewrite (qeqT_imp_qeq _ _ (exp_cauchy_swap J (fun i : nat => sin_term i x) (fun k : nat => cos_term k y))).
   reflexivity.
 Qed.
 
 (* ============================================================ *)
 (* L2：乘积方块（sin·cos）：sp n x · cp n y == Σ_{i,k≤n} s_i c_k *)
 (* ============================================================ *)
-Lemma sc_add_sinc_prod_sq : forall (x y : Q) (n : nat),
-  sin_partial n x * cos_partial n y ==
-  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * cos_term k y)).
+Lemma sc_add_sinc_prod_sq : forall (x y : Q) (n : nat), QeqT (sin_partial n x * cos_partial n y) (sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * cos_term k y))).
 Proof.
-intros x y n. rewrite (sc_sin_partial_upto n x). rewrite (sc_cos_partial_upto n y). exact (sum_upto_prod n n (fun i : nat => sin_term i x) (fun k : nat => cos_term k y)).
+intros x y n. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n x)). rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n y)). exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun i : nat => sin_term i x) (fun k : nat => cos_term k y))).
 Qed.
 
 (* ============================================================ *)
 (* L3：乘积方块（cos·sin）：cp n x · sp n y == Σ_{i,k≤n} c_i s_k *)
 (* ============================================================ *)
-Lemma sc_add_csin_prod_sq : forall (x y : Q) (n : nat),
-  cos_partial n x * sin_partial n y ==
-  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => cos_term i x * sin_term k y)).
+Lemma sc_add_csin_prod_sq : forall (x y : Q) (n : nat), QeqT (cos_partial n x * sin_partial n y) (sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => cos_term i x * sin_term k y))).
 Proof.
-intros x y n. rewrite (sc_cos_partial_upto n x). rewrite (sc_sin_partial_upto n y). exact (sum_upto_prod n n (fun i : nat => cos_term i x) (fun k : nat => sin_term k y)).
+intros x y n. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n x)). rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n y)). exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun i : nat => cos_term i x) (fun k : nat => sin_term k y))).
 Qed.
 
 (* ============================================================ *)
 (* L4a：泛型族精确分解（三角 cap 2n − 方块 cap n == 上带 + 右带）*)
 (*   直接 = exp_trunc_decomp（exp 论证泛型件，原样应用）          *)
 (* ============================================================ *)
-Lemma sc_add_fam_decomp : forall (A B : nat -> Q) (n : nat),
-  sum_upto (Datatypes.S (2 * n)) (fun i : nat => sum_upto (Datatypes.S (2 * n - i)) (fun k : nat => A i * B k)) -
-  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => A i * B k)) ==
-  sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
-  sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i)).
+Lemma sc_add_fam_decomp : forall (A B : nat -> Q) (n : nat), QeqT (sum_upto (Datatypes.S (2 * n)) (fun i : nat => sum_upto (Datatypes.S (2 * n - i)) (fun k : nat => A i * B k)) -
+  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => A i * B k))) (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
+  sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i))).
 Proof.
   intros A B n.
-  exact (exp_trunc_decomp n A B).
+  apply qeq_imp_qeqT.
+  exact (qeqT_imp_qeq _ _ (exp_trunc_decomp n A B)).
 Qed.
 
 (* ============================================================ *)
@@ -10730,25 +10901,24 @@ Qed.
 (*   sin_{2n}(x+y) − sp_n cp_n − cp_n sp_n ==                   *)
 (*     decomp(c(x), s(y)) + decomp(s(x), c(y))                  *)
 (* ============================================================ *)
-Lemma sc_add_sin_err_decomp : forall (x y : Q) (n : nat),
-  sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y ==
-  (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
+Lemma sc_add_sin_err_decomp : forall (x y : Q) (n : nat), QeqT (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y) ((sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
    sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * sin_term i y))) +
   (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => sin_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
-   sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * cos_term i y))).
+   sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * cos_term i y)))).
 Proof.
   intros x y n.
-  rewrite (sc_add_sin_diag_swap x y (2 * n)).
-  rewrite (sc_add_csin_prod_sq x y n).
-  rewrite (sc_add_sinc_prod_sq x y n).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sin_diag_swap x y (2 * n))).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_csin_prod_sq x y n)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_sinc_prod_sq x y n)).
   (* 目标：(Tcs + Tsc) − Ssc − Scs == D1 + D2；重组为 (Tcs−Scs) + (Tsc−Ssc) *)
   transitivity ((sum_upto (Datatypes.S (2 * n)) (fun i : nat => sum_upto (Datatypes.S (2 * n - i)) (fun k : nat => cos_term i x * sin_term k y)) -
                  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => cos_term i x * sin_term k y))) +
                 (sum_upto (Datatypes.S (2 * n)) (fun i : nat => sum_upto (Datatypes.S (2 * n - i)) (fun k : nat => sin_term i x * cos_term k y)) -
                  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * cos_term k y)))).
   { ring. }
-  rewrite (sc_add_fam_decomp (fun i : nat => cos_term i x) (fun k : nat => sin_term k y) n).
-  rewrite (sc_add_fam_decomp (fun i : nat => sin_term i x) (fun k : nat => cos_term k y) n).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_fam_decomp (fun i : nat => cos_term i x) (fun k : nat => sin_term k y) n)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_fam_decomp (fun i : nat => sin_term i x) (fun k : nat => cos_term k y) n)).
   reflexivity.
 Qed.
 
@@ -10756,14 +10926,15 @@ Qed.
 (* L5 辅助 a：前缀和 ≤ 全和（m ≤ n、逐项非负）                  *)
 (* ============================================================ *)
 Lemma sc_sum_head_le : forall (m n : nat) (f : nat -> Q), (m <= n)%nat ->
-  (forall i : nat, Qle 0 (f i)) -> Qle (sum_upto m f) (sum_upto n f).
+  (forall i : nat, Qle 0 (f i)) -> QleT' (sum_upto m f) (sum_upto n f).
 Proof.
   intros m n f Hmn Hf.
+  apply Qle_to_QleT'.
   assert (Hadd : (n = m + (n - m))%nat) by lia.
   rewrite Hadd.
-  rewrite (sum_upto_add m (n - m) f).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_add m (n - m) f)).
   apply (Qle_plus_nonneg_r (sum_upto m f) (sum_upto (n - m) (fun k : nat => f ((m + k)%nat)))).
-  apply sc_sum_nonneg.
+  apply QleT'_to_Qle. apply sc_sum_nonneg.
   intro k. exact (Hf ((m + k)%nat)).
 Qed.
 
@@ -10771,26 +10942,28 @@ Qed.
 (* L5 辅助 b：上带逐行 |Σ_{k<n−j} A_j·B_{S n+k}| ≤ |A_j|·TB      *)
 (* ============================================================ *)
 Lemma sc_add_up_row_abs : forall (A B : nat -> Q) (n j : nat), (j <= n)%nat ->
-  Qle (Qabs (sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))))
+  QleT' (Qabs (sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))))
       (Qabs (A j) * sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat)))).
 Proof.
   intros A B n j Hj.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sum_upto (n - j) (fun k : nat => Qabs (A j * B ((Datatypes.S n + k)%nat)))) _).
-  - apply sum_upto_abs_le.
+  - apply QleT'_to_Qle. apply sum_upto_abs_le.
   - apply (Qle_trans _ (sum_upto n (fun k : nat => Qabs (A j) * Qabs (B ((Datatypes.S n + k)%nat)))) _).
     + apply (Qle_trans _ (sum_upto (n - j) (fun k : nat => Qabs (A j) * Qabs (B ((Datatypes.S n + k)%nat)))) _).
-      * apply (sum_upto_le_ext (n - j)
+      * apply QleT'_to_Qle. apply (sum_upto_le_ext (n - j)
           (fun k : nat => Qabs (A j * B ((Datatypes.S n + k)%nat)))
           (fun k : nat => Qabs (A j) * Qabs (B ((Datatypes.S n + k)%nat)))).
-        intros k Hk. apply qeq_le. apply Qabs_Qmult.
-      * apply (sc_sum_head_le (n - j) n (fun k : nat => Qabs (A j) * Qabs (B ((Datatypes.S n + k)%nat)))).
+        intros k Hk. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      * apply QleT'_to_Qle. apply (sc_sum_head_le (n - j) n (fun k : nat => Qabs (A j) * Qabs (B ((Datatypes.S n + k)%nat)))).
         -- lia.
         -- intro i.
            apply (Qmult_le_0_compat (Qabs (A j)) (Qabs (B ((Datatypes.S n + i)%nat)))).
            ++ apply Qabs_nonneg.
            ++ apply Qabs_nonneg.
-    + apply qeq_le.
-      rewrite (sum_upto_scale n (Qabs (A j)) (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat)))).
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
+      rewrite (qeqT_imp_qeq _ _ (sum_upto_scale n (Qabs (A j)) (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))))).
       ring.
 Qed.
 
@@ -10798,28 +10971,30 @@ Qed.
 (* L5 辅助 c：右带逐行 |Σ_{i<Sn−j} A_{S n+j}·B_i| ≤ |A_{S n+j}|·FB *)
 (* ============================================================ *)
 Lemma sc_add_rb_row_abs : forall (A B : nat -> Q) (n j : nat), (j < n)%nat ->
-  Qle (Qabs (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i)))
+  QleT' (Qabs (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i)))
       (Qabs (A ((Datatypes.S n + j)%nat)) * sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i))).
 Proof.
   intros A B n j Hj.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat) * B i))) _).
-  - apply sum_upto_abs_le.
+  - apply QleT'_to_Qle. apply sum_upto_abs_le.
   - apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat)) * Qabs (B i))) _).
     + apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j))
                             (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat)) * Qabs (B i))) _).
-      * apply (sum_upto_le_ext (Datatypes.S (2 * n - Datatypes.S n - j))
+      * apply QleT'_to_Qle. apply (sum_upto_le_ext (Datatypes.S (2 * n - Datatypes.S n - j))
           (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat) * B i))
           (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat)) * Qabs (B i))).
-        intros i Hi. apply qeq_le. apply Qabs_Qmult.
-      * apply (sc_sum_head_le (Datatypes.S (2 * n - Datatypes.S n - j)) (Datatypes.S n)
+        intros i Hi. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
+      * apply QleT'_to_Qle. apply (sc_sum_head_le (Datatypes.S (2 * n - Datatypes.S n - j)) (Datatypes.S n)
                  (fun i : nat => Qabs (A ((Datatypes.S n + j)%nat)) * Qabs (B i))).
         -- lia.
         -- intro i.
            apply (Qmult_le_0_compat (Qabs (A ((Datatypes.S n + j)%nat))) (Qabs (B i))).
            ++ apply Qabs_nonneg.
            ++ apply Qabs_nonneg.
-    + apply qeq_le.
-      rewrite (sum_upto_scale (Datatypes.S n) (Qabs (A ((Datatypes.S n + j)%nat))) (fun i : nat => Qabs (B i))).
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
+      rewrite (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S n) (Qabs (A ((Datatypes.S n + j)%nat))) (fun i : nat => Qabs (B i)))).
       ring.
 Qed.
 
@@ -10828,7 +11003,7 @@ Qed.
 (*   |up(A,B) + r(A,B)| ≤ FA·TB + TA·FB                          *)
 (* ============================================================ *)
 Lemma sc_add_band_abs : forall (A B : nat -> Q) (n : nat),
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
              sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i))))
       ((sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j))) *
          (sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat)))) +
@@ -10836,6 +11011,7 @@ Lemma sc_add_band_abs : forall (A B : nat -> Q) (n : nat),
          (sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)))).
 Proof.
   intros A B n.
+  apply Qle_to_QleT'.
   set (TB := sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat)))).
   set (FA := sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j))).
   set (TA := sum_upto n (fun j : nat => Qabs (A ((Datatypes.S n + j)%nat)))).
@@ -10849,40 +11025,44 @@ Proof.
     + (* |up| ≤ FA·TB *)
       apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j : nat =>
                  Qabs (sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))))) _).
-      * apply sum_upto_abs_le.
+      * apply QleT'_to_Qle. apply sum_upto_abs_le.
       * apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun j : nat =>
                  Qabs (A j) * sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))))) _).
-        -- apply (sum_upto_le_ext (Datatypes.S n)
+        -- apply QleT'_to_Qle. apply (sum_upto_le_ext (Datatypes.S n)
              (fun j : nat => Qabs (sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))))
              (fun j : nat => Qabs (A j) * sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))))).
-           intros j Hj. apply (sc_add_up_row_abs A B n j). lia.
-        -- apply qeq_le.
-           rewrite (sum_upto_ext (Datatypes.S n)
+           intros j Hj. apply NatLe_drop in Hj. apply (sc_add_up_row_abs A B n j). lia.
+        -- apply QleT'_to_Qle. apply qeq_le.
+        apply qeq_imp_qeqT.
+           assert (Hpre : forall j : nat, QeqT (Qabs (A j) * sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat)))) (sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))) * Qabs (A j))).
+           { intro j. apply qeq_imp_qeqT. ring. }
+           rewrite (qeqT_imp_qeq _ _ (sum_upto_ext (Datatypes.S n)
              (fun j : nat => Qabs (A j) * sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))))
-             (fun j : nat => sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))) * Qabs (A j))).
-           2: intro j; ring.
-           rewrite (sum_upto_scale (Datatypes.S n)
+             (fun j : nat => sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))) * Qabs (A j)) Hpre)).
+           rewrite (qeqT_imp_qeq _ _ (sum_upto_scale (Datatypes.S n)
                      (sum_upto n (fun k : nat => Qabs (B ((Datatypes.S n + k)%nat))))
-                     (fun j : nat => Qabs (A j))).
+                     (fun j : nat => Qabs (A j)))).
            ring.
     + (* |r| ≤ TA·FB *)
       apply (Qle_trans _ (sum_upto n (fun j : nat =>
                  Qabs (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i)))) _).
-      * apply sum_upto_abs_le.
+      * apply QleT'_to_Qle. apply sum_upto_abs_le.
       * apply (Qle_trans _ (sum_upto n (fun j : nat =>
                  Qabs (A ((Datatypes.S n + j)%nat)) * sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)))) _).
-        -- apply (sum_upto_le_ext n
+        -- apply QleT'_to_Qle. apply (sum_upto_le_ext n
              (fun j : nat => Qabs (sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i)))
              (fun j : nat => Qabs (A ((Datatypes.S n + j)%nat)) * sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)))).
-           intros j Hj. apply (sc_add_rb_row_abs A B n j). exact Hj.
-        -- apply qeq_le.
-           rewrite (sum_upto_ext n
+           intros j Hj. apply NatLe_drop in Hj. apply (sc_add_rb_row_abs A B n j). lia.
+        -- apply QleT'_to_Qle. apply qeq_le.
+        apply qeq_imp_qeqT.
+           assert (Hpre2 : forall j : nat, QeqT (Qabs (A ((Datatypes.S n + j)%nat)) * sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i))) (sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)) * Qabs (A ((Datatypes.S n + j)%nat)))).
+           { intro j. apply qeq_imp_qeqT. ring. }
+           rewrite (qeqT_imp_qeq _ _ (sum_upto_ext n
              (fun j : nat => Qabs (A ((Datatypes.S n + j)%nat)) * sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)))
-             (fun j : nat => sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)) * Qabs (A ((Datatypes.S n + j)%nat)))).
-           2: intro j; ring.
-           rewrite (sum_upto_scale n
+             (fun j : nat => sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)) * Qabs (A ((Datatypes.S n + j)%nat))) Hpre2)).
+           rewrite (qeqT_imp_qeq _ _ (sum_upto_scale n
                      (sum_upto (Datatypes.S n) (fun i : nat => Qabs (B i)))
-                     (fun j : nat => Qabs (A ((Datatypes.S n + j)%nat)))).
+                     (fun j : nat => Qabs (A ((Datatypes.S n + j)%nat))))).
            ring.
 Qed.
 
@@ -10891,18 +11071,20 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_c_tail_le : forall (t B : Q) (n : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) t)))
+  QleT' (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) t)))
       (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
 Proof.
   intros t B n HB HtB.
+  apply Qle_to_QleT'.
   assert (Hn : (n = 2 * n - n)%nat) by lia.
   assert (Hdn : (n <= 2 * n)%nat) by lia.
   assert (Hidx : (2 * (2 * n) + 1 = 4 * n + 1)%nat) by lia.
   apply (Qle_trans _ (exp_series (2 * (2 * n) + 1) B - exp_series (2 * n + 1) B) _).
-  - rewrite (sum_upto_nat_eq n (2 * n - n) (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) t)) Hn).
-    exact (sc_cs_c_tail_diff_le t B n (2 * n) HB HtB Hdn).
-  - apply qeq_le.
-    rewrite (sc_exp_series_idx (2 * (2 * n) + 1) (4 * n + 1) B Hidx).
+  - rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq n (2 * n - n) (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) t)) Hn)).
+    exact (QleT'_to_Qle _ _ (sc_cs_c_tail_diff_le t B n (2 * n) HB HtB Hdn)).
+  - apply QleT'_to_Qle. apply qeq_le.
+  apply qeq_imp_qeqT.
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_series_idx (2 * (2 * n) + 1) (4 * n + 1) B Hidx)).
     reflexivity.
 Qed.
 
@@ -10911,22 +11093,24 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_d_tail_le : forall (t B : Q) (n : nat), (1 <= n)%nat ->
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t)))
+  QleT' (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t)))
       (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
 Proof.
   intros t B n Hn1 HB HtB.
+  apply Qle_to_QleT'.
   assert (Hdn : (Datatypes.S n <= 2 * n)%nat) by lia.
   assert (Hd1 : (1 <= Datatypes.S n)%nat) by lia.
   assert (Hlen : (n = Datatypes.S (2 * n - Datatypes.S n))%nat) by lia.
   assert (Hidx1 : (2 * (2 * n) + 1 = 4 * n + 1)%nat) by lia.
   assert (Hidx2 : (2 * (Datatypes.S n) - 1 = 2 * n + 1)%nat) by lia.
   apply (Qle_trans _ (exp_series (2 * (2 * n) + 1) B - exp_series (2 * (Datatypes.S n) - 1) B) _).
-  - rewrite (sum_upto_nat_eq n (Datatypes.S (2 * n - Datatypes.S n))
-              (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t)) Hlen).
-    exact (sc_cs_d_tail_diff_le t B (Datatypes.S n) (2 * n) HB HtB Hd1 Hdn).
-  - apply qeq_le.
-    rewrite (sc_exp_series_idx (2 * (2 * n) + 1) (4 * n + 1) B Hidx1).
-    rewrite (sc_exp_series_idx (2 * (Datatypes.S n) - 1) (2 * n + 1) B Hidx2).
+  - rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq n (Datatypes.S (2 * n - Datatypes.S n))
+              (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t)) Hlen)).
+    exact (QleT'_to_Qle _ _ (sc_cs_d_tail_diff_le t B (Datatypes.S n) (2 * n) HB HtB Hd1 Hdn)).
+  - apply QleT'_to_Qle. apply qeq_le.
+  apply qeq_imp_qeqT.
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_series_idx (2 * (2 * n) + 1) (4 * n + 1) B Hidx1)).
+    rewrite (qeqT_imp_qeq _ _ (sc_exp_series_idx (2 * (Datatypes.S n) - 1) (2 * n + 1) B Hidx2)).
     reflexivity.
 Qed.
 
@@ -10935,9 +11119,9 @@ Qed.
 (* ============================================================ *)
 Lemma sc_prod_le : forall (p q P Q : Q),
   Qle 0 p -> Qle 0 q -> Qle p P -> Qle q Q -> Qle 0 P ->
-  Qle (p * q) (P * Q).
+  QleT' (p * q) (P * Q).
 Proof.
-intros p q P Q Hp Hq HpP HqQ HP0. exact (Qle_trans (p * q) (P * q) (P * Q) (Qmult_le_compat_r p P q HpP Hq) (sc_qmult_le_l q Q P HqQ HP0)).
+intros p q P Q Hp Hq HpP HqQ HP0. apply Qle_to_QleT'. exact (Qle_trans (p * q) (P * q) (P * Q) (Qmult_le_compat_r p P q HpP Hq) (QleT'_to_Qle (P * q) (P * Q) (sc_qmult_le_l q Q P HqQ HP0))).
 Qed.
 
 (* ============================================================ *)
@@ -10945,53 +11129,54 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_sin_err_abs : forall (x y : Q) (n : nat) (B : Q),
   (1 <= n)%nat -> Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y))
+  QleT' (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y))
       (((1 + 1) * (1 + 1)) * (exp_series (2 * n + 1) B * (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B))).
 Proof.
   intros x y n B Hn1 HB HxB HyB.
+  apply Qle_to_QleT'.
   set (E := exp_series (2 * n + 1) B).
   set (Tail := exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
   assert (HEmono : Qle (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B)).
-  { apply exp_series_mono; [exact HB | lia]. }
+  { apply QleT'_to_Qle. apply exp_series_mono; [exact (Qle_to_QleT' _ _ HB) | lia]. }
   assert (HTail0 : Qle 0 Tail).
   { unfold Tail. apply (proj1 (Qle_minus_iff (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B))).
     exact HEmono. }
   (* 四个 F/T 界 *)
   assert (HcFx : Qle (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j x))) E).
-  { unfold E. exact (sc_cs_c_full_le x B n HB HxB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_c_full_le x B n HB HxB)). }
   assert (HcFy : Qle (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j y))) E).
-  { unfold E. exact (sc_cs_c_full_le y B n HB HyB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_c_full_le y B n HB HyB)). }
   assert (HsFx : Qle (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j x))) E).
-  { unfold E. exact (sc_cs_d_full_le x B n HB HxB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le x B n HB HxB)). }
   assert (HsFy : Qle (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j y))) E).
-  { unfold E. exact (sc_cs_d_full_le y B n HB HyB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le y B n HB HyB)). }
   assert (HcTx : Qle (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) x))) Tail).
-  { unfold Tail. exact (sc_add_c_tail_le x B n HB HxB). }
+  { unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_c_tail_le x B n HB HxB)). }
   assert (HcTy : Qle (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) y))) Tail).
-  { unfold Tail. exact (sc_add_c_tail_le y B n HB HyB). }
+  { unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_c_tail_le y B n HB HyB)). }
   assert (HsTx : Qle (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x))) Tail).
-  { unfold Tail. exact (sc_add_d_tail_le x B n Hn1 HB HxB). }
+  { unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_d_tail_le x B n Hn1 HB HxB)). }
   assert (HsTy : Qle (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) y))) Tail).
-  { unfold Tail. exact (sc_add_d_tail_le y B n Hn1 HB HyB). }
+  { unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_d_tail_le y B n Hn1 HB HyB)). }
   (* 非负件 *)
   assert (HcF0 : forall a : Q, Qle 0 (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j a)))).
-  { intro a. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
+  { intro a. apply QleT'_to_Qle. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
   assert (HsF0 : forall a : Q, Qle 0 (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j a)))).
-  { intro a. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
+  { intro a. apply QleT'_to_Qle. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
   assert (HcT0 : forall a : Q, Qle 0 (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) a)))).
-  { intro a. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { intro a. apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   assert (HsT0 : forall a : Q, Qle 0 (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) a)))).
-  { intro a. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { intro a. apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   (* 精确分解 → 带界 *)
   assert (Hdec := sc_add_sin_err_decomp x y n).
-  apply (sc_qabs_qeq_le (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y)
+  apply QleT'_to_Qle. apply (sc_qabs_qeq_le (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y)
                         ((sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
                           sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * sin_term i y))) +
                          (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => sin_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
                           sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * cos_term i y))))
                         (((1 + 1) * (1 + 1)) * (E * Tail))).
-  - exact Hdec.
+  - apply qeqT_imp_qeq. exact Hdec.
   - (* |D1 + D2| ≤ 4·E·Tail：三角 + 双族带界 + 双族 F/T 乘积 *)
     apply (Qle_trans _ (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
                               sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * sin_term i y))) +
@@ -11005,37 +11190,37 @@ Proof.
                                  (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) y))) +
                                (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) x))) *
                                  (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j y)))) _).
-           ++ exact (sc_add_band_abs (fun j : nat => cos_term j x) (fun k : nat => sin_term k y) n).
+           ++ exact (QleT'_to_Qle _ _ (sc_add_band_abs (fun j : nat => cos_term j x) (fun k : nat => sin_term k y) n)).
            ++ apply (Qle_trans _ ((E * Tail) + (E * Tail)) _).
               ** apply Qplus_le_compat.
-                 --- apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j x)))
+                 --- apply QleT'_to_Qle. apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j x)))
                                        (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) y)))
                                        E Tail); [exact (HcF0 x) | exact (HsT0 y) | exact HcFx | exact HsTy | exact HE0].
                  --- (* 第二乘积 Tc(x)·Fs(y) ≤ E·Tail（先经 Tail·E 再 comm） *)
                      apply (Qle_trans _ (Tail * E) _).
-                     { apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) x)))
+                     { apply QleT'_to_Qle. apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) x)))
                                          (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j y)))
                                          Tail E); [exact (HcT0 x) | exact (HsF0 y) | exact HcTx | exact HsFy | exact HTail0]. }
-                     { apply qeq_le. ring. }
-              ** apply qeq_le. ring.
+                     { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
         -- (* |D2| ≤ 2·E·Tail（sc 族：bound = Fs(x)·Tc(y) + Ts(x)·Fc(y)） *)
            apply (Qle_trans _ ((sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j x))) *
                                  (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) y))) +
                                (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x))) *
                                  (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j y)))) _).
-           ++ exact (sc_add_band_abs (fun j : nat => sin_term j x) (fun k : nat => cos_term k y) n).
+           ++ exact (QleT'_to_Qle _ _ (sc_add_band_abs (fun j : nat => sin_term j x) (fun k : nat => cos_term k y) n)).
            ++ apply (Qle_trans _ ((E * Tail) + (E * Tail)) _).
               ** apply Qplus_le_compat.
-                 --- apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j x)))
+                 --- apply QleT'_to_Qle. apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (sin_term j x)))
                                        (sum_upto n (fun m : nat => Qabs (cos_term ((Datatypes.S n + m)%nat) y)))
                                        E Tail); [exact (HsF0 x) | exact (HcT0 y) | exact HsFx | exact HcTy | exact HE0].
                  --- apply (Qle_trans _ (Tail * E) _).
-                     { apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x)))
+                     { apply QleT'_to_Qle. apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x)))
                                          (sum_upto (Datatypes.S n) (fun j : nat => Qabs (cos_term j y)))
                                          Tail E); [exact (HsT0 x) | exact (HcF0 y) | exact HsTx | exact HcFy | exact HTail0]. }
-                     { apply qeq_le. ring. }
-              ** apply qeq_le. ring.
-      * apply qeq_le. ring.
+                     { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -11043,25 +11228,26 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_sin_err_tail_le : forall (x y : Q) (n : nat) (B : Q),
   (1 <= n)%nat -> Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y))
+  QleT' (Qabs (sin_partial (2 * n) (x + y) - sin_partial n x * cos_partial n y - cos_partial n x * sin_partial n y))
       (((1 + 1) * (1 + 1)) * (exp_series (2 * n + 1) B * exp_tail_abs (2 * n + 1) (4 * n + 1) B)).
 Proof.
   intros x y n B Hn1 HB HxB HyB.
+  apply Qle_to_QleT'.
   set (E := exp_series (2 * n + 1) B).
   set (Tail := exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
   set (X := exp_tail_abs (2 * n + 1) (4 * n + 1) B).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
-  assert (HX0 : Qle 0 X) by (unfold X; apply exp_tail_abs_nonneg; exact HB).
-  assert (Hfour0 : Qle 0 ((1 + 1) * (1 + 1))) by (apply Qmult_le_0_compat; apply Q2_nonneg; apply Q2_nonneg).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HX0 : Qle 0 X) by (unfold X; apply QleT'_to_Qle; apply exp_tail_abs_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (Hfour0 : Qle 0 ((1 + 1) * (1 + 1))) by (apply Qmult_le_0_compat; apply QleT'_to_Qle; apply Q2_nonneg).
   assert (HTX : Qle Tail X).
-  { unfold Tail, X. apply (exp_series_tail_le B (2 * n + 1) (4 * n + 1) HB). lia. }
+  { unfold Tail, X. apply QleT'_to_Qle. apply (exp_series_tail_le B (2 * n + 1) (4 * n + 1) (Qle_to_QleT' _ _ HB)). lia. }
   apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (E * Tail)) _).
-  - unfold E, Tail. exact (sc_add_sin_err_abs x y n B Hn1 HB HxB HyB).
+  - unfold E, Tail. exact (QleT'_to_Qle _ _ (sc_add_sin_err_abs x y n B Hn1 HB HxB HyB)).
   - apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (E * X)) _).
-    + apply (sc_qmult_le_l (E * Tail) (E * X) ((1 + 1) * (1 + 1))).
-      * apply (sc_qmult_le_l Tail X E); [exact HTX | exact HE0].
+    + apply QleT'_to_Qle. apply (sc_qmult_le_l (E * Tail) (E * X) ((1 + 1) * (1 + 1))).
+      * apply QleT'_to_Qle. apply (sc_qmult_le_l Tail X E); [exact HTX | exact HE0].
       * exact Hfour0.
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -11079,7 +11265,7 @@ Proof.
   destruct (q_arch_geom B) as [N0 HN0].
   destruct (exp_series_arch B HB) as [C [HC1 HC]].
   assert (HC0 : Qle 0 C) by (apply (Qle_trans _ 1 _); [unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]).
-  assert (Htwo0 : Qle 0 (1 + 1)) by apply Q2_nonneg.
+  assert (Htwo0 : Qle 0 (1 + 1)) by (apply QleT'_to_Qle; apply Q2_nonneg).
   assert (Hfour0 : Qle 0 ((1 + 1) * (1 + 1))) by (apply Qmult_le_0_compat; [exact Htwo0 | exact Htwo0]).
   set (P := ((1 + 1) * (1 + 1)) * (C * ((q_pow B N0 / q_fact N0) * (1 + 1)))).
   assert (HP0 : Qle 0 P).
@@ -11087,7 +11273,7 @@ Proof.
     - exact Hfour0.
     - apply (Qmult_le_0_compat C ((q_pow B N0 / q_fact N0) * (1 + 1))).
       + exact HC0.
-      + apply q_pow_fact2_nonneg. exact (QleT'_to_Qle _ _ HB). }
+      + apply QleT'_to_Qle. apply q_pow_fact2_nonneg. exact HB. }
   destruct (arch_decay P eps (Qle_to_QleT' _ _ HP0) Hep) as [t Ht].
   exists (N0 + Datatypes.S t)%nat.
   intros x y n HNn HxB HyB.
@@ -11106,39 +11292,39 @@ Proof.
   set (E := exp_series (2 * n + 1) B).
   set (X := exp_tail_abs (2 * n + 1) (4 * n + 1) B).
   set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HBle).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HEC : Qle E C) by (unfold E; apply QleT'_to_Qle; exact (HC ((2 * n + 1)%nat))).
-  assert (HX0 : Qle 0 X) by (unfold X; apply exp_tail_abs_nonneg; exact HBle).
+  assert (HX0 : Qle 0 X) by (unfold X; apply QleT'_to_Qle; apply exp_tail_abs_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HXg : Qle X (Y * (1 + 1))).
-  { unfold X, Y. apply (exp_tail_abs_geom2 B (2 * n + 1) (4 * n + 1) HBle HNgeom2 Hmlen). }
-  assert (HY0 : Qle 0 (Y * (1 + 1))) by (unfold Y; apply q_pow_fact2_nonneg; exact HBle).
+  { unfold X, Y. apply QleT'_to_Qle. apply (exp_tail_abs_geom2 B (2 * n + 1) (4 * n + 1) (Qle_to_QleT' _ _ HBle) (fun u Hu => Qle_to_QleT' _ _ (HNgeom2 u (NatLe_drop _ _ Hu))) Hmlen). }
+  assert (HY0 : Qle 0 (Y * (1 + 1))) by (unfold Y; apply QleT'_to_Qle; apply q_pow_fact2_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HYdec : Qle Y ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))).
-  { unfold Y. apply (pow_fact_decay B N0 (2 * n + 1) HBle HN0geom). lia. }
-  assert (Hq0 : Qle 0 (q_pow (1 / 2)%Q (2 * n + 1 - N0))) by (apply q_pow_nonneg; exact Qhalf_nonneg).
+  { unfold Y. apply QleT'_to_Qle. apply (pow_fact_decay B N0 (2 * n + 1) (Qle_to_QleT' _ _ HBle) (fun u Hu => Qle_to_QleT' _ _ (HN0geom u (NatLe_drop _ _ Hu)))). lia. }
+  assert (Hq0 : Qle 0 (q_pow (1 / 2)%Q (2 * n + 1 - N0))) by (apply QleT'_to_Qle; apply q_pow_nonneg; exact Qhalf_nonneg).
   assert (HD0 : Qle 0 ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))).
   { apply (Qmult_le_0_compat (q_pow B N0 / q_fact N0) (q_pow (1 / 2)%Q (2 * n + 1 - N0))).
-    - apply q_pow_fact_nonneg. exact HBle.
+    - apply QleT'_to_Qle. apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HBle.
     - exact Hq0. }
-  assert (Hhalf0 : Qle 0 (q_pow (1 / 2)%Q (Datatypes.S t))) by (apply q_pow_nonneg; exact Qhalf_nonneg).
+  assert (Hhalf0 : Qle 0 (q_pow (1 / 2)%Q (Datatypes.S t))) by (apply QleT'_to_Qle; apply q_pow_nonneg; exact Qhalf_nonneg).
   assert (Hdec : Qle (q_pow (1 / 2)%Q (2 * n + 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t))).
-  { apply (q_half_pow_mono (2 * n + 1 - N0) (Datatypes.S t)). exact Hj. }
+  { apply QleT'_to_Qle. apply (q_half_pow_mono (2 * n + 1 - N0) (Datatypes.S t)). exact Hj. }
   apply Qlt_to_QltT.
   apply (Qle_lt_trans _ (P * q_pow (1 / 2)%Q (Datatypes.S t)) _).
   - apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (E * X)) _).
-    + exact (sc_add_sin_err_tail_le x y n B Hn1 HBle HxBe HyBe).
+    + exact (QleT'_to_Qle _ _ (sc_add_sin_err_tail_le x y n B Hn1 HBle HxBe HyBe)).
     + apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * X)) _).
-      * apply (sc_qmult_le_l (E * X) (C * X) ((1 + 1) * (1 + 1))).
+      * apply QleT'_to_Qle. apply (sc_qmult_le_l (E * X) (C * X) ((1 + 1) * (1 + 1))).
         -- apply (Qmult_le_compat_r E C X); [exact HEC | exact HX0].
         -- exact Hfour0.
       * apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * (Y * (1 + 1)))) _).
-        -- apply (sc_qmult_le_l (C * X) (C * (Y * (1 + 1))) ((1 + 1) * (1 + 1))).
-           ++ apply (sc_qmult_le_l X (Y * (1 + 1)) C); [exact HXg | exact HC0].
+        -- apply QleT'_to_Qle. apply (sc_qmult_le_l (C * X) (C * (Y * (1 + 1))) ((1 + 1) * (1 + 1))).
+           ++ apply QleT'_to_Qle. apply (sc_qmult_le_l X (Y * (1 + 1)) C); [exact HXg | exact HC0].
            ++ exact Hfour0.
         -- apply (Qle_trans _ (((1 + 1) * (1 + 1)) * (C * (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0)) * (1 + 1)))) _).
-           ++ apply (sc_qmult_le_l (C * (Y * (1 + 1)))
+           ++ apply QleT'_to_Qle. apply (sc_qmult_le_l (C * (Y * (1 + 1)))
                                    (C * (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0)) * (1 + 1)))
                                    ((1 + 1) * (1 + 1))).
-              ** apply (sc_qmult_le_l (Y * (1 + 1))
+              ** apply QleT'_to_Qle. apply (sc_qmult_le_l (Y * (1 + 1))
                                       (((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0)) * (1 + 1))
                                       C).
                  --- apply (Qmult_le_compat_r Y ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0)) (1 + 1));
@@ -11146,8 +11332,8 @@ Proof.
                  --- exact HC0.
               ** exact Hfour0.
            ++ apply (Qle_trans _ (P * q_pow (1 / 2)%Q (2 * n + 1 - N0)) _).
-              ** apply qeq_le. unfold P. ring.
-              ** apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * n + 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t)) P);
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold P. ring.
+              ** apply QleT'_to_Qle. apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * n + 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t)) P);
                    [exact Hdec | exact HP0].
   - exact (QltT_to_Qlt _ _ Ht).
 Qed.
@@ -11180,7 +11366,7 @@ Proof.
     - apply HMy.
     - apply (qleT'_trans My (My + Mx) (Mx + My)).
       + apply (qleT'_plus_nonneg_rT My Mx). apply qltT_leT'. exact HMxpos.
-      + apply Qle_to_QleT'. apply qeq_imp_qle. ring. }
+      + apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
   assert (HsumMT : forall n : nat, QleT' (Qabs (u n + v n)) M).
   { intro n. unfold M. apply (qleT'_trans (Qabs (u n + v n)) (Qabs (u n) + Qabs (v n)) (Mx + My)).
     - apply Qle_to_QleT'. apply Qabs_triangle.
@@ -11202,7 +11388,8 @@ Proof.
                           Qabs (sin_partial (2 * n) (u n + v n) - sin_partial n (u n) * cos_partial n (v n) - cos_partial n (u n) * sin_partial n (v n))) _).
   - apply (Qle_trans _ (Qabs ((sin_partial n (u n + v n) - sin_partial (2 * n) (u n + v n)) +
                                (sin_partial (2 * n) (u n + v n) - sin_partial n (u n) * cos_partial n (v n) - cos_partial n (u n) * sin_partial n (v n)))) _).
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       apply (Qabs_wd (sin_partial n (u n + v n) -
                       (sin_partial n (u n) * cos_partial n (v n) + cos_partial n (u n) * sin_partial n (v n)))
                      ((sin_partial n (u n + v n) - sin_partial (2 * n) (u n + v n)) +
@@ -11222,12 +11409,12 @@ Proof.
         -- exact (HuMT n).
         -- exact (HvMT n).
     + apply (Qle_trans _ (Qmult (Qinv 3 + Qinv 3) eps) _).
-      * apply qeq_le. unfold Qdiv. ring.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. ring.
       * apply (Qle_trans _ (Qmult 1 eps) _).
         -- apply (Qmult_le_compat_r (Qinv 3 + Qinv 3) 1 eps).
            ++ unfold Qle, Qinv, Qplus. simpl. lia.
            ++ apply (Qlt_le_weak 0 eps). apply QltT_to_Qlt. exact Heps.
-        -- apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -11247,29 +11434,28 @@ Qed.
 (*   Σ_{j=0}^{J} Σ_{i=0}^{j−1} f i·g (j−1−i)                    *)
 (*     == Σ_{m=0}^{J−1} Σ_{i=0}^{m} f i·g (m−i)                 *)
 (* ============================================================ *)
-Lemma sc_cos_add_ss_reindex : forall (J : nat) (f g : nat -> Q),
-  sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => f i * g (Nat.sub (Nat.sub j 1) i))) ==
-  sum_upto J (fun m : nat => sum_upto (Datatypes.S m) (fun i : nat => f i * g (Nat.sub m i))).
+Lemma sc_cos_add_ss_reindex : forall (J : nat) (f g : nat -> Q), QeqT (sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => f i * g (Nat.sub (Nat.sub j 1) i)))) (sum_upto J (fun m : nat => sum_upto (Datatypes.S m) (fun i : nat => f i * g (Nat.sub m i)))).
 Proof.
   intros J.
   induction J as [| J' IH]; intros f g.
-  - reflexivity.
-  - (* 两侧各 + 同一尾块：LHS j=S J'、RHS m=J'（S J' − 1 与 J' 经 lia 桥） *)
+  - apply qeq_imp_qeqT. reflexivity.
+  - apply qeq_imp_qeqT. (* 两侧各 + 同一尾块：LHS j=S J'、RHS m=J'（S J' − 1 与 J' 经 lia 桥） *)
     transitivity (sum_upto (Datatypes.S J') (fun j : nat => sum_upto j (fun i : nat => f i * g (Nat.sub (Nat.sub j 1) i))) +
                   sum_upto (Datatypes.S J') (fun i : nat => f i * g (Nat.sub (Nat.sub (Datatypes.S J') 1) i))).
     + reflexivity.
-    + setoid_rewrite IH.
+    + setoid_rewrite (qeqT_imp_qeq _ _ (IH f g)).
       transitivity (sum_upto J' (fun m : nat => sum_upto (Datatypes.S m) (fun i : nat => f i * g (Nat.sub m i))) +
                     sum_upto (Datatypes.S J') (fun i : nat => f i * g (Nat.sub J' i))).
       * (* 尾项相等：sub (sub (S J') 1) i == sub J' i（lia） *)
         assert (Ht : sum_upto (Datatypes.S J') (fun i : nat => f i * g (Nat.sub (Nat.sub (Datatypes.S J') 1) i)) ==
                      sum_upto (Datatypes.S J') (fun i : nat => f i * g (Nat.sub J' i))).
-        { apply (sum_upto_ext_below (Datatypes.S J')
+        { apply qeqT_imp_qeq.
+          apply (sum_upto_ext_below (Datatypes.S J')
                    (fun i : nat => f i * g (Nat.sub (Nat.sub (Datatypes.S J') 1) i))
                    (fun i : nat => f i * g (Nat.sub J' i))).
           intros i Hi.
           assert (Hn : (Nat.sub (Nat.sub (Datatypes.S J') 1) i = Nat.sub J' i)%nat) by lia.
-          rewrite Hn. reflexivity. }
+          rewrite Hn. apply qeq_imp_qeqT. reflexivity. }
         rewrite Ht. reflexivity.
       * reflexivity.
 Qed.
@@ -11280,12 +11466,11 @@ Qed.
 (*   tri(K) − tri'(K−1) == Σ_{i=0}^{K} A i·B (K−i)             *)
 (* （cos 侧 ss 三角 cap 2n−1 ⊄ 方块 n 的角点分离的代数基础）     *)
 (* ============================================================ *)
-Lemma sc_cos_add_tri_step : forall (K : nat) (A B : nat -> Q),
-  sum_upto (Datatypes.S K) (fun i : nat => sum_upto (Datatypes.S (K - i)) (fun k : nat => A i * B k)) -
-  sum_upto K (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k)) ==
-  sum_upto (Datatypes.S K) (fun i : nat => A i * B ((K - i)%nat)).
+Lemma sc_cos_add_tri_step : forall (K : nat) (A B : nat -> Q), QeqT (sum_upto (Datatypes.S K) (fun i : nat => sum_upto (Datatypes.S (K - i)) (fun k : nat => A i * B k)) -
+  sum_upto K (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k))) (sum_upto (Datatypes.S K) (fun i : nat => A i * B ((K - i)%nat))).
 Proof.
   intros K A B.
+  apply qeq_imp_qeqT.
   (* 行改写事实：i < K ⟹ row_i == sub_row_i + extra_i *)
   assert (Hrows : forall i : nat, (i < K)%nat ->
     sum_upto (Datatypes.S (K - i)) (fun k : nat => A i * B k) ==
@@ -11294,12 +11479,12 @@ Proof.
     change (sum_upto (Datatypes.S (K - i)) (fun k : nat => A i * B k))
       with (sum_upto (K - i) (fun k : nat => A i * B k) + A i * B ((K - i)%nat)).
     assert (Hn : (K - i = Datatypes.S (K - 1 - i))%nat) by lia.
-    rewrite (sum_upto_nat_eq (K - i) (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k) Hn).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (K - i) (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k) Hn)).
     reflexivity. }
   (* 尾行事实：row_K == A K · B 0（K − K == 0） *)
   assert (Hlast : sum_upto (Datatypes.S (K - K)) (fun k : nat => A K * B k) == A K * B (0%nat)).
   { assert (Hcap : (Datatypes.S (K - K) = 1)%nat) by lia.
-    rewrite (sum_upto_nat_eq (Datatypes.S (K - K)) 1 (fun k : nat => A K * B k) Hcap).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (K - K)) 1 (fun k : nat => A K * B k) Hcap)).
     simpl. ring. }
   (* 目标三角：先证 tri(K) == sub(K) + anti(K) *)
   assert (Hdec :
@@ -11317,18 +11502,17 @@ Proof.
     - (* 逐行展开 + 尾行替换 *)
       transitivity (sum_upto K (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k) + A i * B ((K - i)%nat)) +
                     A K * B (0%nat)).
-      + rewrite (sum_upto_ext_below K
+      + rewrite (qeqT_imp_qeq _ _ (sum_upto_ext_below K
           (fun i : nat => sum_upto (Datatypes.S (K - i)) (fun k : nat => A i * B k))
-          (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k) + A i * B ((K - i)%nat))).
-        2: { intros i Hi. exact (Hrows i Hi). }
+          (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k) + A i * B ((K - i)%nat)) (fun i Hi => qeq_imp_qeqT _ _ (Hrows i (NatLe_drop _ _ Hi))))).
         rewrite Hlast.
         reflexivity.
       + (* Σ(sub_row + extra) + A K B 0 == sub(K) + anti(K) *)
         transitivity (sum_upto K (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k)) +
                       (sum_upto K (fun i : nat => A i * B ((K - i)%nat)) + A K * B ((K - K)%nat))).
-        * rewrite (sum_upto_plus K
+        * rewrite (qeqT_imp_qeq _ _ (sum_upto_plus K
             (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k))
-            (fun i : nat => A i * B ((K - i)%nat))).
+            (fun i : nat => A i * B ((K - i)%nat)))).
           assert (Hkk : (K - K = 0)%nat) by lia.
           rewrite Hkk. ring.
         * transitivity (sum_upto K (fun i : nat => sum_upto (Datatypes.S (K - 1 - i)) (fun k : nat => A i * B k)) +
@@ -11346,21 +11530,17 @@ Qed.
 (* ============================================================ *)
 (* R3a：cc 乘积方块：cp_n(x)·cp_n(y) == Σ_{i,k≤n} c_i(x)·c_k(y) *)
 (* ============================================================ *)
-Lemma sc_add_cc_prod_sq : forall (x y : Q) (n : nat),
-  cos_partial n x * cos_partial n y ==
-  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => cos_term i x * cos_term k y)).
+Lemma sc_add_cc_prod_sq : forall (x y : Q) (n : nat), QeqT (cos_partial n x * cos_partial n y) (sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => cos_term i x * cos_term k y))).
 Proof.
-intros x y n. rewrite (sc_cos_partial_upto n x). rewrite (sc_cos_partial_upto n y). exact (sum_upto_prod n n (fun i : nat => cos_term i x) (fun k : nat => cos_term k y)).
+intros x y n. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n x)). rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto n y)). exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun i : nat => cos_term i x) (fun k : nat => cos_term k y))).
 Qed.
 
 (* ============================================================ *)
 (* R3b：ss 乘积方块：sp_n(x)·sp_n(y) == Σ_{i,k≤n} s_i(x)·s_k(y) *)
 (* ============================================================ *)
-Lemma sc_add_ss_prod_sq : forall (x y : Q) (n : nat),
-  sin_partial n x * sin_partial n y ==
-  sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * sin_term k y)).
+Lemma sc_add_ss_prod_sq : forall (x y : Q) (n : nat), QeqT (sin_partial n x * sin_partial n y) (sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * sin_term k y))).
 Proof.
-intros x y n. rewrite (sc_sin_partial_upto n x). rewrite (sc_sin_partial_upto n y). exact (sum_upto_prod n n (fun i : nat => sin_term i x) (fun k : nat => sin_term k y)).
+intros x y n. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n x)). rewrite (qeqT_imp_qeq _ _ (sc_sin_partial_upto n y)). exact (qeqT_imp_qeq _ _ (sum_upto_prod n n (fun i : nat => sin_term i x) (fun k : nat => sin_term k y))).
 Qed.
 
 (* ============================================================ *)
@@ -11368,12 +11548,11 @@ Qed.
 (*   Σ_{j≤J}Σ_{i≤j} c_i(x)·c_{j−i}(y)                           *)
 (*     == Σ_{i≤J}Σ_{k≤J−i} c_i(x)·c_k(y)                       *)
 (* ============================================================ *)
-Lemma sc_add_cos_cc_swap : forall (x y : Q) (J : nat),
-  sum_upto (Datatypes.S J) (fun j : nat => sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y)) ==
-  sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y)).
+Lemma sc_add_cos_cc_swap : forall (x y : Q) (J : nat), QeqT (sum_upto (Datatypes.S J) (fun j : nat => sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y))) (sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y))).
 Proof.
   intros x y J.
-  exact (exp_cauchy_swap J (fun i : nat => cos_term i x) (fun k : nat => cos_term k y)).
+  apply qeq_imp_qeqT.
+  exact (qeqT_imp_qeq _ _ (exp_cauchy_swap J (fun i : nat => cos_term i x) (fun k : nat => cos_term k y))).
 Qed.
 
 (* ============================================================ *)
@@ -11381,16 +11560,15 @@ Qed.
 (*   Σ_{j≤J}Σ_{i≤j−1} s_i(x)·s_{j−1−i}(y)                      *)
 (*     == Σ_{i≤J−1}Σ_{k≤J−1−i} s_i(x)·s_k(y)                   *)
 (* ============================================================ *)
-Lemma sc_add_cos_ss_swap : forall (x y : Q) (J : nat), (1 <= J)%nat ->
-  sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y)) ==
-  sum_upto (Datatypes.S (J - 1)) (fun i : nat => sum_upto (Datatypes.S (J - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)).
+Lemma sc_add_cos_ss_swap : forall (x y : Q) (J : nat), (1 <= J)%nat ->QeqT (sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))) (sum_upto (Datatypes.S (J - 1)) (fun i : nat => sum_upto (Datatypes.S (J - 1 - i)) (fun k : nat => sin_term i x * sin_term k y))).
 Proof.
   intros x y J HJ1.
-  rewrite (sc_cos_add_ss_reindex J (fun i : nat => sin_term i x) (fun i : nat => sin_term i y)).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_add_ss_reindex J (fun i : nat => sin_term i x) (fun i : nat => sin_term i y))).
   assert (Hcap : (J = Datatypes.S (J - 1))%nat) by lia.
-  rewrite (sum_upto_nat_eq J (Datatypes.S (J - 1))
-            (fun m : nat => sum_upto (Datatypes.S m) (fun i : nat => sin_term i x * sin_term (Nat.sub m i) y)) Hcap).
-  exact (exp_cauchy_swap (J - 1) (fun i : nat => sin_term i x) (fun k : nat => sin_term k y)).
+  rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq J (Datatypes.S (J - 1))
+            (fun m : nat => sum_upto (Datatypes.S m) (fun i : nat => sin_term i x * sin_term (Nat.sub m i) y)) Hcap)).
+  exact (qeqT_imp_qeq _ _ (exp_cauchy_swap (J - 1) (fun i : nat => sin_term i x) (fun k : nat => sin_term k y))).
 Qed.
 
 (* ============================================================ *)
@@ -11399,31 +11577,31 @@ Qed.
 (*     Σ_{i≤J}Σ_{k≤J−i} c_i(x)c_k(y) −                          *)
 (*     Σ_{i≤J−1}Σ_{k≤J−1−i} s_i(x)s_k(y)                        *)
 (* ============================================================ *)
-Lemma sc_add_cos_diag_swap : forall (x y : Q) (J : nat), (1 <= J)%nat ->
-  cos_partial J (x + y) ==
-  (sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y))) -
-  (sum_upto (Datatypes.S (J - 1)) (fun i : nat => sum_upto (Datatypes.S (J - 1 - i)) (fun k : nat => sin_term i x * sin_term k y))).
+Lemma sc_add_cos_diag_swap : forall (x y : Q) (J : nat), (1 <= J)%nat ->QeqT (cos_partial J (x + y)) ((sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y))) -
+  (sum_upto (Datatypes.S (J - 1)) (fun i : nat => sum_upto (Datatypes.S (J - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)))).
 Proof.
   intros x y J HJ1.
-  rewrite (sc_cos_partial_upto J (x + y)).
+  apply qeq_imp_qeqT.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_partial_upto J (x + y))).
   (* 逐项对角恒等式：cos_term j (x+y) == cc_j − ss_j *)
   transitivity (sum_upto (Datatypes.S J) (fun j : nat =>
       sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y) -
       sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))).
-  - apply (sum_upto_ext_below (Datatypes.S J)).
+  - apply qeqT_imp_qeq.
+    apply (sum_upto_ext_below (Datatypes.S J)).
     intros j Hj.
     apply (sc_add_cos_diag_term x y j).
   - (* Σ(cc_j − ss_j) == Σcc − Σss == ccT − ssT *)
     transitivity (sum_upto (Datatypes.S J) (fun j : nat => sum_upto (Datatypes.S j) (fun i : nat => cos_term i x * cos_term (Nat.sub j i) y)) -
                   sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))).
-    + apply sum_upto_minus.
+    + apply qeqT_imp_qeq. apply sum_upto_minus.
     + transitivity (sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y)) -
                     sum_upto (Datatypes.S J) (fun j : nat => sum_upto j (fun i : nat => sin_term i x * sin_term (Nat.sub (Nat.sub j 1) i) y))).
       * (* Σcc-diag == ccT：左端改写 *)
-        rewrite (sc_add_cos_cc_swap x y J). reflexivity.
+        rewrite (qeqT_imp_qeq _ _ (sc_add_cos_cc_swap x y J)). reflexivity.
       * transitivity (sum_upto (Datatypes.S J) (fun i : nat => sum_upto (Datatypes.S (J - i)) (fun k : nat => cos_term i x * cos_term k y)) -
                       sum_upto (Datatypes.S (J - 1)) (fun i : nat => sum_upto (Datatypes.S (J - 1 - i)) (fun k : nat => sin_term i x * sin_term k y))).
-        -- rewrite (sc_add_cos_ss_swap x y J HJ1). reflexivity.
+        -- rewrite (qeqT_imp_qeq _ _ (sc_add_cos_ss_swap x y J HJ1)). reflexivity.
         -- reflexivity.
 Qed.
 (* ============================================================ *)
@@ -11442,20 +11620,19 @@ Qed.
 (*   D_ss := fam_decomp 带（ss 族，三角 cap 2n − 方块 n）        *)
 (*   anti := Σ_{i=0}^{2n} s_i(x)·s_{2n−i}(y)（含角点 i=n）      *)
 (* ============================================================ *)
-Lemma sc_add_cos_err_decomp : forall (x y : Q) (n : nat), (1 <= n)%nat ->
-  cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y ==
-  (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
+Lemma sc_add_cos_err_decomp : forall (x y : Q) (n : nat), (1 <= n)%nat ->QeqT (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y) ((sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
    sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * cos_term i y))) -
   (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => sin_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
    sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * sin_term i y))) +
-  sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y).
+  sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y)).
 Proof.
   intros x y n Hn1.
+  apply qeq_imp_qeqT.
   assert (H2n1 : (1 <= 2 * n)%nat) by lia.
   (* 1. cos_partial 对角-转置；乘积方块 *)
-  rewrite (sc_add_cos_diag_swap x y (2 * n) H2n1).
-  rewrite (sc_add_cc_prod_sq x y n).
-  rewrite (sc_add_ss_prod_sq x y n).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_cos_diag_swap x y (2 * n) H2n1)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_cc_prod_sq x y n)).
+  rewrite (qeqT_imp_qeq _ _ (sc_add_ss_prod_sq x y n)).
   (* 目标：((ccT − ssT) − sq_cc + sq_ss) == D_cc − D_ss + anti *)
   (* 2. 重组：== (ccT − sq_cc) − (ssT(2n−1) − sq_ss) *)
   transitivity ((sum_upto (Datatypes.S (2 * n)) (fun i : nat => sum_upto (Datatypes.S (2 * n - i)) (fun k : nat => cos_term i x * cos_term k y)) -
@@ -11468,7 +11645,7 @@ Proof.
                    sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * cos_term i y))) -
                   (sum_upto (Datatypes.S (2 * n - 1)) (fun i : nat => sum_upto (Datatypes.S (2 * n - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)) -
                    sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * sin_term k y)))).
-    + rewrite (sc_add_fam_decomp (fun i : nat => cos_term i x) (fun k : nat => cos_term k y) n).
+    + rewrite (qeqT_imp_qeq _ _ (sc_add_fam_decomp (fun i : nat => cos_term i x) (fun k : nat => cos_term k y) n)).
       reflexivity.
     + (* 4. ss 族：ssT(2n−1) − sq_ss == D_ss − anti（Hssb 引理辅助） *)
       transitivity ((sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
@@ -11483,14 +11660,14 @@ Proof.
             sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * sin_term i y))) -
            sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y))).
         { (* 4a. 三角层差（cap 桥后）给出：ssT(2n−1) == ssT(2n) − anti *)
-          pose proof (sc_cos_add_tri_step (2 * n) (fun i : nat => sin_term i x) (fun k : nat => sin_term k y)) as Ht.
+          pose proof (qeqT_imp_qeq _ _ (sc_cos_add_tri_step (2 * n) (fun i : nat => sin_term i x) (fun k : nat => sin_term k y))) as Ht.
           assert (Hcap : (Datatypes.S (2 * n - 1) = 2 * n)%nat) by lia.
           (* HcapEq：sub(2n) 文本 == ssT(2n−1) 文本（外层 cap 桥） *)
           assert (Hsubeq :
             sum_upto (Datatypes.S (2 * n - 1)) (fun i : nat => sum_upto (Datatypes.S (2 * n - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)) ==
             sum_upto (2 * n) (fun i : nat => sum_upto (Datatypes.S (2 * n - 1 - i)) (fun k : nat => sin_term i x * sin_term k y))).
-          { rewrite (sum_upto_nat_eq (Datatypes.S (2 * n - 1)) (2 * n)
-              (fun i : nat => sum_upto (Datatypes.S (2 * n - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)) Hcap).
+          { rewrite (qeqT_imp_qeq _ _ (sum_upto_nat_eq (Datatypes.S (2 * n - 1)) (2 * n)
+              (fun i : nat => sum_upto (Datatypes.S (2 * n - 1 - i)) (fun k : nat => sin_term i x * sin_term k y)) Hcap)).
             reflexivity. }
           (* ssT(2n−1) == ssT(2n) − anti *)
           assert (Hss1 :
@@ -11507,7 +11684,7 @@ Proof.
                          sum_upto (Datatypes.S n) (fun i : nat => sum_upto (Datatypes.S n) (fun k : nat => sin_term i x * sin_term k y))) -
                         sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y)).
           * ring.
-          * rewrite (sc_add_fam_decomp (fun i : nat => sin_term i x) (fun k : nat => sin_term k y) n).
+          * rewrite (qeqT_imp_qeq _ _ (sc_add_fam_decomp (fun i : nat => sin_term i x) (fun k : nat => sin_term k y) n)).
             reflexivity. }
         rewrite Hssb. reflexivity.
       * ring.
@@ -11522,20 +11699,22 @@ Qed.
 (* ============================================================ *)
 Lemma sc_cos_add_sin_term_le : forall (t B : Q) (j : nat),
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (Qabs (sin_term j t)) (q_pow B (2 * j + 1) / q_fact (2 * j + 1)).
+  QleT' (Qabs (sin_term j t)) (q_pow B (2 * j + 1) / q_fact (2 * j + 1)).
 Proof.
   intros t B j HB HtB.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (Qabs (q_pow t (2 * j + 1) / q_fact (2 * j + 1))) _).
-  - apply qeq_le.
+  - apply QleT'_to_Qle. apply qeq_le.
+  apply qeq_imp_qeqT.
     transitivity (q_pow (Qabs t) (2 * j + 1) / q_fact (2 * j + 1)).
-    + rewrite (sc_abs_sin_term j t).
+    + rewrite (qeqT_imp_qeq _ _ (sc_abs_sin_term j t)).
       assert (Hn : (Datatypes.S (2 * j) = 2 * j + 1)%nat) by lia.
       rewrite Hn. reflexivity.
     + apply Qeq_sym.
       assert (Hn : (2 * j + 1 = Datatypes.S (2 * j))%nat) by lia.
       rewrite Hn.
-      apply (q_abs_pow_fact t (2 * j)).
-  - exact (q_abs_pow_fact_le t B (2 * j + 1) HB HtB).
+      apply qeqT_imp_qeq. apply (q_abs_pow_fact t (2 * j)).
+  - exact (QleT'_to_Qle _ _ (q_abs_pow_fact_le t B (2 * j + 1) (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ HtB))).
 Qed.
 
 (* ============================================================ *)
@@ -11543,20 +11722,21 @@ Qed.
 (* ============================================================ *)
 Lemma sc_cos_add_corner_le : forall (x y B : Q) (n : nat),
   Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (sin_term n x * sin_term n y))
+  QleT' (Qabs (sin_term n x * sin_term n y))
       ((q_pow B (2 * n + 1) / q_fact (2 * n + 1)) * (q_pow B (2 * n + 1) / q_fact (2 * n + 1))).
 Proof.
   intros x y B n HB HxB HyB.
+  apply Qle_to_QleT'.
   apply (Qle_trans _ (Qabs (sin_term n x) * Qabs (sin_term n y)) _).
-  - apply qeq_le. apply Qabs_Qmult.
+  - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
   - set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
     apply (Qle_trans _ (Y * Qabs (sin_term n y)) _).
     + apply (Qmult_le_compat_r (Qabs (sin_term n x)) Y (Qabs (sin_term n y))).
-      * unfold Y. apply (sc_cos_add_sin_term_le x B n HB HxB).
+      * unfold Y. apply QleT'_to_Qle. apply (sc_cos_add_sin_term_le x B n HB HxB).
       * apply Qabs_nonneg.
-    + apply (sc_qmult_le_l (Qabs (sin_term n y)) Y Y).
-      * unfold Y. apply (sc_cos_add_sin_term_le y B n HB HyB).
-      * unfold Y. apply q_pow_fact_nonneg. exact HB.
+    + apply QleT'_to_Qle. apply (sc_qmult_le_l (Qabs (sin_term n y)) Y Y).
+      * unfold Y. apply QleT'_to_Qle. apply (sc_cos_add_sin_term_le y B n HB HyB).
+      * unfold Y. apply QleT'_to_Qle. apply q_pow_fact_nonneg. exact (Qle_to_QleT' _ _ HB).
 Qed.
 
 (* ============================================================ *)
@@ -11564,39 +11744,43 @@ Qed.
 (* ============================================================ *)
 Lemma sc_sum_upto_single_le : forall (f : nat -> Q) (n : nat),
   (forall i : nat, Qle 0 (f i)) -> forall (j : nat), (j < n)%nat ->
-  Qle (f j) (sum_upto n f).
+  QleT' (f j) (sum_upto n f).
 Proof.
   intros f n Hf j Hj.
+  apply Qle_to_QleT'.
   (* sum_upto n f == sum_upto (S j) f + 尾部（n = S j + (n − S j)） *)
   apply (Qle_trans _ (sum_upto (Datatypes.S j) f) _).
   - (* f j ≤ sum_upto (S j) f = sum_upto j f + f j *)
     apply (Qle_trans (f j) (f j + sum_upto j f) (sum_upto (Datatypes.S j) f)).
     + apply (Qle_plus_nonneg_r (f j) (sum_upto j f)).
-      apply sc_sum_nonneg. intro i. apply Hf.
-    + apply qeq_le.
+      apply QleT'_to_Qle. apply sc_sum_nonneg. intro i. apply Hf.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       change (sum_upto (Datatypes.S j) f) with (sum_upto j f + f j).
       ring.
   - (* 前缀 ≤ 全和：S j ≤ n（j < n）⟹ n = S j + (n − S j) *)
     assert (Hadd : (n = Datatypes.S j + (n - Datatypes.S j))%nat) by lia.
     rewrite Hadd.
-    rewrite (sum_upto_add (Datatypes.S j) (n - Datatypes.S j) f).
+    rewrite (qeqT_imp_qeq _ _ (sum_upto_add (Datatypes.S j) (n - Datatypes.S j) f)).
     apply (Qle_plus_nonneg_r (sum_upto (Datatypes.S j) f)
             (sum_upto (n - Datatypes.S j) (fun k : nat => f ((Datatypes.S j + k)%nat)))).
-    apply sc_sum_nonneg. intro k. apply Hf.
+    apply QleT'_to_Qle. apply sc_sum_nonneg. intro k. apply Hf.
 Qed.
 
 (* ============================================================ *)
 (* B4：和式二分：Σ_{i=0}^{2n} == Σ_{i=0}^{n} + Σ_{m<n} (i = S n + m) *)
 (* ============================================================ *)
-Lemma sc_sum_upto_split2 : forall (n : nat) (f : nat -> Q),
-  sum_upto (Datatypes.S (2 * n)) f ==
-  sum_upto (Datatypes.S n) f + sum_upto n (fun m : nat => f ((Datatypes.S n + m)%nat)).
+Lemma sc_sum_upto_split2 : forall (n : nat) (f : nat -> Q), QeqT (sum_upto (Datatypes.S (2 * n)) f) (sum_upto (Datatypes.S n) f + sum_upto n (fun m : nat => f ((Datatypes.S n + m)%nat))).
 Proof.
   intros n f.
+  apply qeq_imp_qeqT.
   transitivity (sum_upto (Datatypes.S n + n) f).
   - apply Qeq_sym.
-    apply (sum_upto_nat_eq (Datatypes.S n + n) (Datatypes.S (2 * n)) f). lia.
-  - apply (sum_upto_add (Datatypes.S n) n f).
+    apply qeqT_imp_qeq.
+    apply (sum_upto_nat_eq (Datatypes.S n + n) (Datatypes.S (2 * n)) f).
+    lia.
+  - apply qeqT_imp_qeq.
+    apply (sum_upto_add (Datatypes.S n) n f).
 Qed.
 
 (* ============================================================ *)
@@ -11607,42 +11791,45 @@ Qed.
 (* ============================================================ *)
 (* A0：Σ_i (f i·c) == (Σ_i f i)·c（scale 换序）                 *)
 (* ============================================================ *)
-Lemma sc_sum_upto_scale_comm : forall (n : nat) (c : Q) (f : nat -> Q),
-  sum_upto n (fun i : nat => f i * c) == (sum_upto n f) * c.
+Lemma sc_sum_upto_scale_comm : forall (n : nat) (c : Q) (f : nat -> Q), QeqT (sum_upto n (fun i : nat => f i * c)) ((sum_upto n f) * c).
 Proof.
   intros n c f.
+  apply qeq_imp_qeqT.
   transitivity (c * sum_upto n f).
   - transitivity (sum_upto n (fun i : nat => c * f i)).
-    + apply (sum_upto_ext n (fun i : nat => f i * c) (fun i : nat => c * f i)).
-      intro i. apply Qmult_comm.
-    + apply (sum_upto_scale n c f).
+    + apply qeqT_imp_qeq.
+      apply (sum_upto_ext n (fun i : nat => f i * c) (fun i : nat => c * f i)).
+      intro i. apply qeq_imp_qeqT. apply Qmult_comm.
+    + apply qeqT_imp_qeq.
+      apply (sum_upto_scale n c f).
   - apply Qmult_comm.
 Qed.
 
 (* ============================================================ *)
 (* A1：W := Σ_{m≤n} |s_{(n+m)} t| == |s_n t| + 尾（m≥1）        *)
 (* ============================================================ *)
-Lemma sc_cos_add_W_split : forall (t : Q) (n : nat),
-  sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) t)) ==
-  Qabs (sin_term n t) +
-  sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t)).
+Lemma sc_cos_add_W_split : forall (t : Q) (n : nat), QeqT (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) t))) (Qabs (sin_term n t) +
+  sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t))).
 Proof.
   intros t n.
+  apply qeq_imp_qeqT.
   transitivity (Qabs (sin_term ((n + 0)%nat) t) +
                 sum_upto n (fun m : nat => Qabs (sin_term ((n + Datatypes.S m)%nat) t))).
-  - apply (sum_upto_rot n (fun m : nat => Qabs (sin_term ((n + m)%nat) t))).
+  - apply qeqT_imp_qeq.
+    apply (sum_upto_rot n (fun m : nat => Qabs (sin_term ((n + m)%nat) t))).
   - transitivity (Qabs (sin_term n t) +
                   sum_upto n (fun m : nat => Qabs (sin_term ((n + Datatypes.S m)%nat) t))).
     + assert (Hn0 : (n + 0 = n)%nat) by lia.
       rewrite Hn0. reflexivity.
     + assert (Hsum : sum_upto n (fun m : nat => Qabs (sin_term ((n + Datatypes.S m)%nat) t)) ==
                      sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t))).
-      { apply (sum_upto_ext_below n
+      { apply qeqT_imp_qeq.
+        apply (sum_upto_ext_below n
           (fun m : nat => Qabs (sin_term ((n + Datatypes.S m)%nat) t))
           (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) t))).
         intros m Hm.
         assert (HnS : (n + Datatypes.S m = Datatypes.S n + m)%nat) by lia.
-        rewrite HnS. reflexivity. }
+        rewrite HnS. apply qeq_imp_qeqT. reflexivity. }
       rewrite Hsum. reflexivity.
 Qed.
 
@@ -11651,35 +11838,38 @@ Qed.
 (* ============================================================ *)
 Lemma sc_cos_add_W_le : forall (t B : Q) (n : nat), (1 <= n)%nat ->
   Qle 0 B -> Qle (Qabs t) B ->
-  Qle (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) t)))
+  QleT' (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) t)))
       (q_pow B (2 * n + 1) / q_fact (2 * n + 1) +
        (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B)).
 Proof.
   intros t B n Hn1 HB HtB.
-  rewrite (sc_cos_add_W_split t n).
+  apply Qle_to_QleT'.
+  rewrite (qeqT_imp_qeq _ _ (sc_cos_add_W_split t n)).
   apply Qplus_le_compat.
-  - apply (sc_cos_add_sin_term_le t B n HB HtB).
-  - apply (sc_add_d_tail_le t B n Hn1 HB HtB).
+  - apply QleT'_to_Qle. apply (sc_cos_add_sin_term_le t B n HB HtB).
+  - apply QleT'_to_Qle. apply (sc_add_d_tail_le t B n Hn1 HB HtB).
 Qed.
 
 (* ============================================================ *)
 (* A2b：组1 逐项：i ≤ n ⟹ |s_i x|·|s (2n−i) y| ≤ |s_i x|·W     *)
 (* ============================================================ *)
 Lemma sc_cos_add_anti_per1 : forall (x y : Q) (n i : nat), (i <= n)%nat ->
-  Qle (Qabs (sin_term i x) * Qabs (sin_term ((2 * n - i)%nat) y))
+  QleT' (Qabs (sin_term i x) * Qabs (sin_term ((2 * n - i)%nat) y))
       (Qabs (sin_term i x) *
        (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y)))).
 Proof.
   intros x y n i Hi.
-  apply (sc_qmult_le_l
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply (sc_qmult_le_l
            (Qabs (sin_term ((2 * n - i)%nat) y))
            (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y)))
            (Qabs (sin_term i x))).
   - apply (Qle_trans _ (Qabs (sin_term ((n + (n - i))%nat) y)) _).
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       assert (Hidx : (2 * n - i = n + (n - i))%nat) by lia.
       rewrite Hidx. reflexivity.
-    + apply (sc_sum_upto_single_le
+    + apply QleT'_to_Qle. apply (sc_sum_upto_single_le
         (fun m : nat => Qabs (sin_term ((n + m)%nat) y)) (Datatypes.S n)
         (fun k : nat => Qabs_nonneg (sin_term ((n + k)%nat) y)) (n - i)).
       lia.
@@ -11691,17 +11881,18 @@ Qed.
 (*                          ≤ |s_{S n+m} x|·head_y             *)
 (* ============================================================ *)
 Lemma sc_cos_add_anti_per2 : forall (x y : Q) (n m : nat), (m < n)%nat ->
-  Qle (Qabs (sin_term ((Datatypes.S n + m)%nat) x) *
+  QleT' (Qabs (sin_term ((Datatypes.S n + m)%nat) x) *
        Qabs (sin_term ((2 * n - (Datatypes.S n + m))%nat) y))
       (Qabs (sin_term ((Datatypes.S n + m)%nat) x) *
        (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y)))).
 Proof.
   intros x y n m Hm.
-  apply (sc_qmult_le_l
+  apply Qle_to_QleT'.
+  apply QleT'_to_Qle. apply (sc_qmult_le_l
            (Qabs (sin_term ((2 * n - (Datatypes.S n + m))%nat) y))
            (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y)))
            (Qabs (sin_term ((Datatypes.S n + m)%nat) x))).
-  - apply (sc_sum_upto_single_le (fun i : nat => Qabs (sin_term i y)) (Datatypes.S n)
+  - apply QleT'_to_Qle. apply (sc_sum_upto_single_le (fun i : nat => Qabs (sin_term i y)) (Datatypes.S n)
        (fun k : nat => Qabs_nonneg (sin_term k y))
        ((2 * n - (Datatypes.S n + m))%nat)).
     lia.
@@ -11715,53 +11906,54 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_cos_anti_le : forall (x y : Q) (n : nat) (B : Q),
   (1 <= n)%nat -> Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y)))
+  QleT' (Qabs (sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y)))
       (exp_series (2 * n + 1) B * (q_pow B (2 * n + 1) / q_fact (2 * n + 1)) +
        (1 + 1) * (exp_series (2 * n + 1) B * (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B))).
 Proof.
   intros x y n B Hn1 HB HxB HyB.
+  apply Qle_to_QleT'.
   set (E := exp_series (2 * n + 1) B).
   set (Tail := exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
   set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
   assert (HEmono : Qle (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B)).
-  { apply exp_series_mono; [exact HB | lia]. }
+  { apply QleT'_to_Qle. apply exp_series_mono; [exact (Qle_to_QleT' _ _ HB) | lia]. }
   assert (HT0 : Qle 0 Tail).
   { unfold Tail. apply (proj1 (Qle_minus_iff (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B))).
     exact HEmono. }
-  assert (HY0 : Qle 0 Y) by (unfold Y; apply q_pow_fact_nonneg; exact HB).
+  assert (HY0 : Qle 0 Y) by (unfold Y; apply QleT'_to_Qle; apply q_pow_fact_nonneg; exact (Qle_to_QleT' _ _ HB)).
   (* 求和界 *)
   assert (HxF : Qle (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x))) E).
-  { unfold E. exact (sc_cs_d_full_le x B n HB HxB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le x B n HB HxB)). }
   assert (HyF : Qle (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y))) E).
-  { unfold E. exact (sc_cs_d_full_le y B n HB HyB). }
+  { unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le y B n HB HyB)). }
   assert (HxT : Qle (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x))) Tail).
-  { unfold Tail. exact (sc_add_d_tail_le x B n Hn1 HB HxB). }
+  { unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_d_tail_le x B n Hn1 HB HxB)). }
   assert (HWy : Qle (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y))) (Y + Tail)).
-  { unfold Y, Tail. exact (sc_cos_add_W_le y B n Hn1 HB HyB). }
+  { unfold Y, Tail. exact (QleT'_to_Qle _ _ (sc_cos_add_W_le y B n Hn1 HB HyB)). }
   (* 非负性 *)
   assert (HxF0 : Qle 0 (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x)))).
-  { apply sc_sum_nonneg. intro i. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro i. apply Qabs_nonneg. }
   assert (HyF0 : Qle 0 (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y)))).
-  { apply sc_sum_nonneg. intro i. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro i. apply Qabs_nonneg. }
   assert (HxT0 : Qle 0 (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x)))).
-  { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   assert (HWy0 : Qle 0 (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y)))).
-  { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   (* |Σ| ≤ Σ|·| *)
   apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n)) (fun i : nat =>
       Qabs (sin_term i x * sin_term ((2 * n - i)%nat) y))) _).
-  - apply sum_upto_abs_le.
+  - apply QleT'_to_Qle. apply sum_upto_abs_le.
   - (* 换到 |s_i x|·|s (2n−i) y| *)
     apply (Qle_trans _ (sum_upto (Datatypes.S (2 * n)) (fun i : nat =>
         Qabs (sin_term i x) * Qabs (sin_term ((2 * n - i)%nat) y))) _).
-    + apply (sum_upto_le_ext (Datatypes.S (2 * n))
+    + apply QleT'_to_Qle. apply (sum_upto_le_ext (Datatypes.S (2 * n))
         (fun i : nat => Qabs (sin_term i x * sin_term ((2 * n - i)%nat) y))
         (fun i : nat => Qabs (sin_term i x) * Qabs (sin_term ((2 * n - i)%nat) y))).
-      intros i Hi. apply qeq_le. apply Qabs_Qmult.
+      intros i Hi. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
     + (* 分组：Σ_{i=0}^{2n} == Σ_{i≤n} + Σ_{m<n} *)
       set (G := fun i : nat => Qabs (sin_term i x) * Qabs (sin_term ((2 * n - i)%nat) y)).
-      rewrite (sc_sum_upto_split2 n G).
+      rewrite (qeqT_imp_qeq _ _ (sc_sum_upto_split2 n G)).
       apply (Qle_trans _
         ((sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x))) *
            (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y))) +
@@ -11778,42 +11970,44 @@ Proof.
            apply (Qle_trans _ (sum_upto (Datatypes.S n) (fun i : nat =>
                Qabs (sin_term i x) *
                (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y))))) _).
-           ++ apply (sum_upto_le_ext (Datatypes.S n) G
+           ++ apply QleT'_to_Qle. apply (sum_upto_le_ext (Datatypes.S n) G
                (fun i : nat => Qabs (sin_term i x) *
                                 (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y))))).
-              intros i Hi.
+              intros i Hi. apply NatLe_drop in Hi.
               apply (sc_cos_add_anti_per1 x y n i). lia.
-           ++ apply qeq_le.
-              apply (sc_sum_upto_scale_comm (Datatypes.S n)
+           ++ apply QleT'_to_Qle. apply qeq_le.
+           apply qeq_imp_qeqT.
+              apply qeqT_imp_qeq. apply (sc_sum_upto_scale_comm (Datatypes.S n)
                 (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y)))
                 (fun i : nat => Qabs (sin_term i x))).
         -- (* 组2：Σ_{m<n} uTail_m·|s (2n−(Sn+m)) y| ≤ (Σ uTail)·head_y *)
            apply (Qle_trans _ (sum_upto n (fun m : nat =>
                Qabs (sin_term ((Datatypes.S n + m)%nat) x) *
                (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y))))) _).
-           ++ apply (sum_upto_le_ext n
+           ++ apply QleT'_to_Qle. apply (sum_upto_le_ext n
                (fun m : nat => G ((Datatypes.S n + m)%nat))
                (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x) *
                                 (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y))))).
               intros m Hm.
-              apply (sc_cos_add_anti_per2 x y n m). exact Hm.
-           ++ apply qeq_le.
-              apply (sc_sum_upto_scale_comm n
+              apply (sc_cos_add_anti_per2 x y n m). exact (NatLe_drop _ _ Hm).
+           ++ apply QleT'_to_Qle. apply qeq_le.
+           apply qeq_imp_qeqT.
+              apply qeqT_imp_qeq. apply (sc_sum_upto_scale_comm n
                 (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y)))
                 (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x))).
       * apply (Qle_trans _
           ((E * (Y + Tail)) + (Tail * E)) _).
         -- apply Qplus_le_compat.
-           ++ apply (sc_prod_le (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x)))
+           ++ apply QleT'_to_Qle. apply (sc_prod_le (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i x)))
                                 (sum_upto (Datatypes.S n) (fun m : nat => Qabs (sin_term ((n + m)%nat) y)))
                                 E (Y + Tail));
               [exact HxF0 | exact HWy0 | exact HxF | exact HWy | exact HE0].
-           ++ apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x)))
+           ++ apply QleT'_to_Qle. apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (sin_term ((Datatypes.S n + m)%nat) x)))
                                 (sum_upto (Datatypes.S n) (fun i : nat => Qabs (sin_term i y)))
                                 Tail E);
               [exact HxT0 | exact HyF0 | exact HxT | exact HyF | exact HT0].
         -- assert (Hfin : (E * (Y + Tail)) + (Tail * E) <= E * Y + (1 + 1) * (E * Tail))
-             by (apply qeq_le; ring).
+             by (apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; ring).
            exact Hfin.
 Qed.
 (* ============================================================ *)
@@ -11830,36 +12024,37 @@ Lemma sc_cos_add_band2_le : forall (A B : nat -> Q) (n : nat) (E Tail : Q),
   Qle (sum_upto n (fun m : nat => Qabs (A ((Datatypes.S n + m)%nat)))) Tail ->
   Qle (sum_upto (Datatypes.S n) (fun j : nat => Qabs (B j))) E ->
   Qle 0 E -> Qle 0 Tail ->
-  Qle (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
+  QleT' (Qabs (sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => A j * B ((Datatypes.S n + k)%nat))) +
              sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => A ((Datatypes.S n + j)%nat) * B i))))
       ((1 + 1) * (E * Tail)).
 Proof.
   intros A B n E Tail HFA HTB HTA HFB HE0 HT0.
+  apply Qle_to_QleT'.
   assert (HFA0 : Qle 0 (sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j)))).
-  { apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
   assert (HTB0 : Qle 0 (sum_upto n (fun m : nat => Qabs (B ((Datatypes.S n + m)%nat))))).
-  { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   assert (HTA0 : Qle 0 (sum_upto n (fun m : nat => Qabs (A ((Datatypes.S n + m)%nat))))).
-  { apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro m. apply Qabs_nonneg. }
   assert (HFB0 : Qle 0 (sum_upto (Datatypes.S n) (fun j : nat => Qabs (B j)))).
-  { apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
+  { apply QleT'_to_Qle. apply sc_sum_nonneg. intro j. apply Qabs_nonneg. }
   apply (Qle_trans _
     (((sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j))) *
       (sum_upto n (fun m : nat => Qabs (B ((Datatypes.S n + m)%nat))))) +
      ((sum_upto n (fun m : nat => Qabs (A ((Datatypes.S n + m)%nat)))) *
       (sum_upto (Datatypes.S n) (fun j : nat => Qabs (B j))))) _).
-  - apply (sc_add_band_abs A B n).
+  - apply QleT'_to_Qle. apply (sc_add_band_abs A B n).
   - apply (Qle_trans _ ((E * Tail) + (E * Tail)) _).
     + apply Qplus_le_compat.
-      * apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j)))
+      * apply QleT'_to_Qle. apply (sc_prod_le (sum_upto (Datatypes.S n) (fun j : nat => Qabs (A j)))
                           (sum_upto n (fun m : nat => Qabs (B ((Datatypes.S n + m)%nat))))
                           E Tail); [exact HFA0 | exact HTB0 | exact HFA | exact HTB | exact HE0].
       * apply (Qle_trans _ (Tail * E) _).
-        -- apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (A ((Datatypes.S n + m)%nat))))
+        -- apply QleT'_to_Qle. apply (sc_prod_le (sum_upto n (fun m : nat => Qabs (A ((Datatypes.S n + m)%nat))))
                              (sum_upto (Datatypes.S n) (fun j : nat => Qabs (B j)))
                              Tail E); [exact HTA0 | exact HFB0 | exact HTA | exact HFB | exact HT0].
-        -- apply qeq_le. ring.
-    + apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -11868,22 +12063,23 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_cos_err_abs : forall (x y : Q) (n : nat) (B : Q),
   (1 <= n)%nat -> Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y))
+  QleT' (Qabs (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y))
       (exp_series (2 * n + 1) B * (q_pow B (2 * n + 1) / q_fact (2 * n + 1)) +
        ((1 + 1) * (1 + 1 + 1)) * (exp_series (2 * n + 1) B * (exp_series (4 * n + 1) B - exp_series (2 * n + 1) B))).
 Proof.
   intros x y n B Hn1 HB HxB HyB.
+  apply Qle_to_QleT'.
   set (E := exp_series (2 * n + 1) B).
   set (Tail := exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
   set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
   assert (HEmono : Qle (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B)).
-  { apply exp_series_mono; [exact HB | lia]. }
+  { apply QleT'_to_Qle. apply exp_series_mono; [exact (Qle_to_QleT' _ _ HB) | lia]. }
   assert (HT0 : Qle 0 Tail).
   { unfold Tail. apply (proj1 (Qle_minus_iff (exp_series (2 * n + 1) B) (exp_series (4 * n + 1) B))).
     exact HEmono. }
   (* err == D_cc − D_ss + anti（精确分解） *)
-  apply (sc_qabs_qeq_le
+  apply QleT'_to_Qle. apply (sc_qabs_qeq_le
     (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y)
     ((sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
       sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * cos_term i y))) -
@@ -11891,7 +12087,7 @@ Proof.
       sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => sin_term ((Datatypes.S n + j)%nat) x * sin_term i y))) +
      sum_upto (Datatypes.S (2 * n)) (fun i : nat => sin_term i x * sin_term ((2 * n - i)%nat) y))
     (E * Y + ((1 + 1) * (1 + 1 + 1)) * (E * Tail))).
-  - exact (sc_add_cos_err_decomp x y n Hn1).
+  - exact (qeqT_imp_qeq _ _ (sc_add_cos_err_decomp x y n Hn1)).
   - set (Dc := sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => cos_term j x * cos_term ((Datatypes.S n + k)%nat) y)) +
               sum_upto n (fun j : nat => sum_upto (Datatypes.S (2 * n - Datatypes.S n - j)) (fun i : nat => cos_term ((Datatypes.S n + j)%nat) x * cos_term i y))).
     set (Ds := sum_upto (Datatypes.S n) (fun j : nat => sum_upto (n - j) (fun k : nat => sin_term j x * sin_term ((Datatypes.S n + k)%nat) y)) +
@@ -11900,36 +12096,36 @@ Proof.
     (* 分量界 *)
     assert (Hc2 : Qle (Qabs Dc) ((1 + 1) * (E * Tail))).
     { unfold Dc.
-      apply (sc_cos_add_band2_le (fun j : nat => cos_term j x) (fun k : nat => cos_term k y) n E Tail).
-      - unfold E. exact (sc_cs_c_full_le x B n HB HxB).
-      - unfold Tail. exact (sc_add_c_tail_le y B n HB HyB).
-      - unfold Tail. exact (sc_add_c_tail_le x B n HB HxB).
-      - unfold E. exact (sc_cs_c_full_le y B n HB HyB).
+      apply QleT'_to_Qle. apply (sc_cos_add_band2_le (fun j : nat => cos_term j x) (fun k : nat => cos_term k y) n E Tail).
+      - unfold E. exact (QleT'_to_Qle _ _ (sc_cs_c_full_le x B n HB HxB)).
+      - unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_c_tail_le y B n HB HyB)).
+      - unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_c_tail_le x B n HB HxB)).
+      - unfold E. exact (QleT'_to_Qle _ _ (sc_cs_c_full_le y B n HB HyB)).
       - exact HE0.
       - exact HT0. }
     assert (Hs2 : Qle (Qabs Ds) ((1 + 1) * (E * Tail))).
     { unfold Ds.
-      apply (sc_cos_add_band2_le (fun j : nat => sin_term j x) (fun k : nat => sin_term k y) n E Tail).
-      - unfold E. exact (sc_cs_d_full_le x B n HB HxB).
-      - unfold Tail. exact (sc_add_d_tail_le y B n Hn1 HB HyB).
-      - unfold Tail. exact (sc_add_d_tail_le x B n Hn1 HB HxB).
-      - unfold E. exact (sc_cs_d_full_le y B n HB HyB).
+      apply QleT'_to_Qle. apply (sc_cos_add_band2_le (fun j : nat => sin_term j x) (fun k : nat => sin_term k y) n E Tail).
+      - unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le x B n HB HxB)).
+      - unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_d_tail_le y B n Hn1 HB HyB)).
+      - unfold Tail. exact (QleT'_to_Qle _ _ (sc_add_d_tail_le x B n Hn1 HB HxB)).
+      - unfold E. exact (QleT'_to_Qle _ _ (sc_cs_d_full_le y B n HB HyB)).
       - exact HE0.
       - exact HT0. }
     assert (Ha2 : Qle (Qabs An) (E * Y + ((1 + 1) * (E * Tail)))).
-    { unfold An. unfold E, Y, Tail. exact (sc_add_cos_anti_le x y n B Hn1 HB HxB HyB). }
+    { unfold An. unfold E, Y, Tail. exact (QleT'_to_Qle _ _ (sc_add_cos_anti_le x y n B Hn1 HB HxB HyB)). }
     (* |Dc − Ds + An| ≤ |Dc| + |Ds| + |An|（双三角） *)
     apply (Qle_trans _ (Qabs (Dc - Ds) + Qabs An) _).
     + apply Qabs_triangle.
     + apply (Qle_trans _ (Qabs Dc + Qabs Ds + Qabs An) _).
       * apply (Qplus_le_compat (Qabs (Dc - Ds)) (Qabs Dc + Qabs Ds) (Qabs An) (Qabs An)).
         -- apply (Qle_trans _ (Qabs (Dc + - Ds)) _).
-           ++ apply qeq_le. reflexivity.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. reflexivity.
            ++ apply (Qle_trans _ (Qabs Dc + Qabs (- Ds)) _).
               ** apply Qabs_triangle.
               ** apply (Qplus_le_compat (Qabs Dc) (Qabs Dc) (Qabs (- Ds)) (Qabs Ds)).
                  --- apply Qle_refl.
-                 --- apply qeq_le. apply Qabs_opp.
+                 --- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_opp.
         -- apply Qle_refl.
       * apply (Qle_trans _
           (((1 + 1) * (E * Tail)) + ((1 + 1) * (E * Tail)) + (E * Y + ((1 + 1) * (E * Tail)))) _).
@@ -11940,7 +12136,7 @@ Proof.
               ** exact Hc2.
               ** exact Hs2.
            ++ exact Ha2.
-        -- apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -11948,29 +12144,30 @@ Qed.
 (* ============================================================ *)
 Lemma sc_add_cos_err_tail_le : forall (x y : Q) (n : nat) (B : Q),
   (1 <= n)%nat -> Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
-  Qle (Qabs (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y))
+  QleT' (Qabs (cos_partial (2 * n) (x + y) - cos_partial n x * cos_partial n y + sin_partial n x * sin_partial n y))
       (exp_series (2 * n + 1) B * (q_pow B (2 * n + 1) / q_fact (2 * n + 1)) +
        ((1 + 1) * (1 + 1 + 1)) * (exp_series (2 * n + 1) B * exp_tail_abs (2 * n + 1) (4 * n + 1) B)).
 Proof.
   intros x y n B Hn1 HB HxB HyB.
+  apply Qle_to_QleT'.
   set (E := exp_series (2 * n + 1) B).
   set (Tail := exp_series (4 * n + 1) B - exp_series (2 * n + 1) B).
   set (X := exp_tail_abs (2 * n + 1) (4 * n + 1) B).
   set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
-  assert (HX0 : Qle 0 X) by (unfold X; apply exp_tail_abs_nonneg; exact HB).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HB).
+  assert (HX0 : Qle 0 X) by (unfold X; apply QleT'_to_Qle; apply exp_tail_abs_nonneg; apply Qle_to_QleT'; exact HB).
   assert (HTX : Qle Tail X).
-  { unfold Tail, X. apply (exp_series_tail_le B (2 * n + 1) (4 * n + 1) HB). lia. }
+  { unfold Tail, X. apply QleT'_to_Qle. apply (exp_series_tail_le B (2 * n + 1) (4 * n + 1) (Qle_to_QleT' _ _ HB)). lia. }
   apply (Qle_trans _ (E * Y + ((1 + 1) * (1 + 1 + 1)) * (E * Tail)) _).
-  - unfold E, Y, Tail. exact (sc_add_cos_err_abs x y n B Hn1 HB HxB HyB).
+  - unfold E, Y, Tail. exact (QleT'_to_Qle _ _ (sc_add_cos_err_abs x y n B Hn1 HB HxB HyB)).
   - apply (Qle_trans _ (E * Y + ((1 + 1) * (1 + 1 + 1)) * (E * X)) _).
     + apply (Qplus_le_compat (E * Y) (E * Y) (((1 + 1) * (1 + 1 + 1)) * (E * Tail)) (((1 + 1) * (1 + 1 + 1)) * (E * X))).
       * apply Qle_refl.
       * assert (Hs1 : Qle 0 ((1 + 1) * (1 + 1 + 1))) by (unfold Qle; simpl; lia).
-        apply (sc_qmult_le_l (E * Tail) (E * X) ((1 + 1) * (1 + 1 + 1))).
-        -- apply (sc_qmult_le_l Tail X E); [exact HTX | exact HE0].
+        apply QleT'_to_Qle. apply (sc_qmult_le_l (E * Tail) (E * X) ((1 + 1) * (1 + 1 + 1))).
+        -- apply QleT'_to_Qle. apply (sc_qmult_le_l Tail X E); [exact HTX | exact HE0].
         -- exact Hs1.
-    + apply qeq_le. ring.
+    + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 (* ============================================================ *)
 (* sH_cos_q6.v：cos 加法定理 Q 层——模量 sc_add_cos_err_bound     *)
@@ -11994,7 +12191,7 @@ Proof.
   destruct (q_arch_geom B) as [N0 HN0].
   destruct (exp_series_arch B HB) as [C [HC1 HC]].
   assert (HC0 : Qle 0 C) by (apply (Qle_trans _ 1 _); [unfold Qle; simpl; lia | exact (QleT'_to_Qle _ _ HC1)]).
-  assert (Htwo0 : Qle 0 (1 + 1)) by apply Q2_nonneg.
+  assert (Htwo0 : Qle 0 (1 + 1)) by (apply QleT'_to_Qle; apply Q2_nonneg).
   assert (Hsix0 : Qle 0 ((1 + 1) * (1 + 1 + 1))) by (unfold Qle; simpl; lia).
   (* P := 13·C·(B^{N0}/N0!)（13 = 12 + 1 = (1+1)(1+1+1+1+1+1) + 1） *)
   set (P := (((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * (C * (q_pow B N0 / q_fact N0))).
@@ -12003,7 +12200,7 @@ Proof.
     - unfold Qle; simpl; lia.
     - apply (Qmult_le_0_compat C (q_pow B N0 / q_fact N0)).
       + exact HC0.
-      + apply q_pow_fact_nonneg. exact (QleT'_to_Qle _ _ HB). }
+      + apply QleT'_to_Qle. apply q_pow_fact_nonneg. exact HB. }
   destruct (arch_decay P eps (Qle_to_QleT' _ _ HP0) Hep) as [t Ht].
   exists (N0 + Datatypes.S t)%nat.
   intros x y n HNn HxB HyB.
@@ -12022,23 +12219,23 @@ Proof.
   set (E := exp_series (2 * n + 1) B).
   set (X := exp_tail_abs (2 * n + 1) (4 * n + 1) B).
   set (Y := q_pow B (2 * n + 1) / q_fact (2 * n + 1)).
-  assert (HE0 : Qle 0 E) by (unfold E; apply exp_series_nonneg; apply Qle_to_QleT'; exact HBle).
+  assert (HE0 : Qle 0 E) by (unfold E; apply QleT'_to_Qle; apply exp_series_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HEC : Qle E C) by (unfold E; apply QleT'_to_Qle; exact (HC ((2 * n + 1)%nat))).
-  assert (HX0 : Qle 0 X) by (unfold X; apply exp_tail_abs_nonneg; exact HBle).
+  assert (HX0 : Qle 0 X) by (unfold X; apply QleT'_to_Qle; apply exp_tail_abs_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HXg : Qle X (Y * (1 + 1))).
-  { unfold X, Y. apply (exp_tail_abs_geom2 B (2 * n + 1) (4 * n + 1) HBle HNgeom2 Hmlen). }
-  assert (HY0 : Qle 0 Y) by (unfold Y; apply q_pow_fact_nonneg; exact HBle).
-  assert (HY2_0 : Qle 0 (Y * (1 + 1))) by (unfold Y; apply q_pow_fact2_nonneg; exact HBle).
+  { unfold X, Y. apply QleT'_to_Qle. apply (exp_tail_abs_geom2 B (2 * n + 1) (4 * n + 1) (Qle_to_QleT' _ _ HBle) (fun u Hu => Qle_to_QleT' _ _ (HNgeom2 u (NatLe_drop _ _ Hu))) Hmlen). }
+  assert (HY0 : Qle 0 Y) by (unfold Y; apply QleT'_to_Qle; apply q_pow_fact_nonneg; exact (Qle_to_QleT' _ _ HBle)).
+  assert (HY2_0 : Qle 0 (Y * (1 + 1))) by (unfold Y; apply QleT'_to_Qle; apply q_pow_fact2_nonneg; apply Qle_to_QleT'; exact HBle).
   assert (HYdec : Qle Y ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))).
-  { unfold Y. apply (pow_fact_decay B N0 (2 * n + 1) HBle HN0geom). lia. }
-  assert (Hq0 : Qle 0 (q_pow (1 / 2)%Q (2 * n + 1 - N0))) by (apply q_pow_nonneg; exact Qhalf_nonneg).
+  { unfold Y. apply QleT'_to_Qle. apply (pow_fact_decay B N0 (2 * n + 1) (Qle_to_QleT' _ _ HBle) (fun u Hu => Qle_to_QleT' _ _ (HN0geom u (NatLe_drop _ _ Hu)))). lia. }
+  assert (Hq0 : Qle 0 (q_pow (1 / 2)%Q (2 * n + 1 - N0))) by (apply QleT'_to_Qle; apply q_pow_nonneg; exact Qhalf_nonneg).
   assert (HD0 : Qle 0 ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))).
   { apply (Qmult_le_0_compat (q_pow B N0 / q_fact N0) (q_pow (1 / 2)%Q (2 * n + 1 - N0))).
-    - apply q_pow_fact_nonneg. exact HBle.
+    - apply QleT'_to_Qle. apply q_pow_fact_nonneg; apply Qle_to_QleT'. exact HBle.
     - exact Hq0. }
-  assert (Hhalf0 : Qle 0 (q_pow (1 / 2)%Q (Datatypes.S t))) by (apply q_pow_nonneg; exact Qhalf_nonneg).
+  assert (Hhalf0 : Qle 0 (q_pow (1 / 2)%Q (Datatypes.S t))) by (apply QleT'_to_Qle; apply q_pow_nonneg; exact Qhalf_nonneg).
   assert (Hdec : Qle (q_pow (1 / 2)%Q (2 * n + 1 - N0)) (q_pow (1 / 2)%Q (Datatypes.S t))).
-  { apply (q_half_pow_mono (2 * n + 1 - N0) (Datatypes.S t)). exact Hj. }
+  { apply QleT'_to_Qle. apply (q_half_pow_mono (2 * n + 1 - N0) (Datatypes.S t)). exact Hj. }
   assert (H13C0 : Qle 0 ((((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * C)).
   { apply (Qmult_le_0_compat (((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) C).
     - unfold Qle; simpl; lia.
@@ -12047,37 +12244,37 @@ Proof.
   apply (Qle_lt_trans _ (P * q_pow (1 / 2)%Q (Datatypes.S t)) _).
   - (* |err| ≤ E·Y + 6·E·X ≤ ... ≤ P·(1/2)^{S t} *)
     apply (Qle_trans _ (E * Y + (((1 + 1) * (1 + 1 + 1)) * (E * X))) _).
-    + unfold E, X, Y. exact (sc_add_cos_err_tail_le x y n B Hn1 HBle HxBe HyBe).
+    + unfold E, X, Y. exact (QleT'_to_Qle _ _ (sc_add_cos_err_tail_le x y n B Hn1 HBle HxBe HyBe)).
     + (* ≤ C·Y + 6·C·X *)
       apply (Qle_trans _ (C * Y + (((1 + 1) * (1 + 1 + 1)) * (C * X))) _).
       * apply Qplus_le_compat.
         -- apply (Qmult_le_compat_r E C Y); [exact HEC | exact HY0].
-        -- apply (sc_qmult_le_l (E * X) (C * X) ((1 + 1) * (1 + 1 + 1))).
+        -- apply QleT'_to_Qle. apply (sc_qmult_le_l (E * X) (C * X) ((1 + 1) * (1 + 1 + 1))).
            ++ apply (Qmult_le_compat_r E C X); [exact HEC | exact HX0].
            ++ exact Hsix0.
       * (* ≤ C·Y + 6·(C·(Y·2))，再 == 13·C·Y *)
         apply (Qle_trans _ (C * Y + (((1 + 1) * (1 + 1 + 1)) * (C * (Y * (1 + 1))))) _).
         -- apply Qplus_le_compat.
            ++ apply Qle_refl.
-           ++ apply (sc_qmult_le_l (C * X) (C * (Y * (1 + 1))) ((1 + 1) * (1 + 1 + 1))).
-              ** apply (sc_qmult_le_l X (Y * (1 + 1)) C).
+           ++ apply QleT'_to_Qle. apply (sc_qmult_le_l (C * X) (C * (Y * (1 + 1))) ((1 + 1) * (1 + 1 + 1))).
+              ** apply QleT'_to_Qle. apply (sc_qmult_le_l X (Y * (1 + 1)) C).
                  --- exact HXg.
                  --- exact HC0.
               ** exact Hsix0.
         -- apply (Qle_trans _ ((((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * (C * Y)) _).
-           ++ apply qeq_le. ring.
+           ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
            ++ (* 13·(C·Y) ≤ (13·C)·Y ≤ (13·C)·b ≤ P·(1/2)^w ≤ P·(1/2)^{S t} *)
               apply (Qle_trans _ (((((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * C) * Y) _).
-              ** apply qeq_le. ring.
+              ** apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
               ** apply (Qle_trans _ (((((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * C) *
                                      ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))) _).
-                 --- apply (sc_qmult_le_l Y ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))
+                 --- apply QleT'_to_Qle. apply (sc_qmult_le_l Y ((q_pow B N0 / q_fact N0) * q_pow (1 / 2)%Q (2 * n + 1 - N0))
                                             ((((1 + 1) * (1 + 1 + 1 + 1 + 1 + 1)) + 1) * C)).
                      ++++ exact HYdec.
                      ++++ exact H13C0.
                  --- apply (Qle_trans _ (P * q_pow (1 / 2)%Q (2 * n + 1 - N0)) _).
-                     ++++ apply qeq_le. unfold P. ring.
-                     ++++ apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * n + 1 - N0))
+                     ++++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold P. ring.
+                     ++++ apply QleT'_to_Qle. apply (sc_qmult_le_l (q_pow (1 / 2)%Q (2 * n + 1 - N0))
                                                (q_pow (1 / 2)%Q (Datatypes.S t)) P).
                           +++++ exact Hdec.
                           +++++ exact HP0.
@@ -12117,7 +12314,7 @@ Proof.
     - apply HMy.
     - apply (qleT'_trans My (My + Mx) (Mx + My)).
       + apply (qleT'_plus_nonneg_rT My Mx). apply qltT_leT'. exact HMxpos.
-      + apply Qle_to_QleT'. apply qeq_imp_qle. ring. }
+      + apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
   assert (HsumMT : forall n : nat, QleT' (Qabs (u n + v n)) M).
   { intro n. unfold M. apply (qleT'_trans (Qabs (u n + v n)) (Qabs (u n) + Qabs (v n)) (Mx + My)).
     - apply Qle_to_QleT'. apply Qabs_triangle.
@@ -12142,7 +12339,8 @@ Proof.
   - apply (Qle_trans _ (Qabs ((cos_partial n (u n + v n) - cos_partial (2 * n) (u n + v n)) +
                                (cos_partial (2 * n) (u n + v n) - cos_partial n (u n) * cos_partial n (v n) +
                                 sin_partial n (u n) * sin_partial n (v n)))) _).
-    + apply qeq_le.
+    + apply QleT'_to_Qle. apply qeq_le.
+    apply qeq_imp_qeqT.
       apply (Qabs_wd (cos_partial n (u n + v n) -
                       (cos_partial n (u n) * cos_partial n (v n) -
                        sin_partial n (u n) * sin_partial n (v n)))
@@ -12164,12 +12362,12 @@ Proof.
         -- exact (HuMT n).
         -- exact (HvMT n).
     + apply (Qle_trans _ (Qmult (Qinv 3 + Qinv 3) eps) _).
-      * apply qeq_le. unfold Qdiv. ring.
+      * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. ring.
       * apply (Qle_trans _ (Qmult 1 eps) _).
         -- apply (Qmult_le_compat_r (Qinv 3 + Qinv 3) 1 eps).
            ++ unfold Qle, Qinv, Qplus. simpl. lia.
            ++ apply (Qlt_le_weak 0 eps). apply QltT_to_Qlt. exact Heps.
-        -- apply qeq_le. ring.
+        -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
 (* ============================================================ *)
@@ -12216,38 +12414,39 @@ Qed.
 (* ============================================================ *)
 Section AttentionGibbsBridgeSetoid.
 
-Context {R : Set}.
-Context {RI : RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid R}.
+(* 世界件 RealInterfaceEnhancedSetoid 系无参 Class（字段全用全局 Real）·
+   本节原 {R : Set}{RI : ... R} 参数化形系异件误植——改为 Notation 直通全局形 *)
+Notation R := Real.
 
 (* ---- 运算投影（Let 简化书写） ---- *)
-Let zero : R := @RealInterfaceEnhancedMod.zero R RI.
-Let one : R := @RealInterfaceEnhancedMod.one R RI.
-Let plus : R -> R -> R := @RealInterfaceEnhancedMod.plus R RI.
-Let mult : R -> R -> R := @RealInterfaceEnhancedMod.mult R RI.
-Let opp : R -> R := @RealInterfaceEnhancedMod.opp R RI.
-Let abs : R -> R := @RealInterfaceEnhancedMod.abs R RI.
-Let lt : R -> R -> Set := @RealInterfaceEnhancedMod.lt R RI.
-Let le : R -> R -> Set := @RealInterfaceEnhancedMod.le R RI.
-Let req : R -> R -> Set := @RealInterfaceEnhancedMod.req R RI.
-Let inv_pos : forall x : R, lt zero x -> R := @RealInterfaceEnhancedMod.inv_pos R RI.
-Let exp_neg : R -> R := @RealInterfaceEnhancedMod.exp_neg R RI.
+Let zero : R := @RealInterfaceEnhancedMod.zero RealInterfaceEnhancedMod.RealEnhancedReal.
+Let one : R := @RealInterfaceEnhancedMod.one RealInterfaceEnhancedMod.RealEnhancedReal.
+Let plus : R -> R -> R := @RealInterfaceEnhancedMod.plus RealInterfaceEnhancedMod.RealEnhancedReal.
+Let mult : R -> R -> R := @RealInterfaceEnhancedMod.mult RealInterfaceEnhancedMod.RealEnhancedReal.
+Let opp : R -> R := @RealInterfaceEnhancedMod.opp RealInterfaceEnhancedMod.RealEnhancedReal.
+Let abs : R -> R := @RealInterfaceEnhancedMod.abs RealInterfaceEnhancedMod.RealEnhancedReal.
+Let lt : R -> R -> Set := real_lt.
+Let le : R -> R -> Set := real_le.
+Let req : R -> R -> Set := real_eq.
+Let inv_pos : forall x : R, lt zero x -> R := @RealInterfaceEnhancedMod.inv_pos RealInterfaceEnhancedMod.RealEnhancedReal.
+Let exp_neg : R -> R := @RealInterfaceEnhancedMod.exp_neg RealInterfaceEnhancedMod.RealEnhancedReal.
 
 (* ---- 接口字段投影（req 证明链用；Let 遮蔽全局同名投影） ---- *)
-Let req_refl := @RealInterfaceEnhancedMod.req_refl R RI.
-Let req_sym := @RealInterfaceEnhancedMod.req_sym R RI.
-Let req_trans := @RealInterfaceEnhancedMod.req_trans R RI.
-Let req_mult_compat := @RealInterfaceEnhancedMod.req_mult_compat R RI.
-Let req_opp_compat := @RealInterfaceEnhancedMod.req_opp_compat R RI.
-Let mult_comm := @RealInterfaceEnhancedMod.mult_comm R RI.
-Let mult_one := @RealInterfaceEnhancedMod.mult_one R RI.
-Let mult_positive := @RealInterfaceEnhancedMod.mult_positive R RI.
-Let inv_pos_correct := @RealInterfaceEnhancedMod.inv_pos_correct R RI.
-Let inv_pos_pos := @RealInterfaceEnhancedMod.inv_pos_pos R RI.
-Let inv_pos_ext := @RealInterfaceEnhancedMod.inv_pos_ext R RI.
-Let exp_neg_pos := @RealInterfaceEnhancedMod.exp_neg_pos R RI.
-Let exp_neg_le_decr := @RealInterfaceEnhancedMod.exp_neg_le_decr R RI.
-Let le_antisym := @RealInterfaceEnhancedMod.le_antisym R RI.
-Let lt_le_iff := @RealInterfaceEnhancedMod.lt_le_iff R RI.
+Let req_refl := @RealInterfaceEnhancedMod.req_refl RealInterfaceEnhancedMod.RealEnhancedReal.
+Let req_sym := @RealInterfaceEnhancedMod.req_sym RealInterfaceEnhancedMod.RealEnhancedReal.
+Let req_trans := @RealInterfaceEnhancedMod.req_trans RealInterfaceEnhancedMod.RealEnhancedReal.
+Let req_mult_compat := @RealInterfaceEnhancedMod.req_mult_compat RealInterfaceEnhancedMod.RealEnhancedReal.
+Let req_opp_compat := @RealInterfaceEnhancedMod.req_opp_compat RealInterfaceEnhancedMod.RealEnhancedReal.
+Let mult_comm := @RealInterfaceEnhancedMod.mult_comm RealInterfaceEnhancedMod.RealEnhancedReal.
+Let mult_one := @RealInterfaceEnhancedMod.mult_one RealInterfaceEnhancedMod.RealEnhancedReal.
+Let mult_positive := @RealInterfaceEnhancedMod.mult_positive RealInterfaceEnhancedMod.RealEnhancedReal.
+Let inv_pos_correct := @RealInterfaceEnhancedMod.inv_pos_correct RealInterfaceEnhancedMod.RealEnhancedReal.
+Let inv_pos_pos := @RealInterfaceEnhancedMod.inv_pos_pos RealInterfaceEnhancedMod.RealEnhancedReal.
+Let inv_pos_ext := @RealInterfaceEnhancedMod.inv_pos_ext RealInterfaceEnhancedMod.RealEnhancedReal.
+Let exp_neg_pos := @RealInterfaceEnhancedMod.exp_neg_pos RealInterfaceEnhancedMod.RealEnhancedReal.
+Let exp_neg_le_decr := @RealInterfaceEnhancedMod.exp_neg_le_decr RealInterfaceEnhancedMod.RealEnhancedReal.
+Let le_antisym := @RealInterfaceEnhancedMod.le_antisym RealInterfaceEnhancedMod.RealEnhancedReal.
+Let lt_le_iff := @RealInterfaceEnhancedMod.lt_le_iff RealInterfaceEnhancedMod.RealEnhancedReal.
 
 (* ---- 诚实接口：抽象 S 上 req 版求和 ---- *)
 (* 先例：RealAttnMain 42312-42317（sum_over_S + sum_pos_preserved）、 *)
