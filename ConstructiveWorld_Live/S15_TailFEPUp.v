@@ -399,30 +399,36 @@ Qed.
 (* ========== 环恒等式族（real_eq_of_zero_diff 逐点 ring） ========== *)
 
 Lemma kl_zero_plus_zero : real_eq (real_plus real_zero real_zero) real_zero.
-Proof. apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+Proof. apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_plus_zero_l : forall x : Real, real_eq (real_plus real_zero x) x.
 Proof. intros x. destruct x as [u Hu]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_mult_zero_l : forall x : Real, real_eq (real_mult real_zero x) real_zero.
 Proof. intros x. destruct x as [u Hu]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_mult_one_l : forall x : Real, real_eq (real_mult real_one x) x.
 Proof. intros x. destruct x as [u Hu]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_distrib_r : forall x y z : Real,
   real_eq (real_mult (real_plus x y) z) (real_plus (real_mult x z) (real_mult y z)).
 Proof. intros x y z. destruct x as [u Hu]. destruct y as [v Hv]. destruct z as [w Hw].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* (1−η) + η == 1 *)
 Lemma kl_ring_m_plus_eta : forall eta : Real,
   real_eq (real_plus (real_plus real_one (real_opp eta)) eta) real_one.
 Proof. intros eta. destruct eta as [v Hv]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* Varberg 锥主恒等式：E·m̂·(1+ηs) + E·η·(1+m̂·(−s)) == E，m̂ := 1−η 展开 *)
 Lemma kl_ring_core : forall (E eta s : Real),
@@ -434,7 +440,8 @@ Lemma kl_ring_core : forall (E eta s : Real),
                  (real_mult (real_plus real_one (real_opp eta)) (real_opp s)))))
     E.
 Proof. intros E eta s. destruct E as [u Hu]. destruct eta as [v Hv]. destruct s as [w Hw].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* z + η·s == x，其中 z := (1−η)x + ηy、s := x−y *)
 Lemma kl_z_tA : forall x y eta : Real,
@@ -442,7 +449,8 @@ Lemma kl_z_tA : forall x y eta : Real,
                                 (real_mult eta y))
                      (real_mult eta (real_plus x (real_opp y)))) x.
 Proof. intros x y eta. destruct x as [u Hu]. destruct y as [v Hv]. destruct eta as [w Hw].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* z + (1−η)·(−s) == y *)
 Lemma kl_z_tB : forall x y eta : Real,
@@ -451,22 +459,26 @@ Lemma kl_z_tB : forall x y eta : Real,
                      (real_mult (real_plus real_one (real_opp eta))
                                 (real_opp (real_plus x (real_opp y))))) y.
 Proof. intros x y eta. destruct x as [u Hu]. destruct y as [v Hv]. destruct eta as [w Hw].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_sum_prod_r : forall a b w : Real,
   real_eq (real_plus (real_mult a w) (real_mult b w)) (real_mult (real_plus a b) w).
 Proof. intros a b w. destruct a as [u Hu]. destruct b as [v Hv]. destruct w as [w' Hw'].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_swap3 : forall c e w : Real,
   real_eq (real_mult c (real_mult e w)) (real_mult e (real_mult c w)).
 Proof. intros c e w. destruct c as [u Hu]. destruct e as [v Hv]. destruct w as [w' Hw'].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_assoc_swap : forall E m w : Real,
   real_eq (real_mult (real_mult E m) w) (real_mult m (real_mult E w)).
 Proof. intros E m w. destruct E as [u Hu]. destruct m as [v Hv]. destruct w as [w' Hw'].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* ========== 序辅助 ========== *)
 
@@ -956,12 +968,14 @@ Lemma kl_ring_reassoc : forall X Y Z W : Real,
   real_eq (real_mult (real_mult (real_mult X Y) Z) W)
           (real_mult X (real_mult Y (real_mult Z W))).
 Proof. intros X Y Z W. destruct X as [a Ha]. destruct Y as [b Hb]. destruct Z as [c Hc].
-  destruct W as [d Hd]. apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  destruct W as [d Hd]. apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_ring_opp_swap : forall X Y : Real,
   real_eq (real_opp (real_plus X (real_opp Y))) (real_plus Y (real_opp X)).
 Proof. intros X Y. destruct X as [a Ha]. destruct Y as [b Hb].
-  apply real_eq_of_zero_diff. intro n. simpl. ring. Qed.
+  apply real_eq_of_zero_diff. intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_ring_log4 : forall eta lp lr LZ : Real,
   real_eq (real_plus (real_mult (real_plus real_one (real_opp eta)) lp)
@@ -972,7 +986,8 @@ Lemma kl_ring_log4 : forall eta lp lr LZ : Real,
                      (real_plus (real_opp LZ) (real_opp lp))).
 Proof. intros eta lp lr LZ. destruct eta as [e He]. destruct lp as [u Hu].
   destruct lr as [v Hv]. destruct LZ as [w Hw]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_ring_neg4 : forall eta lp lr LZ : Real,
   real_eq (real_opp (real_plus (real_plus (real_mult (real_plus real_one (real_opp eta)) lp)
@@ -981,14 +996,16 @@ Lemma kl_ring_neg4 : forall eta lp lr LZ : Real,
           (real_plus (real_mult eta (real_plus lp (real_opp lr))) LZ).
 Proof. intros eta lp lr LZ. destruct eta as [e He]. destruct lp as [u Hu].
   destruct lr as [v Hv]. destruct LZ as [w Hw]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 Lemma kl_ring_kl_split : forall eta W X Z : Real,
   real_eq (real_mult W (real_plus (real_mult eta X) Z))
           (real_plus (real_mult eta (real_mult W X)) (real_mult W Z)).
 Proof. intros eta W X Z. destruct eta as [e He]. destruct W as [w Hw].
   destruct X as [x Hx]. destruct Z as [z Hz]. apply real_eq_of_zero_diff.
-  intro n. simpl. ring. Qed.
+  intro n. simpl.
+  apply qeq_imp_qeqT. ring. Qed.
 
 (* log 单调 le 版（Or 编码逐支，UpLogMono 同款） *)
 Lemma kl_log_le_mono : forall (a b : Real) (Ha : real_lt real_zero a)
@@ -1546,7 +1563,7 @@ Lemma count_zero_notin : forall (j : Group) (l : list Group),
   @Id nat (count_g j l) O -> not_InT j l.
 Proof.
   intros j l. induction l as [| x rest IH]; intro Hc.
-  - intro Hin. exact (match Hin with end).
+  - intro Hin. inversion Hin.
   - cbn [count_g] in Hc.
     destruct (grp_eq_dec x j) as [Hxj | Hnxj].
     + inversion Hc.
@@ -1600,7 +1617,7 @@ Lemma remove_notin_aux : forall (j x : Group) (l : list Group),
   InT x (removeT_g j l) -> Not (Id x j).
 Proof.
   intros j x l. induction l as [| y rest IH]; intro Hin.
-  - exact (match Hin with end).
+  - inversion Hin.
   - cbn [removeT_g] in Hin.
     destruct (grp_eq_dec y j) as [Hyj | Hnyj].
     + exact (IH Hin).
@@ -1637,11 +1654,12 @@ Proof.
 Qed.
 
 (* Set 层无重复谓词（计数刻画的等价形态） *)
-Fixpoint nodup_g (l : list Group) : Set :=
-  match l with
-  | nil => unit
-  | x :: t => prod (not_InT x t) (nodup_g t)
-  end.
+Inductive nodup_g_fam : list Group -> Set :=
+| ndg_nil : nodup_g_fam nil
+| ndg_cons : forall (x : Group) (t : list Group),
+    not_InT x t -> nodup_g_fam t -> nodup_g_fam (x :: t).
+
+Definition nodup_g (l : list Group) : Set := nodup_g_fam l.
 
 (* 列表恒等运送成员关系 *)
 Lemma InT_list_transport : forall (x : Group) (l1 l2 : list Group),
@@ -1664,16 +1682,16 @@ Qed.
 Theorem grpo_count_one : forall (l : list Group) (Hnd : nodup_g l)
     (j : Group), InT j l -> @Id nat (count_g j l) (Datatypes.S O).
 Proof.
-  intros l Hnd. induction l as [| a rest IH]; intros j Hin.
-  - exact (match Hin with end).
-  - destruct Hnd as [Hnhead Hndrest].
-    cbn [count_g]. destruct (grp_eq_dec a j) as [Haj | Hanj].
-    + (* a == j：头命中；j ∉ rest 由 not_InT a rest + Haj 运送 *)
+  intros l Hnd. induction Hnd as [| x0 t0 Hnhead Hndrest IH]; intros j Hin.
+  - (* ndg_nil：l = nil·Hin : InT j nil 不可达（inversion 剪除） *)
+    inversion Hin.
+  - cbn [count_g]. destruct (grp_eq_dec x0 j) as [Haj | Hanj].
+    + (* x0 == j：头命中；j ∉ t0 由 not_InT x0 t0 + Haj 运送 *)
       apply (id_cong (fun n : nat => Datatypes.S n)).
-      apply (not_InT_count_zero j rest
-               (fun Hin : InT j rest => Hnhead (InT_transport j a rest (id_sym Haj) Hin))).
-    + (* a ≠ j：尾命中 *)
-      exact (IH Hndrest j (InT_tail_of_neq j a rest Hanj Hin)).
+      apply (not_InT_count_zero j t0
+               (fun Hin : InT j t0 => Hnhead (InT_transport j x0 t0 (id_sym Haj) Hin))).
+    + (* x0 ≠ j：尾命中 *)
+      exact (IH j (InT_tail_of_neq j x0 t0 Hanj Hin)).
 Qed.
 
 Variable Hnd_g : nodup_g group_enum.
