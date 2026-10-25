@@ -13,7 +13,11 @@ concurrency:
 jobs:
   coq-build:
     name: Rocq 9.1 build + coqchk (single Live tree, cold build)
-    runs-on: self-hosted
+    # 【20261026 标签收窄】裸 self-hosted 亦可匹配 Mac runner——Mac 接单后 Windows 壳
+    # 路径（C:/Progra~1/Git/bin/bash.exe）在 macOS 不存在＝gate1 步级秒红
+    # （run 40205628059 实证 25s 红）；set-runner offline 期认证 job 长期 queued
+    # 无 runner 可接（run 40236969222 实证）。收窄后 Mac 只认观察档 job。
+    runs-on: [self-hosted, Windows]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -86,7 +90,9 @@ jobs:
       - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_build_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
+          # 【20261026 温控正典三参数】20261023 用户令：-TempLimit 98 -AllowG3 -GearForce 0
+          # 三参数缺一＝钳位饥饿复发（idle 读 94-97C 空转 80%）。serial build 保留 -CoreN 2。
+          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_build_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # S7/PA4+PB6：全树模块计数自动化——六维计数三口径分列（注册面/侧树顶层/沙箱）；
       # record-only，缺席口径不红屏（非硬闸，保持原样）。
@@ -136,7 +142,8 @@ jobs:
       - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2
+          # 【20261026 温控正典三参数】同 Build 步——20261023 用户令三参数缺一即钳位饥饿。
+          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 闸② Axioms 段哨兵：块状态机解析（禁裸 grep——裸 -i error 假配 84 行／-i axiom
       # 假配 2213 行，E422/AX-MATRIX 实证；状态机段外假匹配结构性不可能）。
