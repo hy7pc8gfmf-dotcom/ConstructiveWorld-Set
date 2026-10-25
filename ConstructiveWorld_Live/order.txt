@@ -33,3 +33,11 @@ UpRealLeB.v#R4-3426db
 UpReqGeomD.v#R4-0fafce
 UpRealLeB2.v#R4-179963
 UpReqConstEnvelope.v#R4-7b417e
+UpReqBanachInstB.v#R5-18f997
+UpReqBanachInst.v#R5-9c80d8
+UpReqCStarDef.v#R5-3c5c8a
+UpReqBanachInstReal.v#R5-7d8fce
+UpReqBanachNormOpp.v#R5-2463ca
+AttnHardLimit218.v#R5-a4c8ef
+UpSLM.v#R5-1098d5
+AttnSqrt.v#R5-5bde1a
