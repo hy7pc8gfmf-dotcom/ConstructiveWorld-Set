@@ -48,3 +48,9 @@ UpReqBanachDouble.v#R6-d7ee60
 UpReqBanachClassExt.v#R6-53cdb6
 UpReqBanachInvPre.v#R6-8fe084
 BanachNoHyp.v#R6-62e051
+UpCS.v#R7-e8d25c
+UpRecast.v#R7-16faf2
+G11_IDLFam.v#R7-ae3194
+UpIDL_P2.v#R7-89949a
+UpReqPropLiftShim.v#R7-eaf011
+UpReqRealHalf.v#R7-615a55
