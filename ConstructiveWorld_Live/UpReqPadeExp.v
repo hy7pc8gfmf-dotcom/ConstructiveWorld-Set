@@ -20,7 +20,7 @@
     Constructivity.  All named statements and fields are carried by
       [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
       [NatLe]); statements extract with [Obj.magic] = 0 and no
-      erasure; [coqchk] reports [Axioms: <none>].
+      erasure; [coqchk] reports [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqPadeExp.v]
       compiles cleanly (exit 0); the first eight bytes of the
@@ -80,7 +80,7 @@ Proof.
 Qed.
 
 (* The k = 0 coefficient is one (definitional well-formedness; 0 <= n holds
-   for all n, so no guard parameter is needed). *)
+   for all n, so no guard argument is needed). *)
 Lemma pade_coeff_0_one : forall n : nat, QeqT (pade_coeff n 0%nat) 1%Q.
 Proof.
   intro n. apply qeq_imp_qeqT. unfold pade_coeff.
