@@ -24,7 +24,7 @@
     Constructivity.  All named statements and fields are carried by
       [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
       [NatLe]); statements extract with [Obj.magic] = 0 and no
-      erasure; [coqchk] reports [Axioms: <none>].
+      erasure; [coqchk] reports [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqExpPosQBound.v]
       compiles cleanly (exit 0); the first eight bytes of the

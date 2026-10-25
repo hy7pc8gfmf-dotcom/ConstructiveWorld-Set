@@ -26,7 +26,7 @@
     Constructivity.  All named statements are carried by [Set] (decidable
       Q-carriers [QltT]/[QleT']/[QeqT], [Id], [NatLe], [Not], [sigT]);
       statements extract with [Obj.magic] = 0; [coqchk] reports
-      [Axioms: <none>].
+      [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqQExpTail.v]
       compiles cleanly (exit 0); the first eight bytes of the artifact

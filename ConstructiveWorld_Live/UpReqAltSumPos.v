@@ -28,7 +28,7 @@
     Constructivity.  All named statements are carried by [Set] (decidable
       Q-carriers [QltT]/[QleT']/[QeqT], [Id], the boolean sign accumulator
       of [altsum_acc]); statements extract with [Obj.magic] = 0;
-      [coqchk] reports [Axioms: <none>].
+      [coqchk] reports [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqAltSumPos.v]
       compiles cleanly (exit 0); the first eight bytes of the artifact
