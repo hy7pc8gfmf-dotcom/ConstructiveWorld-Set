@@ -17,3 +17,14 @@ UpReqPadeExp.v#R1-70425f
 UpReqExpPosQBound.v#R2-809da4
 UpReqAltSumPos.v#R2-9d04dc
 UpReqQExpTail.v#R2-e8432a
+UpReqBanachExp.v#R3-f26651
+UpReqNormConv.v#R3-0532e0
+UpReqBanachProd.v#R3-93b801
+UpReqBanachProd2.v#R3-bd05f3
+UpReqBanachAdd.v#R3-2af947
+UpReqPadeQLeg.v#R3-b24dee
+UpReqPadeSign.v#R3-701b34
+UpReqKLStrict.v#R3-a40f16
+QTailBridge.v#R3-29a39f
+UpReqLpoEquiv.v#R3-bf5681
+UpReqGibbsWallEquiv.v#R3-608857

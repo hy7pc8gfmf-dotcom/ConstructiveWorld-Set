@@ -18,3 +18,14 @@ UpReqPadeExp.v
 UpReqExpPosQBound.v
 UpReqAltSumPos.v
 UpReqQExpTail.v
+UpReqBanachExp.v
+UpReqNormConv.v
+UpReqBanachProd.v
+UpReqBanachProd2.v
+UpReqBanachAdd.v
+UpReqPadeQLeg.v
+UpReqPadeSign.v
+UpReqKLStrict.v
+QTailBridge.v
+UpReqLpoEquiv.v
+UpReqGibbsWallEquiv.v
