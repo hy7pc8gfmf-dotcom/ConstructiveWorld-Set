@@ -28,3 +28,8 @@ UpReqKLStrict.v#R3-a40f16
 QTailBridge.v#R3-29a39f
 UpReqLpoEquiv.v#R3-bf5681
 UpReqGibbsWallEquiv.v#R3-608857
+UpReqAlgebra.v#R4-bece41
+UpRealLeB.v#R4-3426db
+UpReqGeomD.v#R4-0fafce
+UpRealLeB2.v#R4-179963
+UpReqConstEnvelope.v#R4-7b417e

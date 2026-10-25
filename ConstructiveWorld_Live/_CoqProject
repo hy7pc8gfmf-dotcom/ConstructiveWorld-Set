@@ -29,3 +29,8 @@ UpReqKLStrict.v
 QTailBridge.v
 UpReqLpoEquiv.v
 UpReqGibbsWallEquiv.v
+UpReqAlgebra.v
+UpRealLeB.v
+UpReqGeomD.v
+UpRealLeB2.v
+UpReqConstEnvelope.v
