@@ -14,3 +14,6 @@ S13_NLiveAudit.v#R0-d66910
 S14_B5BatchBlock.v#R153-c7ca84
 S15_TailFEPUp.v#R0-d66910
 UpReqPadeExp.v#R1-70425f
+UpReqExpPosQBound.v#R2-809da4
+UpReqAltSumPos.v#R2-9d04dc
+UpReqQExpTail.v#R2-e8432a
