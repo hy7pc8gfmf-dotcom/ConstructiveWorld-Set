@@ -42,3 +42,9 @@ AttnHardLimit218.v#R5-a4c8ef
 UpSLM.v#R5-1098d5
 AttnSqrt.v#R5-5bde1a
 UpReqDist.v#R6-bd1047
+UpReqBanachExpDef.v#R6-ca0e2f
+UpReqBanachExpBasic.v#R6-98a3c0
+UpReqBanachDouble.v#R6-d7ee60
+UpReqBanachClassExt.v#R6-53cdb6
+UpReqBanachInvPre.v#R6-8fe084
+BanachNoHyp.v#R6-62e051
