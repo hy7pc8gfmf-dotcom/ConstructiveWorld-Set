@@ -1,0 +1,403 @@
+{
+ "modules": {
+  "S01_BaseRing": {
+   "names_total": 185,
+   "magic_ml": null,
+   "magic_mli": null,
+   "missing_candidates": [],
+   "driver_rc": 1
+  },
+  "S02_CauchyComplete": {
+   "names_total": 165,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S03_QExp": {
+   "names_total": 252,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S04_RealExpLogConv": {
+   "names_total": 153,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S05_AlignmentGRPO": {
+   "names_total": 194,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S06_DiffSamplingGibbs": {
+   "names_total": 337,
+   "magic_ml": 15,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S07_RealSetoidExpLog": {
+   "names_total": 318,
+   "magic_ml": null,
+   "magic_mli": null,
+   "missing_candidates": [],
+   "driver_rc": 1
+  },
+  "S08_RealMainlineDPO": {
+   "names_total": 143,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S09_EntropyReal": {
+   "names_total": 100,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S10_KVQuantTrig": {
+   "names_total": 475,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S11_TP3B5": {
+   "names_total": 441,
+   "magic_ml": null,
+   "magic_mli": null,
+   "missing_candidates": [],
+   "driver_rc": 1
+  },
+  "S12_B5RecycleSF": {
+   "names_total": 525,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S13_NLiveAudit": {
+   "names_total": 324,
+   "magic_ml": null,
+   "magic_mli": null,
+   "missing_candidates": [],
+   "driver_rc": 1
+  },
+  "S14_B5BatchBlock": {
+   "names_total": 310,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "S15_TailFEPUp": {
+   "names_total": 88,
+   "magic_ml": null,
+   "magic_mli": null,
+   "missing_candidates": [],
+   "driver_rc": 1
+  },
+  "UpReqPadeExp": {
+   "names_total": 12,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqExpPosQBound": {
+   "names_total": 20,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqAltSumPos": {
+   "names_total": 41,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqQExpTail": {
+   "names_total": 32,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachExp": {
+   "names_total": 21,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqNormConv": {
+   "names_total": 29,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachProd": {
+   "names_total": 13,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachProd2": {
+   "names_total": 8,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachAdd": {
+   "names_total": 18,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqPadeQLeg": {
+   "names_total": 17,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqPadeSign": {
+   "names_total": 9,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqKLStrict": {
+   "names_total": 14,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "QTailBridge": {
+   "names_total": 5,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqLpoEquiv": {
+   "names_total": 15,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqGibbsWallEquiv": {
+   "names_total": 16,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqAlgebra": {
+   "names_total": 64,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpRealLeB": {
+   "names_total": 32,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqGeomD": {
+   "names_total": 22,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpRealLeB2": {
+   "names_total": 8,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqConstEnvelope": {
+   "names_total": 24,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachInstB": {
+   "names_total": 50,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachInst": {
+   "names_total": 15,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqCStarDef": {
+   "names_total": 29,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachInstReal": {
+   "names_total": 63,
+   "magic_ml": 36,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachNormOpp": {
+   "names_total": 31,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "AttnHardLimit218": {
+   "names_total": 53,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpSLM": {
+   "names_total": 80,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "AttnSqrt": {
+   "names_total": 12,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqDist": {
+   "names_total": 120,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachExpDef": {
+   "names_total": 9,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachExpBasic": {
+   "names_total": 8,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachDouble": {
+   "names_total": 20,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachClassExt": {
+   "names_total": 9,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqBanachInvPre": {
+   "names_total": 21,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "BanachNoHyp": {
+   "names_total": 9,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpCS": {
+   "names_total": 22,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpRecast": {
+   "names_total": 77,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "G11_IDLFam": {
+   "names_total": 157,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpIDL_P2": {
+   "names_total": 105,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqPropLiftShim": {
+   "names_total": 16,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqRealHalf": {
+   "names_total": 7,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  },
+  "UpReqSumD": {
+   "names_total": 30,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0
+  }
+ }
+}

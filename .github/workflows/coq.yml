@@ -75,6 +75,19 @@ jobs:
             exit 1
           fi
 
+
+      # 闸⑥ 语句面/字段位 Prop 词面普查（gate6·红线律 v2.5 裁决八现役·20261026）。
+      # 三通道预筛（ch1 语句面/ch2 字段位/ch3 全局假设）——语义最终仲裁=gate7 提取差分。
+      # 基线=20261026 全树实测零命中（57 文件/5,373 语句名）；闸态=红在增量（R15 存量
+      # 冻结不追溯·新文件零容忍 born-clean）。基线再生成须同 commit 显式申报逐条说明。
+      - name: gate6 statement+field Prop census (pre-build, red-on-growth)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          python scripts/gates/gate6_statement_census.py \
+            --tree ConstructiveWorld_Live \
+            --gate --baseline scripts/gates/gate6_baseline.json \
+            --json gate6_report.json
+
       # 【gate3 跨树 Require 毒面对称检查——步撤除 20261007（#C-S00c）】
       # 撤除理由：gate3 的不变量是 Live↔vo 跨树 Require 面对称（E957 暗雷族/世系倒
       # 灌守卫）。#C-S00 起本仓为单 Live 树设计，vo 树整体退役——跨树同步不变量
@@ -87,12 +100,41 @@ jobs:
       # COQLIB/ROCQLIB=9.1，cwd=仓根，-Q ConstructiveWorld_Live ""。
       # 【seed 步撤除（#C-S00c）】无播种源可依（本仓 HEAD 在册 .vo=0，vo 树退役），
       # 15 件冷编分钟级可忍；旧「从本地 vo 树播种吃指纹 SKIP」路径随单树设计退役。
+      # 20261026 信任缓存播种（镜像语义·Main 仓先例移植）：先清空 checkout 的 .vo 再从
+      # 本地信任缓存树整拷——build 树=缓存真镜像，指纹 SKIP 生效且陈旧幸存根除（P9）。
+      # fail-open：缓存缺席=全量冷编（57 件分钟级·正确性不依赖本步）。
+      - name: Seed trust cache from local vo tree (mirror semantics, fail-open)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok 2>/dev/null || true
+          cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/ 2>/dev/null || true
+          echo "seeded (mirror-deleted stale) $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo"
+
       - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           # 【20261026 温控正典三参数】20261023 用户令：-TempLimit 98 -AllowG3 -GearForce 0
           # 三参数缺一＝钳位饥饿复发（idle 读 94-97C 空转 80%）。serial build 保留 -CoreN 2。
-          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_build_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+          # 【20261026 guard 正典化】repo 根 cpu_guard.ps1 系旧 shim（无 TL98/G3 参数面），
+          # 指向 infra 正典 v3（Main 仓同款·单源防分叉）。
+          # 【20261026 信任缓存通道】build 换指纹跳过双生子 ci_build_live_cached.sh——
+          # 播种（上一步镜像 rm+cp）后 .vo 新于 .v 即 SKIP，缺者真编；镜像语义防陈旧幸存（P9）。
+          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_build_live_cached.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+
+      # 闸⑦ 提取执行（gate7·红线律 v2.5 裁决八现役·律四 4a 自动化·泄露最终机械仲裁）。
+      # 逐模块单命令 Separate Extraction 全量直提（单命令多名全提律）→ .ml/.mli 双面
+      # Obj.magic 分账（=0 目标·增量=红=按 Prop 泄露级处置）＋语句名在卷差分（擦除候选
+      # 报告·禁直判违规——三源判读律）。前置=build 全绿（驱动吃 .vo）。基线候首绿轮
+      # 预注册；基线再生成须同 commit 显式申报。
+      - name: gate7 extraction execution (post-build, red-on-growth)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          python scripts/gates/gate7_extract_run.py \
+            --tree ConstructiveWorld_Live \
+            --order ConstructiveWorld_Live/order.txt \
+            --workdir _gate7_work \
+            --gate --baseline scripts/gates/gate7_extract_baseline.json \
+            --json gate7_report.json
 
       # S7/PA4+PB6：全树模块计数自动化——六维计数三口径分列（注册面/侧树顶层/沙箱）；
       # record-only，缺席口径不红屏（非硬闸，保持原样）。
@@ -143,7 +185,18 @@ jobs:
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           # 【20261026 温控正典三参数】同 Build 步——20261023 用户令三参数缺一即钳位饥饿。
-          pwsh -File cpu_guard.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+
+      # 20261026 跨机信任缓存通道（Windows 侧产物发布·绿后上传）：对侧（macOS）未来
+      # 可经 vo_sync_once.sh 消费 vo-trust-cache-set-windows 实现一侧新增推送、对侧自动
+      # 本地化+认证闭环（Main 仓 run#240 已验证模式）。观察档 job 本波不动（不破坏律）。
+      - name: Upload vo trust cache (cross-machine sync)
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: vo-trust-cache-set-windows
+          path: |
+            ConstructiveWorld_Live/*.vo
 
       # 闸② Axioms 段哨兵：块状态机解析（禁裸 grep——裸 -i error 假配 84 行／-i axiom
       # 假配 2213 行，E422/AX-MATRIX 实证；状态机段外假匹配结构性不可能）。
@@ -181,6 +234,8 @@ jobs:
             gate2_verdict.json
             gate4_report.json
             gate5_vodep_report.json
+            gate6_report.json
+            gate7_report.json
 
       - name: Merged single-file build (retired with CW220 megafile; kept disabled for history)
         if: false

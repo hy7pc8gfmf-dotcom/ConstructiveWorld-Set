@@ -1,0 +1,347 @@
+{
+ "generated_from_tree": "ConstructiveWorld_Live",
+ "files": {
+  "AttnHardLimit218.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 53
+  },
+  "AttnSqrt.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 12
+  },
+  "BanachNoHyp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 9
+  },
+  "G11_IDLFam.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 157
+  },
+  "QTailBridge.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 5
+  },
+  "S01_BaseRing.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 185
+  },
+  "S02_CauchyComplete.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 165
+  },
+  "S03_QExp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 252
+  },
+  "S04_RealExpLogConv.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 153
+  },
+  "S05_AlignmentGRPO.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 194
+  },
+  "S06_DiffSamplingGibbs.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 337
+  },
+  "S07_RealSetoidExpLog.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 318
+  },
+  "S08_RealMainlineDPO.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 143
+  },
+  "S09_EntropyReal.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 100
+  },
+  "S10_KVQuantTrig.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 475
+  },
+  "S11_TP3B5.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 441
+  },
+  "S12_B5RecycleSF.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 525
+  },
+  "S13_NLiveAudit.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 324
+  },
+  "S14_B5BatchBlock.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 310
+  },
+  "S15_TailFEPUp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 88
+  },
+  "UpCS.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 22
+  },
+  "UpIDL_P2.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 105
+  },
+  "UpRealLeB.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 32
+  },
+  "UpRealLeB2.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 8
+  },
+  "UpRecast.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 77
+  },
+  "UpReqAlgebra.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 64
+  },
+  "UpReqAltSumPos.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 41
+  },
+  "UpReqBanachAdd.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 18
+  },
+  "UpReqBanachClassExt.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 9
+  },
+  "UpReqBanachDouble.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 20
+  },
+  "UpReqBanachExp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 21
+  },
+  "UpReqBanachExpBasic.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 8
+  },
+  "UpReqBanachExpDef.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 9
+  },
+  "UpReqBanachInst.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 15
+  },
+  "UpReqBanachInstB.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 50
+  },
+  "UpReqBanachInstReal.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 63
+  },
+  "UpReqBanachInvPre.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 21
+  },
+  "UpReqBanachNormOpp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 31
+  },
+  "UpReqBanachProd.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 13
+  },
+  "UpReqBanachProd2.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 8
+  },
+  "UpReqCStarDef.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 29
+  },
+  "UpReqConstEnvelope.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 24
+  },
+  "UpReqDist.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 120
+  },
+  "UpReqExpPosQBound.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 20
+  },
+  "UpReqGeomD.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 22
+  },
+  "UpReqGibbsWallEquiv.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 16
+  },
+  "UpReqKLStrict.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 14
+  },
+  "UpReqLpoEquiv.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 15
+  },
+  "UpReqNormConv.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 29
+  },
+  "UpReqPadeExp.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 12
+  },
+  "UpReqPadeQLeg.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 17
+  },
+  "UpReqPadeSign.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 9
+  },
+  "UpReqPropLiftShim.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 16
+  },
+  "UpReqQExpTail.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 32
+  },
+  "UpReqRealHalf.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 7
+  },
+  "UpReqSumD.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 30
+  },
+  "UpSLM.v": {
+   "ch1": 0,
+   "ch2": 0,
+   "ch3": 0,
+   "names": 80
+  }
+ }
+}
