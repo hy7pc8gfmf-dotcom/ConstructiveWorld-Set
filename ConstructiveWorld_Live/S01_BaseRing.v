@@ -254,11 +254,11 @@ Class RealInterfaceEnhanced := {
 
   (* 条件选择（构造性 if-then-else：以 Set 层 Or 见证驱动，
      替代依赖 Prop 的 match；支撑 ReLU/剪枝/掩码的定义）。 *)
-  r_if : forall (P : Set), Or P (Not P) -> R -> R -> R;
-  r_if_true : forall (P : Set) (Hd : Or P (Not P)) (v_true v_false : R),
-    P -> Id (r_if P Hd v_true v_false) v_true;
-  r_if_false : forall (P : Set) (Hd : Or P (Not P)) (v_true v_false : R),
-    Not P -> Id (r_if P Hd v_true v_false) v_false;
+  r_if : bool -> R -> R -> R;
+  r_if_true : forall (v_true v_false : R),
+    Id (r_if true v_true v_false) v_true;
+  r_if_false : forall (v_true v_false : R),
+    Id (r_if false v_true v_false) v_false;
 
   abs_nonneg   : forall a : R, le zero (abs a);
   abs_triangle : forall a b : R, le (abs (plus a b)) (plus (abs a) (abs b));
@@ -2318,7 +2318,7 @@ Proof.
   - (* nil：∀w, InT w nil → ... 空 + le_refl *)
     assert (Hempty : forall w : Token, InT w nil -> le (snd (argmin_aux_token prefix nil (best_token, best_loss)))
                                                        (total_loss (prefix ++ [w]))).
-    { intros w HIn. exact (match HIn with end). }
+    { intros w HIn. inversion HIn. }
     exact (pair Hempty (le_refl _)).
   - simpl.
     destruct (@ord_le_dec _ DO (total_loss (prefix ++ [a])) best_loss) as [Hle | Hnot].

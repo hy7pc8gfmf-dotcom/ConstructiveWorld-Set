@@ -7906,30 +7906,24 @@ Proof.
 Qed.
 
 (* r_if：Set 层 Or 见证驱动的选择 *)
-Definition real_r_if (P : Set) (Hd : Or P (Not P)) (v_true v_false : Real) : Real :=
-  match Hd with
-  | inl _ => v_true
-  | inr _ => v_false
+Definition real_r_if (b : bool) (v_true v_false : Real) : Real :=
+  match b with
+  | true => v_true
+  | false => v_false
   end.
 
 (* r_if_true：P ⟹ r_if P Hd v_t v_f == v_t *)
-Lemma real_r_if_true : forall (P : Set) (Hd : Or P (Not P)) (v_true v_false : Real),
-  P -> real_eq (real_r_if P Hd v_true v_false) v_true.
+Lemma real_r_if_true : forall (v_true v_false : Real),
+  real_eq (real_r_if true v_true v_false) v_true.
 Proof.
-  intros P Hd v_true v_false HP.
-  destruct Hd as [HP' | HnP].
-  - apply real_eq_refl.
-  - exact (match HnP HP with end).
+  intros v_true v_false. apply real_eq_refl.
 Qed.
 
 (* r_if_false：Not P ⟹ r_if P Hd v_t v_f == v_f *)
-Lemma real_r_if_false : forall (P : Set) (Hd : Or P (Not P)) (v_true v_false : Real),
-  Not P -> real_eq (real_r_if P Hd v_true v_false) v_false.
+Lemma real_r_if_false : forall (v_true v_false : Real),
+  real_eq (real_r_if false v_true v_false) v_false.
 Proof.
-  intros P Hd v_true v_false HnP.
-  destruct Hd as [HP | HnP'].
-  - exact (match HnP HP with end).
-  - apply real_eq_refl.
+  intros v_true v_false. apply real_eq_refl.
 Qed.
 
 (* ============ 5. exp_neg 族（e^{-x} 语义） ============ *)
