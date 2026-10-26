@@ -6,7 +6,7 @@
     Mission.  Four self-contained partitions.  [hlogz_discharge] and its
       companions prove the logarithm of a normalized partition value is
       nonpositive ([0 < Z <= 1] implies [log Z <= 0], strictly when
-      [Z < 1]).  Module [SigMigrate] restates the free-energy identity and
+      [Z < 1]).  Module [SetoidThermoCore] restates the free-energy identity and
       the Gibbs form of attention over the setoid signature of
       [RealInterfaceEnhancedSetoid].  Module [BudgetReal] constructs an
       explicit geometric-decay budget on the constructive Cauchy reals;
@@ -145,8 +145,8 @@ Set Warnings "-extraction-opaque-accessed".
 
 Extraction "uphlogz.ml" hlogz_discharge hlogz_strict hlogz_opp_nonneg.
 
-(* ---------- UpSigMigrate ---------- *)
-Module SigMigrate.
+(* ---------- SetoidThermoCore ---------- *)
+Module SetoidThermoCore.
 (* Restatements of two thermodynamic theorems over the setoid signature
    [RealInterfaceEnhancedSetoid] (equality carrier [req], order carriers
    [lt]/[le], all Set-valued).
@@ -179,7 +179,7 @@ Notation R := Real.
 Notation lt := real_lt.
 Notation req := real_eq.
 
-Section ReqFreeEnergyPilot.
+Section FreeEnergySetoid.
 Variable S : Set.
 
 (* Summation interface in req signature (setoid counterpart of SumOver). *)
@@ -657,7 +657,7 @@ Proof.
   exact (req_trans _ _ _ Hleg1 Hleg2).
 Qed.
 
-End ReqFreeEnergyPilot.
+End FreeEnergySetoid.
 
 (* Section 2.  req_attention_is_gibbs_temp: the attention softmax is a
    Gibbs distribution at temperature.  Three premises and a pointwise
@@ -668,7 +668,7 @@ End ReqFreeEnergyPilot.
    congruence of exp_neg is declared as a section assumption in req
    signature; the Real instance satisfies it by the congruence of the
    Cauchy exponential ([cauchy_real_exp_wd]). *)
-Section ReqGibbsPilot.
+Section GibbsSetoid.
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 Hypothesis sum_pos : forall f : S -> R, (forall s : S, lt zero (f s)) -> lt zero (sumf f).
@@ -736,8 +736,8 @@ Proof.
     apply mult_comm.
 Qed.
 
-End ReqGibbsPilot.
-End SigMigrate.
+End GibbsSetoid.
+End SetoidThermoCore.
 
 (* ================= BudgetReal ================= *)
 Module BudgetReal.

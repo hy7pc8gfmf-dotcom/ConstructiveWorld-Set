@@ -237,13 +237,6 @@ jobs:
             gate6_report.json
             gate7_report.json
 
-      - name: Merged single-file build (retired with CW220 megafile; kept disabled for history)
-        if: false
-        continue-on-error: true
-        run: |
-          eval "$(opam env)"
-          cd releases
-          coqc -async-proofs off -Q . "" CW_ConstructiveWorld_220.v
 
 
   # ── macOS 观察档 job（#C-S00d 新增）─────────────────────────────────────
