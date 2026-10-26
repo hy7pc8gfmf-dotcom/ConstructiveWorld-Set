@@ -54,3 +54,4 @@ G11_IDLFam.v#R7-ae3194
 UpIDL_P2.v#R7-89949a
 UpReqPropLiftShim.v#R7-eaf011
 UpReqRealHalf.v#R7-615a55
+UpReqSumD.v#R8-27b3ea
