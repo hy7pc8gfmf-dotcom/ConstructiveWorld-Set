@@ -1,6 +1,6 @@
 # ConstructiveWorld — 构造性数学库（Rocq/Coq）
 
-[![Coq CI](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/actions/workflows/coq.yml/badge.svg?branch=main)](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/actions/workflows/coq.yml)
+[![Coq CI](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set/actions/workflows/coq.yml/badge.svg?branch=main)](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set/actions/workflows/coq.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 本仓库是论文《π 的构造性三表示定理》（Constructive three representations of π）配套的构造性数学库：全库在 Set 层以 `sigT` 显式见证给出存在型结论，不引入任何公理，且整链可提取。
@@ -14,12 +14,14 @@
 - **「率即算法」范式**：可执行件（`Defined` 计算器）与其正确性证书（`Qed` 证明）同体共存——定理与程序是同一件东西的两面。
 - **双支柱现状**：第一支柱为 π 的构造性强无理闭合（主件 `LW0PiIrrational.v`）；第二支柱为五常数族——√2、√3、e、ln 2 的构造性无理性分离件已批量在册（#R164 起，`u5c_*`／`abl_ln2_*` 件族），ζ(2) 无理性方向的 Beukers 法机械件族（整除/衰减/计数）已在册·闭式定理装配进行中（`abl_z2_*` 件族·#R167）。其通用逃逸窗判据引擎已提交上游标准库 rocq-prover/stdlib（Issue #312／PR #313，新增 `ConstructiveCauchyRealsSep.v`），现处维护者评审阶段。
 
+**π 支柱独立包**：第一支柱 π 的构造性强无理闭合已以独立 Rocq 包 `rocq-pi-leibniz` 发布（Leibniz 窗法·Set 载体·零公理·见证可提取），版本线 `v1.0.0`–`v1.0.4`（现势 `v1.0.4`），已收录进 Rocq opam 仓（rocq-prover/opam #3884，已合并），Zenodo 归档 DOI：[10.5281/zenodo.23527294](https://doi.org/10.5281/zenodo.23527294)；仓库：<https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz>。
+
 ## 2. 版本与认证记录
 
 | 项 | 值 |
 |---|---|
-| 库版本 | `bb7d52e1`（`main` 分支） |
-| CI 认证 | run #208（head `bb7d52e1`，全树编译＋`coqchk` 全树内核复核通过） |
+| 库版本 | `5990f803`（`main` 分支，2026-10-26 实测） |
+| CI 认证 | 最近绿 run #2（head `3f7ff9b2`，2026-10-07）；现势 head `5990f803` 的 run #29 在飞（排队中），认证结论以该 run 落定为准，不预支绿 |
 | 公理审计 | `coqchk -o` 全库复核，`Axioms: <none>` |
 | 注册序 | `order.txt` 662 行；主件 `LW0PiIrrational.v` 位于 ：476（批次指纹 `#R150-40656c`） |
 | 许可 | Apache-2.0（见 `LICENSE`） |
