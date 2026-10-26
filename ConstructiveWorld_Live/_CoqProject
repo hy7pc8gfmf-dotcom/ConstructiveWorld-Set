@@ -50,3 +50,6 @@ UpReqBanachClassExt.v
 UpReqBanachInvPre.v
 BanachNoHyp.v
 CW220_Extensions.v
+UpTempWindow.v
+UpReqPadeDenPos.v
+UpReqPadeLower.v

@@ -56,3 +56,6 @@ UpReqPropLiftShim.v#R7-eaf011
 UpReqRealHalf.v#R7-615a55
 UpReqSumD.v#R8-27b3ea
 CW220_Extensions.v#R8-04e332
+UpTempWindow.v#R9-a19cae
+UpReqPadeDenPos.v#R9-a05366
+UpReqPadeLower.v#R9-a95b2a
