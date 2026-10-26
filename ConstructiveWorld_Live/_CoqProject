@@ -53,3 +53,8 @@ CW220_Extensions.v
 UpTempWindow.v
 UpReqPadeDenPos.v
 UpReqPadeLower.v
+UpReqPadeTailPos.v
+UpReqGibbsE2.v
+abl_audit_base_v5.v
+abl_s06_step_calc.v
+abl_cw220_step_calc.v
