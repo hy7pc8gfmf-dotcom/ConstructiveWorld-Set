@@ -79,3 +79,8 @@ u4a_budget_flip.v#R13-e333f6
 ExpNegPos.v#R14-5160b3
 ArctanGeomTail.v#R14-eac5dc
 ExpOneEnvelope.v#R14-f027832
+b1_kernel_pointwise.v#R15-73335a
+p4a_GradSignQDec.v#R15-11be34
+PolyIntegral.v#R15-984aea
+Hanson3Pow.v#R15-e01751
+pdt_tan_table.v#R15-153a71

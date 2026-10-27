@@ -73,3 +73,8 @@ u4a_budget_flip.v
 ExpNegPos.v
 ArctanGeomTail.v
 ExpOneEnvelope.v
+b1_kernel_pointwise.v
+p4a_GradSignQDec.v
+PolyIntegral.v
+Hanson3Pow.v
+pdt_tan_table.v
