@@ -62,3 +62,10 @@ b1_denom_control.v
 mach_fold_q.v
 abl_arctan_diff_16.v
 abl_lipschitz_bridge.v
+abl_z2_pointwise.v
+abl_Hqarch_bernoulli_04.v
+HansonLcm.v
+abl_diffbridge_incr.v
+abl_z3_pointwise.v
+abl_Hqarch_bridge_06.v
+abl_dmdnf2_oddlcm.v
