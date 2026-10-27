@@ -70,3 +70,5 @@ abl_z3_pointwise.v
 abl_Hqarch_bridge_06.v
 abl_dmdnf2_oddlcm.v
 u4a_budget_flip.v
+ExpNegPos.v
+ArctanGeomTail.v
