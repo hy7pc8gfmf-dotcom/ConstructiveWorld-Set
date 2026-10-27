@@ -66,3 +66,5 @@ abl_s06_step_calc.v#R10-1afbaf
 abl_cw220_step_calc.v#R10-f2d6d3
 b1_denom_control.v#R11-b15cd1
 mach_fold_q.v#R11-aed7a2
+abl_arctan_diff_16.v#R11-66cbf1
+abl_lipschitz_bridge.v#R11-b8bb04
