@@ -100,19 +100,6 @@ jobs:
       # COQLIB/ROCQLIB=9.1，cwd=仓根，-Q ConstructiveWorld_Live ""。
       # 【seed 步撤除（#C-S00c）】无播种源可依（本仓 HEAD 在册 .vo=0，vo 树退役），
       # 15 件冷编分钟级可忍；旧「从本地 vo 树播种吃指纹 SKIP」路径随单树设计退役。
-      # 20261028 两向总线·Windows 半环（白皮书 §6 完全优化策略）：起步拉 mac 侧最近绿
-      # run 的 vo-trust-cache-set-macos artifact 镜像合并进本地缓存——苹果先编的新件
-      # 本轮即 SKIP（fail-open：网络窗/artifact 缺席只降增强不红主链·缺件由 build 补编）。
-      - name: Sync cross-machine vo trust cache (one-shot, fail-open, from macOS)
-        continue-on-error: true
-        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          export REPO=hy7pc8gfmf-dotcom/ConstructiveWorld-Set
-          export SYNC_ARTIFACT=vo-trust-cache-set-macos
-          export SYNC_CACHE_DIR=/d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
-          bash scripts/vo_sync_once.sh
 
 
       # 20261026 信任缓存播种（镜像语义·Main 仓先例移植）：先清空 checkout 的 .vo 再从
@@ -304,23 +291,7 @@ jobs:
 
       # 20261028 两向总线·macOS 半环（本侧缓存通道三步之一；首跑空缓存=冷编自举
       # +绿后导出，次轮起吃指纹 SKIP——Main 仓 run#240 已验证模式移植）。
-      - name: Sync cross-machine vo trust cache (one-shot, fail-open, from Windows)
-        continue-on-error: true
-        shell: bash -e {0}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          export REPO=hy7pc8gfmf-dotcom/ConstructiveWorld-Set
-          export SYNC_ARTIFACT=vo-trust-cache-set-windows
-          export SYNC_CACHE_DIR=/Users/apple/vo_ci_cache_set
-          bash scripts/vo_sync_once.sh
 
-      - name: Seed trust cache from local vo tree (mirror semantics, fail-open, macOS)
-        shell: bash -e {0}
-        run: |
-          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok 2>/dev/null || true
-          cp /Users/apple/vo_ci_cache_set/*.vo ConstructiveWorld_Live/ 2>/dev/null || true
-          echo "seeded (mirror-deleted stale) $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo"
 
 
       - name: Build Live tree (order topology, cold, thermal-guarded, macOS)
@@ -330,9 +301,13 @@ jobs:
           export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           COQC="/Users/apple/actions-runner/mac_rocq/bin/coqc"
           cd "$GITHUB_WORKSPACE" || exit 1
-          # 20261028 trust-cache bus: cache cleanliness moved to the Seed step
-          # (mirror rm+cp upstream). Only the stale coqchk log is dropped here.
-          rm -f ConstructiveWorld_Live/_chk_all.log
+          # Mirror-clean products so a rerun never sees a stale .vo (same
+          # semantics as scripts/ci_build_live.sh on the Windows side).
+          # 20261028: cross-platform/unmanaged-era cache seeding REMOVED --
+          # run#51 mac red precedent: seeded stale-era S01_BaseRing.vo made
+          # PiEnvelope fail (inconsistent assumptions). Reintroduce per-side
+          # seeding only with same-platform + era-guarded cache provenance.
+          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/_chk_all.log
           fail=0
           set +e
           while IFS= read -r line || [ -n "$line" ]; do
