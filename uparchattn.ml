@@ -1,6 +1,5 @@
 
 type __ = Obj.t
-let __ = let rec f _ = Obj.repr f in Obj.repr f
 
 type bool =
 | True
@@ -467,6 +466,21 @@ let qle_to_QleT' x y =
    | Gt -> assert false (* absurd case *)
    | _ -> Id_refl)
 
+type qeqT = bool id
+
+(** val qeq_imp_qeqT : q -> q -> qeqT **)
+
+let qeq_imp_qeqT a b =
+  let c = qcompare a b in
+  (match c with
+   | Eq -> Id_refl
+   | _ -> assert false (* absurd case *))
+
+(** val qeq_imp_qle : q -> q -> qeqT -> qleT' **)
+
+let qeq_imp_qle a b _ =
+  qle_to_QleT' a b
+
 (** val qltT_0_2 : qltT **)
 
 let qltT_0_2 =
@@ -503,10 +517,10 @@ let qleT'_mult_ltT_compat a b c d _ _ _ _ =
 let qmult_ltT_0_compat a b _ _ =
   qlt_to_QltT { qnum = Z0; qden = XH } (qmult a b)
 
-(** val qeq_leT' : q -> q -> qleT' **)
+(** val qeq_leT' : q -> q -> qeqT -> qleT' **)
 
 let qeq_leT' =
-  qle_to_QleT'
+  qeq_imp_qle
 
 (** val qabs_nonnegT : q -> qleT' **)
 
@@ -518,9 +532,9 @@ let qabs_nonnegT x =
 let qltT_div_pos x y _ _ =
   qlt_to_QltT { qnum = Z0; qden = XH } (qdiv x y)
 
-(** val qltT_eq_compat_l : q -> q -> q -> qltT -> qltT **)
+(** val qltT_eq_compat_l : q -> q -> q -> qeqT -> qltT -> qltT **)
 
-let qltT_eq_compat_l _ a' b _ =
+let qltT_eq_compat_l _ a' b _ _ =
   qlt_to_QltT a' b
 
 type cauchy = q -> qltT -> (nat, nat -> nat -> natLe -> natLe -> qltT) sigT
@@ -591,25 +605,31 @@ let rec sum_abs_prefix u = function
 | O -> { qnum = Z0; qden = XH }
 | S n' -> qplus (sum_abs_prefix u n') (qabs (u n'))
 
-(** val cauchy_bounded : qseq -> cauchy -> q **)
+(** val cauchy_bounded : qseq -> cauchy -> (q, nat -> qleT') sigT **)
 
 let cauchy_bounded u hu =
   let s = hu { qnum = (Zpos XH); qden = XH } Id_refl in
   let ExistT (x, _) = s in
-  qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH); qden =
-    XH }
+  ExistT
+  ((qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH);
+     qden = XH }),
+  (fun n ->
+  qle_to_QleT' (qabs (u n))
+    (qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH);
+      qden = XH })))
 
 (** val real_norm_bounded : real -> (q, (qltT, nat -> qleT') and0) sigT **)
 
 let real_norm_bounded = function
 | ExistT (x0, c) ->
   let s = cauchy_bounded x0 c in
-  ExistT ((qplus (qabs s) { qnum = (Zpos XH); qden = XH }), (Pair
+  let ExistT (x1, _) = s in
+  ExistT ((qplus (qabs x1) { qnum = (Zpos XH); qden = XH }), (Pair
   ((qlt_to_QltT { qnum = Z0; qden = XH }
-     (qplus (qabs s) { qnum = (Zpos XH); qden = XH })),
+     (qplus (qabs x1) { qnum = (Zpos XH); qden = XH })),
   (fun k ->
   qle_to_QleT' (qabs (projT1 (ExistT (x0, c)) k))
-    (qplus (qabs s) { qnum = (Zpos XH); qden = XH })))))
+    (qplus (qabs x1) { qnum = (Zpos XH); qden = XH })))))
 
 (** val real_mult : real -> real -> real **)
 
@@ -691,7 +711,14 @@ let real_mult x y =
             (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
           (qmult mvpos
             (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos))))
-        eps))))))
+        eps
+        (qeq_imp_qeqT
+          (qplus
+            (qmult mupos
+              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
+            (qmult mvpos
+              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos))))
+          eps)))))))
 
 (** val real_const : q -> real **)
 
@@ -733,58 +760,86 @@ let real_one =
   ExistT ((fun _ -> { qnum = (Zpos XH); qden = XH }), (fun _ _ -> ExistT (O,
     (fun _ _ _ _ -> Id_refl))))
 
-(** val real_eq_of_zero_diff : real -> real -> real_eq **)
+(** val real_eq_of_zero_diff : real -> real -> (nat -> qeqT) -> real_eq **)
 
-let real_eq_of_zero_diff _ _ _ _ =
+let real_eq_of_zero_diff _ _ _ _ _ =
   ExistT (O, (fun _ _ -> Id_refl))
 
 (** val real_plus_comm : real -> real -> real_eq **)
 
 let real_plus_comm x y =
-  real_eq_of_zero_diff (real_plus x y) (real_plus y x)
+  real_eq_of_zero_diff (real_plus x y) (real_plus y x) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus x y) n) (projT1 (real_plus y x) n)) { qnum =
+      Z0; qden = XH })
 
 (** val real_plus_assoc : real -> real -> real -> real_eq **)
 
 let real_plus_assoc x y z0 =
   real_eq_of_zero_diff (real_plus x (real_plus y z0))
-    (real_plus (real_plus x y) z0)
+    (real_plus (real_plus x y) z0) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus x (real_plus y z0)) n)
+        (projT1 (real_plus (real_plus x y) z0) n))
+      { qnum = Z0; qden = XH })
 
 (** val real_plus_zero : real -> real_eq **)
 
 let real_plus_zero x =
-  real_eq_of_zero_diff (real_plus x real_zero) x
+  real_eq_of_zero_diff (real_plus x real_zero) x (fun n ->
+    qeq_imp_qeqT (qminus (projT1 (real_plus x real_zero) n) (projT1 x n))
+      { qnum = Z0; qden = XH })
 
 (** val real_plus_opp : real -> real_eq **)
 
 let real_plus_opp x =
-  real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero
+  real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus x (real_opp x)) n) (projT1 real_zero n))
+      { qnum = Z0; qden = XH })
 
 (** val real_mult_comm : real -> real -> real_eq **)
 
 let real_mult_comm x y =
-  real_eq_of_zero_diff (real_mult x y) (real_mult y x)
+  real_eq_of_zero_diff (real_mult x y) (real_mult y x) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x y) n) (projT1 (real_mult y x) n)) { qnum =
+      Z0; qden = XH })
 
 (** val real_mult_assoc : real -> real -> real -> real_eq **)
 
 let real_mult_assoc x y z0 =
   real_eq_of_zero_diff (real_mult x (real_mult y z0))
-    (real_mult (real_mult x y) z0)
+    (real_mult (real_mult x y) z0) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x (real_mult y z0)) n)
+        (projT1 (real_mult (real_mult x y) z0) n))
+      { qnum = Z0; qden = XH })
 
 (** val real_mult_one : real -> real_eq **)
 
 let real_mult_one x =
-  real_eq_of_zero_diff (real_mult x real_one) x
+  real_eq_of_zero_diff (real_mult x real_one) x (fun n ->
+    qeq_imp_qeqT (qminus (projT1 (real_mult x real_one) n) (projT1 x n))
+      { qnum = Z0; qden = XH })
 
 (** val real_mult_zero : real -> real_eq **)
 
 let real_mult_zero x =
-  real_eq_of_zero_diff (real_mult x real_zero) real_zero
+  real_eq_of_zero_diff (real_mult x real_zero) real_zero (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x real_zero) n) (projT1 real_zero n))
+      { qnum = Z0; qden = XH })
 
 (** val real_distrib : real -> real -> real -> real_eq **)
 
 let real_distrib x y z0 =
   real_eq_of_zero_diff (real_mult x (real_plus y z0))
-    (real_plus (real_mult x y) (real_mult x z0))
+    (real_plus (real_mult x y) (real_mult x z0)) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x (real_plus y z0)) n)
+        (projT1 (real_plus (real_mult x y) (real_mult x z0)) n))
+      { qnum = Z0; qden = XH })
 
 (** val real_le_refl : real -> real_le **)
 
@@ -836,29 +891,29 @@ let real_eq_lt_lt x _ z0 hxy = function
 
 let real_le_trans x y z0 hxy hyz =
   match hxy with
-  | Inl r ->
+  | Inl hlt ->
     (match hyz with
-     | Inl r0 -> Inl (real_lt_trans x y z0 r r0)
-     | Inr r0 -> Inl (real_lt_eq_lt x y z0 r r0))
-  | Inr r ->
+     | Inl hlt' -> Inl (real_lt_trans x y z0 hlt hlt')
+     | Inr heq' -> Inl (real_lt_eq_lt x y z0 hlt heq'))
+  | Inr heq ->
     (match hyz with
-     | Inl r0 -> Inl (real_eq_lt_lt x y z0 r r0)
-     | Inr r0 -> Inr (real_eq_trans x y z0 r r0))
+     | Inl hlt' -> Inl (real_eq_lt_lt x y z0 heq hlt')
+     | Inr heq' -> Inr (real_eq_trans x y z0 heq heq'))
 
 (** val real_lt_le_trans :
     real -> real -> real -> real_lt -> real_le -> real_lt **)
 
 let real_lt_le_trans x y z0 hlt = function
-| Inl r -> real_lt_trans x y z0 hlt r
-| Inr r -> real_lt_eq_lt x y z0 hlt r
+| Inl hlt' -> real_lt_trans x y z0 hlt hlt'
+| Inr heq' -> real_lt_eq_lt x y z0 hlt heq'
 
 (** val real_le_lt_trans :
     real -> real -> real -> real_le -> real_lt -> real_lt **)
 
 let real_le_lt_trans x y z0 hle hlt =
   match hle with
-  | Inl r -> real_lt_trans x y z0 r hlt
-  | Inr r -> real_eq_lt_lt x y z0 r hlt
+  | Inl hlt' -> real_lt_trans x y z0 hlt' hlt
+  | Inr heq -> real_eq_lt_lt x y z0 heq hlt
 
 (** val real_lt_le_iff : real -> real -> (real_lt, real id) or0 -> real_le **)
 
@@ -1026,6 +1081,11 @@ module RealSetoid =
           (qmult (projT1 c k) (projT1 d k))))
       (qabs (qminus (projT1 (real_mult a b) k) (projT1 (real_mult c d) k)))
       eps
+      (qeq_imp_qeqT
+        (qabs
+          (qminus (qmult (projT1 a k) (projT1 b k))
+            (qmult (projT1 c k) (projT1 d k))))
+        (qabs (qminus (projT1 (real_mult a b) k) (projT1 (real_mult c d) k))))
       (let hbdT =
          qle_to_QleT'
            (qabs
@@ -1063,12 +1123,20 @@ module RealSetoid =
            (qmult mupos
              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
            (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+           (qeq_imp_qeqT
+             (qmult mupos
+               (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
+             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
        in
        let ht2bT =
          qeq_leT'
            (qmult mvpos
              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos)))
            (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+           (qeq_imp_qeqT
+             (qmult mvpos
+               (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos)))
+             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
        in
        let ht1T' =
          qltT_leT'_ltT
@@ -1115,7 +1183,11 @@ module RealSetoid =
            (qeq_leT'
              (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
                (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
-             eps)))))
+             eps
+             (qeq_imp_qeqT
+               (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+                 (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
+               eps))))))
  end
 
 (** val real_lt_opp_plus : real -> real -> real_lt -> real_lt **)
@@ -1153,14 +1225,15 @@ let real_lt_zero_minus x y = function
   ExistT (x0, (Pair (q0, (ExistT (x1, (fun n _ ->
   qlt_to_QltT x0 (qminus (projT1 y n) (projT1 x n))))))))
 
-(** val real_arch : real -> (nat, (__, real_lt) and0) sigT **)
+(** val real_arch : real -> (nat, (natLe, real_lt) and0) sigT **)
 
 let real_arch b =
   let s = real_norm_bounded b in
   let ExistT (x, _) = s in
   let s0 = q_arch_geom x in
   let ExistT (x0, _) = s0 in
-  ExistT ((add x0 (S (S O))), (Pair (__, (ExistT
+  ExistT ((add x0 (S (S O))), (Pair
+  ((natLe_lift (S (S O)) (add x0 (S (S O)))), (ExistT
   ((qdiv (qminus { qnum = (Z.of_nat (add x0 (S (S O)))); qden = XH } x)
      { qnum = (Zpos (XO XH)); qden = XH }),
   (Pair
@@ -1399,7 +1472,11 @@ let b4_const_eq _ _ _ heps =
 
 let b4_const_plus_one c =
   real_eq_of_zero_diff (real_plus (real_const c) real_one)
-    (real_const (qplus c { qnum = (Zpos XH); qden = XH }))
+    (real_const (qplus c { qnum = (Zpos XH); qden = XH })) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus (real_const c) real_one) n)
+        (projT1 (real_const (qplus c { qnum = (Zpos XH); qden = XH })) n))
+      { qnum = Z0; qden = XH })
 
 (** val b4_lift_succ : nat -> real_eq **)
 
@@ -1422,7 +1499,9 @@ let b4_lift_succ k =
 (** val sf_real_plus_zero_l : real -> real_eq **)
 
 let sf_real_plus_zero_l x =
-  real_eq_of_zero_diff (real_plus real_zero x) x
+  real_eq_of_zero_diff (real_plus real_zero x) x (fun n ->
+    qeq_imp_qeqT (qminus (projT1 (real_plus real_zero x) n) (projT1 x n))
+      { qnum = Z0; qden = XH })
 
 (** val real_lt_le_bridge : real -> real -> real_lt -> real_le **)
 
@@ -1451,18 +1530,23 @@ module BudgetReal =
       RealSetoid.real_eq_mult_compat x (real_pow x n0) y (real_pow y n0) hxy
         (real_pow_eq_compat x y n0 hxy)
 
-  (** val real_pow_pos : real -> nat -> real_lt -> real_lt **)
+  (** val cwe_real_pow_pos : real -> nat -> real_lt -> real_lt **)
 
-  let rec real_pow_pos x n hx =
+  let rec cwe_real_pow_pos x n hx =
     match n with
     | O -> real_lt_zero_one
-    | S n0 -> real_mult_pos_compat x (real_pow x n0) hx (real_pow_pos x n0 hx)
+    | S n0 ->
+      real_mult_pos_compat x (real_pow x n0) hx (cwe_real_pow_pos x n0 hx)
 
   (** val real_const_zero_thm : real_eq **)
 
   let real_const_zero_thm =
     real_eq_of_zero_diff (real_const { qnum = (Z.of_nat O); qden = XH })
-      real_zero
+      real_zero (fun n ->
+      qeq_imp_qeqT
+        (qminus (projT1 (real_const { qnum = (Z.of_nat O); qden = XH }) n)
+          (projT1 real_zero n))
+        { qnum = Z0; qden = XH })
 
   (** val real_mult_one_l : real -> real_eq **)
 
@@ -1600,9 +1684,9 @@ module BudgetReal =
                 (real_mult_one_l (real_pow (real_inv_pos k hk) n0)))
               (real_pow_inv_pair k hk n0)))))
 
-  (** val real_le_one_plus : real -> real_le -> real_le **)
+  (** val cwe_real_le_one_plus : real -> real_le -> real_le **)
 
-  let real_le_one_plus x hx =
+  let cwe_real_le_one_plus x hx =
     real_le_trans real_one (real_plus real_one real_zero)
       (real_plus real_one x)
       (real_eq_le_bridge real_one (real_plus real_one real_zero)
@@ -1744,7 +1828,7 @@ module BudgetReal =
              (real_plus real_one
                (real_mult (real_const { qnum = (Z.of_nat n0); qden = XH }) c))
              (real_pow (real_plus real_one c) n0)
-             (real_le_one_plus
+             (cwe_real_le_one_plus
                (real_mult (real_const { qnum = (Z.of_nat n0); qden = XH }) c)
                hx0)
              iH
@@ -1895,7 +1979,7 @@ module BudgetReal =
         (real_pow_eq_compat (real_plus real_one c) (real_inv_pos kappa hk1)
           x0 honec)
     in
-    let hposN = real_pow_pos (real_inv_pos kappa hk1) x0 hinvpos in
+    let hposN = cwe_real_pow_pos (real_inv_pos kappa hk1) x0 hinvpos in
     let hpowinv =
       real_inv_unique (real_pow (real_inv_pos kappa hk1) x0)
         (real_pow kappa x0)
@@ -2051,7 +2135,7 @@ module BudgetReal =
         (real_le_trans (real_mult (real_pow k j) (real_pow k p))
           (real_mult real_one (real_pow k p)) (real_pow k p)
           (real_le_mult_compat (real_pow k j) real_one (real_pow k p)
-            (real_pow_pos k p hk1) (real_pow_le_one k hk1 hk2 j))
+            (cwe_real_pow_pos k p hk1) (real_pow_le_one k hk1 hk2 j))
           (real_eq_le_bridge (real_mult real_one (real_pow k p))
             (real_pow k p) (real_mult_one_l (real_pow k p)))))
  end
@@ -2074,7 +2158,15 @@ let one_minus_delta_lt_one_real delta hd =
         (real_eq_of_zero_diff
           (real_plus real_one
             (real_opp (real_plus real_one (real_opp delta))))
-          delta)))
+          delta (fun n ->
+          qeq_imp_qeqT
+            (qminus
+              (projT1
+                (real_plus real_one
+                  (real_opp (real_plus real_one (real_opp delta))))
+                n)
+              (projT1 delta n))
+            { qnum = Z0; qden = XH }))))
 
 (** val r_arch_pow_attn_real :
     real -> real_lt -> real_lt -> real -> real_lt -> real -> real_lt -> (nat,

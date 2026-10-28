@@ -152,6 +152,12 @@ type qleT' = bool id
 
 val qle_to_QleT' : q -> q -> qleT'
 
+type qeqT = bool id
+
+val qeq_imp_qeqT : q -> q -> qeqT
+
+val qeq_imp_qle : q -> q -> qeqT -> qleT'
+
 val qltT_0_2 : qltT
 
 val qleT'_trans : q -> q -> q -> qleT' -> qleT' -> qleT'
@@ -167,13 +173,13 @@ val qleT'_mult_ltT_compat :
 
 val qmult_ltT_0_compat : q -> q -> qltT -> qltT -> qltT
 
-val qeq_leT' : q -> q -> qleT'
+val qeq_leT' : q -> q -> qeqT -> qleT'
 
 val qabs_nonnegT : q -> qleT'
 
 val qltT_div_pos : q -> q -> qltT -> qltT -> qltT
 
-val qltT_eq_compat_l : q -> q -> q -> qltT -> qltT
+val qltT_eq_compat_l : q -> q -> q -> qeqT -> qltT -> qltT
 
 type cauchy = q -> qltT -> (nat, nat -> nat -> natLe -> natLe -> qltT) sigT
 
@@ -195,7 +201,7 @@ val real_lt_trans : real -> real -> real -> real_lt -> real_lt -> real_lt
 
 val sum_abs_prefix : qseq -> nat -> q
 
-val cauchy_bounded : qseq -> cauchy -> q
+val cauchy_bounded : qseq -> cauchy -> (q, nat -> qleT') sigT
 
 val real_norm_bounded : real -> (q, (qltT, nat -> qleT') and0) sigT
 
@@ -211,7 +217,7 @@ val real_eq_trans : real -> real -> real -> real_eq -> real_eq -> real_eq
 
 val real_one : real
 
-val real_eq_of_zero_diff : real -> real -> real_eq
+val real_eq_of_zero_diff : real -> real -> (nat -> qeqT) -> real_eq
 
 val real_plus_comm : real -> real -> real_eq
 
@@ -275,7 +281,7 @@ val real_mult_pos_compat : real -> real -> real_lt -> real_lt -> real_lt
 
 val real_lt_zero_minus : real -> real -> real_lt -> real_lt
 
-val real_arch : real -> (nat, (__, real_lt) and0) sigT
+val real_arch : real -> (nat, (natLe, real_lt) and0) sigT
 
 val real_inv_unique : real -> real -> real -> real_eq -> real_eq -> real_eq
 
@@ -325,7 +331,7 @@ module BudgetReal :
 
   val real_pow_eq_compat : real -> real -> nat -> real_eq -> real_eq
 
-  val real_pow_pos : real -> nat -> real_lt -> real_lt
+  val cwe_real_pow_pos : real -> nat -> real_lt -> real_lt
 
   val real_const_zero_thm : real_eq
 
@@ -337,7 +343,7 @@ module BudgetReal :
 
   val real_pow_inv_pair : real -> real_lt -> nat -> real_eq
 
-  val real_le_one_plus : real -> real_le -> real_le
+  val cwe_real_le_one_plus : real -> real_le -> real_le
 
   val real_lt_plus_one : real -> real_lt
 

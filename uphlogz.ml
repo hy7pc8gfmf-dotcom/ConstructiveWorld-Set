@@ -526,6 +526,21 @@ let qle_to_QleT' x y =
    | Gt -> assert false (* absurd case *)
    | _ -> Id_refl)
 
+type qeqT = bool id
+
+(** val qeq_imp_qeqT : q -> q -> qeqT **)
+
+let qeq_imp_qeqT a b =
+  let c = qcompare a b in
+  (match c with
+   | Eq -> Id_refl
+   | _ -> assert false (* absurd case *))
+
+(** val qeq_imp_qle : q -> q -> qeqT -> qleT' **)
+
+let qeq_imp_qle a b _ =
+  qle_to_QleT' a b
+
 (** val qltT_0_1 : qltT **)
 
 let qltT_0_1 =
@@ -544,7 +559,11 @@ let qltT_0_3 =
 (** val qleT'_refl : q -> qleT' **)
 
 let qleT'_refl x =
-  qle_to_QleT' x x
+  let c = Z.compare (Z.mul x.qnum (Zpos x.qden)) (Z.mul x.qnum (Zpos x.qden))
+  in
+  (match c with
+   | Gt -> assert false (* absurd case *)
+   | _ -> Id_refl)
 
 (** val qleT'_trans : q -> q -> q -> qleT' -> qleT' -> qleT' **)
 
@@ -575,7 +594,8 @@ let qleT'_plus_compat a b c d _ _ =
 
 let qleT'_plus_nonneg_rT x y hy =
   qleT'_trans x (qplus x { qnum = Z0; qden = XH }) (qplus x y)
-    (qle_to_QleT' x (qplus x { qnum = Z0; qden = XH }))
+    (qeq_imp_qle x (qplus x { qnum = Z0; qden = XH })
+      (qeq_imp_qeqT x (qplus x { qnum = Z0; qden = XH })))
     (qleT'_plus_compat x x { qnum = Z0; qden = XH } y (qleT'_refl x) hy)
 
 (** val qltT_plus_ltT : q -> q -> q -> q -> qltT -> qltT -> qltT **)
@@ -609,20 +629,10 @@ let qleT'_mult_ltT_compat a b c d _ _ _ _ =
 let qmult_ltT_0_compat a b _ _ =
   qlt_to_QltT { qnum = Z0; qden = XH } (qmult a b)
 
-(** val qeq_leT' : q -> q -> qleT' **)
+(** val qeq_leT' : q -> q -> qeqT -> qleT' **)
 
 let qeq_leT' =
-  qle_to_QleT'
-
-type qeqT = bool id
-
-(** val qeq_imp_qeqT : q -> q -> qeqT **)
-
-let qeq_imp_qeqT a b =
-  let c = qcompare a b in
-  (match c with
-   | Eq -> Id_refl
-   | _ -> assert false (* absurd case *))
+  qeq_imp_qle
 
 (** val qabs_nonnegT : q -> qleT' **)
 
@@ -639,14 +649,14 @@ let qltT_plus_pos_r x y _ _ =
 let qltT_div_pos x y _ _ =
   qlt_to_QltT { qnum = Z0; qden = XH } (qdiv x y)
 
-(** val qltT_eq_compat_l : q -> q -> q -> qltT -> qltT **)
+(** val qltT_eq_compat_l : q -> q -> q -> qeqT -> qltT -> qltT **)
 
-let qltT_eq_compat_l _ a' b _ =
+let qltT_eq_compat_l _ a' b _ _ =
   qlt_to_QltT a' b
 
-(** val qltT_eq_compat_r : q -> q -> q -> qltT -> qltT **)
+(** val qltT_eq_compat_r : q -> q -> q -> qeqT -> qltT -> qltT **)
 
-let qltT_eq_compat_r a _ b _ =
+let qltT_eq_compat_r a _ b _ _ =
   qlt_to_QltT b a
 
 (** val qltT_mult_ltT_compat_r : q -> q -> q -> qltT -> qltT -> qltT **)
@@ -722,25 +732,36 @@ let rec sum_abs_prefix u = function
 | O -> { qnum = Z0; qden = XH }
 | S n' -> qplus (sum_abs_prefix u n') (qabs (u n'))
 
-(** val cauchy_bounded : qseq -> cauchy -> q **)
+(** val cauchy_bounded : qseq -> cauchy -> (q, nat -> qleT') sigT **)
 
 let cauchy_bounded u hu =
   let s = hu { qnum = (Zpos XH); qden = XH } Id_refl in
   let ExistT (x, _) = s in
-  qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH); qden =
-    XH }
+  ExistT
+  ((qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH);
+     qden = XH }),
+  (fun n ->
+  qle_to_QleT' (qabs (u n))
+    (qplus (qplus (sum_abs_prefix u x) (qabs (u x))) { qnum = (Zpos XH);
+      qden = XH })))
+
+(** val qeq_le : q -> q -> qeqT -> qleT' **)
+
+let qeq_le =
+  qeq_imp_qle
 
 (** val real_norm_bounded : real -> (q, (qltT, nat -> qleT') and0) sigT **)
 
 let real_norm_bounded = function
 | ExistT (x0, c) ->
   let s = cauchy_bounded x0 c in
-  ExistT ((qplus (qabs s) { qnum = (Zpos XH); qden = XH }), (Pair
+  let ExistT (x1, _) = s in
+  ExistT ((qplus (qabs x1) { qnum = (Zpos XH); qden = XH }), (Pair
   ((qlt_to_QltT { qnum = Z0; qden = XH }
-     (qplus (qabs s) { qnum = (Zpos XH); qden = XH })),
+     (qplus (qabs x1) { qnum = (Zpos XH); qden = XH })),
   (fun k ->
   qle_to_QleT' (qabs (projT1 (ExistT (x0, c)) k))
-    (qplus (qabs s) { qnum = (Zpos XH); qden = XH })))))
+    (qplus (qabs x1) { qnum = (Zpos XH); qden = XH })))))
 
 (** val real_mult : real -> real -> real **)
 
@@ -822,7 +843,14 @@ let real_mult x y =
             (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
           (qmult mvpos
             (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos))))
-        eps))))))
+        eps
+        (qeq_imp_qeqT
+          (qplus
+            (qmult mupos
+              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
+            (qmult mvpos
+              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos))))
+          eps)))))))
 
 (** val real_const : q -> real **)
 
@@ -864,41 +892,58 @@ let real_one =
   ExistT ((fun _ -> { qnum = (Zpos XH); qden = XH }), (fun _ _ -> ExistT (O,
     (fun _ _ _ _ -> Id_refl))))
 
-(** val real_eq_of_zero_diff : real -> real -> real_eq **)
+(** val real_eq_of_zero_diff : real -> real -> (nat -> qeqT) -> real_eq **)
 
-let real_eq_of_zero_diff _ _ _ _ =
+let real_eq_of_zero_diff _ _ _ _ _ =
   ExistT (O, (fun _ _ -> Id_refl))
 
 (** val real_plus_comm : real -> real -> real_eq **)
 
 let real_plus_comm x y =
-  real_eq_of_zero_diff (real_plus x y) (real_plus y x)
+  real_eq_of_zero_diff (real_plus x y) (real_plus y x) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus x y) n) (projT1 (real_plus y x) n)) { qnum =
+      Z0; qden = XH })
 
 (** val real_plus_zero : real -> real_eq **)
 
 let real_plus_zero x =
-  real_eq_of_zero_diff (real_plus x real_zero) x
+  real_eq_of_zero_diff (real_plus x real_zero) x (fun n ->
+    qeq_imp_qeqT (qminus (projT1 (real_plus x real_zero) n) (projT1 x n))
+      { qnum = Z0; qden = XH })
 
 (** val real_plus_opp : real -> real_eq **)
 
 let real_plus_opp x =
-  real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero
+  real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus x (real_opp x)) n) (projT1 real_zero n))
+      { qnum = Z0; qden = XH })
 
 (** val real_mult_comm : real -> real -> real_eq **)
 
 let real_mult_comm x y =
-  real_eq_of_zero_diff (real_mult x y) (real_mult y x)
+  real_eq_of_zero_diff (real_mult x y) (real_mult y x) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x y) n) (projT1 (real_mult y x) n)) { qnum =
+      Z0; qden = XH })
 
 (** val real_mult_assoc : real -> real -> real -> real_eq **)
 
 let real_mult_assoc x y z0 =
   real_eq_of_zero_diff (real_mult x (real_mult y z0))
-    (real_mult (real_mult x y) z0)
+    (real_mult (real_mult x y) z0) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_mult x (real_mult y z0)) n)
+        (projT1 (real_mult (real_mult x y) z0) n))
+      { qnum = Z0; qden = XH })
 
 (** val real_mult_one : real -> real_eq **)
 
 let real_mult_one x =
-  real_eq_of_zero_diff (real_mult x real_one) x
+  real_eq_of_zero_diff (real_mult x real_one) x (fun n ->
+    qeq_imp_qeqT (qminus (projT1 (real_mult x real_one) n) (projT1 x n))
+      { qnum = Z0; qden = XH })
 
 (** val real_lt_eq_lt :
     real -> real -> real -> real_lt -> real_eq -> real_lt **)
@@ -945,14 +990,14 @@ let real_eq_lt_lt x _ z0 hxy = function
 
 let real_le_trans x y z0 hxy hyz =
   match hxy with
-  | Inl r ->
+  | Inl hlt ->
     (match hyz with
-     | Inl r0 -> Inl (real_lt_trans x y z0 r r0)
-     | Inr r0 -> Inl (real_lt_eq_lt x y z0 r r0))
-  | Inr r ->
+     | Inl hlt' -> Inl (real_lt_trans x y z0 hlt hlt')
+     | Inr heq' -> Inl (real_lt_eq_lt x y z0 hlt heq'))
+  | Inr heq ->
     (match hyz with
-     | Inl r0 -> Inl (real_eq_lt_lt x y z0 r r0)
-     | Inr r0 -> Inr (real_eq_trans x y z0 r r0))
+     | Inl hlt' -> Inl (real_eq_lt_lt x y z0 heq hlt')
+     | Inr heq' -> Inr (real_eq_trans x y z0 heq heq'))
 
 (** val real_lt_le_iff : real -> real -> (real_lt, real id) or0 -> real_le **)
 
@@ -1009,10 +1054,17 @@ let arch_decay c eps _ _ =
         (S (Coq_Pos.to_nat s))))
     eps))
 
-(** val exp_partial_cauchy :
-    q -> q -> (nat, nat -> nat -> __ -> __ -> qltT) sigT **)
+(** val q_pow_fact2_nonneg : q -> nat -> qleT' -> qleT' **)
 
-let exp_partial_cauchy x eps =
+let q_pow_fact2_nonneg a m _ =
+  qle_to_QleT' { qnum = Z0; qden = XH }
+    (qmult (qdiv (q_pow a m) (q_fact m))
+      (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden = XH }))
+
+(** val exp_partial_cauchy :
+    q -> q -> qltT -> (nat, nat -> nat -> natLe -> natLe -> qltT) sigT **)
+
+let exp_partial_cauchy x eps hep =
   let a = qabs x in
   let s = q_arch_geom a in
   let ExistT (x0, _) = s in
@@ -1020,10 +1072,9 @@ let exp_partial_cauchy x eps =
     qmult (qdiv (q_pow a x0) (q_fact x0))
       (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden = XH })
   in
-  let s0 =
-    arch_decay c eps (qle_to_QleT' { qnum = Z0; qden = XH } c)
-      (qlt_to_QltT { qnum = Z0; qden = XH } eps)
+  let hC = q_pow_fact2_nonneg a x0 (qle_to_QleT' { qnum = Z0; qden = XH } a)
   in
+  let s0 = arch_decay c eps hC hep in
   let ExistT (x1, _) = s0 in
   ExistT ((add x0 (S x1)), (fun m n _ _ ->
   qlt_to_QltT (qabs (qminus (exp_partial m x) (exp_partial n x))) eps))
@@ -1066,6 +1117,13 @@ let exp_series_arch b _ =
   ExistT (c, (Pair ((qle_to_QleT' { qnum = (Zpos XH); qden = XH } c),
   (fun n -> qle_to_QleT' (exp_series n b) c))))
 
+(** val exp_partial_lipschitz :
+    q -> q -> q -> nat -> qleT' -> qleT' -> qleT' -> qleT' **)
+
+let exp_partial_lipschitz x y b m _ _ _ =
+  qle_to_QleT' (qabs (qminus (exp_partial m x) (exp_partial m y)))
+    (qmult (qabs (qminus x y)) (exp_series m b))
+
 (** val cauchy_real_exp : real -> real **)
 
 let cauchy_real_exp = function
@@ -1104,6 +1162,11 @@ let cauchy_real_exp = function
         (qplus (qminus (exp_partial m (x0 m)) (exp_partial m (x0 n)))
           (qminus (exp_partial m (x0 n)) (exp_partial n (x0 n)))))
       (qabs (qminus (exp_partial m (x0 m)) (exp_partial n (x0 n)))) eps
+      (qeq_imp_qeqT
+        (qabs
+          (qplus (qminus (exp_partial m (x0 m)) (exp_partial m (x0 n)))
+            (qminus (exp_partial m (x0 n)) (exp_partial n (x0 n)))))
+        (qabs (qminus (exp_partial m (x0 m)) (exp_partial n (x0 n)))))
       (let htriT =
          qle_to_QleT'
            (qabs
@@ -1118,9 +1181,8 @@ let cauchy_real_exp = function
            (qabs (qminus (exp_partial m (x0 m)) (exp_partial m (x0 n))))
            (qmult (qabs (qminus (x0 m) (x0 n))) (exp_series m x1))
            (qmult (qabs (qminus (x0 m) (x0 n))) x2)
-           (qle_to_QleT'
-             (qabs (qminus (exp_partial m (x0 m)) (exp_partial m (x0 n))))
-             (qmult (qabs (qminus (x0 m) (x0 n))) (exp_series m x1)))
+           (exp_partial_lipschitz (x0 m) (x0 n) x1 m
+             (qltT_leT' { qnum = Z0; qden = XH } x1 q0) (q1 m) (q1 n))
            (qleT'_mult_compat_l (exp_series m x1) x2
              (qabs (qminus (x0 m) (x0 n)))
              (qabs_nonnegT (qminus (x0 m) (x0 n))) (q3 m))
@@ -1137,7 +1199,12 @@ let cauchy_real_exp = function
            (qeq_leT'
              (qmult
                (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } x2)) x2)
-             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
+             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+             (qeq_imp_qeqT
+               (qmult
+                 (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } x2))
+                 x2)
+               (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })))
        in
        qleT'_ltT_ltT
          (qabs
@@ -1179,7 +1246,11 @@ let cauchy_real_exp = function
            (qeq_leT'
              (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
                (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
-             eps)))))))
+             eps
+             (qeq_imp_qeqT
+               (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+                 (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
+               eps))))))))
 
 (** val cauchy_real_exp_zero : real_eq **)
 
@@ -1201,9 +1272,9 @@ let rec sum_upto n f =
   | S n' -> qplus (sum_upto n' f) (f n')
 
 (** val exp_partial_tail_small :
-    q -> q -> qleT' -> qleT' -> (nat, __) sigT **)
+    q -> q -> qleT' -> qleT' -> (nat, nat -> natLe -> qltT) sigT **)
 
-let exp_partial_tail_small m c _ _ =
+let exp_partial_tail_small m c hM _ =
   let s = q_arch_geom m in
   let ExistT (x, _) = s in
   let s0 =
@@ -1211,15 +1282,17 @@ let exp_partial_tail_small m c _ _ =
       (qmult (qdiv (q_pow m x) (q_fact x))
         (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden =
           XH }))
-      (qdiv { qnum = (Zpos XH); qden = XH } c)
-      (qle_to_QleT' { qnum = Z0; qden = XH }
-        (qmult (qdiv (q_pow m x) (q_fact x))
-          (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden =
-            XH })))
+      (qdiv { qnum = (Zpos XH); qden = XH } c) (q_pow_fact2_nonneg m x hM)
       (qlt_to_QltT { qnum = Z0; qden = XH }
         (qdiv { qnum = (Zpos XH); qden = XH } c))
   in
-  let ExistT (x0, _) = s0 in ExistT ((add x (S x0)), __)
+  let ExistT (x0, _) = s0 in
+  ExistT ((add x (S x0)), (fun m0 _ ->
+  qlt_to_QltT
+    (qdiv (q_pow m (add (mul (S (S O)) m0) (S O)))
+      (q_fact (add (mul (S (S O)) m0) (S O))))
+    (qdiv { qnum = (Zpos XH); qden = XH }
+      (qmult { qnum = (Zpos (XO XH)); qden = XH } c))))
 
 (** val cauchy_real_exp_pos : real -> real_lt **)
 
@@ -1252,6 +1325,8 @@ let cauchy_real_exp_pos = function
     (exp_partial n (x0 n))
     (qdiv { qnum = (Zpos XH); qden = XH }
       (qmult { qnum = (Zpos (XO XH)); qden = XH } x2))
+    (qeq_imp_qeqT (qminus (exp_partial n (x0 n)) { qnum = Z0; qden = XH })
+      (exp_partial n (x0 n)))
     (qlt_to_QltT
       (qdiv { qnum = (Zpos XH); qden = XH }
         (qmult { qnum = (Zpos (XO XH)); qden = XH } x2))
@@ -1383,6 +1458,11 @@ module RealSetoid =
           (qmult (projT1 c k) (projT1 d k))))
       (qabs (qminus (projT1 (real_mult a b) k) (projT1 (real_mult c d) k)))
       eps
+      (qeq_imp_qeqT
+        (qabs
+          (qminus (qmult (projT1 a k) (projT1 b k))
+            (qmult (projT1 c k) (projT1 d k))))
+        (qabs (qminus (projT1 (real_mult a b) k) (projT1 (real_mult c d) k))))
       (let hbdT =
          qle_to_QleT'
            (qabs
@@ -1420,12 +1500,20 @@ module RealSetoid =
            (qmult mupos
              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
            (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+           (qeq_imp_qeqT
+             (qmult mupos
+               (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mupos)))
+             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
        in
        let ht2bT =
          qeq_leT'
            (qmult mvpos
              (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos)))
            (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+           (qeq_imp_qeqT
+             (qmult mvpos
+               (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } mvpos)))
+             (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
        in
        let ht1T' =
          qltT_leT'_ltT
@@ -1472,12 +1560,16 @@ module RealSetoid =
            (qeq_leT'
              (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
                (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
-             eps)))))
+             eps
+             (qeq_imp_qeqT
+               (qplus (qdiv eps { qnum = (Zpos (XO XH)); qden = XH })
+                 (qdiv eps { qnum = (Zpos (XO XH)); qden = XH }))
+               eps))))))
  end
 
 (** val exp_trunc_arch_seq :
     (nat -> q) -> (nat -> q) -> q -> q -> qleT' -> (nat -> qleT') -> (nat ->
-    qleT') -> qltT -> (nat, nat -> __ -> qltT) sigT **)
+    qleT') -> qltT -> (nat, nat -> natLe -> qltT) sigT **)
 
 let exp_trunc_arch_seq u v b eps hB _ _ _ =
   let s = exp_series_arch b hB in
@@ -1490,10 +1582,7 @@ let exp_trunc_arch_seq u v b eps hB _ _ _ =
         (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden =
           XH }))
       (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } x))
-      (qle_to_QleT' { qnum = Z0; qden = XH }
-        (qmult (qdiv (q_pow b x0) (q_fact x0))
-          (qplus { qnum = (Zpos XH); qden = XH } { qnum = (Zpos XH); qden =
-            XH })))
+      (q_pow_fact2_nonneg b x0 hB)
       (qlt_to_QltT { qnum = Z0; qden = XH }
         (qdiv eps (qmult { qnum = (Zpos (XO XH)); qden = XH } x)))
   in
@@ -1535,7 +1624,8 @@ let cauchy_real_exp_plus x y eps heps =
       (qleT'_trans x3 (qplus x3 x2) (qplus x2 x3)
         (qleT'_plus_nonneg_rT x3 x2
           (qltT_leT' { qnum = Z0; qden = XH } x2 q0))
-        (qle_to_QleT' (qplus x3 x2) (qplus x2 x3)))
+        (qeq_le (qplus x3 x2) (qplus x2 x3)
+          (qeq_imp_qeqT (qplus x3 x2) (qplus x2 x3))))
   in
   let heps3T =
     qltT_div_pos eps { qnum = (Zpos (XI XH)); qden = XH } heps qltT_0_3
@@ -1656,7 +1746,11 @@ let cauchy_real_exp_wd a b hab eps heps =
 
 let real_mult_minus_factor a b =
   real_eq_of_zero_diff (real_plus (real_mult a b) (real_opp a))
-    (real_mult a (real_plus b (real_opp real_one)))
+    (real_mult a (real_plus b (real_opp real_one))) (fun n ->
+    qeq_imp_qeqT
+      (qminus (projT1 (real_plus (real_mult a b) (real_opp a)) n)
+        (projT1 (real_mult a (real_plus b (real_opp real_one))) n))
+      { qnum = Z0; qden = XH })
 
 (** val cauchy_real_exp_mono : real -> real -> real_lt -> real_lt **)
 
@@ -1670,7 +1764,12 @@ let cauchy_real_exp_mono x y hxy =
         (real_opp real_one))
       (cauchy_real_exp_pos x) hminus
   in
-  let hxyeq = real_eq_of_zero_diff y (real_plus x (real_plus y (real_opp x)))
+  let hxyeq =
+    real_eq_of_zero_diff y (real_plus x (real_plus y (real_opp x))) (fun n ->
+      qeq_imp_qeqT
+        (qminus (projT1 y n)
+          (projT1 (real_plus x (real_plus y (real_opp x))) n))
+        { qnum = Z0; qden = XH })
   in
   let hewd =
     cauchy_real_exp_wd y (real_plus x (real_plus y (real_opp x))) hxyeq
@@ -1722,14 +1821,15 @@ let cauchy_real_exp_mono x y hxy =
   qlt_to_QltT x0
     (qminus (projT1 (cauchy_real_exp y) n) (projT1 (cauchy_real_exp x) n))))))))
 
-(** val real_arch : real -> (nat, (__, real_lt) and0) sigT **)
+(** val real_arch : real -> (nat, (natLe, real_lt) and0) sigT **)
 
 let real_arch b =
   let s = real_norm_bounded b in
   let ExistT (x, _) = s in
   let s0 = q_arch_geom x in
   let ExistT (x0, _) = s0 in
-  ExistT ((add x0 (S (S O))), (Pair (__, (ExistT
+  ExistT ((add x0 (S (S O))), (Pair
+  ((natLe_lift (S (S O)) (add x0 (S (S O)))), (ExistT
   ((qdiv (qminus { qnum = (Z.of_nat (add x0 (S (S O)))); qden = XH } x)
      { qnum = (Zpos (XO XH)); qden = XH }),
   (Pair
@@ -1764,6 +1864,16 @@ let cauchy_real_exp_gt_const n =
           (cauchy_real_exp (real_const { qnum = (Z.of_nat n); qden = XH }))
           n0)
         (projT1 (real_const { qnum = (Z.of_nat n); qden = XH }) n0))))))))
+
+(** val log_mid_lt_b : q -> q -> qltT -> qltT **)
+
+let log_mid_lt_b a b _ =
+  qlt_to_QltT (qdiv (qplus a b) { qnum = (Zpos (XO XH)); qden = XH }) b
+
+(** val log_a_lt_mid : q -> q -> qltT -> qltT **)
+
+let log_a_lt_mid a b _ =
+  qlt_to_QltT a (qdiv (qplus a b) { qnum = (Zpos (XO XH)); qden = XH })
 
 (** val real_abs_diff_le_lift : real -> real -> q -> q -> nat -> real_lt **)
 
@@ -1824,7 +1934,12 @@ let exp_neg_recip x hx =
       (real_eq_trans (cauchy_real_exp (real_plus x (real_opp x)))
         (cauchy_real_exp real_zero) real_one
         (cauchy_real_exp_wd (real_plus x (real_opp x)) real_zero
-          (real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero))
+          (real_eq_of_zero_diff (real_plus x (real_opp x)) real_zero
+            (fun n ->
+            qeq_imp_qeqT
+              (qminus (projT1 (real_plus x (real_opp x)) n)
+                (projT1 real_zero n))
+              { qnum = Z0; qden = XH })))
         cauchy_real_exp_zero))
     (real_inv_pos_correct (cauchy_real_exp x) hx)
 
@@ -1864,30 +1979,35 @@ let real_inv_lt_contra a b ha hb hab =
       (projT1 (real_inv_pos b (ExistT (x1, (Pair (q2, (ExistT (x2, q3)))))))
         n))))))))
 
-(** val q_eps16_posT : q -> qltT **)
+(** val q_eps16_pos : q -> qltT -> qltT **)
 
-let q_eps16_posT eps =
+let q_eps16_pos eps _ =
   qlt_to_QltT { qnum = Z0; qden = XH }
     (qdiv eps { qnum = (Zpos (XO (XO (XO (XO XH))))); qden = XH })
 
-(** val log_testA_eps : real -> q -> q -> q -> bool **)
+(** val q_eps16_posT : q -> qltT -> qltT **)
 
-let log_testA_eps y a b eps =
+let q_eps16_posT =
+  q_eps16_pos
+
+(** val log_testA_eps : real -> q -> q -> qltT -> q -> qltT -> bool **)
+
+let log_testA_eps y a b _ eps heps =
   let m = qdiv (qplus a b) { qnum = (Zpos (XO XH)); qden = XH } in
   let d4 = qdiv eps { qnum = (Zpos (XO (XO (XO (XO XH))))); qden = XH } in
-  let k1 = projT1 (exp_partial_cauchy m d4) in
-  let k2 = projT1 (projT2 y d4 (q_eps16_posT eps)) in
+  let k1 = projT1 (exp_partial_cauchy m d4 (q_eps16_posT eps heps)) in
+  let k2 = projT1 (projT2 y d4 (q_eps16_posT eps heps)) in
   qlt_bool
     (qplus (exp_partial k1 m) (qmult { qnum = (Zpos (XO XH)); qden = XH } d4))
     (projT1 y k2)
 
-(** val log_testB_eps : real -> q -> q -> q -> bool **)
+(** val log_testB_eps : real -> q -> q -> qltT -> q -> qltT -> bool **)
 
-let log_testB_eps y a b eps =
+let log_testB_eps y a b _ eps heps =
   let m = qdiv (qplus a b) { qnum = (Zpos (XO XH)); qden = XH } in
   let d4 = qdiv eps { qnum = (Zpos (XO (XO (XO (XO XH))))); qden = XH } in
-  let k1 = projT1 (exp_partial_cauchy m d4) in
-  let k2 = projT1 (projT2 y d4 (q_eps16_posT eps)) in
+  let k1 = projT1 (exp_partial_cauchy m d4 (q_eps16_posT eps heps)) in
+  let k2 = projT1 (projT2 y d4 (q_eps16_posT eps heps)) in
   qlt_bool
     (qplus (projT1 y k2) (qmult { qnum = (Zpos (XO XH)); qden = XH } d4))
     (exp_partial k1 m)
@@ -1902,34 +2022,37 @@ let log_m_eps a b =
 let log_d4_eps eps =
   qdiv eps { qnum = (Zpos (XO (XO (XO (XO XH))))); qden = XH }
 
-(** val log_K1_eps : q -> q -> q -> nat **)
+(** val log_K1_eps : q -> q -> qltT -> q -> qltT -> nat **)
 
-let log_K1_eps a b eps =
-  projT1 (exp_partial_cauchy (log_m_eps a b) (log_d4_eps eps))
+let log_K1_eps a b _ eps heps =
+  projT1
+    (exp_partial_cauchy (log_m_eps a b) (log_d4_eps eps)
+      (q_eps16_posT eps heps))
 
-(** val log_K2_eps : real -> q -> q -> q -> nat **)
+(** val log_K2_eps : real -> q -> q -> qltT -> q -> qltT -> nat **)
 
-let log_K2_eps y _ _ eps =
-  projT1 (projT2 y (log_d4_eps eps) (q_eps16_posT eps))
+let log_K2_eps y _ _ _ eps heps =
+  projT1 (projT2 y (log_d4_eps eps) (q_eps16_posT eps heps))
 
-(** val log_q_eps : q -> q -> q -> q **)
+(** val log_q_eps : q -> q -> qltT -> q -> qltT -> q **)
 
-let log_q_eps a b eps =
-  exp_partial (log_K1_eps a b eps) (log_m_eps a b)
+let log_q_eps a b hab eps heps =
+  exp_partial (log_K1_eps a b hab eps heps) (log_m_eps a b)
 
-(** val log_r_eps : real -> q -> q -> q -> q **)
+(** val log_r_eps : real -> q -> q -> qltT -> q -> qltT -> q **)
 
-let log_r_eps y a b eps =
-  projT1 y (log_K2_eps y a b eps)
+let log_r_eps y a b hab eps heps =
+  projT1 y (log_K2_eps y a b hab eps heps)
 
-(** val log_testA_eps_true_lt : real -> q -> q -> q -> real_lt **)
+(** val log_testA_eps_true_lt :
+    real -> q -> q -> qltT -> q -> qltT -> real_lt **)
 
-let log_testA_eps_true_lt y a b eps =
+let log_testA_eps_true_lt y a b hab eps heps =
   let d4 = log_d4_eps eps in
-  let k1 = log_K1_eps a b eps in
-  let k2 = log_K2_eps y a b eps in
-  let q0 = log_q_eps a b eps in
-  let r = log_r_eps y a b eps in
+  let k1 = log_K1_eps a b hab eps heps in
+  let k2 = log_K2_eps y a b hab eps heps in
+  let q0 = log_q_eps a b hab eps heps in
+  let r = log_r_eps y a b hab eps heps in
   let heps4 =
     qlt_to_QltT { qnum = Z0; qden = XH }
       (qminus (qminus r q0) (qmult { qnum = (Zpos (XO XH)); qden = XH } d4))
@@ -1942,14 +2065,15 @@ let log_testA_eps_true_lt y a b eps =
     (qminus (projT1 y n)
       (projT1 (cauchy_real_exp (real_const (log_m_eps a b))) n))))))))
 
-(** val log_testB_eps_true_gt : real -> q -> q -> q -> real_lt **)
+(** val log_testB_eps_true_gt :
+    real -> q -> q -> qltT -> q -> qltT -> real_lt **)
 
-let log_testB_eps_true_gt y a b eps =
+let log_testB_eps_true_gt y a b hab eps heps =
   let d4 = log_d4_eps eps in
-  let k1 = log_K1_eps a b eps in
-  let k2 = log_K2_eps y a b eps in
-  let q0 = log_q_eps a b eps in
-  let r = log_r_eps y a b eps in
+  let k1 = log_K1_eps a b hab eps heps in
+  let k2 = log_K2_eps y a b hab eps heps in
+  let q0 = log_q_eps a b hab eps heps in
+  let r = log_r_eps y a b hab eps heps in
   let heps4 =
     qlt_to_QltT { qnum = Z0; qden = XH }
       (qminus (qminus q0 r) (qmult { qnum = (Zpos (XO XH)); qden = XH } d4))
@@ -1962,36 +2086,51 @@ let log_testB_eps_true_gt y a b eps =
     (qminus (projT1 (cauchy_real_exp (real_const (log_m_eps a b))) n)
       (projT1 y n))))))))
 
-(** val log_scan :
-    real -> q -> q -> q -> nat -> (((q, q) prod, qltT) sigT, bool) prod **)
+(** val log_test_mid_bound_eps :
+    real -> q -> q -> qltT -> q -> qltT -> nat -> qleT' **)
 
-let rec log_scan y a b eps = function
-| O -> Pair ((ExistT ((Pair (a, b)), (qlt_to_QltT a b))), True)
+let log_test_mid_bound_eps y a b _ eps _ n =
+  qle_to_QleT'
+    (qabs
+      (qminus (projT1 (cauchy_real_exp (real_const (log_m_eps a b))) n)
+        (projT1 y n)))
+    (qmult { qnum = (Zpos (XO (XO XH))); qden = XH } (log_d4_eps eps))
+
+(** val log_scan :
+    real -> q -> q -> qltT -> q -> qltT -> nat -> (((q, q) prod, qltT) sigT,
+    bool) prod **)
+
+let rec log_scan y a b hab eps heps = function
+| O -> Pair ((ExistT ((Pair (a, b)), hab)), True)
 | S n' ->
   let m = log_m_eps a b in
-  (match log_testA_eps y a b eps with
-   | True -> log_scan y m b eps n'
+  (match log_testA_eps y a b hab eps heps with
+   | True -> log_scan y m b (log_mid_lt_b a b hab) eps heps n'
    | False ->
-     (match log_testB_eps y a b eps with
-      | True -> log_scan y a m eps n'
-      | False -> Pair ((ExistT ((Pair (a, b)), (qlt_to_QltT a b))), False)))
+     (match log_testB_eps y a b hab eps heps with
+      | True -> log_scan y a m (log_a_lt_mid a b hab) eps heps n'
+      | False -> Pair ((ExistT ((Pair (a, b)), hab)), False)))
 
 (** val log_scan_spec :
-    real -> q -> q -> q -> nat -> real_lt -> real_lt -> ((bool id, (real_lt,
-    (real_lt, qeqT) and0) and0) and0, (bool id, nat -> __ -> qleT') and0) or0 **)
+    real -> q -> q -> qltT -> q -> qltT -> nat -> real_lt -> real_lt ->
+    ((bool id, (real_lt, (real_lt, qeqT) and0) and0) and0, (bool id, nat ->
+    __ -> qleT') and0) or0 **)
 
-let rec log_scan_spec y a b eps n hla hrb =
+let rec log_scan_spec y a b hab eps heps n hla hrb =
   match n with
   | O ->
     Inl (Pair (Id_refl, (Pair (hla, (Pair (hrb,
       (qeq_imp_qeqT (qminus b a)
         (qmult (qminus b a) { qnum = (Zpos XH); qden = XH }))))))))
   | S n0 ->
-    let b0 = log_testA_eps y a b eps in
+    let b0 = log_testA_eps y a b hab eps heps in
     (match b0 with
      | True ->
-       let hmb = log_testA_eps_true_lt y a b eps in
-       let hIH = log_scan_spec y (log_m_eps a b) b eps n0 hmb hrb in
+       let hmb = log_testA_eps_true_lt y a b hab eps heps in
+       let hIH =
+         log_scan_spec y (log_m_eps a b) b (log_mid_lt_b a b hab) eps heps n0
+           hmb hrb
+       in
        (match hIH with
         | Inl a0 ->
           Inl
@@ -2001,8 +2140,16 @@ let rec log_scan_spec y a b eps n hla hrb =
              Pair (i, (Pair (r, (Pair (r0,
              (qeq_imp_qeqT
                (qminus
-                 (snd (projT1 (fst (log_scan y (log_m_eps a b) b eps n0))))
-                 (fst (projT1 (fst (log_scan y (log_m_eps a b) b eps n0)))))
+                 (snd
+                   (projT1
+                     (fst
+                       (log_scan y (log_m_eps a b) b (log_mid_lt_b a b hab)
+                         eps heps n0))))
+                 (fst
+                   (projT1
+                     (fst
+                       (log_scan y (log_m_eps a b) b (log_mid_lt_b a b hab)
+                         eps heps n0)))))
                (qmult (qminus b a)
                  (q_pow
                    (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos (XO
@@ -2010,11 +2157,14 @@ let rec log_scan_spec y a b eps n hla hrb =
                    (S n0))))))))))
         | Inr a0 -> Inr a0)
      | False ->
-       let b1 = log_testB_eps y a b eps in
+       let b1 = log_testB_eps y a b hab eps heps in
        (match b1 with
         | True ->
-          let ham = log_testB_eps_true_gt y a b eps in
-          let hIH = log_scan_spec y a (log_m_eps a b) eps n0 hla ham in
+          let ham = log_testB_eps_true_gt y a b hab eps heps in
+          let hIH =
+            log_scan_spec y a (log_m_eps a b) (log_a_lt_mid a b hab) eps heps
+              n0 hla ham
+          in
           (match hIH with
            | Inl a0 ->
              Inl
@@ -2024,8 +2174,16 @@ let rec log_scan_spec y a b eps n hla hrb =
                 Pair (i, (Pair (r, (Pair (r0,
                 (qeq_imp_qeqT
                   (qminus
-                    (snd (projT1 (fst (log_scan y a (log_m_eps a b) eps n0))))
-                    (fst (projT1 (fst (log_scan y a (log_m_eps a b) eps n0)))))
+                    (snd
+                      (projT1
+                        (fst
+                          (log_scan y a (log_m_eps a b)
+                            (log_a_lt_mid a b hab) eps heps n0))))
+                    (fst
+                      (projT1
+                        (fst
+                          (log_scan y a (log_m_eps a b)
+                            (log_a_lt_mid a b hab) eps heps n0)))))
                   (qmult (qminus b a)
                     (q_pow
                       (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos
@@ -2034,27 +2192,9 @@ let rec log_scan_spec y a b eps n hla hrb =
            | Inr a0 -> Inr a0)
         | False ->
           Inr (Pair (Id_refl, (fun k _ ->
-            qle_to_QleT'
-              (qabs
-                (qminus
-                  (projT1
-                    (cauchy_real_exp
-                      (real_const
-                        (log_m_eps
-                          (fst
-                            (projT1
-                              (fst (Pair ((ExistT ((Pair (a, b)),
-                                (qlt_to_QltT a b))), False)))))
-                          (snd
-                            (projT1
-                              (fst (Pair ((ExistT ((Pair (a, b)),
-                                (qlt_to_QltT a b))), False))))))))
-                    k)
-                  (projT1 y k)))
-              (qmult { qnum = (Zpos (XO (XO XH))); qden = XH }
-                (log_d4_eps eps)))))))
+            log_test_mid_bound_eps y a b hab eps heps k)))))
 
-(** val exp_lower_q : real -> real_lt -> (nat, (__, real_lt) and0) sigT **)
+(** val exp_lower_q : real -> real_lt -> (nat, (natLe, real_lt) and0) sigT **)
 
 let exp_lower_q y = function
 | ExistT (x, a) ->
@@ -2070,7 +2210,7 @@ let exp_lower_q y = function
     real_arch (real_const (qdiv { qnum = (Zpos (XO XH)); qden = XH } x))
   in
   let ExistT (x1, a0) = s0 in
-  let Pair (_, r) = a0 in
+  let Pair (n, r) = a0 in
   let hexpN =
     real_lt_trans (real_const (qdiv { qnum = (Zpos (XO XH)); qden = XH } x))
       (real_const { qnum = (Z.of_nat x1); qden = XH })
@@ -2080,7 +2220,7 @@ let exp_lower_q y = function
   let hexpNpos =
     cauchy_real_exp_pos (real_const { qnum = (Z.of_nat x1); qden = XH })
   in
-  ExistT (x1, (Pair (__,
+  ExistT (x1, (Pair (n,
   (real_eq_lt_lt
     (cauchy_real_exp (real_const (qopp { qnum = (Z.of_nat x1); qden = XH })))
     (cauchy_real_exp
@@ -2091,7 +2231,15 @@ let exp_lower_q y = function
       (real_opp (real_const { qnum = (Z.of_nat x1); qden = XH }))
       (real_eq_of_zero_diff
         (real_const (qopp { qnum = (Z.of_nat x1); qden = XH }))
-        (real_opp (real_const { qnum = (Z.of_nat x1); qden = XH }))))
+        (real_opp (real_const { qnum = (Z.of_nat x1); qden = XH }))
+        (fun n0 ->
+        qeq_imp_qeqT
+          (qminus
+            (projT1 (real_const (qopp { qnum = (Z.of_nat x1); qden = XH }))
+              n0)
+            (projT1
+              (real_opp (real_const { qnum = (Z.of_nat x1); qden = XH })) n0))
+          { qnum = Z0; qden = XH })))
     (real_lt_trans
       (cauchy_real_exp
         (real_opp (real_const { qnum = (Z.of_nat x1); qden = XH })))
@@ -2127,23 +2275,32 @@ let exp_lower_q y = function
             (real_mult
               (real_const (qdiv { qnum = (Zpos (XO XH)); qden = XH } x))
               (real_const (qdiv x { qnum = (Zpos (XO XH)); qden = XH })))
-            real_one))
+            real_one (fun n0 ->
+            qeq_imp_qeqT
+              (qminus
+                (projT1
+                  (real_mult
+                    (real_const (qdiv { qnum = (Zpos (XO XH)); qden = XH } x))
+                    (real_const (qdiv x { qnum = (Zpos (XO XH)); qden = XH })))
+                  n0)
+                (projT1 real_one n0))
+              { qnum = Z0; qden = XH })))
         (ExistT ((qdiv x { qnum = (Zpos (XO XH)); qden = XH }), (Pair
         ((qlt_to_QltT { qnum = Z0; qden = XH }
            (qdiv x { qnum = (Zpos (XO XH)); qden = XH })),
-        (ExistT (x0, (fun n _ ->
+        (ExistT (x0, (fun n0 _ ->
         qlt_to_QltT (qdiv x { qnum = (Zpos (XO XH)); qden = XH })
-          (qminus (projT1 y n)
+          (qminus (projT1 y n0)
             (projT1
-              (real_const (qdiv x { qnum = (Zpos (XO XH)); qden = XH })) n)))))))))))))))
+              (real_const (qdiv x { qnum = (Zpos (XO XH)); qden = XH })) n0)))))))))))))))
 
-(** val exp_upper_q : real -> real_lt -> (nat, (__, real_lt) and0) sigT **)
+(** val exp_upper_q : real -> real_lt -> (nat, (natLe, real_lt) and0) sigT **)
 
 let exp_upper_q y _ =
   let s = real_arch y in
   let ExistT (x, a) = s in
-  let Pair (_, r) = a in
-  ExistT (x, (Pair (__,
+  let Pair (n, r) = a in
+  ExistT (x, (Pair (n,
   (real_lt_trans y (real_const { qnum = (Z.of_nat x); qden = XH })
     (cauchy_real_exp (real_const { qnum = (Z.of_nat x); qden = XH })) r
     (cauchy_real_exp_gt_const x)))))
@@ -2158,18 +2315,21 @@ let log_lower y hy =
 let log_upper y hy =
   { qnum = (Z.of_nat (projT1 (exp_upper_q y hy))); qden = XH }
 
-(** val q_pow_arch : q -> q -> (nat, __) sigT **)
+(** val q_neg_nat_lt_nat : nat -> nat -> qltT **)
 
-let q_pow_arch d eps =
-  let s =
-    arch_decay d eps (qle_to_QleT' { qnum = Z0; qden = XH } d)
-      (qlt_to_QltT { qnum = Z0; qden = XH } eps)
-  in
-  let ExistT (x, _) = s in ExistT ((S x), __)
+let q_neg_nat_lt_nat na nb =
+  qlt_to_QltT (qopp { qnum = (Z.of_nat na); qden = XH }) { qnum =
+    (Z.of_nat nb); qden = XH }
 
-(** val real_const_lt : q -> q -> real_lt **)
+(** val q_pow_arch : q -> q -> qleT' -> qltT -> (nat, qltT) sigT **)
 
-let real_const_lt c d =
+let q_pow_arch d eps hD heps =
+  let s = arch_decay d eps hD heps in
+  let ExistT (x, q0) = s in ExistT ((S x), q0)
+
+(** val real_const_lt : q -> q -> qltT -> real_lt **)
+
+let real_const_lt c d _ =
   ExistT ((qdiv (qminus d c) { qnum = (Zpos (XO XH)); qden = XH }), (Pair
     ((qlt_to_QltT { qnum = Z0; qden = XH }
        (qdiv (qminus d c) { qnum = (Zpos (XO XH)); qden = XH })),
@@ -2177,25 +2337,35 @@ let real_const_lt c d =
     qlt_to_QltT (qdiv (qminus d c) { qnum = (Zpos (XO XH)); qden = XH })
       (qminus (projT1 (real_const d) n) (projT1 (real_const c) n))))))))
 
-(** val real_lt_pt_lt : real -> real -> real_lt -> (nat, __) sigT **)
+(** val real_lt_pt_lt :
+    real -> real -> real_lt -> (nat, nat -> natLe -> qltT) sigT **)
 
-let real_lt_pt_lt _ _ = function
+let real_lt_pt_lt x y = function
 | ExistT (_, a) ->
-  let Pair (_, s) = a in let ExistT (x, _) = s in ExistT (x, __)
+  let Pair (_, s) = a in
+  let ExistT (x0, _) = s in
+  ExistT (x0, (fun k _ -> qlt_to_QltT (projT1 x k) (projT1 y k)))
 
-(** val exp_const_lt : q -> q -> real_lt **)
+(** val log_mid_strict : q -> q -> qltT -> (qltT, qltT) and0 **)
 
-let exp_const_lt a b =
-  cauchy_real_exp_mono (real_const a) (real_const b) (real_const_lt a b)
+let log_mid_strict a b _ =
+  Pair ((qlt_to_QltT a (log_m_eps a b)), (qlt_to_QltT (log_m_eps a b) b))
+
+(** val exp_const_lt : q -> q -> qltT -> real_lt **)
+
+let exp_const_lt a b hab =
+  cauchy_real_exp_mono (real_const a) (real_const b) (real_const_lt a b hab)
 
 (** val approx_span_pt :
-    real -> q -> q -> q -> q -> real_lt -> real_lt -> (nat -> qleT') -> (nat,
-    __) sigT **)
+    real -> q -> q -> qltT -> q -> q -> real_lt -> real_lt -> qleT' -> qleT'
+    -> qleT' -> (nat -> qleT') -> (nat, nat -> natLe -> qleT') sigT **)
 
-let approx_span_pt y a b _ _ hla hrb _ =
+let approx_span_pt y a b haNbN _ c hla hrb _ _ _ _ =
   let m = log_m_eps a b in
-  let heam = exp_const_lt a (log_m_eps a b) in
-  let hemb = exp_const_lt (log_m_eps a b) b in
+  let a0 = log_mid_strict a b haNbN in
+  let Pair (q0, q1) = a0 in
+  let heam = exp_const_lt a (log_m_eps a b) q0 in
+  let hemb = exp_const_lt (log_m_eps a b) b q1 in
   let s = real_lt_pt_lt (cauchy_real_exp (real_const a)) y hla in
   let ExistT (x, _) = s in
   let s0 = real_lt_pt_lt y (cauchy_real_exp (real_const b)) hrb in
@@ -2210,20 +2380,44 @@ let approx_span_pt y a b _ _ hla hrb _ =
       (cauchy_real_exp (real_const b)) hemb
   in
   let ExistT (x2, _) = s2 in
-  ExistT ((Nat.max (Nat.max x x0) (Nat.max x1 x2)), __)
+  ExistT ((Nat.max (Nat.max x x0) (Nat.max x1 x2)), (fun k _ ->
+  let em = projT1 (cauchy_real_exp (real_const m)) k in
+  let yk = projT1 y k in
+  qle_to_QleT' (qabs (qminus em yk)) (qmult (qminus b a) c)))
 
-(** val real_abs_lift : q -> real -> q -> q -> nat -> real_lt **)
+(** val len_mul_D : q -> q -> q -> q -> q -> nat -> qeqT -> qeqT **)
 
-let real_abs_lift m y m0 _UU03b3_ n0 =
+let len_mul_D bN aN b0 a0 c n _ =
+  qeq_imp_qeqT (qmult (qminus bN aN) c)
+    (qmult (qmult (qminus b0 a0) c)
+      (q_pow
+        (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos (XO XH)); qden =
+          XH })
+        n))
+
+(** val real_abs_lift :
+    q -> real -> q -> q -> nat -> qltT -> (nat -> natLe -> qleT') -> real_lt **)
+
+let real_abs_lift m y m0 _UU03b3_ n0 _ _ =
   real_abs_diff_le_lift (cauchy_real_exp (real_const m)) y m0 _UU03b3_ n0
 
-(** val approx_def_test : real -> q -> q -> nat -> real_lt **)
+(** val approx_const_lt :
+    q -> q -> q -> q -> q -> q -> nat -> qltT -> qeqT -> qeqT -> qltT **)
 
-let approx_def_test y mN eps n0 =
+let approx_const_lt bN aN _ c _UU03b3_ eps _ _ _ _ =
+  qlt_to_QltT (qplus (qmult (qminus bN aN) c) _UU03b3_) eps
+
+(** val approx_def_test :
+    real -> q -> q -> qltT -> nat -> (nat -> natLe -> qleT') -> real_lt **)
+
+let approx_def_test y mN eps _ n0 hpt =
   let hlift =
     real_abs_lift mN y
       (qmult { qnum = (Zpos (XO (XO XH))); qden = XH } (log_d4_eps eps))
       (qdiv eps { qnum = (Zpos (XO (XO XH))); qden = XH }) n0
+      (qlt_to_QltT { qnum = Z0; qden = XH }
+        (qdiv eps { qnum = (Zpos (XO (XO XH))); qden = XH }))
+      hpt
   in
   real_lt_trans
     (real_abs (real_plus (cauchy_real_exp (real_const mN)) (real_opp y)))
@@ -2236,12 +2430,18 @@ let approx_def_test y mN eps n0 =
       (qplus
         (qmult { qnum = (Zpos (XO (XO XH))); qden = XH } (log_d4_eps eps))
         (qdiv eps { qnum = (Zpos (XO (XO XH))); qden = XH }))
-      eps)
+      eps
+      (qlt_to_QltT
+        (qplus
+          (qmult { qnum = (Zpos (XO (XO XH))); qden = XH } (log_d4_eps eps))
+          (qdiv eps { qnum = (Zpos (XO (XO XH))); qden = XH }))
+        eps))
 
 (** val approx_root :
-    real -> real_lt -> q -> (q, (qltT, (qltT, real_lt) and0) and0) sigT **)
+    real -> real_lt -> q -> qltT -> (q, (qltT, (qltT, real_lt) and0) and0)
+    sigT **)
 
-let approx_root y hy eps =
+let approx_root y hy eps heps =
   let s = exp_lower_q y hy in
   let ExistT (x, a) = s in
   let Pair (_, r) = a in
@@ -2250,25 +2450,30 @@ let approx_root y hy eps =
   let Pair (_, r0) = a0 in
   let a1 = qopp { qnum = (Z.of_nat x); qden = XH } in
   let b0 = { qnum = (Z.of_nat x0); qden = XH } in
+  let ha0b0 = q_neg_nat_lt_nat x x0 in
   let b = qplus (qabs a1) (qabs b0) in
   let s1 = exp_series_arch b (qle_to_QleT' { qnum = Z0; qden = XH } b) in
   let ExistT (x1, a2) = s1 in
   let Pair (_, q0) = a2 in
   let d = qmult (qminus b0 a1) x1 in
-  let s2 = q_pow_arch d eps in
-  let ExistT (x2, _) = s2 in
-  let o = log_scan_spec y a1 b0 eps x2 r r0 in
+  let s2 = q_pow_arch d eps (qle_to_QleT' { qnum = Z0; qden = XH } d) heps in
+  let ExistT (x2, q1) = s2 in
+  let o = log_scan_spec y a1 b0 ha0b0 eps heps x2 r r0 in
   (match o with
    | Inl a3 ->
      let Pair (_, a4) = a3 in
      let Pair (r1, a5) = a4 in
-     let Pair (r2, _) = a5 in
-     let abN = projT1 (fst (log_scan y a1 b0 eps x2)) in
+     let Pair (r2, q2) = a5 in
+     let abN = projT1 (fst (log_scan y a1 b0 ha0b0 eps heps x2)) in
      let aN = fst abN in
      let bN = snd abN in
      let mN = log_m_eps aN bN in
-     let s3 = approx_span_pt y aN bN b x1 r1 r2 q0 in
-     let ExistT (x3, _) = s3 in
+     let s3 =
+       approx_span_pt y aN bN (qlt_to_QltT aN bN) b x1 r1 r2
+         (qle_to_QleT' { qnum = Z0; qden = XH } b) (qle_to_QleT' (qabs aN) b)
+         (qle_to_QleT' (qabs bN) b) q0
+     in
+     let ExistT (x3, q3) = s3 in
      ExistT (mN, (Pair
      ((qlt_to_QltT (qopp { qnum = (Z.of_nat x); qden = XH }) mN), (Pair
      ((qlt_to_QltT mN { qnum = (Z.of_nat x0); qden = XH }),
@@ -2283,6 +2488,16 @@ let approx_root y hy eps =
                   x2)))
             { qnum = (Zpos (XO XH)); qden = XH })
           x3
+          (qlt_to_QltT { qnum = Z0; qden = XH }
+            (qdiv
+              (qminus eps
+                (qmult d
+                  (q_pow
+                    (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos (XO
+                      XH)); qden = XH })
+                    x2)))
+              { qnum = (Zpos (XO XH)); qden = XH }))
+          q3
       in
       real_lt_trans
         (real_abs (real_plus (cauchy_real_exp (real_const mN)) (real_opp y)))
@@ -2307,18 +2522,49 @@ let approx_root y hy eps =
                       XH)); qden = XH })
                     x2)))
               { qnum = (Zpos (XO XH)); qden = XH }))
-          eps)))))))
-   | Inr _ ->
-     let abN = projT1 (fst (log_scan y a1 b0 eps x2)) in
+          eps
+          (approx_const_lt bN aN d x1
+            (qdiv
+              (qminus eps
+                (qmult d
+                  (q_pow
+                    (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos (XO
+                      XH)); qden = XH })
+                    x2)))
+              { qnum = (Zpos (XO XH)); qden = XH })
+            eps x2 q1 (len_mul_D bN aN b0 a1 x1 x2 q2)
+            (qeq_imp_qeqT
+              (qdiv
+                (qminus eps
+                  (qmult d
+                    (q_pow
+                      (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos
+                        (XO XH)); qden = XH })
+                      x2)))
+                { qnum = (Zpos (XO XH)); qden = XH })
+              (qdiv
+                (qminus eps
+                  (qmult d
+                    (q_pow
+                      (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos
+                        (XO XH)); qden = XH })
+                      x2)))
+                { qnum = (Zpos (XO XH)); qden = XH }))))))))))
+   | Inr a3 ->
+     let Pair (_, q2) = a3 in
+     let abN = projT1 (fst (log_scan y a1 b0 ha0b0 eps heps x2)) in
      let mN = log_m_eps (fst abN) (snd abN) in
      let n0 =
-       Nat.max (log_K1_eps (fst abN) (snd abN) eps)
-         (log_K2_eps y (fst abN) (snd abN) eps)
+       Nat.max
+         (log_K1_eps (fst abN) (snd abN)
+           (projT2 (fst (log_scan y a1 b0 ha0b0 eps heps x2))) eps heps)
+         (log_K2_eps y (fst abN) (snd abN)
+           (projT2 (fst (log_scan y a1 b0 ha0b0 eps heps x2))) eps heps)
      in
      ExistT (mN, (Pair
      ((qlt_to_QltT (qopp { qnum = (Z.of_nat x); qden = XH }) mN), (Pair
      ((qlt_to_QltT mN { qnum = (Z.of_nat x0); qden = XH }),
-     (approx_def_test y mN eps n0)))))))
+     (let hptN0 = fun k _ -> q2 k __ in approx_def_test y mN eps heps n0 hptN0)))))))
 
 (** val log_eps : nat -> q **)
 
@@ -2328,34 +2574,50 @@ let log_eps n =
       XH })
     (S n)
 
+(** val log_eps_pos : nat -> qltT **)
+
+let log_eps_pos n =
+  qlt_to_QltT { qnum = Z0; qden = XH }
+    (q_pow
+      (qdiv { qnum = (Zpos XH); qden = XH } { qnum = (Zpos (XO XH)); qden =
+        XH })
+      (S n))
+
 (** val log_seq : real -> real_lt -> nat -> q **)
 
 let log_seq y hy n =
-  projT1 (approx_root y hy (log_eps n))
+  projT1 (approx_root y hy (log_eps n) (log_eps_pos n))
 
-(** val approx_root_pt_bound : real -> real_lt -> nat -> (nat, __) sigT **)
+(** val approx_root_pt_bound :
+    real -> real_lt -> nat -> (nat, nat -> natLe -> qltT) sigT **)
 
 let approx_root_pt_bound y hy n =
-  let s = approx_root y hy (log_eps n) in
+  let s = approx_root y hy (log_eps n) (log_eps_pos n) in
   let ExistT (x, a) = s in
-  let Pair (_, a0) = a in
-  let Pair (_, r) = a0 in
+  let Pair (q0, a0) = a in
+  let Pair (q1, r) = a0 in
   let s0 =
     real_lt_pt_lt
       (real_abs (real_plus (cauchy_real_exp (real_const x)) (real_opp y)))
       (real_const (log_eps n)) r
   in
-  let ExistT (x0, _) = s0 in ExistT (x0, __)
+  let ExistT (x0, _) = s0 in
+  ExistT (x0, (fun k _ ->
+  qlt_to_QltT
+    (qabs
+      (qminus
+        (projT1
+          (cauchy_real_exp
+            (real_const (projT1 (ExistT (x, (Pair (q0, (Pair (q1, r)))))))))
+          k)
+        (projT1 y k)))
+    (log_eps n)))
 
 (** val exp_pos_shape :
-    real -> (q, (qltT, (nat, nat -> __ -> qltT) sigT) and0) sigT **)
+    real -> (q, (qltT, (nat, nat -> natLe -> qltT) sigT) and0) sigT **)
 
-let exp_pos_shape x =
-  let r = cauchy_real_exp_pos x in
-  let ExistT (x0, a) = r in
-  let Pair (q0, s) = a in
-  let ExistT (x1, q1) = s in
-  ExistT (x0, (Pair (q0, (ExistT (x1, (fun n _ -> q1 n (natLe_lift x1 n)))))))
+let exp_pos_shape =
+  cauchy_real_exp_pos
 
 (** val log_seq_cauchy : real -> real_lt -> cauchy **)
 
@@ -2366,7 +2628,11 @@ let log_seq_cauchy y hy eps _ =
   let delta =
     qdiv (qmult eps x) { qnum = (Zpos (XO (XO (XO XH)))); qden = XH }
   in
-  let s0 = q_pow_arch { qnum = (Zpos XH); qden = XH } delta in
+  let s0 =
+    q_pow_arch { qnum = (Zpos XH); qden = XH } delta
+      (qle_to_QleT' { qnum = Z0; qden = XH } { qnum = (Zpos XH); qden = XH })
+      (qlt_to_QltT { qnum = Z0; qden = XH } delta)
+  in
   let ExistT (x0, _) = s0 in
   ExistT ((S x0), (fun m n _ _ ->
   qlt_to_QltT (qabs (qminus (log_seq y hy m) (log_seq y hy n))) eps))
@@ -2406,6 +2672,9 @@ let cw_log_exp_right y hy gamma _ =
   let s0 =
     q_pow_arch { qnum = (Zpos XH); qden = XH }
       (qdiv gamma { qnum = (Zpos (XO (XO XH))); qden = XH })
+      (qle_to_QleT' { qnum = Z0; qden = XH } { qnum = (Zpos XH); qden = XH })
+      (qlt_to_QltT { qnum = Z0; qden = XH }
+        (qdiv gamma { qnum = (Zpos (XO (XO XH))); qden = XH }))
   in
   let ExistT (x1, _) = s0 in
   let n0 = Nat.max x0 (S x1) in
@@ -2478,6 +2747,9 @@ let real_log_lt_mono a b ha hb = function
   let s0 =
     q_pow_arch { qnum = (Zpos XH); qden = XH }
       (qdiv x { qnum = (Zpos (XO (XO (XO XH)))); qden = XH })
+      (qle_to_QleT' { qnum = Z0; qden = XH } { qnum = (Zpos XH); qden = XH })
+      (qlt_to_QltT { qnum = Z0; qden = XH }
+        (qdiv x { qnum = (Zpos (XO (XO (XO XH)))); qden = XH }))
   in
   let ExistT (x1, _) = s0 in
   let s1 =
