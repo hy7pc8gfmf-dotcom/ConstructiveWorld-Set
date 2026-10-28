@@ -79,3 +79,4 @@ PolyIntegral.v
 Hanson3Pow.v
 pdt_tan_table.v
 PiEnvelope.v
+SumInvFactEscape.v
