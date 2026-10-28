@@ -85,5 +85,3 @@ PolyIntegral.v#R15-984aea
 Hanson3Pow.v#R15-e01751
 pdt_tan_table.v#R15-153a71
 PiEnvelope.v#R16-41bb99
-Ln2Bridge.v#R16-e9b596
-BetaLower.v#R16-ca8bd3
