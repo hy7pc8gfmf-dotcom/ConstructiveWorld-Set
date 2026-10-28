@@ -98,14 +98,26 @@ first 4c/4d landing-gate receipt (候登记).
 The Windows certification job seeds its build from the local trust cache
 (`ConstructiveWorld_Live/*.vo`), builds with fingerprint SKIP (`.vo` newer than
 `.v` → skip), and uploads the full `.vo` set as the `vo-trust-cache-set-windows`
-artifact on success. Seeding uses MIRROR semantics (wipe the checkout's `.vo`,
-then copy the cache in) so the build tree is a true image of the cache — stale
-survivors caused digest tears under the old grow-only scheme (P9 lesson), do
-not reintroduce them. `scripts/ci_build_live.sh` stays the cold-build truth;
-`scripts/ci_build_live_cached.sh` is its fingerprint-skip twin — CI uses the
-cached twin, local runs may use either. The macOS observation job is
-deliberately untouched (its green is a collaborator's certified surface; do not
-modify it without coordination).
+artifact on success. **Since d362f90 (20261028) the channel is a two-way bus**:
+the macOS job runs the symmetric three steps (sync from
+`vo-trust-cache-set-windows` → mirror seed from `/Users/apple/vo_ci_cache_set` →
+fingerprint SKIP in its inline build loop → green-gated export + upload of
+`vo-trust-cache-set-macos`), and each job starts with a fail-open sync of the
+opposite side's artifact. New modules cold-compile exactly once on whichever
+side runs first; every later run on both sides is SKIP-fast. Seeding uses
+MIRROR semantics (wipe the checkout's `.vo`, then copy the cache in) so the
+build tree is a true image of the cache — stale survivors caused digest tears
+under the old grow-only scheme (P9 lesson), do not reintroduce them.
+`scripts/ci_build_live.sh` stays the cold-build truth;
+`scripts/ci_build_live_cached.sh` is its fingerprint-skip twin.
+
+**Cache-application audit doctrine** (20261028, six-run evidence base #36-#46):
+pull the Windows job log and read three numbers — seeded N / SKIP count /
+compiled count. Zero-leakage criterion: `compiled ≤ wave-new-modules +
+genuinely-washed-modules` (a source-modified module recompiling is the
+fingerprint working, not leakage). Certification submissions must follow
+build-locally-first; a cold compile caused by Apple's push landing before our
+local build is a process-ordering cost, not a channel defect.
 
 ## 8. Cross-machine CI etiquette
 
