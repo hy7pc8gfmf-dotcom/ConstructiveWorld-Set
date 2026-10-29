@@ -121,6 +121,14 @@ jobs:
           # 指向 infra 正典 v3（Main 仓同款·单源防分叉）。
           # 【20261026 信任缓存通道】build 换指纹跳过双生子 ci_build_live_cached.sh——
           # 播种（上一步镜像 rm+cp）后 .vo 新于 .v 即 SKIP，缺者真编；镜像语义防陈旧幸存（P9）。
+          # 20261029 绿门回写：build 全绿且本地开发树无未提交改动（era 护栏）时，
+
+          # 把检出树新编 .vo 回写本地信任缓存——Apple push 先触发 CI 的场合，
+
+          # 新件编译一次即自动本地缓存化（否则仅入 artifact·本地缓存断链）。
+
+          export CACHE_WRITEBACK_DIR=/d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
+
           pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_build_live_cached.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 闸⑦ 提取执行（gate7·红线律 v2.5 裁决八现役·律四 4a 自动化·泄露最终机械仲裁）。

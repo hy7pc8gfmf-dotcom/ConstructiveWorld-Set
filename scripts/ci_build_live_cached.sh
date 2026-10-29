@@ -40,5 +40,22 @@ done < ConstructiveWorld_Live/order.txt
 if [ "$fail" -ne 0 ]; then
   echo "BUILD-FAIL: one or more files failed (true RC accounted above)"
 fi
+# 20261029 green-gated write-back: on a fully green build, mirror the freshly
+# compiled .vo back into the local dev-tree trust cache (CACHE_WRITEBACK_DIR).
+# Era guard: skip when the dev tree has uncommitted tracked modifications --
+# a dirty dev tree is a different era and must not inherit head-era .vo.
+# Same-platform by construction (Windows CI -> Windows dev tree).
+if [ "$fail" -eq 0 ] && [ -n "${CACHE_WRITEBACK_DIR:-}" ]; then
+  if git -C "$CACHE_WRITEBACK_DIR/.." status --porcelain -- ConstructiveWorld_Live 2>/dev/null | grep -qE "^( M|M )"; then
+    echo "CACHE-WRITEBACK: dev tree dirty -- skip (era guard)"
+  else
+    wb=0
+    for v in ConstructiveWorld_Live/*.vo; do
+      [ -e "$v" ] || continue
+      cp -f "$v" "$CACHE_WRITEBACK_DIR/" && wb=$((wb+1))
+    done
+    echo "CACHE-WRITEBACK: $wb .vo -> $CACHE_WRITEBACK_DIR"
+  fi
+fi
 echo "CACHE-BUILD-SUMMARY compiled=$n skipped=$s fail=$fail"
 exit $fail
