@@ -119,6 +119,18 @@ fingerprint working, not leakage). Certification submissions must follow
 build-locally-first; a cold compile caused by Apple's push landing before our
 local build is a process-ordering cost, not a channel defect.
 
+**Green-gated write-back (20261029)**: `ci_build_live_cached.sh` honours
+`CACHE_WRITEBACK_DIR` -- on a fully green build it mirrors the freshly
+compiled .vo back into the local dev-tree cache, so every green Windows run
+automatically re-aligns the local cache with the run's head (the
+cache-ization broken chain when Apple's push triggers CI first is closed).
+Guards: green-gated (red builds write nothing), same-platform by
+construction, era guard (skipped when the dev tree carries uncommitted
+tracked modifications). Version-consistency architecture: certification
+layer (push -> CI on our runner) + cache layer (green-gated write-back) +
+optional source layer (resident cw_repo_watch fetch/ff/rebuild, design in
+runbook §6.3, activation pending).
+
 ## 8. Cross-machine CI etiquette
 
 - The Windows job (`[self-hosted, Windows]`, pinned label — bare
