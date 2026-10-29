@@ -81,5 +81,3 @@ pdt_tan_table.v
 PiEnvelope.v
 SumInvFactEscape.v
 fib_machine.v
-Ln2Bridge.v
-BetaLower.v
