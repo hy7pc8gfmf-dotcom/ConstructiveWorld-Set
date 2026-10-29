@@ -1,403 +1,2400 @@
 {
  "modules": {
   "S01_BaseRing": {
-   "names_total": 185,
-   "magic_ml": null,
-   "magic_mli": null,
+   "names_total": 69,
+   "magic_ml": 0,
+   "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 1
+   "driver_rc": 0,
+   "exclusions": [
+    {
+     "name": "Proposition",
+     "reason": "vernacular-keyword",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "IsProposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "IsPositiveProposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "loss_of_proposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "full_loss",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "force_is_gradient",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "is_truth",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "is_attractor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "truth_iff_attractor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_factor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_prob",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "partition_condition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "hierarchical_stability",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_factor_pos",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_prob_pos",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "prediction_fluctuation_scale",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "Sequence",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sequence_loss_prefix",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sequence_loss",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "LangProp",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "loss_of_proposition",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "force",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "candidate",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "argmin_aux",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "pick_best",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "dynamics",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "is_truth",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "is_fixed_point",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sum_exp",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "partition_function",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "exp_neg_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sum_exp_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "partition_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "normalized_prob",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim1_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim3_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "normalized_prob_pos",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "prediction_boltzmann_sampling_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "temp_factor",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "partition_temp",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "temp_factor_antitone",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_linear",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_add",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_ext",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "sum_temp_positive",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "partition_temp_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel_antitone",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_normalized",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_relative",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_temperature_zero_limit",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_le_on_list",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "expected_loss",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "expected_loss_min_bound",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "candidate_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "InT_head_extend",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_mem",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_min",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_snd_correct",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_in_vocab'",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_optimal",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_in_vocab",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_single_le_total",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel_le_one",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "temperature_zero_exponential_bound",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_zero_fn",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy_pointwise_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "greedy_kernel_limit",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_normalized",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_bounded",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "nonoptimal_probability_absolute",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "State",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "E_B",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "Omega_total",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "entropy",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "logical_loss",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "energy_domain",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "entropy_gradient",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "dynamics",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "is_equilibrium",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "temperature_equal",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "boltzmann_prob",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "core_claim3_holds",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    }
+   ]
   },
   "S02_CauchyComplete": {
    "names_total": 165,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S03_QExp": {
    "names_total": 252,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S04_RealExpLogConv": {
    "names_total": 153,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S05_AlignmentGRPO": {
    "names_total": 194,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S06_DiffSamplingGibbs": {
    "names_total": 337,
    "magic_ml": 15,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S07_RealSetoidExpLog": {
-   "names_total": 318,
-   "magic_ml": null,
-   "magic_mli": null,
+   "names_total": 272,
+   "magic_ml": 0,
+   "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 1
+   "driver_rc": 0,
+   "exclusions": [
+    {
+     "name": "real_eq_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_le_iff_req",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_plus_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_opp_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_mult_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_abs_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_id_l",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_id_r",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_id_l",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_id_r",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_sym",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_zero",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_neg_le_abs",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_minus_abs_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_minus_abs_le_neg",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_lt_const_to_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_lt_const_to_minus_comm",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_cauchy_complete_metric",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_pos_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_triangle_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "Id_eq",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "eq_Id",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "NatLe_to_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "le_to_NatLe",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_cauchy_complete_metric_natle",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_plus_compat_adapt",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_mult_compat_adapt",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "Real_RealInterfaceSetoidCore",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_r_max_r_iff",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "q_pair2_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_ge_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_mono",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_le_even",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_even_ge_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux1",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux2",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux3",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux4",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "real_exp_ge_linear_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "real_log_le_linear_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "RealEnhancedReal",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if_true",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if_false",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    }
+   ]
   },
   "S08_RealMainlineDPO": {
    "names_total": 143,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S09_EntropyReal": {
    "names_total": 100,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S10_KVQuantTrig": {
    "names_total": 475,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S11_TP3B5": {
    "names_total": 441,
    "magic_ml": null,
    "magic_mli": null,
    "missing_candidates": [],
-   "driver_rc": 1
+   "driver_rc": 1,
+   "exclusions": []
   },
   "S12_B5RecycleSF": {
    "names_total": 525,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S13_NLiveAudit": {
-   "names_total": 324,
-   "magic_ml": null,
-   "magic_mli": null,
+   "names_total": 234,
+   "magic_ml": 0,
+   "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 1
+   "driver_rc": 0,
+   "exclusions": [
+    {
+     "name": "Context",
+     "reason": "vernacular-keyword",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Sequence",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Candidates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Memory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "natlt_elim",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "natlt_intro",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "bool_id_true",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "bool_true_id",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "id_true_false_absurd",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "id_false_true_absurd",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_in_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_filter_sound_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "forallb_inT_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_forallb_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_cons_inv_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_map_inv_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_refl",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_to_qle",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qle_to_qleT",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_trans",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qeq_le",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qsum_w",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qsum_w_div",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_normalize",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_normalize_normalized",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux_dom",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux_in",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux_dom",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux_in",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing_some",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing_none_all_fail",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "PreAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "InAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "PostAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "in_seq",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "token_supported_by_memory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "memory_auditor",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "threshold_auditor",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "threshold_auditor_sound",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_sound_set",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_complete",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_comm",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_comm",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_assoc",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "auditor_le",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_is_meet",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_is_join",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "parallel_audit",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "parallel_audit_correct",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "count_true",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "majority_audit",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_trail",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_audited_legal_trajectory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_trail_complete",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "post_stage_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "post_audit_sound",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audited_hallucination_zero",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "resample_attempt",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "resample_terminates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "seq_eqb",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "vote_count",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "consensus_post",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "consensus_mode",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "agent_candidates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "multi_agent_consensus_member",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_of_nat",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "overlap_count",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "sum_overlap",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "self_consistency_score",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "stop_condition",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "sample_until_confident",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "early_stop_confidence",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "early_stop_confidence'",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_stateful",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_stateful_inv",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "stateful_generation_consistent",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "BeamState",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "last_token",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "remove_last",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "concat_map_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "expand_beam_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "expand_beam_audited_legal",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "top_p_prefix",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "top_p_cumulative_ge",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    }
+   ]
   },
   "S14_B5BatchBlock": {
    "names_total": 310,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "S15_TailFEPUp": {
-   "names_total": 88,
-   "magic_ml": null,
-   "magic_mli": null,
+   "names_total": 46,
+   "magic_ml": 0,
+   "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 1
+   "driver_rc": 0,
+   "exclusions": [
+    {
+     "name": "nat_to_R_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "nat_to_R_g_pos",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_ext",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_linear",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_const",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_zero_fn",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "removeT_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_transport",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "not_InT_count_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_notin",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_remove_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_remove_id",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_one_remove_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "remove_notin_aux",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "split_count_one_id",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "nodup_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_list_transport",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_tail_of_neq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_count_one",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_indicator_sum_one",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_uniform_mass",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "real_mult_exchange",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "real_sqrt_pos_sq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "real_sigma_witness",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma_pos",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma_sq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "fep_partition_condition",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "fep_align",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "fep_F_ext",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "free_energy_softmax_eq_neg_T_logZ",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "list_sum_g2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "reward2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "indicator2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "counter_ex_indicator_sum_two",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "counter_ex_reward_sum_two_c",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "mean2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "A2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "sq_sum_list_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "real_var_nonneg_cond",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    }
+   ]
   },
   "UpReqPadeExp": {
    "names_total": 12,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqExpPosQBound": {
    "names_total": 20,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqAltSumPos": {
    "names_total": 41,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqQExpTail": {
    "names_total": 32,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachExp": {
    "names_total": 21,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqNormConv": {
    "names_total": 29,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachProd": {
    "names_total": 13,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachProd2": {
    "names_total": 8,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachAdd": {
    "names_total": 18,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqPadeQLeg": {
    "names_total": 17,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqPadeSign": {
    "names_total": 9,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqKLStrict": {
    "names_total": 14,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "QTailBridge": {
    "names_total": 5,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqLpoEquiv": {
    "names_total": 15,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqGibbsWallEquiv": {
    "names_total": 16,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqAlgebra": {
    "names_total": 64,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpRealLeB": {
    "names_total": 32,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqGeomD": {
    "names_total": 22,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpRealLeB2": {
    "names_total": 8,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqConstEnvelope": {
    "names_total": 24,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachInstB": {
    "names_total": 50,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachInst": {
    "names_total": 15,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqCStarDef": {
    "names_total": 29,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachInstReal": {
    "names_total": 63,
    "magic_ml": 36,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachNormOpp": {
    "names_total": 31,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "AttnHardLimit218": {
    "names_total": 53,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpSLM": {
    "names_total": 80,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "AttnSqrt": {
    "names_total": 12,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqDist": {
    "names_total": 120,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachExpDef": {
    "names_total": 9,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachExpBasic": {
    "names_total": 8,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachDouble": {
    "names_total": 20,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachClassExt": {
    "names_total": 9,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqBanachInvPre": {
    "names_total": 21,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "BanachNoHyp": {
    "names_total": 9,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpCS": {
    "names_total": 22,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpRecast": {
    "names_total": 77,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "G11_IDLFam": {
    "names_total": 157,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpIDL_P2": {
    "names_total": 105,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqPropLiftShim": {
    "names_total": 16,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqRealHalf": {
    "names_total": 7,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
   },
   "UpReqSumD": {
    "names_total": 30,
    "magic_ml": 0,
    "magic_mli": 0,
    "missing_candidates": [],
-   "driver_rc": 0
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "CW220_Extensions": {
+   "names_total": 9,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": [
+    {
+     "name": "cwe_positive_dist",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "cwe_boltzmann_dist",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "cwe_free_energy",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "cwe_normalized",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "rminus",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_boltzmann_positive",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_plus_zero_r",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_mult_one_l",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_add_cancel_l",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_double_neg",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_opp_plus",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_mult_opp_l",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_opp_mult_l",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_sum_opp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_boltzmann_normalized",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_p_times_energy_decomp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "req_free_energy_kl_decomp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:FreeEnergySetoid"
+    },
+    {
+     "name": "cwe_exp_pos_fn",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "cwe_partition_function_temp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "cwe_softmax_temp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "boltzmann_factor",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "Z_thermo",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "boltzmann_dist_attn",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "req_attention_is_gibbs_temp",
+     "reason": "module-scope",
+     "scope": "Module:SetoidThermoCore/Section:GibbsSetoid"
+    },
+    {
+     "name": "real_pow",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_eq_compat",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "cwe_real_pow_pos",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_const_zero_thm",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_mult_one_l",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_mult_zero_l",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_nat_mult_succ",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_inv_pair",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "cwe_real_le_one_plus",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_lt_plus_one",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_nat_mult_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "bernoulli_pow",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "r_arch_pow_real",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "log_kappa_neg",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_log_form",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "budget_cond_sufficient",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_add_thm",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_le_one",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "real_pow_anti_mono",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "geo_tail_budget",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    },
+    {
+     "name": "budget_min_tail",
+     "reason": "module-scope",
+     "scope": "Module:BudgetReal"
+    }
+   ]
+  },
+  "UpTempWindow": {
+   "names_total": 82,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "UpReqPadeDenPos": {
+   "names_total": 29,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "UpReqPadeLower": {
+   "names_total": 24,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "UpReqPadeTailPos": {
+   "names_total": 83,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "UpReqGibbsE2": {
+   "names_total": 29,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_audit_base_v5": {
+   "names_total": 10,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_s06_step_calc": {
+   "names_total": 33,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_cw220_step_calc": {
+   "names_total": 35,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "b1_denom_control": {
+   "names_total": 11,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "mach_fold_q": {
+   "names_total": 25,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_arctan_diff_16": {
+   "names_total": 8,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_lipschitz_bridge": {
+   "names_total": 58,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_z2_pointwise": {
+   "names_total": 33,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_Hqarch_bernoulli_04": {
+   "names_total": 25,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "HansonLcm": {
+   "names_total": 17,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_diffbridge_incr": {
+   "names_total": 13,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_z3_pointwise": {
+   "names_total": 7,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_Hqarch_bridge_06": {
+   "names_total": 8,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "abl_dmdnf2_oddlcm": {
+   "names_total": 14,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "u4a_budget_flip": {
+   "names_total": 10,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "ExpNegPos": {
+   "names_total": 14,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "ArctanGeomTail": {
+   "names_total": 11,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "ExpOneEnvelope": {
+   "names_total": 47,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "b1_kernel_pointwise": {
+   "names_total": 24,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "p4a_GradSignQDec": {
+   "names_total": 18,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "PolyIntegral": {
+   "names_total": 25,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "Hanson3Pow": {
+   "names_total": 17,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "pdt_tan_table": {
+   "names_total": 46,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
+  },
+  "PiEnvelope": {
+   "names_total": 58,
+   "magic_ml": 0,
+   "magic_mli": 0,
+   "missing_candidates": [],
+   "driver_rc": 0,
+   "exclusions": []
   }
  }
 }

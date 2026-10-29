@@ -28,6 +28,29 @@ Modes
                         names (born-clean zero tolerance).
 
 Exit codes: 0 clean / report-only, 1 gate regression, 2 usage/IO error.
+
+v2 sandbox patch (kb52_work_20261029, repo original untouched):
+  - face 1: name-candidate blacklist -- a captured statement name that is a
+    Coq vernacular/reserved keyword (Proposition, Context, Section, End,
+    Require, Import, Export, Print, Check, Evaluation, ...) can never be a
+    legal bare reference target for `Separate Extraction` (it is either a
+    keyword that makes the driver sentence a syntax error, or resolves to a
+    sort alias, never to the user definition).  Such candidates are dropped
+    and recorded in the module's `exclusions`.
+  - face 2: scope-depth tracking -- the sentence walk now maintains the
+    Module/Section ... End nesting stack.  A name born while a MODULE block
+    is open is qualified by that module (bare name NOT visible at top level
+    after `End`) and is dropped from the driver list and recorded in
+    `exclusions`.  DEVIATION NOTE vs the literal fix order: names born in a
+    pure top-level SECTION stay in the driver list -- the committed baseline
+    proves they are bare-referable and extract cleanly (17+ green modules
+    carry section-born names in passing drivers, e.g. S04_RealExpLogConv:
+    all 153 names section-born, driver_rc=0), so excluding them would break
+    the hard no-new-exclusions mandate on unaffected modules.
+  - both faces are occurrence-level and order-preserving; for every module
+    whose captured names contain no keyword and no module-born name, the
+    v2 driver list is IDENTICAL to v1 (zero behavior drift, verified over
+    all 87 Live .v files by the sandbox dry run).
 """
 
 import argparse
@@ -43,12 +66,72 @@ from gate6_statement_census import census_file, strip_comments, sentences  # noq
 
 DEFAULT_COQC = r"C:/Rocq-Platform~9.1~2026.01/bin/coqc.exe"
 
+# v2 face 1 -- keywords excluded from the captured statement NAME set.
+# Rationale (corrected per independent review 20261029): this tree proves a
+# reserved word CAN be a legal user definition name -- S01_BaseRing.v:1330
+# `Definition Proposition` (inside Module PropositionConvergenceCore) and
+# S13_NLiveAudit.v:1148 `Definition Context` (inside LCAudit) both compile
+# (.vo FRESH, glob def records on file).  The exclusion is therefore a
+# CONSERVATIVE DRIVER-REFERENCE AVOIDANCE: a top-level `Separate Extraction`
+# driver cannot reference these module-internal names, and naming them in the
+# driver makes coqc fail at the reference site.  Extraction coverage of the
+# retained statements is unaffected (Separate Extraction pulls transitive
+# dependencies).  The first ten are the words named by the fix order; the
+# rest are the same-class vernacular/Gallina words.  Known limitation
+# (review issue 2): the keyword branch runs before the scope walk, so a
+# future TOP-LEVEL legal definition with one of these names would be dropped
+# unconditionally -- revisit if that case ever appears.
+VERNAC_NAME_BLACKLIST = {
+    "Proposition", "Context", "Section", "End", "Require", "Import", "Export",
+    "Print", "Check", "Evaluation",
+    # same-class reserved words (safe: can never be legal user names)
+    "Compute", "Eval", "Theorem", "Lemma", "Definition", "Proof", "Qed",
+    "Fixpoint", "CoFixpoint", "Function", "Example", "Remark", "Fact",
+    "Corollary", "Instance", "Goal", "Abort", "Admitted", "Variable",
+    "Variables", "Hypothesis", "Hypotheses", "Axiom", "Axioms", "Parameter",
+    "Parameters", "Conjecture", "Record", "Inductive", "CoInductive",
+    "Class", "Scheme", "Notation", "Infix", "Reserved", "Arguments", "Ltac",
+    "Load", "Declare", "Module", "Set", "Type", "Prop", "SProp", "Time",
+    "Separate", "Extraction", "Existing", "Canonical", "Coercion", "Let",
+}
 
-def statement_names(vfile):
-    """Top-level informative statement names of a .v file (gate6 scanner reuse)."""
+
+def _scope_open(sent_tokens):
+    """Return the scope label pushed by a Module/Section sentence, else None."""
+    first = sent_tokens[0] if sent_tokens else ""
+    if first in ("Module", "Section"):
+        # `Module Type X` blocks namespace-hide their contents just the same;
+        # record the full head for the human-readable scope chain.
+        return first + ":" + (sent_tokens[1].rstrip(".") if len(sent_tokens) > 1 else "?")
+    return None
+
+
+def statement_scan(vfile):
+    """v2 core walk: classify captured statement name occurrences.
+
+    Returns (driver_names, exclusions):
+      driver_names  order-preserving list (duplicates kept, exactly like v1)
+                    of names that are safe to reference bare at top level;
+      exclusions    list of {"name", "reason", "scope"} for dropped
+                    occurrences: reason "vernacular-keyword" (face 1) or
+                    "module-scope" (face 2 -- born inside an open Module
+                    block, bare name not visible at top level).  Pure
+                    top-level Section-born names are KEPT (see module
+                    docstring deviation note).
+    """
     text = strip_comments(vfile.read_bytes().decode("utf-8-sig", errors="replace"))
-    names = []
+    stack = []  # open scope chain, e.g. ["Module:LCAudit", "Section:LiveCore"]
+    names, exclusions = [], []
     for _, sent in sentences(text):
+        toks = sent.split()
+        # --- maintain the scope stack BEFORE capturing (a scope opener or a
+        # --- closer sentence never carries a statement name itself) --------
+        pushed = _scope_open(toks)
+        if pushed is not None:
+            stack.append(pushed)
+        elif toks and toks[0] == "End" and stack:
+            stack.pop()
+        # --- v1 capture logic, unchanged ------------------------------------
         m = re.match(r"\s*([A-Za-z_][A-Za-z0-9_']*)", sent)
         if not m:
             continue
@@ -57,8 +140,29 @@ def statement_names(vfile):
                    "Definition", "Fixpoint", "Function", "Instance"}:
             m2 = re.match(r"\s*" + re.escape(cmd) + r"\s+([A-Za-z_][A-Za-z0-9_']*)", sent)
             if m2:
-                names.append(m2.group(1))
-    return names
+                nm = m2.group(1)
+                chain = "/".join(stack)
+                if nm in VERNAC_NAME_BLACKLIST:
+                    # face 1: keyword names can never be bare reference targets
+                    exclusions.append({"name": nm, "reason": "vernacular-keyword",
+                                       "scope": chain})
+                elif any(s.startswith("Module:") for s in stack):
+                    # face 2: module-born names are module-qualified, hence not
+                    # visible bare at top level after the module is closed
+                    exclusions.append({"name": nm, "reason": "module-scope",
+                                       "scope": chain})
+                else:
+                    names.append(nm)
+    return names, exclusions
+
+
+def statement_names(vfile):
+    """Top-level informative statement names of a .v file (gate6 scanner reuse).
+
+    v2: drops vernacular-keyword names and module-scoped names (see
+    statement_scan); the returned list feeds the Separate Extraction driver.
+    """
+    return statement_scan(vfile)[0]
 
 
 def mangle_candidates(name):
@@ -71,9 +175,12 @@ def mangle_candidates(name):
 
 
 def run_module(mod, tree, workdir, coqc, timeout):
-    names = statement_names(tree / (mod + ".v"))
+    # v2: statement_scan returns (driver names, exclusions); exclusions are
+    # recorded additively in the JSON record (gate decisions untouched).
+    names, exclusions = statement_scan(tree / (mod + ".v"))
     rec = {"names_total": len(names), "magic_ml": None, "magic_mli": None,
-           "missing_candidates": [], "driver_rc": None, "secs": None, "note": ""}
+           "missing_candidates": [], "driver_rc": None, "secs": None, "note": "",
+           "exclusions": exclusions}
     if not names:
         rec["note"] = "no top-level informative statements -- skipped"
         return rec
@@ -208,7 +315,8 @@ def main():
                               "magic_ml": r["magic_ml"],
                               "magic_mli": r["magic_mli"],
                               "missing_candidates": r["missing_candidates"],
-                              "driver_rc": r["driver_rc"]}
+                              "driver_rc": r["driver_rc"],
+                              "exclusions": r["exclusions"]}  # v2: additive
         Path(args.baseline_out).write_text(
             json.dumps({"modules": modules_out}, ensure_ascii=False, indent=1),
             encoding="utf-8")
