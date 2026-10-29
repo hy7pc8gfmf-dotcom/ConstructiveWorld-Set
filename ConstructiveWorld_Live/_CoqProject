@@ -87,3 +87,8 @@ UpReqLn2Irrational.v
 Ln2Escape.v
 Ln2Bridge.v
 BetaLower.v
+G07_KLWall.v
+UpReqMixLogE.v
+UpTVDoeblin.v
+abl_Pr_lcm_eq.v
+abl_z2_dub3.v
