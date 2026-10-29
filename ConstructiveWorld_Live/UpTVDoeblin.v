@@ -21,7 +21,7 @@
       [list Real], sums run along the enumeration [real_list_sum], the order
       faces are [real_lt]/[real_le]/[real_eq]); extraction carries [Obj.magic]
       = 0 on the [.ml] and [.mli] sides with no erasure; [coqchk] reports
-      [Axioms: <none>]; main statements close by [Qed].
+      [Axioms: none]; main statements close by [Qed].
     Build.  [rocq c -native-compiler no -q -Q . "" UpTVDoeblin.v] compiles
       cleanly (exit 0); the first eight bytes of the artifact are
       [436f7121 00015ff4]. *)
@@ -59,7 +59,7 @@ Ltac tvd_rring :=
        real_list_sum real_of_nat] in *;
   ring.
 
-(* ---- 0.1 le-side abs identity (task piece 1): 0 <= a implies |a| == a ---- *)
+(* ---- 0.1 le-side abs identity (building block 1): 0 <= a implies |a| == a ---- *)
 (* Route: real_le = Or(real_lt)(real_eq), branch by branch.
    lt branch: real_abs_pos_req; eq branch: real_eq_abs_compat + real_abs_zero_req. *)
 Lemma tvd_abs_le_id : forall a : Real,
@@ -220,7 +220,7 @@ Proof.
     + exact IH.
 Qed.
 
-(* ---- 0.5+ list constant sum: the sum of const c == n*c (added in the tree rebuild, for Part 2;
+(* ---- 0.5+ list constant sum: the sum of const c == n*c (introduced for Part 2;
        the pattern follows the base real_list_sum_g_const eq-chain proof, general-X version) ---- *)
 Lemma tvd_list_sum_const : forall (c : Real) (l : list X),
   real_eq (real_list_sum X (fun _ : X => c) l)
@@ -334,7 +334,7 @@ Proof.
       * exact H0.
 Qed.
 
-(* ---- 0.6 list double-sum swap (task piece 2) ----
+(* ---- 0.6 list double-sum swap (building block 2) ----
    General form: sum_{j in l2} sum_{i in l1} f i j == sum_{i in l1} sum_{j in l2} f i j
    (induction on l1 with l2 generalized; add reversal + IH + one definitional step) *)
 Lemma tvd_list_sum_swap_gen : forall (l1 : list X) (l2 : list X)
@@ -407,7 +407,7 @@ Qed.
 
 End TVListHelpers.
 
-(* ---- 0.8 Two pieces added in the tree rebuild (for Part 2; the same-named base forms do not match) ---- *)
+(* ---- 0.8 Two auxiliary pieces (for Part 2; the same-named base forms do not match) ---- *)
 (* lt implies le (Or left-injection; the base real_lt_le_iff is an Id-family form, avoided) *)
 Lemma tvd_lt_le : forall a b : Real, real_lt a b -> real_le a b.
 Proof.
@@ -433,8 +433,8 @@ Section TVRealWorld.
 
 (* Discrete-state world: states are list Real, enumerated by states; sums always run along the enumeration.
    (K : list Real -> list Real -> Real is a row-stochastic kernel -- the state type
-     is list Real, so the enumeration is list (list Real); the type parameter of real_list_sum
-     is (list Real), i.e. the real_list_sum (K i) states shape of the task note.) *)
+     is list Real, so the enumeration is list (list Real); the element type of real_list_sum
+     is (list Real), i.e. the real_list_sum (K i) states shape noted above.) *)
 Variable states : list (list Real).
 Variable n_pos : real_lt real_zero (real_of_nat (length states)).
 Variable K : list Real -> list Real -> Real.
@@ -509,7 +509,7 @@ Proof.
     exact (real_eq_sym tv_omd real_zero (tv_omd_eq_zero Hd1)).
 Qed.
 (* ---- 1.3 Residual kernel R := inv(1-delta)*(K - delta*u) ---- *)
-(* The positivity proof is taken as an explicit parameter (the delta=1 branch does not use R) *)
+(* The positivity premise is carried as an explicit argument (the delta=1 branch does not use R) *)
 Definition tv_r_kernel (Homd : real_lt real_zero tv_omd) (i j : list Real) : Real :=
   real_mult (real_inv_pos tv_omd Homd)
             (real_minus_r (K i j) (real_mult delta (u j))).
@@ -1600,12 +1600,12 @@ End TVRealWorld.
 
 
 
-(* ################ Part 2. The explicit-constant instance delta* := e^(-2*gamma/T) (review-11 P4 highlight continuation) ####
+(* ################ Part 2. The explicit-constant instance delta* := e^(-2*gamma/T) ####
    Under the two-sided logit bounds (-gamma <= z i j <= gamma, gamma > 0, T > 0, nonempty enumeration n_pos),
    the delta interface (the Section TVRealWorld field face: delta positivity / delta <= 1 / kernel lower bound delta*u <= K)
    is satisfied by the explicit constant delta* := e^(-2*gamma/T) (the lo*lo form, zero eps slack loss), and the
    main iterate theorem is resolved with this constant, closing the explicit rate (1 - e^(-2*gamma/T))^n. gamma is the paper/QK-pipeline Delta.
-   The honest interface abs_sum_le_list (|sum f| <= sum|f|, analytic bisection) stays a premise, as in the archived piece --
+   The honest interface abs_sum_le_list (|sum f| <= sum|f|, analytic bisection) stays a premise, as in Part 1 --
    under constructive logic this shape is not resolvable from the base; it travels explicitly with the interface. *)
 
 Section TVDStar.
@@ -1946,10 +1946,10 @@ Proof.
 Qed.
 
 
-(* ---- 2.9b The in-place minorization certificate supply registration: the statement is verbatim of the same shape as the section minorization ----
-   The instance-layer kernel-row supply anchor is tvd_minorization (section 2.9 above; carrier substitution delta := tvd_dstar,
+(* ---- 2.9b The instance-level minorization certificate: the statement is verbatim of the same shape as the section minorization ----
+   The instance-layer kernel-row certificate is tvd_minorization (section 2.9 above; carrier substitution delta := tvd_dstar,
    u := tvd_u, K := tvd_K; kernel row-stochasticity and positivity are carried constructively by the tvd_K_row/tvd_Z_pos family;
-   the cf2 kernel-row supply face is covered by this instance layer per the in-tree search). The original hypothesis-position declarations
+   the cf2 kernel-row certificate face is covered by this instance layer). The original premise-position declarations
    and existing theorem signatures are unchanged. *)
 Theorem tvd_minorization_supply : forall i j : list Real,
   real_le (real_mult tvd_dstar (tvd_u j)) (tvd_K i j).
