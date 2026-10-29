@@ -87,3 +87,6 @@ pdt_tan_table.v#R15-153a71
 PiEnvelope.v#R16-41bb99
 SumInvFactEscape.v#R17-2b5c13
 fib_machine.v#R17-c711ca
+Ln2Bridge.v#R18-e9b596
+BetaLower.v#R18-ca8bd3
+b1_linform_machine.v#R18-1c8113
