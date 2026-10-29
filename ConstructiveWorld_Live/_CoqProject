@@ -82,3 +82,8 @@ PiEnvelope.v
 SumInvFactEscape.v
 fib_machine.v
 b1_linform_machine.v
+UpReqIrrationalCriterion.v
+UpReqLn2Irrational.v
+Ln2Escape.v
+Ln2Bridge.v
+BetaLower.v

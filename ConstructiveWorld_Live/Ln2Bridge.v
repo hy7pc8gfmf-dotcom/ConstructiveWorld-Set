@@ -1,11 +1,29 @@
-(* ==========================================================================)
-   Ln2Bridge.v — ln2 无理性证明的供给桥
-   使命: ln2i_pade_supply（五层存在型供给接口）、ln2b_delta_of_supply（δ 见证组装）、ln2b_escape_of_supply（逃逸条件形）、ln2b_irrational_from_supply（由供给闭合 ln2 无理性）；幂不等式/衰减链支撑件。
-   依赖: S01_BaseRing、S02_CauchyComplete、S03_QExp、SumInvFactEscape、UpReqBanachNormOpp、UpReqIrrationalCriterion、UpReqLn2Irrational；Stdlib QArith、ZArith、Lia、Setoid、Morphisms、Qfield、Extraction。
-   对标: Beukers 型 ln2 无理性证明的模块化接口层（有理逼近论）。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set -- supply bridge for the irrationality of ln 2. *)
+
+(** * Ln2Bridge: modular supply interface closing the irrationality of ln 2.
+
+    Mission.  Package the ln2 irrationality chain behind four closed faces:
+    [ln2i_pade_supply] (the five-layer existential supply interface),
+    [ln2b_delta_of_supply] (explicit positive delta witness assembly),
+    [ln2b_escape_of_supply] (escape-spec form), and
+    [ln2b_irrational_from_supply] (closing the irrationality of ln 2 from a
+    supply); supported by the power-inequality and decay-chain lemmas.
+
+    Dependencies.  S01_BaseRing, S02_CauchyComplete, S03_QExp,
+    SumInvFactEscape, UpReqBanachNormOpp, UpReqIrrationalCriterion,
+    UpReqLn2Irrational; Stdlib QArith, ZArith, Lia, Setoid, Morphisms,
+    Qfield, Extraction.
+
+    References.  A modular interface layer for Beukers-type irrationality
+    proofs of ln 2 (rational approximation).
+
+    Constructivity.  Every piece closes by Qed; zero admitted goals; no
+    classical logic.  Statement faces are carried on Set (order predicates
+    and equalities are Set-valued; no Prop leaks on conclusion faces).
+
+    Build.  Rocq 9.1 direct [coqc -Q . "" -native-compiler no Ln2Bridge.v]
+    (recompile against the same-world .vo shadow tree), under the cpu_guard
+    load wrapper. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -19,10 +37,11 @@ From Stdlib Require Import QArith.QArith QArith.Qabs ZArith.ZArith
 From Stdlib Require Import Lia Setoid Morphisms Qfield.
 
 (* ============================================================ *)
-(* §0 基准实数 X = lim ln2i_x 与 line 投影面                           *)
+(* S0. Base real X = lim ln2i_x and the line projection face                 *)
 (* ============================================================ *)
 
-(* 基准实数：ln2i_x 的柯西极限（极限存在性由 ln2i_tail 尾控制与 ln2i_vanish 两条件供给） *)
+(* Base real: the Cauchy limit of ln2i_x (existence supplied by the ln2i_tail
+   tail control and the ln2i_vanish escape conditions). *)
 Definition ln2b_X : Real :=
   existT (fun u : Qseq => cauchy u) ln2i_x
     (lic_seq_cauchy ln2i_x ln2i_e ln2i_tail ln2i_vanish).
@@ -31,8 +50,9 @@ Lemma ln2b_X_proj : forall k : nat, QeqT (projT1 ln2b_X k) (ln2i_x k).
 Proof. intro k. apply qeq_imp_qeqT. unfold ln2b_X. cbn [projT1].
   exact (Qeq_refl (ln2i_x k)). Qed.
 
-(* 整系数有理线性形式在基准实数上的绝对值（supply 的 real 面界所约束的对象）：
-   ln2b_line A B n = |A_n·X − B_n|，其第 k 投影 = |A_n·x_k − B_n|（Q 层）。 *)
+(* Absolute value of the integer-coefficient rational linear form on the base
+   real (the object constrained by the supply's real-face bounds):
+   ln2b_line A B n = |A_n*X - B_n|, k-th projection = |A_n*x_k - B_n| (Q layer). *)
 Definition ln2b_line (A B : nat -> Z) (n : nat) : Real :=
   real_abs (real_plus (real_mult (real_const ((A n) # 1)%Q) ln2b_X)
                       (real_opp (real_const ((B n) # 1)%Q))).
@@ -52,20 +72,20 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §1 ln2i_pade_supply：供给型（sigT 五层，五个 Set 面组成条件） *)
+(* S1. ln2i_pade_supply: the supply type (five-layer sigT, five Set-face components) *)
 (* ============================================================ *)
 
-(* 下界肢：载体条件 clo_n ≤ |A_n·X − B_n|（real_le Or-编码） *)
+(* Lower limb: carrier condition clo_n <= |A_n*X - B_n| (real_le Or-encoding) *)
 Definition ln2b_line_lower (A B : nat -> Z) (clo : nat -> Q) : Set :=
   forall n : nat, real_le (real_const (clo n)) (ln2b_line A B n).
 
-(* 上界肢：|A_n·X − B_n| ≤ θ^n（Q 层幂 q_pow θ n 承载） *)
+(* Upper limb: |A_n*X - B_n| <= theta^n (carried by the Q-layer power q_pow theta n) *)
 Definition ln2b_line_upper (A B : nat -> Z) (th : Q) : Set :=
   forall n : nat, real_le (ln2b_line A B n) (real_const (q_pow th n)).
 
-(* 供给型：Hermite–Beukers 候选一构造的输出接口。
-   五个组成条件：① θ<1；② 0<|A_n|（A_n≠0 的 Set 面 Q 编码）；③ 0<clo_n；
-   ④⑤ 下/上界 real 肢。 *)
+(* The supply type: the output interface of the Hermite-Beukers candidate-one
+   construction.  Five components: (i) theta < 1; (ii) 0 < |A_n| (the Set-face
+   Q encoding of A_n <> 0); (iii) 0 < clo_n; (iv)+(v) the lower/upper real limbs. *)
 Definition ln2i_pade_supply : Set :=
   sigT (fun A : nat -> Z =>
     sigT (fun B : nat -> Z =>
@@ -78,17 +98,17 @@ Definition ln2i_pade_supply : Set :=
                      (ln2b_line_upper A B th)))))))).
 
 (* ============================================================ *)
-(* §2 供给面的逐点形式：real_le 的终归 slack 形 *)
+(* S2. Pointwise form of the supply faces: the eventual slack form of real_le *)
 (* ============================================================ *)
 
-(* Q 层引理：a ≤ |a| *)
+(* Q-layer lemma: a <= |a| *)
 Lemma ln2b_abs_ge : forall a : Q, QleT' a (Qabs a).
 Proof.
   intros [an ad]. apply Qle_to_QleT'. unfold Qle, Qabs. cbn [Qnum Qden].
   destruct an; cbn; lia.
 Qed.
 
-(* Q 层引理：|a| < b ⟹ a < b *)
+(* Q-layer lemma: |a| < b implies a < b *)
 Lemma ln2b_abs_lt : forall a b : Q, Qlt (Qabs a) b -> QltT a b.
 Proof.
   intros a b H. apply Qlt_to_QltT.
@@ -97,10 +117,11 @@ Proof.
   destruct an; cbn in *; lia.
 Qed.
 
-(* real_le 的终归 slack 形：x ≤ y（real_le Or-编码两支统一）⟹
-   ∀eps>0 ∃K ∀k≥K，x_k < y_k + eps。
-   情形 lt：x_k < y_k（严格分离，加 eps 更松）；情形 eq：|x_k−y_k| < eps
-   且 x_k ≤ (x_k−y_k)+y_k ≤ |x_k−y_k|+y_k < y_k+eps。零 LPO。 *)
+(* Eventual slack form of real_le: x <= y (both branches of the real_le Or-encoding
+   unified) implies: for every eps > 0 there is K such that for all k >= K,
+   x_k < y_k + eps.  Case lt: x_k < y_k (strict separation; adding eps only
+   loosens it).  Case eq: |x_k - y_k| < eps and x_k <= (x_k - y_k) + y_k
+   <= |x_k - y_k| + y_k < y_k + eps.  No LPO. *)
 Lemma ln2b_le_pt_slack : forall (x y : Real), real_le x y ->
   forall eps : Q, QltT 0 eps ->
   sigT (fun K : nat => forall k : nat, (K <= k)%nat ->
@@ -108,7 +129,7 @@ Lemma ln2b_le_pt_slack : forall (x y : Real), real_le x y ->
 Proof.
   intros x y H eps Heps.
   destruct H as [Hlt | Heq].
-  - (* 情形 lt：x < y 的严格分离支 *)
+  - (* Case lt: the strict-separation branch of x < y *)
     destruct Hlt as [e [He0 [N HN]]].
     exists N. intros k Hk.
     pose proof (HN k (NatLe_lift _ _ Hk)) as HNk.
@@ -133,12 +154,12 @@ Proof.
                ((projT1 y k + eps)%Q)).
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. symmetry. apply Qplus_0_r.
       * exact Hle.
-  - (* 情形 eq：|x_k−y_k| < eps ⟹ x_k ≤ |x_k−y_k|+y_k < y_k+eps *)
+  - (* Case eq: |x_k - y_k| < eps implies x_k <= |x_k - y_k| + y_k < y_k + eps *)
     destruct (Heq eps Heps) as [N HN].
     exists N. intros k Hk.
     pose proof (HN k (NatLe_lift _ _ Hk)) as HNk.
     pose proof (QltT_to_Qlt _ _ HNk) as Habs.
-    (* x_k ≤ (x_k−y_k)+y_k ≤ |x_k−y_k|+y_k < e0+y_k == y_k+e0 *)
+    (* x_k <= (x_k - y_k) + y_k <= |x_k - y_k| + y_k < e0 + y_k == y_k + e0 *)
     assert (Hstep : Qle (projT1 x k)
                      ((Qabs ((projT1 x k - projT1 y k)%Q) + projT1 y k)%Q)).
     { assert (Hshift : ((projT1 x k - projT1 y k)%Q + projT1 y k)%Q
@@ -167,11 +188,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 衰减引理：0 < θ < 1 ⟹ 显式 n₀ 使 θ^{n₀} < 1/v（零 LPO，全显式） *)
+(* S3. Decay lemma: 0 < theta < 1 gives an explicit n0 with theta^n0 < 1/v
+   (no LPO, fully explicit) *)
 (* ============================================================ *)
 
-(* q_pow 分母 1 形：q_pow ((c#1)) n == (c^n)#1)（分母恒 1，cbn 可归约，
-   归约无残留 Qinv——Q 构造子正分母只收 positive，Z 幂不可入，不经除法形） *)
+(* Denominator-1 form of q_pow: q_pow (c#1) n == ((c^n)#1) (denominator stays 1,
+   cbn-reducible, and the reduction leaves no residual Qinv -- the Q constructor
+   only accepts positive denominators, Z exponents cannot enter, no division form). *)
 Lemma ln2b_qpow_num : forall (c : Z) (n : nat),
   QeqT (q_pow ((c # 1)%Q) n) (((c ^ (Z.of_nat n)) # 1)%Q).
 Proof.
@@ -182,8 +205,9 @@ Proof.
     unfold Qmult, Qeq. cbn [Qnum Qden Pos.mul]. lia.
 Qed.
 
-(* 跨分母乘法引理：q_pow (a#b) n · q_pow (b#1) n == q_pow (a#1) n
-   （(a/b)^n·b^n = a^n；Q 环重排与归纳假设，无残留形） *)
+(* Cross-denominator multiplication lemma: q_pow (a#b) n * q_pow (b#1) n ==
+   q_pow (a#1) n, i.e. (a/b)^n * b^n = a^n (Q-ring reshuffle + IH;
+   no residual form). *)
 Lemma ln2b_ab_b : forall (a : Z) (b : positive),
   QeqT ((a # b)%Q * ((Z.pos b # 1)%Q))%Q (((a # 1)%Q)).
 Proof.
@@ -203,7 +227,7 @@ Proof.
     + rewrite (fun a0 b0 => qeqT_imp_qeq _ _ (ln2b_ab_b a0 b0)). rewrite IH. ring.
 Qed.
 
-(* q_pow (c#1) n 的正性（作 Qmult_lt_r 的正乘子） *)
+(* Positivity of q_pow (c#1) n (serves as the positive multiplier in Qmult_lt_r) *)
 Lemma ln2b_qpow_pos1 : forall (c : Z) (n : nat), (0 < c)%Z ->
   QltT 0 (q_pow ((c # 1)%Q) n).
 Proof.
@@ -221,7 +245,7 @@ Proof.
     + exact IHn.
 Qed.
 
-(* nat 幂 ≥ 1 *)
+(* nat power >= 1 *)
 Lemma ln2b_pow_ge1 : forall A k : nat, (1 <= A)%nat -> NatLe 1 (A ^ k).
 Proof.
   intros A k HA. induction k as [| k IH].
@@ -230,7 +254,7 @@ Proof.
     pose proof (NatLe_drop _ _ IH). lia.
 Qed.
 
-(* nat 层 Bernoulli 幂不等式：A^n + n·A^{n−1} ≤ (A+1)^n（n ≥ 1） *)
+(* nat-layer Bernoulli power inequality: A^n + n*A^(n-1) <= (A+1)^n (n >= 1) *)
 Lemma ln2b_pow_bern : forall A n : nat,
   (1 <= A)%nat -> (1 <= n)%nat ->
   NatLe (A ^ n + n * A ^ (n - 1)) ((A + 1) ^ n).
@@ -260,7 +284,7 @@ Proof.
       lia.
 Qed.
 
-(* 显式指标不等式：V·A^{V·A} < (A+1)^{V·A}（V,A ≥ 1） *)
+(* Explicit index inequality: V*A^(V*A) < (A+1)^(V*A) (V, A >= 1) *)
 Lemma ln2b_pow_core : forall V A : nat,
   (1 <= V)%nat -> (1 <= A)%nat ->
   NatLe (Datatypes.S (V * A ^ (V * A))) ((A + 1) ^ (V * A)).
@@ -278,7 +302,7 @@ Proof.
   lia.
 Qed.
 
-(* 幂不等式 nat → Z 提升（指数/底经 Nat2Z 单射移植） *)
+(* nat -> Z lift of the power inequality (exponent/base ported via Nat2Z injectivity) *)
 Lemma ln2b_pow_lift : forall V' A' B' : nat,
   (1 <= V')%nat -> (1 <= A')%nat ->
   (V' * A' ^ (V' * A') < B' ^ (V' * A'))%nat ->
@@ -296,10 +320,10 @@ Proof.
   rewrite Hltb. apply id_refl.
 Qed.
 
-(* 衰减引理：0 < θ < 1、分母 v（positive）⟹ 显式 n₀ = v·num(θ) 使
-   证明：θ = a/b（a ≥ 1、b ≥ a+1），取 n₀ := v·a，
-   Bernoulli 给 (a+1)^{n₀} ≥ a^{n₀} + n₀·a^{n₀−1} = (v+1)·a^{n₀}
-   > v·a^{n₀}，又 b^{n₀} ≥ (a+1)^{n₀}。零 LPO（全显式指标）。 *)
+(* Decay lemma: 0 < theta < 1 and denominator v (positive) give the explicit
+   n0 = v * num(theta).  Proof: theta = a/b with a >= 1 and b >= a+1; take
+   n0 := v*a.  Bernoulli gives (a+1)^n0 >= a^n0 + n0*a^(n0-1) = (v+1)*a^n0
+   > v*a^n0, and b^n0 >= (a+1)^n0.  No LPO (fully explicit indices). *)
 Lemma ln2b_decay : forall th : Q, QltT 0 th -> QltT th (1 # 1) ->
   forall v : positive,
   sigT (fun n0 : nat => QltT (q_pow th n0) ((1 # v)%Q)).
@@ -327,7 +351,7 @@ Proof.
   rewrite (fun c0 n0 => qeqT_imp_qeq _ _ (ln2b_qpow_num c0 n0)).
   rewrite (fun c0 n0 => qeqT_imp_qeq _ _ (ln2b_qpow_num c0 n0)).
   rewrite Hid.
-  (* 终归 Z 不等式：a^{v·a}·v < b^{v·a} *)
+  (* Eventual Z inequality: a^(v*a) * v < b^(v*a) *)
   assert (Hcore : ((Z.pos v) * a ^ (Z.pos v * a)
                    < Z.pos b ^ (Z.pos v * a))%Z).
   { pose proof (NatLe_drop _ _
@@ -355,16 +379,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 δ 提取 ln2b_delta_of_supply：整判定两支显式正 δ（零 LPO） *)
+(* S4. Delta extraction ln2b_delta_of_supply: explicit positive delta on both
+   decidable-equality branches (no LPO) *)
 (* ============================================================ *)
 
-(* q_pow 的一次幂 *)
+(* The power-1 case of q_pow *)
 Lemma ln2b_qpow_one : forall th : Q, QeqT (q_pow th 1) th.
 Proof.
   intro th. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (q_pow_succ th 0%nat)). cbn [q_pow]. ring.
 Qed.
 
-(* 半值引理：a < b + a/2 ⟹ a/2 < b（destruct-Q nia） *)
+(* Half-value lemma: a < b + a/2 implies a/2 < b (destruct-Q + nia) *)
 Lemma ln2b_half_lt : forall a b : Q, Qlt a (b + a * (1 # 2))%Q ->
   QltT (a * (1 # 2)) b.
 Proof.
@@ -374,7 +399,7 @@ Proof.
   nia.
 Qed.
 
-(* 除法反向形式：0 < A、c < A·M ⟹ c·A⁻¹ < M *)
+(* Reverse-division form: 0 < A and c < A*M imply c*A^(-1) < M *)
 Lemma ln2b_div_lt_of : forall c A M : Q, QltT 0 A -> Qlt c (A * M)%Q ->
   QltT (c * Qinv A) M.
 Proof.
@@ -391,7 +416,8 @@ Proof.
   exact (lic_qlt_comp_r ((A * M)%Q * Qinv A) M (c * Qinv A) Hprod Hlt2).
 Qed.
 
-(* 整系数 Q 线性式的通分：(a#1)·(u#v) − (b#1) == (u·a − v·b)#v *)
+(* Common denominator for the integer-coefficient Q linear form:
+   (a#1)*(u#v) - (b#1) == ((u*a - v*b)#v) *)
 Lemma ln2b_line_q : forall (a b u : Z) (v : positive),
   QeqT (((a # 1)%Q * ((u # v)%Q) - ((b # 1)%Q))%Q)
        (((u * a - Z.pos v * b) # v)%Q).
@@ -401,7 +427,7 @@ Proof.
   lia.
 Qed.
 
-(* 中支行等式：A₀·q == B₀ ⟹ |A₀·x_k − B₀| == |A₀|·|x_k − q| *)
+(* Hit-branch equality: A0*q == B0 implies |A0*x_k - B0| == |A0|*|x_k - q| *)
 Lemma ln2b_hit_line : forall (A0 B0 : Z) (q : Q) (k : nat),
   (((A0 # 1)%Q * q - (B0 # 1)%Q)%Q == 0%Q) ->
   QeqT (Qabs (((A0 # 1)%Q * ln2i_x k - (B0 # 1)%Q)%Q))
@@ -419,12 +445,14 @@ Proof.
   rewrite Hfac. rewrite Qabs_Qmult. reflexivity.
 Qed.
 
-(* δ 提取主件：供给型 + 有理数 q ⟹ 显式正 δ 与终归点式肢
-   δ ≤ |q − x_k|（k ≥ K）。分情形（Z.eq_dec 可判定）：
-   - 否支（u·A_{n₀} ≠ v·B_{n₀}）：δ := ((1/v − θ^{n₀})/2)·|A_{n₀}|⁻¹；
-   - 中支（u·A_{n₀} = v·B_{n₀}）：δ := (clo_{n₀}/2)·|A_{n₀}|⁻¹
-     （正性由载体条件 clo>0 供给——若 X = q 则下界肢与 clo>0 矛盾，
-      伪 supply 被排除，见反例 ln2b_supply_trivial_hit）。 *)
+(* Delta-extraction main piece: supply type + rational q give an explicit positive
+   delta and the eventual pointwise limb delta <= |q - x_k| (k >= K).  Case
+   split (decidable by Z.eq_dec):
+   - miss branch (u*A_n0 <> v*B_n0): delta := ((1/v - theta^n0)/2)*|A_n0|^(-1);
+   - hit branch (u*A_n0 = v*B_n0): delta := (clo_n0/2)*|A_n0|^(-1)
+     (positivity is supplied by the carrier condition clo > 0 -- if X = q the
+     lower limb contradicts clo > 0 and the fake supply is excluded; see the
+     counterexample witness ln2b_supply_trivial_hit). *)
 Theorem ln2b_delta_of_supply : forall (Hs : ln2i_pade_supply) (q : Q),
   sigT (fun d : Q => And (QltT 0 d)
     (sigT (fun K : nat => forall k : nat, (K <= k)%nat ->
@@ -434,7 +462,7 @@ Proof.
   destruct Hs as [A [B [clo [th [Hth1 [HA [Hclo [Hlow Hup]]]]]]]].
   destruct q as [u v].
   assert (Hv0 : (0 < Z.pos v)%Z) by lia.
-  (* —— θ > 0：下界肢/上界肢的 slack 形在公共指标 k₀ 夹出 —— *)
+  (* -- theta > 0: the lower/upper slack forms pinched at the common index k0 -- *)
   assert (Heps1 : QltT 0 (((clo 1)%nat) * (1 # 2))%Q).
   { apply Qlt_to_QltT. apply Qmult_lt_0_compat.
     - apply QltT_to_Qlt. apply (Hclo 1%nat).
@@ -475,11 +503,11 @@ Proof.
     - apply QltT_to_Qlt. apply (Hclo 1%nat).
     - unfold Qlt. cbn. lia. }
   assert (Hth0q : Qlt 0 th) by (apply (Qlt_trans _ _ _ Hc14 Hthq2)).
-  (* —— 衰减：显式 n₀ 使 θ^{n₀} < 1/v —— *)
+  (* -- Decay: explicit n0 with theta^n0 < 1/v -- *)
   assert (Hthpos : QltT 0 th) by (apply Qlt_to_QltT; exact Hth0q).
   destruct (ln2b_decay th Hthpos Hth1 v) as [n0 Hdec].
   pose proof (QltT_to_Qlt _ _ Hdec) as Hdecq.
-  (* —— 上界肢在 n₀ 的 slack：line_k < 1/v − Δ（Δ := (1/v − θ^{n₀})/2） —— *)
+  (* -- Upper-limb slack at n0: line_k < 1/v - Delta, Delta := (1/v - theta^n0)/2 -- *)
   assert (Hdelta0 : QltT 0 (((1 # v)%Q - q_pow th n0) * (1 # 2))%Q).
   { apply Qlt_to_QltT. apply Qmult_lt_0_compat.
     - apply lic_qlt_0_minus. exact Hdecq.
@@ -489,9 +517,9 @@ Proof.
     as [Ku HKu].
   assert (Hmid : (q_pow th n0 + ((1 # v)%Q - q_pow th n0) * (1 # 2))%Q
                  == ((1 # v)%Q - ((1 # v)%Q - q_pow th n0) * (1 # 2))%Q) by ring.
-  (* —— 整判定分叉（Z 可判定，零 LPO） —— *)
+  (* -- Decidable fork on Z (no LPO) -- *)
   destruct (Z.eq_dec (u * A n0) (Z.pos v * B n0)) as [Hhit | Hmiss].
-  + (* —— 中支：δ := (clo_{n₀}/2)·|A_{n₀}|⁻¹ —— *)
+  + (* -- Hit branch: delta := (clo_n0/2)*|A_n0|^(-1) -- *)
     assert (HhitQ : (((A n0) # 1)%Q * ((u # v)%Q) - ((B n0) # 1)%Q)%Q == 0%Q).
     { rewrite (qeqT_imp_qeq _ _ (ln2b_line_q (A n0) (B n0) u v)). rewrite Hhit.
       unfold Qeq. cbn [Qnum Qden Pos.mul]. lia. }
@@ -524,7 +552,7 @@ Proof.
                (Qabs ((ln2i_x k - (u # v)%Q)%Q))).
       ++ apply (HA n0).
       ++ exact Hlowk.
-  + (* —— 否支：δ := ((1/v − θ^{n₀})/2)·|A_{n₀}|⁻¹ —— *)
+  + (* -- Miss branch: delta := ((1/v - theta^n0)/2)*|A_n0|^(-1) -- *)
     set (w := (u * A n0 - Z.pos v * B n0)%Z).
     assert (Hw0 : w <> 0%Z) by (intro E; apply Hmiss; lia).
     assert (Hw1 : (1 <= Z.abs w)%Z).
@@ -542,7 +570,7 @@ Proof.
       pose proof (QltT_to_Qlt _ _ HKuq0) as HKuq.
       rewrite (qeqT_imp_qeq _ _ (real_const_proj (q_pow th n0) k)) in HKuq.
       rewrite Hmid in HKuq.
-      (* 三角：|A·q − B| ≤ |A|·|q − x_k| + line_k *)
+      (* Triangle: |A*q - B| <= |A|*|q - x_k| + line_k *)
       assert (Hsplit : (((A n0) # 1)%Q * ((u # v)%Q) - ((B n0) # 1)%Q)%Q
                        == (((A n0) # 1)%Q * ((u # v)%Q - ln2i_x k)
                            + (((A n0) # 1)%Q * ln2i_x k - ((B n0) # 1)%Q))%Q)
@@ -572,7 +600,8 @@ Proof.
         exact (Qle_trans _ _ _ Hleg2a Hcomb).
       }
       exact (Qle_trans _ _ _ Hleg1 Hleg2).
-      (* 1/v ≤ |w#v| ≤ |A|·|q−x_k| + line_k < |A|·|q−x_k| + (1/v − Δ) ⟹ Δ < |A|·|q−x_k| *)
+      (* 1/v <= |w#v| <= |A|*|q-x_k| + line_k < |A|*|q-x_k| + (1/v - Delta),
+         hence Delta < |A|*|q-x_k| *)
       assert (Hge : Qle ((1 # v)%Q) (Qabs ((w # v)%Q))).
       { unfold Qle, Qabs. cbn [Qnum Qden]. nia. }
       pose proof (Qle_trans _ _ _ Hge Htri) as Hchain1.
@@ -600,10 +629,11 @@ Proof.
                               * Qabs (((u # v)%Q - ln2i_x k)%Q)
                               + ((1 # v)%Q - ((1 # v)%Q - q_pow th n0) * (1 # 2)))%Q)
                      Hpre) as Hm.
-        (* 中间断言 Hm : 0 < (P + W) − 1/v，其中 W := 1/v − Δ ⟹ 0 < P − Δ
-           （恒等式 Hring：P + W − 1/v == P − Δ，Δ := ((1/v) − θ^{n₀})·(1/2)）
-           注记：右端必须写成 P − Δ 方为恒等式；写成 P − (1/v − Δ) 则
-            不成立，ring 判拒绝是正确行为。 *)
+        (* Mid assertion Hm : 0 < (P + W) - 1/v with W := 1/v - Delta, hence
+           0 < P - Delta (identity Hring: P + W - 1/v == P - Delta, with
+           Delta := ((1/v) - theta^n0)*(1/2)).  Note: the right side must be
+           written as P - Delta for the identity to hold; written as
+           P - (1/v - Delta) it is false, and ring refusing it is correct. *)
         assert (Hring : ((Qabs ((A n0) # 1)%Q * Qabs (((u # v)%Q - ln2i_x k)%Q)
                            + ((1 # v)%Q - ((1 # v)%Q - q_pow th n0) * (1 # 2)))
                           - (1 # v)%Q)%Q
@@ -611,7 +641,7 @@ Proof.
                             - ((1 # v)%Q - q_pow th n0) * (1 # 2))%Q)
           by ring.
         rewrite Hring in Hm.
-        (* Δ + (P − Δ) == P；0 < P − Δ ⟹ Δ < P *)
+        (* Delta + (P - Delta) == P; 0 < P - Delta implies Delta < P *)
         assert (Hring2 : ((((1 # v)%Q - q_pow th n0) * (1 # 2))
                             + (Qabs ((A n0) # 1)%Q
                                * Qabs (((u # v)%Q - ln2i_x k)%Q)
@@ -633,14 +663,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 ln2b_escape_of_supply：supply -> ln2i_escape_spec（条件形闭合） *)
+(* S5. ln2b_escape_of_supply: supply -> ln2i_escape_spec (conditional-form closure) *)
 (* ============================================================ *)
 
-(* 逃逸主件（与早期草案的构造差异：指标不取 2v+4，不用
-   ln2i_pow_ge 与反三角路径）：以 vanish 与 δ 点式两条件直接闭合——
-   ln2i_vanish 于 eps:=δ 给显式 N（n≥N ⟹ ln2i_e n < δ），与 δ 提取件的
-   终归点式肢（δ ≤ |q−x_k|，k≥K）在 m := S(max K N) 处合取：
-   ln2i_e m < δ ≤ |q−x_m|。指标 m 全显式，零 LPO。 *)
+(* Escape main piece (differs from the early draft: the index is not 2v+4 and the
+   ln2i_pow_ge + reverse-triangle route is dropped): closes directly from the
+   vanish condition and the pointwise delta limb -- ln2i_vanish at eps := delta
+   gives an explicit N (n >= N implies ln2i_e n < delta); conjoin with the
+   eventual pointwise limb of the delta-extraction piece (delta <= |q - x_k|,
+   k >= K) at m := S(max K N): ln2i_e m < delta <= |q - x_m|.  The index m is
+   fully explicit, no LPO. *)
 Theorem ln2b_escape_of_supply : forall (Hs : ln2i_pade_supply),
   ln2i_escape_spec.
 Proof.
@@ -660,12 +692,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §6 ln2b_irrational_from_supply：supply 条件下应用 lic_irrational_criterion *)
+(* S6. ln2b_irrational_from_supply: applying lic_irrational_criterion under a supply *)
 (* ============================================================ *)
 
-(* 主件：语句面为 ln2i_irrational_criterion_cond 的结论面（X 取
-   ln2b_X 的展开形式），逃逸规格由 ln2b_escape_of_supply 供给，
-   直接应用母定理 lic_irrational_criterion。 *)
+(* Main piece: the statement face is the conclusion face of
+   ln2i_irrational_criterion_cond (X taken in its expanded form, i.e. ln2b_X);
+   the escape spec is supplied by ln2b_escape_of_supply, and the mother theorem
+   lic_irrational_criterion is applied directly. *)
 Theorem ln2b_irrational_from_supply : forall (Hs : ln2i_pade_supply) (q : Q),
   sigT (fun c : Q => And (QltT 0 c)
     (real_lt (real_const c)
@@ -678,15 +711,18 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §7 反例见证：平凡三元组（排除伪 supply） *)
+(* S7. Counterexample witness: the trivial triple (ruling out fake supplies) *)
 (* ============================================================ *)
 
-(* 平凡三元组 A:=1, B:=0, clo:=0：供给型五个组成条件之 ③(0<clo)
-   缺失，故非合法 supply。反例以全 Set 面实证两点：
-   ① q:=0（即 u:=0,v:=1，0·A₀ == 1·B₀）处中支判据成立——Z.eq_dec
-      分叉取左支，δ 提取件取中支；
-   ② 中支 δ 公式 (clo/2)·|A|⁻¹ 输出 0（QleT' 面 ≤0）——中支正性
-      无处可得：其必须由载体条件 clo>0 供给，伪 supply 由此排除。 *)
+(* Trivial triple A := 1, B := 0, clo := 0: component (iii) (0 < clo) of the five
+   supply components is missing, so this is not a legal supply.  The
+   counterexample establishes two points, all on Set faces:
+   (i) at q := 0 (i.e. u := 0, v := 1, so 0*A0 == 1*B0) the hit-branch test
+       holds: the Z.eq_dec fork takes the left branch and delta extraction takes
+       the hit branch;
+   (ii) the hit-branch delta formula (clo/2)*|A|^(-1) outputs 0 (QleT' face <= 0):
+       hit-branch positivity is unobtainable -- it must be supplied by the carrier
+       condition clo > 0, and the fake supply is thereby excluded. *)
 Definition ln2b_tri_A : nat -> Z := fun _ => 1%Z.
 Definition ln2b_tri_B : nat -> Z := fun _ => 0%Z.
 Definition ln2b_tri_clo : nat -> Q := fun _ => 0%Q.
@@ -703,7 +739,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §8 提取与假设审计 *)
+(* S8. Extraction and assumption audit *)
 (* ============================================================ *)
 
 From Stdlib Require Import Extraction.

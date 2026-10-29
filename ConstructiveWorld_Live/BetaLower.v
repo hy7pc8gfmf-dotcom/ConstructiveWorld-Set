@@ -1,32 +1,33 @@
-(* ============================================================ *)
-(*  BetaLower.v —— Beta 闭式承载的 c·σⁿ 型下界族                     *)
-(*  使命: 以 lne_B n = (n!)²/(2n+1)!（Beta 闭式，lne_B_closed）为承载  *)
-(*        的 c·σⁿ 型下界族：                                           *)
-(*        主件 bl_beta_lower：(1/2)·(3/16)ⁿ ≤ lne_B n（QleT'）；        *)
-(*        族最优 bl_beta_lower_opt：(98/135)·(3/14)ⁿ ≤ lne_B n          *)
-(*        （n=2、n=3 双缚等号；任何 c·σⁿ 下界族中 σ ≤ min_{n≥2} 步比    *)
-(*        = 3/14，此对在「n≥2 缚」意义下不可改进）；                    *)
-(*        变体 bl_variant_shift：(1/4)·(3/32)ⁿ ≤ 2^{−(n+1)}·lne_B n     *)
-(*        = 2^{−(n+2)}·(3/16)ⁿ。                                        *)
-(*        背景：I_n = ∫₀¹ tⁿ(1−t)ⁿ/(1−t/2)^{n+1} dt 满足                *)
-(*        ln2 − x'_n = I_n/(2^{n+1}·q̃_n)，且 I_n ≥ lne_B n；            *)
-(*        I_n 本体（有理被积函数）的积分对象不在库内，本件交付以        *)
-(*        lne_B 为承载的 I_n 可证下界形。数值锚：lne_B 0..3 =           *)
-(*        1, 1/6, 1/30, 1/140（vm_compute 实例 ×9＋值见证 ×3）。        *)
-(*  依赖: S02_CauchyComplete（QleT'/QltT 桥）、S03_QExp（q_pow/q_fact）、*)
-(*        SumInvFactEscape（sif_qfact_Z）、PolyIntegral、               *)
-(*        Ln2Escape（lne_B 承载）；Stdlib QArith、Arith、ZArith、        *)
-(*        Arith.Factorial、Lia。                                        *)
-(*  对标: PadeErrorIntegral pei_beta 族／Ln2Escape lne_beta_value        *)
-(*        （Beta 闭式配方溯沿）；lne_div_eq（除法比较器同构）。          *)
-(*  构造性: 语句面全 Set（QleT'/QeqT；Q 层 Prop 仅内部脚手架）；         *)
-(*        零承认语句、零经典逻辑；纯 nat 阶乘不等式归纳                  *)
-(*        （bl_nat_core16/14：3(2n+3) ≤ 8(n+1) / ≤ 7(n+1) 线性 lia）；   *)
-(*        除法比较器 bl_div_le（配 bl_div_ge 对偶）；                    *)
-(*        提取检验 Obj.magic=0。                                        *)
-(*  编译配方: Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""（vo 树  *)
-(*        同世界重编），COQLIB/ROCQLIB 全字面环境前缀。                  *)
-(* ============================================================ *)
+(* ConstructiveWorld-Main -> Set - BetaLower: c*sigma^n lower-bound family on
+   the Beta closed-form carrier (statements carried on Set). *)
+(** * BetaLower: c*sigma^n lower bounds carried by the Beta closed form.
+
+    Mission.  Carrier [lne_B n] := (n!)^2/(2n+1)! (Beta closed form,
+      [lne_B_closed]); the c*sigma^n lower-bound family: [bl_beta_lower],
+      (1/2)*(3/16)^n <= lne_B n ([QleT']); family-optimal [bl_beta_lower_opt],
+      (98/135)*(3/14)^n <= lne_B n, equality at both n = 2 and n = 3 (any
+      c*sigma^n family has sigma <= min_{n>=2} step ratio = 3/14, optimal
+      for all n >= 2); shifted variant [bl_variant_shift], (1/4)*(3/32)^n
+      <= 2^{-(n+1)}*lne_B n = 2^{-(n+2)}*(3/16)^n.  Background:
+      I_n := int_0^1 t^n(1-t)^n/(1-t/2)^{n+1} dt has ln2 - x'_n =
+      I_n/(2^{n+1}*qtilde_n) and I_n >= lne_B n; I_n itself (rational
+      integrand) is not in the library, so the file delivers lne_B-carried
+      lower-bound shapes for I_n.  Anchors: lne_B 0..3 = 1, 1/6, 1/30,
+      1/140 (nine [vm_compute] instances, three value witnesses).
+    Dependencies.  [S02_CauchyComplete] ([QleT']/[QltT] bridges), [S03_QExp]
+      ([q_pow]/[q_fact]), [SumInvFactEscape] ([sif_qfact_Z]), [PolyIntegral],
+      [Ln2Escape] ([lne_B]); Stdlib [QArith], [Arith], [ZArith], [Arith.Factorial], [Lia].
+    References.  PadeErrorIntegral [pei_beta] family and Ln2Escape [lne_beta_value]
+      (Beta closed-form lineage); [lne_div_eq] (division comparator, isomorphic shape).
+    Constructivity.  Statements on the Set face ([QleT'], [QeqT]; Q-layer
+      [Prop] is internal scaffolding only); zero admitted statements, zero
+      classical logic; pure nat factorial-inequality inductions
+      ([bl_nat_core16]/[bl_nat_core14]: 3(2n+3) <= 8(n+1) / <= 7(n+1), linear
+      [lia] certificates); comparators [bl_div_le]/[bl_div_ge]; extraction
+      check [Obj.magic] = 0.
+    Build.  [rocq c -native-compiler no -q -Q . "" BetaLower.v] exits 0
+      against the S01/S02/S03 + PolyIntegral + SumInvFactEscape + Ln2Escape
+      artifacts (COQLIB/ROCQLIB as full literal environment prefixes). *)
 
 From Stdlib Require Import QArith.QArith Arith.Arith ZArith.ZArith Lia.
 From Stdlib Require Import Arith.Factorial.
@@ -38,10 +39,10 @@ Require Import PolyIntegral.
 Require Import Ln2Escape.
 
 (* ============================================================ *)
-(* §1 Q 层支撑件（内件，Prop 面仅脚手架）                              *)
+(* S1. Q-layer support pieces (internal; the Prop face is scaffolding only)      *)
 (* ============================================================ *)
 
-(* k^n ≥ 1（正底幂非零下界；供 Qlt cast 支路用） *)
+(* k^n >= 1 (a power with positive base has a nonzero lower bound; for the Qlt cast branch) *)
 Lemma bl_mul_ge1 : forall k n : nat, (1 <= k)%nat -> NatLe 1 (k ^ n).
 Proof.
   intros k n Hk. apply NatLe_lift. induction n as [| n IH].
@@ -49,17 +50,17 @@ Proof.
   - rewrite Nat.pow_succ_r'. lia.
 Qed.
 
-(* Qmake 乘法桥：(a#1)·(b#1) == (a·b#1)（定义级） *)
+(* Qmake multiplication bridge: (a#1)*(b#1) == (a*b#1) (definitional) *)
 Lemma bl_qmake_mul : forall a b : Z, QeqT ((a # 1) * (b # 1)) ((a * b # 1)%Q).
 Proof.
   intros a b. apply qeq_imp_qeqT. unfold Qmult. cbn [Pos.mul]. reflexivity.
 Qed.
 
-(* 乘除结合桥接引理：x·(y/z) == (x·y)/z（Qdiv 的定义即乘 Qinv，展开后为结合律） *)
+(* Multiplication/division associativity bridge: x*(y/z) == (x*y)/z (Qdiv is defined as multiplication by Qinv, associativity after unfolding) *)
 Lemma bl_mult_div_assoc : forall x y z : Q, QeqT (x * (y / z)) ((x * y) / z).
 Proof. intros x y z. apply qeq_imp_qeqT. unfold Qdiv. ring. Qed.
 
-(* 同幂相乘桥接引理：q_pow x n · q_pow y n == q_pow (x·y) n（bl_variant_shift 使用） *)
+(* Equal-exponent power product bridge: q_pow x n * q_pow y n == q_pow (x*y) n (used by bl_variant_shift) *)
 Lemma bl_qpow_mul : forall (x y : Q) (n : nat), QeqT (q_pow x n * q_pow y n) (q_pow (x * y) n).
 Proof.
   intros x y n. apply qeq_imp_qeqT. induction n as [| n IH].
@@ -71,25 +72,28 @@ Proof.
     + rewrite IH. ring.
 Qed.
 
-(* Qinv 对乘积分配（双非零前提；bl_pow_div/桥接引理用） *)
+(* Qinv distributes over the product (both factors nonzero; used by bl_pow_div and the bridges) *)
 Lemma bl_qinv_mult : forall x y : Q,
   ~ (x == 0%Q) -> ~ (y == 0%Q) -> QeqT (Qinv (x * y)) (Qinv x * Qinv y).
 Proof.
   intros x y Hx Hy. apply qeq_imp_qeqT.
-  apply (lne_mult_canc (Qinv (x * y)) (Qinv x * Qinv y) (x * y)).
+  apply (fun H1 H2 => qeqT_imp_qeq _ _
+           (lne_mult_canc (Qinv (x * y)) (Qinv x * Qinv y) (x * y) H1 H2)).
   - transitivity (1%Q).
     + rewrite (Qmult_comm (Qinv (x * y)) (x * y)).
       apply Qmult_inv_r.
-      intro E. apply Hx. apply (lne_mult_canc x 0%Q y).
+      intro E. apply Hx.
+      apply (fun H1 H2 => qeqT_imp_qeq _ _ (lne_mult_canc x 0%Q y H1 H2)).
       * rewrite Qmult_0_l. exact E.
       * exact Hy.
     + assert (E1 : (Qinv x * Qinv y) * (x * y) == (x * Qinv x) * (y * Qinv y)) by ring.
       rewrite E1.
       rewrite (Qmult_inv_r x Hx). rewrite (Qmult_inv_r y Hy). ring.
-  - apply (lne_mult_nz x y Hx Hy).
+  - intro E. apply False_rect.
+    exact (match lne_mult_nz x y Hx Hy (qeq_imp_qeqT _ _ E) with end).
 Qed.
 
-(* 正底幂非零：~ (q_pow y n == 0) *)
+(* Positive-base powers are nonzero: ~ (q_pow y n == 0) *)
 Lemma bl_qpow_nz : forall (y : Q) (n : nat),
   ~ (y == 0%Q) -> Not (QeqT (q_pow y n) 0%Q).
 Proof.
@@ -97,13 +101,12 @@ Proof.
   assert (Hprop : forall m : nat, ~ (q_pow y m == 0%Q)).
   { intro m. induction m as [| m IH].
     - intro E. vm_compute in E. lia.
-    - apply (lne_mult_nz y (q_pow y m)).
-      + exact Hy.
-      + apply IH. }
+    - intro E. apply False_rect.
+      exact (match lne_mult_nz y (q_pow y m) Hy IH (qeq_imp_qeqT _ _ E) with end). }
   intro E. exact (False_rect _ (Hprop n (qeqT_imp_qeq _ _ E))).
 Qed.
 
-(* 幂的除法分配：q_pow (x/y) n == q_pow x n / q_pow y n *)
+(* Powers distribute over division: q_pow (x/y) n == q_pow x n / q_pow y n *)
 Lemma bl_pow_div : forall (x y : Q) (n : nat),
   ~ (y == 0%Q) -> QeqT (q_pow (x / y) n) (q_pow x n / q_pow y n).
 Proof.
@@ -119,7 +122,7 @@ Proof.
     ring.
 Qed.
 
-(* 整数 cast 幂桥：q_pow (k#1) n == (k^n # 1) *)
+(* Integer cast power bridge: q_pow (k#1) n == (k^n # 1) *)
 Lemma bl_pZ : forall k n : nat, QeqT (q_pow (Z.of_nat k # 1) n) ((Z.of_nat (k ^ n) # 1)%Q).
 Proof.
   intros k n. apply qeq_imp_qeqT. induction n as [| n IH].
@@ -128,7 +131,7 @@ Proof.
     unfold Qmult. cbn [Pos.mul]. rewrite Nat2Z.inj_mul. reflexivity.
 Qed.
 
-(* 左乘保序：x ≤ y、0 ≤ z ⟹ z·x ≤ z·y（Qmult_le_compat_r 的左乘封装） *)
+(* Left multiplication preserves order: x <= y, 0 <= z imply z*x <= z*y (wrapper of Qmult_le_compat_r) *)
 Lemma bl_mlc : forall x y z : Q, Qle x y -> Qle 0 z -> QleT' (z * x) (z * y).
 Proof.
   intros x y z H Hz. apply Qle_to_QleT'.
@@ -136,7 +139,7 @@ Proof.
   exact (Qmult_le_compat_r x y z H Hz).
 Qed.
 
-(* 除法下界比较器（lne_div_le_inv 对偶）：0 < y、z·y ≤ x ⟹ z ≤ x/y *)
+(* Division lower-bound comparator (dual of lne_div_le_inv): 0 < y, z*y <= x imply z <= x/y *)
 Lemma bl_div_ge : forall x y z : Q, Qlt 0 y -> Qle (z * y) x -> QleT' z (x / y).
 Proof.
   intros x y z Hy Hzy. apply Qle_to_QleT'. unfold Qdiv.
@@ -152,7 +155,7 @@ Proof.
   exact H1.
 Qed.
 
-(* 右消元器：0 < s、a·s ≤ b·s ⟹ a ≤ b（内部走 bl_div_ge） *)
+(* Right canceller: 0 < s, a*s <= b*s imply a <= b (internally via bl_div_ge) *)
 Lemma bl_cancel_r : forall a b s : Q, Qlt 0 s -> Qle (a * s) (b * s) -> QleT' a b.
 Proof.
   intros a b s Hs H.
@@ -167,7 +170,7 @@ Proof.
   rewrite E in H1. exact (Qle_to_QleT' _ _ H1).
 Qed.
 
-(* 除法比较器（lne_div_eq 的不等式版）：0<y、0<s、x·s ≤ y·r ⟹ x/y ≤ r/s *)
+(* Division comparator (inequality version of lne_div_eq): 0 < y, 0 < s, x*s <= y*r imply x/y <= r/s *)
 Lemma bl_div_le : forall x y r s : Q,
   Qlt 0 y -> Qlt 0 s -> Qle (x * s) (y * r) -> QleT' (x / y) (r / s).
 Proof.
@@ -177,7 +180,8 @@ Proof.
   assert (Hs0 : ~ (s == 0%Q)).
   { intro Ee. apply (Qlt_not_eq 0%Q s Hs). exact (Qeq_sym _ _ Ee). }
   assert (E : x / y == (x * s) / (y * s)).
-  { apply (lne_div_eq x y (x * s) (y * s)).
+  { apply (fun H1 H2 H3 => qeqT_imp_qeq _ _
+             (lne_div_eq x y (x * s) (y * s) H1 H2 H3)).
     - exact Hy.
     - apply Qmult_lt_0_compat; assumption.
     - ring. }
@@ -207,12 +211,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 纯 nat 阶乘不等式核（lne_nat_core 同型；核证书线性 lia）          *)
+(* S2. Pure nat factorial-inequality cores (same shape as lne_nat_core; linear lia certificates) *)
 (* ============================================================ *)
 
-(* 主件核：3^n·8·(2n+1)! ≤ 16^n·16·(n!)²
-   （⟺ (1/2)(3/16)^n ≤ (n!)²/(2n+1)!；步乘子 3(2n+3)(2n+2) ≤ 16(n+1)²
-     经线性证书 3(2n+3) ≤ 8(n+1)（n≥1）×(2n+2) 达成） *)
+(* Main core: 3^n*8*(2n+1)! <= 16^n*16*(n!)^2
+   (iff (1/2)(3/16)^n <= (n!)^2/(2n+1)!; the step factor 3(2n+3)(2n+2) <= 16(n+1)^2
+     is achieved by the linear certificate 3(2n+3) <= 8(n+1) (n >= 1) times (2n+2)) *)
 Lemma bl_nat_core16 : forall n : nat,
   NatLe (3 ^ n * 8 * fact (2 * n + 1)) (16 ^ n * 16 * fact n * fact n).
 Proof.
@@ -260,9 +264,9 @@ Proof.
 
 Qed.
 
-(* 最优档核：3^n·98·(2n+1)! ≤ 14^n·135·(n!)²
-   （⟺ (98/135)(3/14)^n ≤ (n!)²/(2n+1)!；步乘子 3(2n+3)(2n+2) ≤ 14(n+1)²
-     经线性证书 3(2n+3) ≤ 7(n+1)（n≥2）×(2n+2) 达成；n=2 等号 105840） *)
+(* Optimal-tier core: 3^n*98*(2n+1)! <= 14^n*135*(n!)^2
+   (iff (98/135)(3/14)^n <= (n!)^2/(2n+1)!; the step factor 3(2n+3)(2n+2) <= 14(n+1)^2
+     is achieved by the linear certificate 3(2n+3) <= 7(n+1) (n >= 2) times (2n+2); equality 105840 at n = 2) *)
 Lemma bl_nat_core14 : forall n : nat,
   NatLe (3 ^ n * 98 * fact (2 * n + 1)) (14 ^ n * 135 * fact n * fact n).
 Proof.
@@ -313,17 +317,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 Q 桥：目标常数幂 → 单除法 Z cast 形                               *)
+(* S3. Q bridges: constant-power goals into single-division Z cast form          *)
 (* ============================================================ *)
 
-(* (1/2)·(3/16)^n == (3^n·8 # 1)/(16^n·16 # 1)
-   （(1/2)(3/16)^n = 3^n/(2·16^n) = (8·3^n)/(16·16^n)） *)
+(* (1/2)*(3/16)^n == (3^n*8 # 1)/(16^n*16 # 1)
+   ((1/2)(3/16)^n = 3^n/(2*16^n) = (8*3^n)/(16*16^n)) *)
 Lemma bl_half_pow : forall n : nat,
   QeqT ((1 # 2) * q_pow (3 # 16) n)
        ((Z.of_nat (3 ^ n * 8) # 1) / (Z.of_nat (16 ^ n * 16) # 1)%Q).
 Proof.
-  (* 策略：3/16 拆为 3/1 ÷ 16/1 后由 bl_pow_div 分配幂，bl_pZ 换算
-     cast，bl_mult_div_assoc 与 bl_qmake_mul 合并因子，lne_div_eq 收束。 *)
+  (* Strategy: split 3/16 into 3/1 divided by 16/1, distribute the power by bl_pow_div, convert the
+     casts by bl_pZ, merge the factors by bl_mult_div_assoc and bl_qmake_mul, close by lne_div_eq. *)
   intro n. apply qeq_imp_qeqT.
   replace (3 # 16)%Q with ((Z.of_nat 3 # 1) / (Z.of_nat 16 # 1))%Q by reflexivity.
   assert (Hnz : ~ ((Z.of_nat 16 # 1) == 0%Q)).
@@ -340,7 +344,7 @@ Proof.
              (bl_mult_div_assoc (1 # 2)%Q (Z.of_nat (3 ^ n) # 1) (Z.of_nat (16 ^ n) # 1))).
   rewrite <- (qeqT_imp_qeq _ _ (bl_qmake_mul 8%Z (Z.of_nat (3 ^ n)))).
   rewrite <- (qeqT_imp_qeq _ _ (bl_qmake_mul 16%Z (Z.of_nat (16 ^ n)))).
-  apply lne_div_eq.
+  apply (fun H1 H2 H3 => qeqT_imp_qeq _ _ (lne_div_eq _ _ _ _ H1 H2 H3)).
   - unfold Qlt. cbn [Qnum Qden Qmult Pos.mul].
     pose proof (NatLe_drop _ _ (bl_mul_ge1 16 n ltac:(lia))).
     pose proof (proj1 (Nat2Z.inj_lt 0 (16 ^ n)) ltac:(lia)). lia.
@@ -350,13 +354,13 @@ Proof.
   - ring.
 Qed.
 
-(* (98/135)·(3/14)^n == (3^n·98 # 1)/(14^n·135 # 1) *)
+(* (98/135)*(3/14)^n == (3^n*98 # 1)/(14^n*135 # 1) *)
 Lemma bl_opt_pow : forall n : nat,
   QeqT ((98 # 135) * q_pow (3 # 14) n)
        ((Z.of_nat (3 ^ n * 98) # 1) / (Z.of_nat (14 ^ n * 135) # 1)%Q).
 Proof.
-  (* 策略与 bl_half_pow 相同：bl_pow_div 分配幂后合并为单一分式，
-     经 bl_mult_div_assoc、bl_qmake_mul 与 lne_div_eq 收束。 *)
+  (* Strategy as in bl_half_pow: after bl_pow_div distributes the power, merge into a single fraction,
+     then close through bl_mult_div_assoc, bl_qmake_mul and lne_div_eq. *)
   intro n. apply qeq_imp_qeqT.
   replace (3 # 14)%Q with ((Z.of_nat 3 # 1) / (Z.of_nat 14 # 1))%Q by reflexivity.
   assert (Hnz : ~ ((Z.of_nat 14 # 1) == 0%Q)).
@@ -373,7 +377,7 @@ Proof.
              (bl_mult_div_assoc (98 # 135)%Q (Z.of_nat (3 ^ n) # 1) (Z.of_nat (14 ^ n) # 1))).
   rewrite <- (qeqT_imp_qeq _ _ (bl_qmake_mul 98%Z (Z.of_nat (3 ^ n)))).
   rewrite <- (qeqT_imp_qeq _ _ (bl_qmake_mul 135%Z (Z.of_nat (14 ^ n)))).
-  apply lne_div_eq.
+  apply (fun H1 H2 H3 => qeqT_imp_qeq _ _ (lne_div_eq _ _ _ _ H1 H2 H3)).
   - unfold Qlt. cbn [Qnum Qden Qmult Pos.mul].
     pose proof (NatLe_drop _ _ (bl_mul_ge1 14 n ltac:(lia))).
     pose proof (proj1 (Nat2Z.inj_lt 0 (14 ^ n)) ltac:(lia)). lia.
@@ -384,56 +388,58 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 主件（Set 面）                                                   *)
+(* S4. Main pieces (Set face)                                                    *)
 (* ============================================================ *)
 
-(* 主件（规格档）：(1/2)·(3/16)^n ≤ lne_B n *)
+(* Main piece (specification tier): (1/2)*(3/16)^n <= lne_B n *)
 Theorem bl_beta_lower : forall n : nat, QleT' ((1 # 2) * q_pow (3 # 16) n) (lne_B n).
 Proof.
   intro n. apply Qle_to_QleT'.
-  rewrite (qeqT_imp_qeq _ _ (bl_half_pow n)). rewrite lne_B_closed.
+  rewrite (qeqT_imp_qeq _ _ (bl_half_pow n)). rewrite (fun n => qeqT_imp_qeq _ _ (lne_B_closed n)).
   apply QleT'_to_Qle. apply bl_div_le.
   - unfold Qlt. cbn [Qnum Qden].
     pose proof (NatLe_drop _ _ (bl_mul_ge1 16 n ltac:(lia))). lia.
   - apply QltT_to_Qlt. apply q_fact_pos.
-  - rewrite (sif_qfact_Z n), (sif_qfact_Z (Datatypes.S (n + n))).
+  - rewrite (qeqT_imp_qeq _ _ (sif_qfact_Z n)),
+            (qeqT_imp_qeq _ _ (sif_qfact_Z (Datatypes.S (n + n)))).
     pose proof (NatLe_drop _ _ (bl_nat_core16 n)) as Hnat.
     replace (2 * n + 1)%nat with (Datatypes.S (n + n))%nat in Hnat by lia.
     unfold Qle. cbn [Qnum Qden Qmult Pos.mul]. lia.
 Qed.
 
-(* 最优档（族最优对，n=2/3 双缚等号）：(98/135)·(3/14)^n ≤ lne_B n *)
+(* Optimal tier (family-optimal pair, equality at both n = 2 and n = 3): (98/135)*(3/14)^n <= lne_B n *)
 Theorem bl_beta_lower_opt : forall n : nat, QleT' ((98 # 135) * q_pow (3 # 14) n) (lne_B n).
 Proof.
   intro n. apply Qle_to_QleT'.
-  rewrite (qeqT_imp_qeq _ _ (bl_opt_pow n)). rewrite lne_B_closed.
+  rewrite (qeqT_imp_qeq _ _ (bl_opt_pow n)). rewrite (fun n => qeqT_imp_qeq _ _ (lne_B_closed n)).
   apply QleT'_to_Qle. apply bl_div_le.
   - unfold Qlt. cbn [Qnum Qden].
     pose proof (NatLe_drop _ _ (bl_mul_ge1 14 n ltac:(lia))). lia.
   - apply QltT_to_Qlt. apply q_fact_pos.
-  - rewrite (sif_qfact_Z n), (sif_qfact_Z (Datatypes.S (n + n))).
+  - rewrite (qeqT_imp_qeq _ _ (sif_qfact_Z n)),
+            (qeqT_imp_qeq _ _ (sif_qfact_Z (Datatypes.S (n + n)))).
     pose proof (NatLe_drop _ _ (bl_nat_core14 n)) as Hnat.
     replace (2 * n + 1)%nat with (Datatypes.S (n + n))%nat in Hnat by lia.
     unfold Qle. cbn [Qnum Qden Qmult Pos.mul]. lia.
 Qed.
 
-(* 变体偏移件（(1+t) 面）：(1/4)·(3/32)^n ≤ 2^{−(n+1)}·lne_B n。
-   注：右端 2^{−(n+1)}·lne_B n 是 (1+t)^{n+1} 变体积分 I'_n 的可证折叠
-   承载（I'_n ≥ 2^{−(n+1)}·lne_B n 需全段逐点机，精确偏移另文登记）；
-   (1/4)(3/32)^n = 2^{−(n+2)}(3/16)^n 与 Λ_n 下界需求精确匹配。 *)
+(* Shifted variant ((1+t) face): (1/4)*(3/32)^n <= 2^{-(n+1)}*lne_B n.
+   Note: the right side 2^{-(n+1)}*lne_B n is the provably foldable carrier of the (1+t)^{n+1}
+   variant integral I'_n (proving I'_n >= 2^{-(n+1)}*lne_B n needs a pointwise machine on the
+   full sequence; the exact shift is beyond this file); (1/4)(3/32)^n = 2^{-(n+2)}(3/16)^n matches the Lambda_n lower-bound requirement exactly. *)
 Theorem bl_variant_shift : forall n : nat,
   QleT' ((1 # 4) * q_pow (3 # 32) n) (q_pow (1 # 2) (Datatypes.S n) * lne_B n).
 Proof.
   intro n. apply Qle_to_QleT'.
   apply (Qle_trans _ (q_pow (1 # 2) (Datatypes.S n) * ((1 # 2) * q_pow (3 # 16) n))).
-  - (* 左支路：(1/4)(3/32)^n == (1/2)^{n+1}·(1/2)(3/16)^n 等号桥（LHS 无 A·因子形，
-       bl_mlc 结论 z·x ≤ z·y 与之 unify 必败——须走 qeq_imp_qle 等式轨） *)
+  - (* Left branch: the equality bridge (1/4)(3/32)^n == (1/2)^{n+1}*(1/2)(3/16)^n (the LHS has no
+       A*(...) factor shape, so unifying against the bl_mlc conclusion z*x <= z*y must fail; take the qeq_imp_qle equality track) *)
     apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT.
     replace (3 # 32) with ((1 # 2) * (3 # 16))%Q by reflexivity.
     rewrite <- (qeqT_imp_qeq _ _ (bl_qpow_mul (1 # 2) (3 # 16) n)).
     rewrite (qeqT_imp_qeq _ _ (q_pow_succ (1 # 2) n)).
     ring.
-  - (* 右支路：A·(1/2)(3/16)^n ≤ A·lne_B n——bl_mlc（0 ≤ A 左乘保序）正位 *)
+  - (* Right branch: A*(1/2)(3/16)^n <= A*lne_B n -- bl_mlc (order preservation under left multiplication by 0 <= A) in its direct orientation *)
     apply QleT'_to_Qle. apply (bl_mlc _ _ (q_pow (1 # 2) (Datatypes.S n))).
     + apply QleT'_to_Qle. apply bl_beta_lower.
     + apply QleT'_to_Qle. apply (q_pow_nonneg (1 # 2) (Datatypes.S n)).
@@ -441,7 +447,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 数值锚哨（n=0..3 vm_compute 实例 + 载体值见证）                    *)
+(* S5. Numerical anchor checks (n = 0..3 vm_compute instances + carrier value witnesses) *)
 (* ============================================================ *)
 
 Lemma bl_spec_anchor0 : QleT' ((1 # 2) * q_pow (3 # 16) 0) (lne_B 0).
@@ -468,22 +474,22 @@ Proof. vm_compute. reflexivity. Qed.
 Lemma bl_opt_anchor3 : QleT' ((98 # 135) * q_pow (3 # 14) 3) (lne_B 3).
 Proof. vm_compute. reflexivity. Qed.
 
-(* 变体折叠 n=3 锚：2^{-4}·(1/140) = 1/2240 ≥ 27/131072 *)
+(* Variant fold n = 3 anchor: 2^{-4}*(1/140) = 1/2240 >= 27/131072 *)
 Lemma bl_var_anchor3 : QleT' ((1 # 4) * q_pow (3 # 32) 3) (q_pow (1 # 2) 3 * lne_B 3).
 Proof. vm_compute. reflexivity. Qed.
 
-(* 载体值见证（Beta 闭式数值面）：1, 1/6, 1/30, 1/140 *)
+(* Carrier value witnesses (Beta closed-form numerical face): 1, 1/6, 1/30, 1/140 *)
 Lemma bl_value1 : QeqT (lne_B 1) (1 # 6).
-Proof. apply qeq_imp_qeqT. rewrite lne_B_closed. reflexivity. Qed.
+Proof. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (lne_B_closed 1)). reflexivity. Qed.
 
 Lemma bl_value2 : QeqT (lne_B 2) (1 # 30).
-Proof. apply qeq_imp_qeqT. rewrite lne_B_closed. reflexivity. Qed.
+Proof. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (lne_B_closed 2)). reflexivity. Qed.
 
 Lemma bl_value3 : QeqT (lne_B 3) (1 # 140).
-Proof. apply qeq_imp_qeqT. rewrite lne_B_closed. reflexivity. Qed.
+Proof. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (lne_B_closed 3)). reflexivity. Qed.
 
 (* ============================================================ *)
-(* §6 提取检验 + 公理面自审                                             *)
+(* S6. Extraction check + Print Assumptions self-audit                           *)
 (* ============================================================ *)
 
 From Stdlib Require Import Extraction.

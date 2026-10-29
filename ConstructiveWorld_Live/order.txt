@@ -88,3 +88,8 @@ PiEnvelope.v#R16-41bb99
 SumInvFactEscape.v#R17-2b5c13
 fib_machine.v#R17-c711ca
 b1_linform_machine.v#R18-1c8113
+UpReqIrrationalCriterion.v#R19-fadb67
+UpReqLn2Irrational.v#R19-0c2ed7
+Ln2Escape.v#R19-47ee8c
+Ln2Bridge.v#R19-0c77ea
+BetaLower.v#R19-857894
