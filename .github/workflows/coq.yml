@@ -108,9 +108,15 @@ jobs:
       - name: Seed trust cache from local vo tree (mirror semantics, fail-open)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
-          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok 2>/dev/null || true
+          # 20261030 run-67 lesson: mirror rm+cp guarantees checkout==mirror SET,
+          # not mirror-generation; a stale-generation .vo for a relanded piece
+          # shadowed the cured .v (KLWallClosed gate7 magic=2 on a cured file).
+          # Build now skips only on vo-newer + digest sidecar match, so seed must
+          # carry the sidecars too; absent sidecars => one honest cold build.
+          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null || true
           cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/ 2>/dev/null || true
-          echo "seeded (mirror-deleted stale) $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo"
+          cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vobuild.md5 ConstructiveWorld_Live/ 2>/dev/null || true
+          echo "seeded $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo $(ls ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null | wc -l) sidecars (mirror-deleted stale)"
 
       - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
