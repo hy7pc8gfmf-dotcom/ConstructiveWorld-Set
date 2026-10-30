@@ -29,6 +29,7 @@
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Lia QArith.Qminmax.
+From Stdlib Require Import Extraction.
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -49,6 +50,28 @@ Import RealInterfaceEnhancedMod.
 (* The interface class in this tree is unparameterized; its carrier is the
    global Real (same adaptation as UpReqAlgebra). *)
 Notation R := Real.
+
+(* Extraction-face configuration (r3 case-4 combination knife; zero
+   statement-face change; kernel-neutral codegen directives).  Knife A (r1
+   case1a): inline the transparent interface instance [RealEnhancedReal].
+   Knife B (r1 case1b): inline the three type-position projections
+   req/lt/le.  Knife D (r3, untried in r1/r2): notation re-carrier -- the
+   class fields le/req/lt are DEFINITIONAL aliases of the concrete carriers
+   real_le/real_eq/real_lt through the identity Instance RealEnhancedReal
+   (S07_RealSetoidExpLog.v:8740: req := real_eq; lt := real_lt; le := real_le;
+   zero := real_zero; plus := real_plus; abs := real_abs).  These notation
+   abbreviations pin the elaboration of the three interface statements onto
+   the very same concrete carriers, so the extractor renders the statement
+   types concretely instead of as abstract class-projection types.  All
+   thirteen statement sentences below remain byte-identical; no proof body
+   is edited. *)
+Notation le := real_le.
+Notation req := real_eq.
+Notation lt := real_lt.
+Extraction Inline RealEnhancedReal.
+Extraction Inline RealInterfaceEnhancedMod.req.
+Extraction Inline RealInterfaceEnhancedMod.lt.
+Extraction Inline RealInterfaceEnhancedMod.le.
 
 (* ============================================================ *)
 (* I. Q-layer auxiliary pieces (order relations of the half and  *)
