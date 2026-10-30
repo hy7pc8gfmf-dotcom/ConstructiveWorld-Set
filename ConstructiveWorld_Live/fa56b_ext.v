@@ -68,12 +68,25 @@ Definition fa56b_list_case (T : Set) (l : list T) : Set :=
   | _ => Empty_set
   end.
 
-(* Discriminator lemma: Id (t::l) nil has no inhabitant (cons differs from nil). *)
+(* Discriminator lemma: Id (t::l) nil has no inhabitant (cons differs from nil).
+   Body (carrier relay, S01_BaseRing.v:410 one_neq_zero idiom): the nil/cons
+   separation is lifted into the class carrier by a pre-map inlined into the
+   J motive, so the discriminating elimination runs on the class-field motive
+   lt zero <pre-map a>: the id_refl branch is one_pos and the use site needs
+   lt zero zero, which lt_irrefl turns into Empty_set. The match's extracted
+   face is the erased carrier __, so the extractor mints no Obj.magic cast
+   (Id-data J elimination per E725). *)
 Definition fa56b_cons_nil_id_contra (T : Set) (t : T) (l : list T)
                                     (H : Id (t :: l) nil) : Empty_set :=
-  match id_sym H in Id _ a return fa56b_list_case T a with
-  | id_refl => tt
-  end.
+  lt_irrefl zero
+    (match id_sym H in Id _ a
+           return lt zero
+             (match a with
+              | nil => one
+              | _ :: _ => zero
+              end) with
+    | id_refl => one_pos
+    end).
 
 (* Statement instance: a one-element vocabulary satisfies vocab_nonempty (S04:1589 shape). *)
 Theorem fa56b_singleton_nonempty :
