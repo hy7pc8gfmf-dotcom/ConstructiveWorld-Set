@@ -389,6 +389,42 @@ jobs:
             exit 1
           fi
 
+      # ── W3 content-addressed attestation 接线（v1 report-only·20261030 工单）────
+      # coqchk 步前对新鲜 build 的 .vo 树做内容寻址对账：逐件 sha256 对认证档案
+      # 三态分账（unchanged/changed/removed·added 信息列）＋tree_sha256 顶层聚合。
+      # 【入仓清单·两件脚本＋首档注记】本步依赖 scripts 两件入仓（seat_w3set 沙箱
+      # 同源·纯 python 零编译·对账逻辑零重复的成对件）：
+      #   scripts/coqchk_attest.py      — build 建档 / check 三态对账（0=CLEAN 1=DIRTY 2=操作错）
+      #   scripts/coqchk_delta_check.py — check 薄包装·人读差分摘要渲染（import 同一实现）
+      # 首档注记：scripts/coqchk_attestation.json 系 coqchk_attest.py build 的产物
+      # （逐 .vo sha256＋tree_sha256 聚合），首档与后续刷新一律由绿 run 的 .vo 树
+      # 生成后入库，禁手改；档案缺席（首跑/合流早期）=check rc=2「认证档案不存在」
+      # ——report-only 语义下 rc 恒被捕获、本步恒 exit 0，绝不红屏。
+      # v2 跳验候（对账 CLEAN 时可否 SKIP coqchk）另行立项，本 v1 不承载闸语义。
+      - name: content-addressed attestation (v1 report-only)
+        shell: bash -e {0}
+        run: |
+          set +e
+          python3 scripts/coqchk_attest.py check \
+            --tree ConstructiveWorld_Live \
+            --archive scripts/coqchk_attestation.json \
+            --json gate_attest_report.json
+          rc=$?
+          # 差分摘要 echo：人读三态逐件点名（薄包装与 check 同一实现·双跑毫秒级）
+          python3 scripts/coqchk_delta_check.py \
+            --tree ConstructiveWorld_Live \
+            --archive scripts/coqchk_attestation.json
+          rc2=$?
+          set -e
+          echo "ATTEST-REPORT-ONLY: coqchk_attest rc=$rc / coqchk_delta_check rc=$rc2 — v1 report-only, never gates this run (v2 skip-validation 立项另议)"
+          exit 0
+
+      - name: Upload coqchk attestation report (v1, report-only)
+        uses: actions/upload-artifact@v7
+        with:
+          name: coqchk-attest-report-macos
+          path: gate_attest_report.json
+
       - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded, macOS)
         shell: bash -e {0}
         run: |
