@@ -386,6 +386,10 @@ jobs:
       - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded, macOS)
         shell: bash -e {0}
         run: |
+          # 【20261030 coqchk 栈墙处方】102 件单遍 intern BetaLower.vo 溢出（run 40988043161
+          # 实证）——默认栈 8192 必红；runner 树同件同栈双炮互证 65532 RC=0（全 102 过·
+          # macOS 硬帽恰 65532）。与 Build 步同源（RC129 判例）。
+          ulimit -s 65532
           export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           COQCHK="/Users/apple/actions-runner/mac_rocq/bin/coqchk"
