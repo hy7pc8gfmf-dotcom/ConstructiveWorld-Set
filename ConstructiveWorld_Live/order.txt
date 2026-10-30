@@ -107,3 +107,12 @@ fa56b_ext.v#R22-505b8f
 PintMono.v#R22-74ed88
 UpGeomB.v#R22-2cd705
 UpReqGeomIter.v#R22-64cb18
+UpReqCauchyLogBound.v#R23-ec3e77
+abl_e_irrational2.v#R23-93dbce
+BeukersLists.v#R23-444be6
+abl_W9_pi_widen_13.v#R23-76be5b
+ToyR_UpAblP7_AbsNonNeg.v#R23-954358
+UpReqScTrigEps.v#R23-3ce06e
+UpReqG05WallClass.v#R23-8b49be
+UpReqMixRationalProxy.v#R23-5cd609
+UpReqResidWallEquiv.v#R23-6d6201

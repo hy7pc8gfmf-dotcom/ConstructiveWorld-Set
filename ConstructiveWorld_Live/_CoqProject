@@ -101,3 +101,12 @@ fa56b_ext.v
 PintMono.v
 UpGeomB.v
 UpReqGeomIter.v
+UpReqCauchyLogBound.v
+abl_e_irrational2.v
+BeukersLists.v
+abl_W9_pi_widen_13.v
+ToyR_UpAblP7_AbsNonNeg.v
+UpReqScTrigEps.v
+UpReqG05WallClass.v
+UpReqMixRationalProxy.v
+UpReqResidWallEquiv.v
