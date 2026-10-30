@@ -115,6 +115,8 @@ jobs:
       - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
+          # 【20261030 栈墙处方同 mac 侧】BetaLower 深递归件双栈互证（8192 红/65532 绿）。
+          ulimit -s 65532
           # 【20261026 温控正典三参数】20261023 用户令：-TempLimit 98 -AllowG3 -GearForce 0
           # 三参数缺一＝钳位饥饿复发（idle 读 94-97C 空转 80%）。serial build 保留 -CoreN 2。
           # 【20261026 guard 正典化】repo 根 cpu_guard.ps1 系旧 shim（无 TL98/G3 参数面），
@@ -305,6 +307,10 @@ jobs:
       - name: Build Live tree (order topology, cold, thermal-guarded, macOS)
         shell: bash -e {0}
         run: |
+          # 【20261030 栈墙处方】BetaLower L278 深递归默认栈 8192 必 Stack overflow
+          # （run 40973373689 attempt1 实证·同件同世界 ulimit 65532 RC=0 本地双炮互证）；
+          # 与 mac coqchk 步内建 ulimit 65532 同源（RC129 判例·跨库普适）。
+          ulimit -s 65532
           export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           COQC="/Users/apple/actions-runner/mac_rocq/bin/coqc"
