@@ -9,7 +9,7 @@
 (*   ten-slot EntropyDiffReal premise set; eum_E_B_pos_slot_unsat_ref and    *)
 (*   eum_premises_unsat_ref forward the two certificates unchanged;          *)
 (*   eum_EntropyDiffReal_section_vacuous converts the vacuous truth of the   *)
-(*   whole premise set into an arbitrary conclusion P via False_ind.         *)
+(*   whole premise set into an arbitrary conclusion P via False_rect.         *)
 (*   Dependencies. S02_CauchyComplete, S07_RealSetoidExpLog,                 *)
 (*   S08_RealMainlineDPO, S09_EntropyReal: the constructive Cauchy reals     *)
 (*   (Real, real_plus/real_opp, real_zero/real_one, the Set-valued order     *)
@@ -19,12 +19,12 @@
 (*   (statement names carried over verbatim; census 5=5 ordered identity).   *)
 (*   Constructivity. Premises are Set-layer objects (Real and                *)
 (*   RealDifferentiable are Set-sorted; real_lt/real_eq are Set-valued       *)
-(*   witnesses); the conclusions are False or an arbitrary P : Prop. Every   *)
+(*   witnesses); the conclusions are False or an arbitrary P : Type. Every   *)
 (*   proof is a Qed-closed forwarding or a two-point instantiation; the      *)
 (*   module is axiom-free and uses no classical logic. Empty_set (the        *)
 (*   conclusion carrier of S01_BaseRing.Not) has no constructor, so the      *)
 (*   contradiction exits by destruct; the arbitrary-conclusion exit          *)
-(*   eliminates through False_ind; extraction yields no Obj.magic.           *)
+(*   eliminates through False_rect; extraction yields no Obj.magic.           *)
 (*   Build. rocq c -native-compiler no -q -Q . "" EntropyUnsatMark.v         *)
 (*   (Rocq 9.1 toolchain; single -Q root with an empty logical prefix).      *)
 
@@ -134,7 +134,7 @@ Proof.
   exact fa52_EntropyDiffReal_premises_unsat.
 Qed.
 
-(* ---------- Exit 3: whole-section vacuous-truth conclusion piece (arbitrary Prop conclusion, constructive False_ind) ---------- *)
+(* ---------- Exit 3: whole-section vacuous-truth conclusion piece (arbitrary Type conclusion, constructive False_rect) ---------- *)
 Theorem eum_EntropyDiffReal_section_vacuous :
   forall (Omega_A : forall (E_A : Real), real_lt real_zero E_A -> Real)
          (Omega_B : forall (E_B : Real), real_lt real_zero E_B -> Real)
@@ -150,12 +150,12 @@ Theorem eum_EntropyDiffReal_section_vacuous :
          (E_total k_B : Real)
          (E_B_pos : forall (E_A : Real) (H : real_lt real_zero E_A),
                 real_lt real_zero (real_plus E_total (real_opp E_A)))
-         (P : Prop),
+         (P : Type),
     P.
 Proof.
   intros Omega_A Omega_B dOmega_A dOmega_B Omega_A_pos Omega_B_pos
          Omega_B_wd E_total k_B E_B_pos P.
-  exact (False_ind P
+  exact (False_rect P
     (eum_premises_unsat_ref Omega_A Omega_B dOmega_A dOmega_B
        Omega_A_pos Omega_B_pos Omega_B_wd E_total k_B E_B_pos)).
 Qed.
@@ -179,8 +179,8 @@ Qed.
 (* Constructivity self-audit: pure constructive forwarding (zero new proofs;
    the main piece's two-point instantiation is a non-trivial, fully traceable
    construction). Statement faces are Set-layer objects (Real /
-   RealDifferentiable : Set); the exit pieces with False/Prop-sorted
-   conclusions eliminate constructively through False_ind, with no Set-layer
+   RealDifferentiable : Set); the exit pieces with False or arbitrary-Type
+   conclusions eliminate constructively, with no Set-layer
    leakage. The extraction-level Obj.magic inspection is carried out outside
    this module. *)
 
