@@ -140,3 +140,12 @@ NatLenPos.v
 UpAblT12_G13.v
 abl_tbase_tempsum.v
 abl_pint_realview.v
+CertSnap643.v
+UpAblD1S8_TempSoftmaxInstantiation.v
+piu1891_eggeom_release.v
+UpAblHalfPowFeed.v
+CalSnap468.v
+UpReqPaperAnchor.v
+abl_W9_Afamily_08.v
+PA_ExpOneEnvelope.v
+UpReqSqrtOptimal.v
