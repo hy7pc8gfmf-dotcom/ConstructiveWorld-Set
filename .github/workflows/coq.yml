@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: cw-main-ci
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   coq-build:
