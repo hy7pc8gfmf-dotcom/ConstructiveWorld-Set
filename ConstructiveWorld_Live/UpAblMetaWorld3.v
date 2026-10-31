@@ -58,16 +58,16 @@ Definition mtw_quarter : Real := mult mtw_half mtw_half.
 Definition mtw_threeq : Real := req_minus one mtw_quarter.
 
 (* Irreducibility note (direct interface-field use): one-hop direct use of the positivity field inv_pos_pos (certificate slot req_two_pos); shortest definitional form. *)
-Lemma mtw_half_pos : lt zero mtw_half.
+Lemma mtw_half_pos : real_lt zero mtw_half.
 Proof. exact (inv_pos_pos (plus one one) req_two_pos). Defined.
 
 (* Irreducibility note (direct interface-field use): one-hop direct use of the two-argument specialization req_half_twice. *)
 (* quarter + quarter == half (1/4 + 1/4 = 1/2) *)
-Lemma mtw_qq_half : req (plus mtw_quarter mtw_quarter) mtw_half.
+Lemma mtw_qq_half : real_eq (plus mtw_quarter mtw_quarter) mtw_half.
 Proof. exact (req_half_twice mtw_half req_two_pos). Defined.
 
 (* half + half == one (1/2 + 1/2 = 1) *)
-Lemma mtw_hh_one : req (plus mtw_half mtw_half) one.
+Lemma mtw_hh_one : real_eq (plus mtw_half mtw_half) one.
 Proof.
   apply (req_trans (plus mtw_half mtw_half)
                    (plus (mult mtw_half one) (mult mtw_half one)) one).
@@ -80,14 +80,14 @@ Proof.
 Defined.
 
 (* Irreducibility note (two-hop upstream reroute, direct): the plus_comm rerouting leg and the plus_opp zero-cancellation leg composed via req_trans; shortest form. *)
-Lemma mtw_oo_one_zero : req (plus (opp one) one) zero.
+Lemma mtw_oo_one_zero : real_eq (plus (opp one) one) zero.
 Proof.
   exact (req_trans (plus (opp one) one) (plus one (opp one)) zero
            (plus_comm (opp one) one) (plus_opp one)).
 Defined.
 
 (* (a - b) + b == a *)
-Lemma mtw_minus_plus_r : forall a b : Real, req (plus (req_minus a b) b) a.
+Lemma mtw_minus_plus_r : forall a b : Real, real_eq (plus (req_minus a b) b) a.
 Proof.
   intros a b. unfold req_minus.
   apply (req_trans (plus (plus a (opp b)) b) (plus a (plus (opp b) b)) a).
@@ -102,7 +102,7 @@ Proof.
 Defined.
 
 (* one - half == half (1 - 1/2 = 1/2) *)
-Lemma mtw_moh : req (req_minus one mtw_half) mtw_half.
+Lemma mtw_moh : real_eq (req_minus one mtw_half) mtw_half.
 Proof.
   apply (req_trans (req_minus one mtw_half)
                    (req_minus (plus mtw_half mtw_half) mtw_half) mtw_half).
@@ -113,7 +113,7 @@ Proof.
 Defined.
 
 (* threeq - quarter == half (3/4 - 1/4 = 1/2) -- the one-step difference-coupling coefficient *)
-Lemma mtw_3q_minus_q : req (req_minus mtw_threeq mtw_quarter) mtw_half.
+Lemma mtw_3q_minus_q : real_eq (req_minus mtw_threeq mtw_quarter) mtw_half.
 Proof.
   apply (req_trans (req_minus mtw_threeq mtw_quarter)
                    (plus one (plus (opp mtw_quarter) (opp mtw_quarter))) mtw_half).
@@ -136,7 +136,7 @@ Proof.
 Defined.
 
 (* quarter + half == threeq (1/4 + 1/2 = 3/4) *)
-Lemma mtw_q_plus_h : req (plus mtw_quarter mtw_half) mtw_threeq.
+Lemma mtw_q_plus_h : real_eq (plus mtw_quarter mtw_half) mtw_threeq.
 Proof.
   apply (req_trans (plus mtw_quarter mtw_half)
                    (plus mtw_quarter (req_minus mtw_threeq mtw_quarter)) mtw_threeq).
@@ -157,13 +157,13 @@ Definition mtw_K (s s' : bool) : Real :=
 
 (* Irreducibility note (definitional closure x4): the mtw_K carrier if-terms evaluate at definition level and req_refl closes by reflexivity; all four are transparent, same-shaped, shortest. *)
 (* Explicit four-entry kernel table: K(t,t)=3/4, K(t,f)=1/4, K(f,t)=1/4, K(f,f)=3/4 *)
-Lemma mtw_K_tt : req (mtw_K true true) mtw_threeq.
+Lemma mtw_K_tt : real_eq (mtw_K true true) mtw_threeq.
 Proof. exact (req_refl mtw_threeq). Defined.
-Lemma mtw_K_tf : req (mtw_K true false) mtw_quarter.
+Lemma mtw_K_tf : real_eq (mtw_K true false) mtw_quarter.
 Proof. exact (req_refl mtw_quarter). Defined.
-Lemma mtw_K_ft : req (mtw_K false true) mtw_quarter.
+Lemma mtw_K_ft : real_eq (mtw_K false true) mtw_quarter.
 Proof. exact (req_refl mtw_quarter). Defined.
-Lemma mtw_K_ff : req (mtw_K false false) mtw_threeq.
+Lemma mtw_K_ff : real_eq (mtw_K false false) mtw_threeq.
 Proof. exact (req_refl mtw_threeq). Defined.
 
 Definition mtw_sumf (f : bool -> Real) : Real := plus (f true) (f false).
@@ -190,11 +190,11 @@ Definition mtw_dv (mu nu : bool -> Real) : Real := req_minus (mu true) (nu true)
 Definition mtw_df (mu nu : bool -> Real) : Real := req_minus (mu false) (nu false).
 
 (* Irreducibility note (direct interface-field use): one-hop direct use of plus_zero (mtw_mu0 true = one is definitionally transparent). *)
-Lemma mtw_mu0_mass : req (mtw_sumf mtw_mu0) one.
+Lemma mtw_mu0_mass : real_eq (mtw_sumf mtw_mu0) one.
 Proof. exact (plus_zero one). Defined.
 
 (* Irreducibility note (direct interface-field use): one-hop direct use of req_plus_zero_l (the left summand mtw_nu0 true = zero is definitionally transparent). *)
-Lemma mtw_nu0_mass : req (mtw_sumf mtw_nu0) one.
+Lemma mtw_nu0_mass : real_eq (mtw_sumf mtw_nu0) one.
 Proof. exact (req_plus_zero_l one). Defined.
 
 (* ============================================================ *)
@@ -203,13 +203,13 @@ Proof. exact (req_plus_zero_l one). Defined.
 
 (* Spot one (a pair of intermediate assertions): the one-hop chain mtw_minus_plus_r one mtw_quarter is replayed in place.
    Assertion one Hdef: 3/4 + 1/4 rewrites to the definitional form (1 - 1/4) + 1/4; assertion two Hasso: the associativity rerouting leg. *)
-Lemma mtw_row_t : req (mtw_sumf (mtw_K true)) one.
+Lemma mtw_row_t : real_eq (mtw_sumf (mtw_K true)) one.
 Proof.
   unfold mtw_sumf, mtw_K.
-  assert (Hdef : req (plus mtw_threeq mtw_quarter)
+  assert (Hdef : real_eq (plus mtw_threeq mtw_quarter)
                      (plus (plus one (opp mtw_quarter)) mtw_quarter)).
   { exact (req_refl (plus (plus one (opp mtw_quarter)) mtw_quarter)). }
-  assert (Hasso : req (plus (plus one (opp mtw_quarter)) mtw_quarter)
+  assert (Hasso : real_eq (plus (plus one (opp mtw_quarter)) mtw_quarter)
                       (plus one (plus (opp mtw_quarter) mtw_quarter))).
   { exact (req_sym (plus one (plus (opp mtw_quarter) mtw_quarter))
                    (plus (plus one (opp mtw_quarter)) mtw_quarter)
@@ -231,7 +231,7 @@ Proof.
           (plus_zero one)))).
 Defined.
 
-Lemma mtw_row_f : req (mtw_sumf (mtw_K false)) one.
+Lemma mtw_row_f : real_eq (mtw_sumf (mtw_K false)) one.
 Proof.
   apply (req_trans (mtw_sumf (mtw_K false))
                    (plus mtw_threeq mtw_quarter) one).
@@ -240,21 +240,21 @@ Proof.
 Defined.
 
 (* Row distinctness: the true column holds 3/4 against 1/4 -- the deliberate contrast with the companion world whose kernel rows are all identical *)
-Lemma mtw_rows_ne : Not (req mtw_threeq mtw_quarter).
+Lemma mtw_rows_ne : Not (real_eq mtw_threeq mtw_quarter).
 Proof.
   intro H.
-  assert (Hq1 : req (plus mtw_quarter mtw_quarter) one).
+  assert (Hq1 : real_eq (plus mtw_quarter mtw_quarter) one).
   { apply (req_trans (plus mtw_quarter mtw_quarter)
                      (plus mtw_threeq mtw_quarter) one).
     - exact (req_sym (plus mtw_threeq mtw_quarter) (plus mtw_quarter mtw_quarter)
                (req_plus_compat mtw_threeq mtw_quarter mtw_quarter mtw_quarter
                   H (req_refl mtw_quarter))).
     - exact mtw_row_t. }
-  assert (Hho : req mtw_half one).
+  assert (Hho : real_eq mtw_half one).
   { apply (req_trans mtw_half (plus mtw_quarter mtw_quarter) one).
     - exact (req_sym (plus mtw_quarter mtw_quarter) mtw_half mtw_qq_half).
     - exact Hq1. }
-  assert (H33 : req (plus one one) one).
+  assert (H33 : real_eq (plus one one) one).
   { apply (req_trans (plus one one) (plus mtw_half mtw_half) one).
     - exact (req_plus_compat one mtw_half one mtw_half
                (req_sym mtw_half one Hho) (req_sym mtw_half one Hho)).
@@ -269,7 +269,7 @@ Defined.
 (* Sec 3: positivity of powers (the geometric decay base (1/2)^n > 0) *)
 (* ============================================================ *)
 
-Lemma mtw_rpow_pos : forall n : nat, lt zero (req_r_pow mtw_half n).
+Lemma mtw_rpow_pos : forall n : nat, real_lt zero (req_r_pow mtw_half n).
 Proof.
   intro n. induction n as [| n IH].
   - exact one_pos.
@@ -282,7 +282,7 @@ Defined.
 
 (* Mass conservation: the row-stochastic kernel preserves total mass (self-contained induction, valid for an arbitrary distribution mu) *)
 Lemma mtw_mass_iter : forall (n : nat) (mu : bool -> Real),
-  req (mtw_sumf mu) one -> req (mtw_sumf (mtw_titer n mu)) one.
+  real_eq (mtw_sumf mu) one -> real_eq (mtw_sumf (mtw_titer n mu)) one.
 Proof.
   intro n. induction n as [| n IH]; intros mu Hm.
   - exact Hm.
@@ -352,23 +352,23 @@ Defined.
 
 (* Complement extraction: in a two-column distribution of total mass one, the second column equals one minus the first *)
 Lemma mtw_compl : forall mu : bool -> Real,
-  req (mtw_sumf mu) one -> req (mu false) (req_minus one (mu true)).
+  real_eq (mtw_sumf mu) one -> real_eq (mu false) (req_minus one (mu true)).
 Proof.
   intros mu Hm. unfold mtw_sumf in Hm.
-  assert (Hbase : req (plus (opp one) (plus (mu true) (mu false))) zero).
+  assert (Hbase : real_eq (plus (opp one) (plus (mu true) (mu false))) zero).
   { exact (req_trans (plus (opp one) (plus (mu true) (mu false)))
                      (plus (opp one) one) zero
              (req_plus_compat (opp one) (opp one)
                 (plus (mu true) (mu false)) one (req_refl (opp one)) Hm)
              mtw_oo_one_zero). }
-  assert (Ha : req (plus (plus (opp one) (mu true)) (mu false)) zero).
+  assert (Ha : real_eq (plus (plus (opp one) (mu true)) (mu false)) zero).
   { exact (req_trans (plus (plus (opp one) (mu true)) (mu false))
                      (plus (opp one) (plus (mu true) (mu false))) zero
              (req_sym (plus (opp one) (plus (mu true) (mu false)))
                       (plus (plus (opp one) (mu true)) (mu false))
                       (plus_assoc (opp one) (mu true) (mu false)))
              Hbase). }
-  assert (Hc : req (plus (plus (opp one) (mu true)) (req_minus one (mu true))) zero).
+  assert (Hc : real_eq (plus (plus (opp one) (mu true)) (req_minus one (mu true))) zero).
   { exact (req_trans (plus (plus (opp one) (mu true)) (req_minus one (mu true)))
                      (plus (plus (opp one) one) (plus (mu true) (opp (mu true)))) zero
              (req_plus_swap_mid (opp one) (mu true) one (opp (mu true)))
@@ -384,14 +384,14 @@ Defined.
 
 (* The difference reflection: the second-column difference equals minus the first-column difference (a consequence of mass conservation + complement extraction; no induction) *)
 Lemma mtw_df_opp_dv : forall n : nat,
-  req (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  real_eq (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
       (opp (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))).
 Proof.
   intro n.
-  assert (HX : req ((mtw_titer n mtw_mu0) false)
+  assert (HX : real_eq ((mtw_titer n mtw_mu0) false)
                    (req_minus one ((mtw_titer n mtw_mu0) true))).
   { exact (mtw_compl (mtw_titer n mtw_mu0) (mtw_mass_iter n mtw_mu0 mtw_mu0_mass)). }
-  assert (HY : req ((mtw_titer n mtw_nu0) false)
+  assert (HY : real_eq ((mtw_titer n mtw_nu0) false)
                    (req_minus one ((mtw_titer n mtw_nu0) true))).
   { exact (mtw_compl (mtw_titer n mtw_nu0) (mtw_mass_iter n mtw_nu0 mtw_nu0_mass)). }
   apply (req_trans (req_minus ((mtw_titer n mtw_mu0) false) ((mtw_titer n mtw_nu0) false))
@@ -433,7 +433,7 @@ Defined.
 
 (* One-step difference coupling (generic): dv picks up the row-difference coefficient of the kernel's true column, df the one of the false column *)
 Lemma mtw_dv_step_gen : forall x y : bool -> Real,
-  req (mtw_dv (mtw_step x) (mtw_step y))
+  real_eq (mtw_dv (mtw_step x) (mtw_step y))
       (plus (mult (mtw_dv x y) (mtw_K true true))
             (mult (mtw_df x y) (mtw_K false true))).
 Proof.
@@ -466,7 +466,7 @@ Defined.
 
 (* Constant tail lemma: h*(3/4) - h*(1/4) == h*(1/2) == (1/2)*h *)
 Lemma mtw_h_3q_q_half : forall h : Real,
-  req (plus (mult h mtw_threeq) (opp (mult h mtw_quarter))) (mult mtw_half h).
+  real_eq (plus (mult h mtw_threeq) (opp (mult h mtw_quarter))) (mult mtw_half h).
 Proof.
   intro h.
   apply (req_trans (plus (mult h mtw_threeq) (opp (mult h mtw_quarter)))
@@ -483,7 +483,7 @@ Defined.
 
 (* Main induction: dv(n) == (1/2)^n (one-step difference coupling + the reflection lemma, fully explicit) *)
 Lemma mtw_dv_iter : forall n : nat,
-  req (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  real_eq (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
       (req_r_pow mtw_half n).
 Proof.
   intro n. induction n as [| n IH].
@@ -491,7 +491,7 @@ Proof.
              (req_plus_compat one one (opp zero) zero
                 (req_refl one) reqd_opp_zero)
              (plus_zero one)).
-  - assert (Hdf : req (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  - assert (Hdf : real_eq (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                       (opp (req_r_pow mtw_half n))).
     { exact (req_trans (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                        (opp (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
@@ -545,17 +545,17 @@ Proof.
 Defined.
 
 Lemma mtw_df_iter : forall n : nat,
-  req (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  real_eq (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
       (opp (req_r_pow mtw_half n)).
 Proof.
   intro n.
   (* Spot two (intermediates named explicitly): the reflection branch Hmir = mtw_df_opp_dv n (the complement reflection),
      the negation branch Hneg = req_opp_compat carrying mtw_dv_iter n (the power law); both conjunction branches named explicitly,
      composed via req_trans to close the replay. *)
-  assert (Hmir : req (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  assert (Hmir : real_eq (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                      (opp (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))).
   { exact (mtw_df_opp_dv n). }
-  assert (Hneg : req (opp (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
+  assert (Hneg : real_eq (opp (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
                      (opp (req_r_pow mtw_half n))).
   { exact (req_opp_compat (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                           (req_r_pow mtw_half n) (mtw_dv_iter n)). }
@@ -570,9 +570,9 @@ Defined.
 (* ============================================================ *)
 
 (* TV0 == one (the point-mass pair) *)
-Lemma mtw_tv0_one : req (mtw_tv mtw_mu0 mtw_nu0) one.
+Lemma mtw_tv0_one : real_eq (mtw_tv mtw_mu0 mtw_nu0) one.
 Proof.
-  assert (Ha1 : req (abs (req_minus (mtw_mu0 true) (mtw_nu0 true))) one).
+  assert (Ha1 : real_eq (abs (req_minus (mtw_mu0 true) (mtw_nu0 true))) one).
   { exact (req_trans (abs (req_minus one zero)) (abs one) one
              (req_abs_compat (req_minus one zero) one
                 (req_trans (plus one (opp zero)) (plus one zero) one
@@ -580,7 +580,7 @@ Proof.
                       (req_refl one) reqd_opp_zero)
                    (plus_zero one)))
              (abs_pos one one_pos)). }
-  assert (Ha2 : req (abs (req_minus (mtw_mu0 false) (mtw_nu0 false))) one).
+  assert (Ha2 : real_eq (abs (req_minus (mtw_mu0 false) (mtw_nu0 false))) one).
   { exact (req_trans (abs (req_minus zero one)) (abs one) one
              (req_trans (abs (req_minus zero one)) (abs (opp one)) (abs one)
                 (req_abs_compat (req_minus zero one) (opp one)
@@ -604,7 +604,7 @@ Defined.
 
 (* Irreducibility note (one-hop interface-field chain): lt_id_r right-end value substitution + same-file mtw_tv0_one reshaping + one_pos certificate to close. *)
 (* Part 1c: TV0 strictly positive (the TV face of the non-degeneracy criterion) *)
-Lemma mtw_tv0_pos : lt zero (mtw_tv mtw_mu0 mtw_nu0).
+Lemma mtw_tv0_pos : real_lt zero (mtw_tv mtw_mu0 mtw_nu0).
 Proof.
   exact (lt_id_r zero one (mtw_tv mtw_mu0 mtw_nu0)
            (req_sym (mtw_tv mtw_mu0 mtw_nu0) one mtw_tv0_one) one_pos).
@@ -612,24 +612,24 @@ Defined.
 
 (* TV(n) == (1/2)^n (the main exact-iteration ledger) *)
 Lemma mtw_tv_iter_rpow : forall n : nat,
-  req (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  real_eq (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
       (req_r_pow mtw_half n).
 Proof.
   intro n.
-  assert (Hdv : req (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  assert (Hdv : real_eq (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                     (req_r_pow mtw_half n)).
   { exact (mtw_dv_iter n). }
-  assert (Hdf : req (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  assert (Hdf : real_eq (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                     (opp (req_r_pow mtw_half n))).
   { exact (mtw_df_iter n). }
-  assert (Ha1 : req (abs (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
+  assert (Ha1 : real_eq (abs (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
                     (req_r_pow mtw_half n)).
   { exact (req_trans (abs (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
                      (abs (req_r_pow mtw_half n)) (req_r_pow mtw_half n)
              (req_abs_compat (mtw_dv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
                              (req_r_pow mtw_half n) Hdv)
              (abs_pos (req_r_pow mtw_half n) (mtw_rpow_pos n))). }
-  assert (Ha2 : req (abs (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
+  assert (Ha2 : real_eq (abs (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
                     (req_r_pow mtw_half n)).
   { exact (req_trans (abs (mtw_df (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)))
                      (abs (req_r_pow mtw_half n)) (req_r_pow mtw_half n)
@@ -685,7 +685,7 @@ Defined.
 
 (* Part 3a: TV(n) == (1/2)^n * TV0 (the exact form: the same-shape statement behind mtl_tv_lower is TRUE in this world) *)
 Theorem mtw_tv_exact_iter : forall n : nat,
-  req (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
+  real_eq (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))
       (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0)).
 Proof.
   intro n.
@@ -706,7 +706,7 @@ Defined.
 
 (* Part 2: TV(S n) == (1/2) * TV(n) (the step identity -- the definitional one step of the (1/2)^n power law) *)
 Theorem mtw_tv_step_exact : forall n : nat,
-  req (mtw_tv (mtw_titer (Datatypes.S n) mtw_mu0) (mtw_titer (Datatypes.S n) mtw_nu0))
+  real_eq (mtw_tv (mtw_titer (Datatypes.S n) mtw_mu0) (mtw_titer (Datatypes.S n) mtw_nu0))
       (mult mtw_half (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0))).
 Proof.
   intro n.
@@ -737,8 +737,8 @@ Defined.
    mtl_no_mixing_refuted is TRUE in this world): a budget B strictly below (1/2)^n * TV0 is strictly below TV(n) -- the not-yet-mixed window lower bound holds. *)
 (* Irreducibility note (one-hop interface-field chain): lt_id_r + same-file mtw_tv_exact_iter reshaping; the premise H closes by direct matching. *)
 Theorem mtw_no_mixing_below : forall (n : nat) (B : Real),
-  lt B (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0)) ->
-  lt B (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)).
+  real_lt B (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0)) ->
+  real_lt B (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)).
 Proof.
   intros n B H.
   exact (lt_id_r B (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0))
@@ -748,11 +748,11 @@ Proof.
                    (mtw_tv_exact_iter n)) H).
 Defined.
 
-(* Cross-world comparison piece: le ((1/2)^n * TV0) (TV(n)) (the same-shape statement
-   behind mtl_refute_lower is TRUE in this world -- the exact equality feeds the req branch of le directly, with no Or splitting) *)
+(* Cross-world comparison piece: real_le ((1/2)^n * TV0) (TV(n)) (the same-shape statement
+   behind mtl_refute_lower is TRUE in this world -- the exact equality feeds the real_eq branch of real_le directly, with no Or splitting) *)
 (* Irreducibility note (one-hop interface-field chain): the inr branch of lt_le_iff + same-file mtw_tv_exact_iter reshaping; no Or splitting. *)
 Theorem mtw_tv_lower : forall n : nat,
-  le (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0))
+  real_le (mult (req_r_pow mtw_half n) (mtw_tv mtw_mu0 mtw_nu0))
      (mtw_tv (mtw_titer n mtw_mu0) (mtw_titer n mtw_nu0)).
 Proof.
   intro n.
@@ -773,13 +773,13 @@ Definition mtw_omd : Real := mtw_half.
 Definition mtw_ds : Real := mtw_quarter.
 
 (* Irreducibility note (one-hop direct use of a same-file proved lemma): mtw_omd := mtw_half is definitionally transparent and mtw_half_pos matches directly. *)
-Lemma mtw_omd_pos : lt zero mtw_omd.
+Lemma mtw_omd_pos : real_lt zero mtw_omd.
 Proof. exact mtw_half_pos. Defined.
 
 (* Spot three (the engine body inlined wholesale): the mult_positive projection slot replayed in place (template
-   S07_RealSetoidExpLog.v:6969 real_mult_positive; this file's lt/mult/zero are eq_refl-interchangeable with the
+   S07_RealSetoidExpLog.v:6969 real_mult_positive; this file's real_lt/mult/zero are eq_refl-interchangeable with the
    Cauchy-layer fields): the 0*h = 0 reordering bridge plus real_mult_lt_compat to close. *)
-Lemma mtw_ds_pos : lt zero mtw_ds.
+Lemma mtw_ds_pos : real_lt zero mtw_ds.
 Proof.
   unfold mtw_ds, mtw_quarter.
   apply (real_eq_lt_lt zero (mult zero mtw_half) (mult mtw_half mtw_half)).

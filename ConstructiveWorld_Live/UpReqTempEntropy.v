@@ -1,14 +1,14 @@
 (* Five-field pointer | Mission. Formalization of the properties stated by the theorem/lemma declarations of this file. Dependencies. The libraries listed by the in-file Require declarations. References. The upstream originals anchored in the block below. Constructivity. Zero admission-style statements (mechanically checked). Build. rocq c -native-compiler no -q -Q <source-seat world> "".  ============================================================ *)
 (* UpReqTempEntropy.v *)
 (* *)
-(* Purpose: the req temperature entropy family: explicit entropy, relative entropy decomposition and the variational bound. *)
+(* Purpose: the real_eq temperature entropy family: explicit entropy, relative entropy decomposition and the variational bound. *)
 (* Main items: req_entropy_temp_explicit / req_relative_entropy_temp_decomp / req_variational_temp_bound. *)
 (* Dependencies: CW_ConstructiveWorld_219, UpReqAlgebra, UpReqDist. *)
 (* Notes: temperature positivity and partition normalization are section variables; the strict chain req_temp_strict_A_chain2 is the constructive core. *)
 (* ============================================================ *)
 
 (* UpReqTempEntropy.v -- the temperature entropy layer: five items restated over  *)
-(*   the req interface (strict-layer increments included; upstream anchors kept).  *)
+(*   the real_eq interface (strict-layer increments included; upstream anchors kept).  *)
 (*     entropy_temp_explicit          <- upstream L17271 (H(p_beta) == beta*E + logZ) *)
 (*     relative_entropy_temp_decomp  <- upstream L17356 (KL(q||p_beta) == -H(q) + beta*E(q) + logZ) *)
 (*     entropy_deficit_kl_temp       <- upstream L17691 (same energy implies S[p_beta] - S[p] == KL) *)
@@ -18,7 +18,7 @@
 (*   used with -Q . ""): req_Z_temp_pos / reqd_boltzmann_dist_temp /               *)
 (*   reqd_energy_exp_temp / reqd_boltzmann_dist_temp_normalized /                  *)
 (*   reqd_boltzmann_dist_temp_pos (Defined) / reqd_boltzmann_log_temp_decomp       *)
-(*   + the FEP summation face fsum_ext/add/linear/pos/le/zero_nonneg + bridges     *)
+(*   + the FEP summation face fsum_ext/add/linear/pos/real_le/zero_nonneg + bridges     *)
 (*   dist_log_inv_one_inv / dist_log_exp_neg / dist_log_le_linear /                *)
 (*   dist_log_eq_linear + req_entropy_neg_sum + req_gibbs_inequality /             *)
 (*   req_gibbs_equality.                                                           *)
@@ -60,48 +60,48 @@ Section ReqTempEntropy.
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 Hypothesis fsum_ext :
-  forall f g : S -> R, (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
+  forall f g : S -> R, (forall s : S, real_eq (f s) (g s)) -> real_eq (sumf f) (sumf g).
 Hypothesis fsum_add :
   forall f g : S -> R,
-    req (sumf (fun s => plus (f s) (g s))) (plus (sumf f) (sumf g)).
+    real_eq (sumf (fun s => plus (f s) (g s))) (plus (sumf f) (sumf g)).
 Hypothesis fsum_linear :
   forall (a : R) (f : S -> R),
-    req (sumf (fun s => mult a (f s))) (mult a (sumf f)).
+    real_eq (sumf (fun s => mult a (f s))) (mult a (sumf f)).
 Hypothesis fsum_pos :
-  forall f : S -> R, (forall s : S, lt zero (f s)) -> lt zero (sumf f).
+  forall f : S -> R, (forall s : S, real_lt zero (f s)) -> real_lt zero (sumf f).
 Hypothesis fsum_le :
-  forall f g : S -> R, (forall s : S, le (f s) (g s)) -> le (sumf f) (sumf g).
+  forall f g : S -> R, (forall s : S, real_le (f s) (g s)) -> real_le (sumf f) (sumf g).
 Hypothesis fsum_zero_nonneg :
   forall f : S -> R,
-    (forall s : S, le zero (f s)) -> req (sumf f) zero ->
-    forall s : S, req (f s) zero.
+    (forall s : S, real_le zero (f s)) -> real_eq (sumf f) zero ->
+    forall s : S, real_eq (f s) zero.
 Variable base_loss : S -> R.
 Hypothesis dist_log_inv_one_inv :
-  forall (x : R) (Hx : lt zero x) (Hi : lt zero (inv_pos x Hx)),
-    req (log (inv_pos x Hx) Hi) (opp (log x Hx)).
+  forall (x : R) (Hx : real_lt zero x) (Hi : real_lt zero (inv_pos x Hx)),
+    real_eq (log (inv_pos x Hx) Hi) (opp (log x Hx)).
 Hypothesis dist_log_exp_neg :
-  forall u : R, req (log (exp_neg u) (exp_neg_pos u)) (opp u).
+  forall u : R, real_eq (log (exp_neg u) (exp_neg_pos u)) (opp u).
 Hypothesis dist_log_le_linear :
-  forall (x : R) (Hx : lt zero x), le (log x Hx) (req_minus x one).
+  forall (x : R) (Hx : real_lt zero x), real_le (log x Hx) (req_minus x one).
 Hypothesis dist_log_eq_linear :
-  forall (x : R) (Hx : lt zero x),
-    req (log x Hx) (req_minus x one) -> req x one.
+  forall (x : R) (Hx : real_lt zero x),
+    real_eq (log x Hx) (req_minus x one) -> real_eq x one.
 Variable Z_temp : R -> R.
-Hypothesis Z_temp_spec : forall (t : R) (Ht : lt zero t),
-  req (Z_temp t) (sumf (fun s => exp_neg (mult (inv_pos t Ht) (base_loss s)))).
+Hypothesis Z_temp_spec : forall (t : R) (Ht : real_lt zero t),
+  real_eq (Z_temp t) (sumf (fun s => exp_neg (mult (inv_pos t Ht) (base_loss s)))).
 
 (* ---- Transparent aliases of the temperature family (delta-reachable).          ---- *)
 (* ---- Positivity/normalization from Defined items; log premises literal-matched. ---- *)
-Definition tB (t : R) (Ht : lt zero t) : S -> R :=
+Definition tB (t : R) (Ht : real_lt zero t) : S -> R :=
   reqd_boltzmann_dist_temp S sumf fsum_pos base_loss Z_temp Z_temp_spec t Ht.
-Definition tE (t : R) (Ht : lt zero t) : R :=
+Definition tE (t : R) (Ht : real_lt zero t) : R :=
   reqd_energy_exp_temp S sumf fsum_pos base_loss Z_temp Z_temp_spec t Ht.
-Definition tBpos (t : R) (Ht : lt zero t) : reqd_positive_dist S (tB t Ht) :=
+Definition tBpos (t : R) (Ht : real_lt zero t) : reqd_positive_dist S (tB t Ht) :=
   reqd_boltzmann_dist_temp_pos S sumf fsum_pos base_loss Z_temp Z_temp_spec t Ht.
-Definition tBnorm (t : R) (Ht : lt zero t) : reqd_normalized S sumf (tB t Ht) :=
+Definition tBnorm (t : R) (Ht : real_lt zero t) : reqd_normalized S sumf (tB t Ht) :=
   reqd_boltzmann_dist_temp_normalized S sumf fsum_linear fsum_pos
     base_loss Z_temp Z_temp_spec t Ht.
-Definition tZpos (t : R) (Ht : lt zero t) : lt zero (Z_temp t) :=
+Definition tZpos (t : R) (Ht : real_lt zero t) : real_lt zero (Z_temp t) :=
   req_Z_temp_pos S sumf fsum_pos base_loss Z_temp Z_temp_spec t Ht.
 
 (* ============================================================ *)
@@ -112,8 +112,8 @@ Definition tZpos (t : R) (Ht : lt zero t) : lt zero (Z_temp t) :=
 (*   (pointwise comm/assoc + fsum_linear) + logZ constant extraction.             *)
 (* ============================================================ *)
 Theorem req_entropy_temp_explicit :
-  forall (t : R) (Ht : lt zero t),
-    req (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht))
+  forall (t : R) (Ht : real_lt zero t),
+    real_eq (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht))
         (plus (mult (inv_pos t Ht) (tE t Ht))
               (log (Z_temp t) (tZpos t Ht))).
 Proof.
@@ -247,9 +247,9 @@ Qed.
 (*   opp_plus/double negation + plus_assoc.                                       *)
 (* ============================================================ *)
 Theorem req_relative_entropy_temp_decomp :
-  forall (t : R) (Ht : lt zero t) (q : S -> R) (Hq : reqd_positive_dist S q),
+  forall (t : R) (Ht : real_lt zero t) (q : S -> R) (Hq : reqd_positive_dist S q),
     reqd_normalized S sumf q ->
-    req (req_relative_entropy S sumf q (tB t Ht) Hq (tBpos t Ht))
+    real_eq (req_relative_entropy S sumf q (tB t Ht) Hq (tBpos t Ht))
         (plus (plus (opp (reqd_entropy_dist S sumf q Hq))
                     (mult (inv_pos t Ht)
                           (reqd_energy_expectation S sumf base_loss q)))
@@ -265,7 +265,7 @@ Proof.
   unfold req_relative_entropy, req_minus.
   (* pre-balanced atomic term P2: q*(beta*e) == beta*(q*e) (comm/assoc rearrangement) *)
   assert (P2 : forall s : S,
-    req (mult (q s) (mult bta (base_loss s))) (mult bta (mult (q s) (base_loss s)))).
+    real_eq (mult (q s) (mult bta (base_loss s))) (mult bta (mult (q s) (base_loss s)))).
   { intro s.
     apply (req_trans
       (mult (q s) (mult bta (base_loss s)))
@@ -283,7 +283,7 @@ Proof.
                  (mult (base_loss s) (q s)) (mult (q s) (base_loss s))
                  (req_refl bta) (mult_comm (base_loss s) (q s))). }
   (* pre-balanced atomic term Hcz: sum q*logZ == logZ (constant extraction + normalization) *)
-  assert (Hcz : req (sumf (fun s : S => mult (q s) LZ)) LZ).
+  assert (Hcz : real_eq (sumf (fun s : S => mult (q s) LZ)) LZ).
   { apply (req_trans
       (sumf (fun s : S => mult (q s) LZ))
       (sumf (fun s : S => mult LZ (q s)))
@@ -299,7 +299,7 @@ Proof.
         * exact (req_mult_compat LZ LZ (sumf q) one (req_refl LZ) Hnq).
         * exact (mult_one LZ). }
   
-  assert (HlogH : req (sumf (fun s : S => mult (q s) (log (pB s) (HpB s))))
+  assert (HlogH : real_eq (sumf (fun s : S => mult (q s) (log (pB s) (HpB s))))
                       (plus (opp (mult bta Eq)) (opp LZ))).
   { apply (req_trans
       (sumf (fun s : S => mult (q s) (log (pB s) (HpB s))))
@@ -401,7 +401,7 @@ Proof.
                    (fsum_opp S sumf fsum_ext fsum_linear (fun s : S => mult (q s) LZ))
                    (req_opp_compat (sumf (fun s : S => mult (q s) LZ)) LZ Hcz)). }
   (* pre-balanced atomic term Hopp: opp(opp X + opp Y) == X + Y *)
-  assert (Hopp : req (opp (plus (opp (mult bta Eq)) (opp LZ))) (plus (mult bta Eq) LZ)).
+  assert (Hopp : real_eq (opp (plus (opp (mult bta Eq)) (opp LZ))) (plus (mult bta Eq) LZ)).
   { exact (req_trans
              (opp (plus (opp (mult bta Eq)) (opp LZ)))
              (plus (opp (opp (mult bta Eq))) (opp (opp LZ)))
@@ -491,10 +491,10 @@ Qed.
 (*   req_mult_compat); after req_minus expansion closed by Hse forward / Hsub backward. *)
 (* ============================================================ *)
 Theorem req_entropy_deficit_temp :
-  forall (t : R) (Ht : lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
+  forall (t : R) (Ht : real_lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
     reqd_normalized S sumf p ->
-    req (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
-    req (req_minus (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht))
+    real_eq (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
+    real_eq (req_minus (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht))
                    (reqd_entropy_dist S sumf p Hp))
         (req_relative_entropy S sumf p (tB t Ht) Hp (tBpos t Ht)).
 Proof.
@@ -506,13 +506,13 @@ Proof.
   set (K := req_relative_entropy S sumf p (tB t Ht) Hp (tBpos t Ht)).
   set (Ep := reqd_energy_expectation S sumf base_loss p).
   (* KL(p||p_beta) == -S[p] + beta*E(p) + logZ (item 2) *)
-  assert (Hkl : req K (plus (plus (opp Sp) (mult bta Ep)) LZ))
+  assert (Hkl : real_eq K (plus (plus (opp Sp) (mult bta Ep)) LZ))
     by exact (req_relative_entropy_temp_decomp t Ht p Hp Hnp).
   (* S[p_beta] == beta*E(p_beta) + logZ (item 1) *)
-  assert (Hse : req Spt (plus (mult bta (tE t Ht)) LZ))
+  assert (Hse : real_eq Spt (plus (mult bta (tE t Ht)) LZ))
     by exact (req_entropy_temp_explicit t Ht).
   (* rearrangement: K == (beta*E(p) + logZ) + (-S[p]) *)
-  assert (Hkl' : req K (plus (plus (mult bta Ep) LZ) (opp Sp))).
+  assert (Hkl' : real_eq K (plus (plus (mult bta Ep) LZ) (opp Sp))).
   { exact (req_trans K
              (plus (opp Sp) (plus (mult bta Ep) LZ))
              (plus (plus (mult bta Ep) LZ) (opp Sp))
@@ -525,7 +525,7 @@ Proof.
                          (plus_assoc (opp Sp) (mult bta Ep) LZ)))
              (plus_comm (opp Sp) (plus (mult bta Ep) LZ))). }
   (* same-energy substitution: beta*E(p) := beta*E(p_beta) *)
-  assert (Hsub : req K (plus (plus (mult bta (tE t Ht)) LZ) (opp Sp))).
+  assert (Hsub : real_eq K (plus (plus (mult bta (tE t Ht)) LZ) (opp Sp))).
   { exact (req_trans K
              (plus (plus (mult bta Ep) LZ) (opp Sp))
              (plus (plus (mult bta (tE t Ht)) LZ) (opp Sp))
@@ -555,14 +555,14 @@ Qed.
 (* Item 4/5: maximum entropy = Boltzmann, temperature version                     *)
 (*   (upstream max_entropy_is_boltzmann_temp @17726).                             *)
 (*   Same constrained energy implies S[p] <= S[p_beta]. Assembly: the deficit     *)
-(*   (item 3) + req_gibbs_inequality (both p and p_beta normalized) + a le        *)
+(*   (item 3) + req_gibbs_inequality (both p and p_beta normalized) + a real_le        *)
 (*   rearrangement chain (le_id_r + req_minus_plus_cancel + req_le_plus_nonneg_r). *)
 (* ============================================================ *)
 Theorem req_max_entropy_is_boltzmann_temp :
-  forall (t : R) (Ht : lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
+  forall (t : R) (Ht : real_lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
     reqd_normalized S sumf p ->
-    req (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
-    le (reqd_entropy_dist S sumf p Hp)
+    real_eq (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
+    real_le (reqd_entropy_dist S sumf p Hp)
        (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht)).
 Proof.
   intros t Ht p Hp Hnp Henergy.
@@ -570,15 +570,15 @@ Proof.
   set (Spt := reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht)).
   set (K := req_relative_entropy S sumf p (tB t Ht) Hp (tBpos t Ht)).
   (* 1. S[p_beta] - S[p] == KL (item 3) *)
-  assert (Hdef : req (req_minus Spt Sp) K)
+  assert (Hdef : real_eq (req_minus Spt Sp) K)
     by exact (req_entropy_deficit_temp t Ht p Hp Hnp Henergy).
   (* 2. KL >= 0 (req_gibbs_inequality; p_beta normalized by reqd_boltzmann_dist_temp_normalized) *)
-  assert (Hkl : le zero K).
+  assert (Hkl : real_le zero K).
   { exact (req_gibbs_inequality S sumf fsum_ext fsum_add fsum_linear fsum_le
                                 dist_log_inv_one_inv dist_log_le_linear
                                 p (tB t Ht) Hp (tBpos t Ht) Hnp (tBnorm t Ht)). }
   (* 3. 0 <= S[p_beta] - S[p] implies S[p] <= S[p_beta] *)
-  assert (Hnonneg : le zero (req_minus Spt Sp))
+  assert (Hnonneg : real_le zero (req_minus Spt Sp))
     by exact (le_id_r zero K (req_minus Spt Sp) (req_sym _ _ Hdef) Hkl).
   apply (le_id_r Sp (plus Sp (req_minus Spt Sp)) Spt).
   - exact (req_minus_plus_cancel Sp Spt).
@@ -592,22 +592,22 @@ Qed.
 (*   (req_minus_self_zero) + req_gibbs_equality (KL == 0 implies pointwise equality). *)
 (* ============================================================ *)
 Theorem req_entropy_max_unique_temp :
-  forall (t : R) (Ht : lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
+  forall (t : R) (Ht : real_lt zero t) (p : S -> R) (Hp : reqd_positive_dist S p),
     reqd_normalized S sumf p ->
-    req (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
-    req (reqd_entropy_dist S sumf p Hp)
+    real_eq (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
+    real_eq (reqd_entropy_dist S sumf p Hp)
         (reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht)) ->
-    forall s : S, req (p s) (tB t Ht s).
+    forall s : S, real_eq (p s) (tB t Ht s).
 Proof.
   intros t Ht p Hp Hnp Henergy Hent s.
   set (Sp := reqd_entropy_dist S sumf p Hp).
   set (Spt := reqd_entropy_dist S sumf (tB t Ht) (tBpos t Ht)).
   set (K := req_relative_entropy S sumf p (tB t Ht) Hp (tBpos t Ht)).
   (* 1. S[p_beta] - S[p] == KL (item 3) *)
-  assert (Hdef : req (req_minus Spt Sp) K)
+  assert (Hdef : real_eq (req_minus Spt Sp) K)
     by exact (req_entropy_deficit_temp t Ht p Hp Hnp Henergy).
   (* 2. equal entropy implies KL == 0 *)
-  assert (Hkl0 : req K zero).
+  assert (Hkl0 : real_eq K zero).
   { exact (req_trans K (req_minus Spt Sp) zero
              (req_sym _ _ Hdef)
              (req_minus_self_zero Spt Sp (req_sym _ _ Hent))). }
@@ -638,9 +638,9 @@ Qed.
 (*       following the RestA precedent it is discharged as the theorem              *)
 (*       req_inv_pos_lt_contra, with no axiom added;                                *)
 (*     b) upstream L17121 lt_minus_nonneg (a Variable): the interface abstraction   *)
-(*       layer has no lt-to-minus connecting field (the Real layer builds it per    *)
+(*       layer has no real_lt-to-minus connecting field (the Real layer builds it per    *)
 (*       eps), so it cannot be discharged; in the mono/strict_mono items the        *)
-(*       explicit premise lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) is  *)
+(*       explicit premise real_lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) is  *)
 (*       kept pointwise (a theorem under the Real instantiation; no claim inflation). *)
 (* ============================================================ *)
 
@@ -650,30 +650,30 @@ Qed.
 (*   lt_mult_compat twice + req_lt_compat commutation transport); same pattern     *)
 (*   as RestA ralt_inv_pos_lt_contra; a genuine proof inside the interface-field closure. *)
 Lemma req_inv_pos_lt_contra :
-  forall (a b : R) (Ha : lt zero a) (Hb : lt zero b),
-    lt a b -> lt (inv_pos b Hb) (inv_pos a Ha).
+  forall (a b : R) (Ha : real_lt zero a) (Hb : real_lt zero b),
+    real_lt a b -> real_lt (inv_pos b Hb) (inv_pos a Ha).
 Proof.
   intros a b Ha Hb Hab.
   set (ia := inv_pos a Ha).
   set (ib := inv_pos b Hb).
-  assert (Hia1 : req (mult ia a) one).
+  assert (Hia1 : real_eq (mult ia a) one).
   { exact (req_trans (mult ia a) (mult a ia) one
              (mult_comm ia a) (inv_pos_correct a Ha)). }
-  assert (Hib1 : req (mult b ib) one).
+  assert (Hib1 : real_eq (mult b ib) one).
   { exact (inv_pos_correct b Hb). }
-  assert (Hmid : req (mult (mult ia a) ib) ib).
+  assert (Hmid : real_eq (mult (mult ia a) ib) ib).
   { apply (req_trans (mult (mult ia a) ib) (mult one ib) ib).
     - exact (req_mult_compat (mult ia a) one ib ib Hia1 (req_refl ib)).
     - exact (req_trans (mult one ib) (mult ib one) ib
                (mult_comm one ib) (mult_one ib)). }
-  assert (Hlt1 : lt (mult ia a) (mult ia b)).
+  assert (Hlt1 : real_lt (mult ia a) (mult ia b)).
   { apply (req_lt_compat (mult a ia) (mult ia a) (mult b ia) (mult ia b)
                          (mult_comm a ia) (mult_comm b ia)).
     exact (lt_mult_compat a b ia (inv_pos_pos a Ha) Hab). }
-  assert (Hltmid : lt (mult (mult ia a) ib) (mult (mult ia b) ib)).
+  assert (Hltmid : real_lt (mult (mult ia a) ib) (mult (mult ia b) ib)).
   { exact (lt_mult_compat (mult ia a) (mult ia b) ib
              (inv_pos_pos b Hb) Hlt1). }
-  assert (Hright : req (mult (mult ia b) ib) ia).
+  assert (Hright : real_eq (mult (mult ia b) ib) ia).
   { apply (req_trans (mult (mult ia b) ib) (mult ia (mult b ib)) ia).
     - exact (req_sym (mult ia (mult b ib)) (mult (mult ia b) ib)
                      (mult_assoc ia b ib)).
@@ -688,7 +688,7 @@ Qed.
 
 (* ---- Algebra helper: difference pair (x-y)+(y-x) == 0 (pure interface algebra) ---- *)
 Lemma reqd_minus_pair_cancel :
-  forall a b : R, req (plus (req_minus a b) (req_minus b a)) zero.
+  forall a b : R, real_eq (plus (req_minus a b) (req_minus b a)) zero.
 Proof.
   intros a b.
   apply (req_trans (plus (req_minus a b) (req_minus b a))
@@ -727,7 +727,7 @@ Qed.
 
 (* ---- Algebra helper: subtraction flip (b-a) == -(a-b) (pure interface algebra) ---- *)
 Lemma reqd_minus_opp_flip :
-  forall a b : R, req (req_minus b a) (opp (req_minus a b)).
+  forall a b : R, real_eq (req_minus b a) (opp (req_minus a b)).
 Proof.
   intros a b.
   apply (req_trans (plus b (opp a)) (plus (opp a) b)
@@ -746,11 +746,11 @@ Qed.
 (* Strict-layer item 1/6: reshaped KL decomposition (upstream                     *)
 
 (*   temp_strict_A_chain2 @17825). Non-triviality: assembly (item 1 explicit       *)
-(*   entropy) + a genuine algebra chain (opp_plus/double negation/distrib/req_mult_minus_distr_r req chain, zero rewrite). *)
+(*   entropy) + a genuine algebra chain (opp_plus/double negation/distrib/req_mult_minus_distr_r real_eq chain, zero rewrite). *)
 (* ============================================================ *)
 Theorem req_temp_strict_A_chain2 :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-    req (plus (plus (opp (reqd_entropy_dist S sumf (tB t2 Ht2) (tBpos t2 Ht2)))
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+    real_eq (plus (plus (opp (reqd_entropy_dist S sumf (tB t2 Ht2) (tBpos t2 Ht2)))
                     (mult (inv_pos t1 Ht1) (tE t2 Ht2)))
               (log (Z_temp t1) (tZpos t1 Ht1)))
         (plus (mult (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2))
@@ -766,10 +766,10 @@ Proof.
   set (LZ1 := log (Z_temp t1) (tZpos t1 Ht1)).
   set (LZ2 := log (Z_temp t2) (tZpos t2 Ht2)).
   (* explicit entropy (item 1): S2 == b2*E2 + LZ2 *)
-  assert (Hse : req S2 (plus (mult b2 E2) LZ2))
+  assert (Hse : real_eq S2 (plus (mult b2 E2) LZ2))
     by exact (req_entropy_temp_explicit t2 Ht2).
-  (* main chain in five stages (isomorphic to upstream H1/H2/H3/H4/H5; id_cong as req compat bridges) *)
-  assert (H1 : req (plus (plus (opp S2) (mult b1 E2)) LZ1)
+  (* main chain in five stages (isomorphic to upstream H1/H2/H3/H4/H5; id_cong as real_eq compat bridges) *)
+  assert (H1 : real_eq (plus (plus (opp S2) (mult b1 E2)) LZ1)
                    (plus (plus (opp (plus (mult b2 E2) LZ2)) (mult b1 E2)) LZ1)).
   { exact (req_plus_compat
              (plus (opp S2) (mult b1 E2))
@@ -780,7 +780,7 @@ Proof.
                               (req_opp_compat S2 (plus (mult b2 E2) LZ2) Hse)
                               (req_refl (mult b1 E2)))
              (req_refl LZ1)). }
-  assert (H2 : req (plus (plus (opp (plus (mult b2 E2) LZ2)) (mult b1 E2)) LZ1)
+  assert (H2 : real_eq (plus (plus (opp (plus (mult b2 E2) LZ2)) (mult b1 E2)) LZ1)
                    (plus (plus (plus (opp (mult b2 E2)) (opp LZ2)) (mult b1 E2)) LZ1)).
   { exact (req_plus_compat
              (plus (opp (plus (mult b2 E2) LZ2)) (mult b1 E2))
@@ -792,7 +792,7 @@ Proof.
                               (req_opp_plus (mult b2 E2) LZ2)
                               (req_refl (mult b1 E2)))
              (req_refl LZ1)). }
-  assert (H3 : req (plus (plus (plus (opp (mult b2 E2)) (opp LZ2)) (mult b1 E2)) LZ1)
+  assert (H3 : real_eq (plus (plus (plus (opp (mult b2 E2)) (opp LZ2)) (mult b1 E2)) LZ1)
                    (plus (plus (opp (mult b2 E2)) (mult b1 E2))
                          (plus (opp LZ2) LZ1))).
   { apply (req_trans
@@ -840,7 +840,7 @@ Proof.
                          LZ1)
                    (plus_assoc (plus (opp (mult b2 E2)) (mult b1 E2))
                                (opp LZ2) LZ1)). }
-  assert (H4 : req (plus (plus (opp (mult b2 E2)) (mult b1 E2))
+  assert (H4 : real_eq (plus (plus (opp (mult b2 E2)) (mult b1 E2))
                          (plus (opp LZ2) LZ1))
                    (plus (mult (req_minus b1 b2) E2) (plus (opp LZ2) LZ1))).
   { exact (req_plus_compat
@@ -855,7 +855,7 @@ Proof.
                                  (req_minus (mult b1 E2) (mult b2 E2))
                                  (req_mult_minus_distr_r b1 b2 E2)))
              (req_refl (plus (opp LZ2) LZ1))). }
-  assert (H5 : req (plus (mult (req_minus b1 b2) E2) (plus (opp LZ2) LZ1))
+  assert (H5 : real_eq (plus (mult (req_minus b1 b2) E2) (plus (opp LZ2) LZ1))
                    (plus (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2))).
   { exact (req_plus_compat
              (mult (req_minus b1 b2) E2) (mult (req_minus b1 b2) E2)
@@ -894,9 +894,9 @@ Qed.
 (*   + req_gibbs_inequality) + a genuine rearrangement chain (le_id_l/le_id_r + le_plus_compat + a 4-step algebra chain). *)
 (* ============================================================ *)
 Theorem req_variational_temp_bound :
-  forall (t : R) (Ht : lt zero t) (q : S -> R) (Hq : reqd_positive_dist S q),
+  forall (t : R) (Ht : real_lt zero t) (q : S -> R) (Hq : reqd_positive_dist S q),
     reqd_normalized S sumf q ->
-    le (req_minus (reqd_entropy_dist S sumf q Hq)
+    real_le (req_minus (reqd_entropy_dist S sumf q Hq)
                   (mult (inv_pos t Ht) (reqd_energy_expectation S sumf base_loss q)))
        (log (Z_temp t) (tZpos t Ht)).
 Proof.
@@ -905,19 +905,19 @@ Proof.
   set (bE := mult (inv_pos t Ht) (reqd_energy_expectation S sumf base_loss q)).
   set (LZ := log (Z_temp t) (tZpos t Ht)).
   (* KL(q||p_t) >= 0 (req_gibbs_inequality) *)
-  assert (Hkl : le zero (req_relative_entropy S sumf q (tB t Ht) Hq (tBpos t Ht))).
+  assert (Hkl : real_le zero (req_relative_entropy S sumf q (tB t Ht) Hq (tBpos t Ht))).
   { exact (req_gibbs_inequality S sumf fsum_ext fsum_add fsum_linear fsum_le
              dist_log_inv_one_inv dist_log_le_linear
              q (tB t Ht) Hq (tBpos t Ht) Hnq (tBnorm t Ht)). }
   (* KL == (-H + beta*E) + logZ (item 2), transported *)
-  assert (Hkl0 : le zero (plus (plus (opp Sq) bE) LZ)).
+  assert (Hkl0 : real_le zero (plus (plus (opp Sq) bE) LZ)).
   { exact (le_id_r zero
              (req_relative_entropy S sumf q (tB t Ht) Hq (tBpos t Ht))
              (plus (plus (opp Sq) bE) LZ)
              (req_relative_entropy_temp_decomp t Ht q Hq Hnq)
              Hkl). }
   (* rearrangement 1: H <= beta*E + logZ *)
-  assert (Hstep1 : le Sq (plus bE LZ)).
+  assert (Hstep1 : real_le Sq (plus bE LZ)).
   { apply (le_id_l Sq (plus Sq zero)).
     - exact (req_sym (plus Sq zero) Sq (plus_zero Sq)).
     - apply (le_id_r (plus Sq zero)
@@ -979,15 +979,15 @@ Qed.
 (* Strict-layer item 3/6: temperature-to-expected-energy monotonicity            *)
 (*   (upstream energy_exp_temp_mono @17521). t1 < t2 implies E(t1) <= E(t2).      *)
 (*   Non-triviality: genuine assembly (the discharged item Hb + the variational   *)
-(*   bound twice + item 1 explicit entropy + a full req re-proof of upstream      *)
+(*   bound twice + item 1 explicit entropy + a full real_eq re-proof of upstream      *)
 (*   Hm/Hshift/Hsum/Hlhs + the req_le_mult_pos_cancel/req_le_minus_nonneg_rev     *)
-(*   rearrangement chain). Honest premise: lt zero (b1 - b2) (upstream L17121 lt_minus_nonneg position; a theorem under the Real instantiation). *)
+(*   rearrangement chain). Honest premise: real_lt zero (b1 - b2) (upstream L17121 lt_minus_nonneg position; a theorem under the Real instantiation). *)
 (* ============================================================ *)
 Theorem req_energy_exp_temp_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-    lt t1 t2 ->
-    lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) ->
-    le (tE t1 Ht1) (tE t2 Ht2).
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+    real_lt t1 t2 ->
+    real_lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) ->
+    real_le (tE t1 Ht1) (tE t2 Ht2).
 Proof.
   intros t1 t2 Ht1 Ht2 Ht12 Hbd.
   set (b1 := inv_pos t1 Ht1). set (b2 := inv_pos t2 Ht2).
@@ -997,22 +997,22 @@ Proof.
   set (LZ1 := log (Z_temp t1) (tZpos t1 Ht1)).
   set (LZ2 := log (Z_temp t2) (tZpos t2 Ht2)).
   (* beta2 < beta1 (the discharged item) *)
-  assert (Hb : lt b2 b1)
+  assert (Hb : real_lt b2 b1)
     by exact (req_inv_pos_lt_contra t1 t2 Ht1 Ht2 Ht12).
   (* the variational bound twice (q := p_t2 / p_t1, crossed) *)
-  assert (Hv1 : le (req_minus S2 (mult b1 E2)) LZ1).
+  assert (Hv1 : real_le (req_minus S2 (mult b1 E2)) LZ1).
   { exact (req_variational_temp_bound t1 Ht1 (tB t2 Ht2) (tBpos t2 Ht2)
              (tBnorm t2 Ht2)). }
-  assert (Hv2 : le (req_minus S1 (mult b2 E1)) LZ2).
+  assert (Hv2 : real_le (req_minus S1 (mult b2 E1)) LZ2).
   { exact (req_variational_temp_bound t2 Ht2 (tB t1 Ht1) (tBpos t1 Ht1)
              (tBnorm t1 Ht1)). }
   (* explicit entropy (item 1), twice *)
-  assert (Hex1 : req S1 (plus (mult b1 E1) LZ1))
+  assert (Hex1 : real_eq S1 (plus (mult b1 E1) LZ1))
     by exact (req_entropy_temp_explicit t1 Ht1).
-  assert (Hex2 : req S2 (plus (mult b2 E2) LZ2))
+  assert (Hex2 : real_eq S2 (plus (mult b2 E2) LZ2))
     by exact (req_entropy_temp_explicit t2 Ht2).
   (* explicit entropy substituted into the variational bound (transported by reqd_minus_compat) *)
-  assert (Hv1' : le (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2)) LZ1).
+  assert (Hv1' : real_le (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2)) LZ1).
   { apply (le_id_l (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2))
                    (req_minus S2 (mult b1 E2)) LZ1).
     - exact (reqd_minus_compat (plus (mult b2 E2) LZ2) S2
@@ -1020,7 +1020,7 @@ Proof.
                (req_sym S2 (plus (mult b2 E2) LZ2) Hex2)
                (req_refl (mult b1 E2))).
     - exact Hv1. }
-  assert (Hv2' : le (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1)) LZ2).
+  assert (Hv2' : real_le (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1)) LZ2).
   { apply (le_id_l (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1))
                    (req_minus S1 (mult b2 E1)) LZ2).
     - exact (reqd_minus_compat (plus (mult b1 E1) LZ1) S1
@@ -1029,7 +1029,7 @@ Proof.
                (req_refl (mult b2 E1))).
     - exact Hv2. }
   (* simplification inside minus (upstream Hm1: X-Y == (b2-b1)*E2 + LZ2, 5 steps) *)
-  assert (Hm1 : req (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2))
+  assert (Hm1 : real_eq (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2))
                     (plus (mult (req_minus b2 b1) E2) LZ2)).
   { apply (req_trans (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2))
                      (plus (mult b2 E2) (plus LZ2 (opp (mult b1 E2))))
@@ -1054,7 +1054,7 @@ Proof.
                             (req_minus (mult b2 E2) (mult b1 E2))
                             (req_mult_minus_distr_r b2 b1 E2))
                    (req_refl LZ2)). }
-  assert (Hm2 : req (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1))
+  assert (Hm2 : real_eq (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1))
                     (plus (mult (req_minus b1 b2) E1) LZ1)).
   { apply (req_trans (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1))
                      (plus (mult b1 E1) (plus LZ1 (opp (mult b2 E1))))
@@ -1080,20 +1080,20 @@ Proof.
                             (req_mult_minus_distr_r b1 b2 E1))
                    (req_refl LZ1)). }
   (* finishing the variational bound (upstream Hv1''/Hv2'') *)
-  assert (Hv1'' : le (plus (mult (req_minus b2 b1) E2) LZ2) LZ1).
+  assert (Hv1'' : real_le (plus (mult (req_minus b2 b1) E2) LZ2) LZ1).
   { apply (le_id_l (plus (mult (req_minus b2 b1) E2) LZ2)
                    (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2)) LZ1).
     - exact (req_sym (req_minus (plus (mult b2 E2) LZ2) (mult b1 E2))
                      (plus (mult (req_minus b2 b1) E2) LZ2) Hm1).
     - exact Hv1'. }
-  assert (Hv2'' : le (plus (mult (req_minus b1 b2) E1) LZ1) LZ2).
+  assert (Hv2'' : real_le (plus (mult (req_minus b1 b2) E1) LZ1) LZ2).
   { apply (le_id_l (plus (mult (req_minus b1 b2) E1) LZ1)
                    (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1)) LZ2).
     - exact (req_sym (req_minus (plus (mult b1 E1) LZ1) (mult b2 E1))
                      (plus (mult (req_minus b1 b2) E1) LZ1) Hm2).
     - exact Hv2'. }
-  (* rearrangement (upstream Hshift1/Hshift2: le X (LZ1-LZ2)) *)
-  assert (Hshift1 : le (mult (req_minus b2 b1) E2) (req_minus LZ1 LZ2)).
+  (* rearrangement (upstream Hshift1/Hshift2: real_le X (LZ1-LZ2)) *)
+  assert (Hshift1 : real_le (mult (req_minus b2 b1) E2) (req_minus LZ1 LZ2)).
   { apply (le_id_l (mult (req_minus b2 b1) E2)
                    (plus (plus (mult (req_minus b2 b1) E2) LZ2) (opp LZ2))
                    (req_minus LZ1 LZ2)).
@@ -1118,7 +1118,7 @@ Proof.
       + exact (req_refl (plus LZ1 (opp LZ2))).
       + exact (le_plus_compat (plus (mult (req_minus b2 b1) E2) LZ2) LZ1
                  (opp LZ2) (opp LZ2) Hv1'' (le_refl (opp LZ2))). }
-  assert (Hshift2 : le (mult (req_minus b1 b2) E1) (req_minus LZ2 LZ1)).
+  assert (Hshift2 : real_le (mult (req_minus b1 b2) E1) (req_minus LZ2 LZ1)).
   { apply (le_id_l (mult (req_minus b1 b2) E1)
                    (plus (plus (mult (req_minus b1 b2) E1) LZ1) (opp LZ1))
                    (req_minus LZ2 LZ1)).
@@ -1144,17 +1144,17 @@ Proof.
       + exact (le_plus_compat (plus (mult (req_minus b1 b2) E1) LZ1) LZ2
                  (opp LZ1) (opp LZ1) Hv2'' (le_refl (opp LZ1))). }
   (* adding up + cancellation (reqd_minus_pair_cancel) *)
-  assert (Hsum : le (plus (mult (req_minus b2 b1) E2) (mult (req_minus b1 b2) E1))
+  assert (Hsum : real_le (plus (mult (req_minus b2 b1) E2) (mult (req_minus b1 b2) E1))
                    (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1))).
   { exact (le_plus_compat (mult (req_minus b2 b1) E2) (req_minus LZ1 LZ2)
              (mult (req_minus b1 b2) E1) (req_minus LZ2 LZ1)
              Hshift1 Hshift2). }
-  assert (Hz : req (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1)) zero)
+  assert (Hz : real_eq (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1)) zero)
     by exact (reqd_minus_pair_cancel LZ1 LZ2).
-  assert (Hoppm : req (req_minus b2 b1) (opp (req_minus b1 b2)))
+  assert (Hoppm : real_eq (req_minus b2 b1) (opp (req_minus b1 b2)))
     by exact (reqd_minus_opp_flip b1 b2).
   (* LHS reshaping: d'*E2 + d*E1 == d*(E1 - E2) (upstream Hlhs, five steps) *)
-  assert (Hlhs : req (plus (mult (req_minus b2 b1) E2) (mult (req_minus b1 b2) E1))
+  assert (Hlhs : real_eq (plus (mult (req_minus b2 b1) E2) (mult (req_minus b1 b2) E1))
                      (mult (req_minus b1 b2) (req_minus E1 E2))).
   { apply (req_trans
              (plus (mult (req_minus b2 b1) E2) (mult (req_minus b1 b2) E1))
@@ -1201,7 +1201,7 @@ Proof.
                        (req_refl (req_minus b1 b2))
                        (plus_comm (opp E2) E1)). }
   (* assembly: d*(E1 - E2) <= 0 (upstream Hmain) *)
-  assert (Hmain : le (mult (req_minus b1 b2) (req_minus E1 E2)) zero).
+  assert (Hmain : real_le (mult (req_minus b1 b2) (req_minus E1 E2)) zero).
   { apply (le_id_l (mult (req_minus b1 b2) (req_minus E1 E2))
                    (plus (mult (req_minus b2 b1) E2)
                          (mult (req_minus b1 b2) E1)) zero).
@@ -1213,7 +1213,7 @@ Proof.
                      (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1))
                      zero Hz Hsum). }
   (* positive-factor cancellation + subtraction inverse (the ReqAlgBridge2 rearrangement chain) *)
-  assert (Hcancel : le (req_minus E1 E2) zero).
+  assert (Hcancel : real_le (req_minus E1 E2) zero).
   { apply (req_le_mult_pos_cancel (req_minus E1 E2) (req_minus b1 b2) Hbd).
     apply (le_id_l (mult (req_minus E1 E2) (req_minus b1 b2))
                    (mult (req_minus b1 b2) (req_minus E1 E2)) zero).
@@ -1227,11 +1227,11 @@ Qed.
 (*   temp_strict_ident2 @17879). KL(p_t2||p_t1) + KL(p_t1||p_t2) == (b1-b2)*(E2-E1). *)
 (*   Non-triviality: assembly (item 2 crossed with strict-layer item 1 A_chain2)  *)
 (*   + a genuine algebra chain (the reqd_minus_pair_cancel/reqd_minus_opp_flip    *)
-(*   helpers + the five-step Hmain2 req chain + stepwise trans reflow; the idempotent delta segment closed by req_refl). *)
+(*   helpers + the five-step Hmain2 real_eq chain + stepwise trans reflow; the idempotent delta segment closed by req_refl). *)
 (* ============================================================ *)
 Theorem req_temp_strict_ident2 :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-    req (plus (req_relative_entropy S sumf (tB t2 Ht2) (tB t1 Ht1)
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+    real_eq (plus (req_relative_entropy S sumf (tB t2 Ht2) (tB t1 Ht1)
                  (tBpos t2 Ht2) (tBpos t1 Ht1))
               (req_relative_entropy S sumf (tB t1 Ht1) (tB t2 Ht2)
                  (tBpos t1 Ht1) (tBpos t2 Ht2)))
@@ -1247,7 +1247,7 @@ Proof.
                (tBpos t2 Ht2) (tBpos t1 Ht1)).
   set (K2 := req_relative_entropy S sumf (tB t1 Ht1) (tB t2 Ht2)
                (tBpos t1 Ht1) (tBpos t2 Ht2)).
-  assert (HK1 : req K1 (plus (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2))).
+  assert (HK1 : real_eq K1 (plus (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2))).
   { exact (req_trans K1
              (plus (plus (opp (reqd_entropy_dist S sumf (tB t2 Ht2) (tBpos t2 Ht2)))
                          (mult (inv_pos t1 Ht1) (tE t2 Ht2)))
@@ -1256,7 +1256,7 @@ Proof.
              (req_relative_entropy_temp_decomp t1 Ht1 (tB t2 Ht2)
                 (tBpos t2 Ht2) (tBnorm t2 Ht2))
              (req_temp_strict_A_chain2 t1 t2 Ht1 Ht2)). }
-  assert (HK2 : req K2 (plus (mult (req_minus b2 b1) E1) (req_minus LZ2 LZ1))).
+  assert (HK2 : real_eq K2 (plus (mult (req_minus b2 b1) E1) (req_minus LZ2 LZ1))).
   { exact (req_trans K2
              (plus (plus (opp (reqd_entropy_dist S sumf (tB t1 Ht1) (tBpos t1 Ht1)))
                          (mult (inv_pos t2 Ht2) (tE t1 Ht1)))
@@ -1265,7 +1265,7 @@ Proof.
              (req_relative_entropy_temp_decomp t2 Ht2 (tB t1 Ht1)
                 (tBpos t1 Ht1) (tBnorm t1 Ht1))
              (req_temp_strict_A_chain2 t2 t1 Ht2 Ht1)). }
-  assert (Hsum : req (plus K1 K2)
+  assert (Hsum : real_eq (plus K1 K2)
                      (plus (plus (mult (req_minus b1 b2) E2)
                                  (req_minus LZ1 LZ2))
                            (plus (mult (req_minus b2 b1) E1)
@@ -1275,12 +1275,12 @@ Proof.
              K2
              (plus (mult (req_minus b2 b1) E1) (req_minus LZ2 LZ1))
              HK1 HK2). }
-  assert (Hz : req (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1)) zero)
+  assert (Hz : real_eq (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1)) zero)
     by exact (reqd_minus_pair_cancel LZ1 LZ2).
-  assert (Hoppm : req (req_minus b2 b1) (opp (req_minus b1 b2)))
+  assert (Hoppm : real_eq (req_minus b2 b1) (opp (req_minus b1 b2)))
     by exact (reqd_minus_opp_flip b1 b2).
   (* Hmain2: d*E2 + d'*E1 == d*(E2 - E1) (five steps) *)
-  assert (Hmain2 : req (plus (mult (req_minus b1 b2) E2)
+  assert (Hmain2 : real_eq (plus (mult (req_minus b1 b2) E2)
                              (mult (req_minus b2 b1) E1))
                        (mult (req_minus b1 b2) (req_minus E2 E1))).
   { apply (req_trans
@@ -1331,7 +1331,7 @@ Proof.
                        (plus E2 (opp E1)) (req_minus E2 E1)
                        (req_refl (req_minus b1 b2))
                        (req_refl (plus E2 (opp E1)))). }
-  assert (H1 : req (plus (plus (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2))
+  assert (H1 : real_eq (plus (plus (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2))
                          (plus (mult (req_minus b2 b1) E1) (req_minus LZ2 LZ1)))
                    (plus (mult (req_minus b1 b2) E2)
                          (plus (req_minus LZ1 LZ2)
@@ -1347,7 +1347,7 @@ Proof.
              (plus_assoc (mult (req_minus b1 b2) E2) (req_minus LZ1 LZ2)
                          (plus (mult (req_minus b2 b1) E1)
                                (req_minus LZ2 LZ1)))). }
-  assert (H2 : req (plus (mult (req_minus b1 b2) E2)
+  assert (H2 : real_eq (plus (mult (req_minus b1 b2) E2)
                          (plus (req_minus LZ1 LZ2)
                                (plus (mult (req_minus b2 b1) E1)
                                      (req_minus LZ2 LZ1))))
@@ -1413,7 +1413,7 @@ Proof.
                           (plus_assoc (mult (req_minus b2 b1) E1)
                                       (req_minus LZ1 LZ2)
                                       (req_minus LZ2 LZ1)))). }
-  assert (Hza : req (plus (mult (req_minus b1 b2) E2)
+  assert (Hza : real_eq (plus (mult (req_minus b1 b2) E2)
                           (plus (mult (req_minus b2 b1) E1)
                                 (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1))))
                     (plus (mult (req_minus b1 b2) E2)
@@ -1428,7 +1428,7 @@ Proof.
                 (mult (req_minus b2 b1) E1)
                 (plus (req_minus LZ1 LZ2) (req_minus LZ2 LZ1)) zero
                 (req_refl (mult (req_minus b2 b1) E1)) Hz)). }
-  assert (H3 : req (plus (mult (req_minus b1 b2) E2)
+  assert (H3 : real_eq (plus (mult (req_minus b1 b2) E2)
                          (plus (mult (req_minus b2 b1) E1) zero))
                    (plus (mult (req_minus b1 b2) E2) (mult (req_minus b2 b1) E1))).
   { exact (req_plus_compat (mult (req_minus b1 b2) E2)
@@ -1450,12 +1450,12 @@ Qed.
 (*   reqd_lt_mult_pos_cancel). Honest premise as in the mono item (same lt_minus_nonneg position). *)
 (* ============================================================ *)
 Theorem req_energy_exp_temp_strict_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-    lt t1 t2 ->
-    lt zero (req_relative_entropy S sumf (tB t2 Ht2) (tB t1 Ht1)
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+    real_lt t1 t2 ->
+    real_lt zero (req_relative_entropy S sumf (tB t2 Ht2) (tB t1 Ht1)
                (tBpos t2 Ht2) (tBpos t1 Ht1)) ->
-    lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) ->
-    lt zero (req_minus (tE t2 Ht2) (tE t1 Ht1)).
+    real_lt zero (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) ->
+    real_lt zero (req_minus (tE t2 Ht2) (tE t1 Ht1)).
 Proof.
   intros t1 t2 Ht1 Ht2 Ht12 Hkl1 Hbd.
   set (b1 := inv_pos t1 Ht1). set (b2 := inv_pos t2 Ht2).
@@ -1465,17 +1465,17 @@ Proof.
   set (K2 := req_relative_entropy S sumf (tB t1 Ht1) (tB t2 Ht2)
                (tBpos t1 Ht1) (tBpos t2 Ht2)).
   (* K2 >= 0 (req_gibbs_inequality) *)
-  assert (Hkl2 : le zero K2).
+  assert (Hkl2 : real_le zero K2).
   { exact (req_gibbs_inequality S sumf fsum_ext fsum_add fsum_linear fsum_le
              dist_log_inv_one_inv dist_log_le_linear
              (tB t1 Ht1) (tB t2 Ht2) (tBpos t1 Ht1) (tBpos t2 Ht2)
              (tBnorm t1 Ht1) (tBnorm t2 Ht2)). }
   (* K1 + K2 > 0 (lt_le_trans + req_le_plus_nonneg_r) *)
-  assert (Hklsum : lt zero (plus K1 K2)).
+  assert (Hklsum : real_lt zero (plus K1 K2)).
   { exact (lt_le_trans zero K1 (plus K1 K2) Hkl1
              (req_le_plus_nonneg_r K1 K2 Hkl2)). }
   (* the identity (item ident2) + substitution via lt_id_r *)
-  assert (Hprod : lt zero (mult (req_minus b1 b2) (req_minus E2 E1))).
+  assert (Hprod : real_lt zero (mult (req_minus b1 b2) (req_minus E2 E1))).
   { exact (lt_id_r zero (plus K1 K2)
              (mult (req_minus b1 b2) (req_minus E2 E1))
              (req_temp_strict_ident2 t1 t2 Ht1 Ht2) Hklsum). }
@@ -1494,22 +1494,22 @@ Qed.
 (*   tB/tBnorm/tBpos (Defined positive items), the energy mouth by req_refl (tE delta-transparent), the optimality mouth = item 4, the uniqueness mouth = item 5; zero new claims. *)
 (* ============================================================ *)
 Theorem req_temp_energy_dual_closed :
-  forall (t : R) (Ht : lt zero t),
+  forall (t : R) (Ht : real_lt zero t),
     sigT (fun pb : S -> R =>
       sigT (fun Hpb : reqd_positive_dist S pb =>
         And (reqd_normalized S sumf pb)
-            (And (req (reqd_energy_expectation S sumf base_loss pb) (tE t Ht))
+            (And (real_eq (reqd_energy_expectation S sumf base_loss pb) (tE t Ht))
                  (And (forall (p : S -> R) (Hp : reqd_positive_dist S p),
                         reqd_normalized S sumf p ->
-                        req (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
-                        le (reqd_entropy_dist S sumf p Hp)
+                        real_eq (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
+                        real_le (reqd_entropy_dist S sumf p Hp)
                            (reqd_entropy_dist S sumf pb Hpb))
                       (forall (p : S -> R) (Hp : reqd_positive_dist S p),
                         reqd_normalized S sumf p ->
-                        req (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
-                        req (reqd_entropy_dist S sumf p Hp)
+                        real_eq (reqd_energy_expectation S sumf base_loss p) (tE t Ht) ->
+                        real_eq (reqd_entropy_dist S sumf p Hp)
                             (reqd_entropy_dist S sumf pb Hpb) ->
-                        forall s : S, req (p s) (pb s)))))).
+                        forall s : S, real_eq (p s) (pb s)))))).
 Proof.
   intros t Ht.
   exists (tB t Ht).
@@ -1539,13 +1539,13 @@ End ReqTempEntropy.
 (* -------------------------------------------------------------- *)
 (* This file totals 5 Qed (all purely constructive; section variables = the FEP   *)
 (*   summation face/interface bridges + Z_temp; no fixed D/Z: the temperature layer depends only on Z_temp). *)
-(* Non-trivial upstream-to-req differences (each item genuinely re-proven, not copied): *)
+(* Non-trivial upstream-to-real_eq differences (each item genuinely re-proven, not copied): *)
 (*   a) the log premises carry the positivity proofs pointwise (the transparent   *)
 (*     aliases tBpos/tZpos literal-match the premises of reqd_boltzmann_log_temp_decomp); *)
 (*   b) minus becomes req_minus (delta-transparent); upstream mult_minus_distr_l / *)
 (*     sum_over_S_minus become the distrib / fsum_opp bridges (opp_mult_l reshaping); *)
 (*   c) upstream rewrite chains become req_trans + compat bridges (zero rewrite); *)
-(*   d) the interface mult_assoc is direction-reversed (req (a*(b*c)) ((a*b)*c)); *)
+(*   d) the interface mult_assoc is direction-reversed (real_eq (a*(b*c)) ((a*b)*c)); *)
 (*     associativity steps are aligned via req_sym;                               *)
 (*   e) item 3's Hpp (reqd_positive_dist p) is an honest unused position, as upstream. *)
 (* Entry point: Require Import UpReqTempEntropy. (the three .vo files             *)
@@ -1558,11 +1558,11 @@ End ReqTempEntropy.
 (*   req_variational_temp_bound       <- upstream variational_temp_bound @L17468   *)
 (*     (item 2 + req_gibbs_inequality + a genuine rearrangement chain)        [6] *)
 (*   req_energy_exp_temp_mono         <- upstream @L17521 (discharged item +       *)
-(*     variational bound x2 + full req re-proof of Hm/Hshift/Hsum/Hlhs)       [7] *)
+(*     variational bound x2 + full real_eq re-proof of Hm/Hshift/Hsum/Hlhs)       [7] *)
 (*   req_temp_energy_dual_closed      <- upstream @L17788, sigT form               *)
 (*     (pure assembly: tB/tBpos/tBnorm + energy mouth req_refl + items 4/5)   [8] *)
 (*   req_temp_strict_A_chain2         <- upstream @L17825 (item 1 + the five-stage *)
-(*     opp_plus/distrib/req_mult_minus_distr_r req chain)                     [9] *)
+(*     opp_plus/distrib/req_mult_minus_distr_r real_eq chain)                     [9] *)
 (*   req_temp_strict_ident2           <- upstream @L17879 (item 2 crossed with [9] *)
 (*     + the five-step Hmain2 + stepwise H1/H2/Hza/H3 trans reflow)          [10] *)
 (*   req_energy_exp_temp_strict_mono  <- upstream @L18019 ([10] +                  *)
@@ -1573,12 +1573,12 @@ End ReqTempEntropy.
 (*     reqd_minus_pair_cancel / reqd_minus_opp_flip (pure interface algebra, shared by the Hsum/Hoppm stages). *)
 (* -------------------------------------------------------------- *)
 (* Honest signature-change table (against the upstream originals):                 *)
-(*   1. mono / strict_mono gain the explicit premise lt zero (req_minus b1 b2):    *)
+(*   1. mono / strict_mono gain the explicit premise real_lt zero (req_minus b1 b2):    *)
 (*     upstream L17121 lt_minus_nonneg is an interface-abstraction-layer Variable  *)
-(*     (built per eps in the Real layer); the req interface has no lt-to-minus     *)
+(*     (built per eps in the Real layer); the real_eq interface has no real_lt-to-minus     *)
 (*     connecting field, so it stays (a theorem under Real; no claim inflation).   *)
 (*   2. dual_closed's reqd_positive_dist pb conjunct is lifted into the sigT       *)
-(*     witness position (Hpb): in the req series the positivity position of        *)
+(*     witness position (Hpb): in the real_eq series the positivity position of        *)
 (*     reqd_entropy_dist is proof-relevant; an abstract pb without a witness is    *)
 (*     not typeable -- information equivalent pointwise to upstream (positivity as data). *)
 (* This file totals 14 Qed = the five items [1]-[5] + 3 helpers of this file + the *)

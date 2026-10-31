@@ -1,6 +1,6 @@
-(* UpDebtSqrtAbsReq.v — abstract req-layer square-root witness piece. *)
+(* UpDebtSqrtAbsReq.v — abstract real_eq-layer square-root witness piece. *)
 (* Mission. Section SqrtAbsReq carries req_sqrt_premise_le_intro (the
-   le-introduction form of a square-geq-a premise),
+   real_le-introduction form of a square-geq-a premise),
    req_sqrt_witness_exists_abstract (square-root witness existence in sigT
    form), with two_abs / half_abs support pieces and the witness-form
    restatements req_sqrt_witness_exists_abstract_witness and
@@ -10,9 +10,12 @@
 (* References. The abstract-interface version of constructive square-root
    existence (Bishop-style constructivism). *)
 (* Constructivity. Every piece is Qed-closed with zero admission words and no
-   classical logic; the statement face is carried at the Set layer — order
-   predicates and the equality are Set-valued, with zero Prop leakage. *)
-(* Build. rocq c -native-compiler no -q -Q . "" compiled in place against the
+   classical logic; the statement face is carried at the Set layer on the
+   concrete Set-valued faces real_eq/real_lt/real_le (S02_CauchyComplete
+   411/480/484) — order predicates and the equality are Set-valued, with
+   zero Prop leakage. *)
+(* Build. coqc -native-compiler no -q -Q . "" (the rocq c compile form;
+   this toolchain exposes the coqc driver) compiled in place against the
    seat world of tree-109 sources; every launch passes the cpu_guard thermal
    wrapper with ulimit -s 65532. *)
 
@@ -43,36 +46,40 @@ Section SqrtAbsReq.
    instance is RealEnhancedReal. The source piece was written against the
    older parameterized-interface world, so the two Context lines
    (Context {R : Set} and Context {RIS : RealInterfaceEnhancedSetoid R}) are
-   replaced by the notation below, and the eight Let bindings re-anchor to
-   that instance. Statement faces remain byte-identical to the source; this
-   is an interface-generation repair, declared inside the one-repair-round
-   clause. *)
+   replaced by the notation below, and the Let bindings re-anchor to that
+   instance. Statement-face re-anchor (registered precedent: the UpReqAlgebra
+   real_eq face, tree-verified magic=0; diagnostic-seat E5): every bare
+   projection token req/lt/le on the statement faces and the assert type
+   faces is rewritten to the concrete faces real_eq/real_lt/real_le
+   (S02_CauchyComplete 411/480/484), with statement names unchanged; the two
+   order-field anchor Lets (Let lt / Let le) are removed as no longer needed.
+   Proof bodies keep zero character changes. The projection-face statements
+   were the Obj.magic source (CI probe magic=50); this concrete-face
+   re-anchor clears them. *)
 Notation R := Real.
 
 Let zero := @zero RealEnhancedReal.
 Let one := @one RealEnhancedReal.
 Let plus := @plus RealEnhancedReal.
 Let mult := @mult RealEnhancedReal.
-Let lt := @lt RealEnhancedReal.
-Let le := @le RealEnhancedReal.
 Let inv_pos := @inv_pos RealEnhancedReal.
 Let exp_neg := @exp_neg RealEnhancedReal.
 
 (* two := 1 + 1; two > 0 (direct citation of the base piece req_two_pos). *)
 Definition two_abs : R := plus one one.
-Lemma two_abs_pos : lt zero two_abs.
+Lemma two_abs_pos : real_lt zero two_abs.
 Proof. exact req_two_pos. Qed.
 
-(* half := inv(two); half + half == one (req chain: inv_pos_correct
+(* half := inv(two); half + half == one (real_eq chain: inv_pos_correct
    + distrib + mult_one + req_plus_compat, five pure-term steps). *)
 Definition half_abs : R := inv_pos two_abs two_abs_pos.
-Lemma half_plus_half : req (plus half_abs half_abs) one.
+Lemma half_plus_half : real_eq (plus half_abs half_abs) one.
 Proof.
-  assert (Hd : req (mult half_abs two_abs) one).
+  assert (Hd : real_eq (mult half_abs two_abs) one).
   { exact (req_trans (mult half_abs two_abs) (mult two_abs half_abs) one
              (mult_comm half_abs two_abs)
              (inv_pos_correct two_abs two_abs_pos)). }
-  assert (Hsplit : req (mult half_abs two_abs) (plus half_abs half_abs)).
+  assert (Hsplit : real_eq (mult half_abs two_abs) (plus half_abs half_abs)).
   { apply (req_trans
               (mult half_abs (plus one one))
               (plus (mult half_abs one) (mult half_abs one))
@@ -86,23 +93,23 @@ Proof.
            Hd).
 Qed.
 
-(* ===== Piece 3: the Or premise is exactly the constructive content of le ===== *)
+(* ===== Piece 3: the Or premise is exactly the constructive content of real_le ===== *)
 Lemma req_sqrt_premise_le_intro : forall d : R,
-  Or (lt zero d) (req zero d) -> le zero d.
+  Or (real_lt zero d) (real_eq zero d) -> real_le zero d.
 Proof.
   intros d H. apply lt_le_iff. exact H.
 Qed.
 
-(* ===== Piece 4 (main theorem): the abstract req-layer square-root witness ===== *)
-(* d > 0: r := e^{-(half·log_inv d)}; le comes from exp_neg_pos, and
+(* ===== Piece 4 (main theorem): the abstract real_eq-layer square-root witness ===== *)
+(* d > 0: r := e^{-(half·log_inv d)}; real_le comes from exp_neg_pos, and
    r·r == d from exp_neg_plus(sym) + exp_neg_req_compat_setoid
    (using Hinner : half·L + half·L == L) + exp_neg_log_inv, three chains;
    d == 0: r := zero, where mult zero zero == zero is the interface field
    mult_zero. *)
 Theorem req_sqrt_witness_exists_abstract :
   forall d : R,
-  Or (lt zero d) (req zero d) ->
-  sigT (fun r : R => And (le zero r) (req (mult r r) d)).
+  Or (real_lt zero d) (real_eq zero d) ->
+  sigT (fun r : R => And (real_le zero r) (real_eq (mult r r) d)).
 Proof.
   intros d Hd.
   destruct Hd as [Hdlt | Hdeq].
@@ -110,7 +117,7 @@ Proof.
     split.
     + exact (lt_le_iff zero (exp_neg (mult half_abs (log_inv d Hdlt)))
                         (inl (exp_neg_pos (mult half_abs (log_inv d Hdlt))))).
-    + assert (Hinner : req (plus (mult half_abs (log_inv d Hdlt))
+    + assert (Hinner : real_eq (plus (mult half_abs (log_inv d Hdlt))
                                  (mult half_abs (log_inv d Hdlt)))
                            (log_inv d Hdlt)).
       { apply (req_trans
@@ -166,8 +173,8 @@ Qed.
    provided for downstream name-based consumption) ===== *)
 Lemma req_sqrt_witness_exists_abstract_witness :
   forall d : R,
-  Or (lt zero d) (req zero d) ->
-  sigT (fun r : R => And (le zero r) (req (mult r r) d)).
+  Or (real_lt zero d) (real_eq zero d) ->
+  sigT (fun r : R => And (real_le zero r) (real_eq (mult r r) d)).
 Proof.
   intros d H.
   exact (req_sqrt_witness_exists_abstract d H).
@@ -175,7 +182,7 @@ Qed.
 
 (* ===== Piece 6: instance — the abstract square root of 1 ===== *)
 Lemma req_sqrt_one_abstract :
-  sigT (fun r : R => And (le zero r) (req (mult r r) one)).
+  sigT (fun r : R => And (real_le zero r) (real_eq (mult r r) one)).
 Proof.
   exact (req_sqrt_witness_exists_abstract one (inl one_pos)).
 Qed.

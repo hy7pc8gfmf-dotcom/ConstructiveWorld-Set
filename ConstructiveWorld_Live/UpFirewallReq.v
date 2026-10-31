@@ -1,8 +1,8 @@
-(* ConstructiveWorld-Set -- req-carried companion of the entropy firewall: a constructive closed loop for degeneracy detection and recovery over the req equality interface. *)
+(* ConstructiveWorld-Set -- real_eq-carried companion of the entropy firewall: a constructive closed loop for degeneracy detection and recovery over the real_eq equality interface. *)
 (** * UpFirewallReq: the entropy firewall of attn/UpFirewall.v
-    restated over the req equality interface (companion Section).
+    restated over the real_eq equality interface (companion Section).
     Mission.  Degeneracy detection and recovery closed loop: the
-    source Id-equality statements are restated over req, one
+    source Id-equality statements are restated over real_eq, one
     section assumption per source interface slot, no strengthened
     claims.  Main entries: req_fw_energy_eta,
     req_recovery_entropy_gain(_alt), req_entropy_temp_mono,
@@ -61,95 +61,93 @@ Let one := @one RIS.
 Let plus := @plus RIS.
 Let mult := @mult RIS.
 Let opp := @opp RIS.
-Let lt := @lt RIS.
-Let le := @le RIS.
 Let log := @log RIS.
 Let inv_pos := @inv_pos RIS.
 Let exp_neg := @exp_neg RIS.
 
-(* ---- req summation assumption slots (the source-theorem SumOver
-   usage fields, restated over req slot by slot) ---- *)
+(* ---- real_eq summation assumption slots (the source-theorem SumOver
+   usage fields, restated over real_eq slot by slot) ---- *)
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 Hypothesis ssum_ext :
-  forall f g : S -> R, (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
+  forall f g : S -> R, (forall s : S, real_eq (f s) (g s)) -> real_eq (sumf f) (sumf g).
 Hypothesis ssum_add :
   forall f g : S -> R,
-    req (sumf (fun s => plus (f s) (g s))) (plus (sumf f) (sumf g)).
+    real_eq (sumf (fun s => plus (f s) (g s))) (plus (sumf f) (sumf g)).
 Hypothesis ssum_linear :
   forall (a : R) (f : S -> R),
-    req (sumf (fun s => mult a (f s))) (mult a (sumf f)).
+    real_eq (sumf (fun s => mult a (f s))) (mult a (sumf f)).
 Hypothesis ssum_le :
-  forall f g : S -> R, (forall s : S, le (f s) (g s)) -> le (sumf f) (sumf g).
+  forall f g : S -> R, (forall s : S, real_le (f s) (g s)) -> real_le (sumf f) (sumf g).
 Hypothesis ssum_pos :
-  forall f : S -> R, (forall s : S, lt zero (f s)) -> lt zero (sumf f).
+  forall f : S -> R, (forall s : S, real_lt zero (f s)) -> real_lt zero (sumf f).
 
 Variable base_loss : S -> R.
 
-(* Item 1: req form of the source-theorem L93 Z_temp_spec
+(* Item 1: real_eq form of the source-theorem L93 Z_temp_spec
    (assumption slots preserved slot by slot) *)
 Variable Z_temp : R -> R.
-Hypothesis req_Z_temp_spec : forall (t : R) (Ht : lt zero t),
-  req (Z_temp t) (sumf (fun s => exp_neg (mult (inv_pos t Ht) (base_loss s)))).
+Hypothesis req_Z_temp_spec : forall (t : R) (Ht : real_lt zero t),
+  real_eq (Z_temp t) (sumf (fun s => exp_neg (mult (inv_pos t Ht) (base_loss s)))).
 
 (* Source-theorem L96-102 strictness / order-compatibility interface
    (same-position assumption slots, no strengthened claims) *)
-Variable inv_pos_lt_compat : forall (a b : R) (Ha : lt zero a) (Hb : lt zero b),
-  lt a b -> lt (inv_pos b Hb) (inv_pos a Ha).
-Variable lt_minus_nonneg : forall a b : R, lt a b -> lt zero (req_minus b a).
+Variable inv_pos_lt_compat : forall (a b : R) (Ha : real_lt zero a) (Hb : real_lt zero b),
+  real_lt a b -> real_lt (inv_pos b Hb) (inv_pos a Ha).
+Variable lt_minus_nonneg : forall a b : R, real_lt a b -> real_lt zero (req_minus b a).
 Variable lt_plus_compat_lt_le : forall a b c d : R,
-  lt a b -> le c d -> lt (plus a c) (plus b d).
+  real_lt a b -> real_le c d -> real_lt (plus a c) (plus b d).
 
 
 Variable dist_log_inv_one_inv :
-  forall (x : R) (Hx : lt zero x) (Hi : lt zero (inv_pos x Hx)),
-    req (log (inv_pos x Hx) Hi) (opp (log x Hx)).
+  forall (x : R) (Hx : real_lt zero x) (Hi : real_lt zero (inv_pos x Hx)),
+    real_eq (log (inv_pos x Hx) Hi) (opp (log x Hx)).
 Variable dist_log_le_linear :
-  forall (x : R) (Hx : lt zero x), le (log x Hx) (req_minus x one).
+  forall (x : R) (Hx : real_lt zero x), real_le (log x Hx) (req_minus x one).
 
 (* ---- Temperature-parameterized Boltzmann family (reused directly
    from the UpReqDist temperature family) ---- *)
-Definition fw_bt (t : R) (Ht : lt zero t) : S -> R :=
+Definition fw_bt (t : R) (Ht : real_lt zero t) : S -> R :=
   reqd_boltzmann_dist_temp S sumf ssum_pos base_loss Z_temp req_Z_temp_spec t Ht.
-Definition fw_bt_pos (t : R) (Ht : lt zero t) :
-  forall s : S, lt zero (fw_bt t Ht s) :=
+Definition fw_bt_pos (t : R) (Ht : real_lt zero t) :
+  forall s : S, real_lt zero (fw_bt t Ht s) :=
   reqd_boltzmann_dist_temp_pos S sumf ssum_pos base_loss Z_temp req_Z_temp_spec t Ht.
-Definition fw_norm (t : R) (Ht : lt zero t) : req (sumf (fw_bt t Ht)) one :=
+Definition fw_norm (t : R) (Ht : real_lt zero t) : real_eq (sumf (fw_bt t Ht)) one :=
   reqd_boltzmann_dist_temp_normalized S sumf ssum_linear ssum_pos base_loss Z_temp
                                       req_Z_temp_spec t Ht.
-Definition fw_h (t : R) (Ht : lt zero t) : R :=
+Definition fw_h (t : R) (Ht : real_lt zero t) : R :=
   reqd_entropy_dist S sumf (fw_bt t Ht) (fw_bt_pos t Ht).
-Definition fw_et (t : R) (Ht : lt zero t) : R :=
+Definition fw_et (t : R) (Ht : real_lt zero t) : R :=
   sumf (fun s => mult (fw_bt t Ht s) (base_loss s)).
-Definition fw_kl (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2) : R :=
+Definition fw_kl (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2) : R :=
   req_relative_entropy S sumf (fw_bt t1 Ht1) (fw_bt t2 Ht2)
                        (fw_bt_pos t1 Ht1) (fw_bt_pos t2 Ht2).
 
-Variable req_entropy_temp_explicit : forall (t : R) (Ht : lt zero t),
-  req (fw_h t Ht)
+Variable req_entropy_temp_explicit : forall (t : R) (Ht : real_lt zero t),
+  real_eq (fw_h t Ht)
       (plus (mult (inv_pos t Ht) (fw_et t Ht))
             (log (Z_temp t)
                  (req_Z_temp_pos S sumf ssum_pos base_loss Z_temp
                                  req_Z_temp_spec t Ht))).
 Variable req_relative_entropy_temp_decomp :
-  forall (t2 : R) (Ht2 : lt zero t2) (t1 : R) (Ht1 : lt zero t1),
-  req (fw_kl t1 t2 Ht1 Ht2)
+  forall (t2 : R) (Ht2 : real_lt zero t2) (t1 : R) (Ht1 : real_lt zero t1),
+  real_eq (fw_kl t1 t2 Ht1 Ht2)
       (plus (plus (opp (fw_h t1 Ht1)) (mult (inv_pos t2 Ht2) (fw_et t1 Ht1)))
             (log (Z_temp t2)
                  (req_Z_temp_pos S sumf ssum_pos base_loss Z_temp
                                  req_Z_temp_spec t2 Ht2))).
 Variable req_energy_exp_temp_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  lt t1 t2 -> le (fw_et t1 Ht1) (fw_et t2 Ht2).
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_lt t1 t2 -> real_le (fw_et t1 Ht1) (fw_et t2 Ht2).
 Variable req_energy_exp_temp_strict_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  lt t1 t2 ->
-  lt zero (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_lt t1 t2 ->
+  real_lt zero (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
                                  (fw_bt_pos t2 Ht2) (fw_bt_pos t1 Ht1)) ->
-  lt zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)).
+  real_lt zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)).
 Variable req_temp_strict_ident2 :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  req (plus (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_eq (plus (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
                                   (fw_bt_pos t2 Ht2) (fw_bt_pos t1 Ht1))
             (fw_kl t1 t2 Ht1 Ht2))
       (mult (req_minus (inv_pos t1 Ht1) (inv_pos t2 Ht2))
@@ -162,8 +160,8 @@ Variable req_temp_strict_ident2 :
    req_minus / sumf unfold definitionally in the same shape) *)
 Definition fw_energy_expectation (e p : S -> R) : R :=
   sumf (fun s => mult (p s) (e s)).
-Lemma req_fw_energy_eta : forall (t : R) (Ht : lt zero t),
-  req (fw_energy_expectation base_loss (fw_bt t Ht)) (fw_et t Ht).
+Lemma req_fw_energy_eta : forall (t : R) (Ht : real_lt zero t),
+  real_eq (fw_energy_expectation base_loss (fw_bt t Ht)) (fw_et t Ht).
 Proof.
   intros t Ht. unfold fw_energy_expectation, fw_et.
   exact (req_refl (sumf (fun s => mult (fw_bt t Ht s) (base_loss s)))).
@@ -171,16 +169,16 @@ Qed.
 
 (* Auxiliary (no source-Id content, not counted): positivity of the
    doubled temperature (same position as source-theorem L130) *)
-Lemma fw_double_pos : forall (t : R) (Ht : lt zero t), lt zero (plus t t).
+Lemma fw_double_pos : forall (t : R) (Ht : real_lt zero t), real_lt zero (plus t t).
 Proof.
   intros t Ht. apply plus_positive; exact Ht.
 Qed.
 
 (* Item 3: doubling the temperature is a strict increase
-   (source-theorem L120; a genuine req-difference proof: the source
-   id_transport is replaced by the req-interface lt_id_l field, and
+   (source-theorem L120; a genuine real_eq-difference proof: the source
+   id_transport is replaced by the real_eq-interface lt_id_l field, and
    the transport of zero+t |-> t goes through req_trans) *)
-Lemma req_fw_lt_double : forall (t : R) (Ht : lt zero t), lt t (plus t t).
+Lemma req_fw_lt_double : forall (t : R) (Ht : real_lt zero t), real_lt t (plus t t).
 Proof.
   intros t Ht.
   apply (lt_id_l t (plus zero t) (plus t t)
@@ -192,14 +190,14 @@ Qed.
 
 (* ===== Item 4 (first main theorem): exact recovery-gain identity =====
    Source theorem L139: delta H == beta2*(E2 - E1) + KL_12.  A
-   genuine full-chain req proof: the explicit entropy form and the
+   genuine full-chain real_eq proof: the explicit entropy form and the
    KL temperature decomposition are explicit assumption slots, and
-   the rest is a flat req hop chain rearranging the source AC
+   the rest is a flat real_eq hop chain rearranging the source AC
    identity (u1/u2/v1-v3/u3/u4, one flat term per hop, no deep
    nesting). *)
 Theorem req_recovery_entropy_gain :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  req (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_eq (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))
       (plus (mult (inv_pos t2 Ht2) (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
             (fw_kl t1 t2 Ht1 Ht2)).
 Proof.
@@ -210,14 +208,14 @@ Proof.
   set (L2 := log (Z_temp t2)
                   (req_Z_temp_pos S sumf ssum_pos base_loss Z_temp
                                   req_Z_temp_spec t2 Ht2)).
-  assert (Hex2 : req H2 (plus (mult b2 E2) L2))
+  assert (Hex2 : real_eq H2 (plus (mult b2 E2) L2))
     by exact (req_entropy_temp_explicit t2 Ht2).
-  assert (Hkl : req (fw_kl t1 t2 Ht1 Ht2) (plus (plus (opp H1) (mult b2 E1)) L2))
+  assert (Hkl : real_eq (fw_kl t1 t2 Ht1 Ht2) (plus (plus (opp H1) (mult b2 E1)) L2))
     by exact (req_relative_entropy_temp_decomp t2 Ht2 t1 Ht1).
-  assert (Hd : req (mult b2 (req_minus E2 E1)) (plus (mult b2 E2) (opp (mult b2 E1))))
+  assert (Hd : real_eq (mult b2 (req_minus E2 E1)) (plus (mult b2 E2) (opp (mult b2 E1))))
     by exact (req_mult_minus_distr_l b2 E2 E1).
 (* the zero-absorption subchain for v3 *)
-  assert (Hv3 : req (plus (plus (mult b2 E2) (opp H1))
+  assert (Hv3 : real_eq (plus (plus (mult b2 E2) (opp H1))
                           (plus (opp (mult b2 E1)) (mult b2 E1)))
                     (plus (mult b2 E2) (opp H1))).
   { apply (req_trans
@@ -237,7 +235,7 @@ Proof.
     - apply plus_zero. }
 (* u2 kernel: b2(E2-E1) + (-H1 + b2E1) == b2E2 + -H1
    (Hd + swap_mid + zero absorption) *)
-  assert (Hu2 : req (plus (mult b2 (req_minus E2 E1)) (plus (opp H1) (mult b2 E1)))
+  assert (Hu2 : real_eq (plus (mult b2 (req_minus E2 E1)) (plus (opp H1) (mult b2 E1)))
                     (plus (mult b2 E2) (opp H1))).
   { apply (req_trans
               (plus (mult b2 (req_minus E2 E1)) (plus (opp H1) (mult b2 E1)))
@@ -254,7 +252,7 @@ Proof.
       + exact (req_plus_swap_mid (mult b2 E2) (opp (mult b2 E1)) (opp H1) (mult b2 E1)).
       + exact Hv3. }
 (* u3: (b2E2 + -H1) + L2 == (b2E2 + L2) + -H1 *)
-  assert (Hu3 : req (plus (plus (mult b2 E2) (opp H1)) L2)
+  assert (Hu3 : real_eq (plus (plus (mult b2 E2) (opp H1)) L2)
                     (plus (plus (mult b2 E2) L2) (opp H1))).
   { apply (req_trans (plus (plus (mult b2 E2) (opp H1)) L2)
                      (plus (mult b2 E2) (plus (opp H1) L2))
@@ -317,22 +315,22 @@ Qed.
    Item 4 identity + req_gibbs_inequality from the UpReqDist
    temperature family. *)
 Theorem req_entropy_temp_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  lt t1 t2 -> le (fw_h t1 Ht1) (fw_h t2 Ht2).
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_lt t1 t2 -> real_le (fw_h t1 Ht1) (fw_h t2 Ht2).
 Proof.
   intros t1 t2 Ht1 Ht2 Hlt.
-  assert (HdE : le zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
+  assert (HdE : real_le zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
     by exact (req_le_minus_nonneg (fw_et t1 Ht1) (fw_et t2 Ht2)
                                   (req_energy_exp_temp_mono t1 t2 Ht1 Ht2 Hlt)).
-  assert (Hkl : le zero (fw_kl t1 t2 Ht1 Ht2))
+  assert (Hkl : real_le zero (fw_kl t1 t2 Ht1 Ht2))
     by exact (@req_gibbs_inequality S sumf ssum_ext ssum_add ssum_linear
                                     ssum_le dist_log_inv_one_inv dist_log_le_linear
                                     (fw_bt t1 Ht1) (fw_bt t2 Ht2)
                                     (fw_bt_pos t1 Ht1) (fw_bt_pos t2 Ht2)
                                     (fw_norm t1 Ht1) (fw_norm t2 Ht2)).
-  assert (Hb2 : le zero (inv_pos t2 Ht2))
+  assert (Hb2 : real_le zero (inv_pos t2 Ht2))
     by exact (lt_le_iff zero (inv_pos t2 Ht2) (inl (inv_pos_pos t2 Ht2))).
-  assert (Hterm : le zero (mult (inv_pos t2 Ht2)
+  assert (Hterm : real_le zero (mult (inv_pos t2 Ht2)
                                 (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))).
   { apply (le_id_l zero (mult (inv_pos t2 Ht2) zero)
                    (mult (inv_pos t2 Ht2) (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))).
@@ -341,7 +339,7 @@ Proof.
     - exact (req_le_mult_compat_r (inv_pos t2 Ht2) zero
                                   (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1))
                                   Hb2 HdE). }
-  assert (Hsum : le zero (plus (mult (inv_pos t2 Ht2)
+  assert (Hsum : real_le zero (plus (mult (inv_pos t2 Ht2)
                                       (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
                                (fw_kl t1 t2 Ht1 Ht2))).
   { apply (le_trans zero
@@ -353,7 +351,7 @@ Proof.
     - exact (req_le_plus_nonneg_r
                 (mult (inv_pos t2 Ht2) (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
                 (fw_kl t1 t2 Ht1 Ht2) Hkl). }
-  assert (Hfin : le zero (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))).
+  assert (Hfin : real_le zero (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))).
   { apply (le_id_r zero
                    (plus (mult (inv_pos t2 Ht2)
                                (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
@@ -377,27 +375,27 @@ Qed.
    entropy recovery =====  Source theorem L261; same honest side
    condition: KL(p_t2 || p_t1) > 0. *)
 Theorem req_entropy_temp_strict_mono :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  lt t1 t2 ->
-  lt zero (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_lt t1 t2 ->
+  real_lt zero (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
                                 (fw_bt_pos t2 Ht2) (fw_bt_pos t1 Ht1)) ->
-  lt (fw_h t1 Ht1) (fw_h t2 Ht2).
+  real_lt (fw_h t1 Ht1) (fw_h t2 Ht2).
 Proof.
   intros t1 t2 Ht1 Ht2 Hlt Hkl12.
-  assert (HdE : lt zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
+  assert (HdE : real_lt zero (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
     by exact (req_energy_exp_temp_strict_mono t1 t2 Ht1 Ht2 Hlt Hkl12).
-  assert (Hterm : lt zero (mult (inv_pos t2 Ht2)
+  assert (Hterm : real_lt zero (mult (inv_pos t2 Ht2)
                                 (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1))))
     by exact (mult_positive (inv_pos t2 Ht2)
                             (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1))
                             (inv_pos_pos t2 Ht2) HdE).
-  assert (Hkl21 : le zero (fw_kl t1 t2 Ht1 Ht2))
+  assert (Hkl21 : real_le zero (fw_kl t1 t2 Ht1 Ht2))
     by exact (@req_gibbs_inequality S sumf ssum_ext ssum_add ssum_linear
                                     ssum_le dist_log_inv_one_inv dist_log_le_linear
                                     (fw_bt t1 Ht1) (fw_bt t2 Ht2)
                                     (fw_bt_pos t1 Ht1) (fw_bt_pos t2 Ht2)
                                     (fw_norm t1 Ht1) (fw_norm t2 Ht2)).
-  assert (Hsum : lt zero (plus (mult (inv_pos t2 Ht2)
+  assert (Hsum : real_lt zero (plus (mult (inv_pos t2 Ht2)
                                       (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
                                (fw_kl t1 t2 Ht1 Ht2)))
     by exact (lt_le_trans zero
@@ -410,7 +408,7 @@ Proof.
                           (req_le_plus_nonneg_r
                               (mult (inv_pos t2 Ht2) (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
                               (fw_kl t1 t2 Ht1 Ht2) Hkl21)).
-  assert (Hfin : lt zero (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))).
+  assert (Hfin : real_lt zero (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))).
   { apply (lt_id_r zero
                    (plus (mult (inv_pos t2 Ht2)
                                (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
@@ -456,8 +454,8 @@ Qed.
    req_minus_plus_cancel_r plus plus_comm, two steps); the goal is
    flipped by req_sym. *)
 Theorem req_recovery_entropy_gain_alt :
-  forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
-  req (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))
+  forall (t1 t2 : R) (Ht1 : real_lt zero t1) (Ht2 : real_lt zero t2),
+  real_eq (req_minus (fw_h t2 Ht2) (fw_h t1 Ht1))
       (req_minus (mult (inv_pos t1 Ht1) (req_minus (fw_et t2 Ht2) (fw_et t1 Ht1)))
                  (req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
                                         (fw_bt_pos t2 Ht2) (fw_bt_pos t1 Ht1))).
@@ -473,23 +471,23 @@ Proof.
   set (KA := req_relative_entropy S sumf (fw_bt t2 Ht2) (fw_bt t1 Ht1)
                                (fw_bt_pos t2 Ht2) (fw_bt_pos t1 Ht1)).
   set (KB := fw_kl t1 t2 Ht1 Ht2).
-  assert (Hg4 : req (req_minus H2 H1) (plus (mult b2 dE) KB))
+  assert (Hg4 : real_eq (req_minus H2 H1) (plus (mult b2 dE) KB))
     by exact (req_recovery_entropy_gain t1 t2 Ht1 Ht2).
-  assert (Hsym : req (plus KA KB) (mult (req_minus b1 b2) dE))
+  assert (Hsym : real_eq (plus KA KB) (mult (req_minus b1 b2) dE))
     by exact (req_temp_strict_ident2 t1 t2 Ht1 Ht2).
-  assert (Hb1 : req b1 (plus b2 (req_minus b1 b2)))
+  assert (Hb1 : real_eq b1 (plus b2 (req_minus b1 b2)))
     by exact (req_sym (plus b2 (req_minus b1 b2)) b1
                       (req_minus_plus_cancel b2 b1)).
-  assert (Hsplit : req (mult b1 dE) (plus (mult b2 dE) (mult (req_minus b1 b2) dE))).
+  assert (Hsplit : real_eq (mult b1 dE) (plus (mult b2 dE) (mult (req_minus b1 b2) dE))).
   { exact (req_trans (mult b1 dE)
                      (mult (plus b2 (req_minus b1 b2)) dE)
                      (plus (mult b2 dE) (mult (req_minus b1 b2) dE))
                      (req_mult_compat b1 (plus b2 (req_minus b1 b2)) dE dE
                                       Hb1 (req_refl dE))
                      (req_mult_plus_distr_r b2 (req_minus b1 b2) dE)). }
-  assert (Hsym' : req (mult (req_minus b1 b2) dE) (plus KA KB))
+  assert (Hsym' : real_eq (mult (req_minus b1 b2) dE) (plus KA KB))
     by exact (req_sym (plus KA KB) (mult (req_minus b1 b2) dE) Hsym).
-  assert (Hb'' : req (mult b1 dE) (plus (req_minus H2 H1) KA)).
+  assert (Hb'' : real_eq (mult b1 dE) (plus (req_minus H2 H1) KA)).
   { exact (req_trans (mult b1 dE)
                      (plus (mult b2 dE) (plus KA KB))
                      (plus (req_minus H2 H1) KA)
@@ -547,23 +545,23 @@ Qed.
    state machine; Set level, not a boolean decider); the degenerate
    branch's recovery verdict is still inr. *)
 
-Definition req_fw_verdict (Hmin : R) (t : R) (Ht : lt zero t) : Set :=
-  Or (le Hmin (fw_h t Ht))
-     (sigT (fun gap : R => req gap (req_minus (fw_h t Ht) Hmin))).
+Definition req_fw_verdict (Hmin : R) (t : R) (Ht : real_lt zero t) : Set :=
+  Or (real_le Hmin (fw_h t Ht))
+     (sigT (fun gap : R => real_eq gap (req_minus (fw_h t Ht) Hmin))).
 
 Theorem req_fw_detect_warm :
-  forall (Hmin : R) (t : R) (Ht : lt zero t)
-         (Hdef : sigT (fun gap : R => req gap (req_minus (fw_h t Ht) Hmin))),
-  sigT (fun t' => sigT (fun Ht' : lt zero t' =>
-    And (lt t t')
-        (And (le (fw_h t Ht) (fw_h t' Ht'))
-             (req (req_minus (fw_h t' Ht') (fw_h t Ht))
+  forall (Hmin : R) (t : R) (Ht : real_lt zero t)
+         (Hdef : sigT (fun gap : R => real_eq gap (req_minus (fw_h t Ht) Hmin))),
+  sigT (fun t' => sigT (fun Ht' : real_lt zero t' =>
+    And (real_lt t t')
+        (And (real_le (fw_h t Ht) (fw_h t' Ht'))
+             (real_eq (req_minus (fw_h t' Ht') (fw_h t Ht))
                   (plus (mult (inv_pos t' Ht') (req_minus (fw_et t' Ht') (fw_et t Ht)))
                         (fw_kl t t' Ht Ht')))))).
 Proof.
   intros Hmin t Ht Hdef.
-  assert (Ht' : lt zero (plus t t)) by exact (fw_double_pos t Ht).
-  assert (Hup : lt t (plus t t)) by exact (req_fw_lt_double t Ht).
+  assert (Ht' : real_lt zero (plus t t)) by exact (fw_double_pos t Ht).
+  assert (Hup : real_lt t (plus t t)) by exact (req_fw_lt_double t Ht).
   exists (plus t t). exists Ht'.
   split.
   - exact Hup.
@@ -573,10 +571,10 @@ Proof.
 Qed.
 
 Theorem req_firewall_loop :
-  forall (Hmin : R) (t : R) (Ht : lt zero t) (v : req_fw_verdict Hmin t Ht),
-  sigT (fun t' => sigT (fun Ht' : lt zero t' =>
-    And (le t t')
-        (And (le (fw_h t Ht) (fw_h t' Ht'))
+  forall (Hmin : R) (t : R) (Ht : real_lt zero t) (v : req_fw_verdict Hmin t Ht),
+  sigT (fun t' => sigT (fun Ht' : real_lt zero t' =>
+    And (real_le t t')
+        (And (real_le (fw_h t Ht) (fw_h t' Ht'))
              (req_fw_verdict Hmin t' Ht')))).
 Proof.
   intros Hmin t Ht v. destruct v as [Hok | Hdef].
@@ -586,8 +584,8 @@ Proof.
     + split.
       * apply le_refl.
       * left. exact Hok.
-  - assert (Ht' : lt zero (plus t t)) by exact (fw_double_pos t Ht).
-    assert (Hup : lt t (plus t t)) by exact (req_fw_lt_double t Ht).
+  - assert (Ht' : real_lt zero (plus t t)) by exact (fw_double_pos t Ht).
+    assert (Hup : real_lt t (plus t t)) by exact (req_fw_lt_double t Ht).
     exists (plus t t). exists Ht'.
     split.
     + exact (lt_le_iff t (plus t t) (inl Hup)).
