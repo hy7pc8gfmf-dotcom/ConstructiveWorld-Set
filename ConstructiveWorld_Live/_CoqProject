@@ -124,3 +124,11 @@ UpAblT5_S06_DiffSamplingGibbs.v
 UpDebtSqrtAbsReq.v
 UpEntropyGainReq.v
 AbsLeIdReal53.v
+fib_norm_gap.v
+fib_qdomain.v
+pell_family.v
+d41_family.v
+d6_family.v
+d7_family.v
+d13_family.v
+abl_dmw2_pointwise_sharp.v
