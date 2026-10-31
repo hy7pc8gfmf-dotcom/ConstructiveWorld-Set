@@ -138,3 +138,11 @@ d6_family.v#R25-957b40
 d7_family.v#R25-ec38d0
 d13_family.v#R25-f193b2
 abl_dmw2_pointwise_sharp.v#R25-7737fb
+LW2MetricCompat.v#R26-00eaa6
+abl_tail_supply_69.v#R26-12538e
+UpAblD1S7_UpReqEntropyDeficitTemp.v#R26-cf9b38
+uabd_supply_UpReqDist_group_size_pos.v#R26-4fa5dc
+NatLenPos.v#R26-58750e
+UpAblT12_G13.v#R26-9277de
+abl_tbase_tempsum.v#R26-984a08
+abl_pint_realview.v#R26-883b4e
