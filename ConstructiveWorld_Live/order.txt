@@ -157,3 +157,14 @@ PA_ExpOneEnvelope.v#R27-12d8f9
 UpReqSqrtOptimal.v#R27-d6e728
 UpReqBanachExpAdd.v#R28-f09c39
 abl_normconv_real.v#R28-731af3
+PadeErrorIntegral.v#R29-bad5b9
+BeukersVariant.v#R29-72866a
+BeukersIdentity.v#R29-1cbf42
+TrueNumerator.v#R29-ea7bae
+abl_Pr_core_01.v#R29-f48dd7
+abl_Pr_enum_02.v#R29-f7996a
+abl_Pr_euclid_03.v#R29-e240ba
+abl_Pr_lcmdecomp_04.v#R29-4cda9c
+abl_Pr_lcm_eq.v#R29-d05adb
+UpReqBanachExpAdd.v#R29-f09c39
+abl_normconv_real.v#R29-731af3

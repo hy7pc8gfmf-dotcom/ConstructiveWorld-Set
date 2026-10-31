@@ -151,3 +151,14 @@ PA_ExpOneEnvelope.v
 UpReqSqrtOptimal.v
 UpReqBanachExpAdd.v
 abl_normconv_real.v
+PadeErrorIntegral.v
+BeukersVariant.v
+BeukersIdentity.v
+TrueNumerator.v
+abl_Pr_core_01.v
+abl_Pr_enum_02.v
+abl_Pr_euclid_03.v
+abl_Pr_lcmdecomp_04.v
+abl_Pr_lcm_eq.v
+UpReqBanachExpAdd.v
+abl_normconv_real.v
