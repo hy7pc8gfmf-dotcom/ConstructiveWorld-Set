@@ -110,3 +110,17 @@ UpReqScTrigEps.v
 UpReqG05WallClass.v
 UpReqMixRationalProxy.v
 UpReqResidWallEquiv.v
+UpReqSampling.v
+UpReqTempEntropy.v
+UpFirewallReq.v
+UpAblMetaWorld3.v
+PAReanchor643.v
+DeletedLineage643.v
+EntropyUnsatMark.v
+fa52_dpo_witness.v
+uabd_supply_S05_Z_align_pos.v
+UpAblT10_S04RealExpLogConv.v
+UpAblT5_S06_DiffSamplingGibbs.v
+UpDebtSqrtAbsReq.v
+UpEntropyGainReq.v
+AbsLeIdReal53.v
