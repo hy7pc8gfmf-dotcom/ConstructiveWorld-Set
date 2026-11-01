@@ -1,0 +1,6 @@
+GATE-OK: 基座+34 模块逐名比对零撞名
+OUT=D:/ComplexAnalysis/ConstructiveWorld-Main/releases/CW_ConstructiveWorld_220.v
+OUT_LINES=137704
+OUT_SHA1=f66e5f8507b408a8b8a24934dcb20348addee538
+STRIPPED_REQUIRE_LINES=40
+merge220: OK

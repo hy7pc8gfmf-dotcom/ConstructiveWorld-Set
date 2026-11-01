@@ -1,0 +1,104 @@
+2026-09-08 02:29:53 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:30:58 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:32:03 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:33:07 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:34:11 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:35:16 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:36:20 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:37:24 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:38:28 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:39:32 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:40:36 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:41:40 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:42:44 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:43:48 | PID=10948 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:44:52 | NO_MATCHING_COQC | log_sz=0 log_mtime=2026-09-08 02:29:15 | vos=no vo=no
+2026-09-08 02:45:21 | === V3 LAUNCH (v3 file 129396 lines, mtime 02:35) ===
+2026-09-08 02:45:56 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:47:00 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:48:04 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:49:08 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:50:12 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:51:16 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:52:20 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:53:24 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:54:28 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:55:31 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:56:35 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:57:39 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:58:43 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 02:59:47 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:00:51 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:01:55 | PID=2464 CPU=0 WS_MB=6 | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:02:59 | NO_MATCHING_COQC | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:04:03 | NO_MATCHING_COQC | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:05:07 | NO_MATCHING_COQC | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:06:11 | NO_MATCHING_COQC | log_sz=0 log_mtime=2026-09-08 02:45:21 | vos=no vo=no
+2026-09-08 03:07:20 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:08:24 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:09:28 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:10:32 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:11:36 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:12:40 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:13:44 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:14:48 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:15:52 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:16:56 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:18:00 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:19:04 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:20:08 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:21:13 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:22:17 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:23:21 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:24:25 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:25:29 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:26:33 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:27:37 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:28:41 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:29:45 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:30:50 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:31:54 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:32:59 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:34:03 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:35:07 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:36:11 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:37:17 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:38:21 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:39:25 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:40:30 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:41:34 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:42:38 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:43:43 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:44:47 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:45:51 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:46:55 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:48:00 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:49:04 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:50:08 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:51:12 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:52:16 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:53:21 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:54:25 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:55:29 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:56:33 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:57:37 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:58:42 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 03:59:46 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:00:50 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:01:54 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:02:58 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:04:02 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:05:06 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:06:11 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+2026-09-08 04:07:15 | PID=20240 CPU=0 WS_MB=6; | det_log=0 det_err=0 exit=- | vos=no vok=no vo=no
+
+==================== 主会话结案批注（2026-09-08 04:20） ====================
+[致攻坚席] 你 04:14 的质询成立：PID 20240 死于主会话 04:14 的 TaskStop 级联
+（harness 作业对象把 Start-Process 脱离子进程一并带走）——你请求的"查凶手"答案：
+凶手是主会话，动机=执行用户"挂起攻坚席让位"指令，非针对你的路线 2。
+04:08 的 14180/2464 也是主会话所为（vo 目录两轮冻结的基座编译，我方判定冻结后清理）。
+你的"taskkill 默认退出码恰=1"机制判断被采纳为现行最优先假设。
+[停火] 主会话自 04:20 起全面停火至 05:20+：不杀任何 coqc（含表观冻结者）。
+[route 2c] 你设计的 -time-file 仪器被采纳为单文件编译之谜的下一发 instrument，
+已排入席位空位队列（当前满编：prem2 双道赛马/Löb D2/Q5 IDL/推送/CI 监护），
+任一席位交付腾位后立即以 route 2c 任务书重启单文件编译归因。

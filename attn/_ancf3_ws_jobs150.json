@@ -1,0 +1,153 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 108630795518,
+      "run_id": 36323165654,
+      "workflow_name": "Coq CI",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/actions/runs/36323165654",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURlwsM8AAAAZSuZk_g",
+      "head_sha": "663d6d0d737f03c6e7b28bbb31e40fd6246a421a",
+      "url": "https://api.github.com/repos/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/actions/jobs/108630795518",
+      "html_url": "https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/actions/runs/36323165654/job/108630795518",
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-09-27T13:39:44Z",
+      "started_at": "2026-09-27T13:39:48Z",
+      "completed_at": null,
+      "name": "Rocq 9.1 build + coqchk (self-hosted local trust cache)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-09-27T13:39:52Z",
+          "completed_at": "2026-09-27T13:40:30Z"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-09-27T13:40:30Z",
+          "completed_at": "2026-09-27T13:40:35Z"
+        },
+        {
+          "name": "gate1 poison-token guard (pre-build fail-fast)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-09-27T13:40:35Z",
+          "completed_at": "2026-09-27T13:40:48Z"
+        },
+        {
+          "name": "gate4 comment guard (pre-build, exit1=red exit2=yellow artifact-only)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-09-27T13:40:48Z",
+          "completed_at": "2026-09-27T13:41:15Z"
+        },
+        {
+          "name": "gate3 cross-tree require-face diff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-09-27T13:41:15Z",
+          "completed_at": "2026-09-27T13:41:29Z"
+        },
+        {
+          "name": "Seed trust cache from local vo tree",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-09-27T13:41:29Z",
+          "completed_at": "2026-09-27T13:41:30Z"
+        },
+        {
+          "name": "Build full tree (order topology, fingerprint skip, thermal-guarded)",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 7,
+          "started_at": "2026-09-27T13:41:30Z",
+          "completed_at": null
+        },
+        {
+          "name": "Generate tree-stats (six-dimension counts, three-caliber breakdown)",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload tree-stats",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "coqchk full-tree certification (shared-closure single pass, thermal-guarded)",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "gate2 axioms sentinel (block-state-machine, fail-loud)",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload coqchk logs",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Merged single-file build (retired with CW220 megafile; kept disabled for history)",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "pending",
+          "conclusion": null,
+          "number": 28,
+          "started_at": null,
+          "completed_at": null
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/hy7pc8gfmf-dotcom/ConstructiveWorld-Main/check-runs/108630795518",
+      "labels": [
+        "self-hosted"
+      ],
+      "runner_id": 22,
+      "runner_name": "LIVE",
+      "runner_group_id": 1,
+      "runner_group_name": "Default"
+    }
+  ]
+}

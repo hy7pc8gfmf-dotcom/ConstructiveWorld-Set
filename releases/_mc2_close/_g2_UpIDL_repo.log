@@ -1,0 +1,25 @@
+File ".\UpIDL_repo.v", line 216, characters 12-51:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 434, characters 8-53:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 445, characters 6-51:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_repo.v", line 959, characters 35-66:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+EXIT=0

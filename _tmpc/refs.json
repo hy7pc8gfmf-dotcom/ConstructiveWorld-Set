@@ -1,0 +1,4520 @@
+{
+ "summary": {
+  "P1": {
+   "EXACT": 216,
+   "MISS": 5,
+   "NEAR±2": 1,
+   "DELETED(未见)": 2
+  },
+  "P2": {
+   "EXACT": 240,
+   "DELETED(未见)": 46
+  },
+  "P3": {
+   "EXACT": 37,
+   "DELETED(未见)": 20,
+   "MISS": 10
+  },
+  "P4": {
+   "EXACT": 40,
+   "MISS": 24
+  }
+ },
+ "detail": {
+  "P1": [
+   [
+    "INLINE",
+    "real_exp_ge_linear_eps",
+    40962,
+    537,
+    "**状态脚注**：`step_kl_eta_bound` 的**数学真值已确认**——其 ≡ 插值不等式 `log Z ≤ 0` 的等价与纸笔论证见本节上文（定理 4.8 定位注、discharge 注、纸笔草图与 Proof Outline）；**机器检查 discharge 路线**——所需基建"
+   ],
+   [
+    "INLINE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    537,
+    "**状态脚注**：`step_kl_eta_bound` 的**数学真值已确认**——其 ≡ 插值不等式 `log Z ≤ 0` 的等价与纸笔论证见本节上文（定理 4.8 定位注、discharge 注、纸笔草图与 Proof Outline）；**机器检查 discharge 路线**——所需基建"
+   ],
+   [
+    "INLINE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    537,
+    "**状态脚注**：`step_kl_eta_bound` 的**数学真值已确认**——其 ≡ 插值不等式 `log Z ≤ 0` 的等价与纸笔论证见本节上文（定理 4.8 定位注、discharge 注、纸笔草图与 Proof Outline）；**机器检查 discharge 路线**——所需基建"
+   ],
+   [
+    "INLINE",
+    "proj_sigma_sq",
+    113948,
+    853,
+    "**枚举假设（显式列出，`Section GRPO`）**：本节全部定理依赖以下 Section 变量与定义——`Group : Set`；`group_enum : list Group`；`group_cover : forall i : Group, InT i group_enum`（覆盖）"
+   ],
+   [
+    "INLINE",
+    "grpo_uniform_mass",
+    113832,
+    872,
+    "两件反例与正向均匀均值定理三件（`UpGRPO219.grpo_count_one` / `grpo_indicator_sum_one` / `grpo_uniform_mass` L113832，覆盖 + 无重复前提下每元素恰计一次 ⟹ indicator 求和 == 1 ⟹ 每 delta_j"
+   ],
+   [
+    "INLINE",
+    "Z_align_pos",
+    42308,
+    936,
+    "- `beta_pos : lt zero beta`（L18755）、`Z_align_pos : lt zero Z_align`（L18764；注：`Z_align_pos` 与 Real 层对应假设均为 Variable（Real 层 `Z_align_pos`（L42308））〔B 类：S"
+   ],
+   [
+    "INLINE",
+    "Z_rel_pos",
+    21253,
+    936,
+    "- `beta_pos : lt zero beta`（L18755）、`Z_align_pos : lt zero Z_align`（L18764；注：`Z_align_pos` 与 Real 层对应假设均为 Variable（Real 层 `Z_align_pos`（L42308））〔B 类：S"
+   ],
+   [
+    "INLINE",
+    "exp_neg_pos",
+    182,
+    936,
+    "- `beta_pos : lt zero beta`（L18755）、`Z_align_pos : lt zero Z_align`（L18764；注：`Z_align_pos` 与 Real 层对应假设均为 Variable（Real 层 `Z_align_pos`（L42308））〔B 类：S"
+   ],
+   [
+    "INLINE",
+    "exp_neg_positive",
+    1872,
+    937,
+    "- `exp_neg_pos` 接口字段（L182）等实函数正性〔A 类：接口字段；已消解（C 类证据）：`exp_neg_positive`（L1872）已在语言模型实例中证明；Real 层通用字段已由 setoid 系接口实例回填（`exp_neg_pos := cauchy_real_exp_"
+   ],
+   [
+    "INLINE",
+    "log_differentiable",
+    26365,
+    938,
+    "- `log_differentiable`（L26365）等实函数可微性假设〔B 类：Section 局部假设（诚实接口字段，Real 层解析证明待闭合，见 §9.1.1/§10.2）〕；"
+   ],
+   [
+    "INLINE",
+    "sum_over_S_pos",
+    21245,
+    939,
+    "- **策略迭代族（§4.3.1，支撑定理 4.5–5.10 全体）**：`sum_over_S_pos`（L21245）、`eta`/`eta_pos`/`eta_le_one`（L21240–L21242）、`step_kl_eta_bound`（L23114；升级后唯一诚实接口，旧 `step"
+   ],
+   [
+    "INLINE",
+    "eta_le_one",
+    21240,
+    939,
+    "- **策略迭代族（§4.3.1，支撑定理 4.5–5.10 全体）**：`sum_over_S_pos`（L21245）、`eta`/`eta_pos`/`eta_le_one`（L21240–L21242）、`step_kl_eta_bound`（L23114；升级后唯一诚实接口，旧 `step"
+   ],
+   [
+    "INLINE",
+    "step_kl_eta_bound",
+    23114,
+    939,
+    "- **策略迭代族（§4.3.1，支撑定理 4.5–5.10 全体）**：`sum_over_S_pos`（L21245）、`eta`/`eta_pos`/`eta_le_one`（L21240–L21242）、`step_kl_eta_bound`（L23114；升级后唯一诚实接口，旧 `step"
+   ],
+   [
+    "INLINE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    939,
+    "- **策略迭代族（§4.3.1，支撑定理 4.5–5.10 全体）**：`sum_over_S_pos`（L21245）、`eta`/`eta_pos`/`eta_le_one`（L21240–L21242）、`step_kl_eta_bound`（L23114；升级后唯一诚实接口，旧 `step"
+   ],
+   [
+    "INLINE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    939,
+    "- **策略迭代族（§4.3.1，支撑定理 4.5–5.10 全体）**：`sum_over_S_pos`（L21245）、`eta`/`eta_pos`/`eta_le_one`（L21240–L21242）、`step_kl_eta_bound`（L23114；升级后唯一诚实接口，旧 `step"
+   ],
+   [
+    "INLINE",
+    "advantage_fn",
+    19496,
+    940,
+    "- PPO 中的 `pi_old`、`pi_old_pos`、`advantage_fn`（L19496）、`advantage_nonneg`（L19497）、`epsilon`（L19498）〔B 类：Section 局部假设〕；"
+   ],
+   [
+    "INLINE",
+    "advantage_nonneg",
+    19497,
+    940,
+    "- PPO 中的 `pi_old`、`pi_old_pos`、`advantage_fn`（L19496）、`advantage_nonneg`（L19497）、`epsilon`（L19498）〔B 类：Section 局部假设〕；"
+   ],
+   [
+    "INLINE",
+    "epsilon",
+    19498,
+    940,
+    "- PPO 中的 `pi_old`、`pi_old_pos`、`advantage_fn`（L19496）、`advantage_nonneg`（L19497）、`epsilon`（L19498）〔B 类：Section 局部假设〕；"
+   ],
+   [
+    "INLINE",
+    "square_nonneg",
+    24301,
+    941,
+    "- GRPO 中的 `reward_group`、`group_size_pos`〔B 类：Section 局部假设；`square_nonneg`（L24301）同列，Real 层正向证据 `real_square_nonneg_eps`（L44842）见 §7.2/§10.2 第 1 项 (f)"
+   ],
+   [
+    "INLINE",
+    "real_square_nonneg_eps",
+    44842,
+    941,
+    "- GRPO 中的 `reward_group`、`group_size_pos`〔B 类：Section 局部假设；`square_nonneg`（L24301）同列，Real 层正向证据 `real_square_nonneg_eps`（L44842）见 §7.2/§10.2 第 1 项 (f)"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    941,
+    "- GRPO 中的 `reward_group`、`group_size_pos`〔B 类：Section 局部假设；`square_nonneg`（L24301）同列，Real 层正向证据 `real_square_nonneg_eps`（L44842）见 §7.2/§10.2 第 1 项 (f)"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.real_sigma_witness",
+    113928,
+    941,
+    "- GRPO 中的 `reward_group`、`group_size_pos`〔B 类：Section 局部假设；`square_nonneg`（L24301）同列，Real 层正向证据 `real_square_nonneg_eps`（L44842）见 §7.2/§10.2 第 1 项 (f)"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid",
+    40464,
+    955,
+    "**接口与实例化**：本文定理在抽象接口 `RealInterfaceEnhanced` 上陈述。该接口的 setoid 对应物 `RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid`（L40464，log 族带正性前提）已由具体柯西实数实例化为"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhancedMod.RealEnhancedReal",
+    41115,
+    955,
+    "**接口与实例化**：本文定理在抽象接口 `RealInterfaceEnhanced` 上陈述。该接口的 setoid 对应物 `RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid`（L40464，log 族带正性前提）已由具体柯西实数实例化为"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    955,
+    "**接口与实例化**：本文定理在抽象接口 `RealInterfaceEnhanced` 上陈述。该接口的 setoid 对应物 `RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid`（L40464，log 族带正性前提）已由具体柯西实数实例化为"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    955,
+    "**接口与实例化**：本文定理在抽象接口 `RealInterfaceEnhanced` 上陈述。该接口的 setoid 对应物 `RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid`（L40464，log 族带正性前提）已由具体柯西实数实例化为"
+   ],
+   [
+    "INLINE",
+    "Qed",
+    12868,
+    965,
+    "| `esq_eq_corr`（主恒等式） | **已证 `Lemma`** | L12837 → `Qed` L12868 |"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    970,
+    "| **setoid 系接口实例** | **已完成**：`Real_RealInterfaceSetoidCore`（L33433）/ `Real_RealInterfaceSetoid`（L39407）/ `RealEnhancedReal`（L41115），全部字段实值化（exp 族、log "
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    970,
+    "| **setoid 系接口实例** | **已完成**：`Real_RealInterfaceSetoidCore`（L33433）/ `Real_RealInterfaceSetoid`（L39407）/ `RealEnhancedReal`（L41115），全部字段实值化（exp 族、log "
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    970,
+    "| **setoid 系接口实例** | **已完成**：`Real_RealInterfaceSetoidCore`（L33433）/ `Real_RealInterfaceSetoid`（L39407）/ `RealEnhancedReal`（L41115），全部字段实值化（exp 族、log "
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    974,
+    "**Setoid 签名迁移的状态与影响**：本文定理的签名仍在抽象 Id 等式系接口 `RealInterfaceEnhanced`（Class，L217）上，其结论\"对任意满足该接口的实例成立\"（见本节上文）；`Real` 目前实例化的是 **req** 等式系 setoid 接口族（`Real_"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    974,
+    "**Setoid 签名迁移的状态与影响**：本文定理的签名仍在抽象 Id 等式系接口 `RealInterfaceEnhanced`（Class，L217）上，其结论\"对任意满足该接口的实例成立\"（见本节上文）；`Real` 目前实例化的是 **req** 等式系 setoid 接口族（`Real_"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    974,
+    "**Setoid 签名迁移的状态与影响**：本文定理的签名仍在抽象 Id 等式系接口 `RealInterfaceEnhanced`（Class，L217）上，其结论\"对任意满足该接口的实例成立\"（见本节上文）；`Real` 目前实例化的是 **req** 等式系 setoid 接口族（`Real_"
+   ],
+   [
+    "INLINE",
+    "Qinv_comp_proper",
+    8370,
+    993,
+    "(b) **主要摩擦点**：其一，`eq_ind`（Leibniz 归纳原理）在 `req` setoid 等价下的**消除受限**——`req` 非 Leibniz 等式，凡现证明链中以 `eq_ind`/Leibniz 等式消去（`rewrite` 直通）的步骤，在 `req` 下不能作 Lei"
+   ],
+   [
+    "INLINE",
+    "q_pow_comp_proper",
+    8373,
+    993,
+    "(b) **主要摩擦点**：其一，`eq_ind`（Leibniz 归纳原理）在 `req` setoid 等价下的**消除受限**——`req` 非 Leibniz 等式，凡现证明链中以 `eq_ind`/Leibniz 等式消去（`rewrite` 直通）的步骤，在 `req` 下不能作 Lei"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    995,
+    "(c) **迁移完成后的可用性影响**：现状——抽象定理的数学内容落到具体柯西实数上，目前经两条路径承载：req 系接口实例的**字段回填**（接口级事实，exp/log 族、度量与完备性字段在 `Real` 上实值）与**部分核心定理的 Real 层逐 eps 复刻**（清单见 §9.2）；逐 e"
+   ],
+   [
+    "INLINE",
+    "real_expf_realizable",
+    96364,
+    997,
+    "**已验证的降压通道**：对个别卡在 Id→req 替换上的假设密集区，AttnDoeblin 模块提供了一条已验证的替代架构——「最小假设接口 + `sigT` 可满足性放电」：`real_expf_realizable`（L96364）把 expf 五字段迷你接口（pos/zero/plus/m"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhancedSetoid",
+    40464,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "Qinv_comp_proper",
+    8370,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "q_pow_comp_proper",
+    8373,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "real_gibbs_inequality_eps",
+    41704,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "real_log_differentiable",
+    46386,
+    1001,
+    "**实例化与承载路径（接口族细节见 §9.1.1 上文，此处不再重复叙述；本条为 §4.1 先决问题段的详表版。）** 全库核验：Setoid 系接口 `Instance` 声明为 **3 处**——`Real_RealInterfaceSetoidCore`（L33433）、`Real_RealI"
+   ],
+   [
+    "INLINE",
+    "step_kl_eta_bound",
+    23114,
+    1004,
+    "- 策略迭代族 4.5–4.8/5.10：依赖诚实接口 `step_kl_eta_bound`（L23114）的 Real 层镜像——接口的 Real 层对应定理已在库内证明（见定理 4.8 状态脚注），镜像仍为组装型开放项（同族独立模块形态见 §10.2 第 1 项 (h)）；req 消费版已随迁"
+   ],
+   [
+    "INLINE",
+    "real_square_nonneg_eps",
+    44842,
+    1005,
+    "- GRPO 方差族 7.4/7.5：依赖 `square_nonneg` 接口在 Real 层的装配（正向 eps 证据 `real_square_nonneg_eps`（L44842）已证，见 §7.2）；"
+   ],
+   [
+    "INLINE",
+    "dpo_total_loss_monotone",
+    20181,
+    1036,
+    "**注**：`dpo_total_loss_monotone`（L20181）的「总损失」实为有限偏好列表上的 fold 和（`dpo_total_loss`，L20153），非数据集期望；该定理只陈述逐对损失单调 ⟹ fold 和单调，**不含 π*** 亦**不含改进方向**——「沿改进轨道单调"
+   ],
+   [
+    "INLINE",
+    "dpo_loss",
+    19090,
+    1036,
+    "**注**：`dpo_total_loss_monotone`（L20181）的「总损失」实为有限偏好列表上的 fold 和（`dpo_total_loss`，L20153），非数据集期望；该定理只陈述逐对损失单调 ⟹ fold 和单调，**不含 π*** 亦**不含改进方向**——「沿改进轨道单调"
+   ],
+   [
+    "INLINE",
+    "real_min_le_l_eps",
+    40023,
+    1053,
+    "**例（`real_min_le_l_eps`；解释性实例，不新增任何机器检查断言）**：以 Real 层的 eps 余量界 `real_min_le_l_eps`（L40023，219 基态实测；定理 6.6 所引）为例说明上述原则。该引理陈述 `forall a b eps, real_lt r"
+   ],
+   [
+    "TABLE",
+    "RealInterface",
+    133,
+    1220,
+    "| `RealInterface` | L133 |"
+   ],
+   [
+    "TABLE",
+    "RealInterfaceEnhanced",
+    217,
+    1221,
+    "| `RealInterfaceEnhanced` | L217 |"
+   ],
+   [
+    "TABLE",
+    "proj_normalized",
+    296,
+    1222,
+    "| `proj_normalized` | L296 |"
+   ],
+   [
+    "TABLE",
+    "eviction_partition_increment",
+    313,
+    1223,
+    "| `eviction_partition_increment` | L313 |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_pos",
+    13383,
+    1224,
+    "| `cauchy_real_exp_pos` | L13383 |"
+   ],
+   [
+    "TABLE",
+    "free_energy_kl_decomp",
+    16259,
+    1225,
+    "| `free_energy_kl_decomp` | L16259 |"
+   ],
+   [
+    "TABLE",
+    "gibbs_inequality",
+    16629,
+    1226,
+    "| `gibbs_inequality` | L16629 |"
+   ],
+   [
+    "TABLE",
+    "min_free_energy_is_boltzmann",
+    16838,
+    1227,
+    "| `min_free_energy_is_boltzmann` | L16838 |"
+   ],
+   [
+    "TABLE",
+    "pi_star_pos",
+    18771,
+    1228,
+    "| `pi_star_pos` | L18771 |"
+   ],
+   [
+    "TABLE",
+    "pi_star_normalized",
+    18783,
+    1229,
+    "| `pi_star_normalized` | L18783 |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss",
+    19090,
+    1230,
+    "| `dpo_loss` | L19090 |"
+   ],
+   [
+    "TABLE",
+    "advantage_fn",
+    19496,
+    1231,
+    "| `advantage_fn` | L19496 |"
+   ],
+   [
+    "TABLE",
+    "importance_ratio",
+    19502,
+    1233,
+    "| `importance_ratio` | L19502 |"
+   ],
+   [
+    "TABLE",
+    "is_objective",
+    19515,
+    1234,
+    "| `is_objective` | L19515 |"
+   ],
+   [
+    "TABLE",
+    "dpo_implicit_reward",
+    19620,
+    1235,
+    "| `dpo_implicit_reward` | L19620 |"
+   ],
+   [
+    "TABLE",
+    "exact_improvement_identity",
+    19904,
+    1236,
+    "| `exact_improvement_identity` | L19904 |"
+   ],
+   [
+    "TABLE",
+    "dpo_pair_loss",
+    20111,
+    1237,
+    "| `dpo_pair_loss` | L20111 |"
+   ],
+   [
+    "TABLE",
+    "dpo_total_loss",
+    20153,
+    1238,
+    "| `dpo_total_loss` | L20153 |"
+   ],
+   [
+    "TABLE",
+    "dpo_total_loss_at_star",
+    20171,
+    1239,
+    "| `dpo_total_loss_at_star` | L20171 |"
+   ],
+   [
+    "TABLE",
+    "rlhf_free_energy_kl",
+    20290,
+    1240,
+    "| `rlhf_free_energy_kl` | L20290 |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss_pair",
+    20885,
+    1242,
+    "| `dpo_loss_pair` | L20885 |"
+   ],
+   [
+    "TABLE",
+    "policy_improvement_mono",
+    22065,
+    1243,
+    "| `policy_improvement_mono` | L22065 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_backward_kl_step",
+    22686,
+    1244,
+    "| `policy_iter_backward_kl_step` | L22686 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_backward_kl_step_le",
+    22790,
+    1245,
+    "| `policy_iter_backward_kl_step_le` | L22790 |"
+   ],
+   [
+    "TABLE",
+    "policy_iterate",
+    22879,
+    1246,
+    "| `policy_iterate` | L22879 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_norm",
+    22890,
+    1247,
+    "| `policy_iter_norm` | L22890 |"
+   ],
+   [
+    "TABLE",
+    "step_kl_eta_bound",
+    23114,
+    1248,
+    "| `step_kl_eta_bound` | L23114 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_kl_geom_step",
+    23146,
+    1249,
+    "| `policy_iter_kl_geom_step` | L23146 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_kl_geom_iter",
+    23181,
+    1250,
+    "| `policy_iter_kl_geom_iter` | L23181 |"
+   ],
+   [
+    "TABLE",
+    "group_centered_second_moment",
+    23972,
+    1251,
+    "| `group_centered_second_moment` | L23972 |"
+   ],
+   [
+    "TABLE",
+    "group_variance_identity",
+    24264,
+    1252,
+    "| `group_variance_identity` | L24264 |"
+   ],
+   [
+    "TABLE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    1254,
+    "| `Real_RealInterfaceSetoidCore` | L33433 |"
+   ],
+   [
+    "TABLE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    1255,
+    "| `Real_RealInterfaceSetoid` | L39407 |"
+   ],
+   [
+    "TABLE",
+    "RealEnhancedReal",
+    41115,
+    1259,
+    "| `RealEnhancedReal` | L41115 |"
+   ],
+   [
+    "TABLE",
+    "real_dpo_loss_at_pi_star",
+    42439,
+    1260,
+    "| `real_dpo_loss_at_pi_star` | L42439 |"
+   ],
+   [
+    "TABLE",
+    "real_square_nonneg_eps",
+    44842,
+    1261,
+    "| `real_square_nonneg_eps` | L44842 |"
+   ],
+   [
+    "TABLE",
+    "real_expf_realizable",
+    96364,
+    1262,
+    "| `real_expf_realizable` | L96364 |"
+   ],
+   [
+    "TABLE",
+    "real_exp_two_point_cvx_eps",
+    112669,
+    1263,
+    "| `real_exp_two_point_cvx_eps` | L112669 |"
+   ],
+   [
+    "TABLE",
+    "real_amgm_pointwise_eps",
+    112817,
+    1264,
+    "| `real_amgm_pointwise_eps` | L112817 |"
+   ],
+   [
+    "TABLE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    1265,
+    "| `real_interp_Z_le_one_eps` | L112890 |"
+   ],
+   [
+    "TABLE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    1266,
+    "| `real_step_kl_eta_bound_eps` | L113142 |"
+   ],
+   [
+    "TABLE",
+    "rlhf_optimal",
+    19049,
+    1271,
+    "| `rlhf_optimal` | L19049 | 对齐目标在 π* 处最大 | π 归一化且正（`normalized`/`positive_dist`）；接口前件 `beta_pos`/`Z_align_pos` 等 |"
+   ],
+   [
+    "TABLE",
+    "rlhf_optimal_unique",
+    19128,
+    1272,
+    "| `rlhf_optimal_unique` | L19128 | 最优策略唯一 | 同 `rlhf_optimal`（两策略均归一化且正） |"
+   ],
+   [
+    "TABLE",
+    "rlhf_suboptimality_gap",
+    20554,
+    1273,
+    "| `rlhf_suboptimality_gap` | L20554 | 次优间隙 = β·KL（前向 KL） | π 归一化且正；前向 KL 方向（与定理 4.8 的后向 KL 不同，见 §4.3/§10.2） |"
+   ],
+   [
+    "TABLE",
+    "rlhf_policy_improvement",
+    20591,
+    1274,
+    "| `rlhf_policy_improvement` | L20591 | 前向 KL 到 π* 不增 ⟹ 目标单调 | `p_old`/`p_new` 归一化且正；不含优势函数前提（勿与定理 6.3/6.4 混淆） |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_backward_kl_step_le",
+    22790,
+    1275,
+    "| `policy_iter_backward_kl_step_le` | L22790 | 单步向后 KL 收缩上界：`KL(π*‖π_{t+1}) ≤ (1−η)·KL(π*‖π_t) + KL(π_t‖π_{t+1})`（定理 4.5 单步引理） | 策略迭代族 Section 变量：`eta"
+   ],
+   [
+    "TABLE",
+    "policy_iter_backward_kl_iter_le",
+    22915,
+    1276,
+    "| `policy_iter_backward_kl_iter_le` | L22915 | 策略迭代向后 KL 加权递推上界（定理 4.5） | 同 `policy_iter_backward_kl_step_le`（迭代打包 `policy_iterate` 保归一化/正性） |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_gap_diff",
+    23000,
+    1277,
+    "| `policy_iter_gap_diff` | L23000 | 间隙单步显式恒等式：改进量 == β·加权 KL 对（定理 4.6） | 同策略迭代族；`pi_t` 逐点正 |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_gap_mono",
+    23086,
+    1278,
+    "| `policy_iter_gap_mono` | L23086 | 间隙单调不增（定理 4.7） | 同策略迭代族（经 `policy_improvement_mono`） |"
+   ],
+   [
+    "TABLE",
+    "policy_iter_kl_geom_step",
+    23146,
+    1279,
+    "| `policy_iter_kl_geom_step` | L23146 | 单步真几何收缩：`KL(π*‖π_{t+1}) ≤ (1−η)·KL(π*‖π_t)`（定理 4.8 前提，诚实接口 `step_kl_eta_bound`（L23114）下） | **诚实接口 `step_kl_eta"
+   ],
+   [
+    "INLINE",
+    "step_kl_eta_bound",
+    23114,
+    1279,
+    "| `policy_iter_kl_geom_step` | L23146 | 单步真几何收缩：`KL(π*‖π_{t+1}) ≤ (1−η)·KL(π*‖π_t)`（定理 4.8 前提，诚实接口 `step_kl_eta_bound`（L23114）下） | **诚实接口 `step_kl_eta"
+   ],
+   [
+    "TABLE",
+    "policy_iter_kl_geom_iter",
+    23181,
+    1280,
+    "| `policy_iter_kl_geom_iter` | L23181 | 向后 KL 真几何率上界 `(1−η)^t`（定理 4.8） | 同 `policy_iter_kl_geom_step`（诚实接口表述；接口的 Real 层对应物已在库内证明——`real_interp_Z_le_on"
+   ],
+   [
+    "INLINE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    1280,
+    "| `policy_iter_kl_geom_iter` | L23181 | 向后 KL 真几何率上界 `(1−η)^t`（定理 4.8） | 同 `policy_iter_kl_geom_step`（诚实接口表述；接口的 Real 层对应物已在库内证明——`real_interp_Z_le_on"
+   ],
+   [
+    "INLINE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    1280,
+    "| `policy_iter_kl_geom_iter` | L23181 | 向后 KL 真几何率上界 `(1−η)^t`（定理 4.8） | 同 `policy_iter_kl_geom_step`（诚实接口表述；接口的 Real 层对应物已在库内证明——`real_interp_Z_le_on"
+   ],
+   [
+    "TABLE",
+    "real_rlhf_optimal_eps",
+    43804,
+    1281,
+    "| `real_rlhf_optimal_eps` | L43804 | RLHF 最优性 Real 层逐 eps 复刻（定理 4.9） | Real 层复刻；诚实接口 `real_kl_decomp_full` 等（零公理，全部可实例化） |"
+   ],
+   [
+    "TABLE",
+    "pi_star",
+    18766,
+    1282,
+    "| `pi_star` | L18766 | 闭式最优策略（含 `opp`，即 e^{+r/β}） | 定义；依赖 `Z_align_pos` 正性前件（L18764） |"
+   ],
+   [
+    "TABLE",
+    "dpo_optimal",
+    19096,
+    1283,
+    "| `dpo_optimal` | L19096 | DPO 损失在 π* 处最小 | π 归一化且正（推论自 `rlhf_optimal` 取负） |"
+   ],
+   [
+    "TABLE",
+    "log_ratio",
+    20880,
+    1284,
+    "| `log_ratio` | L20880 | 对数几率比 log π − log π_ref | 定义；log 定义域隐含正性 |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss_pair",
+    20885,
+    1285,
+    "| `dpo_loss_pair` | L20885 | 逐对 Bradley-Terry DPO 损失 | 定义 |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss_at_pi_star",
+    20892,
+    1286,
+    "| `dpo_loss_at_pi_star` | L20892 | π* 处逐对损失 = 真实奖励差的对数几率 | 前提：`pi_ref` 正且归一化、`Z_align_pos`（π* 闭式） |"
+   ],
+   [
+    "TABLE",
+    "dpo_reward_is_implicit",
+    19616,
+    1287,
+    "| `dpo_reward_is_implicit` | L19616 | 显式/隐式奖励逐点相等（命名桥引理：定义性后承，reflexivity；非独立结果） | 无前提（定义性后承，不计入并列贡献） |"
+   ],
+   [
+    "TABLE",
+    "dpo_reward_recovers_up_to_baseline",
+    19626,
+    1288,
+    "| `dpo_reward_recovers_up_to_baseline` | L19626 | π* 处隐式奖励恢复真实奖励至基线 | 前提：π* 闭式（`log_pi_star`） |"
+   ],
+   [
+    "TABLE",
+    "dpo_reward_relative_exact",
+    19717,
+    1289,
+    "| `dpo_reward_relative_exact` | L19717 | 隐式奖励差分 = 真实奖励差分 | 同 `dpo_reward_recovers_up_to_baseline`（基线消去） |"
+   ],
+   [
+    "TABLE",
+    "dpo_reward_diff_is_log_ratio_diff",
+    19802,
+    1290,
+    "| `dpo_reward_diff_is_log_ratio_diff` | L19802 | DPO 隐式奖励差分 = 对数比差分 | 同 5.4（差分形式等价） |"
+   ],
+   [
+    "TABLE",
+    "dpo_total_loss_monotone",
+    20181,
+    1291,
+    "| `dpo_total_loss_monotone` | L20181 | 逐对损失单调 ⟹ fold 总损失单调（不含 π*/改进方向） | 前提：逐对损失逐点不增（fold 泛单调；有限偏好列表） |"
+   ],
+   [
+    "TABLE",
+    "real_dpo_loss_pi_star_bounded_both",
+    42715,
+    1292,
+    "| `real_dpo_loss_pi_star_bounded_both` | L42715 | Real 层 π* 处损失双侧定量界：`r_l < r_w ⟹ 0 < L < log 2` | Real 层；前提 `r_l < r_w` |"
+   ],
+   [
+    "TABLE",
+    "real_dpo_reward_recovers_up_to_baseline",
+    42761,
+    1293,
+    "| `real_dpo_reward_recovers_up_to_baseline` | L42761 | Real 层 π* 处隐式奖励恢复真实奖励至基线（定理 5.9） | Real 层复刻（定理 5.4 的 Real 值域版） |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss_iter_step_le",
+    23244,
+    1294,
+    "| `dpo_loss_iter_step_le` | L23244 | 聚合损失 `dpo_loss` 单步沿改进轨道单调不增（定理 5.10） | 策略迭代族前提（同 4.5 区） |"
+   ],
+   [
+    "TABLE",
+    "dpo_loss_iter_mono",
+    23256,
+    1295,
+    "| `dpo_loss_iter_mono` | L23256 | 聚合损失沿迭代轨道单调不增（定理 5.10） | 同 `dpo_loss_iter_step_le`（经 `policy_iter_norm` 保归一化） |"
+   ],
+   [
+    "TABLE",
+    "real_dpo_logit",
+    54982,
+    1296,
+    "| `real_dpo_logit` | L54982 | Real 层单样本 DPO logit 损失 `ℓ(x) := −log σ(x)`（定理 5.11 定义锚） | Real 层定义 |"
+   ],
+   [
+    "TABLE",
+    "real_softplus_sigmoid_eq",
+    55038,
+    1297,
+    "| `real_softplus_sigmoid_eq` | L55038 | Real 层损失形态连接：`−log σ(x) == log(1+e^{−x})` | Real 层恒等（无附加前提） |"
+   ],
+   [
+    "TABLE",
+    "real_sigmoid_deriv_mass_pos",
+    55026,
+    1298,
+    "| `real_sigmoid_deriv_mass_pos` | L55026 | `σ(x)·(1−σ(x)) > 0`（−log σ 二阶导的构造性正性证据） | Real 层（`σ(x)>0`、`1−σ(x)>0` 已证：L41819/L55017） |"
+   ],
+   [
+    "TABLE",
+    "real_dpo_logit_loss_decr",
+    55075,
+    1299,
+    "| `real_dpo_logit_loss_decr` | L55075 | logit 损失严格递减：`x < y ⟹ ℓ(y) < ℓ(x)`（DPO 收敛单调前提） | Real 层；前提 `x < y` |"
+   ],
+   [
+    "TABLE",
+    "projected_distribution_minimizes_kl",
+    95587,
+    1300,
+    "| `projected_distribution_minimizes_kl` | L95587 | 审计投影主定理：`KL(q‖proj(p)) ≤ KL(q‖p)`（§5.3；214-KL 块，219 复核未动） | 前提：`post_aud`/`Hp_norm`/`Hp_pos`/`HZ` +"
+   ],
+   [
+    "INLINE",
+    "real_log_le_mono",
+    112106,
+    1300,
+    "| `projected_distribution_minimizes_kl` | L95587 | 审计投影主定理：`KL(q‖proj(p)) ≤ KL(q‖p)`（§5.3；214-KL 块，219 复核未动） | 前提：`post_aud`/`Hp_norm`/`Hp_pos`/`HZ` +"
+   ],
+   [
+    "INLINE",
+    "real_log_le_zero_of_le_one",
+    112121,
+    1300,
+    "| `projected_distribution_minimizes_kl` | L95587 | 审计投影主定理：`KL(q‖proj(p)) ≤ KL(q‖p)`（§5.3；214-KL 块，219 复核未动） | 前提：`post_aud`/`Hp_norm`/`Hp_pos`/`HZ` +"
+   ],
+   [
+    "TABLE",
+    "kl_sum_split",
+    95527,
+    1301,
+    "| `kl_sum_split` | L95527 | 审计精确分解：`KL(q‖p) == KL(q‖proj) + (−log Z_aud)`（§5.3） | 同主定理前提组（尾项求值 `kl_tail_eval` L95551） |"
+   ],
+   [
+    "INLINE",
+    "kl_tail_eval",
+    95551,
+    1301,
+    "| `kl_sum_split` | L95527 | 审计精确分解：`KL(q‖p) == KL(q‖proj) + (−log Z_aud)`（§5.3） | 同主定理前提组（尾项求值 `kl_tail_eval` L95551） |"
+   ],
+   [
+    "TABLE",
+    "ppo_conservative",
+    19526,
+    1302,
+    "| `ppo_conservative` | L19526 | 裁剪目标 ≤ 未裁剪目标（前提 `advantage_nonneg`（L19497）） | **前提：`advantage_nonneg`（A ≥ 0，L19497）+ `pi_old_pos`** |"
+   ],
+   [
+    "INLINE",
+    "advantage_nonneg",
+    19497,
+    1302,
+    "| `ppo_conservative` | L19526 | 裁剪目标 ≤ 未裁剪目标（前提 `advantage_nonneg`（L19497）） | **前提：`advantage_nonneg`（A ≥ 0，L19497）+ `pi_old_pos`** |"
+   ],
+   [
+    "TABLE",
+    "exact_improvement_identity",
+    19904,
+    1303,
+    "| `exact_improvement_identity` | L19904 | 真实改进 = 期望优势 − KL 惩罚 | 恒等（无附加序前提） |"
+   ],
+   [
+    "TABLE",
+    "ppo_monotonic_improvement",
+    19940,
+    1304,
+    "| `ppo_monotonic_improvement` | L19940 | 代理优势非负 ⟹ 真实改进 | 前提：代理优势非负（`le zero (E−β·KL)`） |"
+   ],
+   [
+    "TABLE",
+    "kl_penalty_sufficient",
+    19967,
+    1305,
+    "| `kl_penalty_sufficient` | L19967 | KL 约束 + 优势条件 ⟹ 改进 | 前提：`KL ≤ eps` 且 `E ≥ β·eps`（定理 6.3 的显式 eps 形式） |"
+   ],
+   [
+    "TABLE",
+    "ppo_surrogate_raw_is_value_improvement",
+    20720,
+    1306,
+    "| `ppo_surrogate_raw_is_value_improvement` | L20720 | 代理目标改进控制价值改进（仅未裁剪代理） | 前提：`pi` 归一化且正、`p_old` 正；仅未裁剪代理（裁剪代理侧单侧组合 三件单侧组合定理已在库内证明，见 §6.3） |"
+   ],
+   [
+    "TABLE",
+    "real_ppo_conservative_eps",
+    43556,
+    1307,
+    "| `real_ppo_conservative_eps` | L43556 | PPO 保守性 Real 层逐 eps 复刻（定理 6.6） | Real 层 eps 版；诚实接口 `real_min_le_l_eps` 等（`real_min` 无精确 `min ≤ r`） |"
+   ],
+   [
+    "TABLE",
+    "std_ppo_conservative",
+    19559,
+    1308,
+    "| `std_ppo_conservative` | L19559 | 标准 PPO 代理目标保守性（定理 6.7）——**定义性后承**（`min_le_l` 定义性直接推论，与裁剪结构无关；§6.2 诚实标注） | **无前提**（正因定义性后承；任意符号 A） |"
+   ],
+   [
+    "TABLE",
+    "ppo_is_decomp",
+    112398,
+    1309,
+    "| `ppo_is_decomp` | L112398 | IS 目标 == 裁剪代理 + clip 误差的精确分解（定理 6.8，§6.3 主结果） | 无前提（恒等式） |"
+   ],
+   [
+    "TABLE",
+    "clip_error_nonneg",
+    112408,
+    1310,
+    "| `clip_error_nonneg` | L112408 | clip 误差非负（定理 6.9） | 无前提（min 在乘积内部） |"
+   ],
+   [
+    "TABLE",
+    "ppo_clipped_improvement",
+    112439,
+    1311,
+    "| `ppo_clipped_improvement` | L112439 | 裁剪代理非负 ⟹ 价值改进 `V(p_old) ≤ V(pi)`（定理 6.10；反向界为假不宣称） | 前提：裁剪代理非负（E1+E2+定理 6.5 组装） |"
+   ],
+   [
+    "TABLE",
+    "grpo_advantage_zero_mean",
+    23915,
+    1312,
+    "| `grpo_advantage_zero_mean` | L23915 | 组相对优势零均值 | 前提：`group_enum` 覆盖（`group_cover`）、`group_size_pos`；任意缩放 `c` |"
+   ],
+   [
+    "TABLE",
+    "grpo_variance_identity",
+    24096,
+    1313,
+    "| `grpo_variance_identity` | L24096 | 组**中心二阶矩**恒等式（非方差，未除以 G；定理 7.4） | 同 7.1（组枚举覆盖；未除 G，见 §7.2 术语说明） |"
+   ],
+   [
+    "TABLE",
+    "group_variance_le_raw_second_moment",
+    24327,
+    1314,
+    "| `group_variance_le_raw_second_moment` | L24327 | 基线方差归约：`Var ≤ (1/G)·Σr²`（减均值降低二阶矩；定理 7.5） | **诚实接口 `square_nonneg`（Variable，L24301）**；`real_square_"
+   ],
+   [
+    "INLINE",
+    "real_square_nonneg_eps",
+    44842,
+    1314,
+    "| `group_variance_le_raw_second_moment` | L24327 | 基线方差归约：`Var ≤ (1/G)·Σr²`（减均值降低二阶矩；定理 7.5） | **诚实接口 `square_nonneg`（Variable，L24301）**；`real_square_"
+   ],
+   [
+    "TABLE",
+    "UpExtras219.counter_ex_indicator_sum_two",
+    114140,
+    1315,
+    "| `UpExtras219.counter_ex_indicator_sum_two` | L114140 | 无重复前提不可去反例：双副本枚举 indicator 求和 == 2 ≠ 1（定理 7.2，§7.2 主结果） | 双副本枚举（覆盖前提成立、`NoDup` 缺失） |"
+   ],
+   [
+    "TABLE",
+    "UpExtras219.counter_ex_reward_sum_two_c",
+    114151,
+    1316,
+    "| `UpExtras219.counter_ex_reward_sum_two_c` | L114151 | 无重复前提不可去反例：双副本常数奖励总计 == 2c ≠ c（定理 7.3） | 同上 |"
+   ],
+   [
+    "TABLE",
+    "real_grpo_advantage_zero_mean",
+    43100,
+    1317,
+    "| `real_grpo_advantage_zero_mean` | L43100 | GRPO 组相对优势零均值 Real 层复刻（定理 7.6） | Real 层复刻（定理 7.1 的 Real 值域版；`real_group_size_pos` 等） |"
+   ],
+   [
+    "INLINE",
+    "rlhf_suboptimality_gap",
+    20554,
+    1336,
+    "以下给出 `rlhf_suboptimality_gap`（L20554）与 `ppo_monotonic_improvement`/`kl_penalty_sufficient`（L19940/L19967）的完整代数骨架：B.1 补足 §4.3 定理 4.3 的证明概要；B.2 给出 §6.2 "
+   ],
+   [
+    "INLINE",
+    "kl_penalty_sufficient",
+    19940,
+    1336,
+    "以下给出 `rlhf_suboptimality_gap`（L20554）与 `ppo_monotonic_improvement`/`kl_penalty_sufficient`（L19940/L19967）的完整代数骨架：B.1 补足 §4.3 定理 4.3 的证明概要；B.2 给出 §6.2 "
+   ],
+   [
+    "INLINE",
+    "rlhf_policy_improvement",
+    20591,
+    1336,
+    "以下给出 `rlhf_suboptimality_gap`（L20554）与 `ppo_monotonic_improvement`/`kl_penalty_sufficient`（L19940/L19967）的完整代数骨架：B.1 补足 §4.3 定理 4.3 的证明概要；B.2 给出 §6.2 "
+   ],
+   [
+    "INLINE",
+    "rlhf_free_energy_kl",
+    20290,
+    1344,
+    "1. 由 `rlhf_free_energy_kl`（L20290）把对齐目标改写为自由能形式："
+   ],
+   [
+    "INLINE",
+    "free_energy_kl_decomp",
+    16259,
+    1346,
+    "2. 由 `free_energy_kl_decomp`（L16259）对 `p = pi`、Boltzmann 分布 `p_b = pi_star` 展开："
+   ],
+   [
+    "INLINE",
+    "gibbs_inequality",
+    16629,
+    1351,
+    "4. 非负性由 `gibbs_inequality`（L16629）给出；`β > 0`（`beta_pos` L18755）保证间隙非负。"
+   ],
+   [
+    "INLINE",
+    "beta_pos",
+    18755,
+    1351,
+    "4. 非负性由 `gibbs_inequality`（L16629）给出；`β > 0`（`beta_pos` L18755）保证间隙非负。"
+   ],
+   [
+    "INLINE",
+    "exact_improvement_identity",
+    19904,
+    1361,
+    "1. 由 `exact_improvement_identity`（L19904）："
+   ],
+   [
+    "INLINE",
+    "policy_iter_backward_kl_step_le",
+    22790,
+    1377,
+    "### C.1 `policy_iter_backward_kl_step_le`（L22790）与 `policy_iter_kl_geom_iter`（L23181）的组装"
+   ],
+   [
+    "INLINE",
+    "policy_iter_kl_geom_iter",
+    23181,
+    1377,
+    "### C.1 `policy_iter_backward_kl_step_le`（L22790）与 `policy_iter_kl_geom_iter`（L23181）的组装"
+   ],
+   [
+    "INLINE",
+    "policy_iter_backward_kl_step_le",
+    22790,
+    1379,
+    "**定理 4.5 单步引理 `policy_iter_backward_kl_step_le`（L22790）**："
+   ],
+   [
+    "INLINE",
+    "policy_iter_backward_kl_step",
+    22686,
+    1382,
+    "- **关键引理**：恒等版 `policy_iter_backward_kl_step`（L22686）给出三 KL 精确分解"
+   ],
+   [
+    "INLINE",
+    "gibbs_inequality",
+    16629,
+    1384,
+    "- **子目标 1**：可弃项非正——由 `gibbs_inequality`（L16629，KL ≥ 0）与 `eta_pos` 得 `le (opp (mult eta (relative_entropy pi_t pi_star))) zero`；"
+   ],
+   [
+    "INLINE",
+    "policy_iter_kl_geom_iter",
+    23181,
+    1388,
+    "**迭代归纳 `policy_iter_kl_geom_iter`（L23181，定理 4.8）**（「归纳 + 代数」案例）："
+   ],
+   [
+    "INLINE",
+    "policy_iter_kl_geom_step",
+    23146,
+    1393,
+    "- 关键引理 1：单步真几何收缩 `policy_iter_kl_geom_step`（L23146）——`KL(pi*‖pi_{t+1}) ≤ (1−η)·KL(pi*‖pi_t)`，其内部把 C.1 的 le 版递推与诚实接口 `step_kl_eta_bound`（L23114，`KL(pi_"
+   ],
+   [
+    "INLINE",
+    "step_kl_eta_bound",
+    23114,
+    1393,
+    "- 关键引理 1：单步真几何收缩 `policy_iter_kl_geom_step`（L23146）——`KL(pi*‖pi_{t+1}) ≤ (1−η)·KL(pi*‖pi_t)`，其内部把 C.1 的 le 版递推与诚实接口 `step_kl_eta_bound`（L23114，`KL(pi_"
+   ],
+   [
+    "INLINE",
+    "real_rlhf_optimal_eps",
+    43804,
+    1399,
+    "### C.2 `real_rlhf_optimal_eps`（L43804）的 Real 层 eps 证明模板"
+   ],
+   [
+    "INLINE",
+    "real_kl_decomp_full",
+    43730,
+    1403,
+    "- **关键引理 1（常数消去桥）**：诚实接口 `real_kl_decomp_full`（L43730）把熵侧 KL 分解的常数差吸收进 `D`（`F(p) == F(p_b) + D·Σkl` 型），避免逐项常数额外 eps；"
+   ],
+   [
+    "INLINE",
+    "rlhf_optimal_unique",
+    19128,
+    1412,
+    "### C.3 `rlhf_optimal_unique`（L19128，定理 4.2）的构造性唯一性骨架"
+   ],
+   [
+    "INLINE",
+    "free_energy_kl_decomp",
+    16259,
+    1415,
+    "- **关键引理 1**：自由能分解 `free_energy_kl_decomp`（L16259）把「目标值相同」化为 `F[pi] == F[pi_star]`，再经分解恒等式得 `KL(pi‖pi_star) == 0`；"
+   ],
+   [
+    "INLINE",
+    "gibbs_equality",
+    16629,
+    1416,
+    "- **关键引理 2**：`gibbs_equality`（L16629，KL == 0 ⟹ 逐点相等，正分布前提）——构造性内容所在：KL 逐项和为零与逐项非负给出逐点相等的构造性提取（无排中分支）；"
+   ],
+   [
+    "INLINE",
+    "attn_nat_to_R",
+    95718,
+    1447,
+    "| (d) 冻结（不迁，注记在案） | `attn_nat_to_R_pos`（nat 归纳件，双层并行） | L95724（随 `attn_nat_to_R` L95718） |"
+   ],
+   [
+    "INLINE",
+    "real_exp_two_point_cvx_eps",
+    112669,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_amgm_pointwise_eps",
+    112817,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "grpo_count_one",
+    113775,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "grpo_indicator_sum_one",
+    113793,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "grpo_uniform_mass",
+    113832,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_sigma_witness",
+    113928,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "counter_ex_indicator_sum_two",
+    114140,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "counter_ex_reward_sum_two_c",
+    114151,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "eq_inv2_double",
+    97558,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "tv_hard_le_decay_scale",
+    97618,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "hard_attention_limit",
+    97679,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_log_le_mono",
+    112106,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "real_log_le_zero_of_le_one",
+    112121,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "ppo_is_decomp",
+    112398,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "clip_error_nonneg",
+    112408,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "ppo_clipped_improvement",
+    112439,
+    1469,
+    "**锚尾追加层块清单（行号基准 = 219）**：锚尾追加层（L112,463–114,222）：Real 层插值不等式族（`real_exp_two_point_cvx_eps` L112669 / `real_amgm_pointwise_eps` L112817 / `real_interp_"
+   ],
+   [
+    "INLINE",
+    "esq_eq_corr",
+    12837,
+    1484,
+    "- **旧第 5 项（已闭合；新第 1 项尾注）**：主恒等式 `esq_eq_corr`（L12837）及收尾簇 `exp_even_neg_pos`（L12969）`exp_partial_tail_pos`（L13011）已证明，Real 层 `cauchy_real_exp_pos`（L13"
+   ],
+   [
+    "INLINE",
+    "exp_even_neg_pos",
+    12969,
+    1484,
+    "- **旧第 5 项（已闭合；新第 1 项尾注）**：主恒等式 `esq_eq_corr`（L12837）及收尾簇 `exp_even_neg_pos`（L12969）`exp_partial_tail_pos`（L13011）已证明，Real 层 `cauchy_real_exp_pos`（L13"
+   ],
+   [
+    "INLINE",
+    "exp_partial_tail_pos",
+    13011,
+    1484,
+    "- **旧第 5 项（已闭合；新第 1 项尾注）**：主恒等式 `esq_eq_corr`（L12837）及收尾簇 `exp_even_neg_pos`（L12969）`exp_partial_tail_pos`（L13011）已证明，Real 层 `cauchy_real_exp_pos`（L13"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_pos",
+    13383,
+    1484,
+    "- **旧第 5 项（已闭合；新第 1 项尾注）**：主恒等式 `esq_eq_corr`（L12837）及收尾簇 `exp_even_neg_pos`（L12969）`exp_partial_tail_pos`（L13011）已证明，Real 层 `cauchy_real_exp_pos`（L13"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    1484,
+    "- **旧第 5 项（已闭合；新第 1 项尾注）**：主恒等式 `esq_eq_corr`（L12837）及收尾簇 `exp_even_neg_pos`（L12969）`exp_partial_tail_pos`（L13011）已证明，Real 层 `cauchy_real_exp_pos`（L13"
+   ],
+   [
+    "INLINE",
+    "u_tv_contraction",
+    95931,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "u_tv_iter",
+    96019,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "bs_minorization",
+    96286,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "bs_lo_hi_eq",
+    96181,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_iter",
+    96331,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "count_token",
+    96860,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "removeT",
+    96871,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "split_count_one",
+    96992,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "sum_pos_nonempty_aux",
+    97061,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "vocab_len_pos",
+    97540,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "eq_inv2_double",
+    97558,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "tv_hard_le_decay_scale",
+    97618,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "hard_attention_limit",
+    97679,
+    1485,
+    "- **旧第 9 项（全文；新第 5 项）**：**采样层的温度两极与硬注意力极限（诚实标注：属采样管道层，非本文目标理论本体，不改变 §2.3 scoped claim——§9.2 第 6 项）**：库内已证的两族采样层定理（AttnDoeblin 与 AttnHardLimit；T→∞ 端与 T"
+   ],
+   [
+    "INLINE",
+    "real_interp_Z_le_one_eps",
+    112890,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "real_step_kl_eta_bound_eps",
+    113142,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.grpo_count_one",
+    113775,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.grpo_indicator_sum_one",
+    113793,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.grpo_uniform_mass",
+    113832,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "split_count_one",
+    96992,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpExtras219.counter_ex_indicator_sum_two",
+    114140,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpExtras219.counter_ex_reward_sum_two_c",
+    114151,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.real_sigma_witness",
+    113928,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "proj_sigma_sq",
+    113948,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "UpGRPO219.real_mult_exchange",
+    113872,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "inv_pos_mult_distr",
+    95695,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "ppo_is_decomp",
+    112398,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "clip_error_nonneg",
+    112408,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "ppo_clipped_improvement",
+    112439,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "real_log_le_mono",
+    112106,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "real_log_le_zero_of_le_one",
+    112121,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "Z_aud_le_one",
+    95459,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ],
+   [
+    "INLINE",
+    "sum_pos_nonempty_aux",
+    97061,
+    1486,
+    "- **旧第 10 项（全文；新第 1 项 (a)–(g)）**：**库内新增定理的 discharge 与消费路线（除已注明在库内证明者外均为开放计划，非已证）**：(a) **`step_kl_eta_bound` Real 层对应物**（核心 discharge——已在库内证明：`real_i"
+   ]
+  ],
+  "P2": [
+   [
+    "INLINE",
+    "scale_temp_duality",
+    28524,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "sqrt_witness",
+    28552,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "scale_sqrt_witness_dual",
+    28565,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "sqrt_witness_nat_sq",
+    96596,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "scale_dual_sq_k",
+    96603,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "scale_dual_nat_sq_k",
+    96622,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "sq_witness_4",
+    28555,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    30,
+    "与此同时，Transformer 中的 softmax 注意力被广泛认为是 Boltzmann/Gibbs 分布的一个实例：attention 权重正比于 `exp(query·key / √d)`。这一对应为语言模型提供了一个物理/统计力学解释，纸笔文献通常将其当作类比；本工作在抽象 logits"
+   ],
+   [
+    "INLINE",
+    "attention_tv_contraction",
+    29195,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "attention_tv_iter_contraction",
+    29287,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "attention_iterate_converges",
+    29330,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "r_arch_pow_attn",
+    29247,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "bs_kernel",
+    96247,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "bs_kernel_row",
+    96263,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "bs_minorization",
+    96286,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_contraction",
+    96331,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_iter",
+    96344,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "u_tv_contraction",
+    95931,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "u_tv_iter",
+    96019,
+    54,
+    "4. **注意力核迭代的 TV 收缩与收敛（Doeblin minorization）**：把 softmax 注意力层的迭代视为 Markov 链，单步 TV 收缩 `attention_tv_contraction`（L29195，收缩因子 1−δ）、几何迭代收缩 `attention_tv_i"
+   ],
+   [
+    "INLINE",
+    "free_energy_kl_decomp",
+    16259,
+    63,
+    "9. **统一基座**：`free_energy_kl_decomp`（L16259）与 `rlhf_free_energy_kl`（L20290）为同一自由能-KL 分解定理的两次实例化——FEP、attention 与 RLHF/DPO 的 KL 项由此形式同构（§9.1；关联对象见 Ouyan"
+   ],
+   [
+    "INLINE",
+    "rlhf_free_energy_kl",
+    20290,
+    63,
+    "9. **统一基座**：`free_energy_kl_decomp`（L16259）与 `rlhf_free_energy_kl`（L20290）为同一自由能-KL 分解定理的两次实例化——FEP、attention 与 RLHF/DPO 的 KL 项由此形式同构（§9.1；关联对象见 Ouyan"
+   ],
+   [
+    "INLINE",
+    "attention_tv_contraction",
+    29195,
+    92,
+    "softmax 注意力与 Gibbs 分布的类比在物理学与 ML 文献中有两条可溯源的线索。第一条是能量模型/现代 Hopfield 网络[5]：Ramsauer et al. (2021)[7] 证明连续状态现代 Hopfield 网络的更新规则与 Transformer 的注意力机制**逐字等价"
+   ],
+   [
+    "INLINE",
+    "attention_tv_iter_contraction",
+    29287,
+    92,
+    "softmax 注意力与 Gibbs 分布的类比在物理学与 ML 文献中有两条可溯源的线索。第一条是能量模型/现代 Hopfield 网络[5]：Ramsauer et al. (2021)[7] 证明连续状态现代 Hopfield 网络的更新规则与 Transformer 的注意力机制**逐字等价"
+   ],
+   [
+    "INLINE",
+    "attention_iterate_converges",
+    29330,
+    92,
+    "softmax 注意力与 Gibbs 分布的类比在物理学与 ML 文献中有两条可溯源的线索。第一条是能量模型/现代 Hopfield 网络[5]：Ramsauer et al. (2021)[7] 证明连续状态现代 Hopfield 网络的更新规则与 Transformer 的注意力机制**逐字等价"
+   ],
+   [
+    "INLINE",
+    "UpReqGibbsE2",
+    119,
+    149,
+    "本库从有理数 Cauchy 序列构造实数：具体 `Real` 表示为携带柯西见证的有理数 Cauchy 序列（`sigT` 封装）——**取原始序列表示、不取商类型**；本文定理陈述所用等式 `Id` 即该原始序列表示上的相等（序列逐点相等语义的 setoid 对应物由平行 `req`/`real_"
+   ],
+   [
+    "INLINE",
+    "UpReqFEPCanon",
+    48,
+    245,
+    "〔构造强度：等式档——Id 层恒等式，强度由「Σp=1 逐点等式」承载、不涉序编码；setoid 同位直迁（`req_free_energy_kl_decomp`）；Real 层完整复刻已证（`rfep_real_kl_decomp_full`，模块 `UpReqRealFEP`；规范化引理 `re"
+   ],
+   [
+    "INLINE",
+    "UpReqKLSTangent",
+    81,
+    267,
+    "〔构造强度：等号条件档——无条件等号消去（`log_eq_linear`）需强三分/LPO、构造性不可证；req 同位（`req_gibbs_equality`，等号条件为 log 严格凹的唯一缺字段）；bool 载体＋显式前提为可达形态（`gibbe2_gibbs_equality_bool`）；"
+   ],
+   [
+    "INLINE",
+    "UpReqMinFreeEps",
+    122,
+    278,
+    "〔构造强度：等式/唯一性档——序强度经 `le` 字段（具体实例上 Or 编码），不涉第一档不可证面；req 无条件形态（`req_min_free_energy_is_boltzmann`）；Real 层第三档逐 eps 序档已组装（`min_free_energy_is_boltzmann_ep"
+   ],
+   [
+    "INLINE",
+    "UpReqEntropyDeficitTemp",
+    509,
+    309,
+    "〔构造强度：等式档；req 同位（`req_entropy_deficit_temp`）；Real 层温度版熵亏序档已组装（`real_entropy_deficit_kl_temp`，模块 `UpReqEntropyDeficitTemp` L509；2026-09-12 核验）——档位定义见 §"
+   ],
+   [
+    "INLINE",
+    "UpReqSteadyThermo",
+    100,
+    377,
+    "〔构造强度：等式档；req 同位（`req_steady_state_boltzmann`）；Real 层等式逐字复刻已完成（`real_steady_state_boltzmann`，模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_prob` "
+   ],
+   [
+    "INLINE",
+    "real_boltzmann_prob",
+    81,
+    377,
+    "〔构造强度：等式档；req 同位（`req_steady_state_boltzmann`）；Real 层等式逐字复刻已完成（`real_steady_state_boltzmann`，模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_prob` "
+   ],
+   [
+    "INLINE",
+    "FEPAttention",
+    112164,
+    413,
+    "**定理 5.1（主定理，premise-free）**（`fep_align`，库面 Section `FEPAttention` L112164–L112252，引理声明 L112201，经检索实证）：在接口上下文与 Section 变量 `z : S -> R`、`T > 0`（`T_pos`"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization",
+    30047,
+    738,
+    "本节的 Top-k 引理（`top_k_majorization`（L30047）、`top_k_swap_no_gain`（L30073）、`top_k_majorization_mem`（L30264）、`top_k_tail_bound`（L29719）、`tail_plus_kept_ful"
+   ],
+   [
+    "INLINE",
+    "top_k_swap_no_gain",
+    30073,
+    738,
+    "本节的 Top-k 引理（`top_k_majorization`（L30047）、`top_k_swap_no_gain`（L30073）、`top_k_majorization_mem`（L30264）、`top_k_tail_bound`（L29719）、`tail_plus_kept_ful"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization_mem",
+    30264,
+    738,
+    "本节的 Top-k 引理（`top_k_majorization`（L30047）、`top_k_swap_no_gain`（L30073）、`top_k_majorization_mem`（L30264）、`top_k_tail_bound`（L29719）、`tail_plus_kept_ful"
+   ],
+   [
+    "INLINE",
+    "top_k_tail_bound",
+    29719,
+    738,
+    "本节的 Top-k 引理（`top_k_majorization`（L30047）、`top_k_swap_no_gain`（L30073）、`top_k_majorization_mem`（L30264）、`top_k_tail_bound`（L29719）、`tail_plus_kept_ful"
+   ],
+   [
+    "INLINE",
+    "tail_plus_kept_full",
+    29732,
+    738,
+    "本节的 Top-k 引理（`top_k_majorization`（L30047）、`top_k_swap_no_gain`（L30073）、`top_k_majorization_mem`（L30264）、`top_k_tail_bound`（L29719）、`tail_plus_kept_ful"
+   ],
+   [
+    "INLINE",
+    "UpReqTopKTVChain",
+    967,
+    804,
+    "〔构造强度：等式档——精确恒等式，不涉序档位；严格逐出前提为严格见证形亲缘；Id 层已是 list 具体世界；Real 层独立复刻已交付（`rtk_tv_identity_strict`，模块 `UpReqTopKTVChain` L967，19 引理链 Real 层全平移；2026-09-12 措"
+   ],
+   [
+    "INLINE",
+    "entropy_ge_neg_log_p_max",
+    728,
+    894,
+    "**熵刻画注记（模块化树内机器检查件）**：上述词表大小上界可视为下述更强熵界在 `S ≤ log|S|` 下的推论——模块 `UpMinP`（模块化树 + Extensions + 单文件三形态均已具备）已机器检查：(i) **熵刻画** `entropy_ge_neg_log_p_max`（L7"
+   ],
+   [
+    "INLINE",
+    "dropped_le_one_minus_exp_neg_S",
+    830,
+    894,
+    "**熵刻画注记（模块化树内机器检查件）**：上述词表大小上界可视为下述更强熵界在 `S ≤ log|S|` 下的推论——模块 `UpMinP`（模块化树 + Extensions + 单文件三形态均已具备）已机器检查：(i) **熵刻画** `entropy_ge_neg_log_p_max`（L7"
+   ],
+   [
+    "INLINE",
+    "dropped_le_one_minus_inv_n",
+    895,
+    900,
+    "即 `dropped ≤ 1 − e^{−S}`，S := Σ_w k_w·(−log k_w) 为截断前缀的 list 熵（k_w 为完整 markov 核）；(ii) **定理 8.9 降为推论**——`dropped_le_one_minus_inv_n`（L895）：由 `S ≤ log|S"
+   ],
+   [
+    "TABLE",
+    "min_p",
+    30870,
+    908,
+    "| `min_p` | L30870 | Min-P 阈值超参 |"
+   ],
+   [
+    "TABLE",
+    "min_p_pos",
+    30871,
+    909,
+    "| `min_p_pos` | L30871 | `min_p > 0` |"
+   ],
+   [
+    "TABLE",
+    "min_p_lt_one",
+    30872,
+    910,
+    "| `min_p_lt_one` | L30872 | `min_p < 1` |"
+   ],
+   [
+    "TABLE",
+    "vocab_nonempty",
+    30693,
+    912,
+    "| `vocab_nonempty` | L30693 | 词表非空 |"
+   ],
+   [
+    "TABLE",
+    "token_eq_dec",
+    30694,
+    913,
+    "| `token_eq_dec` | L30694 | token 相等可判定 |"
+   ],
+   [
+    "TABLE",
+    "exp_neg_pos",
+    182,
+    914,
+    "| `exp_neg_pos` | L182（字段归属 `RealInterface`，Class 声明于 L133） | `exp_neg x > 0` |"
+   ],
+   [
+    "TABLE",
+    "inv_pos_le_compat",
+    249,
+    915,
+    "| `inv_pos_le_compat` | L249（字段归属 `RealInterfaceEnhanced`，Class 声明于 L217） | `a ≤ b ⟹ inv b ≤ inv a`（0 < a, 0 < b） |"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    923,
+    "实证：Rocq 9.0 `Print Assumptions minp_markov_kernel_normalized` 返回 **`Closed under the global context`**。实例化全貌见 §9.2：代码库已为具体 `Real` 装配含全部超越函数字段的 Setoid "
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    923,
+    "实证：Rocq 9.0 `Print Assumptions minp_markov_kernel_normalized` 返回 **`Closed under the global context`**。实例化全貌见 §9.2：代码库已为具体 `Real` 装配含全部超越函数字段的 Setoid "
+   ],
+   [
+    "INLINE",
+    "real_minp_kernel_is_projection",
+    566,
+    929,
+    "1. **投影桥** `real_minp_kernel_is_projection`（L566）：`minp_markov_kernel` 的 Real 形态逐点等于到通过集的投影核（real_eq 逐点）；"
+   ],
+   [
+    "INLINE",
+    "real_Z_aud_is_kept_mass",
+    588,
+    930,
+    "2. **配分恒等** `real_Z_aud_is_kept_mass`（L588）：`Z_aud == kept mass == 1 − dropped`；`real_Z_aud_le_one`（L664）与 `real_log_Z_aud_le_zero`（L695）把根内 HlogZ 族（`"
+   ],
+   [
+    "INLINE",
+    "real_Z_aud_le_one",
+    664,
+    930,
+    "2. **配分恒等** `real_Z_aud_is_kept_mass`（L588）：`Z_aud == kept mass == 1 − dropped`；`real_Z_aud_le_one`（L664）与 `real_log_Z_aud_le_zero`（L695）把根内 HlogZ 族（`"
+   ],
+   [
+    "INLINE",
+    "real_log_Z_aud_le_zero",
+    695,
+    930,
+    "2. **配分恒等** `real_Z_aud_is_kept_mass`（L588）：`Z_aud == kept mass == 1 − dropped`；`real_Z_aud_le_one`（L664）与 `real_log_Z_aud_le_zero`（L695）把根内 HlogZ 族（`"
+   ],
+   [
+    "INLINE",
+    "real_kl_sum_split_list",
+    967,
+    931,
+    "3. **精确分解** `real_kl_sum_split_list`（L967）：`kl_sum_split`/`kl_tail_eval` 的 list 世界重述；"
+   ],
+   [
+    "INLINE",
+    "real_minp_kl_cost",
+    1019,
+    932,
+    "4. **精确代价** `real_minp_kl_cost`（L1019）：`KL(minp ‖ full) == −log Z_aud`（逐字语句）——截断侧恒等；"
+   ],
+   [
+    "INLINE",
+    "real_minp_projection_eps",
+    1070,
+    933,
+    "5. **投影不等式** `real_minp_projection_eps`（L1070）：在 `Hq_fail`（通过集外质量为零）语义显式前提下 `KL(q ‖ minp) ≤ KL(q ‖ full) + eps`——投影侧不等式。**构造性强度说明**（逐 eps 余量形，定义见 §1.2"
+   ],
+   [
+    "INLINE",
+    "projected_distribution_minimizes_kl",
+    95587,
+    935,
+    "> **KL 方向性纪律**：上列 4 与 5 是**两条不同方向的陈述**，不得混写——恒等式从截断侧度量 `KL(minp ‖ full)`（minp 核作为被度量的近似），不等式从投影侧度量 `KL(q ‖ minp)`（q 与截断兼容时的代价上界）；分别对应根内 `kl_sum_split`"
+   ],
+   [
+    "INLINE",
+    "UpReqCSB",
+    31,
+    937,
+    "**Bishop 形升格（已建成）**：上述投影侧不等式在模块 `UpReqMinPProjB` 中获得 Bishop 序谓词形态的构造性对应件 `real_minp_projection_eps_B`：在与第 5 件逐字相同的前提（`Hq_norm`/`Hq_pos`/`Hq_fail`，零新增逻"
+   ],
+   [
+    "INLINE",
+    "x1_kl_le_log_N",
+    1028,
+    939,
+    "**复合链的现状（2026-09-12 核验更新）**：熵刻画（§8.5）与投影族（本节）的部件均已闭合；`KL(minp ‖ full) == −log(1 − dropped) ≤ S ≤ log|S|` 的复合熵链已拼装闭合——模块 `UpReqMinPKLChain`（1,038 行，R1–"
+   ],
+   [
+    "INLINE",
+    "proj_normalized",
+    296,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "proj_minor_uncond",
+    332,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "proj_kl_cost",
+    611,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "Z_compound_mul",
+    216,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "proj_kl_chain",
+    289,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "recovery_entropy_gain",
+    139,
+    941,
+    "**同族登记（统一投影定理，本文仅登记不展开）**：模块 `UpProj`（经内核校验的独立模块）把 KV 逐出（实例 A）、安全过滤（实例 B）与 Min-P（实例 C）三个截断对象归并为同一投影定理的实例——`proj_normalized`（L296）、`proj_minor_uncond`（"
+   ],
+   [
+    "INLINE",
+    "free_energy_kl_decomp",
+    16259,
+    951,
+    "- **同一分解定理的两个实例化（可核验）**：FEP 的 `free_energy_kl_decomp`（L16259）与 RLHF 侧的 `rlhf_free_energy_kl`（L20290）是同一自由能-KL 分解定理的两次实例化，故本工作与 RLHF/DPO 对齐目标的关联表述为 **K"
+   ],
+   [
+    "INLINE",
+    "rlhf_free_energy_kl",
+    20290,
+    951,
+    "- **同一分解定理的两个实例化（可核验）**：FEP 的 `free_energy_kl_decomp`（L16259）与 RLHF 侧的 `rlhf_free_energy_kl`（L20290）是同一自由能-KL 分解定理的两次实例化，故本工作与 RLHF/DPO 对齐目标的关联表述为 **K"
+   ],
+   [
+    "INLINE",
+    "free_energy_kl_decomp",
+    16259,
+    953,
+    "- **FEP-attention 连通（机器检查；分量定位见 §9.2.2：三个基座定理的纯实例化装配，应用案例层）**：同一 `free_energy_kl_decomp`（L16259）分解基座的第三次实例化落在 attention 侧——`attention_minimizes_free_e"
+   ],
+   [
+    "INLINE",
+    "attention_minimizes_free_energy_unique",
+    112225,
+    953,
+    "- **FEP-attention 连通（机器检查；分量定位见 §9.2.2：三个基座定理的纯实例化装配，应用案例层）**：同一 `free_energy_kl_decomp`（L16259）分解基座的第三次实例化落在 attention 侧——`attention_minimizes_free_e"
+   ],
+   [
+    "INLINE",
+    "UpExtras219.free_energy_softmax_eq_neg_T_logZ",
+    114089,
+    953,
+    "- **FEP-attention 连通（机器检查；分量定位见 §9.2.2：三个基座定理的纯实例化装配，应用案例层）**：同一 `free_energy_kl_decomp`（L16259）分解基座的第三次实例化落在 attention 侧——`attention_minimizes_free_e"
+   ],
+   [
+    "INLINE",
+    "req_free_energy_kl_decomp",
+    310,
+    956,
+    "- **签名迁移试点（登记）**：自由能-KL 分解与 attention-Gibbs 桥的 setoid 签名形态各有一定理级迁移试点——模块 `UpSigMigrate` 的 `req_free_energy_kl_decomp`（L310）与 `req_attention_is_gibbs_t"
+   ],
+   [
+    "INLINE",
+    "req_attention_is_gibbs_temp",
+    544,
+    956,
+    "- **签名迁移试点（登记）**：自由能-KL 分解与 attention-Gibbs 桥的 setoid 签名形态各有一定理级迁移试点——模块 `UpSigMigrate` 的 `req_free_energy_kl_decomp`（L310）与 `req_attention_is_gibbs_t"
+   ],
+   [
+    "INLINE",
+    "UpFirewall",
+    139,
+    956,
+    "- **签名迁移试点（登记）**：自由能-KL 分解与 attention-Gibbs 桥的 setoid 签名形态各有一定理级迁移试点——模块 `UpSigMigrate` 的 `req_free_energy_kl_decomp`（L310）与 `req_attention_is_gibbs_t"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceSetoid",
+    32672,
+    962,
+    "该实例化在平行的 **Setoid 版接口** `RealInterfaceSetoid`（L32672，以 setoid 相等 `req` 替代严格相等 `Id`，且 `log_inv : forall x, lt zero x -> R` 携带正性前提）上完成对具体 `Real` 的**端到端实"
+   ],
+   [
+    "INLINE",
+    "real_gibbs_inequality_eps",
+    41704,
+    964,
+    "因此本文定理的数学内容在构造性实数上有两条承载路径：setoid 实例的字段回填（exp 族、log 族、度量与完备性全部实值化），以及 `Real` 层的逐 eps 复刻（KL 不等式 `real_gibbs_inequality_eps`（L41704）、log 可微性 `real_log_di"
+   ],
+   [
+    "INLINE",
+    "real_log_differentiable",
+    46386,
+    964,
+    "因此本文定理的数学内容在构造性实数上有两条承载路径：setoid 实例的字段回填（exp 族、log 族、度量与完备性全部实值化），以及 `Real` 层的逐 eps 复刻（KL 不等式 `real_gibbs_inequality_eps`（L41704）、log 可微性 `real_log_di"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    967,
+    "> ① **经 setoid 实例承载、可在具体 `Real` 上成立（第一承载路径）**：字段级——`Real_RealInterfaceSetoid`（L39407，57 字段）与 `RealEnhancedReal`（L41115，增强版）的超越函数字段全部实值化，编译期机器检查（§9.2.3"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    967,
+    "> ① **经 setoid 实例承载、可在具体 `Real` 上成立（第一承载路径）**：字段级——`Real_RealInterfaceSetoid`（L39407，57 字段）与 `RealEnhancedReal`（L41115，增强版）的超越函数字段全部实值化，编译期机器检查（§9.2.3"
+   ],
+   [
+    "INLINE",
+    "AttentionGibbsBridgeSetoid",
+    66137,
+    967,
+    "> ① **经 setoid 实例承载、可在具体 `Real` 上成立（第一承载路径）**：字段级——`Real_RealInterfaceSetoid`（L39407，57 字段）与 `RealEnhancedReal`（L41115，增强版）的超越函数字段全部实值化，编译期机器检查（§9.2.3"
+   ],
+   [
+    "INLINE",
+    "u_tv_contraction",
+    95931,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "u_tv_iter",
+    96019,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "bs_minorization",
+    96286,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_contraction",
+    96331,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_iter",
+    96344,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "real_expf_realizable",
+    96364,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "UpReqSteadyThermo",
+    100,
+    969,
+    "> ③ **仅抽象 Id 层证明、承载现状分层**：温度对应（推论 5.2）已有 Real 层复刻——定理 5.2b（`real_attention_is_gibbs_temp`，模块 `UpDebtGibbsT`）；缩放-温度对偶族的 Real 复刻已闭合——定理 5.6c（`real_scale"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_pos",
+    13383,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "vander_4m2",
+    11361,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "vander_4m4",
+    11567,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "exp_neg_recip",
+    36044,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_wd",
+    35117,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_mono",
+    35227,
+    976,
+    "1. **exp 正性已在 Setoid 接口层实例化**：Real 层 `cauchy_real_exp_pos`（L13383）已证明；`esq_eq_corr` 为已证引理（L12837 → Qed L12868），其所需的两个 Vandermonde 恒等式 `vander_4m2`（L11"
+   ],
+   [
+    "INLINE",
+    "entropy_differentiable",
+    26368,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "log_differentiable",
+    26365,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "cw_log",
+    38016,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "cw_log_exp_right",
+    38059,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "real_weak_trich",
+    38268,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_mono",
+    35227,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "log_inv_exp_neg_thm",
+    38421,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "log_inv_one_thm",
+    38443,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "log_inv_mult_thm",
+    38471,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "log_differentiable",
+    26365,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "real_entropy_differentiable",
+    51363,
+    977,
+    "2. **`log_inv` 族已闭合；`log_differentiable`（Set 层）仍为 `Variable`，Real 层对应已构造性闭合**：`entropy_differentiable`（L26368）已完整证明，Set 层依赖 `log_differentiable`（L2636"
+   ],
+   [
+    "INLINE",
+    "sqrt_witness_nat_sq",
+    96596,
+    978,
+    "3. **能量函数抽象（边界收窄）**：`energy` 和 `z` 是任意函数；「一致范数界 → 双界 logits」一段已机器检查——模块 `UpCS` 的 C-S 核（定理 5.7）与模块 `UpQKBound` 的界转化（定理 5.8，`qk_logits_bounded`：根有界前提 `‖"
+   ],
+   [
+    "INLINE",
+    "scale_dual_nat_sq_k",
+    96622,
+    978,
+    "3. **能量函数抽象（边界收窄）**：`energy` 和 `z` 是任意函数；「一致范数界 → 双界 logits」一段已机器检查——模块 `UpCS` 的 C-S 核（定理 5.7）与模块 `UpQKBound` 的界转化（定理 5.8，`qk_logits_bounded`：根有界前提 `‖"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    978,
+    "3. **能量函数抽象（边界收窄）**：`energy` 和 `z` 是任意函数；「一致范数界 → 双界 logits」一段已机器检查——模块 `UpCS` 的 C-S 核（定理 5.7）与模块 `UpQKBound` 的界转化（定理 5.8，`qk_logits_bounded`：根有界前提 `‖"
+   ],
+   [
+    "INLINE",
+    "attention_tv_contraction",
+    29195,
+    980,
+    "5. **注意力「稳态」：方程验证 + TV 收敛（clim 侧开放）**：见 §5 章首说明——稳态方程定理 5.3 验证的是「若视为 Markov 核则 Boltzmann 为稳态」；注意力核迭代在 TV 意义下的收缩与迭代收敛已在 Doeblin minorization 假设下机器检查（§5"
+   ],
+   [
+    "INLINE",
+    "attention_tv_iter_contraction",
+    29287,
+    980,
+    "5. **注意力「稳态」：方程验证 + TV 收敛（clim 侧开放）**：见 §5 章首说明——稳态方程定理 5.3 验证的是「若视为 Markov 核则 Boltzmann 为稳态」；注意力核迭代在 TV 意义下的收缩与迭代收敛已在 Doeblin minorization 假设下机器检查（§5"
+   ],
+   [
+    "INLINE",
+    "attention_iterate_converges",
+    29330,
+    980,
+    "5. **注意力「稳态」：方程验证 + TV 收敛（clim 侧开放）**：见 §5 章首说明——稳态方程定理 5.3 验证的是「若视为 Markov 核则 Boltzmann 为稳态」；注意力核迭代在 TV 意义下的收缩与迭代收敛已在 Doeblin minorization 假设下机器检查（§5"
+   ],
+   [
+    "INLINE",
+    "x1_kl_le_log_N",
+    1028,
+    981,
+    "6. **Min-P 定量估计的覆盖范围**：截断质量与词表大小的量级关联已闭合（定理 8.9 `minp_dropped_mass_le_inv_vocab_size`，L31849），放大因子、阈值单调与质量上界亦已证明（`minp_kernel_ratio`、`minp_dropped_mas"
+   ],
+   [
+    "INLINE",
+    "minp_markov_kernel_normalized",
+    31050,
+    1004,
+    "| `minp_markov_kernel_normalized`（L31050） | 低（核心步为 `inv_pos_correct`） | 规格的机器检查：证明 Min-P 在工程实现中「重归一化后仍为概率分布」这一被广泛默认的事实 |"
+   ],
+   [
+    "INLINE",
+    "minp_markov_kernel_keep_ge_full",
+    31127,
+    1005,
+    "| `minp_markov_kernel_keep_ge_full`（L31127） | 低（核心步为 `inv_pos_le_compat` L249） | 确认截断只放大保留者概率、不产生方向性异常 |"
+   ],
+   [
+    "INLINE",
+    "inv_pos_le_compat",
+    249,
+    1005,
+    "| `minp_markov_kernel_keep_ge_full`（L31127） | 低（核心步为 `inv_pos_le_compat` L249） | 确认截断只放大保留者概率、不产生方向性异常 |"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization",
+    30047,
+    1006,
+    "| `top_k_majorization`（L30047）`top_k_majorization_mem`（L30264） | 低（排序前缀性质） | 作为后续 top-p / 核采样形式化的**对照基准** |"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization_mem",
+    30264,
+    1006,
+    "| `top_k_majorization`（L30047）`top_k_majorization_mem`（L30264） | 低（排序前缀性质） | 作为后续 top-p / 核采样形式化的**对照基准** |"
+   ],
+   [
+    "INLINE",
+    "top_k_swap_no_gain",
+    30073,
+    1007,
+    "| `top_k_swap_no_gain`（L30073） | 低（加法保序） | 同上 |"
+   ],
+   [
+    "INLINE",
+    "top_k_tail_bound",
+    29719,
+    1008,
+    "| `top_k_tail_bound`（L29719）`tail_plus_kept_full`（L29732） | 低（逐项保序 + 求和线性） | 容量预算与质量守恒的形式化记账 |"
+   ],
+   [
+    "INLINE",
+    "tail_plus_kept_full",
+    29732,
+    1008,
+    "| `top_k_tail_bound`（L29719）`tail_plus_kept_full`（L29732） | 低（逐项保序 + 求和线性） | 容量预算与质量守恒的形式化记账 |"
+   ],
+   [
+    "INLINE",
+    "minp_dropped_mass_le_inv_vocab_size",
+    31849,
+    1009,
+    "| `minp_dropped_mass_le_inv_vocab_size`（L31849） | **中**（13 引理链：argmin 遍历最小性 + 完整核归一化 + 和≤势·最大 + 除以正数） | 截断质量与词表大小的定量挂钩（`≤ 1 − 1/|S|`） |"
+   ],
+   [
+    "INLINE",
+    "topk_tv_identity_strict",
+    30638,
+    1010,
+    "| `topk_tv_identity_strict`（L30638） | **中-高**（19 引理四段组装：逐点差分解 + 求和分解 + 守恒闭合 + TV 归一化，精确恒等） | Top-k 截断的总变差定量（`TV == tail_mass/Z_thermo`，条件化精确恒等） |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_gt_one",
+    34910,
+    1026,
+    "| `cauchy_real_exp_gt_one` | L34910 | `t > 0 ⟹ e^t > 1` |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_minus_one_pos",
+    35043,
+    1027,
+    "| `cauchy_real_exp_minus_one_pos` | L35043 | `e^t − 1 > 0`（`t > 0`） |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_plus_pos",
+    35073,
+    1028,
+    "| `cauchy_real_exp_plus_pos` | L35073 | 加法式的正性配套 |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_wd",
+    35117,
+    1029,
+    "| `cauchy_real_exp_wd` | L35117 | `a == b ⟹ e^a == e^b`（setoid well-defined） |"
+   ],
+   [
+    "TABLE",
+    "cauchy_real_exp_mono",
+    35227,
+    1030,
+    "| `cauchy_real_exp_mono` | L35227 | `x < y ⟹ e^x < e^y`（严格单调） |"
+   ],
+   [
+    "TABLE",
+    "exp_neg_recip",
+    36044,
+    1031,
+    "| `exp_neg_recip` | L36044 | `e^{−x} == (e^x)^{−1}`（以 `real_inv_pos` 表述） |"
+   ],
+   [
+    "TABLE",
+    "exp_lower_lipschitz_real",
+    37159,
+    1032,
+    "| `exp_lower_lipschitz_real` | L37159 | exp 下界的 Lipschitz 控制 |"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_wd",
+    35117,
+    1034,
+    "其中 `cauchy_real_exp_wd`（L35117）`cauchy_real_exp_mono`（L35227）是把 exp 纳入 setoid 接口、并支撑对数唯一性论证的两个关键组件。"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_mono",
+    35227,
+    1034,
+    "其中 `cauchy_real_exp_wd`（L35117）`cauchy_real_exp_mono`（L35227）是把 exp 纳入 setoid 接口、并支撑对数唯一性论证的两个关键组件。"
+   ],
+   [
+    "INLINE",
+    "cw_log_exp_right",
+    38059,
+    1043,
+    "把对数定义为柯西实数。右逆 `cw_log_exp_right`（L38059），`e^{cw_log y} == y`）为后续三条恒等的公共引理。"
+   ],
+   [
+    "TABLE",
+    "log_inv_exp_neg_thm",
+    38421,
+    1049,
+    "| `log_inv_exp_neg_thm` | L38421 | `cw_log (e^x) H == x`（左逆） |"
+   ],
+   [
+    "TABLE",
+    "log_inv_one_thm",
+    38443,
+    1050,
+    "| `log_inv_one_thm` | L38443 | `cw_log 1 H == 0` |"
+   ],
+   [
+    "TABLE",
+    "log_inv_mult_thm",
+    38471,
+    1051,
+    "| `log_inv_mult_thm` | L38471 | `cw_log (a·b) == cw_log a + cw_log b` |"
+   ],
+   [
+    "INLINE",
+    "real_weak_trich",
+    38268,
+    1053,
+    "三者共用同一构造性论证骨架：由右逆得 `e^u == e^{target}`，再以弱三分 `real_weak_trich`（L38268）、`cauchy_real_exp_mono`（L35227）与 `real_lt_not_eq`（L38204）排除 `u < target` 与 `targ"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_mono",
+    35227,
+    1053,
+    "三者共用同一构造性论证骨架：由右逆得 `e^u == e^{target}`，再以弱三分 `real_weak_trich`（L38268）、`cauchy_real_exp_mono`（L35227）与 `real_lt_not_eq`（L38204）排除 `u < target` 与 `targ"
+   ],
+   [
+    "INLINE",
+    "real_lt_not_eq",
+    38204,
+    1053,
+    "三者共用同一构造性论证骨架：由右逆得 `e^u == e^{target}`，再以弱三分 `real_weak_trich`（L38268）、`cauchy_real_exp_mono`（L35227）与 `real_lt_not_eq`（L38204）排除 `u < target` 与 `targ"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceSetoid",
+    32672,
+    1055,
+    "**(d) 完整版接口实例**：`Instance Real_RealInterfaceSetoid : RealSetoid.RealInterfaceSetoid Real`（L39407）把 `RealInterfaceSetoid`（L32672）的 57 字段全部填为实值：exp 族 `e"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    1055,
+    "**(d) 完整版接口实例**：`Instance Real_RealInterfaceSetoid : RealSetoid.RealInterfaceSetoid Real`（L39407）把 `RealInterfaceSetoid`（L32672）的 57 字段全部填为实值：exp 族 `e"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhancedSetoid",
+    40464,
+    1057,
+    "**(e) 增强版接口实例**：`Instance RealEnhancedReal : RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid Real`（L41115）把 req 版增强接口 `RealInterfaceEnhancedSetoi"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    1057,
+    "**(e) 增强版接口实例**：`Instance RealEnhancedReal : RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid Real`（L41115）把 req 版增强接口 `RealInterfaceEnhancedSetoi"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    1057,
+    "**(e) 增强版接口实例**：`Instance RealEnhancedReal : RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid Real`（L41115）把 req 版增强接口 `RealInterfaceEnhancedSetoi"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    1057,
+    "**(e) 增强版接口实例**：`Instance RealEnhancedReal : RealInterfaceEnhancedMod.RealInterfaceEnhancedSetoid Real`（L41115）把 req 版增强接口 `RealInterfaceEnhancedSetoi"
+   ],
+   [
+    "INLINE",
+    "real_gibbs_inequality_eps",
+    41704,
+    1059,
+    "**实例化边界**：以上装配落在 **Setoid 版接口**（`req` 相等）上，构成本文定理数学内容的第一条承载路径；第二条承载路径为 `Real` 层的逐 eps 复刻——Gibbs 不等式 Real 层完整版 `real_gibbs_inequality_eps`（L41704）已证明（含"
+   ],
+   [
+    "INLINE",
+    "log_differentiable",
+    26365,
+    1059,
+    "**实例化边界**：以上装配落在 **Setoid 版接口**（`req` 相等）上，构成本文定理数学内容的第一条承载路径；第二条承载路径为 `Real` 层的逐 eps 复刻——Gibbs 不等式 Real 层完整版 `real_gibbs_inequality_eps`（L41704）已证明（含"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    1176,
+    "2. **具体能量函数：query-key 点积到 logits 的绑定与显式收敛率管线（仅余末端一步）**：把 `z(s,s')` 具体化为查询-键点积 `(q_s · k_{s'})/√d`（d 为维数），闭成「一致范数界 → 双界 −Δ ≤ z ≤ Δ → δ* = e^{−2Δ/T} → ("
+   ],
+   [
+    "INLINE",
+    "bs_minorization",
+    96286,
+    1176,
+    "2. **具体能量函数：query-key 点积到 logits 的绑定与显式收敛率管线（仅余末端一步）**：把 `z(s,s')` 具体化为查询-键点积 `(q_s · k_{s'})/√d`（d 为维数），闭成「一致范数界 → 双界 −Δ ≤ z ≤ Δ → δ* = e^{−2Δ/T} → ("
+   ],
+   [
+    "INLINE",
+    "bounded_softmax_tv_iter",
+    96344,
+    1176,
+    "2. **具体能量函数：query-key 点积到 logits 的绑定与显式收敛率管线（仅余末端一步）**：把 `z(s,s')` 具体化为查询-键点积 `(q_s · k_{s'})/√d`（d 为维数），闭成「一致范数界 → 双界 −Δ ≤ z ≤ Δ → δ* = e^{−2Δ/T} → ("
+   ],
+   [
+    "INLINE",
+    "real_weak_trich",
+    38268,
+    1176,
+    "2. **具体能量函数：query-key 点积到 logits 的绑定与显式收敛率管线（仅余末端一步）**：把 `z(s,s')` 具体化为查询-键点积 `(q_s · k_{s'})/√d`（d 为维数），闭成「一致范数界 → 双界 −Δ ≤ z ≤ Δ → δ* = e^{−2Δ/T} → ("
+   ],
+   [
+    "INLINE",
+    "u_tv_contraction",
+    95931,
+    1177,
+    "**已解决项（一）｜动态收敛：KV 逐出 × Doeblin 双点收缩的逐出漂移定理（已闭合）**：KV 逐出与收敛框架的对接已在模块化树内机器检查——`u_tv_contraction`（L95931）的免平稳性是该形态成立的基础；逐出核 `K_ev` 与完整核的双核迭代漂移界已由模块 `UpKV"
+   ],
+   [
+    "TABLE",
+    "free_energy_kl_decomp",
+    16259,
+    1230,
+    "| `free_energy_kl_decomp` | L16259 | F[p] = F[p_b] + D·KL(p‖p_b) |"
+   ],
+   [
+    "TABLE",
+    "gibbs_inequality",
+    16629,
+    1231,
+    "| `gibbs_inequality` | L16629 | KL(p‖q) ≥ 0 |"
+   ],
+   [
+    "TABLE",
+    "gibbs_equality",
+    16678,
+    1232,
+    "| `gibbs_equality` | L16678 | KL=0 ⟹ p=q |"
+   ],
+   [
+    "TABLE",
+    "min_free_energy_is_boltzmann",
+    16838,
+    1233,
+    "| `min_free_energy_is_boltzmann` | L16838 | Boltzmann 最小化自由能 |"
+   ],
+   [
+    "TABLE",
+    "free_energy_min_unique",
+    16888,
+    1234,
+    "| `free_energy_min_unique` | L16888 | 自由能最小点唯一 |"
+   ],
+   [
+    "TABLE",
+    "max_entropy_is_boltzmann",
+    17069,
+    1235,
+    "| `max_entropy_is_boltzmann` | L17069 | 最大熵对偶 |"
+   ],
+   [
+    "TABLE",
+    "entropy_deficit_kl_temp",
+    17691,
+    1236,
+    "| `entropy_deficit_kl_temp` | L17691 | 定理 4.6a：熵亏 = KL 的温度版（同约束能量） |"
+   ],
+   [
+    "TABLE",
+    "max_entropy_is_boltzmann_temp",
+    17726,
+    1237,
+    "| `max_entropy_is_boltzmann_temp` | L17726 | 定理 4.6b：温度版最大熵（同能量 ⟹ S[p] ≤ S[p_t]） |"
+   ],
+   [
+    "TABLE",
+    "entropy_max_unique_temp",
+    17763,
+    1238,
+    "| `entropy_max_unique_temp` | L17763 | 定理 4.6c：温度版唯一性（同能量 + 同熵 ⟹ 逐点相等） |"
+   ],
+   [
+    "TABLE",
+    "temp_energy_dual_closed",
+    17788,
+    1239,
+    "| `temp_energy_dual_closed` | L17788 | 定理 4.6d：温度参数化对偶闭合（sigT 见证，存在唯一 + 最优） |"
+   ],
+   [
+    "TABLE",
+    "energy_exp_temp_strict_mono",
+    18019,
+    1240,
+    "| `energy_exp_temp_strict_mono` | L18019 | 定理 4.6e：温度-能量严格单调（对称 KL 恒等核心） |"
+   ],
+   [
+    "TABLE",
+    "elbo_lower_bound",
+    18359,
+    1241,
+    "| `elbo_lower_bound` | L18359 | ELBO ≤ 证据 |"
+   ],
+   [
+    "TABLE",
+    "elbo_tight",
+    18520,
+    1242,
+    "| `elbo_tight` | L18520 | 等号条件 |"
+   ],
+   [
+    "TABLE",
+    "training_equivalence",
+    18657,
+    1243,
+    "| `training_equivalence` | L18657 | 训练等价性 |"
+   ],
+   [
+    "TABLE",
+    "steady_state_boltzmann",
+    15692,
+    1244,
+    "| `steady_state_boltzmann` | L15692 | Boltzmann 稳态分布 |"
+   ],
+   [
+    "TABLE",
+    "fep_align",
+    112201,
+    1245,
+    "| `fep_align` | L112201 | 定理 5.1（premise-free 主定理）：Boltzmann 分布（base := −z、Zf）逐点 == softmax_temp z，无配分函数前提（Section `FEPAttention`；推论 5.1a/5.2 的前提消去承载）"
+   ],
+   [
+    "TABLE",
+    "attention_is_gibbs",
+    28606,
+    1246,
+    "| `attention_is_gibbs` | L28606 | 推论 5.1a：单位温度 softmax = Boltzmann（带前提形态） |"
+   ],
+   [
+    "TABLE",
+    "attention_is_gibbs_temp",
+    28634,
+    1247,
+    "| `attention_is_gibbs_temp` | L28634 | 推论 5.2：任意温度对应（带前提形态） |"
+   ],
+   [
+    "TABLE",
+    "steady_state_boltzmann_attn",
+    28722,
+    1248,
+    "| `steady_state_boltzmann_attn` | L28722 | 注意力稳态 = Boltzmann（稳态方程验证，详细平衡 + 行归一化前提） |"
+   ],
+   [
+    "TABLE",
+    "attention_tv_contraction",
+    29195,
+    1249,
+    "| `attention_tv_contraction` | L29195 | 单步 TV 收缩（Doeblin）：TV(attention_step μ, p_b) ≤ (1−δ)·TV(μ, p_b)（μ 归一化非负；δ/minorization 前提 L28756–L28759） |"
+   ],
+   [
+    "TABLE",
+    "attention_tv_iter_contraction",
+    29287,
+    1250,
+    "| `attention_tv_iter_contraction` | L29287 | 几何迭代收缩：TV(iterate n μ0, p_b) ≤ (1−δ)ⁿ·TV(μ0, p_b) |"
+   ],
+   [
+    "TABLE",
+    "attention_iterate_converges",
+    29330,
+    1251,
+    "| `attention_iterate_converges` | L29330 | 迭代收敛：∀ eps>0，∃ N，n ≥ N ⟹ TV_n < eps（sigT 见证，初始 TV>0——TV=0 平凡情形恒收敛，见 §5.5；几何击穿经显式前件 r_arch_pow_attn L29247） "
+   ],
+   [
+    "TABLE",
+    "eviction_steady_deviation",
+    29626,
+    1252,
+    "| `eviction_steady_deviation` | L29626 | 逐出稳态偏差控制（三角不等式，非定量估计） |"
+   ],
+   [
+    "TABLE",
+    "db_breaking",
+    29375,
+    1253,
+    "| `db_breaking` | L29375 | 逐对详细平衡破缺项定义 |"
+   ],
+   [
+    "TABLE",
+    "eviction_partition_monotone",
+    29485,
+    1254,
+    "| `eviction_partition_monotone` | L29485 | 保留分区单调性 |"
+   ],
+   [
+    "TABLE",
+    "top_k_majorization",
+    30047,
+    1255,
+    "| `top_k_majorization` | L30047 | Top-k 支配性（计数版） |"
+   ],
+   [
+    "TABLE",
+    "top_k_majorization_mem",
+    30264,
+    1256,
+    "| `top_k_majorization_mem` | L30264 | Top-k 支配性（排序成员版） |"
+   ],
+   [
+    "TABLE",
+    "top_k_swap_no_gain",
+    30073,
+    1257,
+    "| `top_k_swap_no_gain` | L30073 | 交换不获益 |"
+   ],
+   [
+    "TABLE",
+    "top_k_tail_bound",
+    29719,
+    1258,
+    "| `top_k_tail_bound` | L29719 | 尾部质量 ≤ Z_thermo |"
+   ],
+   [
+    "TABLE",
+    "tail_plus_kept_full",
+    29732,
+    1259,
+    "| `tail_plus_kept_full` | L29732 | 质量守恒 |"
+   ],
+   [
+    "TABLE",
+    "exp_pos_fn",
+    27950,
+    1260,
+    "| `exp_pos_fn` | L27950 | 正指数函数 e^x := exp_neg(−x)（softmax 分子） |"
+   ],
+   [
+    "TABLE",
+    "softmax",
+    27972,
+    1261,
+    "| `softmax` | L27972 | 标准 softmax（e^{z}/Σe^{z}） |"
+   ],
+   [
+    "TABLE",
+    "softmax_temp",
+    28104,
+    1262,
+    "| `softmax_temp` | L28104 | 带温度 softmax（e^{z/T}/Σe^{z/T}） |"
+   ],
+   [
+    "TABLE",
+    "scale_temp_duality",
+    28524,
+    1263,
+    "| `scale_temp_duality` | L28524 | 缩放-温度对偶：∀ c>0，以 1/c 缩放 logits 的 softmax == 温度 c 的 softmax（纯恒等链，零新公理） |"
+   ],
+   [
+    "TABLE",
+    "sqrt_witness",
+    28552,
+    1264,
+    "| `sqrt_witness` | L28552 | 平方维数见证 sqrt_witness d r := r·r == d（无 sqrt 符号） |"
+   ],
+   [
+    "TABLE",
+    "scale_sqrt_witness_dual",
+    28565,
+    1265,
+    "| `scale_sqrt_witness_dual` | L28565 | d=k² 见证式下以 1/r 缩放 == 温度 r 的 softmax（scale_temp_duality 的 r 实例） |"
+   ],
+   [
+    "TABLE",
+    "scale_inv_T_eq_softmax_temp",
+    28679,
+    1266,
+    "| `scale_inv_T_eq_softmax_temp` | L28679 | 1/T 缩放族 == 库内温度化 softmax |"
+   ],
+   [
+    "TABLE",
+    "scaled_attention_is_gibbs_temp",
+    28694,
+    1267,
+    "| `scaled_attention_is_gibbs_temp` | L28694 | 缩放 attention == Boltzmann（前提 1/T = 1/D、energy = −z、配分匹配） |"
+   ],
+   [
+    "TABLE",
+    "rlhf_free_energy_kl",
+    20290,
+    1268,
+    "| `rlhf_free_energy_kl` | L20290 | RLHF 目标 ↔ 自由能-KL 分解（§9.1 共享结构锚点） |"
+   ],
+   [
+    "TABLE",
+    "minp_keep",
+    30930,
+    1269,
+    "| `minp_keep` | L30930 | Min-P 保留判定 |"
+   ],
+   [
+    "TABLE",
+    "minp_keep_dec",
+    30933,
+    1270,
+    "| `minp_keep_dec` | L30933 | Min-P 保留判定可判定 |"
+   ],
+   [
+    "TABLE",
+    "pick_max_token_minp_keep",
+    30954,
+    1271,
+    "| `pick_max_token_minp_keep` | L30954 | 最大概率 token 必被保留（截断集非空） |"
+   ],
+   [
+    "TABLE",
+    "minp_temp_sum_pos",
+    30981,
+    1272,
+    "| `minp_temp_sum_pos` | L30981 | Min-P 截断分母正性 |"
+   ],
+   [
+    "TABLE",
+    "minp_markov_kernel_nonneg",
+    31022,
+    1273,
+    "| `minp_markov_kernel_nonneg` | L31022 | Min-P 核非负 |"
+   ],
+   [
+    "TABLE",
+    "minp_markov_kernel_keep_pos",
+    31036,
+    1274,
+    "| `minp_markov_kernel_keep_pos` | L31036 | Min-P 核正性（保留者） |"
+   ],
+   [
+    "TABLE",
+    "minp_markov_kernel_normalized",
+    31050,
+    1275,
+    "| `minp_markov_kernel_normalized` | L31050 | Min-P 核归一化 |"
+   ],
+   [
+    "TABLE",
+    "minp_temp_sum_le_partition",
+    31112,
+    1276,
+    "| `minp_temp_sum_le_partition` | L31112 | 截断和 ≤ 完整和 |"
+   ],
+   [
+    "TABLE",
+    "minp_markov_kernel_keep_ge_full",
+    31127,
+    1277,
+    "| `minp_markov_kernel_keep_ge_full` | L31127 | 保留者核 ≥ 完整核（单调性，非定量） |"
+   ],
+   [
+    "TABLE",
+    "minp_markov_kernel_dropped_zero",
+    31147,
+    1278,
+    "| `minp_markov_kernel_dropped_zero` | L31147 | 逐出者核 = 0 |"
+   ],
+   [
+    "TABLE",
+    "minp_dropped_mass_le_inv_vocab_size",
+    31849,
+    1279,
+    "| `minp_dropped_mass_le_inv_vocab_size` | L31849 | 截断质量 ≤ 1 − 1/\\|S\\|（词表大小挂钩，13 引理链） |"
+   ],
+   [
+    "TABLE",
+    "topk_tv_identity_strict",
+    30638,
+    1280,
+    "| `topk_tv_identity_strict` | L30638 | TV(boltzmann, topk_renorm) == tail_mass/Z_thermo（条件化精确恒等，19 引理） |"
+   ],
+   [
+    "TABLE",
+    "u_tv_contraction",
+    95931,
+    1281,
+    "| `u_tv_contraction` | L95931 | 双点 TV 收缩：TV(u_step μ, u_step ν) ≤ (1−δ)·TV(μ,ν)——免平稳/免详细平衡/免 μ 非负，参考分布任意归一化（定理 5.4） |"
+   ],
+   [
+    "TABLE",
+    "u_tv_iter",
+    96019,
+    1282,
+    "| `u_tv_iter` | L96019 | 双点几何迭代收缩：(1−δ)ⁿ（定理 5.4） |"
+   ],
+   [
+    "TABLE",
+    "bs_kernel",
+    96247,
+    1283,
+    "| `bs_kernel` | L96247 | 有界 logits 温度 softmax 核（行随机，transition 的显式构造） |"
+   ],
+   [
+    "TABLE",
+    "bs_minorization",
+    96286,
+    1284,
+    "| `bs_minorization` | L96286 | 显式 Doeblin 下界：δ*·U ≤ bs_kernel（δ* := lo·lo = e^{−2Δ/T}，零余量损耗；定理 5.5） |"
+   ],
+   [
+    "TABLE",
+    "bounded_softmax_tv_contraction",
+    96331,
+    1285,
+    "| `bounded_softmax_tv_contraction` | L96331 | 有界 softmax 核单步 TV 收缩，收缩率显式 1 − e^{−2Δ/T}（定理 5.6） |"
+   ],
+   [
+    "TABLE",
+    "bounded_softmax_tv_iter",
+    96344,
+    1286,
+    "| `bounded_softmax_tv_iter` | L96344 | 迭代几何收缩：(1 − e^{−2Δ/T})ⁿ（定理 5.6） |"
+   ],
+   [
+    "TABLE",
+    "real_expf_realizable",
+    96364,
+    1287,
+    "| `real_expf_realizable` | L96364 | expf 迷你接口在 cauchy_real_exp 上的 Real 层由具体实例满足（sigT+And；定理 5.6b） |"
+   ],
+   [
+    "TABLE",
+    "real_sqrt_exists",
+    96475,
+    1288,
+    "| `real_sqrt_exists` | L96475 | Real 层任意 d ≥ 0 构造性平方根（sigT，r ≥ 0 ∧ r·r == d；非平方 d 覆盖；定理 5.6a） |"
+   ],
+   [
+    "TABLE",
+    "sqrt_witness_nat_sq",
+    96596,
+    1289,
+    "| `sqrt_witness_nat_sq` | L96596 | 抽象层任意 k 的 k² 维数见证：sqrt_witness (nat_to_R (k·k)) (nat_to_R k) |"
+   ],
+   [
+    "TABLE",
+    "scale_dual_nat_sq_k",
+    96622,
+    1290,
+    "| `scale_dual_nat_sq_k` | L96622 | k² 维数对偶实例：1/(S k) 缩放 == 温度 S k（任意 k ≥ 1） |"
+   ],
+   [
+    "TABLE",
+    "core_decay_bound",
+    97265,
+    1291,
+    "| `core_decay_bound` | L97265 | Real 层逐点衰减：x ≠ m ⟹ w_T(x) ≤ e^{−γ/T}（闭合状态见 §5.4(a)） |"
+   ],
+   [
+    "TABLE",
+    "eq_inv2_double",
+    97558,
+    1292,
+    "| `eq_inv2_double` | L97558 | inv2·(X+X) == X（TV 的二分之一折叠代数件） |"
+   ],
+   [
+    "TABLE",
+    "tv_hard_le_decay_scale",
+    97618,
+    1293,
+    "| `tv_hard_le_decay_scale` | L97618 | TV 总质量侧闭合：TV(w_T, δ_m) ≤ \\|vocab\\|·e^{−γ/T}（§5.4(a)） |"
+   ],
+   [
+    "TABLE",
+    "hard_attention_limit",
+    97679,
+    1294,
+    "| `hard_attention_limit` | L97679 | T→0 硬注意力极限（∃T₀ 量词翻转，机器检查）：∀ eps>0，∃ T₀>0，∀ 0<T<T₀：TV(w_T, δ_m) ≤ eps（§5.4(a)） |"
+   ],
+   [
+    "TABLE",
+    "attention_minimizes_free_energy_unique",
+    112225,
+    1295,
+    "| `attention_minimizes_free_energy_unique` | L112225 | attention = 变分自由能唯一最小点：F_T[p] = −E_p[z] + T·Σp log p 在 softmax_temp z 处唯一取最小（§5.4(b)/§9.1） |"
+   ],
+   [
+    "TABLE",
+    "bs_kernel_row_is_softmax_temp",
+    112281,
+    1296,
+    "| `bs_kernel_row_is_softmax_temp` | L112281 | 逐行等价：bs_kernel 的每一行 == 单查询 softmax_temp（经 expf_agree 前提；§5.5 边界声明） |"
+   ],
+   [
+    "TABLE",
+    "UpExtras219.free_energy_softmax_eq_neg_T_logZ",
+    114089,
+    1297,
+    "| `UpExtras219.free_energy_softmax_eq_neg_T_logZ` | L114089 | log-sum-exp == −T·log Z：F_T[softmax_temp(z)] == −T·log Z_T(z)（最小点处精确自由能值；§5.4(b)） |"
+   ],
+   [
+    "TABLE",
+    "temp_window_T_infty",
+    1563,
+    1298,
+    "| `temp_window_T_infty` | UpTempWindow L1563 | T→∞ 温度窗口：∀eps>0, ∃T₂>0, ∀T>T₂, TV(w_T,U) ≤ eps（sigT 量词翻转；§5.4(a)；模块化树 + Extensions + 单文件） |"
+   ],
+   [
+    "TABLE",
+    "real_attention_is_gibbs_temp",
+    160,
+    1299,
+    "| `real_attention_is_gibbs_temp` | UpDebtGibbsT L160（现并入 G02_Debt.v，组内 L601） | 任意温度同构的 Real 层复刻（定理 5.2b） |"
+   ],
+   [
+    "TABLE",
+    "real_scale_temp_duality",
+    219,
+    1300,
+    "| `real_scale_temp_duality` | UpDebtDual L219（现并入 G02_Debt.v，组内 L358） | 缩放-温度对偶 Real 层（定理 5.6c） |"
+   ],
+   [
+    "TABLE",
+    "sqrt_witness_exists_abstract",
+    76,
+    1301,
+    "| `sqrt_witness_exists_abstract` | UpDebtSqrtAbs L76（现并入 G02_Debt.v，组内 L79） | 抽象 Id 层任意非负 d 平方根见证（定理 5.6d；√d 两层全闭） |"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    1343,
+    "| 接口字段 `exp_neg_pos`（RealInterface，L133 Class；字段 L182） | `Real_RealInterfaceSetoid`（L39407）`exp_neg_pos := cauchy_real_exp_pos`（L39450）；`RealEnhancedR"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    1343,
+    "| 接口字段 `exp_neg_pos`（RealInterface，L133 Class；字段 L182） | `Real_RealInterfaceSetoid`（L39407）`exp_neg_pos := cauchy_real_exp_pos`（L39450）；`RealEnhancedR"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_pos",
+    13383,
+    1343,
+    "| 接口字段 `exp_neg_pos`（RealInterface，L133 Class；字段 L182） | `Real_RealInterfaceSetoid`（L39407）`exp_neg_pos := cauchy_real_exp_pos`（L39450）；`RealEnhancedR"
+   ],
+   [
+    "INLINE",
+    "real_exp_neg_pos",
+    40323,
+    1343,
+    "| 接口字段 `exp_neg_pos`（RealInterface，L133 Class；字段 L182） | `Real_RealInterfaceSetoid`（L39407）`exp_neg_pos := cauchy_real_exp_pos`（L39450）；`RealEnhancedR"
+   ],
+   [
+    "INLINE",
+    "cw_log",
+    38016,
+    1344,
+    "| 接口字段 `log_inv`（Id 系无正性前提 L186；setoid 系带正性前提 L32737） | `log_inv := cw_log`（L39453）；`log_inv_exp_neg/one/mult := log_inv_*_thm`（L39454–L39456）；增强版 `lo"
+   ],
+   [
+    "INLINE",
+    "log_inv_exp_neg_thm",
+    38421,
+    1344,
+    "| 接口字段 `log_inv`（Id 系无正性前提 L186；setoid 系带正性前提 L32737） | `log_inv := cw_log`（L39453）；`log_inv_exp_neg/one/mult := log_inv_*_thm`（L39454–L39456）；增强版 `lo"
+   ],
+   [
+    "INLINE",
+    "log_inv_one_thm",
+    38443,
+    1344,
+    "| 接口字段 `log_inv`（Id 系无正性前提 L186；setoid 系带正性前提 L32737） | `log_inv := cw_log`（L39453）；`log_inv_exp_neg/one/mult := log_inv_*_thm`（L39454–L39456）；增强版 `lo"
+   ],
+   [
+    "INLINE",
+    "log_inv_mult_thm",
+    38471,
+    1344,
+    "| 接口字段 `log_inv`（Id 系无正性前提 L186；setoid 系带正性前提 L32737） | `log_inv := cw_log`（L39453）；`log_inv_exp_neg/one/mult := log_inv_*_thm`（L39454–L39456）；增强版 `lo"
+   ],
+   [
+    "INLINE",
+    "real_inv_pos_le_compat",
+    39333,
+    1345,
+    "| 接口字段 `inv_pos_le_compat`（RealInterfaceEnhanced，L217 Class；字段 L249） | setoid 增强字段 L40526；`RealEnhancedReal` `inv_pos_le_compat := real_inv_pos_le_com"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    1346,
+    "| metric / lim / cauchy_complete 字段 | `Real_RealInterfaceSetoidCore`（L33433，Core 实例）；`cauchy_complete := RealSetoid.real_cauchy_complete_metric_natle`"
+   ],
+   [
+    "INLINE",
+    "real_cauchy_complete_metric_natle",
+    33401,
+    1346,
+    "| metric / lim / cauchy_complete 字段 | `Real_RealInterfaceSetoidCore`（L33433，Core 实例）；`cauchy_complete := RealSetoid.real_cauchy_complete_metric_natle`"
+   ],
+   [
+    "INLINE",
+    "real_gibbs_inequality_eps",
+    41704,
+    1347,
+    "| 定理 4.2 `gibbs_inequality`（抽象 Id 系） | —（未在 setoid 签名下重述） | `real_gibbs_inequality_eps`（L41704，Real 层逐 eps 完整版，list 状态空间） | L16629 / L41704 | 开放：需逐条 d"
+   ],
+   [
+    "INLINE",
+    "real_kl_sum_decomp",
+    43740,
+    1348,
+    "| 定理 4.1 `free_energy_kl_decomp`（抽象 Id 系） | —（未迁移） | Real 层自由能-KL 分解：`real_kl_sum_decomp`（L43740，已证）；完整分解对应件已建成——`rkd_kl_decomp_full`/`rkd_kl_decomp_f"
+   ],
+   [
+    "INLINE",
+    "real_kl_decomp_full",
+    43730,
+    1348,
+    "| 定理 4.1 `free_energy_kl_decomp`（抽象 Id 系） | —（未迁移） | Real 层自由能-KL 分解：`real_kl_sum_decomp`（L43740，已证）；完整分解对应件已建成——`rkd_kl_decomp_full`/`rkd_kl_decomp_f"
+   ],
+   [
+    "INLINE",
+    "UpReqFEPCanon",
+    48,
+    1348,
+    "| 定理 4.1 `free_energy_kl_decomp`（抽象 Id 系） | —（未迁移） | Real 层自由能-KL 分解：`real_kl_sum_decomp`（L43740，已证）；完整分解对应件已建成——`rkd_kl_decomp_full`/`rkd_kl_decomp_f"
+   ],
+   [
+    "INLINE",
+    "attention_is_gibbs",
+    28606,
+    1349,
+    "| 推论 5.1a `attention_is_gibbs`（L28606；premise-free 主定理 5.1 `fep_align` 见 L112201） | `attention_is_gibbs_setoid`（L66294，req 签名，Section `AttentionGibbsB"
+   ],
+   [
+    "INLINE",
+    "attention_is_gibbs_setoid",
+    66294,
+    1349,
+    "| 推论 5.1a `attention_is_gibbs`（L28606；premise-free 主定理 5.1 `fep_align` 见 L112201） | `attention_is_gibbs_setoid`（L66294，req 签名，Section `AttentionGibbsB"
+   ],
+   [
+    "INLINE",
+    "AttentionGibbsBridgeSetoid",
+    66137,
+    1349,
+    "| 推论 5.1a `attention_is_gibbs`（L28606；premise-free 主定理 5.1 `fep_align` 见 L112201） | `attention_is_gibbs_setoid`（L66294，req 签名，Section `AttentionGibbsB"
+   ],
+   [
+    "INLINE",
+    "real_attention_is_gibbs",
+    43231,
+    1349,
+    "| 推论 5.1a `attention_is_gibbs`（L28606；premise-free 主定理 5.1 `fep_align` 见 L112201） | `attention_is_gibbs_setoid`（L66294，req 签名，Section `AttentionGibbsB"
+   ],
+   [
+    "INLINE",
+    "attention_is_gibbs_temp",
+    28634,
+    1350,
+    "| 推论 5.2 `attention_is_gibbs_temp`（L28634） | —（未迁移；req 系迁移试点 `req_attention_is_gibbs_temp` 见模块 `UpSigMigrate` L544，独立件行号零漂移） | `real_attention_is_gibb"
+   ],
+   [
+    "INLINE",
+    "UpSigMigrate",
+    544,
+    1350,
+    "| 推论 5.2 `attention_is_gibbs_temp`（L28634） | —（未迁移；req 系迁移试点 `req_attention_is_gibbs_temp` 见模块 `UpSigMigrate` L544，独立件行号零漂移） | `real_attention_is_gibb"
+   ],
+   [
+    "INLINE",
+    "UpDebtGibbsT",
+    160,
+    1350,
+    "| 推论 5.2 `attention_is_gibbs_temp`（L28634） | —（未迁移；req 系迁移试点 `req_attention_is_gibbs_temp` 见模块 `UpSigMigrate` L544，独立件行号零漂移） | `real_attention_is_gibb"
+   ],
+   [
+    "INLINE",
+    "steady_state_boltzmann_attn",
+    28722,
+    1351,
+    "| 定理 5.3 `steady_state_boltzmann_attn`（L28722） | `steady_state_boltzmann_attn_setoid`（L66371，req 签名） | `real_steady_state_boltzmann_attn`（L43322，RealA"
+   ],
+   [
+    "INLINE",
+    "steady_state_boltzmann_attn_setoid",
+    66371,
+    1351,
+    "| 定理 5.3 `steady_state_boltzmann_attn`（L28722） | `steady_state_boltzmann_attn_setoid`（L66371，req 签名） | `real_steady_state_boltzmann_attn`（L43322，RealA"
+   ],
+   [
+    "INLINE",
+    "real_steady_state_boltzmann_attn",
+    43322,
+    1351,
+    "| 定理 5.3 `steady_state_boltzmann_attn`（L28722） | `steady_state_boltzmann_attn_setoid`（L66371，req 签名） | `real_steady_state_boltzmann_attn`（L43322，RealA"
+   ],
+   [
+    "INLINE",
+    "boltzmann_normalized_attn",
+    28802,
+    1352,
+    "| attention 侧 Boltzmann 归一化 `boltzmann_normalized_attn`（L28802） | `boltzmann_normalized_attn_setoid`（L66400，req 签名） | —（Real 层无独立佐证，平凡） | L28802 / L66"
+   ],
+   [
+    "INLINE",
+    "boltzmann_normalized_attn_setoid",
+    66400,
+    1352,
+    "| attention 侧 Boltzmann 归一化 `boltzmann_normalized_attn`（L28802） | `boltzmann_normalized_attn_setoid`（L66400，req 签名） | —（Real 层无独立佐证，平凡） | L28802 / L66"
+   ],
+   [
+    "INLINE",
+    "scale_temp_duality",
+    28524,
+    1353,
+    "| §5.4(c) 缩放-温度对偶族 `scale_temp_duality`（L28524）/`scale_sqrt_witness_dual`（L28565）/`scaled_attention_is_gibbs_temp`（L28694） | `reqd_scale_temp_duality`"
+   ],
+   [
+    "INLINE",
+    "scale_sqrt_witness_dual",
+    28565,
+    1353,
+    "| §5.4(c) 缩放-温度对偶族 `scale_temp_duality`（L28524）/`scale_sqrt_witness_dual`（L28565）/`scaled_attention_is_gibbs_temp`（L28694） | `reqd_scale_temp_duality`"
+   ],
+   [
+    "INLINE",
+    "scaled_attention_is_gibbs_temp",
+    28694,
+    1353,
+    "| §5.4(c) 缩放-温度对偶族 `scale_temp_duality`（L28524）/`scale_sqrt_witness_dual`（L28565）/`scaled_attention_is_gibbs_temp`（L28694） | `reqd_scale_temp_duality`"
+   ],
+   [
+    "INLINE",
+    "UpDebtDual",
+    219,
+    1353,
+    "| §5.4(c) 缩放-温度对偶族 `scale_temp_duality`（L28524）/`scale_sqrt_witness_dual`（L28565）/`scaled_attention_is_gibbs_temp`（L28694） | `reqd_scale_temp_duality`"
+   ],
+   [
+    "INLINE",
+    "UpDebtSqrtAbs",
+    76,
+    1353,
+    "| §5.4(c) 缩放-温度对偶族 `scale_temp_duality`（L28524）/`scale_sqrt_witness_dual`（L28565）/`scaled_attention_is_gibbs_temp`（L28694） | `reqd_scale_temp_duality`"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization",
+    30047,
+    1354,
+    "| 定理 7.1/7.3 `top_k_majorization`（L30047）/`top_k_majorization_mem`（L30264） | —（未迁移） | `real_top_k_majorization`（L43485，RealTopKMain） | L30047 / L30264"
+   ],
+   [
+    "INLINE",
+    "top_k_majorization_mem",
+    30264,
+    1354,
+    "| 定理 7.1/7.3 `top_k_majorization`（L30047）/`top_k_majorization_mem`（L30264） | —（未迁移） | `real_top_k_majorization`（L43485，RealTopKMain） | L30047 / L30264"
+   ],
+   [
+    "INLINE",
+    "real_top_k_majorization",
+    43485,
+    1354,
+    "| 定理 7.1/7.3 `top_k_majorization`（L30047）/`top_k_majorization_mem`（L30264） | —（未迁移） | `real_top_k_majorization`（L43485，RealTopKMain） | L30047 / L30264"
+   ],
+   [
+    "INLINE",
+    "minp_markov_kernel_normalized",
+    31050,
+    1355,
+    "| 定理 8.5 `minp_markov_kernel_normalized`（L31050） | —（未迁移） | `real_minp_markov_kernel_normalized`（L43392，RealMinPMain） | L31050 / L43392 | 开放：需逐条 diff "
+   ],
+   [
+    "INLINE",
+    "real_minp_markov_kernel_normalized",
+    43392,
+    1355,
+    "| 定理 8.5 `minp_markov_kernel_normalized`（L31050） | —（未迁移） | `real_minp_markov_kernel_normalized`（L43392，RealMinPMain） | L31050 / L43392 | 开放：需逐条 diff "
+   ],
+   [
+    "INLINE",
+    "topk_tv_identity_strict",
+    30638,
+    1356,
+    "| 定理 7.6 `topk_tv_identity_strict`（L30638） | —（未迁移） | Real 层 TV 恒等独立复刻：`rtk_tv_identity_strict`（模块 `UpReqTopKTVChain` L967，19 引理链 Real 层全平移） | L30638 "
+   ],
+   [
+    "INLINE",
+    "UpReqTopKTVChain",
+    967,
+    1356,
+    "| 定理 7.6 `topk_tv_identity_strict`（L30638） | —（未迁移） | Real 层 TV 恒等独立复刻：`rtk_tv_identity_strict`（模块 `UpReqTopKTVChain` L967，19 引理链 Real 层全平移） | L30638 "
+   ],
+   [
+    "INLINE",
+    "eviction_steady_deviation",
+    29626,
+    1357,
+    "| 定理 6.1 `eviction_steady_deviation`（L29626，Set 层三角不等式记账） | —（未迁移） | Real 层定量定理 6.1b/6.1c：`real_boltzmann_diff_bound`（L54656）、`real_db_breaking_bound_"
+   ],
+   [
+    "INLINE",
+    "real_boltzmann_diff_bound",
+    54656,
+    1357,
+    "| 定理 6.1 `eviction_steady_deviation`（L29626，Set 层三角不等式记账） | —（未迁移） | Real 层定量定理 6.1b/6.1c：`real_boltzmann_diff_bound`（L54656）、`real_db_breaking_bound_"
+   ],
+   [
+    "INLINE",
+    "real_db_breaking_bound_eps",
+    54882,
+    1357,
+    "| 定理 6.1 `eviction_steady_deviation`（L29626，Set 层三角不等式记账） | —（未迁移） | Real 层定量定理 6.1b/6.1c：`real_boltzmann_diff_bound`（L54656）、`real_db_breaking_bound_"
+   ],
+   [
+    "INLINE",
+    "steady_state_boltzmann",
+    15692,
+    1358,
+    "| 定理 4.9 `steady_state_boltzmann`（L15692） | —（未迁移） | 热力学侧方程形态逐字复刻：`real_steady_state_boltzmann`（模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_pro"
+   ],
+   [
+    "INLINE",
+    "UpReqSteadyThermo",
+    100,
+    1358,
+    "| 定理 4.9 `steady_state_boltzmann`（L15692） | —（未迁移） | 热力学侧方程形态逐字复刻：`real_steady_state_boltzmann`（模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_pro"
+   ],
+   [
+    "INLINE",
+    "real_boltzmann_prob",
+    81,
+    1358,
+    "| 定理 4.9 `steady_state_boltzmann`（L15692） | —（未迁移） | 热力学侧方程形态逐字复刻：`real_steady_state_boltzmann`（模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_pro"
+   ],
+   [
+    "INLINE",
+    "UpArchAttn",
+    171,
+    1358,
+    "| 定理 4.9 `steady_state_boltzmann`（L15692） | —（未迁移） | 热力学侧方程形态逐字复刻：`real_steady_state_boltzmann`（模块 `UpReqSteadyThermo` L100，热力学侧载体 `real_boltzmann_pro"
+   ],
+   [
+    "INLINE",
+    "attention_tv_contraction",
+    29195,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "attention_tv_iter_contraction",
+    29287,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "attention_iterate_converges",
+    29330,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "attention_is_gibbs_setoid",
+    66294,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "steady_state_boltzmann_attn_setoid",
+    66371,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "boltzmann_normalized_attn_setoid",
+    66400,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "AttentionGibbsBridgeSetoid",
+    66137,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "UpSigMigrate",
+    544,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "eq_inv2_double",
+    97558,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "tv_hard_le_decay_scale",
+    97618,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "hard_attention_limit",
+    97679,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "attention_minimizes_free_energy_unique",
+    112225,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "bs_kernel_row_is_softmax_temp",
+    112281,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "UpExtras219.free_energy_softmax_eq_neg_T_logZ",
+    114089,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "real_sqrt_exists",
+    96475,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "core_decay_bound",
+    97265,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ],
+   [
+    "INLINE",
+    "real_expf_realizable",
+    96364,
+    1360,
+    "**对照表自述**：字段级（前三行 + metric/lim/cauchy_complete）为「单文件同库编译对齐」——Instance 字段赋值在同文件内经 Coq 类型检查，编译级一致由同一编译单元保证。定理级（其余各行）的 Real 层复刻列覆盖单位温度 attention 同构、稳态、to"
+   ]
+  ],
+  "P3": [
+   [
+    "INLINE",
+    "b5dQ_E_rational_zero",
+    111289,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "b5dF_E_one_zero_of_rational",
+    104506,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "b5b_hsc_main",
+    72994,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "a3_closure_f1",
+    67997,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "b5dS_E_zero_on_unit",
+    111782,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "b5b_f1_closure'",
+    78187,
+    55,
+    "| 几何 π == Leibniz π（T-π3，`b5dT_f1_pi_geom_eq_leibniz_single`/`_univ`） | **已闭合** | 无。两条独立证明路线：单点轨 `b5dQ_E_rational_zero`（L111289）→ `b5dF_E_one_zero_of_"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_mono",
+    35227,
+    56,
+    "| exp 保序群同构的组装式主定理（`exp_strict_mono`/`exp_log`/`log_exp` 命名形态） | 部分闭合（结构定理层已闭；命名级组装待整理） | 结构定理 `exp_order_embedding` 及构成件（`cauchy_real_exp_mono` L3522"
+   ],
+   [
+    "INLINE",
+    "exp_reflects_lt",
+    53092,
+    56,
+    "| exp 保序群同构的组装式主定理（`exp_strict_mono`/`exp_log`/`log_exp` 命名形态） | 部分闭合（结构定理层已闭；命名级组装待整理） | 结构定理 `exp_order_embedding` 及构成件（`cauchy_real_exp_mono` L3522"
+   ],
+   [
+    "INLINE",
+    "a3_closure_f1",
+    67997,
+    60,
+    "**π 的定位（已闭合主定理）**。标题中的几何 π 在本版本中已是闭合结果而非开放目标。先给出证明的数学骨架，再列机器链（各定理逐字语句见附录 C）。几何 π（π/2 零点的两倍，`real_pi_geom`）与 Leibniz π（交错级数 4·Σ(−1)ⁿ/(2n+1)，`cauchy_rea"
+   ],
+   [
+    "INLINE",
+    "b5b_hsc_main",
+    72994,
+    64,
+    "机器实现把「E 归零」拆为两层：**归零层**——对有理点 q ∈ Q∩(0,1) 闭 E(q) == 0（`b5dQ_E_rational_zero`，L111289；两条证明路线共享的唯一归零机器证明）；**最终装配层**——两条轨以不同方式把归零接到 π：单点轨经端点逼近得 E(1) == 0"
+   ],
+   [
+    "INLINE",
+    "b5b_f1_closure'",
+    78187,
+    64,
+    "机器实现把「E 归零」拆为两层：**归零层**——对有理点 q ∈ Q∩(0,1) 闭 E(q) == 0（`b5dQ_E_rational_zero`，L111289；两条证明路线共享的唯一归零机器证明）；**最终装配层**——两条轨以不同方式把归零接到 π：单点轨经端点逼近得 E(1) == 0"
+   ],
+   [
+    "INLINE",
+    "S02_CauchyComplete.v",
+    380,
+    149,
+    "**底座披露（`Real` 的完整定义与完备性）**。本文全部构造所依附的柯西实数定义如下（库内拆分件 `S02_CauchyComplete.v` L380–L391 逐字）："
+   ],
+   [
+    "INLINE",
+    "real_exp_neg_pos",
+    41196,
+    463,
+    "注（如实）：`exp_partial_tail_pos` 与 lower/tail_small 族出自同一代数源 `exp_even_mul_eq` 的两条用途支线——前者提供「偶阶尾截断正性」的逐阶形态（§5.3 叙述），后者是 `cauchy_real_exp_pos` 机器证明体实际使用的提升"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_pos",
+    39450,
+    469,
+    "**推论 6.2**（`exp_neg_pos` 实例化，已完成）：`forall x : R, lt zero (exp_neg x)` 由 `cauchy_real_exp_pos` 与 `exp_neg` 的接口字段等价性得到——Setoid 系增强版实例 `RealEnhancedReal`"
+   ],
+   [
+    "INLINE",
+    "RealInterface",
+    133,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhanced",
+    217,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceSetoidCore",
+    32576,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceSetoid",
+    32672,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "RealInterfaceEnhancedSetoid",
+    40464,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    477,
+    "| 字段组 | Id 系（`RealInterface` L133 / `RealInterfaceEnhanced` L217，相等谓词 `Id`） | Setoid 系（`RealInterfaceSetoidCore` L32576 / `RealInterfaceSetoid` L32672"
+   ],
+   [
+    "INLINE",
+    "real_eq_plus_compat_adapt",
+    33417,
+    480,
+    "| Proper 替换原理 | 无对应字段 | 新增 6 字段：`req_plus_compat`/`req_mult_compat`/`req_opp_compat`/`req_abs_compat`/`req_lt_compat`/`req_le_compat` | `real_eq_plus_"
+   ],
+   [
+    "INLINE",
+    "real_eq_mult_compat_adapt",
+    33424,
+    480,
+    "| Proper 替换原理 | 无对应字段 | 新增 6 字段：`req_plus_compat`/`req_mult_compat`/`req_opp_compat`/`req_abs_compat`/`req_lt_compat`/`req_le_compat` | `real_eq_plus_"
+   ],
+   [
+    "INLINE",
+    "exp_neg_plus",
+    181,
+    483,
+    "| exp 族 | `exp_neg`/`exp_neg_pos`/`exp_neg_zero`/`exp_neg_plus`（L181–184）；增强版另有 `exp_neg_decr`/`exp_neg_le_decr` | 同名 6 字段并 req 化（`exp_neg_pos` 结论不含相等"
+   ],
+   [
+    "INLINE",
+    "cauchy_real_exp_plus",
+    39449,
+    483,
+    "| exp 族 | `exp_neg`/`exp_neg_pos`/`exp_neg_zero`/`exp_neg_plus`（L181–184）；增强版另有 `exp_neg_decr`/`exp_neg_le_decr` | 同名 6 字段并 req 化（`exp_neg_pos` 结论不含相等"
+   ],
+   [
+    "INLINE",
+    "real_exp_neg_plus",
+    41195,
+    483,
+    "| exp 族 | `exp_neg`/`exp_neg_pos`/`exp_neg_zero`/`exp_neg_plus`（L181–184）；增强版另有 `exp_neg_decr`/`exp_neg_le_decr` | 同名 6 字段并 req 化（`exp_neg_pos` 结论不含相等"
+   ],
+   [
+    "INLINE",
+    "log_inv_mult_thm",
+    39453,
+    484,
+    "| log 族（两系分水岭） | `log_inv : R -> R`（全定义域，L186）及 `log_inv_exp_neg`/`log_inv_one`/`log_inv_mult`（无前提）；增强版另有 `log`（全定义域）/`log_mult`/`log_one`/`log_inv_lo"
+   ],
+   [
+    "INLINE",
+    "real_exp_neg_log_inv",
+    41201,
+    484,
+    "| log 族（两系分水岭） | `log_inv : R -> R`（全定义域，L186）及 `log_inv_exp_neg`/`log_inv_one`/`log_inv_mult`（无前提）；增强版另有 `log`（全定义域）/`log_mult`/`log_one`/`log_inv_lo"
+   ],
+   [
+    "INLINE",
+    "real_lt_zero_one",
+    41157,
+    487,
+    "| 增强版序/选择字段 | `one_pos`、`lt_plus_compat`/`le_plus_compat`、`plus_positive`/`mult_positive`、`lt_mult_compat`/`le_mult_compat(_weak)`、`opp_lt_compat`/`lt"
+   ],
+   [
+    "INLINE",
+    "UpReqBanachExp.v",
+    39,
+    557,
+    "**Banach 代数类（`Class BanachAlg`，`UpReqBanachExp.v` L39）**。类字段全部置于 Set 层：载体 `BA : Set`；Set 层等词 `bae`（自反/对称/传递）；常数与运算 `bzero`/`bone`/`bplus`/`bmult`/`bop"
+   ],
+   [
+    "INLINE",
+    "UpReqBanachExp.v",
+    173,
+    572,
+    "**exp 元素的 sigT 定义（`UpReqBanachExpDef.v`，183 行/7 处行首 `Qed.`）**。类内完备性见证 `bcauchy_complete_sig`（`UpReqBanachExp.v` L173）把柯西性提升为「极限元素 + 收敛见证」的 sigT 对："
+   ],
+   [
+    "INLINE",
+    "bpa_bpow_add",
+    355,
+    583,
+    "**代数前置（三件）**。加法交换律 `exp(a)·exp(b) == exp(a+b)` 的机器证明由三层代数组装：① 二项式展开——`(a+b)^n` 的 Pascal 配对重组（`UpReqBanachAdd.v`，756 行/15 处行首 `Qed.`：头条 `bpa_bpow_add` "
+   ],
+   [
+    "INLINE",
+    "bpa_esp_binom",
+    715,
+    583,
+    "**代数前置（三件）**。加法交换律 `exp(a)·exp(b) == exp(a+b)` 的机器证明由三层代数组装：① 二项式展开——`(a+b)^n` 的 Pascal 配对重组（`UpReqBanachAdd.v`，756 行/15 处行首 `Qed.`：头条 `bpa_bpow_add` "
+   ],
+   [
+    "INLINE",
+    "bxcb_binom_eq_bpr2",
+    153,
+    583,
+    "**代数前置（三件）**。加法交换律 `exp(a)·exp(b) == exp(a+b)` 的机器证明由三层代数组装：① 二项式展开——`(a+b)^n` 的 Pascal 配对重组（`UpReqBanachAdd.v`，756 行/15 处行首 `Qed.`：头条 `bpa_bpow_add` "
+   ],
+   [
+    "INLINE",
+    "bxcb_sentinel_bridge_4_2",
+    112,
+    583,
+    "**代数前置（三件）**。加法交换律 `exp(a)·exp(b) == exp(a+b)` 的机器证明由三层代数组装：① 二项式展开——`(a+b)^n` 的 Pascal 配对重组（`UpReqBanachAdd.v`，756 行/15 处行首 `Qed.`：头条 `bpa_bpow_add` "
+   ],
+   [
+    "INLINE",
+    "bd2_tri_eq_rect",
+    180,
+    583,
+    "**代数前置（三件）**。加法交换律 `exp(a)·exp(b) == exp(a+b)` 的机器证明由三层代数组装：① 二项式展开——`(a+b)^n` 的 Pascal 配对重组（`UpReqBanachAdd.v`，756 行/15 处行首 `Qed.`：头条 `bpa_bpow_add` "
+   ],
+   [
+    "INLINE",
+    "bxae_block_norm_le",
+    972,
+    611,
+    "即 `exp(a)·exp(b) == exp(a+b)`，前提仅为交换面 `a·b == b·a`（陈述首行 `hab`）。**证明结构概述**：柯西方块恒等把 `exp(a)` 与 `exp(b)` 的部分和乘积展开为双重和（`esp_prod_square`）；二项式行组装把该双重和识别为 `"
+   ],
+   [
+    "INLINE",
+    "bxae_diff_small",
+    1053,
+    611,
+    "即 `exp(a)·exp(b) == exp(a+b)`，前提仅为交换面 `a·b == b·a`（陈述首行 `hab`）。**证明结构概述**：柯西方块恒等把 `exp(a)` 与 `exp(b)` 的部分和乘积展开为双重和（`esp_prod_square`）；二项式行组装把该双重和识别为 `"
+   ],
+   [
+    "INLINE",
+    "bxae_lim_shift",
+    1080,
+    611,
+    "即 `exp(a)·exp(b) == exp(a+b)`，前提仅为交换面 `a·b == b·a`（陈述首行 `hab`）。**证明结构概述**：柯西方块恒等把 `exp(a)` 与 `exp(b)` 的部分和乘积展开为双重和（`esp_prod_square`）；二项式行组装把该双重和识别为 `"
+   ],
+   [
+    "INLINE",
+    "UpReqBanachLimUniq.v",
+    188,
+    611,
+    "即 `exp(a)·exp(b) == exp(a+b)`，前提仅为交换面 `a·b == b·a`（陈述首行 `hab`）。**证明结构概述**：柯西方块恒等把 `exp(a)` 与 `exp(b)` 的部分和乘积展开为双重和（`esp_prod_square`）；二项式行组装把该双重和识别为 `"
+   ],
+   [
+    "INLINE",
+    "bxb_series_zero",
+    101,
+    615,
+    "**e⁰ == 1（`UpReqBanachExpBasic.v`，265 行/7 处行首 `Qed.`）**。零元处级数恒为单位：`bxb_series_zero`（L101：零元级数逐项为零）、`bxb_norm_series_zero`（L122）与 `bxb_expdef_exp_zero_"
+   ],
+   [
+    "INLINE",
+    "bxb_norm_series_zero",
+    122,
+    615,
+    "**e⁰ == 1（`UpReqBanachExpBasic.v`，265 行/7 处行首 `Qed.`）**。零元处级数恒为单位：`bxb_series_zero`（L101：零元级数逐项为零）、`bxb_norm_series_zero`（L122）与 `bxb_expdef_exp_zero_"
+   ],
+   [
+    "INLINE",
+    "bxb_expdef_exp_zero_close",
+    218,
+    615,
+    "**e⁰ == 1（`UpReqBanachExpBasic.v`，265 行/7 处行首 `Qed.`）**。零元处级数恒为单位：`bxb_series_zero`（L101：零元级数逐项为零）、`bxb_norm_series_zero`（L122）与 `bxb_expdef_exp_zero_"
+   ],
+   [
+    "INLINE",
+    "bxn_series_mone_odd",
+    74,
+    617,
+    "**exp(−a) 的级数识别（`UpReqBanachExpNeg.v`，295 行/12 处行首 `Qed.`）**。(−1)^k 的奇偶归约（`bxn_mone_sq`/`bxn_series_mone_even`/`bxn_series_mone_odd` L74/L117/L151）给出 "
+   ],
+   [
+    "INLINE",
+    "bxn_exp_neg_spec",
+    49,
+    617,
+    "**exp(−a) 的级数识别（`UpReqBanachExpNeg.v`，295 行/12 处行首 `Qed.`）**。(−1)^k 的奇偶归约（`bxn_mone_sq`/`bxn_series_mone_even`/`bxn_series_mone_odd` L74/L117/L151）给出 "
+   ],
+   [
+    "INLINE",
+    "UpReqBanachCauchyD.v",
+    1154,
+    631,
+    "即 `exp(a)·exp(−a) == exp(0) == 1`。**证明结构概述**：ε-近邻链 `bxcd_prod_near_one`（`UpReqBanachCauchyD.v` L1154，该件 1,423 行/34 处行首 `Qed.`）构造性地证明部分和乘积逐 eps 逼近 1——对"
+   ],
+   [
+    "INLINE",
+    "bxoo_nearone_blim",
+    100,
+    631,
+    "即 `exp(a)·exp(−a) == exp(0) == 1`。**证明结构概述**：ε-近邻链 `bxcd_prod_near_one`（`UpReqBanachCauchyD.v` L1154，该件 1,423 行/34 处行首 `Qed.`）构造性地证明部分和乘积逐 eps 逼近 1——对"
+   ],
+   [
+    "INLINE",
+    "bxoo_exp_opp_one_assembly",
+    156,
+    631,
+    "即 `exp(a)·exp(−a) == exp(0) == 1`。**证明结构概述**：ε-近邻链 `bxcd_prod_near_one`（`UpReqBanachCauchyD.v` L1154，该件 1,423 行/34 处行首 `Qed.`）构造性地证明部分和乘积逐 eps 逼近 1——对"
+   ],
+   [
+    "INLINE",
+    "bxem_mult_comm",
+    217,
+    637,
+    "**实例非空性装配**。类公理面的非空性由具体实例承载：进库类 `bxin_BanachAlgPre`（`UpReqBanachInst.v`，349 行/6 处行首 `Qed.`/1 处 `Defined.`）以 39 字段弱化形态收拢类义务并给出装配器 `bxin_BanachAlg_of_pr"
+   ],
+   [
+    "INLINE",
+    "spt_bxce_sep_real",
+    130,
+    639,
+    "**支撑件面**：分离定理 `UpReqBanachSepThm.v`（193 行/6 处行首 `Qed.`：实数载体分离性 `spt_bxce_sep_real` L130）；极限唯一性 `UpReqBanachLimUniq.v`（227 行/10 处行首 `Qed.`，§7.2 总装消费）；范"
+   ],
+   [
+    "INLINE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    690,
+    "| `boltzmann_factor_pos` 消费的接口假设 | 实例化前：抽象 Id 系（`RealInterfaceEnhanced`） | 实例化后：Setoid 系实例（`Real_RealInterfaceSetoid` L39407 / `RealEnhancedReal` L411"
+   ],
+   [
+    "INLINE",
+    "RealEnhancedReal",
+    41115,
+    690,
+    "| `boltzmann_factor_pos` 消费的接口假设 | 实例化前：抽象 Id 系（`RealInterfaceEnhanced`） | 实例化后：Setoid 系实例（`Real_RealInterfaceSetoid` L39407 / `RealEnhancedReal` L411"
+   ],
+   [
+    "INLINE",
+    "softmax_pos",
+    2856,
+    696,
+    "小结（如实）：该定理自身的 Id 系语句在签名迁移完成前保持原样（§1.1 状态一览表末行）；上表「解除」发生在具体 Real 轨——下游正性结论经 Setoid 系实例（或相应 setoid 对应定理）消费时，`exp_neg_pos` 的值来自已 Qed 的 `cauchy_real_exp_p"
+   ],
+   [
+    "INLINE",
+    "minp_markov_kernel_normalized",
+    31050,
+    696,
+    "小结（如实）：该定理自身的 Id 系语句在签名迁移完成前保持原样（§1.1 状态一览表末行）；上表「解除」发生在具体 Real 轨——下游正性结论经 Setoid 系实例（或相应 setoid 对应定理）消费时，`exp_neg_pos` 的值来自已 Qed 的 `cauchy_real_exp_p"
+   ],
+   [
+    "INLINE",
+    "b5dQ_E_rational_zero",
+    111289,
+    744,
+    "两条主定理 `b5dT_f1_pi_geom_eq_leibniz_single`（单点轨，L111966 → Qed L111973）与 `b5dT_f1_pi_geom_eq_leibniz_univ`（∀x 轨，L111981 → Qed L111986）的语句均为 `real_eq real"
+   ],
+   [
+    "INLINE",
+    "b5dF_E_one_zero_of_rational",
+    104506,
+    744,
+    "两条主定理 `b5dT_f1_pi_geom_eq_leibniz_single`（单点轨，L111966 → Qed L111973）与 `b5dT_f1_pi_geom_eq_leibniz_univ`（∀x 轨，L111981 → Qed L111986）的语句均为 `real_eq real"
+   ],
+   [
+    "INLINE",
+    "b5b_hsc_main",
+    72994,
+    744,
+    "两条主定理 `b5dT_f1_pi_geom_eq_leibniz_single`（单点轨，L111966 → Qed L111973）与 `b5dT_f1_pi_geom_eq_leibniz_univ`（∀x 轨，L111981 → Qed L111986）的语句均为 `real_eq real"
+   ],
+   [
+    "INLINE",
+    "a3_closure_f1",
+    67997,
+    744,
+    "两条主定理 `b5dT_f1_pi_geom_eq_leibniz_single`（单点轨，L111966 → Qed L111973）与 `b5dT_f1_pi_geom_eq_leibniz_univ`（∀x 轨，L111981 → Qed L111986）的语句均为 `real_eq real"
+   ],
+   [
+    "INLINE",
+    "b5dS_E_zero_on_unit",
+    111782,
+    745,
+    "**∀x 轨证明链**：`b5dS_E_zero_on_unit`（L111782：∀x ∈ (0,1)，E(x) == 0）→ `b5b_f1_closure'`（L78187：E 在 (0,1) 归零 ⟹ π_geom==π_L）——两战术链闭合（该定理证明体 2 条战术 + Qed）。"
+   ],
+   [
+    "INLINE",
+    "b5b_f1_closure'",
+    78187,
+    745,
+    "**∀x 轨证明链**：`b5dS_E_zero_on_unit`（L111782：∀x ∈ (0,1)，E(x) == 0）→ `b5b_f1_closure'`（L78187：E 在 (0,1) 归零 ⟹ π_geom==π_L）——两战术链闭合（该定理证明体 2 条战术 + Qed）。"
+   ],
+   [
+    "INLINE",
+    "b5dU_cos_piL_half_zero",
+    112062,
+    747,
+    "**终末定理 C**：`b5dU_cos_piL_half_zero`（L112062 → Qed L112067）：`cos(π_L/2) == 0`——Leibniz π 半角处的余弦零点，经 `b5dU_routeA_from_f1`（L112033：F1 ⟹ cos(π_L·(1/2))=="
+   ],
+   [
+    "INLINE",
+    "b5dU_routeA_from_f1",
+    112033,
+    747,
+    "**终末定理 C**：`b5dU_cos_piL_half_zero`（L112062 → Qed L112067）：`cos(π_L/2) == 0`——Leibniz π 半角处的余弦零点，经 `b5dU_routeA_from_f1`（L112033：F1 ⟹ cos(π_L·(1/2))=="
+   ],
+   [
+    "INLINE",
+    "b5dU_cos_piL_half_zero_alt",
+    112018,
+    747,
+    "**终末定理 C**：`b5dU_cos_piL_half_zero`（L112062 → Qed L112067）：`cos(π_L/2) == 0`——Leibniz π 半角处的余弦零点，经 `b5dU_routeA_from_f1`（L112033：F1 ⟹ cos(π_L·(1/2))=="
+   ],
+   [
+    "INLINE",
+    "real_E_one",
+    72953,
+    747,
+    "**终末定理 C**：`b5dU_cos_piL_half_zero`（L112062 → Qed L112067）：`cos(π_L/2) == 0`——Leibniz π 半角处的余弦零点，经 `b5dU_routeA_from_f1`（L112033：F1 ⟹ cos(π_L·(1/2))=="
+   ],
+   [
+    "INLINE",
+    "b5b_E_close_q",
+    77321,
+    749,
+    "`b5dF_E_one_zero_of_rational`（124 行）把同一有理归零前提推到端点 1：取有理点 xg := real_const (1−g)（g := Qmin (1/2) a，a := 1/(K+2) 由 arch 性质选得使 0 < g < g0，故 xg ∈ (0,1) 且距"
+   ],
+   [
+    "INLINE",
+    "real_sin_zero_linear_bound",
+    68354,
+    751,
+    "- **sin/cos 的 Real 层逐 eps 可微（全域）**：零点线性界 `real_sin_zero_linear_bound`（L68354：\\|sin h − h\\| ≤ eps·\\|h\\| + eps′，sin′(0) == 1）与 `real_cos_zero_linear_bou"
+   ],
+   [
+    "INLINE",
+    "real_cos_zero_linear_bound",
+    68521,
+    751,
+    "- **sin/cos 的 Real 层逐 eps 可微（全域）**：零点线性界 `real_sin_zero_linear_bound`（L68354：\\|sin h − h\\| ≤ eps·\\|h\\| + eps′，sin′(0) == 1）与 `real_cos_zero_linear_bou"
+   ]
+  ],
+  "P4": [
+   [
+    "TABLE",
+    "grad_decay_iter",
+    14117,
+    445,
+    "| `grad_decay_iter` | `ConvergenceCauchy` L14117 | 已证（Lemma） | 梯度绝对值 κ^k 衰减 | 本文 §4.1 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14117,
+    445,
+    "| `grad_decay_iter` | `ConvergenceCauchy` L14117 | 已证（Lemma） | 梯度绝对值 κ^k 衰减 | 本文 §4.1 |"
+   ],
+   [
+    "TABLE",
+    "geom_sum_bound",
+    14290,
+    446,
+    "| `geom_sum_bound` | `ConvergenceCauchy` L14290 | 已证（Lemma） | 几何级数一致上界 1/(1−κ) | 本文 §4.2 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14290,
+    446,
+    "| `geom_sum_bound` | `ConvergenceCauchy` L14290 | 已证（Lemma） | 几何级数一致上界 1/(1−κ) | 本文 §4.2 |"
+   ],
+   [
+    "TABLE",
+    "iterate_metric_tail_bound",
+    14376,
+    447,
+    "| `iterate_metric_tail_bound` | `ConvergenceCauchy` L14376 | 已证（Lemma） | 迭代度量尾界（S := 1/(1−κ)） | 本文 §4.2 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14376,
+    447,
+    "| `iterate_metric_tail_bound` | `ConvergenceCauchy` L14376 | 已证（Lemma） | 迭代度量尾界（S := 1/(1−κ)） | 本文 §4.2 |"
+   ],
+   [
+    "TABLE",
+    "iterate_metric_min_bound",
+    14499,
+    448,
+    "| `iterate_metric_min_bound` | `ConvergenceCauchy` L14499 | 已证（Lemma） | 迭代度量 κ^{min} 界 | 本文 §4.2 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14499,
+    448,
+    "| `iterate_metric_min_bound` | `ConvergenceCauchy` L14499 | 已证（Lemma） | 迭代度量 κ^{min} 界 | 本文 §4.2 |"
+   ],
+   [
+    "TABLE",
+    "iterate_cauchy",
+    14528,
+    449,
+    "| `iterate_cauchy` | `ConvergenceCauchy` L14528 | 已证（Lemma） | 迭代序列柯西性（存在性 N） | 本文 §4.3 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14528,
+    449,
+    "| `iterate_cauchy` | `ConvergenceCauchy` L14528 | 已证（Lemma） | 迭代序列柯西性（存在性 N） | 本文 §4.3 |"
+   ],
+   [
+    "TABLE",
+    "iterate_cauchy_explicit_N",
+    14610,
+    450,
+    "| `iterate_cauchy_explicit_N` | `ConvergenceCauchy` L14610 | 已证（Theorem） | **显式闭式预算**：log(a·κ^N) ≤ log ε 且 m,n ≥ N 时 metric < ε | 本文 §4.8（定理 4.10，主贡献）"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14610,
+    450,
+    "| `iterate_cauchy_explicit_N` | `ConvergenceCauchy` L14610 | 已证（Theorem） | **显式闭式预算**：log(a·κ^N) ≤ log ε 且 m,n ≥ N 时 metric < ε | 本文 §4.8（定理 4.10，主贡献）"
+   ],
+   [
+    "TABLE",
+    "iterate_lim_exists",
+    14653,
+    451,
+    "| `iterate_lim_exists` | `ConvergenceCauchy` L14653 | 已证（Lemma） | 极限存在性（经 `cauchy_complete`） | 本文 §4.4 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14653,
+    451,
+    "| `iterate_lim_exists` | `ConvergenceCauchy` L14653 | 已证（Lemma） | 极限存在性（经 `cauchy_complete`） | 本文 §4.4 |"
+   ],
+   [
+    "TABLE",
+    "iterate_grad_abs_mono",
+    14674,
+    452,
+    "| `iterate_grad_abs_mono` | `ConvergenceCauchy` L14674 | 已证（Theorem） | 梯度绝对值单调衰减 | 本文 §4.5（符号已知辅助） |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14674,
+    452,
+    "| `iterate_grad_abs_mono` | `ConvergenceCauchy` L14674 | 已证（Theorem） | 梯度绝对值单调衰减 | 本文 §4.5（符号已知辅助） |"
+   ],
+   [
+    "TABLE",
+    "grad_squeeze_zero",
+    14763,
+    453,
+    "| `grad_squeeze_zero` | `ConvergenceCauchy` L14763 | 已证（Lemma） | 极限处梯度为零 | 本文 §4.6 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14763,
+    453,
+    "| `grad_squeeze_zero` | `ConvergenceCauchy` L14763 | 已证（Lemma） | 极限处梯度为零 | 本文 §4.6 |"
+   ],
+   [
+    "TABLE",
+    "dynamics_converges",
+    14845,
+    454,
+    "| `dynamics_converges` | `ConvergenceCauchy` L14845 | 已证（Theorem） | 收敛 + 梯度为零组装 | 本文 §4.7 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14845,
+    454,
+    "| `dynamics_converges` | `ConvergenceCauchy` L14845 | 已证（Theorem） | 收敛 + 梯度为零组装 | 本文 §4.7 |"
+   ],
+   [
+    "TABLE",
+    "gradient_zero_entropy_max",
+    15120,
+    455,
+    "| `gradient_zero_entropy_max` | `ConvergenceCauchy` L15120 | 已证（Theorem） | 驻点 = 熵的全局最大点 | 差距一闭合 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15120,
+    455,
+    "| `gradient_zero_entropy_max` | `ConvergenceCauchy` L15120 | 已证（Theorem） | 驻点 = 熵的全局最大点 | 差距一闭合 |"
+   ],
+   [
+    "TABLE",
+    "gradient_zero_neg_entropy_truth",
+    15142,
+    456,
+    "| `gradient_zero_neg_entropy_truth` | `ConvergenceCauchy` L15142 | 已证（Theorem） | −entropy 的全局最小点（is_truth 形式） | 差距一闭合（L := −entropy） |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15142,
+    456,
+    "| `gradient_zero_neg_entropy_truth` | `ConvergenceCauchy` L15142 | 已证（Theorem） | −entropy 的全局最小点（is_truth 形式） | 差距一闭合（L := −entropy） |"
+   ],
+   [
+    "TABLE",
+    "gradient_zero_unique",
+    15169,
+    457,
+    "| `gradient_zero_unique` | `ConvergenceCauchy` L15169 | 已证（Lemma） | 两驻点必相等（弱三分 + 严格凹；零经典） | 差距二闭合 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15169,
+    457,
+    "| `gradient_zero_unique` | `ConvergenceCauchy` L15169 | 已证（Lemma） | 两驻点必相等（弱三分 + 严格凹；零经典） | 差距二闭合 |"
+   ],
+   [
+    "TABLE",
+    "unique_attractor",
+    15197,
+    458,
+    "| `unique_attractor` | `ConvergenceCauchy` L15197 | 已证（Theorem） | 非零初始梯度两轨道极限相同 | 差距二闭合（前提范围见 §5.2.1 注） |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15197,
+    458,
+    "| `unique_attractor` | `ConvergenceCauchy` L15197 | 已证（Theorem） | 非零初始梯度两轨道极限相同 | 差距二闭合（前提范围见 §5.2.1 注） |"
+   ],
+   [
+    "TABLE",
+    "attractor_converges_unique_truth",
+    15215,
+    459,
+    "| `attractor_converges_unique_truth` | `ConvergenceCauchy` L15215 | 已证（Theorem） | PCT 组装（lim 语义层） | 差距二闭合 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15215,
+    459,
+    "| `attractor_converges_unique_truth` | `ConvergenceCauchy` L15215 | 已证（Theorem） | PCT 组装（lim 语义层） | 差距二闭合 |"
+   ],
+   [
+    "INLINE",
+    "PropositionConvergenceCore",
+    1527,
+    460,
+    "| `is_truth` / `is_attractor` | `PropositionConvergenceCore` L1527 / L1530 | Definition | PCT 抽象定义（clim 表述） | §5.1 |"
+   ],
+   [
+    "TABLE",
+    "CoreClaim2",
+    1596,
+    461,
+    "| `CoreClaim2` | `PropositionConvergenceCore` L1596 | Definition（保持纲领共享主张） | PCT 核心主张「吸引子 ⟹ 真值」 | lim 语义层的一维严格凹实例已闭合（初始梯度非零起点范围，§5.2.1 注/§5.2.2）；clim "
+   ],
+   [
+    "INLINE",
+    "PropositionConvergenceCore",
+    1596,
+    461,
+    "| `CoreClaim2` | `PropositionConvergenceCore` L1596 | Definition（保持纲领共享主张） | PCT 核心主张「吸引子 ⟹ 真值」 | lim 语义层的一维严格凹实例已闭合（初始梯度非零起点范围，§5.2.1 注/§5.2.2）；clim "
+   ],
+   [
+    "INLINE",
+    "PCTRealBridge",
+    1713,
+    462,
+    "| `RealSelfSS` / `pct_attractor_is_lim` / `pct_truth_is_global_min` | L1224（Definition，StateSpace 实例：S := R、clim := lim）/ L1742 / L1757（Section `PCTRe"
+   ],
+   [
+    "TABLE",
+    "real_cauchy_complete",
+    6134,
+    463,
+    "| `real_cauchy_complete` | 顶层 L6134 | 已证（无 Variable 依赖） | 具体 Real 层完备性（`Print Assumptions` 闭合） | 构造性实数完备性基础 |"
+   ],
+   [
+    "TABLE",
+    "cauchy_complete",
+    202,
+    464,
+    "| `cauchy_complete` | `RealInterface` L202 | 接口字段（假设） | 抽象接口完备性字段 | 抽象层完备性假设；setoid Core 实例已回填（见下行） |"
+   ],
+   [
+    "INLINE",
+    "RealInterface",
+    202,
+    464,
+    "| `cauchy_complete` | `RealInterface` L202 | 接口字段（假设） | 抽象接口完备性字段 | 抽象层完备性假设；setoid Core 实例已回填（见下行） |"
+   ],
+   [
+    "TABLE",
+    "Real_RealInterfaceSetoidCore",
+    33433,
+    467,
+    "| `Real_RealInterfaceSetoidCore` | L33433 | Instance | setoid Core 实例 | `cauchy_complete := real_cauchy_complete_metric_natle` |"
+   ],
+   [
+    "TABLE",
+    "Real_RealInterfaceSetoid",
+    39407,
+    468,
+    "| `Real_RealInterfaceSetoid` | L39407 | Instance | setoid 完整实例 | exp/log 族实值化（§3.4） |"
+   ],
+   [
+    "TABLE",
+    "RealEnhancedReal",
+    41115,
+    469,
+    "| `RealEnhancedReal` | L41115 | Instance | 增强接口实例 | §3.4 |"
+   ],
+   [
+    "TABLE",
+    "cw_log",
+    38016,
+    470,
+    "| `cw_log` | L38016 | Definition | 构造性对数（正参数） | `log_inv` 的实值 |"
+   ],
+   [
+    "TABLE",
+    "real_weak_trich",
+    38268,
+    471,
+    "| `real_weak_trich` | L38268 | 已证（Lemma） | Real 层弱三分 | `weak_trich` 接口假设的实例（见下行） |"
+   ],
+   [
+    "TABLE",
+    "weak_trich",
+    15166,
+    472,
+    "| `weak_trich` | `ConvergenceCauchy` L15166 | Variable（接口假设） | 弱三分：¬(x<y) ∧ ¬(y<x) ⟹ x==y（非 LPO） | 驻点唯一/差距二闭合（§5.2.1）；Real 层实例见上行 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    15166,
+    472,
+    "| `weak_trich` | `ConvergenceCauchy` L15166 | Variable（接口假设） | 弱三分：¬(x<y) ∧ ¬(y<x) ⟹ x==y（非 LPO） | 驻点唯一/差距二闭合（§5.2.1）；Real 层实例见上行 |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14055,
+    473,
+    "| `kappa` / `kappa_pos` / `kappa_lt_one` | `ConvergenceCauchy` L14055–L14057 | Variable | 收缩因子 κ ∈ (0,1) | 收缩因子假设（§4） |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14872,
+    474,
+    "| `strong_concavity` / `mu` / `mu_pos` | `ConvergenceCauchy` L14872 / L14870 / L14871 | Variable | μ-强凹（凹性模量化） | κ 定理化前提（§6.3.1，非主链前提） |"
+   ],
+   [
+    "INLINE",
+    "ConvergenceCauchy",
+    14896,
+    475,
+    "| `gradient_step_contraction` 等 κ 定理化族 | `ConvergenceCauchy` L14896–L15064（Section `RealKappa` 平移 L51490 起） | 已证 | 正分支衰减（κ := 1−ημ） | §6.3.1 状态表 |"
+   ],
+   [
+    "INLINE",
+    "RealKappaSignReal",
+    52958,
+    477,
+    "| `real_sign_dec` / `real_grad_decay_full_sign_iter` | Section `RealKappaSignReal` L52958 / L53032 | 已证 | 条件化全符号版（需显式三分假设） | §6.3.1 |"
+   ],
+   [
+    "INLINE",
+    "Alignment",
+    23146,
+    478,
+    "| `policy_iter_kl_geom_step` / `policy_iter_kl_geom_iter` / `dpo_loss_iter_mono` | Section `Alignment` L23146 / L23181 / L23256 | 已证 | 对齐侧迭代收敛 | §7.2 "
+   ],
+   [
+    "TABLE",
+    "strict_concavity",
+    14041,
+    510,
+    "| `strict_concavity` | L14041 | 熵梯度严格递减 | 凹性 | 主收敛链（§4）；差距一/二闭合（§5.2.1） |"
+   ],
+   [
+    "TABLE",
+    "gradient_lipschitz",
+    14044,
+    511,
+    "| `gradient_lipschitz` | L14044 | 梯度 Lipschitz 连续（常数 L，L_pos L14043） | Lipschitz | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "gradient_abs_decay",
+    14058,
+    513,
+    "| `gradient_abs_decay` | L14058 | 梯度绝对值几何衰减 | 几何衰减 | 主收敛链（§4）；定理化状态见 §6.3.1 |"
+   ],
+   [
+    "TABLE",
+    "r_arch_pow",
+    14081,
+    514,
+    "| `r_arch_pow` | L14081 | 几何击穿（几何击穿） | 阿基米德 | 主收敛链（§4）；显式预算（§4.8） |"
+   ],
+   [
+    "TABLE",
+    "metric_abs",
+    14053,
+    515,
+    "| `metric_abs` | L14053 | 度量由绝对值诱导 | 度量 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "metric_refl_zero",
+    14079,
+    516,
+    "| `metric_refl_zero` | L14079 | 度量自反零（`metric a a == zero`） | 度量 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "lt_plus_compat_lt_le",
+    14063,
+    517,
+    "| `lt_plus_compat_lt_le` | L14063 | 严格 + 非严格序加法保序 | 度量/序 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "lt_plus_compat_le_lt",
+    14064,
+    518,
+    "| `lt_plus_compat_le_lt` | L14064 | 非严格 + 严格序加法保序 | 度量/序 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "eta_abs_pos",
+    14432,
+    519,
+    "| `eta_abs_pos` | L14432 | 步长绝对值正（`lt zero (abs eta)`） | 度量/序 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "lim_metric_approx",
+    14722,
+    520,
+    "| `lim_metric_approx` | L14722 | lim 的 eps-N 语义（`grad_squeeze_zero` 依赖）；setoid 签名版本 `req_grad_squeeze_zero` 已交付（`UpReqCauchy.v`） | 度量 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "le_all_eps_zero",
+    14728,
+    521,
+    "| `le_all_eps_zero` | L14728 | 任意小非负 ⟹ ≤ 0（夹逼收尾）；setoid 签名版本 `req_grad_squeeze_zero` 已交付（`UpReqCauchy.v`） | 度量/序 | 主收敛链（§4） |"
+   ],
+   [
+    "TABLE",
+    "cauchy_complete",
+    202,
+    522,
+    "| `cauchy_complete` | L202（`RealInterface` Class 字段，经 `RI_base` 继承） | 柯西序列完备性 | 完备性 | 极限存在（§4.4）；轨道归属见 §6.1.1 |"
+   ],
+   [
+    "TABLE",
+    "log_lt_mono_cc",
+    14556,
+    523,
+    "| `log_lt_mono_cc` | L14556 | 对数严格单调（正参数上） | 辅助（对数） | 显式预算（§4.8） |"
+   ],
+   [
+    "TABLE",
+    "weak_trich",
+    15166,
+    524,
+    "| `weak_trich` | L15166 | 弱三分：¬(x<y) ∧ ¬(y<x) ⟹ x==y（非 LPO） | 辅助（序） | 驻点唯一/差距二闭合（§5.2.1）；Real 层实例 `real_weak_trich` 已证（附录 A） |"
+   ],
+   [
+    "TABLE",
+    "entropy_tangent",
+    15114,
+    525,
+    "| `entropy_tangent` | L15114 | 凹函数切线不等式接口 | 辅助（凹性） | 差距一闭合（§5.2.1） |"
+   ]
+  ]
+ }
+}

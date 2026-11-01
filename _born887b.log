@@ -1,0 +1,25 @@
+lw1m_height
+     : Q -> nat
+lw1m_nsep
+     : Q -> nat -> nat -> nat
+lw1m_measure_face
+     : Set
+lw1m_b_cert_face
+     : Set
+lw1m_measure_main
+     : lw1m_b_cert_face -> lw1m_dom_face -> lw1m_measure_face
+lw1m_dist_face
+     : Q -> nat -> Q -> Set
+lw1m_dist_to_nsep
+     : forall (mu0 C : nat) (c0 q : Q),
+       QltT 0 c0 ->
+       QltT 1 (c0 * (Z.of_nat C # 1)) ->
+       lw1m_dist_face q mu0 c0 -> lw1m_hit_face q mu0 C
+lw1m_dom_face
+     : Set
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context

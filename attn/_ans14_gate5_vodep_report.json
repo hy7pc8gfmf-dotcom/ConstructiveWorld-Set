@@ -1,0 +1,715 @@
+{
+ "scan_time": "2026-09-27T23:22:46",
+ "tool": "gate5_vodep_quarantine",
+ "hard_tokens": [
+  "Lra",
+  "Reals",
+  "ClassicalDedekindReals",
+  "FunctionalExtensionality"
+ ],
+ "soft_tokens": [
+  "Psatz"
+ ],
+ "strict_psatz": false,
+ "trees": {
+  "ConstructiveWorld_vo": {
+   "files": 1581,
+   "errors": 0,
+   "token_hits": [],
+   "soft_hits": [
+    {
+     "file": "Arch_Banach_01.vo",
+     "token": "Psatz",
+     "digest": "39036d08c83f43a0aee82e8948c8b469",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Arch_PA_02.vo",
+     "token": "Psatz",
+     "digest": "955ae50f48acdcf5e20ecfc138b11a79",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Arch_PA_04.vo",
+     "token": "Psatz",
+     "digest": "16d853090f04bbe11c2713b75f30d4eb",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Arch_ToyR_04.vo",
+     "token": "Psatz",
+     "digest": "c8cd11c0b96fc05cc526ea2b11348bea",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Arch_UpReq_10.vo",
+     "token": "Psatz",
+     "digest": "fa6449c6186f18d9800debc1dc0ae109",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "ArctanGeomTail.vo",
+     "token": "Psatz",
+     "digest": "aa256bd3493cdb129657f47db7060173",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "BanachNoHyp.vo",
+     "token": "Psatz",
+     "digest": "ae50c29b963b24e6c7d74b2e0ac8c95d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "BetaLower.vo",
+     "token": "Psatz",
+     "digest": "d13f8d2ee6952e63303ab064bcc9afdb",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "BeukersIdentity.vo",
+     "token": "Psatz",
+     "digest": "d9efeb8505934bf1ade3593988b81599",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "BeukersLists.vo",
+     "token": "Psatz",
+     "digest": "d9c197bd8faf1d86b874f0c38dab396b",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "CW220_Extensions.vo",
+     "token": "Psatz",
+     "digest": "eef7b3b9fd54227a5e4426f6cff3b25e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT.vo",
+     "token": "Psatz",
+     "digest": "e723f6c2e47f5e7dc62f9e9839405198",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT_Bridge_Rot.vo",
+     "token": "Psatz",
+     "digest": "af436e55de71aa540df45d70d27a2d72",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT_DigTheory.vo",
+     "token": "Psatz",
+     "digest": "bdf7cb17c0a6093e413b83aa7aa472bc",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT_Entropy.vo",
+     "token": "Psatz",
+     "digest": "9343de520084a36ff05f1bb2d71fc1a6",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT_Rotation.vo",
+     "token": "Psatz",
+     "digest": "04cfbd6b7bbad13ad24368e42bf1dd82",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "DTPT_Truth.vo",
+     "token": "Psatz",
+     "digest": "5e0b51007871affa4af3d986c3e6d380",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "ExpOneEnvelope.vo",
+     "token": "Psatz",
+     "digest": "a43bc7b8e8aa3359637829a961a476e3",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "G04_ProjFam.vo",
+     "token": "Psatz",
+     "digest": "5f99fcd46f9a1a0db11ff9cfc49e8d9a",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "G07_KLWall.vo",
+     "token": "Psatz",
+     "digest": "93d8be94073ff2ea6c857d0a3f6e213d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "G10_LoebFam.vo",
+     "token": "Psatz",
+     "digest": "247150501358043f7420097b134e09f5",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Hanson3Pow.vo",
+     "token": "Psatz",
+     "digest": "449e234d9a59a9c656722fd3bce298bb",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "HansonLcm.vo",
+     "token": "Psatz",
+     "digest": "4eb66bfdd010e29e2ff11783ee992b18",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Ln2Bridge.vo",
+     "token": "Psatz",
+     "digest": "0cceb2f3eff81ca8aab86da7ae71e70d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Ln2Escape.vo",
+     "token": "Psatz",
+     "digest": "8f676bf7863f8bd033e5b7825eef0dd0",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "Ln2Integrality.vo",
+     "token": "Psatz",
+     "digest": "d8391868fa45746df37f6e59383c6ba1",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "LogTwoEnvelope.vo",
+     "token": "Psatz",
+     "digest": "a0f7476b7f0c9237d51c748157fd465d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "PA_ExpOneEnvelope.vo",
+     "token": "Psatz",
+     "digest": "4341da5da56d7ecb90f42f73396d4851",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "PadeDenPosB12.vo",
+     "token": "Psatz",
+     "digest": "690354adb68ba595415e38c07e0c0f31",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "PadeErrorIntegral.vo",
+     "token": "Psatz",
+     "digest": "b4d51a31944e081658fb26bc77b762bf",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "PiEnvelope.vo",
+     "token": "Psatz",
+     "digest": "b3c62d42f91950ed68d84a68c804d7ab",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "PsQReindex.vo",
+     "token": "Psatz",
+     "digest": "9378a5383af6df0710299b391130f7c7",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "R2BishopLogSel.vo",
+     "token": "Psatz",
+     "digest": "da2d18b7953a979ceba93ca5373c8550",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "RealIdentity.vo",
+     "token": "Psatz",
+     "digest": "9fcb06cab9ab95bf491f84b15af9c476",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S02_CauchyComplete.vo",
+     "token": "Psatz",
+     "digest": "41a237d8bb77464f12ab53dac4e56bf5",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S03_QExp.vo",
+     "token": "Psatz",
+     "digest": "a3d8d010a5242378756ba26eca23c15d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S04_RealExpLogConv.vo",
+     "token": "Psatz",
+     "digest": "7eb2a2576f88b7f68d9f509958c2e2ed",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S06_DiffSamplingGibbs.vo",
+     "token": "Psatz",
+     "digest": "f9a00b445336a06afc21848aa3605638",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S07_RealSetoidExpLog.vo",
+     "token": "Psatz",
+     "digest": "18c9e9009ee0412285ac7c6090485578",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S08_RealMainlineDPO.vo",
+     "token": "Psatz",
+     "digest": "74aa4af409e4462bedc754b9d4b08d90",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S09_EntropyReal.vo",
+     "token": "Psatz",
+     "digest": "e971c1dc6232ee42ae145461e10f4134",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S10_KVQuantTrig.vo",
+     "token": "Psatz",
+     "digest": "a73ee4a3688aea272c7da94a0e542793",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S11_TP3B5.vo",
+     "token": "Psatz",
+     "digest": "32126ea5b26630916206bd4aefb6850a",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S12_B5RecycleSF.vo",
+     "token": "Psatz",
+     "digest": "b77714b82055d6a2c012b292d4a7ca62",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S13_NLiveAudit.vo",
+     "token": "Psatz",
+     "digest": "bca06adb2a6de6af894e6f42c4432bf4",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "S14_B5BatchBlock.vo",
+     "token": "Psatz",
+     "digest": "d1c5ba960ff86b953e2bd3b8b12f5e2e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "SqrtfCauchy.vo",
+     "token": "Psatz",
+     "digest": "999bfd65f8135a8000e37a82c650e853",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "SqrtfCauchyArch.vo",
+     "token": "Psatz",
+     "digest": "98f4d1bc54672e7760845a70a65aeb26",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "SumInvFactEscape.vo",
+     "token": "Psatz",
+     "digest": "bd01fbdf3556bd99b0e450f7970c76a4",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "SupplyAssembly.vo",
+     "token": "Psatz",
+     "digest": "798c44c9ac94d461508012419c287a63",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "ToyR_SupplyAssembly.vo",
+     "token": "Psatz",
+     "digest": "3eadf9b848d0b2f1f1e649304ef3dbd3",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "TrueNumerator.vo",
+     "token": "Psatz",
+     "digest": "b724949a8629249aa5e49ae7cad1f790",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpAblAbsSumLeB2.vo",
+     "token": "Psatz",
+     "digest": "d5440a39b07d4ff464c3336db64aead5",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpAblBYDecisionTree.vo",
+     "token": "Psatz",
+     "digest": "fc0042c925d337bfec9746b44c3b201d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpAblD1S14_UpReqCauchy.vo",
+     "token": "Psatz",
+     "digest": "006e1cb4d4f09a2049543bd5fa4b3ad4",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpAblLogWallFinal.vo",
+     "token": "Psatz",
+     "digest": "ac87ca7d31f83e25a52adba47dfa93f9",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpAblMixBSharp.vo",
+     "token": "Psatz",
+     "digest": "c1ceac9287a26c50edb337644589529d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpBudgetReal.vo",
+     "token": "Psatz",
+     "digest": "227a0caaeaa4a87181b036c44d4655a2",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpConstitution.vo",
+     "token": "Psatz",
+     "digest": "afa10134020e40ea22c35a7cfb68ca30",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqAltSumPos.vo",
+     "token": "Psatz",
+     "digest": "e5a87cb81c3f12a07346449e7c38fedd",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachAdd.vo",
+     "token": "Psatz",
+     "digest": "721473cac987ae5a61be5a6833a2a758",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachCauchyD.vo",
+     "token": "Psatz",
+     "digest": "41ae408a321754acd34b60550a06e741",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachExp.vo",
+     "token": "Psatz",
+     "digest": "e2ee05b4b9ab4fecd9007a857385abe7",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachExpAdd.vo",
+     "token": "Psatz",
+     "digest": "82ba9e12f4d44c967e5fd96ae41d5df1",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachInst.vo",
+     "token": "Psatz",
+     "digest": "faeb55327f0ea4614ed0df26e189365e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachInstB.vo",
+     "token": "Psatz",
+     "digest": "39adbd3b1e39007fcdb0f1f41da5071c",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachInstReal.vo",
+     "token": "Psatz",
+     "digest": "1233f1d6909541514c48da384d8ea3a2",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqBanachNormOpp.vo",
+     "token": "Psatz",
+     "digest": "cf7ec3ec3ad4e0c40585a74dda7bfe59",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqCauchy.vo",
+     "token": "Psatz",
+     "digest": "f4f3bc4b16b6dba2de3de9fa2b59fdfe",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqCauchyLogBound.vo",
+     "token": "Psatz",
+     "digest": "d52fbebf1514497447d87855a603d6c9",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqConstEnvelope.vo",
+     "token": "Psatz",
+     "digest": "e6c4d5ea6e73a2b5ce1a8d8b1b11d867",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqDyadicLog.vo",
+     "token": "Psatz",
+     "digest": "260186b3fbf0f0e030732610789967f5",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqExpPosQBound.vo",
+     "token": "Psatz",
+     "digest": "c39677d5de95acf65297078edf8fc3f5",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqIrrationalCriterion.vo",
+     "token": "Psatz",
+     "digest": "71d59c973635d9977dbca612284fe53d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqKLStrict.vo",
+     "token": "Psatz",
+     "digest": "a8e86eb7dd70f78ddd088f0e06ef85b7",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqLn2Irrational.vo",
+     "token": "Psatz",
+     "digest": "f8a49540b99736902350aaef297f3c25",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqLogZWallEquiv.vo",
+     "token": "Psatz",
+     "digest": "d9d55c59ac6e27d0e1b59e8f404438fc",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqMixLogA.vo",
+     "token": "Psatz",
+     "digest": "feac591ac3a5b4eb183df366c9bc627e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqMixLogB.vo",
+     "token": "Psatz",
+     "digest": "09157c1c9e03046a65bce8b12cf5acbb",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqMixLogE.vo",
+     "token": "Psatz",
+     "digest": "49bd26d663b3443600ade9694671d7eb",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqMixRationalProxy_R3.vo",
+     "token": "Psatz",
+     "digest": "ea0ec346a58753df835c5e9bef8efce0",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeBetaPos.vo",
+     "token": "Psatz",
+     "digest": "6ba29092b6d0c12eb7370f8a6b386dea",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeDenPos.vo",
+     "token": "Psatz",
+     "digest": "1f4d851bde50807f36d20a6e98e0e58b",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeExp.vo",
+     "token": "Psatz",
+     "digest": "af9cfd09569520da852cd31ffdf298e2",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeQLeg.vo",
+     "token": "Psatz",
+     "digest": "d8de3316e89fc8afb7a2cba44c89faa3",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeTailPos.vo",
+     "token": "Psatz",
+     "digest": "be3697cdbbc98f469ee95b0f911fd66f",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqPadeTransport.vo",
+     "token": "Psatz",
+     "digest": "6a1c304563be92229c7c1aa167f25ffc",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqQExpTail.vo",
+     "token": "Psatz",
+     "digest": "0eab595b2925c88c3b4e50691f78b45b",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqRatioTail.vo",
+     "token": "Psatz",
+     "digest": "842521cb883a0f864d08266710c6288e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqScTrigEps.vo",
+     "token": "Psatz",
+     "digest": "b0a35b21583a8f3230644949953e1d6e",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqSentinelMother.vo",
+     "token": "Psatz",
+     "digest": "e05d100bcbbba2b18189335a90f6a5f9",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqSqrtOptimal.vo",
+     "token": "Psatz",
+     "digest": "96c0822633ffd867c6cb8d435796dae6",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpReqVajdaBound.vo",
+     "token": "Psatz",
+     "digest": "feead8b5fc3fc139f9cb924989d4be8d",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "UpStopTime.vo",
+     "token": "Psatz",
+     "digest": "01840ba3c3a8514c52f57ae09ee70f59",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "VandermondePartial.vo",
+     "token": "Psatz",
+     "digest": "ae34a43c32c55d41a281d0d253d50d6c",
+     "name_mismatch": null,
+     "err": null
+    },
+    {
+     "file": "p4a_GradSignQDec.vo",
+     "token": "Psatz",
+     "digest": "71b8e41cf8fa62c4c831250d75db06d0",
+     "name_mismatch": null,
+     "err": null
+    }
+   ],
+   "digest_hits": []
+  }
+ },
+ "control": {
+  "path": "C:/Rocq-Platform~9.1~2026.01/lib/coq\\user-contrib\\Stdlib\\Reals\\ClassicalDedekindReals.vo",
+  "status": "CONTROL-SELF-HIT-PASS",
+  "tokens": [
+   "ClassicalDedekindReals",
+   "Psatz",
+   "Reals"
+  ],
+  "err": null
+ },
+ "blacklist": {
+  "path": "D:\\ComplexAnalysis\\ConstructiveWorld-Main\\scripts\\gates\\poison_digest_blacklist_v2.txt",
+  "entries": 25
+ },
+ "total_files": 1581,
+ "total_errors": 0,
+ "total_token_hits": 0,
+ "total_soft_hits": 96,
+ "total_digest_hits": 0
+}

@@ -1,0 +1,202 @@
+==============================================================================================================
+【P1】论文1-构造性ML对齐统一形式化-正式版.md   （条目段 L1136–L1169）
+==============================================================================================================
+  [P1] 1. Peters, J., Mülling, K., & Altun, Y. (2010). Relative Entropy Policy Search. *AAAI*.
+  [P1] 2. Todorov, E. (2006). Linearly-solvable Markov decision problems. *Advances in Neural Information Processing Systems 18 (NIPS 2005)*. MIT Press.
+  [P1] 3. Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). Proximal Policy Optimization Algorithms. *arXiv:1707.06347*.
+  [P1] 4. Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., Manning, C. D., & Finn, C. (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS*.
+  [P1] 5. DeepSeek-AI. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. *arXiv:2402.03300*.
+  [P1] 6. Geuvers, H., Niqui, M., & Wiedijk, F. (2000). Constructive Reals in Coq: Axioms and Categoricity. *TYPES*.
+  [P1] 7. O'Connor, R. (2008). Certified Exact Transcendental Real Number Computation in Coq. *TPHOLs*.
+  [P1] 8. Affeldt, R., et al. (2023). Infotheo / coq-proba: A Coq Library for Information Theory. *MathComp*.
+  [P1] 9. Hölzl, J. (2016). Markov Chains and Markov Decision Processes in Isabelle/HOL. *Journal of Automated Reasoning*, 59(3), 345–387. https://doi.org/10.1007/s10817-016-9401-5
+  [P1] 10. Hölzl, J., & Nipkow, T. (2012). Markov Models. *Archive of Formal Proofs*. https://isa-afp.org/entries/Markov_Models.html
+  [P1] 11. Schäffeler, M., & Abdulaziz, M. (2021). Markov Decision Processes with Rewards. *Archive of Formal Proofs*. https://isa-afp.org/entries/MDP-Rewards.html
+  [P1] 12. Schäffeler, M., & Abdulaziz, M. (2021). Verified Algorithms for Solving Markov Decision Processes. *Archive of Formal Proofs*. https://isa-afp.org/entries/MDP-Algorithms.html
+  [P1] 13. Chevallier, M., & Fleuriot, J. (2021). Formalising the Foundations of Discrete Reinforcement Learning in Isabelle/HOL. *arXiv:2112.05996*. https://arxiv.org/abs/2112.05996
+  [P1] 14. The mathlib Community (leanprover-community/mathlib4，持续更新). Mathlib.InformationTheory.KullbackLeibler（`klDiv`、Gibbs 不等式）与 Mathlib.MeasureTheory.Measure.Tilted（测度指数倾斜）. https://leanprover-community.github.io/mathlib4_docs/Mathlib/InformationTheory/KullbackLeibler/Basic.html
+  [P1] 15. The Coq Development Team. Coq.Reals.Cauchy.ConstructiveCauchyReals（构造性 Cauchy 实数，Coq 8.12+ 标准库随附；Rocq 9.1 以 `Stdlib.Reals.Cauchy.ConstructiveCauchyReals` 存留，标准库文档核对（2026-09-03））. https://coq.inria.fr/doc/stdlib/Stdlib.Reals.Cauchy.ConstructiveCauchyReals.html
+  [P1] 16. The C-CoRN Project. C-CoRN: the Constructive Coq Repository at Nijmegen（构造性 Coq 仓库：实数与分析学基础）. https://github.com/coq-community/corn
+  [P1] 17. Constable, R. L., et al. (1986). *Implementing Mathematics with the Nuprl Proof Development System*. Prentice Hall.
+  [P1] 18. Nemirovski, A. S., & Yudin, D. B. (1983). *Problem Complexity and Method Efficiency in Optimization*. Wiley.
+  [P1] 19. Beck, A., & Teboulle, M. (2003). Mirror Descent and Nonlinear Projected Subgradient Methods for Convex Optimization. *Operations Research Letters*, 31(3), 167–175.
+  [P1] 20. Hazan, E., Agarwal, A., & Kale, S. (2007). Logarithmic Regret Algorithms for Online Convex Optimization. *Machine Learning*, 69(2–3), 169–192.
+  [P1] 21. Christiano, P. F., Leike, J., Brown, T. B., Martic, M., Legg, S., & Amodei, D. (2017). Deep Reinforcement Learning from Human Preferences. *Advances in Neural Information Processing Systems 30 (NIPS 2017)*.
+  [P1] 22. Kakade, S., & Langford, J. (2002). Approximately Optimal Approximate Reinforcement Learning. *Proceedings of the 19th International Conference on Machine Learning (ICML 2002)*.
+  [P1] 23. Schulman, J., Levine, S., Abbeel, P., Jordan, M., & Moritz, P. (2015). Trust Region Policy Optimization. *Proceedings of the 32nd International Conference on Machine Learning (ICML 2015)*.
+  [P1] 24. Bishop, E., & Bridges, D. (1985). *Constructive Analysis*. Grundlehren der mathematischen Wissenschaften 279. Springer-Verlag.
+  [P1] 25. Azar, M. G., Rowland, M., Piot, B., et al. (2023). A General Theoretical Paradigm to Understand Learning from Human Feedback. *arXiv:2310.12036*. https://arxiv.org/abs/2310.12036
+  [P1] 26. Ouyang, L., Wu, J., Jiang, X., et al. (2022). Training Language Models to Follow Instructions with Human Feedback. *Advances in Neural Information Processing Systems 35 (NeurIPS 2022)*.
+  [P1] 27. Xiao, L. (2022). On the Convergence Rates of Policy Gradient Methods. *Journal of Machine Learning Research*, 23(282), 1–36.
+  [P1] 28. Khodadadian, S., Jhunjhunwala, P. R., Varma, S. M., & Maguluri, S. T. (2022). On Linear and Super-Linear Convergence of Natural Policy Gradient Algorithm. *Systems & Control Letters*, 163, 105632. https://www.sciencedirect.com/science/article/abs/pii/S0167691122000500
+  [P1] 29. Leroy, X. (2009). Formal Verification of a Realistic Compiler. *Communications of the ACM*, 52(7), 107–115；CompCert 项目（多 pass 模块化架构的验证编译器；官网 2026-08 发布 3.18）. https://compcert.org
+  [P1] 30. Vajjha, K., Shinnar, A., Trager, B., Pestun, V., & Fulton, N. (2021). CertRL: Formalizing Convergence Proofs for Value and Policy Iteration in Coq. *Certified Programs and Proofs (CPP 2021)*. https://doi.org/10.1145/3437992.3439927
+  —— 共 30 条
+
+==============================================================================================================
+【P2】论文2-自由能原理与注意力Gibbs桥-正式版.md   （条目段 L1190–L1226）
+==============================================================================================================
+  [P2] 1. Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature Reviews Neuroscience*.
+  [P2] 2. Buckley, C. L., et al. (2017). The free energy principle for action and perception: A mathematical review. *Journal of Mathematical Psychology*.
+  [P2] 3. Blei, D. M., Kucukelbir, A., & McAuliffe, J. D. (2017). Variational inference: A review for statisticians. *Journal of the American Statistical Association*.
+  [P2] 4. Vaswani, A., et al. (2017). Attention is all you need. *NeurIPS*.
+  [P2] 5. Hopfield, J. J. (1982). Neural networks and physical systems with emergent collective computational abilities. *PNAS*.
+  [P2] 6. Krotov, D., & Hopfield, J. J. (2016). Dense Associative Memory for Pattern Recognition. *Advances in Neural Information Processing Systems 29 (NIPS 2016)*. arXiv:1606.01164. https://arxiv.org/abs/1606.01164
+  [P2] 7. Ramsauer, H., et al. (2021). Hopfield Networks is All You Need. *ICLR 2021*. arXiv:2008.02217. https://arxiv.org/abs/2008.02217
+  [P2] 8. Fan, A., Lewis, M., & Dauphin, Y. (2018). Hierarchical Neural Story Generation. *ACL 2018*. arXiv:1805.04833. https://arxiv.org/abs/1805.04833
+  [P2] 9. Holtzman, A., Buys, J., Du, L., Forbes, M., & Choi, Y. (2020). The Curious Case of Neural Text Degeneration. *ICLR 2020*. arXiv:1904.09751. https://arxiv.org/abs/1904.09751
+  [P2] 10. Nguyen, M. N., Baker, A., Neo, C., Roush, A., Kirsch, A., & Shwartz-Ziv, R. (2024). Turning Up the Heat: Min-p Sampling for Creative and Coherent LLM Outputs. *ICLR 2025*（oral）. arXiv:2407.01082. https://arxiv.org/abs/2407.01082
+  [P2] 11. Zhang, Z., Sheng, Y., Zhou, T., Chen, T., Zheng, L., Cai, R., Song, Z., Tian, Y., Ré, C., Barrett, C., Wang, Z., & Chen, B. (2023). H2O: Heavy-Hitter Oracle for Efficient Generative Inference of Large Language Models. *NeurIPS 2023*. arXiv:2306.14048. https://arxiv.org/abs/2306.14048
+  [P2] 12. Hibon, Q., & Paulson, L. C. (2016). Source Coding Theorem. *Archive of Formal Proofs*. https://www.isa-afp.org/entries/Source_Coding_Theorem.html（访问日期：2026-09-10；Isabelle/AFP 信息论条目：Shannon 信源编码定理的熵下界半边；Markov/遍历侧另有 Markov Models（Hölzl, J., & Nipkow, T., 2012）与 Ergodic Theory（Gouëzel, S., 2015）等同库条目）
+  [P2] 13. Affeldt, R., Garrigue, J., Nowak, D., et al. (2020). Infotheo: A Coq Library for Information Theory. Version [X.Y], Archive of Formal Proofs, https://clip4.ait.kyushu-u.ac.jp/infotheo/（访问日期：2026-09-13）.
+  [P2] 14. Rafailov, R., Sharma, A., Mitchell, E., Manning, C. D., Ermon, S., & Finn, C. (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS 2023*. arXiv:2305.18290. https://arxiv.org/abs/2305.18290
+  [P2] 15. Hinton, G., Vinyals, O., & Dean, J. (2015). Distilling the Knowledge in a Neural Network. arXiv:1503.02531. https://arxiv.org/abs/1503.02531
+  [P2] 16. Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. *ICML 2017*. arXiv:1706.04599. https://arxiv.org/abs/1706.04599
+  [P2] 17. Blanchard, P., Higham, D. J., & Higham, N. J. (2021). Accurately Computing the Log-Sum-Exp and Softmax Functions. *IMA Journal of Numerical Analysis* 41(4):2311–2330. MIMS EPrints 2765. https://eprints.maths.manchester.ac.uk/2765/
+  [P2] 18. C-CoRN: The Constructive Coq Repository at Nijmegen. Version [commit/tag], https://github.com/rocq-community/corn（访问日期：2026-09-13）.
+  [P2] 19. Constable, R. L., et al. (1986). *Implementing Mathematics with the Nuprl Proof Development System*. Prentice Hall.
+  [P2] 20. Hewitt, J., Manning, C. D., & Liang, P. (2022). Truncation Sampling as Language Model Desmoothing. *Findings of EMNLP 2022*. arXiv:2210.15191. https://arxiv.org/abs/2210.15191
+  [P2] 21. Meister, C., Pimentel, T., Wiher, G., & Cotterell, R. (2023). Locally Typical Sampling. *Transactions of the Association for Computational Linguistics* 11. arXiv:2202.00666. https://arxiv.org/abs/2202.00666
+  [P2] 22. Jaynes, E. T. (1957). Information theory and statistical mechanics. *Physical Review* 106(4):620–630.
+  [P2] 23. Doeblin, W. (1938). Exposé de la théorie des chaînes simples constantes de Markov à un nombre fini d'états. *Revue Mathématique de l'Union Interbalkanique* 2:77–105.
+  [P2] 24. Dobrushin, R. L. (1956). Central limit theorem for nonstationary Markov chains. I. *Theory of Probability and its Applications* 1(1):65–80.
+  [P2] 25. Levin, D. A., Peres, Y., & Wilmer, E. L. (2009). *Markov Chains and Mixing Times*. American Mathematical Society.
+  [P2] 26. Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., et al. (2022). Training language models to follow instructions with human feedback. *NeurIPS 2022*. arXiv:2203.02155. https://arxiv.org/abs/2203.02155
+  [P2] 27. Hölzl, J. (2016). Markov Chains and Markov Decision Processes in Isabelle/HOL. *Journal of Automated Reasoning* 59(3):345–387. https://doi.org/10.1007/s10817-016-9401-5
+  [P2] 28. The mathlib Community (2020). The Lean Mathematical Library. *CPP 2020*. arXiv:1910.09336. https://arxiv.org/abs/1910.09336
+  [P2] 29. Audebaud, P., & Paulin-Mohring, C. (2009). Proofs of randomized algorithms in Coq. *Science of Computer Programming* 74(8):568–589. https://doi.org/10.1016/j.scico.2007.09.002
+  [P2] 30. Bagnall, A., & Stewart, G. (2019). Certifying the True Error: Machine Learning in Coq with Verified Generalization Bounds. *AAAI 2019*. https://ojs.aaai.org/index.php/AAAI/article/view/4115
+  [P2] 31. Li, C., Wang, Z., He, W., Wu, Y., Xu, S., & Wen, Z. (2025). Formalization of Convergence Rates of Four First-order Algorithms for Convex Optimization. *Journal of Automated Reasoning* 69(4), Art. 28. https://doi.org/10.1007/s10817-025-09741-w（arXiv:2403.11437）
+  [P2] 32. Alshiekh, M., Bloem, R., Ehlers, R., Könighofer, B., Niekum, S., & Topcu, U. (2018). Safe Reinforcement Learning via Shielding. *AAAI 2018*. arXiv:1708.08611. https://arxiv.org/abs/1708.08611
+  [P2] 33. Katz, G., Barrett, C., Dill, D. L., Julian, K., & Kochenderfer, M. J. (2017). Reluplex: An Efficient SMT Solver for Verifying Deep Neural Networks. *CAV 2017*. arXiv:1702.01135. https://arxiv.org/abs/1702.01135
+  —— 共 33 条
+
+==============================================================================================================
+【P3】论文3-构造性柯西实数指数正性-正式版.md   （条目段 L868–L894）
+==============================================================================================================
+  [P3] 1. O'Connor, R. (2008). Certified Exact Transcendental Real Number Computation in Coq. *TPHOLs*.
+  [P3] 2. Geuvers, H., Niqui, M., & Wiedijk, F. (2000). Constructive Reals in Coq: Axioms and Categoricity. *TYPES*.
+  [P3] 3. Cruz-Filipe, L., Geuvers, H., & Wiedijk, F. (2004). C-CoRN, the Constructive Coq Repository at Nijmegen. *IJCAR 2004*, LNCS 3097, Springer.（现行维护仓库：rocq-community/corn，https://github.com/rocq-community/corn，访问日期 2026-09-06；无单一版本号——本文 §2 对比以访问时点的仓库内容为准。）
+  [P3] 4. Rudin, W. (1976). *Principles of Mathematical Analysis*. McGraw-Hill.
+  [P3] 5. The mathlib Community. *mathlib: The Lean Mathematical Library*. https://github.com/leanprover-community/mathlib（访问日期 2026-09-08；本文 §2 的 `real.exp_pos` 方法论对比以其经典证明路线为据，无单一版本号）。
+  [P3] 6. Bishop, E., & Bridges, D. (1985). *Constructive Analysis*. Grundlehren der mathematischen Wissenschaften 279. Springer-Verlag.（Bishop 1967 *Foundations of Constructive Analysis* 为初版前身。）
+  [P3] 7. Bridges, D., & Vîță, L. (2006). *Techniques of Constructive Analysis*. Universitext. Springer.
+  [P3] 8. Troelstra, A. S., & van Dalen, D. (1988). *Constructivism in Mathematics: An Introduction*（两卷）. North-Holland.
+  [P3] 9. Krebbers, R., & Spitters, B. (2013). Type classes for (easily) efficient exact real arithmetic in Coq. *Logical Methods in Computer Science* 9(1:28). DOI: 10.2168/LMCS-9(1:28)2013.
+  [P3] 10. Boldo, S., Lelay, C., & Melquiond, G. (2015). Coquelicot: A User-Friendly Library for Real Analysis for Coq. *Mathematics in Computer Science* 9(1): 41–62.（官方仓库：https://gitlab.inria.fr/coquelicot/coquelicot 。）
+  [P3] 11. Hölzl, J., Immler, A., & Huffman, B. (2013). Type Classes and Filters for Mathematical Analysis in Isabelle/HOL. *ITP 2013*, LNCS 7998, Springer.
+  [P3] 12. MathComp-Analysis（math-comp 团队）. *Analysis Library for MathComp*. https://github.com/math-comp/analysis（访问日期 2026-09-12；无单一版本号）。
+  [P3] 13. UniMath（Voevodsky 等发起）. *UniMath: Univalent Mathematics*. https://github.com/UniMath/UniMath（访问日期 2026-09-12；无单一版本号）。
+  [P3] 14. The Univalent Foundations Program (2013). *Homotopy Type Theory: Univalent Foundations of Mathematics*. Institute for Advanced Study. https://homotopytypetheory.org/book/（第 11 章为构造性实数）。
+  [P3] 15. The mathlib Community. *Mathlib.Analysis.Real.Pi.Bounds*. https://leanprover-community.github.io/mathlib4_docs/Mathlib/Analysis/Real/Pi/Bounds.html（访问日期 2026-09-16；无单一版本号）。
+  [P3] 16. The Rocq/Coq standard library. *Coq.Reals.Rtrigo_def* / *Coq.Reals.Machin*. https://rocq-prover.org/doc/V8.19.1/stdlib/Coq.Reals.Machin.html（访问日期 2026-09-16）。
+  [P3] 17. coq-interval. https://coqinterval.gitlabpages.inria.fr/（访问日期 2026-09-16）。
+  [P3] 18. Hölzl, J., Immler, F., et al. Isabelle/HOL `HOL/Decision_Procs/Approximation`（"Proving Inequalities over Reals with Computation in Isabelle/HOL"）。
+  [P3] 19. The mathlib Community. *Mathlib.InformationTheory.KullbackLeibler*（Basic/ChainRule/DataProcessing/KLFun，2025）. https://github.com/leanprover-community/mathlib4（访问日期 2026-09-16）。
+  [P3] 20. ThermodynamicsLean（Lean 4，进行中）. https://github.com/or4nge19/ThermodynamicsLean（访问日期 2026-09-16）。
+  [P3] 21. Seifert, U. (2005). *Phys. Rev. Lett.* 95, 040602；Seifert, U. (2012). *Rep. Prog. Phys.* 75, 126001.
+  [P3] 22. Baez, J. C., & Fong, B. (2016). Relative Entropy in Biological Systems. *Entropy* 18(2):46.
+  [P3] 23. Cover, T. M., & Thomas, J. A. *Elements of Information Theory*（第 2 章）.
+  [P3] 24. arXiv:2608.21502（2026 预印本，尚未经同行评审；本文仅作旁证）。
+  —— 共 24 条
+
+==============================================================================================================
+【P4】论文4-资源受限收敛动力学与PCT-正式版.md   （条目段 L439–L448）
+==============================================================================================================
+  [P4] 1. O'Connor, R. (2008). Certified Exact Transcendental Real Number Computation in Coq. *TPHOLs 2008*, LNCS 5170. https://dblp.org/rec/conf/tphol/OConnor08.html （预印本：https://arxiv.org/abs/0805.2438）
+  [P4] 2. C-CoRN: Constructive Coq Repository at Nijmegen（Geuvers, H., Cruz-Filipe, L., Niqui, M., Wiedijk, F., et al.）. http://c-corn.cs.ru.nl （社区维护仓库：https://github.com/rocq-community/corn ；ODE 目录含 `BanachFixpoint.v`，核验见 §2.5）
+  [P4] 3. Boldo, S., Lelay, C., Melquiond, G. (2015). Coquelicot: A User-Friendly Library of Real Analysis for Coq. *Mathematics in Computer Science*. https://inria.hal.science/hal-00860648 （库：https://github.com/coq/coquelicot）
+  [P4] 4. Affeldt, R., Cohen, C., Kerjean, M., Mahboubi, A., Rouhling, D., Sakaguchi, K. (2020). Competing Inheritance Paths in Dependent Type Theory: A Case Study in Functional Analysis. *ITP 2020*. https://github.com/math-comp/analysis （库；包结构含显式经典推理层 rocq-mathcomp-classical）
+  [P4] 5. Bubeck, S. (2015). Convex Optimization: Algorithms and Complexity. *Foundations and Trends in Machine Learning* 8(3–4):231–357. https://mlanthology.org/ftml/2015/bubeck2015ftml-convex/ doi:10.1561/2200000050
+  [P4] 6. Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature Reviews Neuroscience* 11(2):127–138. https://pubmed.ncbi.nlm.nih.gov/20068583/ doi:10.1038/nrn2787
+  —— 共 6 条
+
+==============================================================================================================
+全文 URL / DOI / arXiv 汇总
+==============================================================================================================
+
+【P1】URL 12 条 / arXiv 4 条 / DOI 0 条
+    https://arxiv.org/abs/2112.05996
+    https://arxiv.org/abs/2310.12036
+    https://compcert.org
+    https://coq.inria.fr/doc/stdlib/Stdlib.Reals.Cauchy.ConstructiveCauchyReals.html
+    https://doi.org/10.1007/s10817-016-9401-5
+    https://doi.org/10.1145/3437992.3439927
+    https://github.com/coq-community/corn
+    https://isa-afp.org/entries/MDP-Algorithms.html
+    https://isa-afp.org/entries/MDP-Rewards.html
+    https://isa-afp.org/entries/Markov_Models.html
+    https://leanprover-community.github.io/mathlib4_docs/Mathlib/InformationTheory/KullbackLeibler/Basic.html
+    https://www.sciencedirect.com/science/article/abs/pii/S0167691122000500
+    arXiv: 1707.06347
+    arXiv: 2112.05996
+    arXiv: 2310.12036
+    arXiv: 2402.03300
+
+【P2】URL 23 条 / arXiv 16 条 / DOI 0 条
+    https://arxiv.org/abs/1503.02531
+    https://arxiv.org/abs/1606.01164
+    https://arxiv.org/abs/1702.01135
+    https://arxiv.org/abs/1706.04599
+    https://arxiv.org/abs/1708.08611
+    https://arxiv.org/abs/1805.04833
+    https://arxiv.org/abs/1904.09751
+    https://arxiv.org/abs/1910.09336
+    https://arxiv.org/abs/2008.02217
+    https://arxiv.org/abs/2202.00666
+    https://arxiv.org/abs/2203.02155
+    https://arxiv.org/abs/2210.15191
+    https://arxiv.org/abs/2305.18290
+    https://arxiv.org/abs/2306.14048
+    https://arxiv.org/abs/2407.01082
+    https://clip4.ait.kyushu-u.ac.jp/infotheo/（访问日期：2026-09-13）.
+    https://doi.org/10.1007/s10817-016-9401-5
+    https://doi.org/10.1007/s10817-025-09741-w（arXiv:2403.11437）
+    https://doi.org/10.1016/j.scico.2007.09.002
+    https://eprints.maths.manchester.ac.uk/2765/
+    https://github.com/rocq-community/corn（访问日期：2026-09-13）.
+    https://ojs.aaai.org/index.php/AAAI/article/view/4115
+    https://www.isa-afp.org/entries/Source_Coding_Theorem.html（访问日期：2026-09-10
+    arXiv: 1503.02531.
+    arXiv: 1606.01164.
+    arXiv: 1702.01135.
+    arXiv: 1706.04599.
+    arXiv: 1708.08611.
+    arXiv: 1805.04833.
+    arXiv: 1904.09751.
+    arXiv: 1910.09336.
+    arXiv: 2008.02217.
+    arXiv: 2202.00666.
+    arXiv: 2203.02155.
+    arXiv: 2210.15191.
+    arXiv: 2305.18290.
+    arXiv: 2306.14048.
+    arXiv: 2403.11437
+    arXiv: 2407.01082.
+
+【P3】URL 11 条 / arXiv 1 条 / DOI 0 条
+    https://coqinterval.gitlabpages.inria.fr/（访问日期
+    https://github.com/UniMath/UniMath（访问日期
+    https://github.com/leanprover-community/mathlib4（访问日期
+    https://github.com/leanprover-community/mathlib（访问日期
+    https://github.com/math-comp/analysis（访问日期
+    https://github.com/or4nge19/ThermodynamicsLean（访问日期
+    https://github.com/rocq-community/corn
+    https://gitlab.inria.fr/coquelicot/coquelicot
+    https://homotopytypetheory.org/book/（第
+    https://leanprover-community.github.io/mathlib4_docs/Mathlib/Analysis/Real/Pi/Bounds.html（访问日期
+    https://rocq-prover.org/doc/V8.19.1/stdlib/Coq.Reals.Machin.html（访问日期
+    arXiv: 2608.21502
+
+【P4】URL 9 条 / arXiv 0 条 / DOI 2 条
+    http://c-corn.cs.ru.nl
+    https://arxiv.org/abs/0805.2438）
+    https://dblp.org/rec/conf/tphol/OConnor08.html
+    https://github.com/coq/coquelicot）
+    https://github.com/math-comp/analysis
+    https://github.com/rocq-community/corn
+    https://inria.hal.science/hal-00860648
+    https://mlanthology.org/ftml/2015/bubeck2015ftml-convex/
+    https://pubmed.ncbi.nlm.nih.gov/20068583/
+    doi: 10.1038/nrn2787
+    doi: 10.1561/2200000050

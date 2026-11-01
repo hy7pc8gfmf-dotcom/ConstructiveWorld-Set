@@ -1,0 +1,4 @@
+File ".\AttnLogSumExpBound.v", line 75, characters 0-36:
+Error:
+Compiled library S07_RealSetoidExpLog (in file D:\ComplexAnalysis\ConstructiveWorld-Main\ConstructiveWorld_vo\S07_RealSetoidExpLog.vo) makes inconsistent assumptions over library S05_AlignmentGRPO
+

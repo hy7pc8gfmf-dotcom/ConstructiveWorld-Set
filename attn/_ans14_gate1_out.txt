@@ -1,0 +1,5 @@
+[gate1] 树=ConstructiveWorld_Live  .v数=569  命中=0  豁免件命中=0  判定=PASS(洁净)  扫描时点=2026-09-27T23:11:20
+[gate1] 树=ConstructiveWorld_vo  .v数=570  命中=0  豁免件命中=1  判定=PASS(洁净)  扫描时点=2026-09-27T23:11:20
+  EXEMPTED(用户禁碰件豁免留账) ConstructiveWorld_vo\_t24_probe3.v:4  token=CW_ConstructiveWorld_219
+      Require Import CW_ConstructiveWorld_219.
+GATE1_EXIT=0

@@ -1,0 +1,26 @@
+{
+ "time": "2026-09-27T20:30:12",
+ "form": "diff+module-membership (R130 乙案扩条＋单条文件级豁免)",
+ "shell_module": "CW_ConstructiveWorld_219",
+ "exempt_files": [
+  "_t24_probe3.v"
+ ],
+ "resurrection_hits": [],
+ "exempted_hits": [
+  {
+   "tree": "B",
+   "kind": "RESURRECT-REQUIRE",
+   "module": "_t24_probe3",
+   "file": "ConstructiveWorld_vo\\_t24_probe3.v",
+   "line": 1,
+   "text": "Require Import CW_ConstructiveWorld_219.",
+   "exempted": true
+  }
+ ],
+ "poison_divergence": [],
+ "require_drift": [],
+ "only_a": [],
+ "only_b": [
+  "_t24_probe3"
+ ]
+}

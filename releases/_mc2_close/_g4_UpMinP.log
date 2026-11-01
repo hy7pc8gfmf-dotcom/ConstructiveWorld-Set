@@ -1,0 +1,1330 @@
+Welcome to Chicken 9.0.1
+[intern D:\ComplexAnalysis\ConstructiveWorld-Main\ConstructiveWorld_vo\UpMinP.vo ...
+ done]
+
+[intern D:\ComplexAnalysis\ConstructiveWorld-Main\ConstructiveWorld_vo\CW_ConstructiveWorld_219.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Psatz.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Lra.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Rregisternames.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Rfunctions.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\ArithProp.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Rbasic_fun.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\R_Ifp.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\RIneq.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\RealField.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Raxioms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Rdefinitions.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\ClassicalDedekindReals.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\ConstructiveRcomplete.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qminmax.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\QOrderedType.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\QArith_base.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\ZArith_dec.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zorder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Arith_base.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Wf_nat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Compare_dec.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\PeanoNat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NProperties.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NBits.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NLog.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NPow.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NParity.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NSub.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NMulOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NAddOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NAdd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NBase.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NAxioms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZBits.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZLog.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZPow.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZMulOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZAddOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\Decidable.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Prelude.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Sumbool.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Specif.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Datatypes.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Logic.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Ltac.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Notations.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Tauto.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Tactics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Wf.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Peano.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Nat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Number.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Hexadecimal.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Decimal.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Init\Byte.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZBase.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZAxioms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Structures\GenericMinMax.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Structures\OrdersFacts.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Structures\OrdersTac.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Structures\Orders.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Structures\Equalities.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Setoids\Setoid.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Setoids\Setoid.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\ssr\ssrsetoid.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\RelationClasses.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Relations\Relation_Definitions.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Program\Tactics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\Init.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Program\Basics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\ssr\ssrunder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\ssr\ssrclasses.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\SetoidTactics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\Equivalence.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\Morphisms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\Morphisms_Prop.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\CMorphisms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Classes\CRelationClasses.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Classes\Morphisms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Bool\Bool.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Classes\DecidableClass.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Classes\RelationClasses.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Relations\Relations.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Relations\Operators_Properties.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Relations\Relation_Operators.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Relations\Relation_Definitions.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Program\Basics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NumPrelude.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Classes\Morphisms_Prop.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZMul.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZAdd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZDiv.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZParity.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZGcd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\NatInt\NZSqrt.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NDiv.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NLcm0.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NLcm.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NGcd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NDiv0.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NSqrt.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Natural\Abstract\NMaxMin.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\EqNat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Peano_dec.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\Eqdep_dec.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\EqdepFacts.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Between.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Factorial.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zcompare.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\BinInt.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\BinIntDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\BinNums\IntDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\BinNums\IntDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\BinNums\NatDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\BinNums\PosDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Numbers\BinNums.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\BinNat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\BinNatDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\BinNums\NatDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\PArith\BinPos.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\PArith\BinPosDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\BinNums\PosDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\BinNums.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZProperties.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZBits.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZDivFloor.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZSgnAbs.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZMulOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZAddOrder.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZLt.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZMul.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZAdd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZBase.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZAxioms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZPow.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZParity.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZLcm.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZDivTrunc.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZGcd.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Numbers\Integer\Abstract\ZMaxMin.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\PArith\Pnat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Init\Sumbool.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\ZArithRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zpow_def.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Ring_theory.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Ring.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Ring_base.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Ring_tac.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\InitialRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Ring_polynom.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\BinList.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Lists\List.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Lists\ListDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\theories\Lists\ListDef.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Lists\ListTactics.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\ConstructiveCauchyAbs.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\ConstructiveCauchyRealsMult.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\ConstructiveCauchyReals.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\ConstructiveExtra.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\ConstructiveEpsilon.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\ZArith.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zbitwise.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\btauto\Btauto.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\btauto\Reflect.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\btauto\Algebra.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Lia.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\DeclConstantZ.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\ZMicromega.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\VarMap.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Znumtheory.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zdiv.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zcomplements.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zeven.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Wf_Z.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zmisc.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Znat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\Nnat.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zabs.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zbool.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\ZArith_base.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zhints.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\auxiliary.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zmin.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zmax.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zminmax.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\ZCoeff.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\RingMicromega.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Tauto.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Refl.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\OrderedRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\EnvRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Env.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\NArith.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\NArithRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\NArith_base.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\Ngcd_def.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\Nsqrt_def.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\NArith\Ndiv_def.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\omega\PreOmega.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Zify.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\ZifyInst.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\ZifyClasses.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Arith\Arith.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\ArithRing.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\PArith\PArith.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\PArith\POrderedType.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zdiv_facts.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zpower.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\ZArith_hints.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\omega\OmegaLemmas.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\QExtra.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Cauchy\PosExtra.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\Lqa.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\DeclConstant.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\QMicromega.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qfield.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Field.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Field_tac.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\setoid_ring\Field_theory.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qround.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qabs.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\QArith.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qreduction.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qring.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\QArith\Qpower.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\ZArith\Zpow_facts.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Classes\CMorphisms.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Abstract\ConstructiveReals.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\HLevels.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Logic\FunctionalExtensionality.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Abstract\ConstructiveLUB.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Abstract\ConstructiveLimits.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Abstract\ConstructiveAbs.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Rpow_def.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\SplitRmult.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\SplitAbsolu.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\R_sqr.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\micromega\RMicromega.vo ...
+ done]
+
+[intern C:\Rocq-Platform~9.0~2025.08\lib\coq\user-contrib\Stdlib\Reals\Qreals.vo ...
+ done]
+
+
+Ordered list:
+  Corelib.Init.Ltac
+  Corelib.Init.Notations
+  Corelib.Init.Logic
+  Corelib.Init.Datatypes
+  Corelib.Init.Specif
+  Corelib.Init.Sumbool
+  Corelib.Init.Tauto
+  Corelib.Init.Tactics
+  Corelib.Init.Wf
+  Corelib.Init.Decimal
+  Corelib.Init.Hexadecimal
+  Corelib.Init.Number
+  Corelib.Init.Nat
+  Corelib.Init.Peano
+  Corelib.Init.Byte
+  Corelib.Init.Prelude
+  Stdlib.Logic.Decidable
+  Corelib.Relations.Relation_Definitions
+  Corelib.Program.Tactics
+  Corelib.Program.Basics
+  Corelib.Classes.Init
+  Corelib.Classes.RelationClasses
+  Corelib.ssr.ssrclasses
+  Corelib.ssr.ssrunder
+  Corelib.ssr.ssrsetoid
+  Corelib.Classes.Morphisms
+  Corelib.Classes.Equivalence
+  Corelib.Classes.Morphisms_Prop
+  Corelib.Classes.CRelationClasses
+  Corelib.Classes.CMorphisms
+  Corelib.Classes.SetoidTactics
+  Corelib.Setoids.Setoid
+  Stdlib.Setoids.Setoid
+  Stdlib.Classes.Morphisms
+  Stdlib.Classes.DecidableClass
+  Stdlib.Bool.Bool
+  Stdlib.Classes.RelationClasses
+  Stdlib.Structures.Equalities
+  Stdlib.Relations.Relation_Definitions
+  Stdlib.Relations.Relation_Operators
+  Stdlib.Relations.Operators_Properties
+  Stdlib.Relations.Relations
+  Stdlib.Structures.Orders
+  Stdlib.Program.Basics
+  Stdlib.Structures.OrdersTac
+  Stdlib.Structures.OrdersFacts
+  Stdlib.Structures.GenericMinMax
+  Stdlib.Classes.Morphisms_Prop
+  Stdlib.Numbers.NumPrelude
+  Stdlib.Numbers.NatInt.NZAxioms
+  Stdlib.Numbers.NatInt.NZBase
+  Stdlib.Numbers.NatInt.NZOrder
+  Stdlib.Numbers.NatInt.NZAdd
+  Stdlib.Numbers.NatInt.NZMul
+  Stdlib.Numbers.NatInt.NZAddOrder
+  Stdlib.Numbers.NatInt.NZMulOrder
+  Stdlib.Numbers.NatInt.NZPow
+  Stdlib.Numbers.NatInt.NZLog
+  Stdlib.Numbers.NatInt.NZDiv
+  Stdlib.Numbers.NatInt.NZParity
+  Stdlib.Numbers.NatInt.NZBits
+  Stdlib.Numbers.NatInt.NZGcd
+  Stdlib.Numbers.NatInt.NZSqrt
+  Stdlib.Numbers.Natural.Abstract.NAxioms
+  Stdlib.Numbers.Natural.Abstract.NBase
+  Stdlib.Numbers.Natural.Abstract.NAdd
+  Stdlib.Numbers.Natural.Abstract.NOrder
+  Stdlib.Numbers.Natural.Abstract.NAddOrder
+  Stdlib.Numbers.Natural.Abstract.NMulOrder
+  Stdlib.Numbers.Natural.Abstract.NSub
+  Stdlib.Numbers.Natural.Abstract.NParity
+  Stdlib.Numbers.Natural.Abstract.NPow
+  Stdlib.Numbers.Natural.Abstract.NLog
+  Stdlib.Numbers.Natural.Abstract.NDiv
+  Stdlib.Numbers.Natural.Abstract.NBits
+  Stdlib.Numbers.Natural.Abstract.NGcd
+  Stdlib.Numbers.Natural.Abstract.NLcm
+  Stdlib.Numbers.Natural.Abstract.NDiv0
+  Stdlib.Numbers.Natural.Abstract.NLcm0
+  Stdlib.Numbers.Natural.Abstract.NSqrt
+  Stdlib.Numbers.Natural.Abstract.NMaxMin
+  Stdlib.Numbers.Natural.Abstract.NProperties
+  Stdlib.Arith.PeanoNat
+  Stdlib.Arith.Compare_dec
+  Stdlib.Arith.Wf_nat
+  Stdlib.Arith.EqNat
+  Stdlib.Logic.EqdepFacts
+  Stdlib.Logic.Eqdep_dec
+  Stdlib.Arith.Peano_dec
+  Stdlib.Arith.Between
+  Stdlib.Arith.Factorial
+  Stdlib.Arith.Arith_base
+  Corelib.Numbers.BinNums
+  Corelib.BinNums.PosDef
+  Corelib.BinNums.NatDef
+  Corelib.BinNums.IntDef
+  Stdlib.BinNums.IntDef
+  Stdlib.BinNums.NatDef
+  Stdlib.BinNums.PosDef
+  Stdlib.Numbers.BinNums
+  Stdlib.PArith.BinPosDef
+  Stdlib.PArith.BinPos
+  Stdlib.NArith.BinNatDef
+  Stdlib.NArith.BinNat
+  Stdlib.ZArith.BinIntDef
+  Stdlib.Numbers.Integer.Abstract.ZAxioms
+  Stdlib.Numbers.Integer.Abstract.ZBase
+  Stdlib.Numbers.Integer.Abstract.ZAdd
+  Stdlib.Numbers.Integer.Abstract.ZMul
+  Stdlib.Numbers.Integer.Abstract.ZLt
+  Stdlib.Numbers.Integer.Abstract.ZAddOrder
+  Stdlib.Numbers.Integer.Abstract.ZMulOrder
+  Stdlib.Numbers.Integer.Abstract.ZSgnAbs
+  Stdlib.Numbers.Integer.Abstract.ZDivFloor
+  Stdlib.Numbers.Integer.Abstract.ZParity
+  Stdlib.Numbers.Integer.Abstract.ZPow
+  Stdlib.Numbers.Integer.Abstract.ZBits
+  Stdlib.Numbers.Integer.Abstract.ZDivTrunc
+  Stdlib.Numbers.Integer.Abstract.ZGcd
+  Stdlib.Numbers.Integer.Abstract.ZLcm
+  Stdlib.Numbers.Integer.Abstract.ZMaxMin
+  Stdlib.Numbers.Integer.Abstract.ZProperties
+  Stdlib.PArith.Pnat
+  Stdlib.ZArith.BinInt
+  Stdlib.ZArith.Zcompare
+  Stdlib.ZArith.Zorder
+  Stdlib.Init.Sumbool
+  Stdlib.ZArith.ZArith_dec
+  Stdlib.setoid_ring.Ring_theory
+  Stdlib.ZArith.Zpow_def
+  Corelib.Lists.ListDef
+  Stdlib.Lists.ListDef
+  Stdlib.Lists.List
+  Stdlib.setoid_ring.BinList
+  Stdlib.setoid_ring.Ring_polynom
+  Stdlib.setoid_ring.InitialRing
+  Stdlib.Lists.ListTactics
+  Stdlib.setoid_ring.Ring_tac
+  Stdlib.setoid_ring.Ring_base
+  Stdlib.setoid_ring.Ring
+  Stdlib.setoid_ring.ZArithRing
+  Stdlib.QArith.QArith_base
+  Stdlib.QArith.QOrderedType
+  Stdlib.QArith.Qminmax
+  Stdlib.Logic.ConstructiveEpsilon
+  Stdlib.micromega.DeclConstantZ
+  Stdlib.micromega.VarMap
+  Stdlib.ZArith.Zeven
+  Stdlib.ZArith.Zmisc
+  Stdlib.NArith.Nnat
+  Stdlib.ZArith.Znat
+  Stdlib.ZArith.Wf_Z
+  Stdlib.ZArith.Zabs
+  Stdlib.ZArith.Zcomplements
+  Stdlib.ZArith.Zbool
+  Stdlib.ZArith.Zdiv
+  Stdlib.ZArith.auxiliary
+  Stdlib.ZArith.Zmin
+  Stdlib.ZArith.Zhints
+  Stdlib.ZArith.Zmax
+  Stdlib.ZArith.Zminmax
+  Stdlib.ZArith.ZArith_base
+  Stdlib.ZArith.Znumtheory
+  Stdlib.micromega.Refl
+  Stdlib.micromega.Tauto
+  Stdlib.micromega.OrderedRing
+  Stdlib.micromega.Env
+  Stdlib.micromega.EnvRing
+  Stdlib.setoid_ring.NArithRing
+  Stdlib.NArith.Ngcd_def
+  Stdlib.NArith.Nsqrt_def
+  Stdlib.NArith.Ndiv_def
+  Stdlib.NArith.NArith_base
+  Stdlib.NArith.NArith
+  Stdlib.micromega.RingMicromega
+  Stdlib.micromega.ZCoeff
+  Stdlib.micromega.ZMicromega
+  Stdlib.micromega.ZifyClasses
+  Stdlib.setoid_ring.ArithRing
+  Stdlib.Arith.Arith
+  Stdlib.micromega.ZifyInst
+  Stdlib.micromega.Zify
+  Stdlib.omega.PreOmega
+  Stdlib.micromega.Lia
+  Stdlib.PArith.POrderedType
+  Stdlib.PArith.PArith
+  Stdlib.btauto.Algebra
+  Stdlib.btauto.Reflect
+  Stdlib.btauto.Btauto
+  Stdlib.ZArith.Zbitwise
+  Stdlib.ZArith.Zdiv_facts
+  Stdlib.ZArith.Zpower
+  Stdlib.micromega.ZArith_hints
+  Stdlib.omega.OmegaLemmas
+  Stdlib.ZArith.ZArith
+  Stdlib.Reals.Cauchy.ConstructiveExtra
+  Stdlib.Reals.Cauchy.PosExtra
+  Stdlib.micromega.DeclConstant
+  Stdlib.setoid_ring.Field_theory
+  Stdlib.setoid_ring.Field_tac
+  Stdlib.setoid_ring.Field
+  Stdlib.QArith.Qfield
+  Stdlib.micromega.QMicromega
+  Stdlib.micromega.Lqa
+  Stdlib.QArith.Qround
+  Stdlib.QArith.Qreduction
+  Stdlib.QArith.Qring
+  Stdlib.QArith.QArith
+  Stdlib.QArith.Qabs
+  Stdlib.ZArith.Zpow_facts
+  Stdlib.QArith.Qpower
+  Stdlib.Reals.Cauchy.QExtra
+  Stdlib.Classes.CMorphisms
+  Stdlib.Reals.Cauchy.ConstructiveCauchyReals
+  Stdlib.Reals.Cauchy.ConstructiveCauchyRealsMult
+  Stdlib.Reals.Cauchy.ConstructiveCauchyAbs
+  Stdlib.Reals.Abstract.ConstructiveReals
+  Stdlib.Reals.Cauchy.ConstructiveRcomplete
+  Stdlib.Logic.FunctionalExtensionality
+  Stdlib.Logic.HLevels
+  Stdlib.Reals.ClassicalDedekindReals
+  Stdlib.Reals.Rdefinitions
+  Stdlib.Reals.Abstract.ConstructiveAbs
+  Stdlib.Reals.Abstract.ConstructiveLimits
+  Stdlib.Reals.Abstract.ConstructiveLUB
+  Stdlib.Reals.Raxioms
+  Stdlib.Reals.Rpow_def
+  Stdlib.setoid_ring.RealField
+  Stdlib.Reals.RIneq
+  Stdlib.Reals.R_Ifp
+  Stdlib.Reals.Rbasic_fun
+  Stdlib.Reals.ArithProp
+  Stdlib.Reals.SplitRmult
+  Stdlib.Reals.SplitAbsolu
+  Stdlib.Reals.R_sqr
+  Stdlib.Reals.Rfunctions
+  Stdlib.Reals.Rregisternames
+  Stdlib.Reals.Qreals
+  Stdlib.micromega.RMicromega
+  Stdlib.micromega.Lra
+  Stdlib.micromega.Psatz
+  CW_ConstructiveWorld_219
+  UpMinP
+  
+Admitting library: Corelib.Init.Ltac
+Admitting library: Corelib.Init.Notations
+Admitting library: Corelib.Init.Logic
+Admitting library: Corelib.Init.Datatypes
+Admitting library: Corelib.Init.Specif
+Admitting library: Corelib.Init.Sumbool
+Admitting library: Corelib.Init.Tauto
+Admitting library: Corelib.Init.Tactics
+Admitting library: Corelib.Init.Wf
+Admitting library: Corelib.Init.Decimal
+Admitting library: Corelib.Init.Hexadecimal
+Admitting library: Corelib.Init.Number
+Admitting library: Corelib.Init.Nat
+Admitting library: Corelib.Init.Peano
+Admitting library: Corelib.Init.Byte
+Admitting library: Corelib.Init.Prelude
+Admitting library: Stdlib.Logic.Decidable
+Admitting library: Corelib.Relations.Relation_Definitions
+Admitting library: Corelib.Program.Tactics
+Admitting library: Corelib.Program.Basics
+Admitting library: Corelib.Classes.Init
+Admitting library: Corelib.Classes.RelationClasses
+Admitting library: Corelib.ssr.ssrclasses
+Admitting library: Corelib.ssr.ssrunder
+Admitting library: Corelib.ssr.ssrsetoid
+Admitting library: Corelib.Classes.Morphisms
+Admitting library: Corelib.Classes.Equivalence
+Admitting library: Corelib.Classes.Morphisms_Prop
+Admitting library: Corelib.Classes.CRelationClasses
+Admitting library: Corelib.Classes.CMorphisms
+Admitting library: Corelib.Classes.SetoidTactics
+Admitting library: Corelib.Setoids.Setoid
+Admitting library: Stdlib.Setoids.Setoid
+Admitting library: Stdlib.Classes.Morphisms
+Admitting library: Stdlib.Classes.DecidableClass
+Admitting library: Stdlib.Bool.Bool
+Admitting library: Stdlib.Classes.RelationClasses
+Admitting library: Stdlib.Structures.Equalities
+Admitting library: Stdlib.Relations.Relation_Definitions
+Admitting library: Stdlib.Relations.Relation_Operators
+Admitting library: Stdlib.Relations.Operators_Properties
+Admitting library: Stdlib.Relations.Relations
+Admitting library: Stdlib.Structures.Orders
+Admitting library: Stdlib.Program.Basics
+Admitting library: Stdlib.Structures.OrdersTac
+Admitting library: Stdlib.Structures.OrdersFacts
+Admitting library: Stdlib.Structures.GenericMinMax
+Admitting library: Stdlib.Classes.Morphisms_Prop
+Admitting library: Stdlib.Numbers.NumPrelude
+Admitting library: Stdlib.Numbers.NatInt.NZAxioms
+Admitting library: Stdlib.Numbers.NatInt.NZBase
+Admitting library: Stdlib.Numbers.NatInt.NZOrder
+Admitting library: Stdlib.Numbers.NatInt.NZAdd
+Admitting library: Stdlib.Numbers.NatInt.NZMul
+Admitting library: Stdlib.Numbers.NatInt.NZAddOrder
+Admitting library: Stdlib.Numbers.NatInt.NZMulOrder
+Admitting library: Stdlib.Numbers.NatInt.NZPow
+Admitting library: Stdlib.Numbers.NatInt.NZLog
+Admitting library: Stdlib.Numbers.NatInt.NZDiv
+Admitting library: Stdlib.Numbers.NatInt.NZParity
+Admitting library: Stdlib.Numbers.NatInt.NZBits
+Admitting library: Stdlib.Numbers.NatInt.NZGcd
+Admitting library: Stdlib.Numbers.NatInt.NZSqrt
+Admitting library: Stdlib.Numbers.Natural.Abstract.NAxioms
+Admitting library: Stdlib.Numbers.Natural.Abstract.NBase
+Admitting library: Stdlib.Numbers.Natural.Abstract.NAdd
+Admitting library: Stdlib.Numbers.Natural.Abstract.NOrder
+Admitting library: Stdlib.Numbers.Natural.Abstract.NAddOrder
+Admitting library: Stdlib.Numbers.Natural.Abstract.NMulOrder
+Admitting library: Stdlib.Numbers.Natural.Abstract.NSub
+Admitting library: Stdlib.Numbers.Natural.Abstract.NParity
+Admitting library: Stdlib.Numbers.Natural.Abstract.NPow
+Admitting library: Stdlib.Numbers.Natural.Abstract.NLog
+Admitting library: Stdlib.Numbers.Natural.Abstract.NDiv
+Admitting library: Stdlib.Numbers.Natural.Abstract.NBits
+Admitting library: Stdlib.Numbers.Natural.Abstract.NGcd
+Admitting library: Stdlib.Numbers.Natural.Abstract.NLcm
+Admitting library: Stdlib.Numbers.Natural.Abstract.NDiv0
+Admitting library: Stdlib.Numbers.Natural.Abstract.NLcm0
+Admitting library: Stdlib.Numbers.Natural.Abstract.NSqrt
+Admitting library: Stdlib.Numbers.Natural.Abstract.NMaxMin
+Admitting library: Stdlib.Numbers.Natural.Abstract.NProperties
+Admitting library: Stdlib.Arith.PeanoNat
+Admitting library: Stdlib.Arith.Compare_dec
+Admitting library: Stdlib.Arith.Wf_nat
+Admitting library: Stdlib.Arith.EqNat
+Admitting library: Stdlib.Logic.EqdepFacts
+Admitting library: Stdlib.Logic.Eqdep_dec
+Admitting library: Stdlib.Arith.Peano_dec
+Admitting library: Stdlib.Arith.Between
+Admitting library: Stdlib.Arith.Factorial
+Admitting library: Stdlib.Arith.Arith_base
+Admitting library: Corelib.Numbers.BinNums
+Admitting library: Corelib.BinNums.PosDef
+Admitting library: Corelib.BinNums.NatDef
+Admitting library: Corelib.BinNums.IntDef
+Admitting library: Stdlib.BinNums.IntDef
+Admitting library: Stdlib.BinNums.NatDef
+Admitting library: Stdlib.BinNums.PosDef
+Admitting library: Stdlib.Numbers.BinNums
+Admitting library: Stdlib.PArith.BinPosDef
+Admitting library: Stdlib.PArith.BinPos
+Admitting library: Stdlib.NArith.BinNatDef
+Admitting library: Stdlib.NArith.BinNat
+Admitting library: Stdlib.ZArith.BinIntDef
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZAxioms
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZBase
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZAdd
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZMul
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZLt
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZAddOrder
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZMulOrder
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZSgnAbs
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZDivFloor
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZParity
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZPow
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZBits
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZDivTrunc
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZGcd
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZLcm
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZMaxMin
+Admitting library: Stdlib.Numbers.Integer.Abstract.ZProperties
+Admitting library: Stdlib.PArith.Pnat
+Admitting library: Stdlib.ZArith.BinInt
+Admitting library: Stdlib.ZArith.Zcompare
+Admitting library: Stdlib.ZArith.Zorder
+Admitting library: Stdlib.Init.Sumbool
+Admitting library: Stdlib.ZArith.ZArith_dec
+Admitting library: Stdlib.setoid_ring.Ring_theory
+Admitting library: Stdlib.ZArith.Zpow_def
+Admitting library: Corelib.Lists.ListDef
+Admitting library: Stdlib.Lists.ListDef
+Admitting library: Stdlib.Lists.List
+Admitting library: Stdlib.setoid_ring.BinList
+Admitting library: Stdlib.setoid_ring.Ring_polynom
+Admitting library: Stdlib.setoid_ring.InitialRing
+Admitting library: Stdlib.Lists.ListTactics
+Admitting library: Stdlib.setoid_ring.Ring_tac
+Admitting library: Stdlib.setoid_ring.Ring_base
+Admitting library: Stdlib.setoid_ring.Ring
+Admitting library: Stdlib.setoid_ring.ZArithRing
+Admitting library: Stdlib.QArith.QArith_base
+Admitting library: Stdlib.QArith.QOrderedType
+Admitting library: Stdlib.QArith.Qminmax
+Admitting library: Stdlib.Logic.ConstructiveEpsilon
+Admitting library: Stdlib.micromega.DeclConstantZ
+Admitting library: Stdlib.micromega.VarMap
+Admitting library: Stdlib.ZArith.Zeven
+Admitting library: Stdlib.ZArith.Zmisc
+Admitting library: Stdlib.NArith.Nnat
+Admitting library: Stdlib.ZArith.Znat
+Admitting library: Stdlib.ZArith.Wf_Z
+Admitting library: Stdlib.ZArith.Zabs
+Admitting library: Stdlib.ZArith.Zcomplements
+Admitting library: Stdlib.ZArith.Zbool
+Admitting library: Stdlib.ZArith.Zdiv
+Admitting library: Stdlib.ZArith.auxiliary
+Admitting library: Stdlib.ZArith.Zmin
+Admitting library: Stdlib.ZArith.Zhints
+Admitting library: Stdlib.ZArith.Zmax
+Admitting library: Stdlib.ZArith.Zminmax
+Admitting library: Stdlib.ZArith.ZArith_base
+Admitting library: Stdlib.ZArith.Znumtheory
+Admitting library: Stdlib.micromega.Refl
+Admitting library: Stdlib.micromega.Tauto
+Admitting library: Stdlib.micromega.OrderedRing
+Admitting library: Stdlib.micromega.Env
+Admitting library: Stdlib.micromega.EnvRing
+Admitting library: Stdlib.setoid_ring.NArithRing
+Admitting library: Stdlib.NArith.Ngcd_def
+Admitting library: Stdlib.NArith.Nsqrt_def
+Admitting library: Stdlib.NArith.Ndiv_def
+Admitting library: Stdlib.NArith.NArith_base
+Admitting library: Stdlib.NArith.NArith
+Admitting library: Stdlib.micromega.RingMicromega
+Admitting library: Stdlib.micromega.ZCoeff
+Admitting library: Stdlib.micromega.ZMicromega
+Admitting library: Stdlib.micromega.ZifyClasses
+Admitting library: Stdlib.setoid_ring.ArithRing
+Admitting library: Stdlib.Arith.Arith
+Admitting library: Stdlib.micromega.ZifyInst
+Admitting library: Stdlib.micromega.Zify
+Admitting library: Stdlib.omega.PreOmega
+Admitting library: Stdlib.micromega.Lia
+Admitting library: Stdlib.PArith.POrderedType
+Admitting library: Stdlib.PArith.PArith
+Admitting library: Stdlib.btauto.Algebra
+Admitting library: Stdlib.btauto.Reflect
+Admitting library: Stdlib.btauto.Btauto
+Admitting library: Stdlib.ZArith.Zbitwise
+Admitting library: Stdlib.ZArith.Zdiv_facts
+Admitting library: Stdlib.ZArith.Zpower
+Admitting library: Stdlib.micromega.ZArith_hints
+Admitting library: Stdlib.omega.OmegaLemmas
+Admitting library: Stdlib.ZArith.ZArith
+Admitting library: Stdlib.Reals.Cauchy.ConstructiveExtra
+Admitting library: Stdlib.Reals.Cauchy.PosExtra
+Admitting library: Stdlib.micromega.DeclConstant
+Admitting library: Stdlib.setoid_ring.Field_theory
+Admitting library: Stdlib.setoid_ring.Field_tac
+Admitting library: Stdlib.setoid_ring.Field
+Admitting library: Stdlib.QArith.Qfield
+Admitting library: Stdlib.micromega.QMicromega
+Admitting library: Stdlib.micromega.Lqa
+Admitting library: Stdlib.QArith.Qround
+Admitting library: Stdlib.QArith.Qreduction
+Admitting library: Stdlib.QArith.Qring
+Admitting library: Stdlib.QArith.QArith
+Admitting library: Stdlib.QArith.Qabs
+Admitting library: Stdlib.ZArith.Zpow_facts
+Admitting library: Stdlib.QArith.Qpower
+Admitting library: Stdlib.Reals.Cauchy.QExtra
+Admitting library: Stdlib.Classes.CMorphisms
+Admitting library: Stdlib.Reals.Cauchy.ConstructiveCauchyReals
+Admitting library: Stdlib.Reals.Cauchy.ConstructiveCauchyRealsMult
+Admitting library: Stdlib.Reals.Cauchy.ConstructiveCauchyAbs
+Admitting library: Stdlib.Reals.Abstract.ConstructiveReals
+Admitting library: Stdlib.Reals.Cauchy.ConstructiveRcomplete
+Admitting library: Stdlib.Logic.FunctionalExtensionality
+Admitting library: Stdlib.Logic.HLevels
+Admitting library: Stdlib.Reals.ClassicalDedekindReals
+Admitting library: Stdlib.Reals.Rdefinitions
+Admitting library: Stdlib.Reals.Abstract.ConstructiveAbs
+Admitting library: Stdlib.Reals.Abstract.ConstructiveLimits
+Admitting library: Stdlib.Reals.Abstract.ConstructiveLUB
+Admitting library: Stdlib.Reals.Raxioms
+Admitting library: Stdlib.Reals.Rpow_def
+Admitting library: Stdlib.setoid_ring.RealField
+Admitting library: Stdlib.Reals.RIneq
+Admitting library: Stdlib.Reals.R_Ifp
+Admitting library: Stdlib.Reals.Rbasic_fun
+Admitting library: Stdlib.Reals.ArithProp
+Admitting library: Stdlib.Reals.SplitRmult
+Admitting library: Stdlib.Reals.SplitAbsolu
+Admitting library: Stdlib.Reals.R_sqr
+Admitting library: Stdlib.Reals.Rfunctions
+Admitting library: Stdlib.Reals.Rregisternames
+Admitting library: Stdlib.Reals.Qreals
+Admitting library: Stdlib.micromega.RMicromega
+Admitting library: Stdlib.micromega.Lra
+Admitting library: Stdlib.micromega.Psatz
+Admitting library: CW_ConstructiveWorld_219
+Checking library: UpMinP
+  checking module: UpMinP
+  checking cst:UpMinP.um_lt_le
+  checking cst:UpMinP.um_eq_le
+  checking cst:UpMinP.um_le_add_l
+  checking cst:UpMinP.um_add_nonneg
+  checking cst:UpMinP.um_le_add_r
+  checking cst:UpMinP.um_mult_one_l
+  checking cst:UpMinP.um_Emptyset_false
+  checking cst:UpMinP.um_nreal
+  checking cst:UpMinP.um_nreal_pos
+  checking cst:UpMinP.um_nreal_pos_of_lt
+  checking cst:UpMinP.um_seq_shift
+  checking cst:UpMinP.um_skipn_sum_step
+  checking cst:UpMinP.um_seq_nth_sum
+  checking cst:UpMinP.um_seq_const
+  checking cst:UpMinP.um_ent_term
+  checking cst:UpMinP.um_log_le_mono
+  checking cst:UpMinP.um_ent_term_le
+  checking cst:UpMinP.um_rls_le_N
+  checking cst:UpMinP.um_rls_nonneg_N
+  checking cst:UpMinP.um_rls_single_le_N
+  checking cst:UpMinP.um_fmax
+  checking cst:UpMinP.um_fmax_ge_nth
+  checking cst:UpMinP.um_fmax_mem_nth
+  checking cst:UpMinP.um_fmax_pos_nth
+  checking cst:UpMinP.um_N
+  checking cst:UpMinP.um_pmax
+  checking cst:UpMinP.um_Hpmax
+  checking cst:UpMinP.um_le_pmax
+  checking cst:UpMinP.um_entropy
+  checking cst:UpMinP.um_thr
+  checking cst:UpMinP.um_keepF
+  checking cst:UpMinP.um_kept
+  checking cst:UpMinP.um_keepF_nonneg_nth
+  checking cst:UpMinP.um_keepF_nonneg
+  checking cst:UpMinP.um_dropped
+  checking cst:UpMinP.um_keepF_congr
+  checking cst:UpMinP.um_thr_le_pmax
+  checking cst:UpMinP.entropy_ge_neg_log_p_max
+  checking cst:UpMinP.um_kept_ge_pmax
+  checking cst:UpMinP.um_exp_neg_S_le_pmax
+  checking cst:UpMinP.dropped_le_one_minus_exp_neg_S
+  checking cst:UpMinP.um_Npos
+  checking cst:UpMinP.um_pmax_ge_inv_n
+  checking cst:UpMinP.dropped_le_one_minus_inv_n
+Modules were successfully checked
+
+CONTEXT SUMMARY
+===============
+
+* Theory: Set is predicative
+  
+* Theory: Rewrite rules are not allowed
+  
+* Axioms:
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.R1_def
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.R0_def
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.land_spec
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rmult_def
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.lor_spec
+    Stdlib.Reals.Rdefinitions.RinvImpl.Rinv_def
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.odd_bitwise
+    Corelib.ssr.ssrunder.Under_rel.Under_rel_from_rel
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_bitwise_2
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_bitwise_1
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_odd_0
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_neg_r
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.shiftl_spec_high
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rrepr
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rplus
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rmult
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rabst
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Ropp
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rlt
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.R1
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.R0
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.R
+    Stdlib.Reals.Rdefinitions.RinvImpl.Rinv
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.shiftl_spec_low
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.shiftr_spec
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_odd_succ
+    Corelib.ssr.ssrunder.Under_rel.over_rel
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rlt_def
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.div2_double
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.ldiff_spec
+    Corelib.ssr.ssrunder.Under_rel.over_rel_done
+    Corelib.ssr.ssrunder.Under_rel.Under_rel
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_even_succ
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.div2_succ_double
+    Corelib.ssr.ssrunder.Under_rel.Under_relE
+    Stdlib.Logic.FunctionalExtensionality.functional_extensionality_dep
+    Stdlib.Reals.ClassicalDedekindReals.sig_not_dec
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.testbit_even_0
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.div2_bitwise
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.div2_spec
+    Stdlib.Reals.ClassicalDedekindReals.sig_forall_dec
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Ropp_def
+    Corelib.ssr.ssrunder.Under_rel.under_rel_done
+    Stdlib.Arith.PeanoNat.Nat.PrivateImplementsBitwiseSpec.lxor_spec
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rplus_def
+    Corelib.ssr.ssrunder.Under_rel.Over_rel
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rquot2
+    Stdlib.Reals.Rdefinitions.RbaseSymbolsImpl.Rquot1
+  
+* Constants/Inductives relying on type-in-type: <none>
+  
+* Constants/Inductives relying on unsafe (co)fixpoints: <none>
+  
+* Inductives whose positivity is assumed: <none>
+  
+EXIT=0

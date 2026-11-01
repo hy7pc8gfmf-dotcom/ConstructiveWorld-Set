@@ -1,0 +1,4 @@
+Warning: Cannot open ../001 [cannot-open-path,filesystem,default]
+File ".\ConstructiveWorld_Live/UpIDL.v", line 42, characters 15-24:
+Error: Cannot find a physical path bound to logical path UpCLQuery.
+

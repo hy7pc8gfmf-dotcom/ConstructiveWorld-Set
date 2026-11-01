@@ -1,0 +1,23 @@
+[cpu_guard] pinned to core 3
+[cpu_guard] cooling 0.5s: load=34% > 25%
+[cpu_guard] cooled 1.5s; load=13% -> executing
+File ".\Arch_Banach_01.v", line 107, characters 0-52:
+Warning: The extraction is currently set to bypass opacity, the following
+opaque constant bodies have been accessed
+: Qle_to_QleT' bnhn_bnorm_mult bnhn_bnorm_plus bxib_qnorm_fix
+  bxib_qnorm_fix_id bxib_qnorm_id_of_qeqT qeq_imp_qeqT.
+ [extraction-opaque-accessed,extraction,default]
+File ".\Arch_Banach_01.v", line 107, characters 0-52:
+Warning: Setting extraction output directory by default to
+"D:\ComplexAnalysis\ConstructiveWorld-Main\ConstructiveWorld_vo". Use
+"Set Extraction Output Directory" or command line option "-output-directory"
+to set a different directory for extracted files to appear in.
+[extraction-default-directory,extraction,default]
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context

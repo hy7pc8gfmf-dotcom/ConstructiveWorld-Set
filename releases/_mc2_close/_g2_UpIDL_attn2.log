@@ -1,0 +1,57 @@
+File ".\UpIDL_attn_draft.v", line 216, characters 12-51:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 230, characters 16-94:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 434, characters 8-53:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 445, characters 6-51:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_attn_draft.v", line 669, characters 12-13:
+Error:
+In environment
+h0 : hole
+z0 : Z
+t : list verd
+IH :
+  forall (h : hole) (e : Z),
+  clq_tid bool (vIn {| vh := h; vd := vrej; vz := e |} t) true ->
+  clq_tid bool (cinc h e (irej (melt t))) true
+h : hole
+e : Z
+H :
+  clq_tid bool
+    (hbeq (vh {| vh := h0; vd := vpass; vz := z0 |})
+       (vh {| vh := h; vd := vrej; vz := e |}) &&
+     (dbeq (vd {| vh := h0; vd := vpass; vz := z0 |})
+        (vd {| vh := h; vd := vrej; vz := e |}) &&
+      (vz {| vh := h0; vd := vpass; vz := z0 |} =?
+       vz {| vh := h; vd := vrej; vz := e |}))
+     || vIn {| vh := h; vd := vrej; vz := e |} t)
+    true
+The term "H" has type
+ "clq_tid bool
+    (hbeq (vh {| vh := h0; vd := vpass; vz := z0 |})
+       (vh {| vh := h; vd := vrej; vz := e |}) &&
+     (dbeq (vd {| vh := h0; vd := vpass; vz := z0 |})
+        (vd {| vh := h; vd := vrej; vz := e |}) &&
+      (vz {| vh := h0; vd := vpass; vz := z0 |} =?
+       vz {| vh := h; vd := vrej; vz := e |}))
+     || vIn {| vh := h; vd := vrej; vz := e |} t)
+    true"
+while it is expected to have type
+ "clq_tid bool (vIn {| vh := h; vd := vrej; vz := e |} t) true".
+
+EXIT=1

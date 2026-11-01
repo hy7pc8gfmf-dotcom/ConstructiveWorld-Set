@@ -1,0 +1,25 @@
+File ".\UpIDL_fixed2.v", line 799, characters 12-51:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 813, characters 16-98:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 813, characters 16-98:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 813, characters 16-98:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 813, characters 16-98:
+Warning: Unused introduction pattern: z0
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 1017, characters 8-53:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 1028, characters 6-51:
+Warning: Unused introduction pattern: z2
+[unused-intro-pattern,tactics,default]
+File ".\UpIDL_fixed2.v", line 1542, characters 35-66:
+Warning: Unused introduction pattern: z
+[unused-intro-pattern,tactics,default]
+EXIT=0

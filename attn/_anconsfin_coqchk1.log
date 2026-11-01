@@ -1,0 +1,9 @@
+[cpu_guard] pinned to core 3
+[cpu_guard] OK load=44% -> executing
+coqchk batch: 561 modules (shared closure)
+
+[intern D:\ComplexAnalysis\ConstructiveWorld-Main\ConstructiveWorld_vo\UpReqMinPKLChain.vo ...
+ done]
+
+Fatal Error: User error: Cannot find library UpMinP in loadpath.
+COQCHK_FAIL (see _chk_all.log)
