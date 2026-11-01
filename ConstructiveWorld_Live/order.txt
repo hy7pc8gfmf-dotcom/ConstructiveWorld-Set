@@ -258,3 +258,6 @@ IdSlotTranslate.v#R49-a1be8f
 UpRealLeB3.v#R49-0a2a24
 UpReqKLStrictB.v#R49-36a952
 UpReqAlign3.v#R50-79f35b
+Arch_Banach_01.v#R51-9e4114
+Arch_PA_01.v#R51-3bd70e
+AlignIdUnclosed.v#R51-cc715a

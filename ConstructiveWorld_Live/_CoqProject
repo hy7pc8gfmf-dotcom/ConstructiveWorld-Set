@@ -252,3 +252,6 @@ IdSlotTranslate.v
 UpRealLeB3.v
 UpReqKLStrictB.v
 UpReqAlign3.v
+Arch_Banach_01.v
+Arch_PA_01.v
+AlignIdUnclosed.v
