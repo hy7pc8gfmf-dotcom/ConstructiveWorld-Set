@@ -213,3 +213,10 @@ u5c_aux_natpow_discharge.v#R32-0a366d
 UpAblT12_UpReqAlignRestA.v#R33-319334
 UpAblT6_UpReqAlign2.v#R33-728b72
 gcl_famsym.v#R34-f1fb52
+UpAblD1S12_UpReqAttnMassSplit.v#R35-9f5c95
+UpAblD1S6_SecondLawQuantified.v#R35-ab335d
+UpAblD1S6_UpReqRealFEP.v#R35-f1f401
+UpAblD1S6_UpReqSteadyThermo.v#R35-eda359
+UpAblD1S7_UpReqEntropyMaxTemp.v#R35-c1cb32
+UpAblD1S8_UpReqTempDefs.v#R35-c96ad1
+UpAblT11_S11_TP3B5.v#R35-0a8649
