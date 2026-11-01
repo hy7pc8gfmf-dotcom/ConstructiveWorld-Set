@@ -239,3 +239,7 @@ UpReqAlign3.v
 UpReqFEPAttn.v
 abl_loeb_d3.v
 abl_loeb_d3_ext.v
+ConcMixSelFeed.v
+UpAlignIdReq.v
+G13_EvictFam.v
+G09_MiscSmall.v
