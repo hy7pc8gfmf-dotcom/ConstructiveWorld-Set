@@ -272,3 +272,4 @@ UpAlignIdReq.v
 G09_MiscSmall.v
 G13_EvictFam.v
 UpReqAlignRestB.v
+G04_ProjFam.v
