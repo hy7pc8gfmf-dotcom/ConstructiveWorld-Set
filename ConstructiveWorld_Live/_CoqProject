@@ -204,3 +204,5 @@ UpAblT9_UpReqSampling.v
 UpPredRelaxReq.v
 UpReqSquareWallEquiv.v
 u5c_aux_natpow_discharge.v
+UpAblT12_UpReqAlignRestA.v
+UpAblT6_UpReqAlign2.v
