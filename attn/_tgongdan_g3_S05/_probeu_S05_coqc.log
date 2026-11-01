@@ -1,5 +1,0 @@
-File ".\probeuS05g3.v", line 6, characters 0-50:
-Warning: The extraction is currently set to bypass opacity, the following
-opaque constant bodies have been accessed : fisher_zero_implies_pointwise.
- [extraction-opaque-accessed,extraction,default]
-UG3S05_EXIT=0 

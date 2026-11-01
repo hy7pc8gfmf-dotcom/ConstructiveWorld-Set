@@ -1,3 +1,0 @@
-[gate2] 日志=ConstructiveWorld_vo/_chk_all.log  mtime=2026-09-27T23:24:47
-  判定=CLEAN(exit 0)  Axioms段数=1  公理总数=0  日志完整=True
-GATE2_EXIT=0

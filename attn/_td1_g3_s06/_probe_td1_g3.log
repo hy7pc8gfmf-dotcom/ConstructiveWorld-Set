@@ -1,9 +1,0 @@
-File ".\probetd1g3.v", line 7, characters 0-59:
-Warning: The extraction is currently set to bypass opacity, the following
-opaque constant bodies have been accessed
-: InT_head_extend argmin_aux_token_mem combined_topk_markov_kernel_normalized
-  combined_topk_temp_sum_pos combined_topk_temp_sum_unfold id_false_true
-  S01_BaseRing.le_plus_nonneg_r list_sum_ext list_sum_linear list_sum_nonneg
-  list_sum_single_le_total S01_BaseRing.mult_plus_distr_r partition_temp_pos
-  pick_best_in_vocab' sum_temp_positive.
- [extraction-opaque-accessed,extraction,default]
