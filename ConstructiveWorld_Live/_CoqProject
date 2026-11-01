@@ -230,3 +230,7 @@ abl_s01_supply.v
 abl_tbase_sumpos_spp.v
 AbsLeId.v
 Arch_PA_02.v
+G10_LoebFam.v
+abl_qpoly_divmod_gen.v
+LW0QPoly.v
+AbsSqClose.v
