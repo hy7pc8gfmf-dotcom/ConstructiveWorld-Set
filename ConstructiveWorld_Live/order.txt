@@ -262,3 +262,7 @@ Arch_PA_01.v#R51-3bd70e
 AlignIdUnclosed.v#R51-cc715a
 UpReqEntropyDeficitTemp.v#R52-08ed3c
 Arch_SumEqL_01.v#R53-86221a
+ConcMixSelFeed.v#R54-7223ca
+UpAlignIdReq.v#R54-556ec8
+G09_MiscSmall.v#R54-c2e864
+G13_EvictFam.v#R54-eef98e
