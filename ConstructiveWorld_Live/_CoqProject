@@ -243,3 +243,6 @@ ConcMixSelFeed.v
 UpAlignIdReq.v
 G13_EvictFam.v
 G09_MiscSmall.v
+G01_CoreMicro.v
+UpBudgetReal.v
+UpConstitution.v
