@@ -220,3 +220,12 @@ UpAblD1S6_UpReqSteadyThermo.v#R35-eda359
 UpAblD1S7_UpReqEntropyMaxTemp.v#R35-c1cb32
 UpAblD1S8_UpReqTempDefs.v#R35-c96ad1
 UpAblT11_S11_TP3B5.v#R35-0a8649
+UpAblT9_UpTVDoeblin.v#R36-ab0866
+abl_audit_base_v5b.v#R36-c53ea5
+abl_tbase_tempsum_feed.v#R36-87becc
+ForwardKLAdjudication.v#R36-8b146c
+UpAblD1S12_UpReqAttnQ18Tail.v#R36-db85ad
+PA_ToyR_IdSlotTranslate.v#R36-9166fb
+Paper1Ablation.v#R36-5a6167
+UpAblD1S12_UpReqAttnUniformLimit.v#R36-70c821
+UpAblD1S4_UpReqStepKLEtaInst.v#R36-e4587f
