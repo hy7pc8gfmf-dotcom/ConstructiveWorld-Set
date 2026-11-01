@@ -230,3 +230,7 @@ Paper1Ablation.v#R36-5a6167
 UpAblD1S12_UpReqAttnUniformLimit.v#R36-70c821
 UpAblD1S4_UpReqStepKLEtaInst.v#R36-e4587f
 abl_qpoly_divmod.v#R37-06bdae
+UpAblT6_UpReqPPO.v#R38-e69ddf
+abl_attn_doeblin_supply.v#R38-787ae9
+abl_s01_supply.v#R38-097645
+abl_tbase_sumpos_spp.v#R38-631e27
