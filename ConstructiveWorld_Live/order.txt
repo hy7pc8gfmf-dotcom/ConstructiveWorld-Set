@@ -252,3 +252,6 @@ G09_MiscSmall.v#R45-83ae52
 G01_CoreMicro.v#R46-9ae430
 UpBudgetReal.v#R46-9b6281
 UpConstitution.v#R46-c98d6b
+AbsSqClose.v#R47-12dbbf
+abl_qpoly_divmod_gen.v#R47-659fcb
+Arch_PA_02.v#R47-cb96a5

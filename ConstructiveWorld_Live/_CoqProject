@@ -246,3 +246,6 @@ G09_MiscSmall.v
 G01_CoreMicro.v
 UpBudgetReal.v
 UpConstitution.v
+AbsSqClose.v
+abl_qpoly_divmod_gen.v
+Arch_PA_02.v
