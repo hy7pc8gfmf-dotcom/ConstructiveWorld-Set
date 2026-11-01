@@ -116,6 +116,13 @@ jobs:
           rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null || true
           cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/ 2>/dev/null || true
           cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vobuild.md5 ConstructiveWorld_Live/ 2>/dev/null || true
+          # 20261101 gate7 ghost lesson (UpReqAlign3 magic=370 after M52R withdrawal):
+          # a withdrawn piece leaves its stale .vo in the mirror; purge any .vo
+          # whose .v is absent so gate7 never sees ghosts.
+          find ConstructiveWorld_Live -maxdepth 1 -name "*.vo" | while read -r f; do
+            b="${f%.vo}"
+            [ -f "$b.v" ] || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged ghost $f"; }
+          done
           echo "seeded $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo $(ls ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null | wc -l) sidecars (mirror-deleted stale)"
 
       - name: Build Live tree (order topology, cold, thermal-guarded)
