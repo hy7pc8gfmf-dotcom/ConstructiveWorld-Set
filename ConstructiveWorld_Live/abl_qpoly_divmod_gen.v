@@ -1,67 +1,30 @@
 (* ===================================================================== *)
-(*  Five-field pointer | Mission.  Q-polynomial division-with-remainder    *)
-(*    engine, GENERAL form (CK). Closes the interface qpd_divmod_gen_type *)
-(*    registered by CC: constructive long division for divisors of any    *)
-(*    degree (genuinely nonzero leading coefficient + degree >= 1).  Constructivity.  all proofs close by Qed/Defined; zero axioms.  Build.  rocq c -native-compiler no -Q <tree> "".       *)
-(*  Dependencies.  Stdlib QArith/Qring/Qfield/Lists/Arith/ZArith/Lia/      *)
-(*    Extraction; S01_BaseRing S02_CauchyComplete PolyIntegral            *)
-(*    (world-tree files); predecessor abl_qpoly_divmod (in-pool CC first  *)
-(*    piece: qpd_divmod_gen_pred/type containers, qpd_eval_add/cons/nil   *)
-(*    evaluation limbs, qpd_deglt degree limb, qpd_deg/qpd_lead).         *)
-(*  Constructivity: purely constructive, zero admitted pieces; statement  *)
-(*    surface entirely Set-level (sigT + S01.And + S02.QeqT + S01.Id).    *)
-(*    Prop-elimination born-clean: bare = -> Id (id_cong bridge),         *)
-(*    == -> QeqT (two-way gates qeq_imp_qeqT/qeqT_imp_qeq), nat <= ->     *)
-(*    NatLe (NatLe_drop/NatLe_lift bridges); Qeq/== appear only as        *)
-(*    proof-internal reasoning scaffolding; ring closures all go through  *)
-(*    the "all-variable pure ring leaf" pattern (pitfall cards AL/AX,     *)
-(*    same as predecessor §1). No magic values, no Prop cast shims, no    *)
-(*    Prop-ification.                                                     *)
-(*  Compile recipe: source Live/toolchain/env.sh && unset COQLIB ROCQLIB  *)
-(*    && ulimit -s 65532 && rocq c -native-compiler no -Q <world> ""      *)
-(*    abl_qpoly_divmod_gen.v (compile predecessor abl_qpoly_divmod.v      *)
-(*    first; lane gate <= 1 = single-process serial, cpu_guard wrapped).  *)
-(*  Benchmarks: CC abl_qpoly_divmod (linear synthetic division first      *)
-(*    piece); PolyIntegral pint_* (Q coefficient list precedent); BT §    *)
-(*    honest boundary route 3; AE §3.3 route 3.                           *)
-(* ===================================================================== *)
-(*  abl_qpoly_divmod_gen.v -- Q-layer polynomial division engine,         *)
-(*  general form (second stage).                                          *)
-(*                                                                        *)
-(*  Mission: close the CC-registered qpd_divmod_gen_type p q container    *)
-(*    (using its shape verbatim: sigT wrap of (quotient, remainder)       *)
-(*    plus the two correctness limbs                                      *)
-(*      (1) equation limb: forall x, QeqT (eval p x)                      *)
-(*            (eval q x * eval quotient x + eval remainder x)             *)
-(*      (2) degree limb:   qpd_deglt remainder q (decidable Id bool face) *)
+(*  abl_qpoly_divmod_gen.v -- Q-layer polynomial division engine, general *)
+(*  form (second stage).                                                  *)
+(*  Mission.  Close the CC-registered qpd_divmod_gen_type p q container   *)
+(*    (sigT wrap of (quotient, remainder) plus two correctness limbs:     *)
+(*    equation limb forall x, QeqT (eval p x) (eval q x * eval quotient x *)
+(*    + eval remainder x), and degree limb qpd_deglt remainder q),        *)
 (*    delivering qpg_divmod_gen : forall p q, qpg_divisor_ok q ->         *)
-(*                            qpd_divmod_gen_type p q).                   *)
-(*                                                                        *)
-(*  Route (constructive classic long division): recurse by leading-term   *)
-(*    elimination -- quotient coefficient c = lead p / lead q (Q-level    *)
-(*    Qdiv, in-world); p - c*x^k*q has its top term cancel to zero,       *)
-(*    truncating the top yields p1 with deg p1 = deg p - 1 strictly       *)
-(*    decreasing; fuel = length p, genuine structural Fixpoint (nat fuel  *)
-(*    recursion, nontrivial algorithm body, extractable). Termination =   *)
-(*    length measure; correctness = inductive-step ring equation (taken   *)
-(*    directly from all-variable pure ring leaves).                       *)
-(*                                                                        *)
-(*  Diff vs CC interface (honest boundary): the divisor precondition is   *)
-(*    strengthened to qpg_divisor_ok q =                                  *)
-(*    (1) deg q >= 1 (Id bool face: ltb 0 (deg q) = true -- the degree    *)
-(*        limb then rules out constant divisors automatically),           *)
-(*    (2) lead q ≠ 0 (Qcompare Set face: genuinely nonzero leading coeff).*)
-(*    Reason: with head = constant term dense tables, listdeg is not the  *)
-(*    true degree (tail-zero example q=[1;2;0] has listdeg=2 but true     *)
-(*    degree=1 and lead=0); leading-term elimination requires a genuinely *)
-(*    nonzero leading coefficient to divide. The task brief's single      *)
-(*    precondition "deg q >= 1" is insufficient for this engine; this is  *)
-(*    an honest representation-level widening, with the container face    *)
-(*    and the CC registration unchanged.                                  *)
-(*                                                                        *)
-(*  First-piece strategy (45-minute slice): this piece closes the         *)
-(*    "recursion engine + existence limb"; the uniqueness limb            *)
-(*    (quotient/remainder uniqueness) is §5-registered only, not built.   *)
+(*    qpd_divmod_gen_type p q.                                            *)
+(*  Dependencies.  Stdlib QArith/Qring/Qfield/Lists/Arith/ZArith/Lia/     *)
+(*    Extraction; S01_BaseRing S02_CauchyComplete PolyIntegral            *)
+(*    (world-tree files); predecessor abl_qpoly_divmod.                   *)
+(*  Constructivity.  purely constructive, zero admitted pieces; statement *)
+(*    surface entirely Set-level (sigT + S01.And + S02.QeqT + S01.Id);    *)
+(*    born-clean: bare = -> Id, == -> QeqT, nat <= -> NatLe bridges;      *)
+(*    ring closures via the all-variable pure ring leaf pattern (AL/AX).  *)
+(*    No magic values, no Prop cast shims, no Prop-ification.             *)
+(*  Build.  rocq c -native-compiler no -Q <world> "" (predecessor first;  *)
+(*    cpu_guard wrapped; ulimit -s 65532).                                *)
+(*  References.  CC abl_qpoly_divmod; PolyIntegral pint_*; BT §3;         *)
+(*    AE §3.3 (both route 3).  Route: classic long division by            *)
+(*    leading-term elimination, fuel = length p, structural Fixpoint,     *)
+(*    extractable.  Honest boundary: divisor precondition strengthened to *)
+(*    qpg_divisor_ok q = deg q >= 1 (Id bool face) + genuinely nonzero    *)
+(*    lead q -- the brief's single "deg q >= 1" is insufficient (dense-   *)
+(*    table listdeg is not the true degree); container face unchanged.    *)
+(*    Uniqueness limb is §5-registered only, not built.                   *)
 (* ===================================================================== *)
 
 From Stdlib Require Import QArith.QArith QArith.Qring QArith.Qfield.
@@ -413,7 +376,7 @@ Proof.
 Qed.
 
 (* Length-to-degree conversion for nonempty tables (engine equation
-   account); born-clean: Prop <> hypothesis dropped by restating over a
+   account); born-clean: Prop <> premise dropped by restating over a
    concrete cons, bare = -> Id (definitional) *)
 Lemma qpg_length_deg : forall (q1 : Q) (q2 : list Q),
   @Id nat (length (q1 :: q2)) (Datatypes.S (qpd_deg (q1 :: q2))).
@@ -422,7 +385,7 @@ Proof. intros q1 q2. exact id_refl. Qed.
 (* Leading-coefficient account of aligned subtraction (top-aligned
    version: when length q = length p, q's leading slot matches p's
    leading slot exactly): lead (p - c*q) == lead p - c*lead q.
-   Born-clean: nat = hypothesis -> Id, conclusion == -> QeqT *)
+   Born-clean: nat = premise -> Id, conclusion == -> QeqT *)
 Lemma qpg_lead_align : forall (c : Q) (q p : list Q),
   @Id nat (length q) (length p) ->
   QeqT (qpd_lead (qpg_align_sub c q p)) (qpd_lead p - c * qpd_lead q).
@@ -471,7 +434,7 @@ Qed.
 (* Leading-coefficient account of shifted subtraction (equality version:
    when length p = k + length q the top slot is exactly the annihilated
    slot): lead (p - c*x^k*q) == lead p - c*lead q (source of top-term
-   zeroing). Born-clean: nat = hypothesis -> Id, conclusion == -> QeqT *)
+   zeroing). Born-clean: nat = premise -> Id, conclusion == -> QeqT *)
 Lemma qpg_lead_shift : forall (c : Q) (k : nat) (q p : list Q),
   @Id nat ((k + length q)%nat) (length p) ->
   QeqT (qpd_lead (qpg_shift_sub c k q p)) (qpd_lead p - c * qpd_lead q).
@@ -542,7 +505,7 @@ Fixpoint qpg_engine (fuel : nat) (q p : list Q) : list Q * list Q :=
 
 (* Existence limb: with fuel = length p the engine output satisfies the
    CC-registered general-form correctness pair. Born-clean: nat <=
-   hypothesis -> NatLe (NatLe bridge); the length/degree bookkeeping
+   premise -> NatLe (NatLe bridge); the length/degree bookkeeping
    stays proof-internal Prop scaffolding fed by NatLe_drop *)
 Lemma qpg_engine_sound : forall (fuel : nat) (q p : list Q),
   qpg_divisor_ok q -> NatLe (length p) fuel ->
