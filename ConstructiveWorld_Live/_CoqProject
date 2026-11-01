@@ -265,3 +265,5 @@ UpReqSLM.v
 UpReqCauchy.v
 UpReqAttnGibbs.v
 UpReqBranchPos.v
+Arch_ToyR_03.v
+Arch_ToyR_04.v
