@@ -1,0 +1,12 @@
+File ".\ConstructiveWorld_Live/S03_QExp.v", line 100, characters 10-16:
+Error:
+In environment
+A : Q
+k : nat
+HA : 0 <= A
+Hle : A <= Z.of_nat (k + 1) # 1
+Unable to unify "Id (S02_CauchyComplete.Qle_bool ?M1592 ?M1593) true" with
+ "(Qnum (A * q_pow A k * q_fact k) * QDen (A * (q_pow A k * q_fact k))
+   ?= Qnum (A * (q_pow A k * q_fact k)) * QDen (A * q_pow A k * q_fact k))%Z =
+  Gt -> False".
+
