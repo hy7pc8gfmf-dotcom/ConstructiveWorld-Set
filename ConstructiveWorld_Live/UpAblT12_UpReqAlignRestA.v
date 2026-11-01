@@ -18,7 +18,7 @@
 (*   interface class per S10_KVQuantTrig.v L12417 precedent -- the        *)
 (*   Main-tree parameterized binder face forall (R : Set) {RIS :          *)
 (*   RealInterfaceEnhancedSetoid R} was an alien transplant into this     *)
-(*   -Set-lineage world (RealInterfaceEnhancedSetoid is a zero-parameter  *)
+(*   -Set-lineage world (RealInterfaceEnhancedSetoid is a zero-argument  *)
 (*   Class whose fields resolve through the global Real instance); fixed  *)
 (*   by dropping the binders, Notation R := Real, and the global-face     *)
 (*   predicate real_eq -- zero shims, statement face stays Set-layered.   *)
@@ -50,7 +50,7 @@ Notation R := Real.
 (* Original section face Context {R}{RIS} + S + sumf; aligned out-of-     *)
 (* section form per the S10_KVQuantTrig.v L12417 precedent: R := Real via *)
 (* Notation (UpReqSumD.v:58 / UpReqDist.v:52 precedent), the zero-        *)
-(* parameter class resolved through its global instance, and sumf         *)
+(* argument class resolved through its global instance, and sumf         *)
 (* replaced by the sumd_sumf S enum instance.                             *)
 
 (* A1 <- L70 ralt_sum_ext (section face: forall f g : S -> R,

@@ -6,7 +6,7 @@
      forall (R : Set) {RIS : RealInterfaceEnhancedSetoid R} were a Main-tree
      section face (ConstructiveWorld-Main S07 L7945, parameterized Class)
      transplanted verbatim into the nw10 (-Set lineage) world, where
-     RealInterfaceEnhancedSetoid is the zero-parameter Class (S07
+     RealInterfaceEnhancedSetoid is the zero-argument Class (S07
      L8075, fields carried by the global Real) -> "Illegal application
      (Non-functional construction) ... of type Type". Fix = pure binder
      removal + notation rebinding on the world's own precedent; no Obj.magic,
@@ -44,7 +44,7 @@ Import ListNotations.
 Import RealInterfaceEnhancedMod.
 
 (* R := Real by notation: this world's RealInterfaceEnhancedSetoid is the
-   zero-parameter Class, its fields resolve through the global instance
+   zero-argument Class, its fields resolve through the global instance
    (UpReqSumD.v L58 precedent; S10_KVQuantTrig.v L12417-12419 ruling). *)
 Notation R := Real.
 
