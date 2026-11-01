@@ -236,3 +236,6 @@ LW0QPoly.v
 AbsSqClose.v
 UpReqBanachCauchyD.v
 UpReqBanachLimUniq.v
+UpReqAlign.v
+UpReqAlign2.v
+UpReqAlign3.v

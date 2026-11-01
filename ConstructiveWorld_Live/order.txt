@@ -242,3 +242,6 @@ LW0QPoly.v#R40-6f8362
 AbsSqClose.v#R40-8290e0
 UpReqBanachCauchyD.v#R41-d1445e
 UpReqBanachLimUniq.v#R41-d09a37
+UpReqAlign.v#R42-5e95ce
+UpReqAlign2.v#R42-10e133
+UpReqAlign3.v#R42-f6b1cb
