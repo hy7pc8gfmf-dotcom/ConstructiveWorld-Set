@@ -109,7 +109,7 @@ Import RealInterfaceEnhancedMod.
 (* The interface class in this tree is unparameterized; its carrier is the global Real
    (S07_RealSetoidExpLog.v:8075 zero-argument Class RealInterfaceEnhancedSetoid + global
    Instance RealEnhancedReal; Notation passthrough per the world's own UpReqAlign3.v
-   precedent). UpReqSLM's hypothesis classes ReqNonnegPlain/ReqLogPlain are likewise
+   precedent). UpReqSLM's premise classes ReqNonnegPlain/ReqLogPlain are likewise
    re-anchored zero-argument in the pool build, so the downstream Context below drops
    the carrier argument per the G09_MiscSmall.v nw10cure convention. *)
 Notation R := Real.
