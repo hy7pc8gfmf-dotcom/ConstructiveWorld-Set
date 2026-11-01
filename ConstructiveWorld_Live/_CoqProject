@@ -191,3 +191,8 @@ abl_audit_base_v3.v
 abl_audit_base_v4.v
 abl_audit_base_v6.v
 u6a_dammroze_quant.v
+abl_z2_truncfam.v
+abl_z2_itg_carrier.v
+abl_dmw2_sharpen_decay.v
+dig_machine.v
+gcl_coefficient.v

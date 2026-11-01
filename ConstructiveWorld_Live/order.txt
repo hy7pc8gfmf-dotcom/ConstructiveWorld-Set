@@ -197,3 +197,8 @@ abl_audit_base_v3.v#R30-d70b2c
 abl_audit_base_v4.v#R30-3b9ba9
 abl_audit_base_v6.v#R30-71e6be
 u6a_dammroze_quant.v#R30-460685
+abl_z2_truncfam.v#R31-7c292a
+abl_z2_itg_carrier.v#R31-a49a6f
+abl_dmw2_sharpen_decay.v#R31-c5e43b
+dig_machine.v#R31-a1cb41
+gcl_coefficient.v#R31-c5e91a
