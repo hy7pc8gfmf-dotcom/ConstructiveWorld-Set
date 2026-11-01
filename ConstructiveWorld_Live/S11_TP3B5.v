@@ -2695,7 +2695,6 @@ Lemma real_sin_deriv_linear : forall (x : Real), forall (eps : Real),
                      (real_opp (real_plus (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h)))))
                   (real_plus (real_mult eps (real_abs h)) eps'))).
 Proof.
-Proof.
   intros x eps Heps.
   destruct (real_norm_bounded (cauchy_real_sin x)) as [Ms [HMs_pos HMs]].
   destruct (real_norm_bounded (cauchy_real_cos x)) as [Mc [HMc_pos HMc]].
@@ -3004,7 +3003,6 @@ Lemma real_cos_deriv_linear : forall (x : Real), forall (eps : Real),
           real_le (real_abs (real_plus (cauchy_real_cos (real_plus x h))
                      (real_opp (real_plus (cauchy_real_cos x) (real_opp (real_mult (cauchy_real_sin x) h))))))
                   (real_plus (real_mult eps (real_abs h)) eps'))).
-Proof.
 Proof.
   intros x eps Heps.
   destruct (real_norm_bounded (cauchy_real_sin x)) as [Ms [HMs_pos HMs]].
