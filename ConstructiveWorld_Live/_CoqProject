@@ -234,3 +234,5 @@ G10_LoebFam.v
 abl_qpoly_divmod_gen.v
 LW0QPoly.v
 AbsSqClose.v
+UpReqBanachCauchyD.v
+UpReqBanachLimUniq.v
