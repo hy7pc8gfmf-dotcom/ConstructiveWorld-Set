@@ -235,11 +235,8 @@ abl_attn_doeblin_supply.v#R38-787ae9
 abl_s01_supply.v#R38-097645
 abl_tbase_sumpos_spp.v#R38-631e27
 AbsLeId.v#R39-7ceec9
-Arch_PA_02.v#R39-26ca92
 G10_LoebFam.v#R40-52f9c1
-abl_qpoly_divmod_gen.v#R40-51d140
 LW0QPoly.v#R40-6f8362
-AbsSqClose.v#R40-8290e0
 UpReqBanachCauchyD.v#R41-d1445e
 UpReqBanachLimUniq.v#R41-d09a37
 UpReqAlign.v#R42-5e95ce
