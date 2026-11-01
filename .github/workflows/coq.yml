@@ -1,3 +1,46 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# coq320_set.yml — ConstructiveWorld-Set 认证提速适配版（ci320 工单·staging 铸·20261101）
+#
+# 铸法（ALIGNMENT.md 适配案第 1-2 条）：
+#   · 骨架 = Set 仓 .github/workflows/coq.yml（M30-M38 波演化版·512 行，20261101
+#     只读勘读）——M 波步骤全字节保留：gate6/gate7 现役双闸、单 Live 树口径
+#     （gate3 撤除记念注原样在卷）、信任缓存播种/绿门回写、ci_build_live_cached.sh
+#     指纹跳过 build、ci_coqchk_live.sh 共享闭包单趟 coqchk、macOS 观察档 job
+#     （含 W3 v1 report-only 接线原样）、双 artifact 通道——红屏语义一字未动。
+#   · 追加 = #320 快速模板（staging workflows/coq.yml·Main 正本 b4c807f）四支柱
+#     report-only 形（红屏语义不变律：一切新增步 rc 恒捕获、恒 exit 0/不红屏）：
+#       ①W3 内容寻址认证——attest reconcile 三态对账＋绿后档案换代刷新（artifact
+#         出证·入库须同 commit 显式申报·禁手改）；
+#       ②vo 信任缓存 sync——对侧（macOS）绿 artifact 拉取半环（continue-on-error
+#         fail-open；对侧在库 vo_sync_once.sh 自带 fail-open 形）；
+#       ③parallel 分道——PCHK_PACK_ONLY=1 装箱预演（parallel_chk.sh:358 正典
+#         dry 旗标·不碰任何 coqchk 内核·组形数据为 v2 分道接线留实证）；
+#       ④RAM guard——commit 水位轮询 report-only（模板原样·恒 exit 0）。
+#   · mac/云 runner 适配三处（README-Mac §二/§五「yml 三改」正典）：
+#       适配① label——双 job 显式窄标签（Windows 认证 [self-hosted, Windows]／
+#         mac 观察 [self-hosted, macOS]，20261026 标签收窄注原样保留）＋模板
+#         workflow_dispatch macos_only 输入＋认证 job 事件门（mac 侧验证波不占
+#         Windows 认证 runner；push/PR 语义零变化）；
+#       适配② 路径——新增步全走 runner 各安本位的路径：Windows 侧信任缓存
+#         /d/ComplexAnalysis/ConstructiveWorld-Set/...（与在库 seed 源/
+#         CACHE_WRITEBACK_DIR 同源）；mac 侧 /Users/apple/*（与在库 export 同源）；
+#         python（Windows job·与在库 gate 步同款）/python3（mac job）随 job；
+#         新步零 C:/Progra~1 Git-bash 硬编码；分道预演 CHK_VO_DIR 钉单 Live 树
+#         （脚本默认 ../ConstructiveWorld_vo 为 Main 双树形，Set 单树必须显式指路）；
+#         mac 侧 vo_sync 不接线（run#51 跨平台播种红判例：缓存必须同平台＋
+#         era-guarded 来源——Windows artifact 不喂 mac 树）；
+#       适配③ guard 跳过位——RAM guard 步挂 if: runner.os != 'macOS'（README-Mac
+#         §二.5 正典跳过位）；M 波温控包裹（Windows=pwsh cpu_guard_v3 正典三参数、
+#         mac=cpu_guard.sh）双侧各安本位，零改动。
+#   · 接口勘定（20261101 staging vs Set 只读 diff 实证）：staging coqchk_attest.py
+#     （cw.attest/v1 生成器·无子命令）与 Set 在库同名件（build/check 子命令）
+#     接口不同——本 yml Windows 侧按落岸名 scripts/gates/cw_attest_cast.py 调用、
+#     mac 侧沿用在库 build 子命令；落岸映射表见 staging LANDING-CHECKLIST.md
+#     （coqchk_delta_check.py 不落岸，在库 Set 版为正本）。
+# 落岸纪律：候 Set 仓 CI quiet（runs 92-95 全终态且队列清空）＋打招呼搭车申报＋
+#   单 commit 单 push＋首轮盯绿＋分钟档验收四判据——详见 staging LANDING-CHECKLIST.md。
+# ═══════════════════════════════════════════════════════════════════════════════
+
 name: Coq CI
 
 on:
@@ -5,18 +48,30 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    # ── mac/云 runner 适配①（label/入口门·#320 模板移植）────────────────────
+    # macos_only=true 的 dispatch 只跑 macOS 观察档（跳过 Windows 认证 job）——
+    # mac 侧修订验证不占 Windows 自托管认证 runner；push/PR 不受影响。
+    inputs:
+      macos_only:
+        description: 'Run macOS observation job only (skip Windows cert job)'
+        type: boolean
+        default: false
 
 concurrency:
   group: cw-main-ci
-  cancel-in-progress: false
+  cancel-in-progress: false   # M 波原值保留（Set 仓现行 false：在飞轮不被顶替）
 
 jobs:
   coq-build:
     name: Rocq 9.1 build + coqchk (single Live tree, cold build)
+    # mac/云 runner 适配①（续·模板原句）：仅 workflow_dispatch 且 macos_only=true
+    # 时跳过本 job；push/PR 恒真。
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.macos_only != true }}
     # 【20261026 标签收窄】裸 self-hosted 亦可匹配 Mac runner——Mac 接单后 Windows 壳
     # 路径（C:/Progra~1/Git/bin/bash.exe）在 macOS 不存在＝gate1 步级秒红
     # （run 40205628059 实证 25s 红）；set-runner offline 期认证 job 长期 queued
     # 无 runner 可接（run 40236969222 实证）。收窄后 Mac 只认观察档 job。
+    # （适配① label：显式窄标签保留如上，禁回退裸 self-hosted。）
     runs-on: [self-hosted, Windows]
     steps:
       - uses: actions/checkout@v5
@@ -102,6 +157,27 @@ jobs:
       # 15 件冷编分钟级可忍；旧「从本地 vo 树播种吃指纹 SKIP」路径随单树设计退役。
 
 
+      # ── 四支柱② vo 信任缓存 sync（report-only·fail-open）【mac/云 runner 适配②】──
+      # 两向总线·Windows 半环补全（20261028 在库注记所记三步之一的拉取侧）：拉对侧
+      # （macOS）最近绿 run 的 vo-trust-cache-set-macos 镜像合并本地缓存 → 新增件
+      # 本轮即可被 ci_build_live_cached.sh 指纹 SKIP。fail-open 双保险：continue-on-error
+      # ＋在库 vo_sync_once.sh 内建 fail-open（artifact 缺席/无 token/网络抖动只降
+      # 增强不红主链，缺件由 build 真编补齐，正确性不依赖本步）。
+      - name: Sync cross-machine vo trust cache (one-shot, fail-open, report-only)
+        continue-on-error: true
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # 【适配② 路径】本侧缓存目录=Windows 信任缓存正本
+          # /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
+          # （与在库 seed 源/CACHE_WRITEBACK_DIR 同源）；对侧 mac 形=/Users/apple/
+          # vo_ci_cache_set（在库 export 步同源）。mac 侧 vo_sync 拉取半环本波不接线：
+          # run#51 mac 红判例=跨平台/无 era 守卫播种禁——Windows artifact 不喂 mac 树。
+          export SYNC_ARTIFACT=vo-trust-cache-set-macos
+          export SYNC_CACHE_DIR=/d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
+          bash scripts/vo_sync_once.sh
+
       # 20261026 信任缓存播种（镜像语义·Main 仓先例移植）：先清空 checkout 的 .vo 再从
       # 本地信任缓存树整拷——build 树=缓存真镜像，指纹 SKIP 生效且陈旧幸存根除（P9）。
       # fail-open：缓存缺席=全量冷编（57 件分钟级·正确性不依赖本步）。
@@ -116,14 +192,29 @@ jobs:
           rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vos ConstructiveWorld_Live/*.vok ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null || true
           cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/ 2>/dev/null || true
           cp /d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live/*.vobuild.md5 ConstructiveWorld_Live/ 2>/dev/null || true
-          # 20261101 gate7 ghost lesson (UpReqAlign3 magic=370 after M52R withdrawal):
-          # a withdrawn piece leaves its stale .vo in the mirror; purge any .vo
-          # whose .v is absent so gate7 never sees ghosts.
-          find ConstructiveWorld_Live -maxdepth 1 -name "*.vo" | while read -r f; do
-            b="${f%.vo}"
-            [ -f "$b.v" ] || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged ghost $f"; }
-          done
           echo "seeded $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo $(ls ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null | wc -l) sidecars (mirror-deleted stale)"
+
+      # ── 四支柱④ RAM guard（report-only·零阻断）【mac/云 runner 适配③】────────
+      # 模板原步移植（#301 实证：commit 水位 >89% 时 coqchk 被页出抖动拖至 15.7h）。
+      # 重相位（build/coqchk）前轮询 commit free（>30GB 即过·至多 10 分钟·不到也照常
+      # 推进）——内存水位显式化进 CI 日志·恒 exit 0 零阻断。
+      - name: RAM guard (report commit headroom before heavy phase)
+        # 【适配③ guard 跳过位】README-Mac §二.5 正典：guard 步对 Mac job 可设
+        # if: runner.os != 'macOS' 跳过（powershell 资源轮询为 Windows 形）；本 job
+        # 钉 [self-hosted, Windows] 故恒真，位以形存——yml 再移植云/Mac runner 时
+        # 此位即生效。M 波温控包裹（下两步 cpu_guard_v3 正典三参数）不在跳过域。
+        if: ${{ runner.os != 'macOS' }}
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set +e
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            FREE=$(powershell -NoProfile -Command "[math]::Round((Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory/1MB,1)")
+            echo "RAM guard round ${i}: commit free ${FREE} GB"
+            OK=$(powershell -NoProfile -Command "if ((Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory/1MB -gt 30) { 'yes' } else { 'no' }")
+            if [ "$OK" = "yes" ]; then echo "RAM guard: headroom OK"; break; fi
+            sleep 60
+          done
+          exit 0
 
       - name: Build Live tree (order topology, cold, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
@@ -203,6 +294,28 @@ jobs:
             exit 1
           fi
 
+      # ── 四支柱③ parallel 分道装箱预演（report-only·PCHK_PACK_ONLY dry）────────
+      # 模板 parallel_chk 分道（CHK_JOBS=4＋CHK_TREE_COPY=1）对 Set 认证路的换装候
+      # v2 立项——本波 report-only 先行：PCHK_PACK_ONLY=1（parallel_chk.sh 正典 dry
+      # 旗标·仅装箱打印组形即退·组数=并行度）——不碰任何 coqchk 内核、不动 M 波
+      # ci_coqchk_live.sh 认证路；组形数据入日志为 v2 接线（预计并行收益）留实证。
+      # rc 恒捕获、恒 exit 0（report-only 形先行·红屏语义不变）。
+      - name: parallel-chk pack preview (PCHK_PACK_ONLY, report-only dry)
+        if: always()  # 上游红也出证（装箱形预演不依赖 build 绿）
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set +e
+          # 【适配② 路径】CHK_VO_DIR 钉单 Live 树——脚本默认 $(dirname $0)/../
+          # ConstructiveWorld_vo 系 Main 双树形，Set 单树必须显式指路。
+          export CHK_VO_DIR="$PWD/ConstructiveWorld_Live"
+          export CHK_JOBS=4
+          export PCHK_PACK_ONLY=1
+          bash scripts/parallel_chk.sh
+          rc=$?
+          set -e
+          echo "PCHK-PREVIEW-REPORT-ONLY: rc=$rc — pack preview only, never gates this run（v2 分道接线 CHK_JOBS=4＋CHK_TREE_COPY=1 另波立项）"
+          exit 0
+
       # coqchk 认证：单 Live 树共享闭包单趟 -o（scripts/ci_coqchk_live.sh 自足实现，
       # 判据=EXIT=0 且 "Modules were successfully checked" → COQCHK_ALL_PASS，
       # 日志落 ConstructiveWorld_Live/_chk_all.log），温控包裹照旧。
@@ -222,6 +335,64 @@ jobs:
           name: vo-trust-cache-set-windows
           path: |
             ConstructiveWorld_Live/*.vo
+
+      # ── 四支柱① W3 内容寻址认证·对账（report-only·rc 恒捕获）────────────────
+      # v1 report-only 先行（ALIGNMENT 适配案第 2 条·红屏语义不变）：coqchk 绿后对
+      # 认证树逐件 sha256 对照认证档案 scripts/gates/cw_attest.json（cw.attest/v1），
+      # 四类判定 unchanged/changed/added/removed＋tree_sha256 聚合——mtime 等任何
+      # stat 元数据不入判（偏离必检的判据只有内容本身）。跳过清单 _attest_skip.txt
+      # 本波仅出证不接线（M 波 ci_coqchk_live.sh 全量认证路字节未动；v2 接线
+      # parallel_chk 免列继承候对账面全 unchanged 再立项）。档案=Main 树样例期间
+      # 对账面呈全量 removed/added 信息列＝预期形；Set 正本候首绿刷新入库（下一步）。
+      - name: attest reconcile report (cw.attest/v1, v1 report-only)
+        if: always()
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set +e
+          python scripts/gates/attest_reconcile.py \
+            --tree ConstructiveWorld_Live \
+            --attest scripts/gates/cw_attest.json \
+            --skip-out ConstructiveWorld_Live/_attest_skip.txt \
+            --json attest_reconcile.json
+          rc=$?
+          set -e
+          echo "ATT-RECON-REPORT-ONLY: reconcile rc=$rc — v1 report-only, never gates this run"
+          echo "  rc=0 对账完成（清单可为空）／rc=3 档案侧不可用（清单置空=跳验面不启用）／rc=2 树不可读（v2 接线时此码升红）"
+          exit 0
+
+      # ── 四支柱① W3 档案换代刷新（绿后重铸·artifact 出证）────────────────────
+      # 档案换代律（METHODS §三.5）：档案正本＝「coqchk 全绿那一轮」的 .vo 树——
+      # 本步只在 success() 后以刚认证树重铸 cw.attest/v1 档案，落 artifact 候入库；
+      # 入库须同 commit 显式申报、禁手改（首档样例=Main 树 cw_attest.json，Set 正本
+      # 以本步首绿产物重铸替换）。刷新失败不红主链（report-only·红屏语义不变）。
+      - name: Refresh attest archive (post-green, cw.attest/v1, report-only)
+        if: success()
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set +e
+          # 【适配② 路径/落岸名】cw_attest_cast.py=staging coqchk_attest.py（Main
+          # cw.attest/v1 生成器）的落岸名——与在库 scripts/coqchk_attest.py（Set 版
+          # build/check 子命令·mac 观察档 W3 v1 步依赖）接口不同、同名互斥，故改名
+          # 落 scripts/gates/（LANDING-CHECKLIST 落岸映射表）。--out 须在脚本沙箱
+          # （scripts/gates/）内=生成器只写律。
+          python scripts/gates/cw_attest_cast.py \
+            --tree ConstructiveWorld_Live \
+            --order ConstructiveWorld_Live/order.txt \
+            --out scripts/gates/cw_attest_set_fresh.json
+          rc=$?
+          set -e
+          echo "ATTEST-REFRESH-REPORT-ONLY: rc=$rc (0=Set 正本档案已重铸候入库；非 0=本轮不出新档·主链不受影响)"
+          exit 0
+
+      - name: Upload pillar reports (attest reconcile + fresh archive + skip list)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cw-attest-pillar-reports
+          path: |
+            attest_reconcile.json
+            ConstructiveWorld_Live/_attest_skip.txt
+            scripts/gates/cw_attest_set_fresh.json
 
       # 闸② Axioms 段哨兵：块状态机解析（禁裸 grep——裸 -i error 假配 84 行／-i axiom
       # 假配 2213 行，E422/AX-MATRIX 实证；状态机段外假匹配结构性不可能）。
@@ -263,7 +434,6 @@ jobs:
             gate7_report.json
 
 
-
   # ── macOS 观察档 job（#C-S00d 新增）─────────────────────────────────────
   # 母版=Main 仓 coq.yml coq-build-macos（run#240 已验证模式：continue-on-error
   # 观察档＋runs-on [self-hosted, macOS]＋bash -e {0}）。Set 单树适配：只
@@ -274,6 +444,12 @@ jobs:
   # -o·下划线守卫）。温控=本机 cpu_guard.sh（pmst 温控门+队列梯度）替代 Windows
   # 侧 pwsh cpu_guard.ps1。工具链=本机 mac_rocq 9.1（SW2 全字面双 export 在步内）。
   # Windows 认证 job（上方）字节零动；本 job 红/绿不影响 run 结论（观察档）。
+  # 【适配① label】runs-on [self-hosted, macOS] 显式窄标签（M 波原值）；macos_only
+  # dispatch（入口门）见文件头 on: 块。
+  # 【适配②/③ 注记】本 job 四支柱追加仅档案换代刷新一件（W3 v1 report-only 接线/
+  # export/upload 两向总线上行半环为 M 波既有·原样保留）；vo_sync 拉取半环不接线
+  # （run#51 跨平台播种红判例）；RAM guard/温控跳过位见 Windows job 适配③注（本
+  # job 温控=在库 cpu_guard.sh 形·原样）。
   coq-build-macos:
     name: Rocq 9.1 build + coqchk (single Live tree, macOS observation)
     runs-on: [self-hosted, macOS]
@@ -314,8 +490,6 @@ jobs:
 
       # 20261028 两向总线·macOS 半环（本侧缓存通道三步之一；首跑空缓存=冷编自举
       # +绿后导出，次轮起吃指纹 SKIP——Main 仓 run#240 已验证模式移植）。
-
-
 
       - name: Build Live tree (order topology, cold, thermal-guarded, macOS)
         shell: bash -e {0}
@@ -491,6 +665,31 @@ jobs:
           name: vo-trust-cache-set-macos
           path: |
             ConstructiveWorld_Live/*.vo
+
+      # ── 四支柱① W3 档案换代刷新·mac 半环（绿后重铸·artifact 出证）───────────
+      # 档案换代律（METHODS §三.5）mac 侧补全：在库 coqchk_attest.py build 子命令
+      # 重铸 Set 档案出 artifact 候入库（与 Windows 侧 cw_attest_cast.py 双线；
+      # 两档案拓扑不同源——在库 Set 版=path/sha256 条目形，cw.attest/v1=modules 键形
+      # ——入库时择一为正本并申报，禁双正本）。report-only：刷新失败不影响本观察档。
+      - name: Refresh attest archive (post-green, macOS, report-only)
+        if: success()
+        shell: bash -e {0}
+        run: |
+          set +e
+          python3 scripts/coqchk_attest.py build \
+            --tree ConstructiveWorld_Live \
+            --out scripts/coqchk_attestation_set_fresh.json
+          rc=$?
+          set -e
+          echo "ATTEST-REFRESH-MAC-REPORT-ONLY: rc=$rc (0=mac 侧档案已重铸候入库)"
+          exit 0
+
+      - name: Upload attest archive refresh (macOS, report-only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cw-attest-refresh-macos
+          path: scripts/coqchk_attestation_set_fresh.json
 
       - name: gate2 axioms sentinel (block-state-machine, fail-loud)
         if: always()
