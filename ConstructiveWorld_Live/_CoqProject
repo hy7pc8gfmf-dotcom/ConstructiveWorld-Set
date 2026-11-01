@@ -267,3 +267,7 @@ UpReqAttnGibbs.v
 UpReqBranchPos.v
 Arch_ToyR_03.v
 Arch_ToyR_04.v
+ConcMixSelFeed.v
+UpAlignIdReq.v
+G09_MiscSmall.v
+G13_EvictFam.v
