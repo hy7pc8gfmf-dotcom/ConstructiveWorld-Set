@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   coq-build:
-    name: Rocq 9.1 build + coqchk (single Live tree, cold build)
+    name: Rocq 9.3 build + coqchk (single Live tree, cold build)
     # 【20261026 标签收窄】裸 self-hosted 亦可匹配 Mac runner——Mac 接单后 Windows 壳
     # 路径（C:/Progra~1/Git/bin/bash.exe）在 macOS 不存在＝gate1 步级秒红
     # （run 40205628059 实证 25s 红）；set-runner offline 期认证 job 长期 queued
@@ -352,7 +352,7 @@ jobs:
   #        登记：暂闸起点=本 commit；解闸条件=Mac 工具包 v1.1 实装且 `<root>/bin/coqchk -v`=9.3.0；
   #        解闸动作=套 macA overlay（含填 MAC_ROCQ93_ROOT 实路径）。
   coq-build-macos:
-    name: Rocq 9.1 build + coqchk (single Live tree, macOS observation)
+    name: Rocq 9.3 build + coqchk (single Live tree, macOS observation)
     if: ${{ false }}  # 案B 过渡期暂闸（20261102 换基·登记见上；解闸=案A overlay）
     runs-on: [self-hosted, macOS]
     continue-on-error: true
