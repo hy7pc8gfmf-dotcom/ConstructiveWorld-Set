@@ -276,3 +276,11 @@ UpReqTempDefs.v
 UpAblD1_expf_pack.v
 DTPT.v
 DTPT.v
+InvPosLtCompat.v
+LW0MLicBridge.v
+UpSigMigrate.v
+UpSigMigrate2.v
+UpReqAlgebra.v
+UpReqDist.v
+CW220_Extensions.v
+SigMigrate_core.v

@@ -282,3 +282,11 @@ UpReqTempDefs.v#R61-5aa563
 UpAblD1_expf_pack.v#R62-1a2ff1
 DTPT.v#R63-4dd1ec
 DTPT.v#R63-4dd1ec
+InvPosLtCompat.v#R64-c08bcb
+LW0MLicBridge.v#R64-bf9e5d
+UpSigMigrate.v#R64-1072e0
+UpSigMigrate2.v#R64-ad7ad4
+UpReqAlgebra.v#R64-df8071
+UpReqDist.v#R64-bd1047
+CW220_Extensions.v#R64-2d8cb2
+SigMigrate_core.v#R64-d0f3ac

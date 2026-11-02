@@ -1,33 +1,32 @@
-(* ConstructiveWorld-Set — extension modules over the constructive reals:
-   log bounds, setoid-signed free energy, and explicit iteration budgets. *)
-
-(** * CW220_Extensions: Real-layer extension partitions.
-
-    Mission.  Four self-contained partitions.  [hlogz_discharge] and its
-      companions prove the logarithm of a normalized partition value is
-      nonpositive ([0 < Z <= 1] implies [log Z <= 0], strictly when
-      [Z < 1]).  Module [SetoidThermoCore] restates the free-energy identity and
-      the Gibbs form of attention over the setoid signature of
-      [RealInterfaceEnhancedSetoid].  Module [BudgetReal] constructs an
-      explicit geometric-decay budget on the constructive Cauchy reals;
-      the closing partition assembles the decay of the total-variation
-      sequence ([attention_iterate_converges_real]).
-
+(** * CW220_Extensions: Real-layer extension partitions over the
+    constructive reals: log bounds, setoid-signed free energy, and
+    explicit iteration budgets.
+    Mission.  Four partitions.  [hlogz_discharge] and companions prove the
+    logarithm of a normalized partition value is nonpositive ([0 < Z <= 1]
+    implies [log Z <= 0], strictly when [Z < 1]); [SetoidThermoCore]
+    restates the free-energy identity and the Gibbs form of attention over
+    [RealInterfaceEnhancedSetoid]; [BudgetReal] builds an explicit
+    geometric-decay budget on the constructive Cauchy reals; the closing
+    partition assembles total-variation decay
+    ([attention_iterate_converges_real]).
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Lia],
-      [Extraction].  Requires [S01_BaseRing] through [S15_TailFEPUp]; the
-      logarithm/exponential toolbox comes from [S04]/[S07].
-
-    References.  This development, the baseline module CW220_Extensions.v
-      of ConstructiveWorld-Main (statement names carried over verbatim).
-
-    Constructivity.  All named statements are carried by [Set] (the
-      order and equality carriers are [real_lt]/[real_le]/[real_eq] and
-      the [req]/[lt]/[le] fields of [RealInterfaceEnhancedSetoid], all
-      [Set]-valued); statements extract with [Obj.magic] = 0 and no
-      erasure; [coqchk] reports [Axioms: none].
-
-    Build.  [coqc -native-compiler no -Q . "" CW220_Extensions.v] compiles
-      cleanly (exit 0); artifact magic [436f7121 00015ff4]. *)
+    [Extraction]; [S01_BaseRing] through [S15_TailFEPUp].
+    References.  Names and proofs verbatim from baseline CW220_Extensions.v
+    of ConstructiveWorld-Main, with mechanical lineage adaptations: the
+    thermo module [SigMigrate] is named [SetoidThermoCore] (sections
+    [FreeEnergySetoid]/[GibbsSetoid]); [RealInterfaceEnhancedSetoid] is
+    parameterless here, so those sections read the global [Real] via
+    [Notation R := Real]/[req := real_eq]/[lt := real_lt] (iota-equal to
+    the projections); the Set-valued rational equality [QeqT] (S02) is
+    bridged at two decision-procedure sites ([real_const_zero_thm],
+    [one_minus_delta_lt_one_real]); one closing [Separate Extraction] lists
+    all main names beside the three named [Extraction] commands.
+    Constructivity.  All statements carried by [Set] ([real_lt]/[real_le]/
+    [real_eq] and the [req]/[lt]/[le] fields, all [Set]-valued); extraction
+    face counts [Obj.magic] = 0; [coqchk] reports [Axioms: none].
+    Build.  [rocq c -native-compiler no -Q . "" CW220_Extensions.v] under
+    the thermal guard regenerates [CW220_Extensions.vo] and the extracted
+    OCaml files. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -1639,3 +1638,37 @@ Qed.
 
 Extraction "uparchattn.ml" r_arch_pow_attn_real attention_iterate_converges_real.
 
+
+(* Per-artifact magic gate: one Separate Extraction command carrying all main
+   names of the four partitions (qualified for the two nested modules, so the
+   targets are explicit and independent of import shadowing). *)
+Separate Extraction
+  hlogz_discharge hlogz_discharge_full hlogz_strict hlogz_opp_nonneg
+  SetoidThermoCore.cwe_positive_dist SetoidThermoCore.cwe_boltzmann_dist
+  SetoidThermoCore.cwe_free_energy SetoidThermoCore.cwe_normalized
+  SetoidThermoCore.rminus SetoidThermoCore.req_boltzmann_positive
+  SetoidThermoCore.req_plus_zero_r SetoidThermoCore.req_mult_one_l
+  SetoidThermoCore.req_add_cancel_l SetoidThermoCore.req_double_neg
+  SetoidThermoCore.req_opp_plus SetoidThermoCore.req_mult_opp_l
+  SetoidThermoCore.req_opp_mult_l SetoidThermoCore.req_sum_opp
+  SetoidThermoCore.req_boltzmann_normalized
+  SetoidThermoCore.req_p_times_energy_decomp
+  SetoidThermoCore.req_free_energy_kl_decomp
+  SetoidThermoCore.cwe_exp_pos_fn
+  SetoidThermoCore.cwe_partition_function_temp
+  SetoidThermoCore.cwe_softmax_temp SetoidThermoCore.boltzmann_factor
+  SetoidThermoCore.Z_thermo SetoidThermoCore.boltzmann_dist_attn
+  SetoidThermoCore.req_attention_is_gibbs_temp
+  BudgetReal.real_pow BudgetReal.real_pow_eq_compat
+  BudgetReal.cwe_real_pow_pos BudgetReal.real_const_zero_thm
+  BudgetReal.real_mult_one_l BudgetReal.real_mult_zero_l
+  BudgetReal.real_nat_mult_succ BudgetReal.real_pow_inv_pair
+  BudgetReal.cwe_real_le_one_plus BudgetReal.real_lt_plus_one
+  BudgetReal.real_nat_mult_nonneg BudgetReal.bernoulli_pow
+  BudgetReal.r_arch_pow_real BudgetReal.log_kappa_neg
+  BudgetReal.real_pow_log_form BudgetReal.budget_cond_sufficient
+  BudgetReal.real_pow_add_thm BudgetReal.real_pow_le_one
+  BudgetReal.real_pow_anti_mono BudgetReal.geo_tail_budget
+  BudgetReal.budget_min_tail
+  one_minus_delta_pos_real one_minus_delta_lt_one_real
+  r_arch_pow_attn_real tv_iter_decay_real attention_iterate_converges_real.

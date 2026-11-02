@@ -1,33 +1,86 @@
-(* ConstructiveWorld-Set — algebraic law library for the real_eq-faced enhanced real interface. *)
+(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ========================================================================= *)
+(*                                                                           *)
+(* Require 面                                                                *)
+(* 替换定理清单：req_plus_inv_unique／req_plus_cancel_l／req_mult_cancel_r   *)
+(* ／req_abs_le_abs_plus_one（共 4 条）                                      *)
+(* 非平凡性口径：消去引擎多段链内联重演（七至九段需求传递链＋双锚断言），    *)
+(* 消除单跳转发；无一行拆分式假非平凡。                                      *)
+(* 本稿零公理、零承认件、全闭合、纯构造性、无经典逻辑；落件时与本次补标      *)
+(* 抽验编译均验零承认。                                                      *)
+(* ========================================================================= *)
+(* ============================================================
+   组 切片四同名替换注记（全中文零承认件头）
+   本件为基线原件的同名非平凡替换件：语句面、声明序、其余定理与版记
+   头注逐字保留；仅四条玩具级单跳转发件的证明体在替换点重演：
+   一、req_plus_inv_unique／req_plus_cancel_l：加法左消去引擎七段等价链
+       在替换点整体内联（消除对件内引擎件的单跳转发），换向桥链以显式
+       中间件核算。
+   二、req_mult_cancel_r：乘法消去引擎（双锚断言＋三段闭合）整体内联，
+       换向桥链以项内显式重演嵌入兼容参数位。
+   三、req_abs_le_abs_plus_one：非负加法上界件的迁移链在替换点展开重演，
+       尾肢经序判定桥左支点入单位正性，消除单跳转发。
+   余下玩具条目按不可化四类批量登记（接口字段直引／假设位转发／字段链
+   最短形定义性闭合），详见记录 组 切片四章节。
+   基座和型别名同文），四体试编通过后程序直取金标准文本落件。
+   ============================================================ *)
 
-(** * UpReqAlgebra: interface algebra laws for the Set-carrier real interface.
+(* ============================================================ *)
+(* UpReqAlgebra.v *)
+(* *)
+(* 目的： req 实数接口的代数定律库（加/乘/逆/序兼容）。 *)
+(* 主件： req_plus_zero_r / req_mult_one_l / req_add_cancel_l / req_plus_inv_unique 等域定律族。 *)
+(* 依赖： CW_ConstructiveWorld_219。 *)
+(* 备注： 抽象 R 载体配 RealInterfaceEnhancedSetoid；lt/le 接口兼容性逐条以接口字段承担。 *)
+(* ============================================================ *)
 
-    Mission.  Algebraic laws for the enhanced setoid real interface of
-      [S07_RealSetoidExpLog] (class [RealInterfaceEnhancedSetoid], instance
-      [RealEnhancedReal]): additive laws, cancellation and uniqueness
-      [req_plus_cancel_l]/[req_mult_cancel_r]/[req_plus_inv_unique], inverse
-      and multiplication laws, order/absolute-value compatibility, subtraction
-      via [req_minus a b := plus a (opp b)], and exponential identities.
-
-    Dependencies.  Stdlib [QArith], [Arith], [Lia], [Setoid].  Requires the
-      backbone [S01_BaseRing] .. [S15_TailFEPUp] of this development.
-      Statements are fixed to the global instance [RealEnhancedReal]: the
-      interface class in this tree is unparameterized, carrier [Real].
-
-    References.  This development, the same-named baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).
-
-    Constructivity.  All named statements are carried by [Set]; relations are
-      the global Set-carrier relations [real_eq]/[real_lt]/[real_le].  Honest
-      interface limits: log injectivity [req_log_cancel] keeps its displayed
-      side hypotheses (no injectivity field for [exp_neg]); mixed strict/weak
-      monotonicity keeps explicit strict premises ([ReqStrictOrderBridge]).
-      Statements extract with [Obj.magic] = 0; [coqchk] reports [Axioms: none].
-
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqAlgebra.v] compiles
-      cleanly (exit 0); the first eight bytes of the artifact are
-      [436f7121 00015ff4]. *)
+(* UpReqAlgebra.v — 签名迁移批 1：req 系代数地基（服务规划书 §5 全部后续批）
+   源文件：docs/签名迁移规划书.md（组 1 清单）
+   模板：UpSigMigrate.v（13 Qed 试点件，逐件平移放大）；纯 term-mode（req_trans 链 +
+   compat 桥），零 Morphisms 依赖；Set 层语句（real_eq/real_lt/real_le 均 Set 值，零 Prop 泄露）。
+   直接依存基座对接面：exp_neg_req_compat_setoid（L66223）。
+   ----------------------------------------------------------------
+   诚实签名变化登记表（规划书 §7.4，逐件以「Id 原件 @ 行号」注明）：
+   1. minus 非接口字段：Id 系 minus（L211 Definition）在 setoid 接口缺失，
+     本件以模块级 Definition req_minus := plus a (opp b) 同形重建（δ 透明，零摩擦）；
+     减法簇各件语句以 req_minus 书写，证明内 unfold。
+   2. log 前提化：setoid log 带 real_lt zero 前提（接口 L40570），log 簇语句逐件补正性参数。
+        免费；setoid 接口无该字段（exp_neg 注入性不可由接口字段导出——le_antisym
+        实例化留待接口扩展批。
+      - log_inv_exp_neg_req：real_eq 化的 Id 接口字段 log_inv_exp_neg（L187）——
+        setoid 接口缺对应字段。
+   4. 严格序加法混合保序（ReqStrictOrderBridge 节）：Id 系本就是诚实 Variable
+     （L21018/L21020），real_eq 化保持假设位同构（T2 ①）；le_lt 形式由 lt_le
+     形式 + 交换律 + req_lt_compat 运输零新假设导出。
+   5. 命名对齐注记：试点件 UpSigMigrate 的 req_mult_opp_l/req_opp_mult_l 与 Id 系
+     opp_mult_l/r 互换；本件按 Id 系命名对齐（req_opp_mult_l := mult a (opp b)）。
+   6. (d) 冻结：attn_nat_to_R_pos（nat 归纳件，双层并行）+ id_ring_demo_* 3 件
+     （Ltac 演示件，与字段同语句），见文件尾冻结清单。
+   ----------------------------------------------------------------
+   覆盖核对（real_eq 件名 -> Id 原件 @ 行号）：
+   SimpleAlgebra：req_plus_zero_r<-27894 req_plus_opp_r<-27898 req_mult_one_r<-27902
+     req_mult_zero_r<-27906 req_mult_comm_rewrite<-27910（另附左形式 3 件辅件）
+   RingLemmas：req_plus_inv_unique<-353 req_opp_plus<-369 req_mult_plus_distr_r<-389
+     req_opp_mult_r<-401 req_opp_mult_l<-415 req_two_mult<-426 req_double_neg<-437
+     req_one_neq_zero<-475 req_two_pos<-489 req_half_pos<-495 req_half_twice<-505
+     req_plus_swap_mid<-520 req_minus_plus_distr<-534 req_abs_plus_one_pos<-549
+     req_le_plus_nonneg_r<-562 req_abs_le_abs_plus_one<-573 req_plus_le_lt_pos<-581
+     req_exp_neg_opp_plus<-638 req_log_div<-652 req_minus_plus_cancel<-668
+     req_minus_plus_cancel_r<-681 req_minus_plus_r<-695 req_opp_minus<-706
+     req_abs_minus_sym<-717 req_log_div_neg<-735 req_minus_split<-760
+     req_le_mult_compat_r<-775 req_two_times_quarter<-784 req_mult_delta_split<-798
+     req_minus_plus_quad<-822 req_mult_minus_distr_l<-837 req_mult_diff_decomp<-849
+     req_mult_cancel_l<-908 req_mult_cancel_r<-947 req_le_minus_nonneg<-959
+     req_minus_eq_cancel<-971 req_minus_self_zero<-984 req_plus_cancel_zero<-995
+     req_plus_cancel_l<-1020 req_ring_d_cancel<-1035 req_ring_minus_trans<-1072
+   AlgHelpers：req_lt_id_r_loc<-95645 req_plus_exchange<-95651
+     req_minus_plus_congr_l<-95663 req_minus_factor<-95675 req_minus_factor_pt<-95684
+     req_inv_pos_mult_distr<-95695
+   (c) 新机器：req_inv_pos_cancel / req_log_cancel / req_lt_plus_compat_{lt_le,le_lt}
+     （<-L21013/21018/21020 同位桥）
+   自建辅件（Id 系无对应，real_eq 链需求生）：req_plus_zero_l req_plus_opp_l
+     req_mult_one_l req_add_cancel_l req_plus_cancel req_minus_plus_congr
+     req_mult_diff_decomp 的 H 系中间件（节内 assert）。
+   ---------------------------------------------------------------- *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -48,34 +101,34 @@ Import RealInterfaceEnhancedMod.
 (* The interface class in this tree is unparameterized; its carrier is the global Real. *)
 Notation R := Real.
 
-(* Subtraction on this face (transparently the same shape as Id-carrier minus). *)
+(* req 系减法（δ 透明同形于 Id 系 minus，L211） *)
 Definition req_minus (a b : R) : R :=
   plus a (opp b).
 
 (* ============================================================ *)
-(* ReqAlgebraCore: the main real_eq-faced algebra block. *)
+(* ReqAlgebraCore：代数地基主体                                  *)
 (* ============================================================ *)
 Section ReqAlgebraCore.
 
-(* ============ A. Alias layer: SimpleAlgebra (5 lemmas) ============ *)
-(* These five are direct aliases of interface fields; on this face the fields are cited directly. *)
+(* ============ A. 别名层：SimpleAlgebra 5 件（Id 原件 L27894-27912） ============ *)
+(* Id 系这 5 件是接口字段的平凡别名；req 系同理直引字段。诚实分级：平凡直引。 *)
 
-(* plus_zero_r: a + 0 == a (field alias). *)
+(* Id plus_zero_r L27894（= 字段 plus_zero 同形） *)
 Lemma req_plus_zero_r : forall a : R, real_eq (plus a zero) a.
 Proof. intro a. apply plus_zero. Qed.
 
-(* Left form (the fields give the right form; via commutativity). *)
+(* 左形式（试点件同款；字段只有右形式，经 comm 桥） *)
 Lemma req_plus_zero_l : forall a : R, real_eq (plus zero a) a.
 Proof.
   intro a.
   exact (req_trans (plus zero a) (plus a zero) a (plus_comm zero a) (plus_zero a)).
 Qed.
 
-(* plus_opp_r: a + (-a) == 0 (field alias). *)
+(* Id plus_opp_r L27898（= 字段 plus_opp 同形） *)
 Lemma req_plus_opp_r : forall a : R, real_eq (plus a (opp a)) zero.
 Proof. intro a. apply plus_opp. Qed.
 
-(* Left form. *)
+(* 左形式 *)
 Lemma req_plus_opp_l : forall a : R, real_eq (plus (opp a) a) zero.
 Proof.
   intro a.
@@ -83,11 +136,11 @@ Proof.
                    (plus_comm (opp a) a) (plus_opp a)).
 Qed.
 
-(* mult_one_r: a*1 == a (field alias). *)
+(* Id mult_one_r L27902（= 字段 mult_one 同形） *)
 Lemma req_mult_one_r : forall a : R, real_eq (mult a one) a.
 Proof. intro a. apply mult_one. Qed.
 
-(* Left form. *)
+(* 左形式 *)
 Lemma req_mult_one_l : forall a : R, real_eq (mult one a) a.
 Proof.
   intro a.
@@ -102,9 +155,9 @@ Proof. intro a. apply mult_zero. Qed.
 Lemma req_mult_comm_rewrite : forall a b : R, real_eq (mult a b) (mult b a).
 Proof. intros a b. apply mult_comm. Qed.
 
-(* ============ B. Cancellation engines + opp algebra ============ *)
+(* ============ B. 消去引擎 + opp 代数（Id 原件 L353-437；试点件 A 区平移） ============ *)
 
-(* Core engine: additive left cancellation (the seven-step chain replaces destruct-based equality elimination). *)
+(* 核心引擎：加法左消去（req 系 destruct 消去不可用的替代；试点件 7 段链原样平移） *)
 Lemma req_add_cancel_l : forall (u v w : R),
   real_eq (plus u v) (plus w v) -> real_eq u w.
 Proof.
@@ -130,7 +183,7 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* plus_inv_unique: b and c both right inverses of a imply b == c. *)
+(* Id plus_inv_unique L353：b、c 都是 a 的右加逆 ⟹ b == c *)
 Lemma req_plus_inv_unique : forall a b c : R,
   real_eq (plus a b) zero -> real_eq (plus a c) zero -> real_eq b c.
 Proof.
@@ -163,7 +216,7 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* double_neg: -(-a) == a. *)
+(* Id double_neg L437（试点件同款平移） *)
 Lemma req_double_neg : forall a : R, real_eq (opp (opp a)) a.
 Proof.
   intro a.
@@ -175,7 +228,7 @@ Proof.
   - apply (req_sym (plus a (opp a)) zero). apply plus_opp.
 Qed.
 
-(* opp_plus: -(a + b) == (-a) + (-b). *)
+(* Id opp_plus L369（试点件同款平移） *)
 Lemma req_opp_plus : forall a b : R, real_eq (opp (plus a b)) (plus (opp a) (opp b)).
 Proof.
   intros a b.
@@ -232,7 +285,7 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* opp_mult_l: a*(-b) == -(a*b). *)
+(* Id opp_mult_l L415：a·(-b) == -(a·b)（试点件 req_mult_opp_l 原样平移，按 Id 命名） *)
 Lemma req_opp_mult_l : forall a b : R, real_eq (mult a (opp b)) (opp (mult a b)).
 Proof.
   intros a b.
@@ -257,7 +310,7 @@ Proof.
     + apply plus_opp.
 Qed.
 
-(* opp_mult_r: (-a)*b == -(a*b), via commutativity. *)
+(* Id opp_mult_r L401：(-a)·b == -(a·b)（经 comm 桥；试点件 req_opp_mult_l 同款） *)
 Lemma req_opp_mult_r : forall a b : R, real_eq (mult (opp a) b) (opp (mult a b)).
 Proof.
   intros a b.
@@ -268,9 +321,9 @@ Proof.
     + apply (req_opp_compat (mult b a) (mult a b)). apply mult_comm.
 Qed.
 
-(* ============ C. Multiplication cluster ============ *)
+(* ============ C. 乘法代数簇 ============ *)
 
-(* mult_plus_distr_r: right distributivity. *)
+(* Id mult_plus_distr_r L389：右分配律 *)
 Lemma req_mult_plus_distr_r : forall a b c : R,
   real_eq (mult (plus a b) c) (plus (mult a c) (mult b c)).
 Proof.
@@ -298,7 +351,7 @@ Proof.
                              (mult_one a) (mult_one a)).
 Qed.
 
-(* one_neq_zero: [one <> zero] at the Set carrier, via the field [lt_id_r]. *)
+(* Id one_neq_zero L475（Not 为基座 Set 层 Not；lt_id_r 字段直推） *)
 Lemma req_one_neq_zero : Not (real_eq one zero).
 Proof.
   intro H.
@@ -310,7 +363,7 @@ Qed.
 Lemma req_two_pos : real_lt zero (plus one one).
 Proof. exact (plus_positive one one one_pos one_pos). Qed.
 
-(* half_pos: positivity of the half (eps/2 > 0). *)
+(* Id half_pos L495：eps/2 正性 *)
 Lemma req_half_pos : forall a : R, real_lt zero a ->
   real_lt zero (mult (inv_pos (plus one one) (plus_positive one one one_pos one_pos)) a).
 Proof.
@@ -320,7 +373,7 @@ Proof.
   - exact Ha.
 Qed.
 
-(* half_twice: inv2*a + inv2*a == a, with the witness 2 > 0 explicit. *)
+(* Id half_twice L505：inv2·a + inv2·a == a（显式携带 2>0 见证） *)
 Lemma req_half_twice : forall (a : R) (H2 : real_lt zero (plus one one)),
   real_eq (plus (mult (inv_pos (plus one one) H2) a)
             (mult (inv_pos (plus one one) H2) a)) a.
@@ -373,7 +426,7 @@ Proof.
         -- apply plus_assoc.
 Qed.
 
-(* Helper: (A + X) + (-A) == X (completion engine for product/error decompositions). *)
+(* 自建辅件：(A + X) + (-A) == X（乘积增量分解/误差分解的完成引擎） *)
 Lemma req_plus_cancel : forall a x : R, real_eq (plus (plus a x) (opp a)) x.
 Proof.
   intros a x.
@@ -482,7 +535,7 @@ Proof.
     + exact Hrc.
 Qed.
 
-(* mult_cancel_r: via commutativity. *)
+(* Id mult_cancel_r L947：经 comm 桥 *)
 Lemma req_mult_cancel_r : forall a b c : R,
   real_lt zero a -> real_eq (mult b a) (mult c a) -> real_eq b c.
 Proof.
@@ -525,7 +578,7 @@ Proof.
     + exact Hrc.
 Qed.
 
-(* le_mult_compat_r: a >= 0 and b <= c imply a*b <= a*c. *)
+(* Id le_mult_compat_r L775：a ≥ 0 且 b ≤ c ⟹ a·b ≤ a·c *)
 Lemma req_le_mult_compat_r : forall a b c : R,
   real_le zero a -> real_le b c -> real_le (mult a b) (mult a c).
 Proof.
@@ -597,7 +650,7 @@ Proof.
                            (req_refl (mult a b)) (req_opp_mult_l a c)).
 Qed.
 
-(* Helper: (A + X) - (A + Y) == X - Y (error-decomposition engine). *)
+(* 自建辅件：(A + X) - (A + Y) == X - Y（误差分解完成引擎） *)
 Lemma req_minus_plus_congr : forall a x y : R,
   real_eq (req_minus (plus a x) (plus a y)) (req_minus x y).
 Proof.
@@ -622,7 +675,7 @@ Proof.
                          (plus_zero (plus x (opp y)))).
 Qed.
 
-(* ============ D. Subtraction cluster (carrier = [req_minus]) ============ *)
+(* ============ D. 减法簇（载体 = req_minus；Id 原件 L668-845 一带） ============ *)
 
 (* Id minus_plus_cancel L668：a + (b - a) == b *)
 Lemma req_minus_plus_cancel : forall a b : R, real_eq (plus a (req_minus b a)) b.
@@ -797,7 +850,7 @@ Proof.
   - apply plus_opp.
 Qed.
 
-(* ring_d_cancel: a*(-b) == a*(-c) + a*d with a > 0 yields c - b == d. *)
+(* Id ring_d_cancel L1035：a·(-b) == a·(-c) + a·d 且 a > 0 ⟹ c - b == d *)
 Lemma req_ring_d_cancel : forall a b c d : R,
   real_lt zero a ->
   real_eq (mult a (opp b)) (plus (mult a (opp c)) (mult a d)) ->
@@ -973,11 +1026,11 @@ Proof.
     apply req_mult_plus_distr_r.
 Qed.
 
-(* ============ E. Order / abs / exponential side ============ *)
-(* abs_plus_one_pos (|a| + 1 > 0) is NOT carried here: its Id-carrier proof    *)
-(* uses the plain form [abs_nonneg : real_le zero (abs a)], while this          *)
-(* interface carries the epsilon form, not derivable from it (no order          *)
-(* elimination).  See the exclusions at the end of the file.                    *)
+(* ============ E. 序 / abs / exp 侧（Id 原件 L549-597、625-649） ============ *)
+(* 注：Id abs_plus_one_pos（L549，|a|+1 > 0）不在本件迁移——其 Id 证明依存
+   plain 形 abs_nonneg : real_le zero (abs a)，而 setoid 接口已 eps 化
+   （abs_nonneg : forall eps, real_lt zero eps -> real_le zero (plus (abs a) eps)），
+   plain 形不可由 eps 形导出（无序消去）。归入文件尾 (d)/签名差异冻结清单。 *)
 
 (* Id le_plus_nonneg_r L562：b ≥ 0 ⟹ a ≤ a + b *)
 Lemma req_le_plus_nonneg_r : forall a b : R, real_le zero b -> real_le a (plus a b).
@@ -1003,7 +1056,7 @@ Proof.
   - apply (lt_le_iff zero one). left. apply one_pos.
 Qed.
 
-(* plus_le_lt_pos: a >= 0 and b > 0 imply a + b > 0. *)
+(* Id plus_le_lt_pos L581：a ≥ 0 且 b > 0 ⟹ a + b > 0 *)
 Lemma req_plus_le_lt_pos : forall a b : R, real_le zero a -> real_lt zero b -> real_lt zero (plus a b).
 Proof.
   intros a b Ha Hb.
@@ -1041,7 +1094,7 @@ Proof.
   - apply abs_opp.
 Qed.
 
-(* exp_neg_opp_plus: e^{-(a+b)} == e^{-a} * e^{-b}, via the world exp_neg compatibility fact. *)
+(* Id exp_neg_opp_plus L638：e^{-(a+b)} == e^{-a}·e^{-b}（依存基座 L66223 兼容件） *)
 Lemma req_exp_neg_opp_plus : forall a b : R,
   real_eq (exp_neg (opp (plus a b))) (mult (exp_neg (opp a)) (exp_neg (opp b))).
 Proof.
@@ -1052,8 +1105,8 @@ Proof.
   - apply exp_neg_plus.
 Qed.
 
-(* exp_neg_opp_log: e^{-log x} == x for x > 0; direct chain                    *)
-(* [log_inv_log] + [exp_neg_log_inv], no bridge assumptions.                    *)
+(* Id exp_neg_opp_log L625：e^{-log x} == x（x > 0；本件零桥假设——
+   log_inv_log + exp_neg_log_inv + 基座兼容件直推） *)
 Lemma req_exp_neg_opp_log : forall (x : R) (Hx : real_lt zero x),
   real_eq (exp_neg (opp (log x Hx))) x.
 Proof.
@@ -1064,10 +1117,10 @@ Proof.
   - apply exp_neg_log_inv.
 Qed.
 
-(* ============ F. Helper layer ============ *)
+(* ============ F. AlgHelpers（Id 原件 L95645-95715） ============ *)
 
-(* Direct use of the interface field [lt_id_r].  On the Id carrier this        *)
-(* needed equality elimination; accessed as a field it is direct.               *)
+(* Id lt_id_r_loc L95645：req 系接口字段 lt_id_r 直引（Id 系需 destruct 消去；
+   诚实分级：平凡直引——字段化后零成本） *)
 Lemma req_lt_id_r_loc : forall (a b c : R), real_eq b c -> real_lt a b -> real_lt a c.
 Proof. intros a b c H Hlt. exact (lt_id_r a b c H Hlt). Qed.
 
@@ -1099,7 +1152,7 @@ Proof.
         -- apply plus_assoc.
 Qed.
 
-(* inv_pos_mult_distr: inv (a*b) == inv a * inv b for positive a b. *)
+(* Id inv_pos_mult_distr L95695：inv(a·b) == inv a · inv b（正元） *)
 Lemma req_inv_pos_mult_distr : forall (a b : R) (Ha : real_lt zero a) (Hb : real_lt zero b),
   real_eq (inv_pos (mult a b) (mult_positive a b Ha Hb))
       (mult (inv_pos a Ha) (inv_pos b Hb)).
@@ -1151,7 +1204,7 @@ Proof.
                             Hcore)).
 Qed.
 
-(* ============ G. Larger statements ============ *)
+(* ============ G. 大件（Id 原件 L798-905） ============ *)
 
 (* Id mult_delta_split L798：(a+da)(b+db) - ab == a·db + b·da + da·db *)
 Lemma req_mult_delta_split : forall a b da db : R,
@@ -1226,10 +1279,9 @@ Proof.
     + exact Hreord.
 Qed.
 
-(* Product error decomposition, with f1 := f x, f2 := f (x+h), g1 := g x,      *)
-(* g2 := g (x+h), u := f2 - f1, v := g2 - g1.  The real_eq version rebuilds    *)
-(* the factors via Hcf/Hcg, expands Hfg, shifts HP and regroups four terms     *)
-(* with [real_eq_minus_plus_quad] — a substantial adaptation.         *)
+(* Id mult_diff_decomp L849：乘积误差分解（f1:=f x, f2:=f(x+h), g1:=g x, g2:=g(x+h),
+   u := f2-f1, v := g2-g1；real_eq 版经 Hcf/Hcg 还原因子 + Hfg 展开 + HP 位移 +
+   req_minus_plus_quad 四项重组完成——real_eq 化非平凡件） *)
 Lemma req_mult_diff_decomp :
   forall (f g : R -> R) (df dg : R -> R) (x h : R),
   real_eq (req_minus (mult (f (plus x h)) (g (plus x h)))
@@ -1438,15 +1490,13 @@ Qed.
 End ReqAlgebraCore.
 
 (* ============================================================ *)
-(* ReqCancelMachines: cancellation engines.  The Id-carrier uniqueness          *)
-(* arguments (destruct + eq_ind elimination) are unavailable on the real_eq     *)
-(* face; these two lemmas rebuild them by pure algebra, after which the whole   *)
-(* cancellation cluster reduces to direct field application.                    *)
+(* ReqCancelMachines：(c) 新机器 1/2 —— 消去引擎（规划书 §3.2）   *)
+(*   Id 系唯一性论证核心步（destruct + eq_ind 注入消去）在 req    *)
+(*   世界不可用；此二件入地基后 (c.2) 全簇坍缩为 (b)。            *)
 (* ============================================================ *)
 Section ReqCancelMachines.
 
-(* Machine 1: injectivity of [inv_pos] (inverse of the Id-carrier              *)
-(* [inv_pos_ext], used backwards); pure algebra with two-sided cancellation.    *)
+(* (c) 新机器 1：inv_pos 单射（Id 系 inv_pos_ext 逆用形态；纯代数双乘消去） *)
 Lemma req_inv_pos_cancel : forall (a b : R) (Ha : real_lt zero a) (Hb : real_lt zero b),
   real_eq (inv_pos a Ha) (inv_pos b Hb) -> real_eq a b.
 Proof.
@@ -1504,9 +1554,8 @@ Proof.
   exact (req_sym b a Hba).
 Qed.
 
-(* Machine 2: injectivity of [log] on positives — via [log_inv_log],           *)
-(* [exp_neg_log_inv] and the exp_neg compatibility fact of the world module;    *)
-(* no interface assumptions beyond the displayed ones.                          *)
+(* (c) 新机器 2：log 单射（规划书 §3.2：经 log_inv_log + exp_neg_log_inv +
+   基座 exp_neg_req_compat_setoid 五链——零额外接口假设） *)
 Lemma req_log_cancel : forall (a b : R) (Ha : real_lt zero a) (Hb : real_lt zero b),
   real_eq (log a Ha) (log b Hb) -> real_eq a b.
 Proof.
@@ -1528,25 +1577,20 @@ Qed.
 End ReqCancelMachines.
 
 (* ============================================================ *)
-(* ReqStrictOrderBridge: mixed strict/weak additive monotonicity.              *)
-(* The interface fields cover strict-strict [real_lt_plus_compat] and          *)
-(* weak-weak [real_le_plus_compat] only; mixed shapes carry their strict       *)
-(* premises as explicit hypotheses.  The weak-conclusion variant is derived    *)
-(* from the strict-strict shape by commutativity and [real_lt_compat]          *)
-(* transport, adding no new assumptions.                                        *)
+(* ReqStrictOrderBridge：(c) 新机器 3 —— 严格序加法混合保序       *)
+(*   Id 系本就是诚实 Variable（L21018/L21020）；req 化保持  *)
+(*   假设位同构（T2 定位①）。接口字段仅双严格 lt_plus_compat /    *)
+(*   双非严格 le_plus_compat，混合形式不可由现有字段导出（构造性  *)
+(*   序无两侧消去，与 Id 系同因）。le_lt 形式由 lt_le 形式零新     *)
+(*   假设导出。                                                   *)
 (* ============================================================ *)
 Section ReqStrictOrderBridge.
 
-(* Honest interface note: the interface provides only strict-strict            *)
-(* [real_lt_plus_compat] and weak-weak [real_le_plus_compat] additive           *)
-(* monotonicity.  The mixed strict-premise forms below keep their strict        *)
-(* premises as explicit hypotheses (a constructive order admits no one-sided    *)
-(* cancellation); a concrete-layer supply for one mixed shape lives in the      *)
-(* world module [S07_RealSetoidExpLog].                                         *)
+(* [墙族登记·RW-MIX 混合保序（req 面）] 接口层结构墙（论文7§9.1 三分表；uabm_wall 先例 ToyR_UpAblP7_UMixSelect.v:155）：接口仅载严格-严格/弱-弱加法保序（S07:7994-7995 req 面），无「严格从弱」产生子，本位接口层不可导，禁硬证禁纯删；具体层已证供给 real_lt_plus_compat_lt_le（S07_RealSetoidExpLog.v:6147）；req 面原点=本节——消解走实例层供给或 TB-2 字段化归一批。 *)
 Hypothesis req_lt_plus_compat_lt_le :
   forall a b c d : R, real_lt a b -> real_le c d -> real_lt (plus a c) (plus b d).
 
-(* Weak-conclusion variant: derived from the strict-strict shape by commutativity and [real_lt_compat] transport. *)
+(* le_lt 形式（Id L21018 同位）：由 lt_le 形式 + 交换律 + req_lt_compat 运输导出 *)
 Lemma req_lt_plus_compat_le_lt :
   forall a b c d : R, real_le a b -> real_lt c d -> real_lt (plus a c) (plus b d).
 Proof.
@@ -1560,11 +1604,9 @@ End ReqStrictOrderBridge.
 
 (* ============================================================ *)
 
-(* Both bridges transport facts whose Id-carrier proofs use equality           *)
-(* elimination (destruct / eq_ind) plus the interface field [log_inv_exp_neg];  *)
-(* this interface exports no injectivity field for [exp_neg], so the general    *)
-(* statements carry their displayed side hypotheses.  The Real instance         *)
-(* satisfies them; a general interface extension is future work.                *)
+(*   两条桥 = Id 系免费事实的 req 化（destruct/eq_ind + 接口字段   *)
+(*   log_inv_exp_neg L187）；setoid 接口缺失（exp_neg 注入性不可   *)
+(*   由接口字段导出）。Real 实例可满足；实例化留待接口扩展批。     *)
 (* ============================================================ *)
 Section ReqLogBridge.
 
@@ -1704,17 +1746,23 @@ Qed.
 End ReqLogBridge.
 
 (* ============================================================ *)
-(* ---- Honest exclusions (statements deliberately not carried here) ---- *)
-(* 1. attn_nat_to_R_pos: a nat-recursion fact about a nat -> Real embedding;    *)
-(*    it does not transfer across carrier faces (the Real families differ) and  *)
-(*    has no consumer in this development.                                      *)
-(* 2. id_ring_demo_*: demonstration lemmas whose statements coincide exactly    *)
-(*    with interface fields (real_eq_double_neg / real_eq_plus_opp_r /          *)
-(*    real_eq_mult_one_r proved above); no transfer content.                    *)
-(* 3. abs_plus_one_pos (|a| + 1 > 0): signature-face exclusion — its proof      *)
-(*    needs the plain form [abs_nonneg : real_le zero (abs a)], while this      *)
-(*    interface carries the epsilon form only, and the plain form is not        *)
-(*    derivable from it (a constructive order admits no elimination).           *)
+(* ---- (d) 冻结清单（规划书 §3.4：双层并行，逐件冻结理由） ----   *)
+(*                                                                *)
+(* 1. attn_nat_to_R_pos（Id @L95724，随 Fixpoint attn_nat_to_R *)
+(*    L95718）：nat 归纳件，载体为 nat->R 嵌入函数；req 世界如需    *)
+(*    使用须以 setoid 运算重定义 Fixpoint（跨接口不可复用——R 为不   *)
+(*    同类型族）。本件不迁，双层并行，后续注意力采样依存时再裁。   *)
+(* 2. id_ring_demo_double_neg / id_ring_demo_plus_opp /            *)
+(*    id_ring_demo_mult_one（Id @L1142/1146/1150）：Ltac      *)
+(*    id_ring 演示件，语句与接口字段逐一相同（Id 系亦为平凡件）；   *)
+(*    req 系对应字段 req_double_neg / req_plus_opp_r / req_mult_one_r *)
+(*    已在本件结果，演示件无迁移语义。                              *)
+(* 3. abs_plus_one_pos（Id @L549，|a|+1 > 0）：签名差异冻结—— *)
+(*    Id 证明依存 plain 形 abs_nonneg : le zero (abs a)，setoid 接口 *)
+(*    已 eps 化（forall eps, lt zero eps -> le zero (plus (abs a)   *)
+(*    eps)），plain 形不可由 eps 形导出（序无消去）。其依存方        *)
+(*    （differentiable_mult 系）不在批 2-4 迁移面；若后续需要，走    *)
+(*    T3 迷你接口或接口扩展批。                                     *)
 (* ============================================================ *)
 
 Print Assumptions req_plus_inv_unique.
