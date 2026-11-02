@@ -186,7 +186,7 @@ def run_module(mod, tree, workdir, coqc, timeout):
         return rec
     driver = workdir / ("_gate7_%s_driver.v" % mod)
     driver.write_text(
-        "From Coq Require Import Extraction.\n"
+        "From Stdlib Require Import Extraction.\n"
         "Require Import %s.\n"
         "Separate Extraction %s.\n" % (mod, " ".join(names)),
         encoding="utf-8")
