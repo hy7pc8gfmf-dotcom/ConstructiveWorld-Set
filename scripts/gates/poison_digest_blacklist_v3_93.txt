@@ -1,0 +1,41 @@
+# poison_digest_blacklist_v3_93.txt — VO 播种检疫毒 digest 黑名单 v3（9.3 重产·20261102·attest93 席）
+# 结构：§A = v2 二十五枚 9.1 字节 digest 逐字保留（md5 系绝对字节指纹·不随编译器代际失效·仍咬 9.1 毒代回流）；
+#       §B = Rocq 9.3.0（stdlib 9.2.0 源构建·opam-root/default）对同名毒件按文档毒形重编所得 digest（本机实测·双建互证）。
+# 毒形出典：E-STAGING-AXFORENSIC-1（R109/R111 整编期副本携 `From Stdlib Require Import Lia Lra.`）→ 本波在现役源上恢复该毒差
+#   （Lia → Lia Lra）后以 9.3 编译；世界＝set93c（Set Live 树 9.3 全闭包·213 .vo）；台账见 _attest93/poison_source_ledger.json。
+# 9.3 可再生面（实测）：UpReqConcSoftmax（Main 源·对 Set 世界可编）＋ UpReqIrrationalCriterion（Set 世界原生源）；
+#   UpReqConcB1 / UpReqConcB2Time / UpReqConcFin2 三族（18 槽）**本波不可再生**：其 Require 闭包含 UpReqConcMixSel/ConcB2（Main 系），
+#   MixSel 对 Set 世界 L46 类型红（RealInterfaceEnhancedSetoid Set-载体接口形债）→ 依赖步2 Main 9.3 闭包后再产（禁改语句面·工单 §二）。
+# 校准（SELF-HIT·digest 层）：gen1/gen2 异目录独立二次编译四件 md5 逐件全同（确定性＋路径无关）；gate5 以本单对 gen2 产物扫描 DIGEST-HIT 全中（见 gate5_B_*.json）。
+# 用法/纪律同 v2：全部 32 位 md5 小写；行内 # 后为注释；禁照单硬删（VO-RES-CLEAN）。
+# ===== §A v2 原条目 25 枚（9.1 字节·逐字保留·出典 v2 头注）=====
+43f866e8f029d437f386eafbd09de766  UpReqConcSoftmax.vo  # V1 P2世界毒代
+2ec90e4669dad904ca655d0936e33900  UpReqConcB1.vo  # V1 P2世界毒代
+1f2764e67840d52fce408faac252f25b  UpReqConcFin2.vo  # V1 P2世界毒代
+2373d1095b346d33a06796eaa5a7257d  UpReqConcB2Time.vo  # V1 P2世界毒代
+7881659ca76f393723c0f9b9930e41f3  UpReqIrrationalCriterion.vo  # V1 P2世界毒代
+7b4e5172c9e7f0d3320af96e5eb0d716  UpReqConcFin2.vo  # V1 _p1world2毒代
+d796014c1711c47cf6b2f275a64dd32c  UpReqConcFin2.vo  # V2 _tp7fin2c1/c2/vc1/vc2(含_vc1_exdir嵌套,main\) x5 09-25晨（最新毒代）
+dd828aad54bcdcefd2064e4db9d8338b  UpReqConcFin2.vo  # V2 _tm2r2/_tr1base(vo\)/_tw3pkg x3 09-21~22
+fede91bfc6b40c8aab65f28780cc7e4f  UpReqConcFin2.vo  # V2 _tprslice/_tprslice3/_tvet1(cache\) x3 09-22~24
+ab60a8a500b01ebef3bfd9ea8163ea15  UpReqConcB1.vo  # V2 历史沙箱归档(_tl2fix/vomirror,_tr93aud_sbx/uroot) x2 09-19（最老毒代）
+75ac8e759514132f87573c6957625e8b  UpReqConcB2Time.vo  # V2 历史沙箱归档(同上两址) x2 09-19
+851b378ccf1d522f3096219c4e0a1a68  UpReqConcFin2.vo  # V2 历史沙箱归档(同上两址) x2 09-19
+62424b1de335e5e007ffe79f856bf557  UpReqConcSoftmax.vo  # V2 历史沙箱归档(同上两址) x2 09-19
+aed88e25f9b8ad04d7befa1094e2616f  UpReqIrrationalCriterion.vo  # V2 历史沙箱归档(同上两址) x2 09-19
+ed5bc43b0387b303483edf25d852c0ac  UpReqConcB2Time.vo  # V2 _tlsofix_sbx x1 09-22 02:10（三毒并发代）
+71486d5887a7f56d444c4cf0cf0c1de1  UpReqConcFin2.vo  # V2 _tlsofix_sbx x1 09-22 02:10
+a96caf1f617dee53a8b8dc2690f1ef60  UpReqConcSoftmax.vo  # V2 _tlsofix_sbx x1 09-22 02:10
+cc534a06581de2a4606088e4d2b5a925  UpReqConcFin2.vo  # V2 _tmix4v_sbx x1 09-23 13:31
+92e63aa47d3b167377d05806a934df82  UpReqConcFin2.vo  # V2 _ts3_presbx x1 09-23 01:52
+181ecbba7bb3ddbde68203a04b809b4d  UpReqConcFin2.vo  # V2 _tslice3_sbx x1 09-23 01:44
+f2e308be347c71cd00e471cf13a3913c  UpReqConcFin2.vo  # V2 _ttoyre2_sbx x1 09-21 07:17
+5a88df6034ca54c648daa2903348130a  UpReqConcB1.vos  # V2 _tr1_ws\过期沙箱归档 09-26实测
+b0b1da8c840ed321c3636d2ff6b99f18  UpReqConcB2Time.vos  # V2 _tr1_ws\过期沙箱归档 09-26实测
+b4d81e94e14e1ba966ba7d047066a231  UpReqConcSoftmax.vos  # V2 _tr1_ws\过期沙箱归档 09-26实测
+c1316e3e30875b2cf84e81db0aa6e862  UpReqIrrationalCriterion.vos  # V2 _tr1_ws\过期沙箱归档 09-26实测（Lra+Psatz）
+# ===== §B 9.3 重产条目（Rocq 9.3.0·世界 set93c·毒形 Lia→Lia Lra·双建互证 gen1==gen2）=====
+832c2744724da7e5bc0877b602ba9790  UpReqConcSoftmax.vo  # V3-93 Main源L12毒形·对应槽 43f866e8/62424b1d/a96caf1f；.vos 与 .vo 字节全同（件内无 Qed 不透明体）→ 同 digest，.vos 命中将显 name_mismatch（结构性·非改名投毒）
+2def44064a56500891c394cfb416f975  UpReqIrrationalCriterion.vo  # V3-93 Set世界原生源L44毒形·对应槽 7881659c/aed88e25
+1916f771a0a1b21813662376f0f548d9  UpReqIrrationalCriterion.vos  # V3-93 同源 -vos 桩·对应槽 c1316e3e
+# ===== §C 本波未再生槽（候步2 Main 9.3 闭包）：UpReqConcB1.vo×2 + .vos×1 ｜ UpReqConcB2Time.vo×3 + .vos×1 ｜ UpReqConcFin2.vo×11 =====

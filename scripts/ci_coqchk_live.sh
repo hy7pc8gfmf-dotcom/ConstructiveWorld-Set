@@ -3,9 +3,15 @@
 # Shared-closure single pass with -o (no -o, no Axioms section = unverifiable, gate2 fails red).
 # Self-contained: replaces the retired D:\actions-runner cw_chk.cmd wrapper.
 set -u
-export COQLIB="C:/Rocq-Platform~9.1~2026.01/lib/coq"
-export ROCQLIB="C:/Rocq-Platform~9.1~2026.01/lib/coq"
-COQCHK="C:/Rocq-Platform~9.1~2026.01/bin/coqchk.exe"
+# Form A (Rocq 9.3 migration wave, 20261102): COQCHK is env-overridable and
+# COQLIB/ROCQLIB derive from it via the SW2 same-root rule
+# (<root>/bin/coqchk.exe -> <root>/lib/coq), mirroring ci_build_live_cached.sh.
+# Defaults keep today's 9.1 platform byte-for-byte (zero change when env unset).
+COQCHK="${COQCHK:-C:/Rocq-Platform~9.1~2026.01/bin/coqchk.exe}"
+case "$COQCHK" in
+  */bin/coqchk.exe) _root="${COQCHK%/bin/coqchk.exe}"; export COQLIB="${COQLIB:-$_root/lib/coq}"; export ROCQLIB="${ROCQLIB:-$COQLIB}" ;;
+  *) export COQLIB="${COQLIB:-C:/Rocq-Platform~9.1~2026.01/lib/coq}"; export ROCQLIB="${ROCQLIB:-$COQLIB}" ;;
+esac
 cd "$(dirname "$0")/.." || exit 1
 log="ConstructiveWorld_Live/_chk_all.log"
 mods=()
