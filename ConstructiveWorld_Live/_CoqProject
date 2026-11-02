@@ -274,8 +274,6 @@ UpReqAlignRestB.v
 G04_ProjFam.v
 UpReqTempDefs.v
 UpAblD1_expf_pack.v
-DTPT.v
-DTPT.v
 InvPosLtCompat.v
 LW0MLicBridge.v
 UpSigMigrate.v
@@ -286,3 +284,8 @@ CW220_Extensions.v
 SigMigrate_core.v
 UpReqConcSoftmax.v
 DTPT_Entropy.v
+LW0FactGrowth.v
+LW1ZPoly.v
+UpReqU2.v
+G05_LogSmall.v
+G08_Gibbs.v

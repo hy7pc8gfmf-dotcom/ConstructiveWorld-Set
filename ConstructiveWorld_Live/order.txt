@@ -1,6 +1,8 @@
 S01_BaseRing.v#R0-d66910
 S02_CauchyComplete.v#R0-d66910
 S03_QExp.v#R0-d66910
+LW0FactGrowth.v#R70-2f9425
+LW1ZPoly.v#R70-2f9425
 S04_RealExpLogConv.v#R0-d66910
 S05_AlignmentGRPO.v#R0-d66910
 S06_DiffSamplingGibbs.v#R0-d66910
@@ -280,12 +282,13 @@ UpReqAlignRestB.v#R59-67a53f
 G04_ProjFam.v#R60-4df90d
 UpReqTempDefs.v#R61-5aa563
 UpAblD1_expf_pack.v#R62-1a2ff1
-DTPT.v#R63-4dd1ec
-DTPT.v#R63-4dd1ec
 InvPosLtCompat.v#R64-c08bcb
 LW0MLicBridge.v#R64-bf9e5d
 UpSigMigrate.v#R64-1072e0
 UpSigMigrate2.v#R64-ad7ad4
+UpReqU2.v#R70-2f9425
+G08_Gibbs.v#R70-2f9425
+G05_LogSmall.v#R70-2f9425
 UpReqAlgebra.v#R64-df8071
 UpReqDist.v#R64-bd1047
 CW220_Extensions.v#R64-2d8cb2
