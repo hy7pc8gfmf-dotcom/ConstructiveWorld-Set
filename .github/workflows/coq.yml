@@ -190,7 +190,16 @@ jobs:
       - name: gate7 extraction execution (post-build, red-on-growth)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
+          # Form-A injection (Rocq 9.3 wave 20261102, #133-attempt2 lesson):
+          # gate7 drivers compile against the freshly built .vo tree — without
+          # the injected 9.3 toolchain they pick machine-PATH 9.1 coqc and
+          # cross-generation reject every module (rc=1 x283, magic=None).
+          export COQC="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqc.exe"
+          export COQCHK="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqchk.exe"
+          export COQLIB="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq"
+          export ROCQLIB="$COQLIB"
           python scripts/gates/gate7_extract_run.py \
+            --coqc "D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqc.exe" \
             --tree ConstructiveWorld_Live \
             --order ConstructiveWorld_Live/order.txt \
             --workdir _gate7_work \
