@@ -96,8 +96,10 @@ jobs:
       # 扫描词表零弱化；若未来重建第二世系树，gate3 须随树回补。
 
       # Build：单 Live 树冷编（order.txt 拓扑，逐件真 RC，败出日志尾 30 行 fail-loud）。
-      # 仓内自足 bash 脚本（scripts/ci_build_live.sh）：SW2 全字面双 export
-      # COQLIB/ROCQLIB=9.1，cwd=仓根，-Q ConstructiveWorld_Live ""。
+      # 仓内自足 bash 脚本（scripts/ci_build_live_cached.sh·形A）：工具链自 env 取 COQC（unset
+      # 默认=C:/Rocq-Platform~9.1~2026.01 字节等价），COQLIB/ROCQLIB 按 SW2 同根律自 COQC 推导；
+      # 本 yml Build 步全字面 export COQC/COQLIB/ROCQLIB=9.3 opam root 即整链换代（20261102 换基）。
+      # cwd=仓根，-Q ConstructiveWorld_Live ""。
       # 【seed 步撤除（#C-S00c）】无播种源可依（本仓 HEAD 在册 .vo=0，vo 树退役），
       # 15 件冷编分钟级可忍；旧「从本地 vo 树播种吃指纹 SKIP」路径随单树设计退役。
 
@@ -123,6 +125,25 @@ jobs:
             b="${f%.vo}"
             [ -f "$b.v" ] || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged ghost $f"; }
           done
+          # 【20261102 Rocq 9.3 换基·首炉禁播 9.1 .vo】.vo 魔数 9.1=43 6f 71 21 00 01 5f f4（0x15FF4）／
+          # 9.3=…00 01 60 bc（0x160BC）。本地实测：开发树 258 .vo 全 9.1（含 45 ghost）·set93c 213 .vo 全 9.3 零侧车。
+          # 9.1 .vo 播入 9.3 炉＝coqc Require 代际红／coqchk 不可判；指纹 SKIP 还会放行同名 9.1 陈旧件。
+          # 守卫：播种后若测得任一非 9.3 魔数 .vo → 整体清播（.vo＋侧车）退回诚实冷编（fail-open 不红），
+          # 并经 GITHUB_ENV 置 SEED_ERA_MISMATCH=1 令 Build 步本炉禁回写（封存律：9.3 产物禁写入 9.1 开发树）。
+          # 期望态：R2 缓存换装（ci_switch/swap/swap_cache_93_set.sh）落后开发树=9.3 代，本守卫零触发；换装前每炉冷编 213。
+          era_bad=0; era_unk=0
+          for f in ConstructiveWorld_Live/*.vo; do
+            [ -e "$f" ] || continue
+            m="$(od -An -tx1 -N8 "$f" 2>/dev/null | tr -d ' \n')"
+            if [ -z "$m" ]; then era_unk=$((era_unk+1)); elif [ "$m" != "436f7121000160bc" ]; then era_bad=$((era_bad+1)); fi
+          done
+          if [ "$era_bad" -gt 0 ]; then
+            echo "SEED-ERA-GUARD: $era_bad seeded .vo are not Rocq 9.3 magic (0x160BC; 9.1=0x15FF4) — purging ALL seeded .vo+sidecars; honest cold build on 9.3 base; CACHE_WRITEBACK disabled this run"
+            rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null || true
+            { [ -n "${GITHUB_ENV:-}" ] && echo "SEED_ERA_MISMATCH=1" >> "$GITHUB_ENV"; } || echo "SEED-ERA-GUARD: WARN GITHUB_ENV unavailable — writeback flag not propagated (fail-open)"
+          elif [ "$era_unk" -gt 0 ]; then
+            echo "SEED-ERA-GUARD: WARN $era_unk .vo unreadable by od — magic unverified, seeding kept (fail-open)"
+          fi
           echo "seeded $(ls ConstructiveWorld_Live/*.vo 2>/dev/null | wc -l) .vo $(ls ConstructiveWorld_Live/*.vobuild.md5 2>/dev/null | wc -l) sidecars (mirror-deleted stale)"
 
       - name: Build Live tree (order topology, cold, thermal-guarded)
@@ -142,8 +163,23 @@ jobs:
 
           # 新件编译一次即自动本地缓存化（否则仅入 artifact·本地缓存断链）。
 
-          export CACHE_WRITEBACK_DIR=/d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
+          # 【20261102 换基·封存律联动】播种步若测得非 9.3 魔数播种源（SEED_ERA_MISMATCH=1 经 GITHUB_ENV 传递），
+          # 本炉不回写——9.3 新编 .vo/侧车禁写入仍为 9.1 代的开发树（R2 缓存换装未落时的腐蚀防线）。
+          if [ "${SEED_ERA_MISMATCH:-0}" = "1" ]; then
+            echo "CACHE-WRITEBACK: disabled this run (seed source not 9.3 era; dev tree sealed — run R2 swap_cache_93_set.sh first)"
+          else
+            export CACHE_WRITEBACK_DIR=/d/ComplexAnalysis/ConstructiveWorld-Set/ConstructiveWorld_Live
+          fi
 
+          # 【20261102 Rocq 9.3 换基·形A 环境注入】脚本消费位=ci_build_live_cached.sh 顶部
+          # COQC="${COQC:-…9.1…}"＋SW2 同根推导；此处三 export 全字面（SW2：禁依赖 runner 继承 env）。
+          # env 经 bash→pwsh(cpu_guard_v3 L183 Start-Process cmd /c·无 -UseNewEnvironment)→bash 透传——
+          # 上方 CACHE_WRITEBACK_DIR 同路先例已在产线验证。
+          # 【R0 前置硬闸】origin 现版脚本 L8-10 无条件 export 9.1 会覆盖本注入⇒形A 版脚本须先于/同 commit
+          # 入树（正本 attn/_setbuild_patch/ci_build_live_cached.sh）；未落则 gate2 banner 钉 9.3.0 红出（fail-loud）。
+          export COQC="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqc.exe"
+          export COQLIB="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq"
+          export ROCQLIB="$COQLIB"
           pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_build_live_cached.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 闸⑦ 提取执行（gate7·红线律 v2.5 裁决八现役·律四 4a 自动化·泄露最终机械仲裁）。
@@ -180,6 +216,14 @@ jobs:
       # 闸⑤ .vo/.vos/.vok 二进制依赖层检疫（GATE-VOQ 20260926，E-STAGING-AXFORENSIC-1 判例）。
       # 【SINGLE-TREE 20261007 重排（#C-S00c）】扫描面改指本步 build 的 Live .vo 产物面；
       # 对照组 auto 定位（装机路径 SELF-HIT 校准）与词表/digest 黑名单口径零改动。
+      # 【20261102 Rocq 9.3 换基·黑名单换件 v2→v3_93】源件=attn/rocq93_work_20261101/set93c/_attest93/
+      # poison_digest_blacklist_v3_93.txt（28 枚=§A v2 原 25 枚 9.1 字节指纹逐字保留＋§B 9.3 重产 3 枚；
+      # §C 18 槽候步2 Main 9.3 闭包后再产）→ 入树为 scripts/gates/poison_digest_blacklist_v3_93.txt，本步
+      # 显式 --blacklist 指之（脚本默认仍=v2·脚本零改·v2 文件保留供回滚）。【入树时序硬闸】黑名单文件须
+      # 先于/同 commit 入树：缺件=脚本 rc=2「黑名单不可用」→ 本步 GATE5-NOSCANNABLE 红。对照组：find_control
+      # 钉 9.1 平台装机路径优先（平台封存在位⇒SELF-HIT 恒成立·方法自证与被扫树代际无关）；如需同代对照可加
+      # --control D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq/user-contrib/Stdlib/Reals/ClassicalDedekindReals.vo
+      # （9.3 侧在位实测·本波不加·登记备用）。首炉期望：硬 token 0＋digest 0＋对照 PASS（attest93 [C] 对 213 件 9.3 树实测 CLEAN）。
       - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
         if: always()  # 上游红不阻断 gate5 出证（gate3 先例保留语义）
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
@@ -187,6 +231,7 @@ jobs:
           set +e
           python scripts/gates/gate5_vodep_quarantine.py \
             --tree ConstructiveWorld_Live \
+            --blacklist scripts/gates/poison_digest_blacklist_v3_93.txt \
             --json gate5_vodep_report.json
           rc=$?
           set -e
@@ -210,11 +255,20 @@ jobs:
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           # 【20261026 温控正典三参数】同 Build 步——20261023 用户令三参数缺一即钳位饥饿。
+          # 【20261102 Rocq 9.3 换基·形A 环境注入】脚本消费位=ci_coqchk_live.sh 形A 版
+          # COQCHK="${COQCHK:-…9.1…}"＋SW2 同根推导（ci_switch/diffs/set_scripts_ci_coqchk_live_formA.diff）；
+          # 三 export 全字面同 Build 步；形A 版未入树则 9.1 coqchk → gate2 banner 红出（fail-loud）。
+          export COQCHK="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqchk.exe"
+          export COQLIB="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq"
+          export ROCQLIB="$COQLIB"
           pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 20261026 跨机信任缓存通道（Windows 侧产物发布·绿后上传）：对侧（macOS）未来
       # 可经 vo_sync_once.sh 消费 vo-trust-cache-set-windows 实现一侧新增推送、对侧自动
       # 本地化+认证闭环（Main 仓 run#240 已验证模式）。观察档 job 本波不动（不破坏律）。
+      # 【20261102 换基注记】自本 commit 起本 artifact 为 Rocq 9.3 代 .vo（魔数 …60 bc）；任何消费方
+      # （vo_sync_once.sh／Main runner 常驻 vo_sync_watch／Mac 侧）禁将其合流入仍为 9.1 代的树；反向亦然——
+      # 9.1 代 vo-trust-cache-set-macos（mac lane 换基前产物）禁入本侧 9.3 树。消费前先验魔数（od -An -tx1 -N8）。
       - name: Upload vo trust cache (cross-machine sync)
         if: success()
         uses: actions/upload-artifact@v7
@@ -227,7 +281,9 @@ jobs:
       # 假配 2213 行，E422/AX-MATRIX 实证；状态机段外假匹配结构性不可能）。
       # 前置硬要求：coqchk 已带 -o（无 Axioms 段=exit 2 不可判，一律红）。
       # exit 0 CLEAN／1 DIRTY／2 NO_AXIOMS_SECTION／3 LOG_INCOMPLETE——1/2/3 一律红（fail-loud）。
-      # 代际钉：banner 必须 Chicken 9.1.0（COQLIB 钉代防假红，SW2）。
+      # 代际钉：banner 必须 Chicken 9.3.0（20261102 换基 Rocq 9.3·opam root 形A 注入；COQLIB 钉代防假红，SW2）。
+      # 【换基 fail-loud 设计】若 scripts/ 形A 版未入树（旧版脚本无条件 export 9.1 覆盖 yml 注入），coqchk 仍跑
+      # 9.1 → banner 9.1.0 → 本闸 GATE-BANNER-FAIL 红出＝期望的真红（R0 前置未落），非假红；禁以改回 9.1.0 消音。
       # log 缺失≠代际失守：上游夭折时 coqchk 被 skipped、无日志可查——
       # 分支报 GATE-BANNER-ABSENT 指向上游红因（连带红不指控下游域），仍 exit 1 保持红。
       # 【SINGLE-TREE 20261007 重排（#C-S00c）】解析路径改指 ConstructiveWorld_Live/_chk_all.log。
@@ -239,8 +295,8 @@ jobs:
             echo "GATE-BANNER-ABSENT: ConstructiveWorld_Live/_chk_all.log 不在盘——coqchk 未产出日志（上游 gate4/build 夭折连带，红因看上游步），非 COQLIB 代际失守"
             exit 1
           fi
-          grep -q "Welcome to Chicken 9.1.0" ConstructiveWorld_Live/_chk_all.log \
-            || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.1（COQLIB 钉代失守，log 不可作公理判据）"; exit 1; }
+          grep -q "Welcome to Chicken 9.3.0" ConstructiveWorld_Live/_chk_all.log \
+            || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.3（COQLIB/COQCHK 钉代失守或形A脚本未入树，log 不可作公理判据）"; exit 1; }
           python scripts/gates/gate2_axioms_parser.py \
             ConstructiveWorld_Live/_chk_all.log --json gate2_verdict.json
 
@@ -268,14 +324,27 @@ jobs:
   # 母版=Main 仓 coq.yml coq-build-macos（run#240 已验证模式：continue-on-error
   # 观察档＋runs-on [self-hosted, macOS]＋bash -e {0}）。Set 单树适配：只
   # ConstructiveWorld_Live、无 vo 树（seed/导出步随之撤除）、构建与 coqchk 内联
-  # Mac 形循环——scripts/ci_build_live.sh 与 ci_coqchk_live.sh 为 Windows 工具链
-  # 硬编码（C:/Rocq-Platform~9.1~2026.01），Mac 侧不可调用；内联循环逐件镜像其
+  # Mac 形循环——scripts/ci_build_live_cached.sh 与 ci_coqchk_live.sh 自 20261102 换基起为形A
+  # （COQC/COQCHK env 可覆写·unset 默认仍=C:/Rocq-Platform~9.1~2026.01 字节等价；Windows job 注入
+  # D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default＝Rocq 9.3.0），路径形仍系 Windows，
+  # Mac 侧不可调用；内联循环逐件镜像其
   # 语义（order.txt 拓扑／真 RC 逐件回显／败出日志尾 30 行；coqchk 共享闭包单趟
   # -o·下划线守卫）。温控=本机 cpu_guard.sh（pmst 温控门+队列梯度）替代 Windows
   # 侧 pwsh cpu_guard.ps1。工具链=本机 mac_rocq 9.1（SW2 全字面双 export 在步内）。
-  # Windows 认证 job（上方）字节零动；本 job 红/绿不影响 run 结论（观察档）。
+  # Windows 认证 job（上方）自 20261102 换基 commit 起为 Rocq 9.3；本 job 红/绿不影响 run 结论（观察档）。
+  # 【20261102 Rocq 9.3 换基·Mac 侧两案并陈】本 job 工具链 mac_rocq 仍=9.1（Mac 工具包 v1.1·9.3 版未下发），
+  # 与 Windows 9.3 两代不可同炉：
+  #   案A（Mac 装好 9.3 后）：解除下方 job 级 if 闸；job 级 env MAC_ROCQ93_ROOT 指 9.3 实装根；步内
+  #        COQLIB/ROCQLIB/COQC/COQCHK 改经 ${MAC_ROCQ93_ROOT} 取（叠加补丁 set_coq_yml_switch93_macA_overlay.diff）；
+  #        banner 钉已随本 commit 预置 9.3.0（下方 gate2），解闸即生效。
+  #   案B（本 commit 采用·过渡期）：job 级 if 恒假暂闸——理由①mac_rocq 9.1 对已切 9.3 的认证基线无对照意义，
+  #        且 banner 钉 9.3.0 下必红（虽 continue-on-error 不染 run）；②本 job 绿后上传 vo-trust-cache-set-macos
+  #        ＝9.1 代 .vo，过渡期禁产出以绝跨代合流面（vo_sync_watch 仍向 9.1 开发树合流·ci_switch/README 换基序 §6.4）。
+  #        登记：暂闸起点=本 commit；解闸条件=Mac 工具包 v1.1 实装且 `<root>/bin/coqchk -v`=9.3.0；
+  #        解闸动作=套 macA overlay（含填 MAC_ROCQ93_ROOT 实路径）。
   coq-build-macos:
     name: Rocq 9.1 build + coqchk (single Live tree, macOS observation)
+    if: ${{ false }}  # 案B 过渡期暂闸（20261102 换基·登记见上；解闸=案A overlay）
     runs-on: [self-hosted, macOS]
     continue-on-error: true
     steps:
@@ -378,8 +447,10 @@ jobs:
           export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
           set +e
+          # 【20261102 换基】黑名单同 Windows 侧换 v3_93（入树时序硬闸同上）；案B 暂闸期本步不跑。
           python3 scripts/gates/gate5_vodep_quarantine.py \
             --tree ConstructiveWorld_Live \
+            --blacklist scripts/gates/poison_digest_blacklist_v3_93.txt \
             --json gate5_vodep_report.json
           rc=$?
           set -e
@@ -500,8 +571,9 @@ jobs:
             echo "GATE-BANNER-ABSENT: ConstructiveWorld_Live/_chk_all.log 不在盘——coqchk 未产出日志（上游 gate4/build 夭折连带，红因看上游步），非 COQLIB 代际失守"
             exit 1
           fi
-          grep -q "Welcome to Chicken 9.1.0" ConstructiveWorld_Live/_chk_all.log \
-            || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.1（COQLIB 钉代失守，log 不可作公理判据）"; exit 1; }
+          # 【20261102 换基】mac banner 钉随 Windows 同波预置 9.3.0：案B 暂闸期本步不跑；案A 解闸（mac_rocq 换 9.3）即生效。
+          grep -q "Welcome to Chicken 9.3.0" ConstructiveWorld_Live/_chk_all.log \
+            || { echo "GATE-BANNER-FAIL: coqchk 代际非 9.3（mac 工具链未换 9.3 或 COQLIB 钉代失守，log 不可作公理判据）"; exit 1; }
           python3 scripts/gates/gate2_axioms_parser.py \
             ConstructiveWorld_Live/_chk_all.log --json gate2_verdict.json
 
