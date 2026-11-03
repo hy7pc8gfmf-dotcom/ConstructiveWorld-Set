@@ -331,3 +331,6 @@ abl_tbase_t1c_expneg_feed.v#R85-de2f9d
 abl_dtpt_dep_supply.v#R85-6ce7c0
 abl_qpoly_lwbridge.v#R85-885e9e
 abl_audit_base_v7.v#R85-3e4d85
+u5c_ln2_gap2_bridge.v#R86-ef33e0
+abl_tbase_expf_spec.v#R86-28a769
+UpReqPinWallEquiv.v#R86-c874ff
