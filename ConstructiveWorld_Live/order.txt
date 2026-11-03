@@ -349,3 +349,5 @@ abl_sumd_strict.v#R91-5c4272
 UpAblT1_UpReqTempEntropy.v#R91-4e24a2
 ToyR_fa56b_ext.v#R92-9fda4e
 UpAblD1S17_UpReqAttnGibbs.v#R91-bff7f0
+UpGRPO.v#R92-e38e8b
+abl_audit_base_v10.v#R92-45db61
