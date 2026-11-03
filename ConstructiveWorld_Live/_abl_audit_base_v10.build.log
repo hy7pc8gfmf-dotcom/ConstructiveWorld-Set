@@ -1,0 +1,29 @@
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+File "./ConstructiveWorld_Live/abl_audit_base_v10.v", line 250, characters 0-164:
+Warning: The extraction is currently set to bypass opacity, the following
+opaque constant bodies have been accessed
+: le_plus_nonneg_r r_pow_nonneg one_minus_pow_le_one r_arch_pow_log_budget
+  abk_not_cons_nil abk_rarch_log_budget_and_geo abk_sum_exp_cons_head_pos
+  abk_rpow_pos_engine_concrete sum_exp_positive log_pow_cc r_pow_pos
+  r_pow_dec abk_log_pow_cc_zero_chain minus_plus_cancel
+  abk_rpow_dec_decay_and_budget.
+ [extraction-opaque-accessed,extraction,default]
+File "./ConstructiveWorld_Live/abl_audit_base_v10.v", line 250, characters 0-164:
+Warning: Setting extraction output directory by default to
+"/Users/apple/Desktop/ConstructiveWorld-Set". Use
+"Set Extraction Output Directory" or command line option "-output-directory"
+to set a different directory for extracted files to appear in.
+[extraction-default-directory,extraction,default]

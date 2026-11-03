@@ -401,60 +401,60 @@ jobs:
 
       # 20261028 两向总线·macOS 半环（本侧缓存通道三步之一；首跑空缓存=冷编自举
       # +绿后导出，次轮起吃指纹 SKIP——Main 仓 run#240 已验证模式移植）。
+      # 【20261103 W3 模式实装】指纹 SKIP＋信任缓存播种（用户令三捷径）：种子器
+      # scripts/ci_seed_mac93.sh 从本机 9.3 缓存源逐件播种（era 守卫 od 魔数
+      # 0x160BC=90300 ＋ 源侧 .v-md5 对账防跨代〔run#51 判例〕＋manifest 源自
+      # 绿门 Export 步），sidecar 双 token "<.v md5> <closure digest>" 与
+      # scripts/ci_build_live_cached.sh 逐字同算法；fail-open=种子器故障清播
+      # 退诚实冷编。source md5 对不上=不播=真编（E949 字节层失效语义）。
+      - name: Seed mac-native 9.3 trust cache (era-guarded, md5-reconciled, fail-open)
+        shell: bash -e {0}
+        run: |
+          export COQDEP="${MAC_ROCQ93_ROOT}/bin/coqdep"
+          bash scripts/ci_seed_mac93.sh
 
-
-
-      - name: Build Live tree (order topology, cold, thermal-guarded, macOS)
+      - name: Build Live tree (fingerprint SKIP, thermal-guarded, macOS)
         shell: bash -e {0}
         run: |
           # 【20261030 栈墙处方】BetaLower L278 深递归默认栈 8192 必 Stack overflow
           # （run 40973373689 attempt1 实证·同件同世界 ulimit 65532 RC=0 本地双炮互证）；
-          # 与 mac coqchk 步内建 ulimit 65532 同源（RC129 判例·跨库普适）。
+          # 与 mac coqchk 步内建 ulimit 65532 同源（RC129 判例）。
           ulimit -s 65532
+          # 【20261103 W3 形 A 环境注入】COQC/COQLIB/ROCQLIB 全字面（SW2 禁依赖
+          # runner 继承 env）；COQDEP 显式——canonical 脚本的 .exe 推导路径在
+          # mac 非 .exe 形下会推错（scriptSpec 勘定）。md5sum shim 前置（macOS
+          # 无 md5sum，/sbin/md5 -r 后端；种子器同款，digest 等价）。
+          export COQC="${MAC_ROCQ93_ROOT}/bin/coqc"
+          export COQDEP="${MAC_ROCQ93_ROOT}/bin/coqdep"
           export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
           export ROCQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
-          COQC="${MAC_ROCQ93_ROOT}/bin/coqc"
-          cd "$GITHUB_WORKSPACE" || exit 1
-          # Mirror-clean products so a rerun never sees a stale .vo (same
-          # semantics as scripts/ci_build_live.sh on the Windows side).
-          # 20261028: cross-platform/unmanaged-era cache seeding REMOVED --
-          # run#51 mac red precedent: seeded stale-era S01_BaseRing.vo made
-          # PiEnvelope fail (inconsistent assumptions). Reintroduce per-side
-          # seeding only with same-platform + era-guarded cache provenance.
-          rm -f ConstructiveWorld_Live/*.vo ConstructiveWorld_Live/_chk_all.log
-          fail=0
-          set +e
-          while IFS= read -r line || [ -n "$line" ]; do
-            f="${line%%\#*}"          # strip trailing #R-anchor
-            f="${f%$'\r'}"            # CRLF-safe
-            [ -z "$f" ] && continue
-            if [ ! -f "ConstructiveWorld_Live/$f" ]; then
-              echo "BUILD-FAIL: order entry $f missing from ConstructiveWorld_Live"
-              fail=1
-              continue
-            fi
-            v="ConstructiveWorld_Live/${f%.v}.vo"
-            if [ -f "$v" ] && [ "$v" -nt "ConstructiveWorld_Live/$f" ]; then
-              echo "$f SKIP(vo-newer-than-src)"
-              continue
-            fi
-
-            log="ConstructiveWorld_Live/_${f%.v}.build.log"
-            bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -MaxWaitSec 1800 -- \
-              "$COQC" -native-compiler no -q -Q "ConstructiveWorld_Live" "" "ConstructiveWorld_Live/$f" > "$log" 2>&1
-            rc=$?
-            echo "$f EXIT=$rc"
-            if [ "$rc" -ne 0 ]; then
-              fail=1
-              echo "----- last 30 lines of $log -----"
-              tail -30 "$log"
-            fi
-          done < ConstructiveWorld_Live/order.txt
-          set -e
-          if [ "$fail" -ne 0 ]; then
-            echo "BUILD-FAIL: one or more files failed (true RC accounted above)"
+          export CW_MD5SHIM_DIR=/tmp/cw_md5shim
+          if [ ! -x "$CW_MD5SHIM_DIR/md5sum" ]; then
+            mkdir -p "$CW_MD5SHIM_DIR"
+            printf '#!/bin/sh\nexec /sbin/md5 -r "$@"\n' > "$CW_MD5SHIM_DIR/md5sum"
+            chmod +x "$CW_MD5SHIM_DIR/md5sum"
           fi
-          exit "$fail"
+          export PATH="$CW_MD5SHIM_DIR:$PATH"
+          cd "$GITHUB_WORKSPACE" || exit 1
+          # 种子步已 mirror-clean＋对账播种（rm 仅余 _chk_all.log 旧日志面）。
+          rm -f ConstructiveWorld_Live/_chk_all.log
+          # 【构建循环择路】canonical scripts/ci_build_live_cached.sh 用关联数组
+          # （declare -A·bash>=4）；macOS 系统 bash=3.2（本机实测 declare -A 报
+          # invalid option，runner PATH 亦无 bash4）——bash>=4 在位时走 canonical
+          # 正典脚本，3.2 退 ci_seed_mac93.sh --build-only（其 bash3 兼容移植版·锚行
+          # 同款 CACHE-BUILD-SUMMARY／DEP-PRECHECK／sidecar 双 token 同算法；
+          # --build-only=纯构建不重播——种子属上一步职责，双播=双份 coqdep+cp 纯浪费）。
+          # 温控包裹（任务书铁律参数）：cpu_guard -Reg 分道 -Front 0 -Mid 1
+          # -MaxWaitSec 600；一切 coqc 编译在 guard 子树内。
+          if bash -c 'declare -A x=()' 2>/dev/null; then
+            echo "BUILD-LOOP: canonical scripts/ci_build_live_cached.sh (bash >= 4 detected)"
+            bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -Reg /tmp/cw_reg_w61w3 -Front 0 -Mid 1 -MaxWaitSec 600 -- \
+              bash scripts/ci_build_live_cached.sh
+          else
+            echo "BUILD-LOOP: bash 3.2 (no associative arrays) -- ci_seed_mac93.sh --build-only (mac-equivalent port, identical anchors)"
+            bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -Reg /tmp/cw_reg_w61w3 -Front 0 -Mid 1 -MaxWaitSec 600 -- \
+              bash scripts/ci_seed_mac93.sh --build-only
+          fi
 
       - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
         if: always()
@@ -564,14 +564,23 @@ jobs:
 
       # 20261028 缓存导出（镜像·自举未来 SKIP）＋两向总线上行半环：构建绿后导出
       # 本机信任缓存供次轮播种，并上传 vo-trust-cache-set-macos 供 Windows 侧 sync 消费。
-      - name: Export trust cache (mirror, bootstrap future SKIP, macOS)
+      # 【20261103 W3 播种闭环】导出同时生成 _manifest.tsv 溯源档（file<TAB>v_md5<TAB>vo_md5；
+      # 本步跑在绿炉 checkout 树上——树净即 HEAD 代，v_md5=HEAD 代 .v 字节 md5），
+      # 种子器 ci_seed_mac93.sh 据此逐件对账播种；manifest 缺席=整源弃=诚实冷编（fail-open）。
+      - name: Export trust cache (mirror + manifest provenance, bootstrap future SKIP, macOS)
         if: success()
         shell: bash -e {0}
         run: |
-          mkdir -p /Users/apple/vo_ci_cache_set/Local
-          rm -f /Users/apple/vo_ci_cache_set/*.vo /Users/apple/vo_ci_cache_set/Local/*.vo 2>/dev/null || true
+          mkdir -p /Users/apple/vo_ci_cache_set
+          rm -f /Users/apple/vo_ci_cache_set/*.vo /Users/apple/vo_ci_cache_set/Local/*.vo /Users/apple/vo_ci_cache_set/_manifest.tsv 2>/dev/null || true
           find ConstructiveWorld_Live -maxdepth 1 -name "*.vo" -exec cp {} /Users/apple/vo_ci_cache_set/ \;
-          echo "exported $(ls /Users/apple/vo_ci_cache_set/*.vo 2>/dev/null | wc -l) .vo to mac trust cache"
+          : > /Users/apple/vo_ci_cache_set/_manifest.tsv
+          for v in ConstructiveWorld_Live/*.v; do
+            m="$(basename "$v" .v)"
+            [ -f "ConstructiveWorld_Live/$m.vo" ] || continue
+            printf '%s\t%s\t%s\n' "$m" "$(/sbin/md5 -q "$v")" "$(/sbin/md5 -q "ConstructiveWorld_Live/$m.vo")" >> /Users/apple/vo_ci_cache_set/_manifest.tsv
+          done
+          echo "exported $(ls /Users/apple/vo_ci_cache_set/*.vo 2>/dev/null | wc -l) .vo + _manifest.tsv ($(wc -l < /Users/apple/vo_ci_cache_set/_manifest.tsv | tr -d ' ') rows) to mac trust cache"
 
       - name: Upload vo trust cache (cross-machine sync, macOS)
         if: success()
@@ -580,6 +589,7 @@ jobs:
           name: vo-trust-cache-set-macos
           path: |
             ConstructiveWorld_Live/*.vo
+            /Users/apple/vo_ci_cache_set/_manifest.tsv
 
       - name: gate2 axioms sentinel (block-state-machine, fail-loud)
         if: always()

@@ -1,0 +1,51 @@
+real_le_b
+     : Real -> Real -> Set
+real_le_closure_b_one
+     : forall x y : Real,
+       (forall eps : Real,
+        real_lt real_zero eps -> real_le x (real_plus y eps)) ->
+       real_le_b x y
+real_le_closure_b
+     : forall x y D : Real,
+       real_lt real_zero D ->
+       (forall eps : Real,
+        real_lt real_zero eps -> real_le x (real_plus y (real_mult D eps))) ->
+       real_le_b x y
+real_abs_triangle_le_B
+     : forall a b : Real,
+       real_le_b (real_abs (real_plus a b))
+         (real_plus (real_abs a) (real_abs b))
+real_abs_triangle_le_eps
+     : forall a b eps : Real,
+       real_lt real_zero eps ->
+       real_le (real_abs (real_plus a b))
+         (real_plus (real_plus (real_abs a) (real_abs b)) eps)
+real_lt_zero_one
+     : real_lt real_zero real_one
+real_lt_plus_r_zero
+     : forall y eps : Real,
+       real_lt real_zero eps -> real_lt y (real_plus y eps)
+real_list_sum
+     : forall X : Type, (X -> Real) -> list X -> Real
+RealSetoid.real_eq_abs_compat
+     : forall a b : Real, real_eq a b -> real_eq (real_abs a) (real_abs b)
+real_abs_zero_req
+     : real_eq (real_abs real_zero) real_zero
+real_lt_irrefl
+     : forall x : Real, Not (real_lt x x)
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
