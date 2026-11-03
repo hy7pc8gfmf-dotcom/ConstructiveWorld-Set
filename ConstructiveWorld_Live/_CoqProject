@@ -328,3 +328,7 @@ UpReqSteadyThermo.v
 abl_dtpt_yellow_supply.v
 p3a_TempDualBoolSlots.v
 abl_tail_supply_67.v
+abl_tbase_t1c_expneg_feed.v
+abl_dtpt_dep_supply.v
+abl_qpoly_lwbridge.v
+abl_audit_base_v7.v
