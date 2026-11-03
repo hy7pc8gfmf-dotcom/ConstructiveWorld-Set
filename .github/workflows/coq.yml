@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      macos_only:
+        description: "Run ONLY the macOS job (Mac-lane self-serve certification; Windows zero occupation)"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: cw-main-ci
@@ -13,6 +19,7 @@ concurrency:
 jobs:
   coq-build:
     name: Rocq 9.3 build + coqchk (single Live tree, cold build)
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.macos_only != true) }}
     # 【20261026 标签收窄】裸 self-hosted 亦可匹配 Mac runner——Mac 接单后 Windows 壳
     # 路径（C:/Progra~1/Git/bin/bash.exe）在 macOS 不存在＝gate1 步级秒红
     # （run 40205628059 实证 25s 红）；set-runner offline 期认证 job 长期 queued
@@ -353,8 +360,10 @@ jobs:
   #        解闸动作=套 macA overlay（含填 MAC_ROCQ93_ROOT 实路径）。
   coq-build-macos:
     name: Rocq 9.3 build + coqchk (single Live tree, macOS observation)
-    if: ${{ false }}  # 案B 过渡期暂闸（20261102 换基·登记见上；解闸=案A overlay）
+    # 案A 解闸（20261103·Mac 9.3 实装验收过：rocq/coqc/coqchk -v=9.3.0，root 如下 env；解闸条件「Mac 工具包实装且 coqchk=9.3.0」已满足）
     runs-on: [self-hosted, macOS]
+    env:
+      MAC_ROCQ93_ROOT: /Users/apple/Desktop/mac93_install_work/opam93/rocq93
     continue-on-error: true
     steps:
       - uses: actions/checkout@v5
@@ -402,9 +411,9 @@ jobs:
           # （run 40973373689 attempt1 实证·同件同世界 ulimit 65532 RC=0 本地双炮互证）；
           # 与 mac coqchk 步内建 ulimit 65532 同源（RC129 判例·跨库普适）。
           ulimit -s 65532
-          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
-          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
-          COQC="/Users/apple/actions-runner/mac_rocq/bin/coqc"
+          export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          export ROCQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          COQC="${MAC_ROCQ93_ROOT}/bin/coqc"
           cd "$GITHUB_WORKSPACE" || exit 1
           # Mirror-clean products so a rerun never sees a stale .vo (same
           # semantics as scripts/ci_build_live.sh on the Windows side).
@@ -453,8 +462,8 @@ jobs:
         run: |
           # SW2 全字面双 export：gate5 对照组定位须 COQLIB/ROCQLIB 指 9.1 安装库
           # （mac launchd 双 unset，CONTROL_BASES 缺路；环境供给非动闸逻辑）。
-          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
-          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
+          export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          export ROCQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
           set +e
           # 【20261102 换基】黑名单同 Windows 侧换 v3_93（入树时序硬闸同上）；案B 暂闸期本步不跑。
           python3 scripts/gates/gate5_vodep_quarantine.py \
@@ -519,9 +528,9 @@ jobs:
           # 实证）——默认栈 8192 必红；runner 树同件同栈双炮互证 65532 RC=0（全 102 过·
           # macOS 硬帽恰 65532）。与 Build 步同源（RC129 判例）。
           ulimit -s 65532
-          export COQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
-          export ROCQLIB="/Users/apple/actions-runner/mac_rocq/lib/coq"
-          COQCHK="/Users/apple/actions-runner/mac_rocq/bin/coqchk"
+          export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          export ROCQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          COQCHK="${MAC_ROCQ93_ROOT}/bin/coqchk"
           cd "$GITHUB_WORKSPACE" || exit 1
           log="ConstructiveWorld_Live/_chk_all.log"
           mods=()
