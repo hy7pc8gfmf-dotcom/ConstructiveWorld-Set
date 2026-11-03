@@ -346,3 +346,7 @@ zzm1b_linform_bridge.v
 abl_audit_base_v8.v
 LMCarrierExt.v
 TempSoftmaxInstantiation.v
+abl_sumd_strict.v
+UpAblT1_UpReqTempEntropy.v
+ToyR_fa56b_ext.v
+UpAblD1S17_UpReqAttnGibbs.v
