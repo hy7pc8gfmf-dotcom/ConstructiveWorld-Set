@@ -334,3 +334,6 @@ abl_audit_base_v7.v#R85-3e4d85
 u5c_ln2_gap2_bridge.v#R86-ef33e0
 abl_tbase_expf_spec.v#R86-28a769
 UpReqPinWallEquiv.v#R86-c874ff
+UpAblT1b_S13_NLiveAudit.v#R87-eb6819
+UpReqPPOB.v#R87-0ab17d
+fa57_ext.v#R87-8797c4

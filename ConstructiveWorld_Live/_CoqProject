@@ -335,3 +335,6 @@ abl_audit_base_v7.v
 u5c_ln2_gap2_bridge.v
 abl_tbase_expf_spec.v
 UpReqPinWallEquiv.v
+UpAblT1b_S13_NLiveAudit.v
+UpReqPPOB.v
+fa57_ext.v
