@@ -287,7 +287,7 @@ G05_LogSmall.v#R67-9437b1
 SigMigrate_core.v#R64-d0f3ac
 DTPT_Entropy.v#R70-ed56c5
 DTPT.v#R63-4dd1ec
-DTPT_Truth.v#R77-a79a82
+DTPT_Truth.v#R77-4f0efc
 LW2Hermite.v#R66-2389cd
 LW2IntegMachine.v#R66-8b5838
 LW2NivenInt.v#R69-3f08cf
@@ -305,7 +305,7 @@ UpAblT5_UpReqAlgebra.v#R67-eb9d32
 UpAblT9_UpReqDist.v#R66-902f5d
 UpAblZpos.v#R73-cd963d
 abl_p7_lower_band.v#R73-f235bd
-SumEqListFeed.v#R78-071f0a
+SumEqListFeed.v#R78-93d80d
 UpAblD1S6_UpReqMinPKLChain.v#R78-b454ce
 UpAblEps66Sum.v#R78-d97cdb
 UpAblT1b_AttnDoeblin.v#R78-325344

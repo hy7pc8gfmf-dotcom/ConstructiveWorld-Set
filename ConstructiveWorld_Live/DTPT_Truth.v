@@ -274,7 +274,7 @@ Qed.
 (* 诚实反例：Code := nat，negS n := S n 非对合（见证 n = O 处
    negS (negS O) = S (S O) ≠ O）—— 提升「否定」到码层是条件性的，
    非任意码自映都配称否定 *)
-Definition negS (n : nat) : nat := S n.
+Definition negS (n : nat) : nat := Datatypes.S n.
 
 Lemma negS_not_involutive : NotT (involutive nat negS).
 Proof.

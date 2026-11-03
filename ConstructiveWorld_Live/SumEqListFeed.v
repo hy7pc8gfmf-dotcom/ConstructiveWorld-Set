@@ -72,7 +72,7 @@ Let le := @le RI.
    原推论形：le_id_r a (bs_list_sum g enum) (sum_over_S g)
              (id_sym (sum_eq_list g)) : le a (bs_list_sum g enum) -> le a (sum_over_S g)
    改装推论形：槽支路逐字换 idt_slot_attdoeblin，结论求和位实现为 idt_sumf。 *)
-Lemma sef_attn_zrow_ge : forall (en : list S) (g : S -> R) (a : R),
+Lemma sef_attn_zrow_ge : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (a : R),
   le a (AttnDoeblin.bs_list_sum g en) -> le a (idt_sumf en g).
 Proof.
   intros en g a Hle.
@@ -81,7 +81,7 @@ Qed.
 
 (* —— 使用位 AttnDoeblin:629（bs_Zrow_le 骨架）——
    原推论形：le_id_l _ _ _ (sum_eq_list g) : le (bs_list_sum g enum) b -> le (sum_over_S g) b *)
-Lemma sef_attn_zrow_le : forall (en : list S) (g : S -> R) (b : R),
+Lemma sef_attn_zrow_le : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   le (AttnDoeblin.bs_list_sum g en) b -> le (idt_sumf en g) b.
 Proof.
   intros en g b Hle.
@@ -90,7 +90,7 @@ Qed.
 
 (* —— 使用位 AttnDoeblin:673（bs_Unif_norm 骨架）——
    原推论形：id_trans (sum_eq_list Unif) 后续链：槽为 id_trans 首支路。 *)
-Lemma sef_attn_unif_norm : forall (en : list S) (g : S -> R) (b : R),
+Lemma sef_attn_unif_norm : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   Id (AttnDoeblin.bs_list_sum g en) b -> Id (idt_sumf en g) b.
 Proof.
   intros en g b Hid.
@@ -104,7 +104,7 @@ Qed.
 (* ============================================================ *)
 
 (* —— 使用位 S13:2813（bs_Zrow_ge 骨架，le_id_r + id_sym 槽支路）—— *)
-Lemma sef_s13_zrow_ge : forall (en : list S) (g : S -> R) (a : R),
+Lemma sef_s13_zrow_ge : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (a : R),
   le a (S13_NLiveAudit.bs_list_sum g en) -> le a (idt_sumf en g).
 Proof.
   intros en g a Hle.
@@ -112,7 +112,7 @@ Proof.
 Qed.
 
 (* —— 使用位 S13:2820（bs_Zrow_le 骨架，le_id_l 槽直接代入）—— *)
-Lemma sef_s13_zrow_le : forall (en : list S) (g : S -> R) (b : R),
+Lemma sef_s13_zrow_le : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   le (S13_NLiveAudit.bs_list_sum g en) b -> le (idt_sumf en g) b.
 Proof.
   intros en g b Hle.
@@ -120,7 +120,7 @@ Proof.
 Qed.
 
 (* —— 使用位 S13:2864（bs_Unif_norm 骨架，id_trans 链头槽支路）—— *)
-Lemma sef_s13_unif_norm : forall (en : list S) (g : S -> R) (b : R),
+Lemma sef_s13_unif_norm : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   Id (S13_NLiveAudit.bs_list_sum g en) b -> Id (idt_sumf en g) b.
 Proof.
   intros en g b Hid.
@@ -137,24 +137,24 @@ Qed.
 (* ============================================================ *)
 
 (* —— G01:476 槽参数位重述填充件（机 = AttnDoeblin 出节件）—— *)
-Definition sef_g01_slot_arg (en : list S)
-  : forall g : S -> R, Id (idt_sumf en g) (AttnDoeblin.bs_list_sum g en) :=
+Definition sef_g01_slot_arg (en : list S01_BaseRing.S)
+  : forall g : S01_BaseRing.S -> R, Id (idt_sumf en g) (AttnDoeblin.bs_list_sum g en) :=
   idt_slot_g01 en.
 
 (* —— S15:147 槽参数位重述填充件（机 = S13 出节件）—— *)
-Definition sef_s15_slot_arg (en : list S)
-  : forall g : S -> R, Id (idt_sumf en g) (S13_NLiveAudit.bs_list_sum g en) :=
+Definition sef_s15_slot_arg (en : list S01_BaseRing.S)
+  : forall g : S01_BaseRing.S -> R, Id (idt_sumf en g) (S13_NLiveAudit.bs_list_sum g en) :=
   idt_slot_s15 en.
 
 (* Form B 填充型唯一性自证：填充件与改喂定理逐点一致（eta 展开级）。 *)
-Lemma sef_g01_slot_arg_pt : forall (en : list S) (g : S -> R),
+Lemma sef_g01_slot_arg_pt : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R),
   Id (idt_sumf en g) (AttnDoeblin.bs_list_sum g en).
 Proof.
   intros en g.
   exact (sef_g01_slot_arg en g).
 Qed.
 
-Lemma sef_s15_slot_arg_pt : forall (en : list S) (g : S -> R),
+Lemma sef_s15_slot_arg_pt : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R),
   Id (idt_sumf en g) (S13_NLiveAudit.bs_list_sum g en).
 Proof.
   intros en g.
