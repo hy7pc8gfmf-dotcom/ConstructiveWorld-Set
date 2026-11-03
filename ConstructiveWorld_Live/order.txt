@@ -312,3 +312,4 @@ UpAblT1b_AttnDoeblin.v#R78-325344
 UpAblT1b_S06_DiffSamplingGibbs.v#R78-065f7b
 UpReqRealLtShiftBridge.v#R78-841fd9
 b1_extract4.v#R78-d67bff
+PowRealCompat.v#R78-198a1f

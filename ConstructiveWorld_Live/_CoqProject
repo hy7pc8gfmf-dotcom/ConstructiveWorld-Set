@@ -313,3 +313,4 @@ UpAblT1b_AttnDoeblin.v
 UpAblT1b_S06_DiffSamplingGibbs.v
 UpReqRealLtShiftBridge.v
 b1_extract4.v
+PowRealCompat.v
