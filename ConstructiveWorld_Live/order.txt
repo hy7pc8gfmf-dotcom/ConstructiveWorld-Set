@@ -357,3 +357,7 @@ PA_UpAblAbsSumLeB.v#R93-fcafa7
 zzm2_qpoly.v#R93-9a4516
 UpReqPPOGapB.v#R93-bf227b
 UpReqTrainingEquiv.v#R93-361446
+UpAblD1S17_UpReqDpoLoss.v#R94-303781
+UpAblT5_S04_RealExpLogConv.v#R94-7f09e7
+UpAblT6_UpSigMigrate.v#R94-574229
+UpAblT6_UpSigMigrate2.v#R94-e59d97
