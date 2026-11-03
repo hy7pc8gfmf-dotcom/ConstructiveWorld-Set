@@ -1,6 +1,4 @@
-(* ConstructiveWorld-Set — statement-face Set-carrier completions of the
-   Main-source analysis modules. *)
-
+(* ConstructiveWorld-Set — statement-face Set-carrier completions of the Main-source analysis modules. *)
 (** * AttnHardLimit218: an explicit temperature-decay bound for
       hard-attention distributions.
 
@@ -23,15 +21,13 @@
     Constructivity.  All named statements are carried by [Set]
       (the function-valued equality [real_eq], the order carriers
       [real_lt]/[real_le], [Id], [NatLe]); statements extract with
-      [Obj.magic] = 0 and no erasure; [coqchk] reports
-      [Axioms: none].  The section premises (nonempty vocabulary,
-      decidable token equality, single occurrence of [m], explicit gap)
-      are disclosed as section variables and witnessed concretely at the
-      end of the file.
+      [Obj.magic] = 0 and no erasure, and [coqchk] reports [Axioms: none].
+      The section premises (nonempty vocabulary, decidable token equality,
+      single occurrence of [m], explicit gap) are disclosed as section
+      variables and witnessed concretely at the end of the file.
 
     Build.  [coqc -native-compiler no -q -Q . "" AttnHardLimit218.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]. *)
+      compiles cleanly (exit 0); the artifact starts [436f7121 00015ff4]. *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.

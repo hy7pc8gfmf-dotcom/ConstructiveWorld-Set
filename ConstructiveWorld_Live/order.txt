@@ -40,7 +40,7 @@ UpReqBanachInst.v#R5-9c80d8
 UpReqCStarDef.v#R5-3c5c8a
 UpReqBanachInstReal.v#R5-7d8fce
 UpReqBanachNormOpp.v#R5-2463ca
-AttnHardLimit218.v#R5-a4c8ef
+AttnHardLimit218.v#R5-92fe1c
 UpSLM.v#R5-1098d5
 AttnSqrt.v#R5-5bde1a
 UpReqDist.v#R6-bd1047
@@ -49,7 +49,7 @@ UpReqBanachExpBasic.v#R6-98a3c0
 UpReqBanachDouble.v#R6-d7ee60
 UpReqBanachClassExt.v#R6-53cdb6
 UpReqBanachInvPre.v#R6-8fe084
-BanachNoHyp.v#R6-62e051
+BanachNoHyp.v#R6-36c600
 UpCS.v#R7-e8d25c
 UpRecast.v#R7-16faf2
 G11_IDLFam.v#R7-ae3194
@@ -234,7 +234,7 @@ UpAblT6_UpReqPPO.v#R38-e69ddf
 abl_attn_doeblin_supply.v#R38-787ae9
 abl_s01_supply.v#R38-097645
 abl_tbase_sumpos_spp.v#R38-631e27
-AbsLeId.v#R39-7ceec9
+AbsLeId.v#R39-27ea43
 G10_LoebFam.v#R40-52f9c1
 LW0QPoly.v#R40-6f8362
 UpReqBanachCauchyD.v#R41-d1445e
@@ -247,7 +247,7 @@ abl_loeb_d3_ext.v#R44-f362f6
 G01_CoreMicro.v#R46-9ae430
 UpBudgetReal.v#R46-9b6281
 UpConstitution.v#R46-c98d6b
-AbsSqClose.v#R47-12dbbf
+AbsSqClose.v#R47-c81e2e
 abl_qpoly_divmod_gen.v#R47-659fcb
 Arch_PA_02.v#R47-cb96a5
 P7BoundedSoftmaxDeep.v#R48-af49b4

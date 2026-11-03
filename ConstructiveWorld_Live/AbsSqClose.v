@@ -1,65 +1,31 @@
-(* ConstructiveWorld-Set -- absolute-value inequality family and the
-   partition-function definition pin. *)
+(* ConstructiveWorld-Set -- absolute-value inequalities and the partition-function pin. *)
 (** * AbsSqClose: abs basic inequality family, finite-sum triangle, and the
       Boltzmann-partition definition pin.
 
-    Mission.
-      Family 1 (abs basic inequalities, S01 carrier):
-        asc_abs_lower_pos (|a| < c -> 0 < c + a),
-        asc_abs_le_intro (u <= w -> -u <= w -> |u| <= w),
-        asc_sq_nonneg (0 <= t^2), asc_sq_le_abs_sq (t^2 <= |t|^2),
-        asc_nsq_square_nonneg, asc_abs_nonneg (0 <= |a|),
-        asc_abs_sum_le_r (finite-sum triangle at the sumd_sumf instance).
-      Family 2 (partition-function pin):
-        czd12_fep_partition / czd12_fep_Z_pos -- the partition function Z
-        pinned to the concrete finite sum sumd_sumf; positivity by head
-        non-empty list induction plus the exp_neg positivity field.
+    Mission.  Abs basic inequalities on the S01 carrier ([asc_abs_lower_pos],
+      [asc_abs_le_intro], [asc_sq_nonneg], [asc_sq_le_abs_sq],
+      [asc_nsq_square_nonneg], [asc_abs_nonneg], [asc_abs_sum_le_r]) and
+      the partition pin [czd12_fep_partition]/[czd12_fep_Z_pos]: [Z]
+      pinned to the finite sum [sumd_sumf], positive by head non-empty
+      list induction plus the [exp_neg] positivity field.
 
-    Dependencies.
-      S01_BaseRing (carrier R, DecidableOrder class fields, Id),
-      fa53_compat_abs (fa53_lt_plus_translate_r), UpReqSumD (sumd_list_sum,
-      sumd_sumf, sumd_list_sum_pos_cons), S07_RealSetoidExpLog
-      (RealInterfaceEnhancedSetoid fields at the concrete Real layer);
-      Stdlib List.
+    Dependencies.  Requires [S01_BaseRing], [fa53_compat_abs], [UpReqSumD],
+      [S07_RealSetoidExpLog]; Stdlib [List].
 
-    References.
-      UpReqLogRDF (lrdf_abs_lower_pos / lrdf_abs_le_intro / lrdf_sq_nonneg /
-      lrdf_sq_le_abs_sq), UpReqSqrtF (nsq_square_nonneg), UpReqAttnIter
-      (abs_nonneg_h), UpReqAttnGibbs (abs_sum_le_r), UpReqLogCompD
-      (fep_partition).
+    References.  Statement counterparts in [UpReqLogRDF], [UpReqSqrtF],
+      [UpReqAttnIter], [UpReqAttnGibbs], [UpReqLogCompD].  Derivation: the
+      S01-idiom section re-pins [R] to [S01_BaseRing.R] against the
+      [UpReqSumD] export [Notation R := Real]; the sum triangle carries a
+      per-item budget [e] (Bishop per-eps field, cf. [b4_tri_sum]);
+      [czd12_list_sum_pos_cons] delegates to [sumd_list_sum_pos_cons].
 
-    Port notes (deviations from the frozen Main-tree draft, all forced by
-      the same-world dependency generation).
-      1. The frozen draft required TempSoftmaxInstantiation; that module is
-         not landed in the Set-line tree or world and the file references
-         none of its names, so the Require is dropped.
-      2. The UpReqSumD generation in this world exports [Notation R :=
-         Real]; the S01-idiom section re-pins the token via
-         [Local Notation R := S01_BaseRing.R] so every statement face of
-         the abs/sq family keeps its frozen token shape.
-      3. The finite-sum pieces (asc_sumd_list_abs_triangle,
-         asc_abs_sum_le_r) and the tail section are materialized at the
-         concrete Real layer per the world convention (the former R/RIS
-         head absorbed by the global instance; cf. the UpAblT1 discharge
-         generation). The RIS abs_triangle field is the Bishop per-eps
-         form, so the sum-triangle face carries a per-item positive budget
-         e (the S11_TP3B5 b4_tri_sum precedent); the eps-free plain form is
-         not derivable from that field without a collapse lemma.
-      4. czd12_list_sum_pos_cons delegates to the world UpReqSumD
-         sumd_list_sum_pos_cons (same statement shape at the Real layer).
+    Constructivity.  Every declaration closes with [Qed], zero admits;
+      statement faces Set-carried, zero Prop leakage ([Or] is the
+      constructive disjunction over Set-valued [lt]/[Id]; the single
+      negative face is [Not (Id enum nil)] in [czd12_fep_Z_pos]).
 
-    Constructivity.
-      Every declaration Qed-closed, zero admits; statement faces Set-carried
-      with zero Prop leakage (Or is the constructive disjunction over
-      Set-valued lt/Id; the single negative face is the Id-form non-empty
-      premise Not (Id enum nil) of czd12_fep_Z_pos, the in-register
-      fa51-precedent datum shape; the induction pieces match no empty
-      branch).
-
-    Build.
-      rocq c -native-compiler no -Q <same-world> "" AbsSqClose.v
-      (Rocq 9.1.0) against the same-world dependency .vo tree, under the
-      cpu_guard load wrapper. *)
+    Build.  [rocq c -native-compiler no -q -Q . "" AbsSqClose.v] (Rocq
+      9.1.0) against the same-world dependency [.vo] tree. *)
 
 Require Import S01_BaseRing.
 Require Import fa53_compat_abs.

@@ -2,32 +2,29 @@
 
 (** * BanachNoHyp: assumption-free re-derivations of the binomial family.
 
-    Mission.  Six statements of [UpReqBanachAdd] carry the scalar-image laws
-    as explicit premises; on a bare Banach algebra those laws are class
-    fields, so the statements can be re-proven without them.  This file
-    re-derives the family assumption-free: the machine shape anchors
-    [bnh_hplus_shape] and [bnh_hwd_shape] (each field is definitionally the
-    premise shape it replaces), the scalar face, the Pascal pairing pieces,
-    the binomial theorem [bnh_bpow_add] (keeping the commutativity premise
-    [hab : bae (a*b) (b*a)]), and the exponential-series reassembly
-    [bnh_esp_binom].  Eight assumption-free helper lemmas of
-    [UpReqBanachAdd] are reused verbatim without re-proof.
+    Mission.  Six statements of [UpReqBanachAdd] carry the scalar-image laws as
+      explicit premises; on a bare Banach algebra those laws are class fields,
+      so the statements can be re-proven without them.  This file re-derives
+      the family assumption-free: the machine shape anchors [bnh_hplus_shape]/
+      [bnh_hwd_shape] (each field is definitionally the premise shape it
+      replaces), the scalar face, the Pascal pairing pieces, the binomial
+      theorem [bnh_bpow_add] (keeping the commutativity premise
+      [hab : bae (a*b) (b*a)]), and the exponential-series reassembly
+      [bnh_esp_binom].  Eight assumption-free helper lemmas of
+      [UpReqBanachAdd] are reused verbatim without re-proof.
 
-    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith],
-      [Lia].  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [UpReqBanachExp], [UpReqBanachProd], [UpReqBanachAdd] of this
-      development.
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith], [Lia].
+      Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
+      [UpReqBanachExp], [UpReqBanachProd], [UpReqBanachAdd] of this development.
 
-    References.  This development, ConstructiveWorld-Main BanachNoHyp.v,
-      the baseline module whose statement names are carried over here
-      verbatim.
+    References.  This development, ConstructiveWorld-Main BanachNoHyp.v, the
+      baseline module whose statement names are carried over here verbatim.
 
-    Constructivity.  All statements close with real proofs; the statement
-      faces are entirely [Set]-carried ([bae] for equality, [QltT]/[QleT']/
-      [sigT] for order and existence); [bae] goals are met through
-      definitional [change]s and explicit middle-term chains of [bae_trans];
-      [Print Assumptions] closes every statement.  Extraction gives
-      [Obj.magic] = 0; [coqchk] reports [Axioms: none].
+    Constructivity.  All statements close with real proofs; statement faces are
+      entirely [Set]-carried ([bae] for equality, [QltT]/[QleT']/[sigT] for
+      order and existence); [bae] goals are met through definitional [change]s
+      and explicit middle-term [bae_trans] chains; [Print Assumptions] closes
+      every statement; extraction gives [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" BanachNoHyp.v] compiles
       cleanly (exit 0); the artifact starts with [436f7121 00015ff4]. *)

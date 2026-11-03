@@ -1,44 +1,32 @@
-(* ============================================================
-   AbsLeId -- Mission.  constructive fulfillment of a genuine
-   gap left over from earlier verification: for the
-   abs_ge_zero_id_cc interface argument slot of
-   S06_DiffSamplingGibbs (forall a, le zero a -> Id (abs a) a;
-   after Let-alias expansion = forall a : @R (@RI_base RI),
-   @le (@RI_base RI) ...), this file delivers the abstract
-   interface layer main theorem together with the concrete Real
-   layer fulfillment.
-   Dependencies.  S01_BaseRing, fa53_compat_abs, S02_CauchyComplete,
-   S03_QExp, S07_RealSetoidExpLog.
-   Constructivity.  All proofs close by Qed/Defined; zero axioms; no
-   classical logic.
-   Build.  rocq c -native-compiler no -Q <tree> "" AbsLeId.v
-   Benchmark: fa53_compat_abs.v item 3 fa53_abs_ge_zero_id_dec --
-   statement same shape (le zero a -> Id (abs a) a); its
-   precondition is the optional extension class DecidableOrder
-   (S01:329, Set-layer Or trichotomy); the main item of this file
-   reuses it by reference (Require only, zero modification).
-   Also delivered: (a) the reverse shape ali_abs_ge_zero_id_sym
-   (id_sym canal); (b) the two S06 use-site wrapper shapes
-   ali_abs_id_mult_l/r (direct matches for the id_cong
-   applications at S06:4371 and S06:4447, sparing the downstream
-   a manual id_cong assembly); (c) the concrete Real layer
-   fulfillment ali_real_abs_ge_zero_id: real_le's Or encoding
-   (S02:469) decided branch by branch -- the lt branch goes
-   through real_abs_pos_req (S07:7289), the eq branch goes through
-   real_eq_abs_compat (S07:410, must be qualified inside Module
-   RealSetoid) + real_abs_zero_req (S07:7266) + a real_eq_sym/
-   trans three-step chain.
-   Constructive notes: the statement face is entirely Set layer
-   (Or/Not use the S01:67-68 Set-layer definitions; real_lt is a
-   sigT witness, S02:465); zero Prop leakage; no axioms / no
-   admitted / no parameters / no conjectures / no abandoned
-   proofs; fa53_compat_abs only Require-referenced, zero
-   modification; original tree zero modification.
-   The prefix ali_ has been collision-checked library-wide.
-   Build recipe: Rocq 9.1 direct invocation (COQLIB/ROCQLIB
-   pinned to the 9.1 library root), coqc -q -Q . "" <file>.v,
-   cpu_guard tiered execution.
-   ============================================================ *)
+(* ConstructiveWorld-Set — fulfillment of an interface argument slot and its concrete Real layer. *)
+(** * AbsLeId: the [abs_ge_zero_id_cc] slot and the concrete Real layer.
+
+    Mission.  Fills the [abs_ge_zero_id_cc] slot of [S06_DiffSamplingGibbs]
+      ([forall a, le zero a -> Id (abs a) a]) with the main theorem
+      [ali_abs_ge_zero_id], the reverse shape [ali_abs_ge_zero_id_sym], the
+      use-site wrappers [ali_abs_id_mult_l]/[ali_abs_id_mult_r] (for the
+      [id_cong] sites S06:4371/S06:4447), and [ali_real_abs_ge_zero_id].
+
+    Dependencies.  Requires [S01_BaseRing], [fa53_compat_abs],
+      [S02_CauchyComplete], [S03_QExp], [S07_RealSetoidExpLog].
+
+    References.  Benchmark: [fa53_compat_abs] item 3
+      [fa53_abs_ge_zero_id_dec] (same statement shape; its precondition is
+      the optional extension class [DecidableOrder], S01:329; reused by
+      reference, Require only).  The concrete layer decides the [real_le]
+      Or encoding (S02:469) branch by branch: lt through [real_abs_pos_req]
+      (S07:7289); eq through [real_eq_abs_compat] (S07:410, qualified
+      inside [RealSetoid]) plus [real_abs_zero_req] (S07:7266) and a
+      [real_eq_sym]/[real_eq_trans] chain.
+
+    Constructivity.  Statement face entirely Set-carried ([Or]/[Not] are
+      the Set-layer definitions S01:67-68; [real_lt] is a sigT witness,
+      S02:465); all proofs close by Qed/Defined; zero axioms, no admitted
+      proofs; [fa53_compat_abs] Require-referenced only; the [ali_] prefix
+      is collision-checked library-wide.
+
+    Build.  [rocq c -native-compiler no -q -Q . "" AbsLeId.v] compiles
+      cleanly (exit 0); the artifact starts with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import fa53_compat_abs.
