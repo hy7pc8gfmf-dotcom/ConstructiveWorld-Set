@@ -1,11 +1,28 @@
-(* ==========================================================================)
-   G04_ProjFam.v — 投影算子族与投影 KL 代价分解
-   使命: 抽象投影节（Z_P/Proj/proj_drop_zero/proj_keep_ge/proj_normalized/proj_uniform_full）、KL 分解节（KL_f/KL_P/KL_T 项与 proj_kl_cost）、KV/审计/最小 p 三实例节（kev_*_via_proj、Zaud_le_one_via_proj、minp_normalized_via_proj）及 tid 群结构的族命题。
-   依赖: CW_ConstructiveWorld_219；Stdlib ZArith、ZArithRing、ZArith_dec、Arith、Lia。
-   对标: 投影/正交分解下的 KL 散度代价分解（信息论投影不等式）。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — projection-operator family and projected KL cost decomposition. *)
+
+(** * G04_ProjFam: projection operator families and projected KL cost decomposition.
+
+    Mission.  Formalizes the abstract projection section ([Z_P], [Proj],
+      [proj_drop_zero], [proj_keep_ge], [proj_normalized],
+      [proj_uniform_full]), the KL decomposition section (the [KL_f],
+      [KL_P], [KL_T] terms and [proj_kl_cost]), the three instantiation
+      sections (KV, audit, minimal-p: [kev_*_via_proj],
+      [Zaud_le_one_via_proj], [minp_normalized_via_proj]), and the family
+      statements for the [tid] group structure.
+
+    Dependencies.  The library files listed in the Require face below.
+
+    References.  KL-divergence cost decomposition under projection and
+      orthogonal decomposition (information-theoretic projection
+      inequalities).
+
+    Constructivity.  All proofs close by [Qed]; zero admission words; no
+      classical logic; the statement face is carried by the [Set] layer
+      (order predicates and equality are [Set]-valued, zero Prop leakage).
+
+    Build.  [coqc -native-compiler no -q -Q . "" G04_ProjFam.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -227,7 +244,7 @@ Proof.
   - apply (RealSetoid.real_eq_le _ _). exact f_norm.
 Qed.
 
-(* 保留支形态（Proj 的 keep 支；log 证书的载体） *)
+(* 保留支形态（Proj 的 keep 支；log 证书的carrier） *)
 Definition keep_form (i : I) : Real :=
   real_mult (f i) (real_inv_pos Z_P ZP_pos).
 
@@ -742,11 +759,11 @@ Qed.
 
 End InstAudit.
 
-(* ---------- 实例 C：Min-P（Set 载体重述 real_minp_markov_kernel） ----------
+(* ---------- 实例 C：Min-P（Set carrier重述 real_minp_markov_kernel） ----------
    接缝：根 RealMinPMain 的保留谓词是 Set 层命题+Or 判定器（非 bool）。
-   本实例经 minp_bool（判定器的 bool 载体，构造性合法）接入母定理，
+   本实例经 minp_bool（判定器的 bool carrier，构造性合法）接入母定理，
    再以 ext + inv_ext 双桥复原 match 形核的归一化；root Token:Type 与
-   本文件 Set 载体的差异为纯载体泛化（内容逐字同构）。                     *)
+   本文件 Set carrier的差异为纯carrier泛化（内容逐字同构）。                     *)
 Section InstMinP.
 
 Variables (W : Set) (vocab : list W).
@@ -825,7 +842,7 @@ End InstMinP.
 (*   ROUNDTABLE2.md 上游会话 段落末尾【PLA v2 终稿】四击正面闭合 + VCA 杂交；      *)
 (*   排队模块位方案-二轮成果Coq化.md Q1 条目。                        *)
 (*                                                                       *)
-(* 载体全程 Z/nat/bool 判定层；零 eps、零序比较、零见证借贷。                 *)
+(* carrier全程 Z/nat/bool 判定层；零 eps、零序比较、零见证借贷。                 *)
 (* 纪律：纯构造性（无 公理/承认件/参数/中断）；语句零 Prop           *)
 (* （Set 层 tid 恒等型 + nle 序型 + sumbool 判定分支）；stdlib only。         *)
 (*                                                                       *)
@@ -848,7 +865,7 @@ Open Scope Z_scope.
 (* 0. Set 层基建：tid 恒等型 / nle 序型 / 判定存活工具                        *)
 (* ===================================================================== *)
 
-(* Set 层恒等型（语句零 Prop 的等式载体） *)
+(* Set 层恒等型（语句零 Prop 的等式carrier） *)
 Inductive tid (A : Type) : A -> A -> Type := tid_refl : forall x : A, tid A x x.
 
 Definition tid_sym (A : Type) (x y : A) (H : tid A x y) : tid A y x :=
@@ -975,7 +992,7 @@ Proof.
   intros P H. inversion H.
 Qed.
 
-(* Z 层严格序 → nle 编码桥（Set 面：Z.leb/Z.ltb bool 载体；stdlib 序
+(* Z 层严格序 → nle 编码桥（Set 面：Z.leb/Z.ltb bool carrier；stdlib 序
    仅限证明体内经 Z.leb_le/Z.ltb_lt 桥入）：
    Z.leb 0 a = true 且 Z.ltb a b = true ⟹ nle (Datatypes.S (to_nat a)) (to_nat b) *)
 Lemma zle_to_nle_S : forall a b : Z,
@@ -1885,11 +1902,11 @@ End BPChain.
 (*    T_pos/log_two_pos/prediction_landauer/hierarchical_stability_        *)
 (*    prediction/loss_structure_correlation——物理叙述级，墙族登记）。      *)
 (*  · 接口参数位（保留）：各节数据参数原样保留，接口义务。                 *)
-(* 实例载体（单点形，Fin2/B1/B2 enum:=[tt] 先例同构）：            *)
+(* 实例carrier（单点形，Fin2/B1/B2 enum:=[tt] 先例同构）：            *)
 (*   供给定理为具体实例上的消解证书，供使用方以实例充任接口字段。           *)
 (* ===================================================================== *)
 
-(* 单点实例载体 *)
+(* 单点实例carrier *)
 Definition g04pf_idx1 : list unit := tt :: nil.
 Definition g04pf_f1 : unit -> Real := fun _ : unit => real_one.
 Definition g04pf_P1t : unit -> bool := fun _ : unit => true.
@@ -1937,7 +1954,7 @@ Qed.
 
 (* 供给三（C3 点名·Set 重述核准形）：keep_dec 单点判定证书——               *)
 (*   Kw 取 inhabited 形，inl 正支直构（Or/Not 为 S01:78-80 Set 层和型       *)
-(*   别名，供给形与 sumbool 载体同层同义）。                                *)
+(*   别名，供给形与 sumbool carrier同层同义）。                                *)
 Lemma g04pf_keep_dec_supply :
   forall w : unit, Or (g04pf_Kw1 w) (Not (g04pf_Kw1 w)).
 Proof. intro w. exact (@inl (g04pf_Kw1 w) (Not (g04pf_Kw1 w)) tt). Qed.

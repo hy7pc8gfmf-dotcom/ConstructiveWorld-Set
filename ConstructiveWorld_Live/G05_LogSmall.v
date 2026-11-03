@@ -1,88 +1,29 @@
-(* ============================================================
-   使命：本件数学使命叙述见下方原头注首段（既有件注记型头注整编尚待后续）。
-   依赖：见原头注 Require 面与依赖段。
-   对标：见原头注来源/对标行。
-   构造性：纯构造性、零承认件（详见原头注红线自审段）。
-   编译配方：coqc -native-compiler no -q -Q . ""。
-   ============================================================ *)
-(* G 组：G05_LogSmall — 有限合并组（S/G 双系新命名，成员原样并入）
-   成员：UpReqLogPrimD + UpReqLogLinD + UpReqLogD（同组旧名 Require 已剥；库内旧名已消融，下游直接 Require 本组）*)
-(* ======== G05_LogSmall 成员件：UpReqLogPrimD（原样并入，自带 Require）======== *)
-(* ============================================================ *)
-(* UpReqLogPrimD.v —— 假设位证明系列 G5：log/exp 基元证明引理（C 档 26 族/43 槽） *)
-(*   广义主定理链 G5 执行模块                              *)
-(* ------------------------------------------------------------------ *)
-(* 引擎坐标实读（普查 G5 节 + §四落点纪律执行记录）：                  *)
-(*   ① 接口字段（CW_ConstructiveWorld_219 L40464 起 RealInterfaceEnhancedSetoid，req 版）：*)
-(*    log/log_inv 带正性参；log_mult/log_one/log_inv_log/exp_neg_log_inv *)
-(*    req 形在盘；log_le_linear_eps 仅逐 eps 形（先例）。        *)
-(*    接口无 log 相容字段、无 log_inv∘exp_neg 字段、无 exp_neg 外延字段。*)
-(*   ② 根基元（CW_ConstructiveWorld_219 具体 Real 层，锚点法已证，本文件 源码实读）：        *)
-(*    real_log_exp_neg@42231（log(e^{-x})==-x）/ real_log_wd@42277      *)
-(*    （log 参数 real_eq 兼容）/ real_log_proof_irrel@42291（见证无关） *)
-(*    / real_log_le_mono@112106（log 单调 le 版）/ real_log_mult@40403  *)
-(*    / real_log_one@40413 / real_log_inv_log@40424 /                   *)
-(*    real_exp_neg_log_inv@40431。                                      *)
-(*   ③ 桥核对（红线判定）：req→le 单向升格由接口字段 lt_le_iff 右支     *)
-(*    自带（本文件新发现基元 logd_req_to_le——req 层无条件）；le/lt→       *)
-(*    real_le_b 单向（UpRealLeB real_le_to_le_b@78）；逆向 Or 形精确    *)
-(*    闭合构造性不可证（UpRealLeB 尾注登记表），故 log_le_linear/log_eq_  *)
-(*    linear 等号槽（S 档 G6 属）不属本文件、本文件亦不触逆向桥。           *)
-(* ------------------------------------------------------------------ *)
-(* G5 归约格（泛型 RIS 接口层，全部 Set 层语句零 Prop 泄露）：           *)
-(*   [P0] logd_req_to_le           —— req⟹le（lt_le_iff inr，无条件）  *)
-(*   [P0] logd_req_opp_opp / logd_req_plus_zero_l / logd_req_plus_zero_r *)
-(*        —— req 代数小件（opp 对合 / 加法零消去，接口字段纯推导）      *)
-(*   [P1] logd_exp_neg_ext         —— req x y ⟹ req (exp_neg x) (exp_neg y) *)
-(*        【接口层无条件真定理】＝证明 req_exp_neg_ext@UpSigMigrate:521  *)
-(*        （P0 升 le 双向 + exp_neg_le_decr + le_antisym 闭合）          *)
-(*   [P1] logd_lt_req_transport / logd_pos_of_agree —— 正性运输：        *)
-(*        证明 expf_pos@UpReqFEPAttn:264（条件证明，供给槽=expf_agree）  *)
-(*   [P2] logd_log_compat_of_mono  —— compat ⟸ log 单调 le 单槽         *)
-(*        （UpReqU2 log_req_compat 同位先例，logd_ 独立重建）            *)
-(*   [P2] logd_log_inv_one_inv_of_compat —— inv_one_inv ⟸ compat 槽     *)
-(*        （log_mult 分解 + compat 运输至 log one + 零消去）             *)
-(*   [P2] logd_log_inv_exp_neg_of_log_exp_neg / logd_log_exp_neg_of_     *)
-(*        log_inv_exp_neg —— {log∘exp_neg, log_inv∘exp_neg} 双向互归约  *)
-(*        （log_inv_log + opp 对合；对内互推，对外需一根基元供给）       *)
-(* ------------------------------------------------------------------ *)
-(* Real 层无条件闭合（ 模板②，槽形语句；CW_ConstructiveWorld_219 根基元直接提供）：          *)
-(*   [B1] logd_log_compat_real（双形 a=mono 链 / b=real_log_wd 直接提供）    *)
-(*        证明族：log_req_compat(9)/b_log_compat/req_log_compat/         *)
-(*        req_log_compat_slot/ralt_log_req_compat/rdl_log_req_compat/    *)
-(*        rppo_log_req_compat = 15 槽                                   *)
-(*   [B2] logd_log_exp_neg_real（real_log_exp_neg 逐字同形直接提供）         *)
-(*        证明族：log_exp_neg(2)/dist_log_exp_neg(2)/b_log_exp_neg/      *)
-(*        req_log_exp_neg = 6 槽                                        *)
-(*   [B3] logd_log_inv_one_inv_real（P2 组装 B1）                        *)
-(*        证明族：log_inv_one_inv(2)/dist_log_inv_one_inv(3) = 5 槽      *)
-(*   [B4] logd_log_inv_exp_neg_real（P2 组装 B2）                        *)
-(*        证明族：log_inv_exp_neg_req(5)/ralt_log_inv_exp_neg_req/       *)
-(*        rdl_log_inv_exp_neg_req = 7 槽                                *)
-(*   [B5] logd_log_witness_real（log 见证无关 req 形；real_log_proof_    *)
-(*        irrel 的 req 槽形双形）；[B6] logd_exp_neg_ext_real（P1 实例化）*)
-(* ------------------------------------------------------------------ *)
-(*   证明 35 槽 = B1(15)+B2(6)+B3(5)+B4(7)+expf_pos(1)+req_exp_neg_ext(1) *)
-(*   S 阻塞 7 槽（复合恒等式/微分记录，基元供给链已明，超出本文件范围）：  *)
-(*    - energy_in_log_boltzmann_bridge@UpSigMigrate:65 /                 *)
-(*      free_energy_boltzmann_bridge@UpSigMigrate:70：FEP 复合恒等式，    *)
-(*      供给=partition_condition(N 参)+B1+B2+sum 代数；复合重建另模块。    *)
-(*    - rdf_log_diff@UpReqRDF:1704：reqRDF 微分记录（rdf_df+eps-delta）， *)
-(*      接口无 log 导数字段；需 log 导数 req 化+复合链微分引擎。         *)
-(*    - real_kl_decomp_full@UpRealLeB:218：FEP 分解 Real 层复合          *)
-(*      （F==F(boltzmann)+D·Σ kl_term）；供给=B2+kl_log_inv 先例+sum 代数。*)
-(*    - req_entropy_temp_explicit@UpFirewallReq:122 /                    *)
-(*      req_relative_entropy_temp_decomp@128 / req_temp_strict_ident2@144：*)
-(*      热力学/KL 温度分解复合；供给=B1+B2+sumf 代数，复合重建另模块。     *)
-(*   N 1 槽：expf_agree@UpReqFEPAttn:265 —— expf 抽象算子的规格本身，    *)
-(*    不可证明；收窄路线=以 exp_pos_fn_setoid 直替换 expf（签名变化）。  *)
-(* 防同名冲突：logd_ 前缀全库 grep 实测零命中（hzlogd_/gibbsd_ 异前缀在案）。  *)
-(* 双形并存：B1 双形（mono 链/real_log_wd 直接提供）；B3 与 UpStepKL         *)
-(*   kl_log_inv@574 同形（cw_log 形先例，本件 req 槽形独立组装）；       *)
-(*   P2 compat 归约与 UpReqU2 log_req_compat 同位（logd_ 独立版）。      *)
-(* 红线：Set 层零 Prop（结论全 req/lt/le 接口 Set 值）；全 Qed 闭合；    *)
-(*   零公理；既有文件零改。     *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — finite merge group: log/exp primitive proof lemmas. *)
+
+(** * G05_LogSmall: merged statement family for log/exp primitive proof
+      lemmas (series G5, [logd_] prefix).
+
+    Mission.  A finite merge group (members merged verbatim) carrying the
+      log/exp primitive proof lemmas of series G5 (the [logd_] family):
+      the unconditional request-layer reduction lattice, positivity
+      transport, compatibility slots, and the Real-layer unconditional
+      closures ([logd_log_compat_real], [logd_log_exp_neg_real],
+      [logd_log_inv_one_inv_real], [logd_log_inv_exp_neg_real],
+      [logd_log_witness_real], [logd_exp_neg_ext_real]).
+
+    Dependencies.  The library files listed in the Require face below.
+
+    References.  Elementary log/exp identities over constructive reals
+      (monotonicity, inverse cancellation, exponential laws).
+
+    Constructivity.  All proofs close by [Qed]; zero admission words; no
+      classical axioms; the statement face is carried by the [Set] layer
+      (all conclusions are [req]/[lt]/[le] interface values, zero Prop
+      leakage).
+
+    Build.  [coqc -native-compiler no -q -Q . "" G05_LogSmall.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -497,10 +438,10 @@ Print Assumptions logd_exp_neg_ext_real.
 (*   [站点 1] lld_u2_gibbs_eq_step1_B——req_gibbs_equality 首步肢       *)
 (*     （Hd_nonneg：0 ≤ d(s) 逐点）Bishop 形，gibbsd_gibbs_pointwise_B  *)
 (*     一次给定。                                                        *)
-(*   [站点 2] FEPReal 节：softmax/boltzmann 载体对 Real 具体形          *)
+(*   [站点 2] FEPReal 节：softmax/boltzmann carrier对 Real 具体形          *)
 (*     （base/invT/Zf/softmax/boltz 五 Definition 逐位同构站点参数位，  *)
 (*     datum 形）+ 逐点正性 3 件 + lld_fep_softmax_boltz_pointwise_B    *)
-(*     （件 4 主定理载体对的范式实例位）。                                 *)
+(*     （件 4 主定理carrier对的范式实例位）。                                 *)
 (*   [站点 3] BTReal 节温度 Boltzmann 族（lld_btz/lld_bt 具体形 +       *)
 (*     正性/归一化）+ lld_tempent_kl_nonneg_B（L554 肢 Bishop 形）+     *)
 (*     lld_tempent_entropy_neg_sum_B（req_entropy_neg_sum 使用位        *)
@@ -650,7 +591,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part FEP：站点 2（UpReqFEPAttn.v L90）载体对具体形                     *)
+(* Part FEP：站点 2（UpReqFEPAttn.v L90）carrier对具体形                     *)
 (*   站点节参数（base/invT/Zf/softmax_z/boltz_z，UpReqFEPAttn:107-121）  *)
 (*   逐位 Real 同构；sumf := real_list_sum（datum 形，zposd 先例口径）； *)
 (*   exp_pos_fn_setoid y == exp_neg (opp y)（CW_ConstructiveWorld_219:66191）——站点        *)
@@ -714,9 +655,9 @@ Proof.
            (real_exp_neg_pos (real_mult lld_fep_invT (lld_fep_base s)))).
 Qed.
 
-(* 主定理载体对范式实例位：件 4（req_attention_minimizes_free_energy_     *)
+(* 主定理carrier对范式实例位：件 4（req_attention_minimizes_free_energy_     *)
 (* unique 的 softmax/boltz 对）逐点 Gibbs 切线 Bishop 形——Part D 范本   *)
-(* D0 在站点 2 载体上的 @ 全显装配。≤ 肢/唯一肢全量复演阻塞见头注 a。    *)
+(* D0 在站点 2 carrier上的 @ 全显装配。≤ 肢/唯一肢全量复演阻塞见头注 a。    *)
 Lemma lld_fep_softmax_boltz_pointwise_B : forall s : X,
   real_le_b (real_plus (lld_fep_softmax s) (real_opp (lld_fep_boltz s)))
             (real_kl_term (lld_fep_softmax s) (lld_fep_boltz s)
@@ -890,7 +831,7 @@ End BTReal.
 (*   四站点给定件 4 件：lld_{u2,fep,tempent,fw}_log_le_linear_B          *)
 (*   站点 1：lld_u2_gibbs_eq_step1_B（gibbs_equality 首步肢 Bishop 形）。*)
 (*   站点 2：FEPReal 节 5 Qed（boltz_factor_pos / Zf_pos / softmax_pos / *)
-(*   boltz_pos / softmax_boltz_pointwise_B）+ 5 Definition 载体同构。    *)
+(*   boltz_pos / softmax_boltz_pointwise_B）+ 5 Definition carrier同构。    *)
 (*   站点 3：BTReal 节内 lld_tempent_kl_nonneg_B +                       *)
 (*   lld_tempent_entropy_neg_sum_B；BT 族 3 件（btz_pos/bt_pos/bt_norm） *)
 (*   为站点 3/4 共用。                                                   *)

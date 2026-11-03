@@ -275,15 +275,15 @@ UpReqAttnGibbs.v#R55-776740
 UpReqBranchPos.v#R56-80446d
 Arch_ToyR_03.v#R57-5b2aee
 Arch_ToyR_04.v#R57-c9e8fc
-G04_ProjFam.v#R60-4df90d
+G04_ProjFam.v#R60-05d140
 UpAblD1_expf_pack.v#R62-4b0545
 InvPosLtCompat.v#R64-d9adee
 LW0MLicBridge.v#R64-bf9e5d
 UpSigMigrate.v#R64-1072e0
 UpSigMigrate2.v#R64-ad7ad4
 UpReqU2.v#R67-7ba737
-G08_Gibbs.v#R67-5b6e11
-G05_LogSmall.v#R67-9437b1
+G08_Gibbs.v#R67-0110fe
+G05_LogSmall.v#R67-6b2ded
 SigMigrate_core.v#R64-d0f3ac
 DTPT_Entropy.v#R70-ed56c5
 DTPT.v#R63-4dd1ec
@@ -312,7 +312,7 @@ UpAblT1b_AttnDoeblin.v#R78-325344
 UpAblT1b_S06_DiffSamplingGibbs.v#R78-065f7b
 UpReqRealLtShiftBridge.v#R78-841fd9
 b1_extract4.v#R78-d67bff
-PowRealCompat.v#R78-198a1f
+PowRealCompat.v#R78-c94709
 fa56c_ext.v#R79-e37137
 UpReqEntropyMaxTemp.v#R79-b094f8
 UpAblAbsSumLeB.v#R79-e6ef27

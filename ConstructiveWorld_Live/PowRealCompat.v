@@ -1,26 +1,31 @@
-(* ============================================================ *)
-(* PowRealCompat.v —— powb_pow 与 real_pow 两幂载体的换形桥与性质运输件 *)
-(*                                                                     *)
-(* 使命：G07_KLWall 的 powb_pow 与 CW220_Extensions 的 real_pow 是两    *)
-(*   同构 Fixpoint（O ↦ real_one、S m ↦ real_mult base …），本件形式化  *)
-(*   二者在全参数域（base : Real，t : nat）上的一致性并交付换形与运输   *)
-(*   八件（prc_ 前缀）：①Id 级同构桥（对 t 归纳）；②real_eq 级桥        *)
-(*   （real_eq_mult_compat 逐级组装）；③反向桥（real_eq_sym）；         *)
-(*   ④powb 载体 eq_compat（G07 侧原缺位的补齐件，归纳真证）；           *)
-(*   ⑤同语句对接路线（CW220 real_pow_eq_compat 经②③双桥接入，与        *)
-(*   ④双路线互证）；⑥⑦单调件与幂不超一 Bishop 件经①运输；              *)
-(*   ⑧CW220 real_pow_anti_mono（stdlib nat le 前提位）经 NatLe_drop     *)
-(*   与①回运 powb 载体，序界统一为 Set 层 NatLe。                      *)
-(* 依赖：CW_ConstructiveWorld_219、G07_KLWall、CW220_Extensions         *)
-(*   （BudgetReal）、UpRealLeB、UpRealLeB2。                            *)
-(* 对标：mathlib Nat.pow 的载体换算引理族。                             *)
-(* 构造性注记：Set 层承载（real_eq/real_lt/real_le/NatLe 全 Set 值）；   *)
-(*   件 1 为 Id 级换形（Coq Id 等词属 Prop 型，零前提位，仅作件 6/7/8   *)
-(*   内 rewrite 运输的载体）；零承认、公理面为空、可提取；              *)
-(*   文尾 Print Assumptions 八件全 Closed。                             *)
-(* 编译配方：Rocq 9.1 直调 rocq c -Q . "" PowRealCompat.v，cpu_guard    *)
-(*   包装。                                                             *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — transport bridge between the two power carriers. *)
+
+(** * PowRealCompat: compatibility and transport between [powb_pow] and
+      [real_pow].
+
+    Mission.  [powb_pow] and [real_pow] are two isomorphic Fixpoints
+      ([O] ↦ [real_one], [S m] ↦ [real_mult base ...]); this file
+      formalizes their agreement for every [base] : [Real] and
+      [t] : [nat] and delivers eight [prc_] transport
+      statements: the [Id]-level and [real_eq]-level bridges with their
+      reverses, the [powb]-carrier [eq_compat], the same-statement
+      docking route, the monotonicity and power-below-one statements,
+      and the anti-monotonicity transport unified at the [Set]-layer
+      [NatLe] order.
+
+    Dependencies.  G07_KLWall, CW220_Extensions, UpRealLeB, UpRealLeB2,
+      and the library files listed in the Require face below.
+
+    References.  The power-conversion lemma family of [Nat.pow] in
+      mathlib.
+
+    Constructivity.  The statement face is carried by the [Set] layer
+      ([real_eq]/[real_lt]/[real_le]/[NatLe] all [Set]-valued); zero
+      admission words; the axiom face is empty; the file-tail
+      [Print Assumptions] checks close under the global context.
+
+    Build.  [rocq c -Q . "" PowRealCompat.v] compiles cleanly (exit 0);
+      the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -47,7 +52,7 @@ Require Import UpRealLeB2.
 (* 一、双向换形桥（Id 级 / real_eq 级）                                *)
 (* ============================================================ *)
 
-(* 件 1：Id 级同构桥——对 t 归纳，每步 cbn 定向展开两载体各一步          *)
+(* 件 1：Id 级同构桥——对 t 归纳，每步 cbn 定向展开两carrier各一步          *)
 Lemma prc_powb_real_pow_id : forall (base : Real) (t : nat),
   real_eq (powb_pow base t) (real_pow base t).
 Proof.
@@ -85,7 +90,7 @@ Qed.
 (* 二、eq_compat 级对接件（G07 侧原缺位补齐；双路线互证）               *)
 (* ============================================================ *)
 
-(* 件 4：powb 载体 eq_compat——归纳真证（G07 侧原缺位）                 *)
+(* 件 4：powb carrier eq_compat——归纳真证（G07 侧原缺位）                 *)
 Lemma prc_powb_eq_compat : forall (x y : Real) (n : nat),
   real_eq x y -> real_eq (powb_pow x n) (powb_pow y n).
 Proof.
@@ -112,12 +117,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 三、载体间性质运输（G07 Bishop 件 → real_pow 载体；                  *)
-(*     CW220 Or 序界件 → powb 载体）                                   *)
+(* 三、carrier间性质运输（G07 Bishop 件 → real_pow carrier；                  *)
+(*     CW220 Or 序界件 → powb carrier）                                   *)
 (* ============================================================ *)
 
 (* 件 6：G07 单调性结论 P2 的运输——NatLe 序界 Bishop 形幂单调递减，     *)
-(*   现 real_pow 载体同款可用（CW220 侧原缺位）                         *)
+(*   现 real_pow carrier同款可用（CW220 侧原缺位）                         *)
 Lemma prc_powb_mono_dec_real_pow : forall (base : Real) (m : nat),
   real_lt real_zero base -> real_le base real_one ->
   forall n : nat, NatLe n m ->
@@ -154,7 +159,7 @@ Proof.
 Qed.
 
 (* 件 8：CW220 real_pow_anti_mono 的引用——stdlib nat le 前提位经       *)
-(*   NatLe_drop 转 Set 层 NatLe 序界，结论经 Id 桥回运 powb 载体        *)
+(*   NatLe_drop 转 Set 层 NatLe 序界，结论经 Id 桥回运 powb carrier        *)
 Lemma prc_powb_anti_mono_real_le : forall (k : Real),
   real_lt real_zero k -> real_le k real_one ->
   forall p q : nat, NatLe p q ->

@@ -1,73 +1,30 @@
-(* ============================================================
-   使命：本件数学使命叙述见下方原头注首段（既有件注记型头注整编尚待后续）。
-   依赖：见原头注 Require 面与依赖段。
-   对标：见原头注来源/对标行。
-   构造性：纯构造性、零承认件（详见原头注红线自审段）。
-   编译配方：coqc -native-compiler no -q -Q . ""。
-   ============================================================ *)
-(* ToyR 玩具化··切片五：G08_Gibbs 五刀替换稿（ 记录件补位，）
-   本稿为基准树 G08_Gibbs.v 同文替换：语句面/声明序/Require 面/其余正文逐字不动，
-   仅换五处玩具证明体——① gibbsd_two_pos ② hzlogd_discharge_real
-   ③ hzlogd_proj_min_kl_hlogzfree ④ hzlogd_proj_min_kl_bool ⑤ gibbe2_le_b_id_r。
-   五刀均结构性换轨，本件逐条独立勘验、未照抄 结论（假设位正性族结论不适用于
-   G08 其余条目；12 条中 7 条经勘验维持不可化标注，见记录切片五节）。
-   刀① gibbsd_two_pos：原 real_plus_positive 一步直供；换轨 real_lt_plus_compat_
-   lt_le（0<1 ∧ 0≤1 ⟹ 0+0<1+1，le 肢 inl 装载 real_lt_zero_one 严证人）＋
-   real_eq_lt_lt 左端转移沿 sym(real_plus_zero 0) 退化零站（0=0+0），原引擎全退役。
-   刀② hzlogd_discharge_real：原使用在file 保底件 hzlogd_log_le_zero_of_le_one；
-   换轨抽象骨架 Real 层就地直拼：@le_id_r 中停站 log one ＋ log_one 换右端 ＋
-   real_log_le_mono 单调肢，零借道保底件。
-   刀③ hzlogd_proj_min_kl_hlogzfree：原 HlogZ 槽使用保底件；换轨槽内就地直拼
-   同一站形，Z_aud≤one 尾肢内联进单调肢第 5 参，零借道保底件。
-   刀④ hzlogd_proj_min_kl_bool：原 HlogZ 槽使用 hzlogd_discharge_real；换轨槽内
-   Real 层就地直拼同 ③ 站形，单调肢 real_log_le_mono 直接代入，零借道 discharge 件。
-   刀⑤ gibbe2_le_b_id_r：原 RealSetoid.real_lt_compat 四元等式兼容拼装；换轨
-   real_lt_eq_lt 右端转移（中停站 b+eps，eq 肢 RealSetoid.real_eq_plus_compat 原样），
-   等式转移引擎换轨且原 6 参拼装全退役。
-   纪律：纯构造性；Set 层零 Prop 泄露；真 Qed；零新增 Require；零承认件；
-   原件尾 11 处 Print Assumptions 逐字保留（编译证据 11/11 全 Closed）。 *)
-(* G 组：G08_Gibbs — 有限合并组（S/G 双系新命名，成员原样并入）
-   成员：UpReqGibbsD + UpReqHlogZD + UpReqGibbsE2（同组旧名 Require 已剥；库内旧名已消融，下游直接 Require 本组）*)
-(* ======== G08_Gibbs 成员件：UpReqGibbsD（原样并入，自带 Require）======== *)
-(* ============================================================ *)
-(* UpReqGibbsD.v —— 假设位证明系列 #1：gibbs_inequality（UpReqDist.v）      *)
-(*   Real 实例化证明件（主实现）                        *)
-(* ------------------------------------------------------------------ *)
-(* 引擎形状核对结论（普查 §380 落点纪律执行记录）：                      *)
-(*   引擎 real_log_le_linear_B @UpRealLeB:535 输出 Bishop 形序          *)
-(*   real_le_b := forall eps>0, x < y+eps（Set 值）；req 层槽            *)
-(*   dist_log_le_linear @UpReqDist:1029 输出接口序 le——                 *)
-(*   RealEnhancedReal 实例的 le 字段 := real_le（Or 编码）。            *)
-(*   桥核对：real_le_to_le_b@UpRealLeB:78 / latb_real_lt_to_le_b@       *)
-(*   G06_BForm:87 / real_lt_le_bridge@G01_CoreMicro:16 均单向           *)
-(*   （real_le / real_lt → real_le_b）；逆向 real_le_b → real_le 即     *)
-(*   Or 形精确闭合，构造性不可证（UpRealLeB 尾注登记表明示）。            *)
-(*   判定：req 层槽不可由 B 形引擎无条件证明（序异向，缺逆向桥接引理）；    *)
-(*   按普查 §380 纪律落点升格为「Real 实例化定理」——本文件以            *)
-(*   real_le_b 为序复演 req_gibbs_pointwise → req_gibbs_inequality      *)
-(*   使用链，参数位 dist_log_le_linear 由 real_log_le_linear_B 直接提供。     *)
-(*   模板：UpReqU2 log_req_compat_real（ 模板 ②：显式实例直接提供）。     *)
-(* ------------------------------------------------------------------ *)
-(* 给出：                                                              *)
-(*   [保底] gibbsd_gibbs_pointwise_B —— 逐点槽证明位：与                *)
-(*     req_gibbs_pointwise 使用 dist_log_le_linear 逻辑同位，           *)
-(*     real_log_le_linear_B 一次给定；                                  *)
-(*     gibbsd_gibbs_inequality —— KL ≥ 0 Bishop 形（与 E.13             *)
-(*     real_gibbs_inequality_B 语句同形；E.13 走 real_gibbs_inequality_ *)
-(*     eps 闭合路，本件走 log 切线槽证明复演路——双路互证）。            *)
-(*   [主件·级联首层] gibbsd_cross_entropy_decomp ——                    *)
-(*     H(p,q) == S[p] + KL(p‖q) Real 实例化（req_cross_entropy_decomp   *)
-(*     @UpReqDist:2431 对位），逐点恒等经 log 乘法分解向闭合，          *)
-(*     同法使用本文件 Bishop 序机。                                     *)
-(* 规范形注：全件采 real_kl_term 规范形 p·(−log(q/p))（CW_ConstructiveWorld_219            *)
-(*   real_kl_term 同形）；req_relative_entropy 的 p·(log p−log q) 形    *)
-(*   与之恒等需 log 逆消去（log(inv p) == −log p），CW_ConstructiveWorld_219 未备该消去件、 *)
-(*   real_eq_of_zero_diff 逐 n ring 形不适用——诚实边界，req 面同构记    *)
-(*   δ 透明（UpReqDist 登记表 2「minus 非接口字段」同判定）。             *)
-(* 红线：Set 层零 Prop（real_le_b / real_eq / real_lt 全 Set 值，      *)
-(*   语句与证明零 Prop 泄露）；全 Qed 闭合；零公理；既有文件零改；      *)
-(*   gibbsd_ 前缀全库防同名冲突（建前 grep 实测零命中）。                     *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — finite merge group: Gibbs inequality and log bounds. *)
+
+(** * G08_Gibbs: merged statement family for the Gibbs inequality, the
+      cross-entropy decomposition, and the log-nonpositivity dischargers.
+
+    Mission.  A finite merge group (members merged verbatim) carrying
+      ([gibbsd_] / [hzlogd_] / [gibbe2_] prefixes): the Gibbs inequality
+      chain over the Bishop order [real_le_b] ([gibbsd_gibbs_pointwise_B],
+      [gibbsd_gibbs_inequality], [gibbsd_cross_entropy_decomp]), the
+      log-nonpositivity discharge family ([gibbsd_two_pos],
+      [hzlogd_discharge_real], [hzlogd_proj_min_kl_hlogzfree],
+      [hzlogd_proj_min_kl_bool]), and the finite-list sum-zero extraction
+      side ([gibbe2_le_b_id_r], [gibbe2_list_sum_zero_extract_bool]).
+
+    Dependencies.  The library files listed in the Require face below.
+
+    References.  Gibbs' inequality and the entropy decomposition
+      H(p,q) = S[p] + KL(p||q) over constructive reals.
+
+    Constructivity.  All proofs close by [Qed]; zero admission words; no
+      classical axioms; the statement face is carried by the [Set] layer
+      ([real_le_b]/[real_eq]/[real_lt] all [Set]-valued, zero Prop
+      leakage).
+
+    Build.  [coqc -native-compiler no -q -Q . "" G08_Gibbs.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -929,7 +886,7 @@ Qed.
 (*   HZ 槽由 hzlogd_HZ_bool 证明（语句内联，免 assert 不透明墙）；       *)
 (*   HlogZ 槽由 hzlogd_discharge_real 证明（Z_aud ≤ one 走               *)
 (*   req_Z_aud_le_one + Hp_norm 同一路线）；                            *)
-(*   余下前提仅 p/q 分布形态（Set 层：real_eq/real_lt 载体）。           *)
+(*   余下前提仅 p/q 分布形态（Set 层：real_eq/real_lt carrier）。           *)
 (* ============================================================ *)
 Theorem hzlogd_proj_min_kl_bool :
   forall (p : bool -> Real)
@@ -1014,12 +971,12 @@ Print Assumptions hzlogd_proj_min_kl_bool.
 (*      主件闭合确须该桥。                                                     *)
 (*   3. 双切点互易推导否决：逐项钳零给出 log u_s == u_s − 1 各自成立，          *)
 (*      但 u_1·u_2 == 1 互易关系对任意分布不成立（归一化不生互易），            *)
-(*      有限具体载体亦不能绕开 eq-linear 桥——X 邻接判定升级为系列工作记录。         *)
+(*      有限具体carrier亦不能绕开 eq-linear 桥——X 邻接判定升级为系列工作记录。         *)
 (* ------------------------------------------------------------------ *)
 (* 给出（分级）：                                                              *)
 (*   [保底1·逐项钳零件族] gibbe2_le_b_antisym（核心新件，逐 n 构造，            *)
 (*     零 Or 闭合、零 LPO、零三分）；gibbe2_clamp_head / _r；                   *)
-(*     gibbe2_list_sum_zero_extract_bool（有限具体载体 [true;false] 提取）。    *)
+(*     gibbe2_list_sum_zero_extract_bool（有限具体carrier [true;false] 提取）。    *)
 (*   [保底2·log 关系件] gibbe2_kl_eq_of_w_zero + gibbe2_tangent_eq +           *)
 (*     gibbe2_kl_zero_tangent_eq：KL==0 ⟹ 逐点切点等式                          *)
 (*     log(q_s/p_s) == q_s/p_s − 1（Real 层无条件——全库首件）。                 *)
@@ -1240,7 +1197,7 @@ Proof.
   - exact Hsum.
 Qed.
 
-(* C3【保底1 主件】：有限具体载体 [true;false] 逐项和零提取 *)
+(* C3【保底1 主件】：有限具体carrier [true;false] 逐项和零提取 *)
 Lemma gibbe2_list_sum_zero_extract_bool :
   forall (f : bool -> Real),
     (forall s : bool, real_le_b real_zero (f s)) ->
