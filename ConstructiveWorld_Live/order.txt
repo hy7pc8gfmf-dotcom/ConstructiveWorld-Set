@@ -337,3 +337,7 @@ UpReqPinWallEquiv.v#R86-c874ff
 UpAblT1b_S13_NLiveAudit.v#R87-eb6819
 UpReqPPOB.v#R87-0ab17d
 fa57_ext.v#R87-8797c4
+LW3FamScale.v#R89-312dc3
+UpReqSentinelMother.v#R89-2ca9a2
+LW3JointFill.v#R89-86b007
+piu_zz_poincare_engine.v#R89-e0f193

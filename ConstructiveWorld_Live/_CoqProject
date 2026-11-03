@@ -338,3 +338,7 @@ UpReqPinWallEquiv.v
 UpAblT1b_S13_NLiveAudit.v
 UpReqPPOB.v
 fa57_ext.v
+LW3FamScale.v
+UpReqSentinelMother.v
+LW3JointFill.v
+piu_zz_poincare_engine.v
