@@ -318,3 +318,6 @@ UpReqEntropyMaxTemp.v#R79-b094f8
 UpAblAbsSumLeB.v#R79-e6ef27
 UpReqPowMonoBridge.v#R79-35302d
 UpReqExpPos.v#R80-ec8551
+RealEnergyTempMono.v#R81-71f38a
+UpReqConcMixSel.v#R81-97a223
+UpReqRDF.v#R81-e895c6

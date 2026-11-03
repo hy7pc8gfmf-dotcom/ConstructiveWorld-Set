@@ -319,3 +319,6 @@ UpReqEntropyMaxTemp.v
 UpAblAbsSumLeB.v
 UpReqPowMonoBridge.v
 UpReqExpPos.v
+RealEnergyTempMono.v
+UpReqConcMixSel.v
+UpReqRDF.v
