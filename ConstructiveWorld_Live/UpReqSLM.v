@@ -1,33 +1,33 @@
-(* UpReqSLM.v —— 软语言模型层：温度配分、马尔可夫核与 softmax（req 载体） *) (* 使命：形式化随机语言模型（Section StochasticLanguageModel）与         *)
-(*   LogDiffPhase3 尾节的 req 层重述：马尔可夫核、softmax、温度零极限    *) (*   （slm_markov_kernel / slm_softmax /                                 *)
-(*   slm_markov_temperature_zero_limit 与 k_d）及贪心选取参数位的消解。   *) (* 依赖： CW_ConstructiveWorld_219、UpReqAlgebra、UpReqDist、            *)
-(*   UpReqAlignRestB、G09_MiscSmall。                                    *) (* 构造性：纯构造性（零承认；零经典逻辑；纯 term-mode，零                 *)
-(*   setoid-rewrite 依赖）；Set 层语句零 Prop 泄露（req/lt/le/Id/         *) (*   And:=A*B 均 Set 值）；B 类 Variable 假设位逐位保留。                 *)
-(* 编译配方：Rocq 9.1 直调，cpu_guard，-Q . "" -native-compiler no。          *) (* 源坐标：CW_ConstructiveWorld_219.v                                      *)
-(*   Section StochasticLanguageModel  L2020-2932（Id 系 31 件）              *) (*   Section LogDiffPhase3            L26405-26685（Id 系 15 件）              *)
-(* 上游：基座 + UpReqAlgebra（req_minus 引擎/消去簇）+ UpReqDist        *) (*   （reqd_le_of_req/reqd_opp_zero）+ UpReqAlignRestB（rls_*/rls_kernel_norm_gen *)
-(*   /req_exp_neg_ext_local——直引依存面）。                                   *) (* 证明风格：req_trans 五参链 + compat 桥 + assert 分段式。                    *)
-(* 共享资产（下游 Require 本文件复用）：                                       *) (*   Class ReqNonnegPlain：abs_nonneg_plain（le zero (abs a)）+              *)
-(*     metric_pos_plain（le zero (metric a b)）——plain 非负假设位对。            *) (*     Real 层仅 eps 形非负（real_abs_nonneg_le_eps@L39879 /                  *)
-(*     real_metric_pos_eps@L33242，Instance 映射 L41189/L41210），plain 形需          *) (*     |x|>0 / |x|=0 符号判定（构造性判定边界）——故为永久假设位，Real 层消解      *)
-(*     需显式假设（真实种子需 Or 分解形逐 eps 消解机）。                          *) (*   req_le_zero_mult_nonneg：le zero a -> le zero b -> le zero (mult a b)——     *)
-(*     由 le_mult_compat_weak + mult_comm/mult_zero 字段链 2 行真证（定理，      *) (*     非假设位；op_lipschitz_compose 依存时免加位）。                            *)
-(*     （log req 兼容参数位）log_le_zero_slot 以 log_le_linear_plain 强参数位统一；        *) (*     log_req_compat_plain 为 UpReqAlgebra ReqLogBridge log_req_compat 参数位同构        *)
-(*     （L1492，req_log_inv_one_inv 依存所需；LogDiff3 下界件必需）。两参数位均          *) (*     永久假设位：线性界 plain 完成不可导（构造性判定边界）；compat 待接口扩展。         *)
-(*     副道：req_log_one_plus_le_eps（真零参数位：log_le_linear_eps 字段直导）；            *) (*     req_log_one_plus_ge_eps（依存 log_req_compat_plain + log_le_linear_eps          *)
-(* 迁移要项（对位与依存）：                                                  *) (*   SLM 区 17 件 Id 定理迁为 req 同名同语句件；markov_pos 的 RestB 对位       *)
-(*   闭在 ReqSamplingWorld 节内、参数面含 Min-P 域专属假设位，SLM 世界        *) (*   （无 DO 域）不可实例化——req_markov_pos_slm 3 行同语句真证。              *)
-(*   list_sum_le_on_list 对位 rls_le@RestB L210 前提形差异（rls_le 逐点无 InT       *) (*   限制；Id 原件 InT 限制形）——SLM 两依存件需 InT 限制形，                       *)
-(*   req_list_sum_le_on_list 6 行归纳真证（辅件，非重证 rls_le）。                 *) (*   markov_normalized 经 rls_kernel_norm_gen@RestB L224 实例化：                 *)
-(*   P:=fun _=>True/kd:=inl I，match 项 iota+delta 对 slm_markov_kernel 逐位收敛。 *) (*   贪心域：argmin/list Id 机器域不迁定义——顶层两事实                       *)
-(*   （in_vocab/optimal）以 Variable/假设申报参数位；其消解见 Part 3。        *) (* LogDiff3 区 13 件直迁 + 2 件参数位道（另各配 eps 副道真证件）+ 2 件直引依存。  *)
-(* 定义级签名差异：                                                        *) (*   1. minus -> req_minus（δ 透明 plus a (opp b)，UpReqAlgebra L58 同形）——          *)
-(*      LogDiff3 全区减法位。                                                     *) (*   2. log 前提化：setoid log 带 lt zero 前提（接口 L40570 区）；slm_markov_entropy  *)
-(*      定义级内联 markov_pos prefix w 前提位（前提位可证）。                       *) (*   3. list_sum 载体 = rsum@RestB L126（逐字同构 Fixpoint）。                       *)
-(*   4. Id 环引理（plus_swap_mid/minus_plus_cancel/opp_minus/double_neg/               *) (*      log_inv_one_inv/mult_minus_distr_l 等）不跨接口依存——                      *)
-(*      全部换 UpReqAlgebra req 真证件（req_plus_swap_mid/req_minus_plus_cancel/         *)
-(*      req_opp_minus/req_double_neg/req_log_inv_one_inv/req_mult_minus_distr_l），      *)
-(*      Id->req 差异真证非抄写。                                                    *)
+(* ConstructiveWorld-Set — stochastic language modeling over the req carrier. *)
+
+(** * UpReqSLM: temperature allocation, Markov kernels and softmax over [req].
+
+    Mission.  The stochastic language model (Section [ReqSLM]): temperature
+      factor and partition, the Markov kernels [slm_markov_kernel] and
+      [slm_softmax], entropy [slm_markov_entropy], the temperature-zero
+      limit [slm_markov_temperature_zero_limit] with [k_d]; greedy bounds
+      [req_greedy_kernel_limit]/[req_nonoptimal_probability_absolute]
+      (slots [in_vocab]/[optimal], discharged in [ReqSLMGreedyDischarge]);
+      [req_markov_pos_slm]/[req_markov_normalized]/[req_markov_entropy_nonneg].
+
+    Dependencies.  Requires the backbone [S01_BaseRing] .. [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqDist], [UpReqAlignRestB], [G09_MiscSmall]; Stdlib [List].
+
+    References.  Statements are carried over verbatim from the
+      StochasticLanguageModel and LogDiff3 tail sections of the upstream
+      ConstructiveWorld-Main baseline.  Adaptations: minus is [req_minus];
+      [log] carries an [lt zero] premise; [list_sum] is the [rsum] Fixpoint;
+      Id-ring lemmas become [UpReqAlgebra] req proofs; [markov_normalized]
+      instantiates [rls_kernel_norm_gen].
+
+    Constructivity.  Pure constructive: zero admission words, no classical
+      logic, term-mode proofs without setoid rewriting; statement faces are
+      carried by [Set] ([req]/[lt]/[le]/[Id]/[And := A*B] all Set-valued);
+      the log slots [log_le_zero_slot]/[log_req_compat_plain] remain explicit.
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqSLM.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -117,7 +117,7 @@ Variable temperature_pos : lt zero temperature.
 
 (* ---- 定义块（清单 §3：alb_temp_factor/list_sum/alb_partition_temp/alb_markov_kernel/ *)
 (*        expected_loss/markov_entropy/softmax 全部 exp_neg/inv_pos 表出；       *)
-(*        载体 rsum@RestB L126 逐字同构 list_sum） --------------------------- *)
+(*        carrier rsum@RestB L126 逐字同构 list_sum） --------------------------- *)
 
 Definition slm_temp_factor (prefix : list Token) (w : Token) : R :=
   exp_neg (mult (inv_pos temperature temperature_pos) (total_loss (prefix ++ [w]))).

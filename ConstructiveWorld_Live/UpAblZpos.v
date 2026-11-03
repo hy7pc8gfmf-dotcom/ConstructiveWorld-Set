@@ -1,21 +1,32 @@
-(* ============================================================ *)
-(* 本件为消融落件：原件全文逐字保留，仅将文末清单所列定理之证明体替换为玩具证      *)
-(*   （实质非平凡三口径），声明面与引用面零改动、零新增 Require、纯构造性闭合；    *)
-(*   清单：zab_Z_align_nonneg（原 L89，5 句玩具证）、zab_Z_align_pos（原 L73，4 句）。 *)
-(* ============================================================ *)
-(* UpAblZpos.v —— Z_align 正性的抽象接口层消解件。使命：为 S05_AlignmentGRPO 的     *)
-(*   抽象假设 Z_align_pos（lt zero Z_align，主节与迭代节同一导出形 lt zero (Z_align   *)
-(*   reward beta beta_pos pi_ref)）给出独立消解件：在显式前提 Hsum_pos（forall f，     *)
-(*   (forall s, lt zero (f s)) -> lt zero (sum_over_S f)）之下证明 lt zero (Z_align …)；  *)
-(*   le zero (Z_align …) 的无条件伴件另件兑现，见 zab_Z_align_nonneg。条件形缘由：现     *)
-(*   接口 sum_over_S 仅有 linear/add/ext/le/nonneg 字段，「和正」在本层不可证，故将该步   *)
-(*   写成显式 forall 前提。数学内容：求和项逐项正链（zab_summand_pos）——pi_ref_pos 逐点  *)
-(*   正 × exp_neg_pos 恒正，经 mult_positive 合成、inv_pos 换形，与 S05 的 Z_rel_pos 证明 *)
-(*   链同构。升级方向：接口补 strict 求和正性字段（或 Real 层以 sumd_sum_pos 直接实例化）， *)
-(*   显式前提即可消去。依赖（本库）：S01_BaseRing（接口与 sum_over_S 字段族）；           *)
-(*   S05_AlignmentGRPO 只读对应，不改原件。构造性注记：纯构造性，语句面全 Set 层，零承认；  *)
-(*   zab_ 前缀为本件专名。编译配方：Rocq 9.1 直调，unset COQLIB/ROCQLIB，cpu_guard 包裹。  *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — interface-level resolution of Z_align positivity. *)
+
+(** * UpAblZpos: positivity of the aggregated reward [Z_align] at the abstract interface level.
+
+    Mission.  An independent resolution of the abstract assumption
+      [Z_align_pos] of [S05_AlignmentGRPO] (exported form
+      [lt zero (Z_align reward beta beta_pos pi_ref)]): [zab_Z_align_pos]
+      derives it from the explicit premise [Hsum_pos] (strict positivity of
+      [sum_over_S]); the unconditional companion [zab_Z_align_nonneg] gives
+      [le zero (Z_align ...)] from [sum_over_S_nonneg] alone.
+
+    Dependencies.  Requires [S01_BaseRing] of this development (the interface
+      [RealInterfaceEnhanced] with its [sum_over_S] field family); no others.
+
+    References.  This development, [S05_AlignmentGRPO].v (read-only
+      counterpart: the [Z_align] export form is matched statement for
+      statement there; the per-summand chain [zab_summand_pos] mirrors the
+      [Z_rel_pos] derivation).  The premise is explicit because the interface
+      carries only linear/add/ext/le/nonneg fields for [sum_over_S]; a strict
+      sum-positivity field (or a Real-layer instantiation) would remove it.
+
+    Constructivity.  Pure constructive; statement faces carried by [Set]
+      through the interface order [lt]/[le]; zero admission words.  Proofs
+      are short chains: pointwise positivity composed with [exp_neg_pos] via
+      [mult_positive]; non-negativity via [lt_le_iff].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblZpos.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 

@@ -1,11 +1,34 @@
-(* ==========================================================================)
-   UpAblDeltaStarSuboptimal.v — 二态 softmax 核 Doeblin 常数的严格次优性
-   使命: mdsopt_main：δ* = lo² 严格小于最优常数 δ*_opt = 2·lo²/(1+lo²)，显式正间隙 mdsopt_gap_pos；支撑件行随机归一 mdsopt_row0_norm/row1_norm 与 Q 层算术链。
-   依赖: S02_CauchyComplete；Stdlib QArith、Lia、Extraction。
-   对标: Doeblin（小增益）常数的极小化：二态行随机核上 min 2K(s,s′) 的显式解。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — strict suboptimality of the Doeblin constant for two-state softmax kernels. *)
+
+(** * UpAblDeltaStarSuboptimal: strict suboptimality of the two-state Doeblin constant.
+
+    Mission.  [mdsopt_main]: for rational [0 < lo < 1] the Doeblin constant
+      [mdsopt_dstar lo = lo*lo] is strictly below the optimum
+      [mdsopt_dstar_opt lo = 2*(lo*lo)/(1 + lo*lo)], with the explicit gap
+      [mdsopt_gap] and its strict positivity [mdsopt_gap_pos], plus the
+      feasibility companion [mdsopt_dstar_le_opt]; supporting facts:
+      row-stochastic normalization [mdsopt_row0_norm]/[mdsopt_row1_norm]
+      and the Q-arithmetic chain
+      [mdsopt_sq0]/[mdsopt_lt1]/[mdsopt_den_pos]/[mdsopt_den_ne]/[mdsopt_cancel].
+
+    Dependencies.  Stdlib [QArith.QArith], [Lia], [Extraction].  Requires
+      [S02_CauchyComplete] of this development.
+
+    References.  The minimization of the Doeblin (small-gain) constant: the
+      explicit minimum of [2*K(s,s')] over two-state row-stochastic kernels
+      with entries [lo/(1+lo)], [1/(1+lo)] in the first row and
+      [(lo*lo)/(1+lo*lo)], [1/(1+lo*lo)] in the second.
+
+    Constructivity.  All statements close with [Qed]; zero admission words;
+      no classical logic; statement faces are carried by [Set] (order
+      predicates and equalities are Set-valued [QltT]/[QleT']/[QeqT], zero
+      Prop leakage).  Statements extract with [Obj.magic] = 0; [coqchk]
+      reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblDeltaStarSuboptimal.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
+
 
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import Lia.

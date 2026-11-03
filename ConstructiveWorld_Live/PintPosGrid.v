@@ -1,25 +1,34 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* PintPosGrid.v — 位切片代理（组 E-STAGING-D024）                                   *)
-(* 目的：P1b 残面「段上逐点正 ⟹ 积分正」判定件。数学预判先行：一期 pint_integral =     *)
-(*   Σ a_k/(k+1) 恰为 [0,1] 上多项式真积分（线性泛函），「系数任意但段上逐点正⟹积分正」  *)
-(*   对线性泛函一般不真——本件给出显式二次反例的构造性否定性见证，把 P1b 从「缺网格机器」 *)
-(*   改判为「命题需强化」。反例（n=2，手算定性后机器定型）：pg_counterex(x) = −x² + x −    *)
-(*   11/64 = 1/64 + (3/4−x)(x−1/4)。肢1（段上逐点正，带显式下界）：x ∈ [1/4,3/4] ⟹ 两因子  *)
-(*   非负，pg_counterex(x) ≥ 1/64 > 0——平方差因式分解 1/16−(x−1/2)² = (3/4−x)(x−1/4) 使    *)
-(*   全程免 ε-网格/有限和机器；肢2（积分负）：∫₀¹ = −11/64 + 1/2 − 1/3 = −1/192 < 0。       *)
-(* 结论（工程图 v2 §五 ②/④ 的改判依据）：① P1b 原命题（段逐点正⟹全积分正）假，否定性     *)
-(*   见证 = 本件双肢；P5 ④「同一台 P1b 机器」路线注销，改走：(a) 系数级分解路线：f = g + h、 *)
-(*   h 系数全非负 ⟹ ∫f ≥ ∫g（一期 pint_integral_nonneg + P1 pm_pointwise_le_integral 已全  *)
-(*   量覆盖，一行可达）；(b) Beta 闭式路线：I_n = ∫₀¹ tⁿ(1−t)ⁿ/(1−t/2)^{n+1} 的下界取        *)
-(*   ∫₀¹ tⁿ(1−t)ⁿ = (n!)²/(2n+1)! 闭式后纯阶乘不等式，免段上逐点化；② 修正命题面（真方向）：  *)
-(*   「全 [0,1] 逐点正⟹积分正」仍真（连续+紧）但构造性需 ε-网格有限和下界机（原残面本体，    *)
-(*   另案）；「Bernstein 系数全正(+某系数正)⟹积分正」为可机器检验的充分条件面                *)
-(*   （∫ΣbᵢBᵢ = (1/(n+1))Σbᵢ），需 mono↔Bern 基变换机——对任意系数多项式是 P1 件的真扩面。    *)
-(* 四要素逐件声明：语句面全 Set（QleT'/QltT + Type 积，零 Prop 语句、零 Prop 前提）；         *)
-(*   前提面仅 QleT' 段端点；证明面 Q 层结构化（Qle_trans/Qplus_le_compat/                     *)
-(*   Qmult_le_compat_r 双肢 + Qeq setoid 换形，数值件 vm_compute 信任缓存快测）；提取面       *)
-(*   eval/int 纯函数。红线：零假公理位、零未证闭合、零经典逻辑；一期 pint_ 全部只依存不重编。  *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — polynomial segment positivity versus integral sign. *)
+
+(** * PintPosGrid: pointwise positivity on a segment does not imply a positive integral.
+
+    Mission.  For linear functionals the claim is false.  The quadratic
+      [pg_counterex] = [-x^2 + x - 11/64] = [1/64 + (3/4 - x)(x - 1/4)] is
+      pointwise at least [1/64] on [1/4, 3/4] ([pg_counterex_seg_ge],
+      strictly [pg_counterex_seg_pos]), yet its integral is negative
+      ([pg_counterex_int_neg], exact value [-1/192]); both arms are packaged
+      as [pg_P1b_counterexample], so the statement needs strengthening.
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Lists.List],
+      [Arith.Arith], [ZArith.ZArith], [Lia], [Extraction].  Requires
+      [S01_BaseRing], [S02_CauchyComplete], [PolyIntegral] of this
+      development.
+
+    References.  This development, [PolyIntegral].v, whose functionals
+      [pint_eval] and [pint_integral] are consumed here.  Strengthened
+      routes: coefficient-level decomposition f = g + h with h of
+      non-negative coefficients, and Bernstein-coefficient conditions.
+
+    Constructivity.  All named statements are carried by [Set]
+      ([QleT']/[QltT] faces; the witness pair is a [Type] product); premises
+      are [QleT'] segment endpoints only.  Proofs are structured Q-chains
+      with numeric facts by [vm_compute].  Statements extract with
+      [Obj.magic] = 0; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" PintPosGrid.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
+
 
 From Stdlib Require Import Extraction.
 From Stdlib Require Import QArith.QArith QArith.Qabs Lists.List Arith.Arith
