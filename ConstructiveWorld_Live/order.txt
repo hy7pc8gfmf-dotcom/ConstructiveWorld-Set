@@ -317,3 +317,4 @@ fa56c_ext.v#R79-e37137
 UpReqEntropyMaxTemp.v#R79-b094f8
 UpAblAbsSumLeB.v#R79-e6ef27
 UpReqPowMonoBridge.v#R79-35302d
+UpReqExpPos.v#R80-ec8551

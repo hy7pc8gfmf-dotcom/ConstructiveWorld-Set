@@ -318,3 +318,4 @@ fa56c_ext.v
 UpReqEntropyMaxTemp.v
 UpAblAbsSumLeB.v
 UpReqPowMonoBridge.v
+UpReqExpPos.v
