@@ -363,3 +363,7 @@ UpAblT5_S04_RealExpLogConv.v
 UpAblT6_UpSigMigrate.v
 UpAblT6_UpSigMigrate2.v
 UpAblD1S13_AlignIdUnclosed.v
+Arch_UpAbl_03.v
+LowRefFeed4.v
+PA_TempMonoW2Mark.v
+PA_UpAblD2_AbsLeId_RI_DO.v
