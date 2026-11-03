@@ -314,3 +314,7 @@ UpAblT1b_S06_DiffSamplingGibbs.v
 UpReqRealLtShiftBridge.v
 b1_extract4.v
 PowRealCompat.v
+fa56c_ext.v
+UpReqEntropyMaxTemp.v
+UpAblAbsSumLeB.v
+UpReqPowMonoBridge.v
