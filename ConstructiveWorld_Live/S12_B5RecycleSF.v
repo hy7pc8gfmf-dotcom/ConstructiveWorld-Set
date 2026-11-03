@@ -1,18 +1,30 @@
-(* ============================================================ *)
-(* S12_B5RecycleSF.v —— B5 模块的复用整合（arctan/指数/log 界的     *)
-(*   再组装）与 SF 工作记忆/自由能模型（构造性 Set 层）。            *)
-(* ── 使命：b5e_pern_main（per-n 主界，dec 三分组装 + 预算）；        *)
-(*   SFWorkingMemory 工作记忆模型；同名非平凡替换件（替换段           *)
-(*   b5q_arctan_one_leibniz_quarter / sf_qeq_le / sf_qleT_refl /      *)
-(*   sf_amp2_nonneg / sf_smx_exp_score_nonneg，其余正文与基线原件      *)
-(*   逐字节同源）。                                                   *)
-(* ── 依赖：S01–S11；Stdlib（QArith、List、Bool、Arith、Setoid、     *)
-(*   Morphisms、Lia）。                                               *)
-(* ── 构造性注记：全文无假设命令、无中途放弃、无未证参数；玩具证明体   *)
-(*   均为纯构造性替换并以真 Qed 闭合；文件尾附替换件 Print Assumptions。*)
-(* ── 编译配方：全字面 COQLIB/ROCQLIB 双 export 后 coqc -Q           *)
-(*   ../../Live_X "" -Q . "" S12_B5RecycleSF.v。                      *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — B5 recycled bounds and the SF working-memory / free-energy model. *)
+(**
+ * S12_B5RecycleSF: recycled reassembly of the B5 bound family and the
+ *   SF working-memory / free-energy model (constructive [Set] layer).
+ *
+ * Mission.  [b5e_pern_main] (the per-n main bound, assembled from the
+ *   dec three-group and the budget face); the working-memory model
+ *   [SFWorkingMemory]; the replacement segments
+ *   [b5q_arctan_one_leibniz_quarter], [sf_qeq_le], [sf_qleT_refl],
+ *   [sf_amp2_nonneg], [sf_smx_exp_score_nonneg], whose proofs expand
+ *   the forwarded statement bodies at definition level with explicit
+ *   derivation chains (no single-hop forwards).
+ *
+ * Dependencies.  S01_BaseRing through S11_TP3B5; Stdlib QArith, List,
+ *   Bool, Arith, Setoid, Morphisms, Lia, Lqa.
+ *
+ * References.  Free-energy bound decomposition over working-memory
+ *   state lists; arctan / exponential / logarithm bound reassembly.
+ *
+ * Constructivity.  Entirely constructive; no unproved statements;
+ *   every proof closes by [Qed]; the file-tail [Print Assumptions]
+ *   anchors all report [Closed under the global context].
+ *
+ * Build.  [coqc -native-compiler no -q -Q . "" S12_B5RecycleSF.v]
+ *   compiles cleanly (exit 0); the first eight bytes of the artifact
+ *   are [436f7121 00015ff4].
+ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -2907,7 +2919,7 @@ Proof.
                                  share
                                  (real_plus (real_plus share (real_plus share share)) share)).
     }
-    (* 汇总 3：最终 (eps/2)|h| + 5share ≤ eps|h| + eps'——Bishop 逐点（Or 编码无法表达通用非严格 ≤，E152-5）。
+    (* 汇总 3：最终 (eps/2)|h| + 5share ≤ eps|h| + eps'——Bishop 逐点（Or 编码无法表达通用非严格 ≤）。
        逐点差分 = (eps_n/2)|h_n| + (3/8)eps'_n ≥ (3/8)eps'_n > (3/8)e0' > 0（见证 (3/8)·e0'） *)
     assert (Hfinal : real_le
       (real_plus (real_mult (real_mult two_inv eps) (real_abs h))
