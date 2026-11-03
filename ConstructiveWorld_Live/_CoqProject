@@ -352,3 +352,9 @@ ToyR_fa56b_ext.v
 UpAblD1S17_UpReqAttnGibbs.v
 UpGRPO.v
 abl_audit_base_v10.v
+UpAblMetaWindow.v
+UpAblP7_LoHiSqueeze.v
+PA_UpAblAbsSumLeB.v
+zzm2_qpoly.v
+UpReqPPOGapB.v
+UpReqTrainingEquiv.v
