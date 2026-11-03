@@ -49,11 +49,11 @@ Definition qlb_local_to_lw (p : list Q) : QPoly := p.
 
 Lemma qlb_lw_local_roundtrip : forall p : QPoly,
   Id (qlb_local_to_lw (qlb_lw_to_local p)) p.
-Proof. intros p. apply id_refl. Qed.
+Proof. intros p. exact id_refl. Qed.
 
 Lemma qlb_local_lw_roundtrip : forall p : list Q,
   Id (qlb_lw_to_local (qlb_local_to_lw p)) p.
-Proof. intros p. apply id_refl. Qed.
+Proof. intros p. exact id_refl. Qed.
 
 (* ============================================================ *)
 (* §2 求值机一致桥（核心件：Horner 同构，lw 系律 ⇒ 本地 pint_eval 面） *)
@@ -70,7 +70,7 @@ Proof.
   - rewrite IH. apply Qeq_refl.
 Qed.
 
-(* Qeq 面工作件（证内改写弹药；语句面仍 Qeq 但非交付主肢，属桥内脚手架） *)
+(* QeqT 面工作件（证内改写弹药；语句面已为 QeqT，使用处经 qeqT_imp_qeq 转换后改写） *)
 Lemma qlb_eval_agree_q : forall (p : list Q) (x : Q),
   QeqT (pint_eval p x) (qpoly_eval p x).
 Proof. intros p x. exact (qlb_eval_agree p x). Qed.
@@ -104,8 +104,7 @@ Lemma qlb_lw_eval_mul_pint : forall (p q : list Q) (x : Q),
 Proof.
   intros p q x. apply qeq_imp_qeqT.
   rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q (qpoly_mul p q) x)).
-  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q p x)).
-  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q q x)).
+  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q p x)). rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q q x)).
   apply qpoly_eval_mul.
 Qed.
 
@@ -161,8 +160,7 @@ Lemma qlb_consume_lwprod_eval : forall (f g : list Q) (a x : Q),
         + snd (qpd_synth a (qpoly_mul f g))).
 Proof.
   intros f g a x. apply qeq_imp_qeqT.
-  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q f x)).
-  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q g x)).
+  rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q f x)). rewrite (qeqT_imp_qeq _ _ (qlb_eval_agree_q g x)).
   rewrite <- (qpoly_eval_mul f g x).
   rewrite <- (qeqT_imp_qeq _ _ (qlb_eval_agree_q (qpoly_mul f g) x)).
   exact (qeqT_imp_qeq _ _ (fst (qpd_synth_sound a (qpoly_mul f g)) x)).
@@ -175,15 +173,15 @@ Definition qlb_g1 : list Q := 2 :: 1 :: nil.
 
 Lemma qlb_smoke1_prod :
   Id (qpoly_mul qlb_f1 qlb_g1) (2 :: 1 :: 2 :: 1 :: nil).
-Proof. apply id_refl. Qed.
+Proof. vm_compute. exact id_refl. Qed.
 
 Lemma qlb_smoke1_quot :
   Id (fst (qpd_synth 1 (qpoly_mul qlb_f1 qlb_g1))) (0 :: 1 :: 1 :: 0 :: nil).
-Proof. apply id_refl. Qed.
+Proof. vm_compute. exact id_refl. Qed.
 
 Lemma qlb_smoke1_rem :
   QeqT (snd (qpd_synth 1 (qpoly_mul qlb_f1 qlb_g1))) 2.
-Proof. apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
+Proof. vm_compute. exact id_refl. Qed.
 
 (* 烟测语义面：使用肢③ 在 f₁/g₁/a=1 的实化（引擎原形逐字） *)
 Lemma qlb_smoke1_sem : forall x : Q,

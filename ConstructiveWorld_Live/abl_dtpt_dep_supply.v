@@ -109,8 +109,7 @@ From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import List.
 Import ListNotations.
 
-Require S01_BaseRing.
-Require S02_CauchyComplete.
+Require Import S02_CauchyComplete.
 Require DTPT.
 Import DTPT.DTPT.
 
@@ -122,24 +121,19 @@ Open Scope Q_scope.
    :1233）/dtr_c2_sorted_wit_002 同列，参数位 2 已供件同域互证）上的有界
    卫哨：逐元素 In 析取展开＋subst 后 Qabs 闭值判定（Qle_bool 反射，宿主
    DTPT.v:1291 同款配方）。B := 2 为该列精确上确界（元素 2 在列），界紧。 *)
-Theorem tbd_dep_HB_wit_002 :
-  forall x : Q,
-    S01_BaseRing.InT x [0; 0; 2] -> S02_CauchyComplete.QleT' (Qabs x) 2%Q.
+Theorem tbd_dep_HB_wit_002 : forall x : Q, In x [0; 0; 2] -> QleT' (Qabs x) 2%Q.
 Proof.
   intros x Hx.
-  inversion Hx; subst.
-  - apply S01_BaseRing.id_refl.
-  - match goal with
-    | H : S01_BaseRing.InT _ (0 :: 2 :: nil) |- _ => inversion H; subst
-    end.
-    + apply S01_BaseRing.id_refl.
-    + match goal with
-      | H : S01_BaseRing.InT _ (2 :: nil) |- _ => inversion H; subst
-      end.
-      * apply S01_BaseRing.id_refl.
-      * match goal with
-        | H : S01_BaseRing.InT _ (@nil Q) |- _ => inversion H
-        end.
+  destruct (Q_dec x 0%Q) as [Hx0 | Hx0].
+  - subst x. vm_compute. reflexivity.
+  - destruct (Q_dec x 2%Q) as [Hx2 | Hx2].
+    + subst x. vm_compute. reflexivity.
+    + exfalso. simpl in Hx.
+      * destruct Hx as [He | [He | [He | HF]]].
+        -- congruence.
+        -- congruence.
+        -- congruence.
+        -- exact HF.
 Qed.
 
 (* 供给 2〔计算律形〕P0 单表闭域全参族：P0 [a] 插入排序单表闭计算＝[a]
@@ -147,16 +141,16 @@ Qed.
     即精确界（B := Qabs a 规范界项）——与参数位 2/3 已供件同处 P0 闭域，
     三卫哨可同域合供（应用演示①全实参提供形）。 *)
 Theorem tbd_dep_HB_P0_single : forall a y : Q,
-  S01_BaseRing.InT y (P0 [a]) -> S02_CauchyComplete.QleT' (Qabs y) (Qabs a).
+  In y (P0 [a]) -> QleT' (Qabs y) (Qabs a).
 Proof.
   intros a y Hy.
   assert (E : P0 [a] = [a]) by reflexivity.
-  rewrite E in Hy.
-  inversion Hy; subst.
-  - apply S02_CauchyComplete.Qle_to_QleT'. apply Qle_refl.
-  - match goal with
-    | H : S01_BaseRing.InT _ (@nil Q) |- _ => inversion H
-    end.
+  rewrite E in Hy. simpl in Hy.
+  destruct (Q_dec y a) as [Hya | Hne].
+  - subst y. apply Qle_to_QleT'. apply Qle_refl.
+  - exfalso. destruct Hy as [Heq | HF].
+    + congruence.
+    + exact HF.
 Qed.
 
 (* ========== 逐条 Print Assumptions（绿判第二关） ========== *)

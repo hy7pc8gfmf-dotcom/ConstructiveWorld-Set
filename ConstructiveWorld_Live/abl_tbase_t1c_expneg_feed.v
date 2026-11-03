@@ -78,7 +78,6 @@ Require Import S06_DiffSamplingGibbs.
 Require Import S07_RealSetoidExpLog.
 Require Import G01_CoreMicro.
 Require Import G05_LogSmall.
-Import RealInterfaceEnhancedMod.
 
 (* ============================================================ *)
 (* 段一：UpAblT1c_UpFirewallReq.v uabt1c_dist_log_exp_neg_slot               *)
@@ -87,12 +86,7 @@ Import RealInterfaceEnhancedMod.
 (* ============================================================ *)
 
 Theorem tbne_t1c_log_exp_neg_real :
-  forall u : Real,
-    S02_CauchyComplete.real_eq
-      (S07_RealSetoidExpLog.real_log
-         (S07_RealSetoidExpLog.real_exp_neg u)
-         (S07_RealSetoidExpLog.real_exp_neg_pos u))
-      (S02_CauchyComplete.real_opp u).
+  forall u : Real, req (log (exp_neg u) (exp_neg_pos u)) (opp u).
 Proof.
   intro u.
   exact (logd_log_exp_neg_real u).

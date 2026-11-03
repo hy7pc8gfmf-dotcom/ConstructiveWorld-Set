@@ -62,7 +62,6 @@
 (*        直实例化消解（loeb_tid_eq＋计算反射），证明层零 lia 依赖面残留。           *)
 (* ===================================================================== *)
 
-Require S01_BaseRing.
 Require Import G10_LoebFam.
 
 (* ============================================================ *)
@@ -152,8 +151,7 @@ Theorem abg_gnprf_replay_2624 :
 Proof.
   split.
   - (* 一般形：码级重演主定理逐字直引（三规则燃料账，跨件直审本翼）。 *)
-    intros f pf k Hk. apply S01_BaseRing.NatLe_drop in Hk.
-    exact (gnPrf_replay f pf k Hk).
+    intros f pf k Hk. exact (gnPrf_replay f pf k (S01_BaseRing.NatLe_drop _ _ Hk)).
   - (* 2624 具体实例：自燃料重演推论在 ax_eqT 显式凭证处实例化消解——           *)
     (* gnPrf abg_fzz abg_axz 计算实拍＝2624，dP2 2624 2624＝Some(0=0)。   *)
     apply loeb_tid_eq. exact (gnPrf_replay_eq abg_fzz abg_axz).
