@@ -306,3 +306,10 @@ UpAblT5_UpReqAlgebra.v
 UpAblT9_UpReqDist.v
 UpAblZpos.v
 abl_p7_lower_band.v
+SumEqListFeed.v
+UpAblD1S6_UpReqMinPKLChain.v
+UpAblEps66Sum.v
+UpAblT1b_AttnDoeblin.v
+UpAblT1b_S06_DiffSamplingGibbs.v
+UpReqRealLtShiftBridge.v
+b1_extract4.v
