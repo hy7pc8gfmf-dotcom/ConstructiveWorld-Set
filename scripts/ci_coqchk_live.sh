@@ -26,7 +26,7 @@ if [ "${#mods[@]}" -eq 0 ]; then
   exit 1
 fi
 echo "coqchk modules (${#mods[@]}): ${mods[*]}"
-"$COQCHK" -o -Q "ConstructiveWorld_Live" "" "${mods[@]}" > "$log" 2>&1
+"$COQCHK" -o -bytecode-compiler yes -Q "ConstructiveWorld_Live" "" "${mods[@]}" > "$log" 2>&1
 rc=$?
 echo "COQCHK_EXIT=$rc"
 if [ "$rc" -eq 0 ] && grep -q "Modules were successfully checked" "$log"; then

@@ -25,6 +25,9 @@ jobs:
     # （run 40205628059 实证 25s 红）；set-runner offline 期认证 job 长期 queued
     # 无 runner 可接（run 40236969222 实证）。收窄后 Mac 只认观察档 job。
     runs-on: [self-hosted, Windows]
+    # 20261104: Set had no wall (Main has 960) - run #176 ground 5h in a gate7
+    # pipe deadlock with zero ceiling. 720min >= cold build + gate7 worst case.
+    timeout-minutes: 720
     steps:
       - uses: actions/checkout@v5
         with:

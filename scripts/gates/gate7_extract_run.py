@@ -191,15 +191,27 @@ def run_module(mod, tree, workdir, coqc, timeout):
         "Separate Extraction %s.\n" % (mod, " ".join(names)),
         encoding="utf-8")
     t0 = time.time()
+    p = subprocess.Popen([coqc, "-native-compiler", "no", "-q", "-Q", str(tree), "",
+                              driver.name],
+                             cwd=str(workdir), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             text="utf-8", errors="replace")
     try:
-        p = subprocess.run([coqc, "-native-compiler", "no", "-q", "-Q", str(tree), "",
-                            driver.name],
-                           cwd=str(workdir), capture_output=True, text="utf-8",
-                           errors="replace", timeout=timeout)
+        out, err = p.communicate(timeout=timeout)
         rc = p.returncode
-        tail = (p.stderr or p.stdout or "")[-400:]
+        tail = (err or out or "")[-400:]
     except subprocess.TimeoutExpired:
-        rc, tail = -9, "TIMEOUT after %ss" % timeout
+        # Windows: coqc.exe is a wrapper; the real worker is its rocqworker.exe
+        # grandchild, which inherits the pipe write ends. Killing only the
+        # wrapper leaves the orphan alive and the post-kill drain blocks on
+        # pipe EOF forever (20261104 run #176: 5h stall at [239] LW0QPoly).
+        # Tree-kill the whole pid tree first, then drain with a bound.
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)],
+                       capture_output=True)
+        try:
+            out, err = p.communicate(timeout=60)
+        except subprocess.TimeoutExpired:
+            out, err = "", ""
+        rc, tail = -9, "TIMEOUT after %ss (tree-killed pid %d)" % (timeout, p.pid)
     rec["driver_rc"] = rc
     rec["secs"] = round(time.time() - t0, 1)
     ml = workdir / (mod + ".ml")
