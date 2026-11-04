@@ -1,6 +1,6 @@
 # ConstructiveWorld-Set — Pure-Constructivity Constraint Canon (CONSTRAINTS.md)
 
-> **Version**: v1.0 (2026-10-26). **Authority chain**: the workspace white paper
+> **Version**: v1.1 (2026-11-05). **Authority chain**: the workspace white paper
 > 《纯构造性纲领与红线律白皮书》v2.4+ is the legislature; THIS file is its
 > in-repo execution canon for the ConstructiveWorld-Set repository — the single
 > authority every collaborator (Windows / macOS / future machines) reads and
@@ -50,6 +50,49 @@ Word-face scanning is a pre-screen only (carrier innovation escapes any word
 list — R1). The gates make the pre-screen standing; the extraction diff makes
 the semantics arbitrated.
 
+### 2.1 Extraction-face Obj.magic violation families (2026-11-05, CI #178)
+
+Five modules landed with born-clean placement records while CI #178's gate7
+full-tree sweep measured 27 extraction-face `Obj.magic` hits against them (1+6+4+3+13; the work-order headline's 28 was its own arithmetic slip — CI #178 gate7_report.json and local reruns both sum 27, registered in gate7_census_justification-20261104.json)
+(workorder accounting: `LW3ETranscendental` 1, `LW3CountEBound` 6,
+`LW3KLegProbe` 4, `LW3KnzValue` 3, `UpAblMetaWindow` 13). Both shapes
+compile clean and are caught only at the extraction face; they are hereby
+named violation families:
+
+- **E3 — generic-interface instantiation.** A generic lemma carries
+  abstract-type parameters; extraction lowers each abstract parameter into
+  `Obj.magic` at every instantiation. **Prescription**: specialize through a
+  concrete-carrier intermediate `Definition` so extraction sees the concrete
+  form, not the abstract parameter. Canonical precedent:
+  `UpReqSymplecticBridge` L304, the `QleT'`/`Qle` bridge form. Case
+  exhibits: the four LW3-family modules above.
+- **E2 — record polymorphic-field `exact`.** A `Record`/`Class` field
+  discharged by `exact` against a polymorphic field type erases to
+  `Obj.magic`. **Prescription**: restate through an explicitly
+  type-annotated intermediate `Definition`. Case exhibit: `UpAblMetaWindow`.
+
+### 2.2 S-system non-canon ruling (2026-11-04 user decree)
+
+The S-series (S01–S15) is known to carry **at least two Prop leaks**. By user
+decree of 2026-11-04 (highest authority; registered here by the S-system
+ruling registrar):
+
+1. **The S-series current state is non-canon.** Its inherent writing style,
+   its existing carrier forms, and any in-library shape (`S01_BaseRing`
+   included) must NOT be cited as canon, precedent, or judging criterion —
+   not by this file, not by gate receipts, not by any collaborator workflow.
+2. **A from-scratch S-series revision is registered debt.** It restarts only
+   when conditions allow, and is then re-derived from zero — never as an
+   increment on the current state.
+3. **Rewrite-criterion provenance is closed.** For this round's statement-face
+   rewrites (the `@Id` bool form, the `QleT'`/`Qle` bridge form), admissible
+   criteria are ONLY: (a) first-hand controlled experiments, and (b)
+   non-S-series precedents. Canonical coordinates of the two named non-S
+   precedents: `abl_qpoly_divmod_gen` / `qpg_degge1` (Set-carried,
+   `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:82`) and
+   `UpReqSymplecticBridge` L304 (the `QleT'`/`Qle` bridge face,
+   `apply Qle_to_QleT'`).
+
 ## 3. Extraction-execution ladder (law IV)
 
 | Cert | Meaning | Mechanical form on this repo |
@@ -58,6 +101,19 @@ the semantics arbitrated.
 | 4b executable | flagship witnesses compile (`ocamlc`) and run to termination | gate7 runs `ocamlc` when a toolchain is present (explicit skip-note otherwise); termination is the landing-gate receipt's duty (RunAlive) |
 | 4c usable | sample runs produce the promised witness content, independently checkable; **exit 0 is NOT evidence** | landing-gate manual step with output-vs-contract table in the receipt |
 | 4d performant | performance/precision budget per flagship witness, numbers in module docs; **over-budget unregistered = failing** (loud declarations are a registry-admission requirement, not compliance) | budget registry §6; enforcement at landing gates |
+
+**Extraction-evidence iron law** (2026-11-05, retro-revision on the CI #178
+incidents). A placement self-verification is admissible only as a
+**first-hand real `Separate Extraction` run over the landed module with grep
+proof on both faces (`.ml`/`.mli`) and the retained raw output** filed
+alongside the placement record. `exit 0` is not evidence, and a transcribed
+or second-hand record is not evidence (same doctrine as 4c, now binding at
+landing). A placement record that diverges from the CI measurement is a
+**fake-green incident**: the module returns to red regardless of its
+placement paperwork, and an incident-retrospective entry (claimed figures
+vs. measured figures vs. why the self-check could not see the leak) is
+mandatory before any re-landing. Precedent: `UpAblMetaWindow` recorded
+magic=0 at landing; CI #178 measured 13.
 
 ## 4. Gate chain (CI order, single Live tree)
 
@@ -76,6 +132,18 @@ Gate baselines follow the three-tier doctrine: stock is frozen (never
 retroactive), growth is red, new files/modules are born-clean (zero tolerance).
 Baselines regenerate ONLY with an explicit `--baseline-out` run included in the
 same commit, and the diff must justify every count increase.
+
+### 4.1 gate7 tool-failure registry (2026-11-05)
+
+A gate7 driver failure is a tool incident, not a module verdict, and it is
+never settled by rebaselining the gate — the rebaseline-freeze escape is
+rejected; stock is discharged by repairing modules, not by re-zeroing the
+ledger. Two standing forms:
+
+| Form | Case | Handling principle |
+|---|---|---|
+| **WF-B driver identifier parse error** | `S11_TP3B5`: driver died parsing statement-name characters 6600-6608 | escape/normalize the identifier list handed to the driver; the parse must round-trip (names in == names out) before the extraction fires |
+| **WF-C driver timeout tree-kill** | `LW3FamScale`: one 240 s timeout killed the whole driver tree mid-run | drive in batches sized to survive the window; scale each invocation's timeout by its statement-name count (tiered timeouts, not one flat value) |
 
 ## 5. Exception registry (repo-scoped)
 
@@ -144,6 +212,19 @@ runbook §6.3, activation pending).
 
 ## 9. Revision chain
 
+- v1.1 (2026-11-05): gate7 retro-revision after CI #178's full-tree sweep
+  found 27 extraction-face `Obj.magic` hits in five modules that had landed
+  with born-clean placement records (`UpAblMetaWindow`'s record claimed
+  magic=0 against CI's 13 — fake-green incident). Additions: §2.1 (E3
+  generic-interface-instantiation and E2 record-polymorphic-field violation
+  families, with prescriptions and the five case exhibits), §3
+  extraction-evidence iron law (first-hand run + retained grep output;
+  `exit 0`/transcripts inadmissible; placement-vs-CI divergence = fake-green
+  incident with a mandatory retrospective entry), §4.1 gate7 tool-failure
+  registry (WF-B identifier parse error / WF-C timeout tree-kill; escape,
+  batch, tiered timeouts). Rebaseline-freeze rejected; entity repair of the
+  five modules proceeds in its own workflow. No existing section's semantics
+  were altered.
 - v1.0 (2026-10-26): initial canon. gate6 (statement+field census, zero
   baseline audited: 57 files / 5,373 names / 0 hits) and gate7 (per-module
   extraction execution, 4a automation, baseline pending first green build)
