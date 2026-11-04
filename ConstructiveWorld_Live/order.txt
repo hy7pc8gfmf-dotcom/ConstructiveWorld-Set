@@ -373,3 +373,8 @@ UpAblD1S15_UpReqAlign3.v#R95-f22eea
 UpAblD2_AbsLeId_RI_DO.v#R96-9a4e72
 abl_z2_valbridge.v#R96-513489
 abl_arctan_diff_19.v#R96-841eb6
+UpAblBYUpperTight.v#R97-b1a001
+tlw1463_pade_table.v#R97-b1a004
+abl_dtd_core1.v#R97-b1a002
+abl_dtr_core1.v#R97-b1a003
+abl_e_irrational.v#R97-b2a001
