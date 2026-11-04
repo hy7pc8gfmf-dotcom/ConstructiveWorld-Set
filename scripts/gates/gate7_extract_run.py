@@ -51,6 +51,33 @@ v2 sandbox patch (kb52_work_20261029, repo original untouched):
     whose captured names contain no keyword and no module-born name, the
     v2 driver list is IDENTICAL to v1 (zero behavior drift, verified over
     all 87 Live .v files by the sandbox dry run).
+
+v3 tool-fault patch (20261105, worktree chore/gate7-tool-and-constraints):
+  - WF-B: Coq identifiers are Unicode-aware -- S11_TP3B5.v:12038 defines
+    top-level `Lemma b5n_2S_kδ_le`.  The v1/v2 ASCII class
+    [A-Za-z_][A-Za-z0-9_']* truncates the name at the first non-ASCII
+    letter and emits the phantom prefix `b5n_2S_k` into the driver, which
+    coqc rejects with "The reference b5n_2S_k was not found in the current
+    environment" (driver line 3, chars 6600-6608).  The captured-name class
+    is therefore widened to the Unicode-aware `[^\W\d][\w']*`
+    (letter/underscore start, letter/digit/underscore/prime tail).  On pure
+    ASCII input the new class is EXACTLY the old class (character-by-
+    character equivalence), so driver lists are unchanged for every module
+    whose names are all-ASCII -- verified over all 375 Live .v files: the
+    ascii-vs-unicode scan differs on exactly one file (S11_TP3B5) and
+    exactly one name (phantom `b5n_2S_k` <-> real `b5n_2S_kδ_le`).
+  - WF-B companion (identifier escaping): the name-presence proxy now also
+    accepts extraction's UU-escaped identifier form (`_UU<hex>_` per
+    non-ASCII char, verified against S11_TP3B5.ml), so a Unicode name that
+    IS extracted is no longer reported as a false erasure candidate.
+  - WF-C: --timeout is now tiered by names_total when not given explicitly:
+    <=50 names keep the historical 240s budget, >50 names get 600s
+    (LW3FamScale's driver exceeded 240s and the timeout kill took down the
+    whole CI tree run).  An explicit --timeout value is honored verbatim
+    (backward compatible).  Batching the driver into several `Separate
+    Extraction` commands is NOT implemented on purpose: per-command output
+    reset (single-command rule, top of this docstring) makes multi-command
+    drivers silently keep only the last command's files.
 """
 
 import argparse
@@ -132,13 +159,16 @@ def statement_scan(vfile):
         elif toks and toks[0] == "End" and stack:
             stack.pop()
         # --- v1 capture logic, unchanged ------------------------------------
-        m = re.match(r"\s*([A-Za-z_][A-Za-z0-9_']*)", sent)
+        # v3 WF-B: identifier class is Unicode-aware ([^\W\d] = Unicode letter
+        # or underscore; [\w'] = letters/digits/underscore/prime).  Identical
+        # to the old ASCII class on pure ASCII input (see module docstring).
+        m = re.match(r"\s*([^\W\d][\w']*)", sent)
         if not m:
             continue
         cmd = m.group(1)
         if cmd in {"Theorem", "Lemma", "Corollary", "Proposition", "Example",
                    "Definition", "Fixpoint", "Function", "Instance"}:
-            m2 = re.match(r"\s*" + re.escape(cmd) + r"\s+([A-Za-z_][A-Za-z0-9_']*)", sent)
+            m2 = re.match(r"\s*" + re.escape(cmd) + r"\s+([^\W\d][\w']*)", sent)
             if m2:
                 nm = m2.group(1)
                 chain = "/".join(stack)
@@ -171,6 +201,17 @@ def mangle_candidates(name):
         c.add(name.replace("'", "_p"))
         c.add(name.replace("'", "_qs"))
     c.add(name.replace("_", ""))
+    # v3 WF-B: extraction escapes non-ASCII identifier characters as
+    # _UU<hex>_ (lowercase zero-padded hex, e.g. U+03B4 -> _UU03b4_), so the
+    # escaped form is a presence candidate too.  Real tree case: source
+    # `b5n_2S_kδ_le` appears in S11_TP3B5.ml as `b5n_2S_k_UU03b4__le`;
+    # without the escaped candidate the presence proxy reported a FALSE
+    # erasure candidate for a name that is in fact extracted.  Adding a
+    # candidate can only turn missing -> present, never the reverse; for
+    # all-ASCII names esc == name (zero drift).
+    esc = re.sub(r"[^\x00-\x7F]", lambda m: "_UU%04x_" % ord(m.group(0)), name)
+    if esc != name:
+        c.add(esc)
     return c
 
 
@@ -184,6 +225,13 @@ def run_module(mod, tree, workdir, coqc, timeout):
     if not names:
         rec["note"] = "no top-level informative statements -- skipped"
         return rec
+    if timeout is None:
+        # v3 WF-C: tiered budget by names_total (None = caller gave no
+        # explicit --timeout).  <=50 names keep the historical 240s; larger
+        # drivers get 600s (240s tree-killed LW3FamScale).  An explicit
+        # --timeout is honored verbatim (backward compatible).
+        timeout = 240 if len(names) <= 50 else 600
+    rec["timeout_eff"] = timeout  # v3: additive audit field
     driver = workdir / ("_gate7_%s_driver.v" % mod)
     driver.write_text(
         "From Stdlib Require Import Extraction.\n"
@@ -229,7 +277,10 @@ def main():
     ap.add_argument("--order", required=True)
     ap.add_argument("--workdir", default="_gate7_work")
     ap.add_argument("--coqc", default=DEFAULT_COQC)
-    ap.add_argument("--timeout", type=int, default=240)
+    ap.add_argument("--timeout", type=int, default=None,
+                    help="per-driver coqc budget in seconds; default: tiered "
+                         "by names_total (<=50 names -> 240s, >50 -> 600s); "
+                         "an explicit value is honored verbatim")
     ap.add_argument("--json", dest="json_out")
     ap.add_argument("--gate", action="store_true")
     ap.add_argument("--baseline")
