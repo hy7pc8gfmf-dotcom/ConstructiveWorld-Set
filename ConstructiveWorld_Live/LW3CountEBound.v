@@ -58,18 +58,12 @@ Qed.
 
 (* Machine pin: the node-count factor equals twenty-four.                *)
 Definition lw3_count374_val :
-  match Qeq_bool (lw0_q_of_nat count374) (24 # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (lw0_q_of_nat count374) (24 # 1)%Q) := id_refl.
 
 (* Machine pin: the decay scalar equals the reciprocal of seven hundred  *)
 (* twenty.                                                               *)
 Definition lw3_e374_val :
-  match Qeq_bool E374 (1 # 720)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool E374 (1 # 720)%Q) := id_refl.
 
 (* Boundary datum: the decay scalar is strictly below the anchor value   *)
 (* of the second derivative at the endpoint node five, so the decay      *)
@@ -85,32 +79,20 @@ Proof. vm_compute. constructor. Qed.
 (* integrand has nonnegative coefficients, so each grid value is bounded *)
 (* by its endpoint value.                                                *)
 Definition lw3_f5374_val :
-  match Qeq_bool (qpoly_eval (lw3_fbuild p374 (lw3_deg p374) N374)
-                             (lw2_node 5)) (150 # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (qpoly_eval (lw3_fbuild p374 (lw3_deg p374) N374)
+                             (lw2_node 5)) (150 # 1)%Q) := id_refl.
 
 Definition lw3_f15_374_val :
-  match Qeq_bool (qpoly_eval (qpoly_deriv_iter 1 (lw3_fbuild p374 (lw3_deg p374) N374))
-                             (lw2_node 5)) (85 # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (qpoly_eval (qpoly_deriv_iter 1 (lw3_fbuild p374 (lw3_deg p374) N374))
+                             (lw2_node 5)) (85 # 1)%Q) := id_refl.
 
 Definition lw3_f25_374_val :
-  match Qeq_bool (qpoly_eval (qpoly_deriv_iter 2 (lw3_fbuild p374 (lw3_deg p374) N374))
-                             (lw2_node 5)) (32 # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (qpoly_eval (qpoly_deriv_iter 2 (lw3_fbuild p374 (lw3_deg p374) N374))
+                             (lw2_node 5)) (32 # 1)%Q) := id_refl.
 
 Definition lw3_f35_374_val :
-  match Qeq_bool (qpoly_eval (qpoly_deriv_iter 3 (lw3_fbuild p374 (lw3_deg p374) N374))
-                             (lw2_node 5)) (6 # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (qpoly_eval (qpoly_deriv_iter 3 (lw3_fbuild p374 (lw3_deg p374) N374))
+                             (lw2_node 5)) (6 # 1)%Q) := id_refl.
 
 (* Boundary datum: the node-count factor times the endpoint maximum      *)
 (* value exceeds one, so at scale one the strict count premise forces a  *)
