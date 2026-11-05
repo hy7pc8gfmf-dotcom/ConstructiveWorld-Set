@@ -378,3 +378,8 @@ abl_Pr_erdos_core.v#R97-b8a001
 WeakTriangleClose.v#R97-b7a001
 piu1909_sall_upper.v#R97-b8a002
 d519a2_cert.v#R97-b7a002
+abl_Pr_euler_prod.v#R97-b14a001
+abl_diffreal_family.v#R97-b14a002
+u5c_bridge.v#R97-b14a003
+u5c_dm_e_measure_qcore.v#R97-b18a001
+mach_atan_addsub.v#R97-b18a002
