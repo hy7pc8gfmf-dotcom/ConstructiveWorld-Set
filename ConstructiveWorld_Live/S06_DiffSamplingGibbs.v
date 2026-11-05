@@ -5290,13 +5290,14 @@ Qed.
 (* firstn_head_dominates_skipn（排序下前缀元素支配后缀元素）、    *)
 (* top_k_majorization_mem（select_top_k 保留者支配任意逐出者）。 *)
 
-(* 排序不变量：每个元素 ≥ 其后所有元素（前缀最大形式） *)
-Fixpoint sorted_noninc (l : list S) : Set :=
-  match l with
-  | nil => unit
-  | a :: rest => And (forall b : S, InT b rest -> le (boltzmann_factor b) (boltzmann_factor a))
-                     (sorted_noninc rest)
-  end.
+(* 排序不变量：每个元素 ≥ 其后所有元素（前缀最大形式）
+   Sorted invariant: head-dominant form, carried by an indexed Set family
+   whose constructors are informative, so extraction keeps the full type. *)
+Inductive sorted_noninc : list S -> Set :=
+| sorted_noninc_nil : sorted_noninc nil
+| sorted_noninc_cons : forall (a : S) (rest : list S),
+    (forall b : S, InT b rest -> le (boltzmann_factor b) (boltzmann_factor a)) ->
+    sorted_noninc rest -> sorted_noninc (a :: rest).
 
 (* 跳过函数子集：InT x (skipn k l) ⟹ InT x l *)
 Lemma skipn_sub : forall (k : nat) (l : list S) (x : S),
@@ -5364,7 +5365,7 @@ Proof.
   intros a c l. induction l as [| b rest IH]; intros Hc.
   - simpl in Hc. inversion Hc as [Hl0 | Hnext_y Hnext_l Hnext_rec]; subst.
     + left. exact (@id_refl S a).
-    + exact (match Hnext_rec with end).
+    + inversion Hnext_rec.
   - simpl in Hc.
     destruct (@ord_le_dec _ DO (boltzmann_factor b) (boltzmann_factor a)) as [Hba | Hnba].
     + inversion Hc as [Hl0 | Hnext_y Hnext_l Hnext_rec]; subst.
@@ -5384,21 +5385,22 @@ Lemma insert_preserves_sorted : forall a : S, forall l : list S,
   sorted_noninc l -> sorted_noninc (insert_weight a l).
 Proof.
   intros a l. induction l as [| b rest IH]; intros Hs.
-  - simpl. split.
+  - simpl. apply (sorted_noninc_cons a nil).
     + intros c Hc. inversion Hc.
-    + exact tt.
+    + exact sorted_noninc_nil.
   - simpl.
-    change (And (forall b0 : S, InT b0 rest -> le (boltzmann_factor b0) (boltzmann_factor b)) (sorted_noninc rest)) in Hs.
-    destruct Hs as [Hs_head Hs_tail].
+    inversion Hs as [| b0 rest0 Hs_head Hs_tail Hidx]; subst.
     destruct (@ord_le_dec _ DO (boltzmann_factor b) (boltzmann_factor a)) as [Hba | Hnba].
-    + split.
+    + apply (sorted_noninc_cons a (b :: rest)).
       * intros c Hc. inversion Hc as [Hl0 | Hnext_y Hnext_l Hnext_rec]; subst.
         -- exact Hba.
         -- apply (le_trans (boltzmann_factor c) (boltzmann_factor b) (boltzmann_factor a)).
            ++ exact (Hs_head c Hnext_rec).
            ++ exact Hba.
-      * exact (pair Hs_head Hs_tail).
-    + split.
+      * apply (sorted_noninc_cons b rest).
+        -- exact Hs_head.
+        -- exact Hs_tail.
+    + apply (sorted_noninc_cons b (insert_weight a rest)).
       * intros c Hc.
         destruct (insert_mem_split a c rest Hc) as [Hca | Hcr].
         -- (* c = a：f a ≤ f b（Hnba ⟹ lt (f a) (f b) ⟹ le） *)
@@ -5415,7 +5417,7 @@ Qed.
 Lemma sort_sorted : forall l : list S, sorted_noninc (sort_weight l).
 Proof.
   induction l as [| a rest IH]; simpl.
-  - exact tt.
+  - exact sorted_noninc_nil.
   - exact (insert_preserves_sorted a (sort_weight rest) IH).
 Qed.
 
@@ -5431,19 +5433,15 @@ Lemma firstn_head_dominates_skipn : forall (L : list S) (k : nat),
   le (boltzmann_factor s') (boltzmann_factor s).
 Proof.
   intros L. induction L as [| a rest IH]; intros k Hsorted s Hs s' Hs'.
-  - (* firstn_nil 给出 firstn k nil = nil（Id 形）；沿该等式作 Id 消元替换，
-       将 Hs : InT s (firstn k nil) 化为 InT s nil——空表无成员，
-       InT s nil 无构造案例，故目标随之成立 *)
-    assert (Hs0 : InT s nil).
-    { exact (match firstn_nil k in (Id _ y)
-               return (InT s (firstn (A := S) k nil) -> InT s y)
-             with | id_refl => fun H => H end Hs). }
-    exact (match Hs0 with end).
+  - (* firstn k nil reduces to nil for each shape of k, so Hs becomes an
+       InT-nil membership, which has no constructors *)
+    destruct k as [| k'].
+    + simpl in Hs. inversion Hs.
+    + simpl in Hs. inversion Hs.
   - destruct k as [| k'].
-    + exact (match Hs with end).
+    + simpl in Hs. inversion Hs.
     + simpl.
-      change (And (forall b0 : S, InT b0 rest -> le (boltzmann_factor b0) (boltzmann_factor a)) (sorted_noninc rest)) in Hsorted.
-      destruct Hsorted as [Hs_head Hs_tail].
+      inversion Hsorted as [| a0 rest0 Hs_head Hs_tail Hidx]; subst.
       inversion Hs as [Hl0 | Hnext_y Hnext_l Hnext_rec]; subst.
       * (* s = a：s' ∈ skipn k' rest ⊆ rest，由排序头支配性 *)
         assert (Hrest : InT s' rest) by (apply (skipn_sub k' rest s'); exact Hs').
@@ -6822,24 +6820,25 @@ Fixpoint mp_of_nat (n : nat) : R :=
   | Datatypes.S n' => plus one (mp_of_nat n')
   end.
 
-(* 非空列表长度正性：l ≠ nil ⟹ 0 < mp_of_nat (length l) *)
+(* 非空列表长度正性：l ≠ nil ⟹ 0 < mp_of_nat (length l)
+   Positivity is established for every positive length first; the empty
+   case is then closed by Empty_set elimination. *)
 Lemma mp_of_nat_pos : forall (l : list Token), Not (Id l nil) -> lt zero (mp_of_nat (length l)).
 Proof.
   intros l Hl.
-  destruct l as [| w rest].
-  - exact (match Hl (@id_refl (list Token) nil) with end).
-  - simpl.
-    induction rest as [| w' rest' IH']; simpl.
-    + (* 0 < 1 + 0：换形 (plus one zero) == one，one_pos *)
-      apply (@lt_id_r RI zero one (plus one zero)).
+  assert (Hpos_S : forall n : nat, lt zero (mp_of_nat (Datatypes.S n))).
+  { intro n. induction n as [| n' IH]; simpl.
+    - apply (@lt_id_r RI zero one (plus one zero)).
       * apply (id_sym (plus_zero one)).
       * exact one_pos.
-    + (* 0 < 1 + (1 + mp_of_nat (length rest'))：lt_plus_compat + 结构 IH *)
-      apply (@lt_id_l RI zero (plus zero zero) (plus one (plus one (mp_of_nat (length rest'))))).
+    - apply (@lt_id_l RI zero (plus zero zero) (plus one (plus one (mp_of_nat n')))).
       * apply (id_sym (plus_zero zero)).
-      * apply (lt_plus_compat zero one zero (plus one (mp_of_nat (length rest')))).
+      * apply (lt_plus_compat zero one zero (plus one (mp_of_nat n'))).
         -- exact one_pos.
-        -- exact (IH' (fun Hn => match Hn with end)).
+        -- exact IH. }
+  destruct l as [| w rest].
+  - exact (match Hl (@id_refl (list Token) nil) with end).
+  - simpl. exact (Hpos_S (length rest)).
 Qed.
 
 (* 完整核归一化：Σ_w markov_kernel w == 1（自包含重述；inv_p·Σtemp == inv_p·partition == 1） *)
@@ -6895,7 +6894,7 @@ Proof.
   intros prefix l. induction l as [| a rest IH]; intros best_token best_loss.
   - assert (Hempty : forall w : Token, InT w nil -> le (snd (argmin_aux_token prefix nil (best_token, best_loss)))
                                                         (total_loss (prefix ++ [w]))).
-    { intros w HIn. exact (match HIn with end). }
+    { intros w HIn. inversion HIn. }
     exact (pair Hempty (le_refl _)).
   - simpl.
     destruct (@ord_le_dec _ DO (total_loss (prefix ++ [a])) best_loss) as [Hle | Hnot].
@@ -7155,21 +7154,18 @@ Proof.
   - destruct (Hnot Hge).
 Qed.
 
-(* ===== top-p 保留判定：遍历排序列表，遇 w 或概率 ≤ p 停止 ===== *)
-Fixpoint top_p_member (p : R) (prefix : list Token) (l : list Token) : Token -> Set :=
-  match l with
-  | nil => fun _ => Empty_set
-  | w :: rest =>
-      fun x =>
-        match token_eq_dec x w with
-        | inl _ => unit
-        | inr _ =>
-            match ord_le_dec (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix w) p with
-            | inl _ => Empty_set
-            | inr _ => top_p_member p prefix rest x
-            end
-        end
-  end.
+(* ===== top-p 保留判定：遍历排序列表，遇 w 或概率 ≤ p 停止 =====
+   Top-p retention: carried by an indexed Set family whose constructors
+   match the walk semantics exactly (head hit, or head strictly above the
+   threshold with the tail membership), so extraction keeps the full type. *)
+Inductive top_p_member (p : R) (prefix : list Token) : list Token -> Token -> Set :=
+| topp_here : forall (w : Token) (rest : list Token),
+    top_p_member p prefix (w :: rest) w
+| topp_next : forall (w : Token) (rest : list Token) (x : Token),
+    Not (Id x w) ->
+    Not (le (markov_kernel Token vocab vocab_nonempty total_loss temperature temperature_pos prefix w) p) ->
+    top_p_member p prefix rest x ->
+    top_p_member p prefix (w :: rest) x.
 
 Definition top_p_keep (p : R) (prefix : list Token) (w : Token) : Set :=
   top_p_member p prefix (sort_kernel prefix vocab) w.
