@@ -379,3 +379,13 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v

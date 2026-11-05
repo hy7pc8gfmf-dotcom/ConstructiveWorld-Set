@@ -378,3 +378,13 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+UpReqStepKLEtaInst.v#R97-b24a001
+UpAblEps49RKDBase.v#R97-b24a002
+RealKLDecomp.v#R97-b24a003
+UpReqTempInterp.v#R97-b28a001
+UpAblAbsSumLeB2.v#R97-b28a002
+EpiOrFaces.v#R97-b28a003
+Arch_Up_01.v#R97-b29a001
+UpReqAttnIter.v#R97-b29a002
+UpAblT3_UpReqAlign.v#R97-b31a002
+UpAblT1_UpReqDist.v#R97-b31a003
