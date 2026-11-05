@@ -1,6 +1,6 @@
 # ConstructiveWorld-Set — Pure-Constructivity Constraint Canon (CONSTRAINTS.md)
 
-> **Version**: v1.0 (2026-10-26). **Authority chain**: the workspace white paper
+> **Version**: v1.1 (2026-11-05). **Authority chain**: the workspace white paper
 > 《纯构造性纲领与红线律白皮书》v2.4+ is the legislature; THIS file is its
 > in-repo execution canon for the ConstructiveWorld-Set repository — the single
 > authority every collaborator (Windows / macOS / future machines) reads and
@@ -149,6 +149,13 @@ runbook §6.3, activation pending).
   extraction execution, 4a automation, baseline pending first green build)
   standing in CI; trust-cache channel (seed/skip/upload) on the Windows job;
   macOS observation job untouched by design.
+- v1.1 (2026-11-05): §11 added — Prop-face extraction policy
+  (data-carrying vs proof-bridge consumption dichotomy, proof-bridge
+  registry, placement-census classification), first standing item of the
+  S-series rebuild campaign (user decree 2026-11-05: plan A native
+  informative recast, 4a–4d full-ladder acceptance, PR regime). Appended
+  on the main v1.0 state; the pending E3/E2 amendment set (PR #3) merges
+  ahead of or after this via rebase.
 
 ## 10. Anti-verification anchors
 
@@ -158,3 +165,75 @@ grep -c "gate6" CONSTRAINTS.md                       # ≥3
 grep -c "gate7" CONSTRAINTS.md                       # ≥3
 python scripts/gates/gate6_statement_census.py --tree ConstructiveWorld_Live --gate --baseline scripts/gates/gate6_baseline.json   # exit 0
 ```
+
+## 11. Prop-face extraction policy — consumption dichotomy (2026-11-05)
+
+> First standing item of the S-series rebuild campaign (user decree
+> 2026-11-05). Governs when a Prop-sorted statement may lawfully face
+> extraction, and when a `__` erasure in the extracted face is a violation.
+> The test is a **consumption-position dichotomy**, not a word-face scan:
+> what decides is where a statement is consumed, judged first-hand on the
+> current tree — placement evidence and extraction outputs (§3 doctrine:
+> `exit 0` and historical receipts are not evidence).
+
+| Class | Statement kind | Carrier law | `__` erasure at the extraction face |
+|---|---|---|---|
+| (a) **data-carrying** | `Definition`/`Lemma` consumed at an **information position** — its statement or witness feeds computation, a data value, or an exported interface | **informative-sorted carrier mandatory** (Set/Type; bool/`Id` faces) | **violation** |
+| (b) **proof-bridge** | lemma consumed **only at proof positions** (`apply`/`rewrite`/`exact` feeding proofs; never inside a computed value) | Prop face legal **only while registered** in the proof-bridge registry below, consumption-face evidence on file | **accepted, not a violation** |
+
+**(c)** Any statement consumed at an information position must have an
+informative carrier. No registry row, declaration, or baseline entry
+excuses this; a Prop-carried statement found consumed at an information
+position is a class-(a) violation regardless of its registration, and the
+remedy is re-carrier (informative recast), not exemption.
+
+**(d)** Every new-module placement census must include a
+**consumption-position classification** for each exported statement
+(data-carrying / proof-bridge, with evidence pointers). A placement census
+without this classification is incomplete; the module does not land.
+
+**Proof-bridge registry (repo-scoped).** *Empty at adoption (2026-11-05).
+Rows are added only in a PR carrying the consumption-face evidence (every
+consumption site as file:line, showing proof-position use); de-registration
+follows re-carrier.* This registry is distinct from §5 and does not reopen
+it.
+
+**Legal anchors.**
+
+- **Red-line 4a–4d ladder (§3)** — acceptance of any rebuild deliverable is
+  the full ladder as the final verdict: extractable → executable → usable
+  (real runs with an output-vs-contract table; `exit 0` is not evidence) →
+  performant (budget line; over-budget without registration fails). No
+  rung may be skipped.
+- **S01 seed precedent** — `NatLe_drop`/`NatLe_lift`
+  (`ConstructiveWorld_Live/S01_BaseRing.v:91`, `:100`) are Prop-face lia
+  bridges marking the seed debt: the extraction face erases the drop
+  direction (`val coq_NatLe_drop : __`, cleanse-workspace probe
+  `_wt93_ssa/_gate7probe_S01_work/_gate7probe_S01_BaseRing.mli:38`) while
+  the gate7 magic scale reads 0/0 — a class-(a) breach invisible to the
+  magic gate. Recarrier touches 2,147 consumption sites across 355 files
+  (drop 1,084 / lift 1,069; apply-pre 560 + apply-in 332 + term-level
+  455), with sole-S01 consumers red at
+  `ConstructiveWorld_Live/b1_denom_control.v:80`,
+  `ConstructiveWorld_Live/abl_Pr_core_01.v:148`,
+  `ConstructiveWorld_Live/S02_CauchyComplete.v:447`. Per-site
+  adjudication (drop = value-level leak site; lift = companion, possibly
+  proof-only) is the rebuild campaign's first adjudication duty.
+- **User decree 2026-11-05** — S-series stock (S01–S15) is non-canonical
+  and never serves as precedent or criterion; criteria come only from
+  first-hand controlled experiments and non-S precedents: the `@Id bool`
+  statement face (`qpg_degge1`,
+  `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:82`), the `Qle_to_QleT'`
+  bridge face (`UpReqSymplecticBridge.v:304`; file absent from this tree
+  at adoption, verified in the main workspace world copy
+  `vo_local_world_unified_0930/`), the informative `Notation` carrier
+  binding (`UpReqAlign3.v:91-99`), and the Id-to-eq bridge forms
+  (`qeqT_imp_qeq`, `ConstructiveWorld_Live/S02_CauchyComplete.v:147`;
+  `z2v_idS_eq`, `ConstructiveWorld_Live/abl_z2_valbridge.v:91`). The
+  rebuild follows plan A: the S01 NatLe family is recast natively
+  informative in the rebuild (the validated patch is semantic reference,
+  not a construction blueprint); consumers are rewritten once, zero
+  double payment. Work lands by PR — direct pushes to main are forbidden.
+- **Stock interface** — already-landed S-series debt stays under §4's
+  baseline doctrine (stock frozen, growth red); this policy binds every
+  new and rebuilt statement from adoption.
