@@ -26,7 +26,7 @@
       [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
     Build.  [coqc -native-compiler no -Q . "" b1_denom_control.v];
-      artifact magic [436f7121 00015ff4]. *)
+      artifact magic [436f7121 000160bc]. *)
 
 From Stdlib Require Import QArith.QArith ZArith.ZArith Arith.Arith Arith.Factorial Lia.
 From Stdlib Require Import Setoid Morphisms.
@@ -76,13 +76,22 @@ Theorem b1_dfact_odd_le_even : forall n : nat,
 Proof.
   induction n as [| k IH].
   - exact id_refl.
-  - apply NatLe_lift.
-    apply (Nat.le_trans ((2 * k + 1) * b1_dfact_odd k)
-                        ((2 * k + 1) * b1_dfact_even k)
-                        ((2 * Datatypes.S k) * b1_dfact_even k)).
-    + apply NatLe_drop in IH. apply Nat.mul_le_mono_l. exact IH.
-    + replace (2 * Datatypes.S k)%nat with (2 * k + 2)%nat by lia.
-      apply Nat.mul_le_mono_r. lia.
+  - (* Prop-faced dominance for the step; the informative witness is
+       then the boolean comparison computed once, with the unreachable
+       false branch closed by that dominance chain. *)
+    assert (Hdom : (b1_dfact_odd (Datatypes.S k)
+                    <= b1_dfact_even (Datatypes.S k))%nat).
+    { apply (Nat.le_trans ((2 * k + 1) * b1_dfact_odd k)
+                          ((2 * k + 1) * b1_dfact_even k)
+                          ((2 * Datatypes.S k) * b1_dfact_even k)).
+      + apply NatLe_drop_le in IH. apply Nat.mul_le_mono_l. exact IH.
+      + replace (2 * Datatypes.S k)%nat with (2 * k + 2)%nat by lia.
+        apply Nat.mul_le_mono_r. lia. }
+    apply NatLe_liftI.
+    destruct (Nat.leb (b1_dfact_odd (Datatypes.S k))
+                      (b1_dfact_even (Datatypes.S k))) eqn:Elb.
+    + exact id_refl.
+    + exfalso. apply (proj1 (Nat.leb_gt _ _)) in Elb. lia.
 Qed.
 
 (* Positivity: [b1_dfact_odd n >= 1]. *)
@@ -90,11 +99,19 @@ Theorem b1_dfact_odd_pos : forall n : nat, NatLe 1 (b1_dfact_odd n).
 Proof.
   induction n as [| k IH].
   - exact id_refl.
-  - apply NatLe_lift.
-    apply (Nat.le_trans 1 (1 * b1_dfact_odd k) ((2 * k + 1) * b1_dfact_odd k)).
-    + replace (1 * b1_dfact_odd k) with (b1_dfact_odd k) by lia.
-      apply NatLe_drop. exact IH.
-    + apply Nat.mul_le_mono_r. lia.
+  - (* Prop-faced positivity for the step; the informative witness is
+       then the boolean comparison computed once, with the unreachable
+       false branch closed by that positivity chain. *)
+    assert (Hdom : (1 <= b1_dfact_odd (Datatypes.S k))%nat).
+    { change (1 <= (2 * k + 1) * b1_dfact_odd k)%nat.
+      apply (Nat.le_trans 1 (1 * b1_dfact_odd k) ((2 * k + 1) * b1_dfact_odd k)).
+      + replace (1 * b1_dfact_odd k) with (b1_dfact_odd k) by lia.
+        apply NatLe_drop_le. exact IH.
+      + apply Nat.mul_le_mono_r. lia. }
+    apply NatLe_liftI.
+    destruct (Nat.leb 1 (b1_dfact_odd (Datatypes.S k))) eqn:Elb.
+    + exact id_refl.
+    + exfalso. apply (proj1 (Nat.leb_gt _ _)) in Elb. lia.
 Qed.
 
 (* ================= Section 3. Odd denominator clearance (sigT
