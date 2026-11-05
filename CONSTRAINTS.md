@@ -7,7 +7,7 @@
 > obeys on this repo. Conflicts resolve upward to the white paper; propose
 > changes here as PRs, they get ported to the white paper at the next revision.
 >
-> **Why this file exists** (20261026 user decree): the law was hardened in
+> **Why this file exists** (20261026 ruling): the law was hardened in
 > workspace documents, but a law without in-repo teeth lets collaborators
 > drift — the macOS side was clearing extraction debt (M10, 58 Obj.magic → 0)
 > without a mechanical gate to hold the line. This file plus gates 6/7 give
@@ -71,7 +71,7 @@ named violation families:
   `Obj.magic`. **Prescription**: restate through an explicitly
   type-annotated intermediate `Definition`. Case exhibit: `UpAblMetaWindow`.
 
-### 2.2 S-system non-canon ruling (2026-11-04 user decree)
+### 2.2 S-system non-canon ruling (2026-11-04 ruling)
 
 The S-series (S01–S15) is known to carry **at least two Prop leaks**. By user
 decree of 2026-11-04 (highest authority; registered here by the S-system
@@ -233,7 +233,7 @@ runbook §6.3, activation pending).
 - v1.1 (2026-11-05): §11 added — Prop-face extraction policy
   (data-carrying vs proof-bridge consumption dichotomy, proof-bridge
   registry, placement-census classification), first standing item of the
-  S-series rebuild campaign (user decree 2026-11-05: plan A native
+  S-series rebuild campaign (ruling 2026-11-05: plan A native
   informative recast, 4a–4d full-ladder acceptance, PR regime). Appended
   on the main v1.0 state; the pending E3/E2 amendment set (PR #3) merges
   ahead of or after this via rebase.
@@ -249,7 +249,7 @@ python scripts/gates/gate6_statement_census.py --tree ConstructiveWorld_Live --g
 
 ## 11. Prop-face extraction policy — consumption dichotomy (2026-11-05)
 
-> First standing item of the S-series rebuild campaign (user decree
+> First standing item of the S-series rebuild campaign (ruling
 > 2026-11-05). Governs when a Prop-sorted statement may lawfully face
 > extraction, and when a `__` erasure in the extracted face is a violation.
 > The test is a **consumption-position dichotomy**, not a word-face scan:
