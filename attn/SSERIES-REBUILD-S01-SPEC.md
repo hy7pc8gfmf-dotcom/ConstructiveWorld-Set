@@ -2,7 +2,9 @@
 
 > **状态**：骨架（skeleton），随 `#C-SREBUILD-0` 立卷（2026-11-05，分支
 > `rebuild/sseries-s01-informative`，基线 main@7b3ced9）。
-> 波次计划（§5）为占位；设计席产物（§6）与裁勘席产物（§7）稍后由联络员补入**本分支**。
+> 波次计划（§5）为占位；设计席产物（§6）＝`attn/_s01_v2_design.md`（随本分支
+> 入卷）与裁勘席产物（§7）＝钉版规范 commit `ca315c0`
+> （`attn/_natle_site_inventory.md`·CENSUS-CANON-GEN2），联络员搬运补入骨架。
 > **政策锚**：`CONSTRAINTS.md` §11「Prop-face extraction policy — consumption
 > dichotomy」（本 commit 起生效）——data-carrying（(a) 类·informative 载体强制·
 > `__` 擦除=violation）vs proof-bridge（(b) 类·Prop 面合法·必须入 proof-bridge
@@ -33,13 +35,12 @@
 | 项 | 值 | 取证 |
 |---|---|---|
 | 位点 | `NatLe_drop`＝`ConstructiveWorld_Live/S01_BaseRing.v:91`；`NatLe_lift`＝`:100` | worktree grep（本日实跑） |
-| 提取面擦除证据 | `val coq_NatLe_drop : __`（**仅 drop 擦除**；`NatLe_lift` 提取为 `nat -> nat -> coq_NatLe` informative 形——伴生半泄露，逐点判归裁勘席） | `_wt93_ssa/_gate7probe_S01_work/_gate7probe_S01_BaseRing.mli:38`／`:40`（本日 sed 实读） |
+| 提取面擦除证据 | `val coq_NatLe_drop : __`（**仅 drop 擦除**；`NatLe_lift` 提取为 `nat -> nat -> coq_NatLe` informative 形——伴生半泄露，逐点判归裁勘席） | `_wt93_ssa/_gate7probe_S01_work/_gate7probe_S01_BaseRing.mli:38`／`:40`（本日 sed 实读；全提取体存活件＝同工作面 `S01_BaseRing.ml:52-62`） |
 | gate7 magic 尺度 | 0/0（不阻闸·深层 Prop 泄漏） | 总账 §S01 种子债登记 |
 | 已验证补丁（**仅语义参照·非施工蓝本**） | `_wt93_ssa/_gate7probe_S01_work/_s01_natle_bridge_rewrite.patch.txt`（compile rc=0／probe magic 0/0 informative／PA 99 Closed／gate4 PASS＋gate6 GREEN） | 本日 ls＋head 实读；**注**：总账所记 `ConstructiveWorld_Live/` 前缀路径不存在，以本实路径为准 |
-| 闭包 | 355 件（全树 376 件）／2,147 调用位（drop 1,084＋lift 1,069） | 总账（重建施工图输入） |
-| 三族形态 | apply 前置 560＋apply-in 332＋term 级 455 | 总账（重建施工图输入） |
+| 消费位点与闭包（**Gen2 正典**） | **2,059 消费位点（drop 1,033＋lift 1,024＋DEF 2）／消费文件 103／下游 Require 闭包 353 件（宇宙=order.txt 375）；lift 提取活体 176 处/44 模块·drop=0；族形 apply-fwd 936＋apply-in 351＋term-syntax 660（＋bare 94＋ltac-embed 14）** | Gen2 程序化普查正典·钉版规范 commit `ca315c0`（`attn/_natle_site_inventory.md`·数据源 `_census_extlib.json`＋`_natle_sites_v3.json`）；上役 Gen1 总账口径（355/376/2,147·drop 1,084＋lift 1,069·apply 前置 560＋apply-in 332＋term 级 455）已存照作废、禁作验收口径 |
 | 三硬核消费者 | `ConstructiveWorld_Live/b1_denom_control.v:80`／`abl_Pr_core_01.v:148`／`S02_CauchyComplete.v:447` | worktree sed 逐行实读（本日） |
-| 零适配收敛形 | 双向第一手排除（保旧签名=漏必留；换 Set 面=消费者 lia 必断）——两约束数学互斥 | 总账 §S01 种子债登记 |
+| 零适配收敛形 | 双向第一手排除（保旧签名=漏必留；换 Set 面=消费者 lia 必断）——两约束数学互斥（旧形下成立；桥对接口形下已解除——钉版规范 `ca315c0` §三硬核总评） | 总账 §S01 种子债登记 |
 
 ## 4. 原则约束（施工禁则，承 CONSTRAINTS.md §11）
 
@@ -56,12 +57,17 @@
 
 <!-- 占位：NatLe 族 informative 载体形（bool/Id 原生接口）、Id→Prop 消去桥对
      （正典判例形：S02 qeqT_imp_qeq／abl_z2_valbridge z2v_idS_eq）、
-     2,147 消费位「单行桥调用」机械形、三硬核降阶案、性能线（4d）定标 -->
+     2,059 消费位点「单行桥调用」机械形（Gen2 正典·钉版规范 ca315c0）、
+     三硬核降阶案、性能线（4d）定标 -->
 
 ## 7. 位点 adjudication（**占位**——裁勘席产物，联络员补入）
 
-<!-- 占位：NatLe_drop（值级泄露位点→(a) 类）／NatLe_lift（伴生半泄露·逐点判——
-     纯证明工具则按 (b) 类登记即可）逐点判词＋全 2,147 消费位分类证据面 -->
+<!-- 占位：NatLe_lift（值级信息位真消费→(a) 类·informative 载体强制——
+     提取活体 176 处/44 模块，一律由新原生形恒等 exact H 形供血）／
+     NatLe_drop（纯证明位→(b) 类 proof-bridge registry 登记即可——
+     全库 drop 提取调用=0 机械实证）逐点判词＋全 2,059 消费位分类证据面。
+     裁勘席产物已钉版：commit `ca315c0`（attn/_natle_site_inventory.md·
+     CENSUS-CANON-GEN2·含 §一·乙 EXE-VERIFIED 活体表与附录 A 口径小账）。 -->
 
 ## 8. 验收与交割
 
