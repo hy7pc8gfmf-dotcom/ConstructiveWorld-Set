@@ -292,14 +292,26 @@ it.
   direction (`val coq_NatLe_drop : __`, cleanse-workspace probe
   `_wt93_ssa/_gate7probe_S01_work/_gate7probe_S01_BaseRing.mli:38`) while
   the gate7 magic scale reads 0/0 — a class-(a) breach invisible to the
-  magic gate. Recarrier touches 2,147 consumption sites across 355 files
-  (drop 1,084 / lift 1,069; apply-pre 560 + apply-in 332 + term-level
-  455), with sole-S01 consumers red at
+  magic gate. Canonical census (Gen2 programmatic extraction census,
+  pinned spec commit `ca315c0`, evidence `_census_extlib.json` +
+  `_natle_sites_v3.json`): **2,059 consumption sites** (drop 1,033 /
+  lift 1,024 / DEF 2) across 103 consumption files (downstream Require
+  closure 353; universe = order.txt 375), with **176 live lift calls
+  across 44 modules and zero live drop calls** at the extraction face.
+  Sole-S01 consumers red at
   `ConstructiveWorld_Live/b1_denom_control.v:80`,
   `ConstructiveWorld_Live/abl_Pr_core_01.v:148`,
   `ConstructiveWorld_Live/S02_CauchyComplete.v:447`. Per-site
-  adjudication (drop = value-level leak site; lift = companion, possibly
-  proof-only) is the rebuild campaign's first adjudication duty.
+  adjudication is settled (review round 1 re-verdict): **lift is the
+  value-level leak site** — all 176 live information positions (incl.
+  `abl_qpoly_divmod_gen.v:667`, whose baseline extraction body recomputes
+  `Nat.leb` with an `assert false` false-branch) must be fed by the new
+  native informative face (identity `exact H` form); the old Prop face
+  survives only as proof-bridge registry rows serving proof positions
+  (migration-touch surface 2,062 = 2,059 + CMD 3, of which 2,062 − 176 =
+  1,886 pure-proof/mention sites take no native-form migration);
+  **drop is the proof-only companion** (Prop conclusion, library-wide
+  extraction census zero live calls) → registry row only, no recast.
 - **User decree 2026-11-05** — S-series stock (S01–S15) is non-canonical
   and never serves as precedent or criterion; criteria come only from
   first-hand controlled experiments and non-S precedents: the `@Id bool`
