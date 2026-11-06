@@ -379,6 +379,11 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+LW3P2Prod.v
+LW3VarTSumBound.v
+Ln2Integrality.v
+UpAblD1S9_UpReqAttnIter.v
+abl_tvd_stationary.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
