@@ -379,3 +379,10 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+LW3ExpNegLB.v
+abl_dte_core1.v
+abl_dte_core2.v
+abl_dte_core3.v
+abl_dte_core4.v
+abl_dtpt_truth_supply.v
+piu_zz_constants.v
