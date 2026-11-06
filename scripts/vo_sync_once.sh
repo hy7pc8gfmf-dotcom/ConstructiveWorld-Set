@@ -22,8 +22,8 @@ ARTIFACT="${SYNC_ARTIFACT:?SYNC_ARTIFACT required}"
 CACHE_DIR="${SYNC_CACHE_DIR:?SYNC_CACHE_DIR required}"
 STATE="${SYNC_STATE_FILE:-$CACHE_DIR/.vo_sync_last_run}"
 mkdir -p "$CACHE_DIR" 2>/dev/null || { echo "VO_SYNC_ONCE: cache dir not creatable - fail-open exit 0"; exit 0; }
-PY="${PYTHON:-python3}"; command -v "$PY" >/dev/null 2>&1 || { PY=python; command -v "$PY" >/dev/null 2>&1 || PY=py; }
-command -v "$PY" >/dev/null 2>&1 || PY=""
+PYOK(){ local v; command -v "$1" >/dev/null 2>&1 || return 1; v="$("$1" --version 2>/dev/null)" || return 1; [ -n "$v" ]; }
+PY="${PYTHON:-python3}"; PYOK "$PY" || { PY=python; PYOK "$PY" || { PY=py; PYOK "$PY" || PY=""; }; }
 
 TOKEN="${GITHUB_TOKEN:-}"
 if [ -z "$TOKEN" ]; then

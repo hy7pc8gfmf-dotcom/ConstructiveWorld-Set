@@ -385,3 +385,13 @@ abl_arctan_smallincr_15.v
 abl_lnt_truncfam.v
 b1_trunc_master.v
 abl_hermite_setface.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v
