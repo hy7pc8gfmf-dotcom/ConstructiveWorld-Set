@@ -378,3 +378,9 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+UpReqEngineCeiling.v#R97-b36a001
+UpReqUMixSelect.v#R97-b36a002
+UpStepKL.v#R97-b36a003
+EpsOptimalReach.v#R97-b36a004
+Arch_PA_04.v#R97-b36a005
+abl_tail_pos_certs.v#R97-b36a006
