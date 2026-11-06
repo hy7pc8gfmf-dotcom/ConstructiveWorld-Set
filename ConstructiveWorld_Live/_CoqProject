@@ -379,11 +379,6 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
-UpAblT7_two_point_pack.v
-UpReqIterGeomRate.v
-UpReqAlignClose.v
-UpAblZposReal.v
-UpReqMinPAntitone.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
@@ -400,3 +395,10 @@ u5c_ln2_gap1_convbinom.v
 abl_Pr_erdos_core.v
 piu1909_sall_upper.v
 piu_zz_kernel_sum.v
+
+abl_loeb_d3_prf2.v
+EnergyTempMonoB.v
+PadeDenPosB12.v
+Arch_Up_02.v
+LW3DualBridge.v
+LW3ESlot.v
