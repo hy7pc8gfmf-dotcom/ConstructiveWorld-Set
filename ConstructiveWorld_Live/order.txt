@@ -384,3 +384,13 @@ UpAblT3_UpReqFEPAttn.v#R97-b41a03
 VandermondePartial.v#R97-b41a04
 abl_Ln2_native_escape_03.v#R97-b41a05
 abl_Pr_bertrand.v#R97-b41a06
+UpReqStepKLEtaInst.v#R97-b24a001
+UpAblEps49RKDBase.v#R97-b24a002
+RealKLDecomp.v#R97-b24a003
+UpReqTempInterp.v#R97-b28a001
+UpAblAbsSumLeB2.v#R97-b28a002
+EpiOrFaces.v#R97-b28a003
+Arch_Up_01.v#R97-b29a001
+UpReqAttnIter.v#R97-b29a002
+UpAblT3_UpReqAlign.v#R97-b31a002
+UpAblT1_UpReqDist.v#R97-b31a003

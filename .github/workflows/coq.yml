@@ -13,7 +13,7 @@ on:
         type: boolean
 
 concurrency:
-  group: cw-main-ci
+  group: cw-main-ci-${{ github.ref }}  # per-ref pools: PR certification runs and main push runs queue separately (pending-run priority cancellation killed PR cert runs when sharing one pool)
   cancel-in-progress: false
 
 jobs:
