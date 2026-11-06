@@ -373,6 +373,11 @@ UpAblD1S15_UpReqAlign3.v#R95-f22eea
 UpAblD2_AbsLeId_RI_DO.v#R96-9a4e72
 abl_z2_valbridge.v#R96-513489
 abl_arctan_diff_19.v#R96-841eb6
+piu_zz_padic_clearing.v#R97-b3a001
+abl_redischarge_pr01_sb.v#R97-b2a002
+abl_dtd_core2.v#R97-b2a003
+abl_dtd_core3.v#R97-b3a002
+abl_dtd_core4.v#R97-b3a003
 UpAblBYUpperTight.v#R97-b1a001
 tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
