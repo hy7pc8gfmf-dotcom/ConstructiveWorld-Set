@@ -379,3 +379,9 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+WeakTriangleClose.v
+d519a2_cert.v
+u5c_ln2_gap1_convbinom.v
+abl_Pr_erdos_core.v
+piu1909_sall_upper.v
+piu_zz_kernel_sum.v

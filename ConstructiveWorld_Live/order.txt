@@ -378,3 +378,9 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+WeakTriangleClose.v#R97-b32a001
+d519a2_cert.v#R97-b32a002
+u5c_ln2_gap1_convbinom.v#R97-b32a003
+abl_Pr_erdos_core.v#R97-b32a004
+piu1909_sall_upper.v#R97-b32a005
+piu_zz_kernel_sum.v#R97-b32a006
