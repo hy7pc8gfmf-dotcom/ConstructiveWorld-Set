@@ -379,3 +379,12 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+UpReqLatticeB.v
+UpReqMixRationalProxy_R3.v
+UpReqSpec2x2.v
+d14_family.v
+d3_family.v
+p2a_AttnClimClose.v
+u5c_dm_escape_to_dist_any.v
+u5c_pr_lcm_absorb.v
+ToyR_UpAblP7_Paper7Ablation_S1inst.v
