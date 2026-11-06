@@ -379,6 +379,11 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+abl_tail_def_instance.v
+UpReqNegFactorB.v
+NsepFindGeneric.v
+PhysPredAblation.v
+UpAblDeltaStarGeneral.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
