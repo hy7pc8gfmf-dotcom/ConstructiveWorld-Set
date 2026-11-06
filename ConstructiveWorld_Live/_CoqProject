@@ -379,12 +379,6 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
-abl_Pr_sigma_mul.v
-abl_Pr_val_inj.v
-abl_arctan_smallincr_15.v
-abl_lnt_truncfam.v
-b1_trunc_master.v
-abl_hermite_setface.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
@@ -419,3 +413,12 @@ PinskerTwoPoint.v
 UpReqSqrt3Irrational.v
 UpReqSqrtF.v
 UpReqTBNCBridge.v
+UpReqLatticeB.v
+UpReqMixRationalProxy_R3.v
+UpReqSpec2x2.v
+d14_family.v
+d3_family.v
+p2a_AttnClimClose.v
+u5c_dm_escape_to_dist_any.v
+u5c_pr_lcm_absorb.v
+ToyR_UpAblP7_Paper7Ablation_S1inst.v
