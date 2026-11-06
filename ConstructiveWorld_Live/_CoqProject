@@ -379,11 +379,6 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
-abl_tail_def_instance.v
-UpReqNegFactorB.v
-NsepFindGeneric.v
-PhysPredAblation.v
-UpAblDeltaStarGeneral.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
@@ -407,3 +402,9 @@ PadeDenPosB12.v
 Arch_Up_02.v
 LW3DualBridge.v
 LW3ESlot.v
+UpReqEngineCeiling.v
+UpReqUMixSelect.v
+UpStepKL.v
+EpsOptimalReach.v
+Arch_PA_04.v
+abl_tail_pos_certs.v
