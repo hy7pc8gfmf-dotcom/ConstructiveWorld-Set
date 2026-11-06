@@ -374,11 +374,6 @@ UpAblD1S15_UpReqAlign3.v
 UpAblD2_AbsLeId_RI_DO.v
 abl_z2_valbridge.v
 abl_arctan_diff_19.v
-piu_zz_padic_clearing.v
-abl_redischarge_pr01_sb.v
-abl_dtd_core2.v
-abl_dtd_core3.v
-abl_dtd_core4.v
 UpAblBYUpperTight.v
 tlw1463_pade_table.v
 abl_dtd_core1.v
@@ -446,3 +441,13 @@ abl_dte_core3.v
 abl_dte_core4.v
 abl_dtpt_truth_supply.v
 piu_zz_constants.v
+piu_zz_kernel_sum.v
+abl_Pr_erdos_core.v
+WeakTriangleClose.v
+piu1909_sall_upper.v
+d519a2_cert.v
+abl_Pr_euler_prod.v
+abl_diffreal_family.v
+u5c_bridge.v
+u5c_dm_e_measure_qcore.v
+mach_atan_addsub.v
