@@ -13,6 +13,7 @@
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import QArith_base.
+Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
 Require Import LW0QPoly.
@@ -31,18 +32,29 @@ Definition p372 : zpoly := cons 1%Z (cons 1%Z nil).
 (* Lambda face: the functional value of the built integrand is nonzero   *)
 (* on the fully transparent computation path.                            *)
 Theorem lw3_lam372_nz :
-  lw3_qnz (lw2_lambda (lw3_nodecount p372 1)
-                      (lw3_fbuild p372 (lw3_deg p372) 1)).
-Proof. unfold lw3_qnz. vm_compute. exact tt. Qed.
+  @Id bool false (Qeq_bool (lw2_lambda (lw3_nodecount p372 1)
+                                        (lw3_fbuild p372 (lw3_deg p372) 1))
+                           0%Q).
+Proof.
+  (* The anchor lambda value -265 is the leading coefficient (-1)^1 *    *)
+  (* 265 of the Niven instance a = 0, b = 265 at n = 1, so the           *)
+  (* production theorem lw3_niven_lc_nz supplies the decidable verdict   *)
+  (* data directly.                                                      *)
+  exact (lw3_niven_lc_nz 0 265 1 ltac:(intro Hz; discriminate Hz)).
+Qed.
 
 (* K face: the instantiated integer functional value carries the same    *)
 (* decidable nonzero witness.  The witness rides the lambda face: the    *)
 (* boolean decision on the lambda face computes to false on the          *)
 (* transparent path, and the lambda bridge transports it onto the K      *)
 (* face, so the true branch of the K-face decision is impossible.        *)
-Theorem lw3_kinst372_nz : lw3_qnz ((lw3_Kinst p372 1) # 1)%Q.
+Theorem lw3_kinst372_nz :
+  @Id bool false (Qeq_bool ((lw3_Kinst p372 1) # 1)%Q 0%Q).
 Proof.
-  unfold lw3_qnz.
+  (* The K-face value rides the lambda bridge: on the true branch the    *)
+  (* Kinst specification transports the equation onto the lambda face,   *)
+  (* whose transparent value -265 makes the branch absurd; the false     *)
+  (* branch is the reflexivity data of the decidable verdict.            *)
   destruct (Qeq_bool ((lw3_Kinst p372 1) # 1)%Q 0%Q) eqn:E.
   - rewrite <- (qeqT_imp_qeq _ _ (lw3_Kinst_spec p372 1)) in E.
     assert (Ef : Qeq_bool (lw2_lambda (lw3_nodecount p372 1)
@@ -50,25 +62,26 @@ Proof.
                  = false)
       by (vm_compute; reflexivity).
     rewrite Ef in E. discriminate E.
-  - exact tt.
+  - exact id_refl.
 Qed.
 
 (* Lambda face value: the functional value agrees with the integer       *)
-(* -265 over one; the set-level decision witness is carried by the       *)
-(* unit branch on the transparent computation path.                      *)
+(* -265 over one; the decidable verdict is carried by the reflexivity    *)
+(* data of the true branch on the transparent computation path.          *)
 Definition lw3_lam372_val :
-  match Qeq_bool (lw2_lambda (lw3_nodecount p372 1)
-                             (lw3_fbuild p372 (lw3_deg p372) 1))
-                 ((-265) # 1)%Q with
-  | true => unit
-  | false => Empty_set
-  end := tt.
+  @Id bool true (Qeq_bool (lw2_lambda (lw3_nodecount p372 1)
+                                      (lw3_fbuild p372 (lw3_deg p372) 1))
+                          ((-265) # 1)%Q) :=
+  (* The anchor value -265 agrees on the transparent computation path,   *)
+  (* so the decidable verdict is the reflexivity data of the true        *)
+  (* branch.                                                             *)
+  id_refl.
 
 (* Leading-coefficient face: the nonzero witness of the source           *)
 (* polynomial leading coefficient instantiates through the production    *)
 (* theorem lw3_niven_lc_nz.                                              *)
 Theorem lw3_lc372_nz :
-  lw3_qnz (lw0_coef (1 + 1) (lw2_niven_int_f 0 1 1)).
+  @Id bool false (Qeq_bool (lw0_coef (1 + 1) (lw2_niven_int_f 0 1 1)) 0%Q).
 Proof.
   apply (lw3_niven_lc_nz 0 1 1).
   intro Hz. discriminate Hz.

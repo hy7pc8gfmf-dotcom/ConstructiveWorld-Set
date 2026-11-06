@@ -28,6 +28,17 @@ Require Import UpReqSampling.
 Require Import UpAblMetaWorld3.
 Import RealInterfaceEnhancedMod.
 
+(* The interface class in this tree is unparameterized (S07_RealSetoidExpLog.v
+   Class RealInterfaceEnhancedSetoid + global Instance RealEnhancedReal).  The
+   equality and order carriers of the statements below are bound to the
+   concrete informative definitions real_eq / real_lt of S02_CauchyComplete.
+   These are exactly the bindings that the global RealEnhancedReal instance
+   assigns to the interface fields req / lt, so every statement elaborates to
+   the same term as before; naming the carriers concretely keeps the extracted
+   signatures informative. *)
+Local Notation req := real_eq.
+Local Notation lt := real_lt.
+
 (* ============================================================ *)
 (* §1 退化侧机器：泛型核一步演化 + 基座代数桥                                      *)
 (* ============================================================ *)
