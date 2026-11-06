@@ -378,3 +378,8 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+UpAblT7_two_point_pack.v#R97-b33a001
+UpReqIterGeomRate.v#R97-b33a002
+UpReqAlignClose.v#R97-b33a003
+UpAblZposReal.v#R97-b33a004
+UpReqMinPAntitone.v#R97-b33a005
