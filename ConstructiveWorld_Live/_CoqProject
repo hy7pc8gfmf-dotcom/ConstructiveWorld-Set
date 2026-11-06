@@ -379,3 +379,9 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+abl_Pr_sigma_mul.v
+abl_Pr_val_inj.v
+abl_arctan_smallincr_15.v
+abl_lnt_truncfam.v
+b1_trunc_master.v
+abl_hermite_setface.v
