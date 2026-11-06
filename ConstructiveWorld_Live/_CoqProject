@@ -379,12 +379,6 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
-UpAblS06AbsFeed.v
-UpAblT1c_UpFirewallReq.v
-UpAblT3_UpReqFEPAttn.v
-VandermondePartial.v
-abl_Ln2_native_escape_03.v
-abl_Pr_bertrand.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
@@ -428,3 +422,10 @@ p2a_AttnClimClose.v
 u5c_dm_escape_to_dist_any.v
 u5c_pr_lcm_absorb.v
 ToyR_UpAblP7_Paper7Ablation_S1inst.v
+LW3ExpNegLB.v
+abl_dte_core1.v
+abl_dte_core2.v
+abl_dte_core3.v
+abl_dte_core4.v
+abl_dtpt_truth_supply.v
+piu_zz_constants.v
