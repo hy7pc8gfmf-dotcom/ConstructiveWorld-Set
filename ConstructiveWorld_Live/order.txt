@@ -385,3 +385,13 @@ abl_dte_core3.v#R97-b42a04
 abl_dte_core4.v#R97-b42a05
 abl_dtpt_truth_supply.v#R97-b42a06
 piu_zz_constants.v#R97-b42a07
+UpReqStepKLEtaInst.v#R97-b24a001
+UpAblEps49RKDBase.v#R97-b24a002
+RealKLDecomp.v#R97-b24a003
+UpReqTempInterp.v#R97-b28a001
+UpAblAbsSumLeB2.v#R97-b28a002
+EpiOrFaces.v#R97-b28a003
+Arch_Up_01.v#R97-b29a001
+UpReqAttnIter.v#R97-b29a002
+UpAblT3_UpReqAlign.v#R97-b31a002
+UpAblT1_UpReqDist.v#R97-b31a003

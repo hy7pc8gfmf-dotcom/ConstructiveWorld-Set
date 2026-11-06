@@ -386,3 +386,13 @@ abl_dte_core3.v
 abl_dte_core4.v
 abl_dtpt_truth_supply.v
 piu_zz_constants.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v
