@@ -378,3 +378,8 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+LW3P2Prod.v#R97-b37a001
+LW3VarTSumBound.v#R97-b37a002
+Ln2Integrality.v#R97-b37a003
+UpAblD1S9_UpReqAttnIter.v#R97-b37a004
+abl_tvd_stationary.v#R97-b37a005
