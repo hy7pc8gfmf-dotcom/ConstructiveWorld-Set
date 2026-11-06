@@ -384,3 +384,13 @@ LW3VarTSumBound.v
 Ln2Integrality.v
 UpAblD1S9_UpReqAttnIter.v
 abl_tvd_stationary.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v
