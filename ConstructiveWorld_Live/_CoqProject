@@ -385,3 +385,13 @@ UpStepKL.v
 EpsOptimalReach.v
 Arch_PA_04.v
 abl_tail_pos_certs.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v
