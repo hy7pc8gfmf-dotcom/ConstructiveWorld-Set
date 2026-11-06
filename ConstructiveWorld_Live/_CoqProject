@@ -388,3 +388,13 @@ p2a_AttnClimClose.v
 u5c_dm_escape_to_dist_any.v
 u5c_pr_lcm_absorb.v
 ToyR_UpAblP7_Paper7Ablation_S1inst.v
+UpReqStepKLEtaInst.v
+UpAblEps49RKDBase.v
+RealKLDecomp.v
+UpReqTempInterp.v
+UpAblAbsSumLeB2.v
+EpiOrFaces.v
+Arch_Up_01.v
+UpReqAttnIter.v
+UpAblT3_UpReqAlign.v
+UpAblT1_UpReqDist.v

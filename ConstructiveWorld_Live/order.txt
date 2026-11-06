@@ -387,3 +387,13 @@ p2a_AttnClimClose.v#R97-b40a06
 u5c_dm_escape_to_dist_any.v#R97-b40a07
 u5c_pr_lcm_absorb.v#R97-b40a08
 ToyR_UpAblP7_Paper7Ablation_S1inst.v#R97-b40a09
+UpReqStepKLEtaInst.v#R97-b24a001
+UpAblEps49RKDBase.v#R97-b24a002
+RealKLDecomp.v#R97-b24a003
+UpReqTempInterp.v#R97-b28a001
+UpAblAbsSumLeB2.v#R97-b28a002
+EpiOrFaces.v#R97-b28a003
+Arch_Up_01.v#R97-b29a001
+UpReqAttnIter.v#R97-b29a002
+UpAblT3_UpReqAlign.v#R97-b31a002
+UpAblT1_UpReqDist.v#R97-b31a003
