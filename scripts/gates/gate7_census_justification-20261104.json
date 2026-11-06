@@ -1,0 +1,1967 @@
+{
+ "meta": {
+  "generated_by": "gate7_extract_run.py v3 tool-fault patch verification round (20261105 seat gate7-tool-fixer, worktree /Users/apple/Desktop/_wt93_reverse, branch chore/gate7-tool-and-constraints). Schema follows gate7_census_justification-20261029.json; the v1/v2 labels of that schema map to v2-tool/v3-tool for this round (v3 = the 20261105 patch).",
+  "tree": "/Users/apple/Desktop/_wt93_reverse/ConstructiveWorld_Live",
+  "files_censused": 375,
+  "fix_order_expected_files": 375,
+  "note_file_count": "Live tree holds 375 .v files (order.txt entries), all censused; the committed gate7_extract_baseline.json holds 281 modules.",
+  "baseline_modules": 281,
+  "baseline_name_total_mismatches": [],
+  "clean_baseline_modules_with_new_exclusions": [],
+  "modules_where_v3_has_names_absent_in_v2": {
+   "S11_TP3B5": [
+    "b5n_2S_kδ_le"
+   ]
+  },
+  "modules_where_v3_dropped_phantom_names": {
+   "S11_TP3B5": [
+    "b5n_2S_k"
+   ]
+  },
+  "occurrence_accounting_inconsistencies": [],
+  "fail5_exclusion_records": {
+   "S01_BaseRing": [
+    {
+     "name": "Proposition",
+     "reason": "vernacular-keyword",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "IsProposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "IsPositiveProposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "loss_of_proposition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "full_loss",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "force_is_gradient",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "is_truth",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "is_attractor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "truth_iff_attractor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_factor",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_prob",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "partition_condition",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "hierarchical_stability",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_factor_pos",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "boltzmann_prob_pos",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "prediction_fluctuation_scale",
+     "reason": "module-scope",
+     "scope": "Module:PropositionConvergenceCore/Section:PropositionConvergenceCore"
+    },
+    {
+     "name": "Sequence",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sequence_loss_prefix",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sequence_loss",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "LangProp",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "loss_of_proposition",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "force",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "candidate",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "argmin_aux",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "pick_best",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "dynamics",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "is_truth",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "is_fixed_point",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sum_exp",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "partition_function",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "exp_neg_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "sum_exp_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "partition_positive",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "normalized_prob",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim1_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim3_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "normalized_prob_pos",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "prediction_boltzmann_sampling_holds",
+     "reason": "module-scope",
+     "scope": "Module:LanguageModelInstance/Section:LanguageModelInstance"
+    },
+    {
+     "name": "temp_factor",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "partition_temp",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "temp_factor_antitone",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_linear",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_add",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_ext",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "sum_temp_positive",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "partition_temp_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel_antitone",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_normalized",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_relative",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_temperature_zero_limit",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_le_on_list",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "expected_loss",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "expected_loss_min_bound",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "candidate_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_token",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "InT_head_extend",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_mem",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_min",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "argmin_aux_token_snd_correct",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_in_vocab'",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_optimal",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "pick_best_in_vocab",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_single_le_total",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_kernel_le_one",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "temperature_zero_exponential_bound",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "list_sum_zero_fn",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy_pointwise_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "markov_entropy_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "greedy_kernel_limit",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_pos",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_normalized",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "softmax_bounded",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "nonoptimal_probability_absolute",
+     "reason": "module-scope",
+     "scope": "Module:StochasticLanguageModel/Section:StochasticLanguageModel"
+    },
+    {
+     "name": "State",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "E_B",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "Omega_total",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "entropy",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "logical_loss",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "energy_domain",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "total_loss",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "entropy_gradient",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "dynamics",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "is_equilibrium",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "temperature_equal",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "boltzmann_prob",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim1",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim2",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim3",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim4",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim5",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "CoreClaim6",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "core_claim3_holds",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    },
+    {
+     "name": "core_claim5_holds",
+     "reason": "module-scope",
+     "scope": "Module:ThermodynamicsInstance/Section:ThermodynamicsInstance"
+    }
+   ],
+   "S07_RealSetoidExpLog": [
+    {
+     "name": "real_eq_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_le_iff_req",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_plus_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_opp_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_mult_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_abs_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_compat",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_id_l",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_lt_id_r",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_id_l",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_le_id_r",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_sym",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_zero",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_neg_le_abs",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_minus_abs_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "q_minus_abs_le_neg",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_lt_const_to_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_lt_const_to_minus_comm",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_cauchy_complete_metric",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_pos_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_metric_triangle_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "Id_eq",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "eq_Id",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "NatLe_to_le",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "le_to_NatLe",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_cauchy_complete_metric_natle",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_plus_compat_adapt",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_eq_mult_compat_adapt",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "Real_RealInterfaceSetoidCore",
+     "reason": "module-scope",
+     "scope": "Module:RealSetoid"
+    },
+    {
+     "name": "real_r_max_r_iff",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "q_pair2_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_ge_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_mono",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_odd_le_even",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_even_ge_minus",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux1",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux2",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux3",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "exp_partial_ge_linear_aux4",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "real_exp_ge_linear_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "real_log_le_linear_eps",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod/Section:LogLinearMain"
+    },
+    {
+     "name": "RealEnhancedReal",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if_true",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    },
+    {
+     "name": "r_if_false",
+     "reason": "module-scope",
+     "scope": "Module:RealInterfaceEnhancedMod"
+    }
+   ],
+   "S11_TP3B5": [],
+   "S13_NLiveAudit": [
+    {
+     "name": "Context",
+     "reason": "vernacular-keyword",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Sequence",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Candidates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "Memory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "natlt_elim",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "natlt_intro",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "bool_id_true",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "bool_true_id",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "id_true_false_absurd",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "id_false_true_absurd",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_in_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_filter_sound_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "forallb_inT_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_forallb_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_cons_inv_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "inT_map_inv_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_refl",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_to_qle",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qle_to_qleT",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qleT_trans",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qeq_le",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qsum_w",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "qsum_w_div",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_normalize",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_normalize_normalized",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux_dom",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_pick_aux_in",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux_dom",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "nat_pick_aux_in",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing_some",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "pick_passing_none_all_fail",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "PreAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "InAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "PostAud",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "in_seq",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "token_supported_by_memory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "memory_auditor",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "threshold_auditor",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "threshold_auditor_sound",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_sound_set",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_complete",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_comm",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_comm",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_assoc",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "auditor_le",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_and_is_meet",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_or_is_join",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "parallel_audit",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "parallel_audit_correct",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "count_true",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "majority_audit",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_trail",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_audited_legal_trajectory",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audit_trail_complete",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "post_stage_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "post_audit_sound",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "audited_hallucination_zero",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "resample_attempt",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "resample_terminates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "seq_eqb",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "vote_count",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "consensus_post",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "consensus_mode",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "agent_candidates",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "multi_agent_consensus_member",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "q_of_nat",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "overlap_count",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "sum_overlap",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "self_consistency_score",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "stop_condition",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "sample_until_confident",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "early_stop_confidence",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "early_stop_confidence'",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_stateful",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "generate_stateful_inv",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "stateful_generation_consistent",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "BeamState",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "last_token",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "remove_last",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "concat_map_gen",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "expand_beam_audited",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "expand_beam_audited_legal",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "top_p_prefix",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    },
+    {
+     "name": "top_p_cumulative_ge",
+     "reason": "module-scope",
+     "scope": "Module:LCAudit/Section:LiveCore"
+    }
+   ],
+   "S15_TailFEPUp": [
+    {
+     "name": "nat_to_R_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "nat_to_R_g_pos",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_ext",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_linear",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_const",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "list_sum_g_zero_fn",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "removeT_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_transport",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "not_InT_count_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_notin",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_remove_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_zero_remove_id",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "count_one_remove_zero",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "remove_notin_aux",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "split_count_one_id",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "nodup_g",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_list_transport",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "InT_tail_of_neq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_count_one",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_indicator_sum_one",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "grpo_uniform_mass",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:GRPONoDup"
+    },
+    {
+     "name": "real_mult_exchange",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "real_sqrt_pos_sq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "real_sigma_witness",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma_pos",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "proj_sigma_sq",
+     "reason": "module-scope",
+     "scope": "Module:UpGRPO219/Section:RealGrpoSigma"
+    },
+    {
+     "name": "fep_partition_condition",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "fep_align",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "fep_F_ext",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "free_energy_softmax_eq_neg_T_logZ",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:FEPLogZ"
+    },
+    {
+     "name": "list_sum_g2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "reward2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "indicator2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "counter_ex_indicator_sum_two",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "counter_ex_reward_sum_two_c",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:GRPOCounterEx"
+    },
+    {
+     "name": "mean2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "A2",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "sq_sum_list_nonneg",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    },
+    {
+     "name": "real_var_nonneg_cond",
+     "reason": "module-scope",
+     "scope": "Module:UpExtras219/Section:RealVarNonNeg"
+    }
+   ]
+  },
+  "leak_ruling_5modules": {
+   "ruling": "Entity repair of the 5 born-clean-violating modules (CI #178 census: 28 Obj.magic) is RULED and assigned to the module-repair workflow; a WF-A-style rebaseline freeze is REJECTED. This seat's scope is the gate7 tool only; the ruling is registered here per the work order.",
+   "ci178_counts": {
+    "LW3ETranscendental": 1,
+    "LW3CountEBound": 6,
+    "LW3KLegProbe": 4,
+    "LW3KnzValue": 3,
+    "UpAblMetaWindow": 13
+   },
+   "ci178_total_note": "Work order headline says 28 total; the per-module enumeration sums to 27 (1+6+4+3+13). This round's local rerun reproduces the per-module numbers exactly (sum 27, all on .ml face, .mli face 0). The +-1 headline discrepancy is registered, not silently absorbed.",
+   "diagnosis": {
+    "LW3_family_four": "E3 generic-interface instantiation: generic lemma parameters carry abstract types; extraction turns each parameter into Obj.magic. Prescription: concrete-carrier intermediate Definition specialization (module-repair workflow).",
+    "UpAblMetaWindow": "E2 record polymorphic-field exact. Prescription: explicitly type-annotated intermediate Definition (module-repair workflow). Its landing record claimed magic=0 -- landing self-check vs CI measurement diverged (false-green incident)."
+   },
+   "local_rerun_20261105": {
+    "LW3ETranscendental": {
+     "names_total": 73,
+     "driver_rc": 0,
+     "magic_ml": 1,
+     "magic_mli": 0
+    },
+    "LW3CountEBound": {
+     "names_total": 14,
+     "driver_rc": 0,
+     "magic_ml": 6,
+     "magic_mli": 0
+    },
+    "LW3KLegProbe": {
+     "names_total": 6,
+     "driver_rc": 0,
+     "magic_ml": 4,
+     "magic_mli": 0
+    },
+    "LW3KnzValue": {
+     "names_total": 5,
+     "driver_rc": 0,
+     "magic_ml": 3,
+     "magic_mli": 0
+    },
+    "UpAblMetaWindow": {
+     "names_total": 10,
+     "driver_rc": 0,
+     "magic_ml": 13,
+     "magic_mli": 0
+    }
+   }
+  },
+  "wf_b": {
+   "symptom": "S11_TP3B5 driver failed: File \"./_gate7_S11_TP3B5_driver.v\", line 3, characters 6600-6608: Error: The reference b5n_2S_k was not found in the current environment.",
+   "chars_6600_6608": "b5n_2S_k (driver name index 418, sentence-relative offset 6600..6608)",
+   "root_cause": "UNICODE (true cause): S11_TP3B5.v:12038 defines top-level `Lemma b5n_2S_kδ_le` (U+03B4 inside the identifier). The v1/v2 ASCII class [A-Za-z_][A-Za-z0-9_']* truncated the name at δ and emitted the phantom prefix b5n_2S_k into the driver; coqc then failed at name-resolution (NOT lexical) on the phantom.",
+   "rejected_candidates": {
+    "prime": "disproved: prime is inside the captured continuation class and the prime-name b5b_f1_closure' sits in the same driver without being the failing reference (error points at chars 6600-6608 = b5n_2S_k)",
+    "hyphen": "disproved: scanner class cannot capture hyphens at all (no such name)",
+    "leading_digit": "disproved: scanner start class forbids digits (no such name)",
+    "embedded_dot": "disproved: scanner class cannot capture dots (no such name)",
+    "overlong_line": "disproved: the 6920-char sentence was lexed and parsed up to the reference site; the error is reference resolution, not a line-length/lexer failure"
+   },
+   "fix": "statement_scan identifier class widened to Unicode-aware [^\\W\\d][\\w']* (gate7_extract_run.py, both the command regex and the name regex); plus the name-presence proxy accepts extraction's UU-escaped form (_UU%04x_ per non-ASCII char) in mangle_candidates.",
+   "unicode_escape_evidence": "S11_TP3B5.ml contains b5n_2S_k_UU03b4__le for source name b5n_2S_kδ_le (delta -> _UU03b4_)",
+   "backward_compat_evidence": "old-vs-fixed scan over all 375 Live files differs on exactly one file (S11_TP3B5) and one name (phantom b5n_2S_k <-> real b5n_2S_kδ_le); 281 committed baseline modules: zero names_total mismatches, zero new exclusions",
+   "verification": "S11_TP3B5 single-module driver via fixed tool: rc=0, magic=0/0, missing=0, secs=4.6, timeout_eff=600 (json_s11_v2.json); pre-mangle-fix intermediate run had missing=[b5n_2S_kδ_le] proving the escape fix load-bearing (json_s11.json)",
+   "baseline_note": "committed baseline holds S11_TP3B5 driver_rc=1 (the WF-B fault itself was baked into the baseline); post-fix values (rc=0, magic 0/0, missing []) introduce no gate regression entry vs that baseline"
+  },
+  "wf_c": {
+   "symptom": "LW3FamScale driver hit the flat 240s --timeout in CI and the timeout kill took down the whole CI tree run (tree kill).",
+   "names_total": 38,
+   "tier_under_workorder_rule": "240s (38 <= 50)",
+   "fix": "--timeout now tiered by names_total when not given explicitly: <=50 names -> 240s, >50 names -> 600s; explicit --timeout honored verbatim (backward compatible); per-module timeout isolation already kills only that module's coqc and records driver_rc=-9 (no tree kill). Batching into multiple Separate Extraction commands deliberately NOT implemented: per-command output reset (single-command rule) makes multi-command drivers keep only the last command's files.",
+   "measured_evidence_20261105": [
+    "240s tier run: rc=-9, secs=240.1, timeout_eff=240 (json_lw3fs.json)",
+    "explicit --timeout 600 run: rc=-9, secs=600.1, timeout_eff=600 (json_lw3fs600.json)",
+    "coqc -time profile (120s window): 'Require Import LW3FamScale.' completed in 1.247 secs; the Separate Extraction sentence produced zero further progress lines -- all time inside extraction (lw3fs_time.log)",
+    "rocqworker CPU two-sample delta: cputime 17.29s -> 30.60s over 20s wall (%cpu 57-61) = legitimate long computation (slow piece), not a deadlock"
+   ],
+   "diagnosis": "THIRD FORM of tool fault: the work order's 'tool fixed -> gate passes naturally' assumption is disproven by first-hand evidence (--time profile + active CPU). The timeout root is ENTITY-level (E3 generic instantiation pathology in the LW3 family), not tool-level; the tool can isolate and record it, only the module repair can remove it.",
+   "probe_1800s": {
+    "log_tail": [
+     "[cpu_guard] MID launch pos=0 nice10 waited=0s",
+     "GATE7 [1/1] LW3FamScale names=38 rc=-9 magic=None/None missing=0 driver failed: TIMEOUT after 1800s",
+     "GATE7-CENSUS: modules=1 magic_total=0 missing_candidates=0 driver_failed=LW3FamScale",
+     "LAUNCHER_RC=0"
+    ],
+    "record": {
+     "names_total": 38,
+     "magic_ml": null,
+     "magic_mli": null,
+     "missing_candidates": [],
+     "driver_rc": -9,
+     "secs": 1800.2,
+     "note": "driver failed: TIMEOUT after 1800s",
+     "exclusions": [],
+     "timeout_eff": 1800
+    }
+   },
+   "cross_seat_dependency": "LW3FamScale (and LW3JointFill, same treatment, NOT run this round) rc=0 acceptance is hooked to the E3 entity repair landing and a rerun in a later wash batch; it is NOT part of this PR's acceptance face. No budget was inflated to force green."
+  },
+  "verification": [
+   "S11_TP3B5 single driver (fixed tool): GATE7 [1/1] S11_TP3B5 names=441 rc=0 magic=0/0 missing=0 (secs=4.6, tier 600) -- WF-B fixed",
+   "WF-B reproduction (pre-fix): File \"./_gate7_S11_TP3B5_driver.v\", line 3, characters 6600-6608: Error: The reference b5n_2S_k was not found in the current environment.",
+   "LW3FamScale 240s tier: GATE7 [1/1] LW3FamScale names=38 rc=-9 ... TIMEOUT after 240s (slow-piece probe pending; see wf_c)",
+   "sample 12 modules (5 violators + 2 symptom + 5 others) all regenerated through the fixed tool; rc=0 for 11, LW3FamScale rc=-9 TIMEOUT recorded honestly (probe registered); magic per module equals CI #178 numbers (1/6/4/3/13)",
+   "full face 375: generation+static validation via the real tool code path with stubbed subprocess -- modules=375 generated+static-OK=371 skipped(no names, tool-design)=4 STATIC ERRORS: 0; tier distribution 316x240s + 55x600s; total names 12079; total exclusions 1041",
+   "baseline accounting: 281 committed baseline modules -- names_total mismatches=[], new exclusions=[]",
+   "all compilations wrapped in cpu_guard v3 (bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -MaxWaitSec 120 -- ...); compile verification sampled (12 compiled + 1 probe), full-face compile left to cloud CI per work order"
+  ]
+ },
+ "modules": {
+  "LW3ETranscendental": {
+   "v1_names": 73,
+   "v2_names": 73,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_LW3ETranscendental.json",
+     "driver_rc": 0,
+     "secs": 2.1,
+     "timeout_eff": 600,
+     "magic_ml": 1,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "LW3CountEBound": {
+   "v1_names": 14,
+   "v2_names": 14,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_LW3CountEBound.json",
+     "driver_rc": 0,
+     "secs": 2.4,
+     "timeout_eff": 240,
+     "magic_ml": 6,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "LW3KLegProbe": {
+   "v1_names": 6,
+   "v2_names": 6,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_LW3KLegProbe.json",
+     "driver_rc": 0,
+     "secs": 15.5,
+     "timeout_eff": 240,
+     "magic_ml": 4,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "LW3KnzValue": {
+   "v1_names": 5,
+   "v2_names": 5,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_LW3KnzValue.json",
+     "driver_rc": 0,
+     "secs": 7.8,
+     "timeout_eff": 240,
+     "magic_ml": 3,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "UpAblMetaWindow": {
+   "v1_names": 10,
+   "v2_names": 10,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_UpAblMetaWindow.json",
+     "driver_rc": 0,
+     "secs": 4.3,
+     "timeout_eff": 240,
+     "magic_ml": 13,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "S11_TP3B5": {
+   "v1_names": 441,
+   "v2_names": 441,
+   "excluded": [],
+   "new": [
+    "b5n_2S_kδ_le"
+   ],
+   "runs": [
+    {
+     "run_json": "json_s11.json",
+     "driver_rc": 0,
+     "secs": 5.0,
+     "timeout_eff": 600,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": [
+      "b5n_2S_kδ_le"
+     ]
+    },
+    {
+     "run_json": "json_s11_v2.json",
+     "driver_rc": 0,
+     "secs": 4.6,
+     "timeout_eff": 600,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ],
+   "v3_dropped_phantom": [
+    "b5n_2S_k"
+   ]
+  },
+  "LW3FamScale": {
+   "v1_names": 38,
+   "v2_names": 38,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_lw3fs.json",
+     "driver_rc": -9,
+     "secs": 240.1,
+     "timeout_eff": 240,
+     "magic_ml": null,
+     "magic_mli": null,
+     "missing_candidates": []
+    },
+    {
+     "run_json": "json_lw3fs600.json",
+     "driver_rc": -9,
+     "secs": 600.1,
+     "timeout_eff": 600,
+     "magic_ml": null,
+     "magic_mli": null,
+     "missing_candidates": []
+    },
+    {
+     "run_json": "json_lw3fs1800.json",
+     "driver_rc": -9,
+     "secs": 1800.2,
+     "timeout_eff": 1800,
+     "magic_ml": null,
+     "magic_mli": null,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "S01_BaseRing": {
+   "v1_names": 69,
+   "v2_names": 69,
+   "excluded": [
+    "Proposition",
+    "IsProposition",
+    "IsPositiveProposition",
+    "loss_of_proposition",
+    "total_loss",
+    "full_loss",
+    "force_is_gradient",
+    "is_truth",
+    "is_attractor",
+    "truth_iff_attractor",
+    "boltzmann_factor",
+    "boltzmann_prob",
+    "partition_condition",
+    "hierarchical_stability",
+    "CoreClaim1",
+    "CoreClaim2",
+    "CoreClaim3",
+    "CoreClaim4",
+    "CoreClaim5",
+    "CoreClaim6",
+    "core_claim5_holds",
+    "boltzmann_factor_pos",
+    "boltzmann_prob_pos",
+    "prediction_fluctuation_scale",
+    "Sequence",
+    "sequence_loss_prefix",
+    "sequence_loss",
+    "LangProp",
+    "loss_of_proposition",
+    "total_loss",
+    "force",
+    "candidate",
+    "argmin_aux",
+    "pick_best",
+    "dynamics",
+    "is_truth",
+    "is_fixed_point",
+    "sum_exp",
+    "partition_function",
+    "exp_neg_positive",
+    "sum_exp_positive",
+    "partition_positive",
+    "normalized_prob",
+    "CoreClaim1",
+    "CoreClaim2",
+    "CoreClaim3",
+    "CoreClaim4",
+    "CoreClaim5",
+    "CoreClaim6",
+    "core_claim1_holds",
+    "core_claim3_holds",
+    "core_claim5_holds",
+    "normalized_prob_pos",
+    "prediction_boltzmann_sampling_holds",
+    "temp_factor",
+    "list_sum",
+    "partition_temp",
+    "temp_factor_antitone",
+    "list_sum_linear",
+    "list_sum_add",
+    "list_sum_ext",
+    "sum_temp_positive",
+    "partition_temp_pos",
+    "markov_kernel",
+    "markov_kernel_antitone",
+    "markov_pos",
+    "markov_normalized",
+    "markov_relative",
+    "markov_temperature_zero_limit",
+    "list_sum_le_on_list",
+    "expected_loss",
+    "expected_loss_min_bound",
+    "candidate_token",
+    "argmin_aux_token",
+    "pick_best_token",
+    "InT_head_extend",
+    "argmin_aux_token_mem",
+    "argmin_aux_token_min",
+    "argmin_aux_token_snd_correct",
+    "pick_best_in_vocab'",
+    "pick_best_optimal",
+    "pick_best_in_vocab",
+    "list_sum_nonneg",
+    "list_sum_single_le_total",
+    "markov_kernel_le_one",
+    "temperature_zero_exponential_bound",
+    "markov_entropy",
+    "list_sum_zero_fn",
+    "markov_entropy_pointwise_nonneg",
+    "markov_entropy_nonneg",
+    "greedy_kernel_limit",
+    "softmax",
+    "softmax_pos",
+    "softmax_normalized",
+    "softmax_bounded",
+    "nonoptimal_probability_absolute",
+    "State",
+    "E_B",
+    "Omega_total",
+    "entropy",
+    "logical_loss",
+    "energy_domain",
+    "total_loss",
+    "entropy_gradient",
+    "dynamics",
+    "is_equilibrium",
+    "temperature_equal",
+    "boltzmann_prob",
+    "CoreClaim1",
+    "CoreClaim2",
+    "CoreClaim3",
+    "CoreClaim4",
+    "CoreClaim5",
+    "CoreClaim6",
+    "core_claim3_holds",
+    "core_claim5_holds"
+   ],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_S01_BaseRing.json",
+     "driver_rc": 0,
+     "secs": 2.1,
+     "timeout_eff": 600,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "S06_DiffSamplingGibbs": {
+   "v1_names": 337,
+   "v2_names": 337,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_S06_DiffSamplingGibbs.json",
+     "driver_rc": 0,
+     "secs": 7.7,
+     "timeout_eff": 600,
+     "magic_ml": 15,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "UpReqDist": {
+   "v1_names": 120,
+   "v2_names": 120,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_UpReqDist.json",
+     "driver_rc": 0,
+     "secs": 9.6,
+     "timeout_eff": 600,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "AttnSqrt": {
+   "v1_names": 12,
+   "v2_names": 12,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_AttnSqrt.json",
+     "driver_rc": 0,
+     "secs": 2.8,
+     "timeout_eff": 240,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  },
+  "abl_z3_pointwise": {
+   "v1_names": 7,
+   "v2_names": 7,
+   "excluded": [],
+   "new": [],
+   "runs": [
+    {
+     "run_json": "json_abl_z3_pointwise.json",
+     "driver_rc": 0,
+     "secs": 2.1,
+     "timeout_eff": 240,
+     "magic_ml": 0,
+     "magic_mli": 0,
+     "missing_candidates": []
+    }
+   ]
+  }
+ }
+}

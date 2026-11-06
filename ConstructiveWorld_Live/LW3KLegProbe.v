@@ -13,6 +13,7 @@
 (*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。 *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith_base.
+Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
 Require Import LW0QPoly.
@@ -29,17 +30,19 @@ Require Import LW3ETranscendental.
 (* empty there although the polynomial witness is inhabited.             *)
 Definition p377 : zpoly := cons (-46)%Z (cons 7%Z nil).
 
-(* The master nonzero witness is inhabited on this datum: the coefficient *)
-(* at index zero compares below zero in the decidable integer order.     *)
-Definition p377_nz : lw3_nz p377 := existT _ 0%nat tt.
+(* The master nonzero witness on this datum: the coefficient at index    *)
+(* zero compares nonzero in the decidable integer order, recorded as the *)
+(* uniform Id verdict data (the decidable content of lw3_nz p377).       *)
+Definition p377_nz :
+  @Id bool false (Z.eqb (nth 0 p377 0%Z) 0%Z) := id_refl.
 
 (* The node functional of the built integrand vanishes: the boolean      *)
-(* decision against zero takes the true branch on the transparent path.  *)
+(* decision against zero takes the true branch on the transparent path,  *)
+(* recorded in the uniform Id carrier for the match-typed witness face.  *)
 Definition lam377_zero :
-  match Qeq_bool (lw2_lambda (lw3_nodecount p377 1)
-                             (lw3_fbuild p377 (lw3_deg p377) 1))
-                 (0 # 1)%Q
-  with true => unit | false => Empty_set end := tt.
+  @Id bool true (Qeq_bool (lw2_lambda (lw3_nodecount p377 1)
+                                       (lw3_fbuild p377 (lw3_deg p377) 1))
+                          (0 # 1)%Q) := id_refl.
 
 (* Collapse face: the K witness type is uninhabited at this instance,    *)
 (* since the integer value rides the vanishing functional through the    *)
@@ -67,23 +70,31 @@ Proof.
     destruct Es as [Hz | Hd].
     - exact Hz.
     - discriminate Hd. }
-  unfold lw3_qnz in Hk.
-  rewrite HzK in Hk.
-  rewrite Qeq_bool_refl in Hk.
-  cbn in Hk. exact Hk.
+  (* Discharged inside a Prop-level False, which the extraction face      *)
+  (* erases; False_rect then finishes the Set-sorted Empty_set            *)
+  (* conclusion, so the extracted body renders without magic.             *)
+  assert (HC : False).
+  { unfold lw3_qnz in Hk.
+    destruct (Qeq_bool ((lw3_Kinst p377 1) # 1)%Q 0%Q) eqn:Eb.
+    - destruct Hk.
+    - assert (Et : Qeq_bool ((lw3_Kinst p377 1) # 1)%Q 0%Q = true).
+      { rewrite HzK. apply Qeq_bool_refl. }
+      rewrite Et in Eb. discriminate Eb. }
+  exact (False_rect Empty_set HC).
 Qed.
 
 (* Divisibility face on the recorded anchor: the functional value -265   *)
 (* leaves no remainder under the node shift 5, the trace of the termwise *)
 (* congruence of each derivative value against its coefficient factorial.*)
 Definition p377b : zpoly := cons 1%Z (cons 1%Z nil).
+(* The divisibility pin in the uniform Id carrier: the boolean decision  *)
+(* "no remainder" holds on the transparent computation path.             *)
 Definition lam377b_div :
-  match Z.eqb (Z.modulo
-                 (Qnum (lw2_lambda (lw3_nodecount p377b 1)
-                                   (lw3_fbuild p377b (lw3_deg p377b) 1)))
-                 5%Z)
-              0%Z
-  with true => unit | false => Empty_set end := tt.
+  @Id bool true (Z.eqb (Z.modulo
+                          (Qnum (lw2_lambda (lw3_nodecount p377b 1)
+                                            (lw3_fbuild p377b (lw3_deg p377b) 1)))
+                          5%Z)
+                       0%Z) := id_refl.
 
 Print Assumptions p377_nz.
 Print Assumptions kleg377_empty.
