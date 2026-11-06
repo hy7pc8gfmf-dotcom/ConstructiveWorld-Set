@@ -383,3 +383,13 @@ UpReqNegFactorB.v#R97-b35a002
 NsepFindGeneric.v#R97-b35a003
 PhysPredAblation.v#R97-b35a004
 UpAblDeltaStarGeneral.v#R97-b35a005
+UpReqStepKLEtaInst.v#R97-b24a001
+UpAblEps49RKDBase.v#R97-b24a002
+RealKLDecomp.v#R97-b24a003
+UpReqTempInterp.v#R97-b28a001
+UpAblAbsSumLeB2.v#R97-b28a002
+EpiOrFaces.v#R97-b28a003
+Arch_Up_01.v#R97-b29a001
+UpReqAttnIter.v#R97-b29a002
+UpAblT3_UpReqAlign.v#R97-b31a002
+UpAblT1_UpReqDist.v#R97-b31a003
