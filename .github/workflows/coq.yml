@@ -13,7 +13,7 @@ on:
         type: boolean
 
 concurrency:
-  group: cw-main-ci
+  group: cw-main-ci-${{ github.ref }}  # per-ref pools: PR certification runs and main push runs queue separately (pending-run priority cancellation killed PR cert runs when sharing one pool)
   cancel-in-progress: false
 
 jobs:
@@ -29,6 +29,21 @@ jobs:
     # pipe deadlock with zero ceiling. 720min >= cold build + gate7 worst case.
     timeout-minutes: 720
     steps:
+      # NETRED self-heal gate (20261106): github.com:443 flaps in multi-minute windows;
+      # checkout dying at fetch costs the whole run. Wait (bounded) for a stable channel first.
+      - name: Wait for git channel (NETRED self-heal gate)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set +e
+          ok=0
+          for i in $(seq 1 40); do
+            if git ls-remote https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set.git refs/heads/main >/dev/null 2>&1; then ok=$((ok+1)); else ok=0; fi
+            [ "$ok" -ge 2 ] && { echo "NETRED-GATE: channel stable (try $i)"; exit 0; }
+            sleep 30
+          done
+          echo "NETRED-GATE-FAIL: git channel unstable for 20min - fail loud (rerun when the window opens)"
+          exit 1
+
       - uses: actions/checkout@v5
         with:
           fetch-depth: 1
