@@ -378,3 +378,9 @@ tlw1463_pade_table.v#R97-b1a004
 abl_dtd_core1.v#R97-b1a002
 abl_dtr_core1.v#R97-b1a003
 abl_e_irrational.v#R97-b2a001
+abl_loeb_d3_prf2.v#R97-b34a001
+EnergyTempMonoB.v#R97-b34a002
+PadeDenPosB12.v#R97-b34a003
+Arch_Up_02.v#R97-b34a004
+LW3DualBridge.v#R97-b34a005
+LW3ESlot.v#R97-b34a006
