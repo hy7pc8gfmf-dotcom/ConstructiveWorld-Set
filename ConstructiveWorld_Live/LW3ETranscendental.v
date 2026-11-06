@@ -507,10 +507,14 @@ Definition lw3_qnz (q : Q) : Set :=
 (* ② K≠0 见证生产第一件：Niven 源头多项式首项系数的非零见证.            *)
 (* 复用 lw2_niven_f_lc_closed（首项 =(−1)^n·b^n 闭式）：幂非零两件      *)
 (* （(−1)^n≠0 直接判别、b^n≠0 由 b≠0 保幂）乘积非零闭合，纯 Z 判定面.   *)
-Theorem lw3_niven_lc_nz : forall (a b : Z) (n : nat),
-  b <> 0%Z -> lw3_qnz (lw0_coef (n + n) (lw2_niven_int_f a b n)).
+(* The decidable nonzero verdict on the Niven leading coefficient, as     *)
+(* uniform Id data: the boolean comparison of the closed-form leading     *)
+(* coefficient against zero is false, which is the data content of the    *)
+(* witness (uniform Id carrier for the match-typed witness face).         *)
+Lemma lw3_niven_lc_bool : forall (a b : Z) (n : nat),
+  b <> 0%Z -> @Id bool false (Qeq_bool (lw0_coef (n + n) (lw2_niven_int_f a b n)) 0%Q).
 Proof.
-  intros a b n Hb. unfold lw3_qnz.
+  intros a b n Hb.
   destruct (Qeq_bool (lw0_coef (n + n) (lw2_niven_int_f a b n)) 0%Q) eqn:Hqb.
   - apply Qeq_bool_eq in Hqb.
     rewrite (qeqT_imp_qeq _ _ (lw2_niven_f_lc_closed a b n)) in Hqb.
@@ -526,8 +530,12 @@ Proof.
     unfold Qeq in Hqb. cbn [Qnum Qden] in Hqb.
     repeat rewrite Z.mul_1_r in Hqb.
     destruct (Hm Hqb).
-  - exact tt.
+  - apply id_refl.
 Qed.
+
+Theorem lw3_niven_lc_nz : forall (a b : Z) (n : nat),
+  b <> 0%Z -> @Id bool false (Qeq_bool (lw0_coef (n + n) (lw2_niven_int_f a b n)) 0%Q).
+Proof. intros a b n Hb. exact (lw3_niven_lc_bool a b n Hb). Qed.
 
 (* ④ apartness 出口（M0 步6/7 同款矛盾复用工艺）：0<|K|<1 两端入闸，    *)
 (* lw3_Kinst_gate 合拢 (0=1)%Z 后经判别消除构造性导出 Set 级分离见证     *)
