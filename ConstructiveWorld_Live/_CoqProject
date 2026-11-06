@@ -379,6 +379,12 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+UpAblS06AbsFeed.v
+UpAblT1c_UpFirewallReq.v
+UpAblT3_UpReqFEPAttn.v
+VandermondePartial.v
+abl_Ln2_native_escape_03.v
+abl_Pr_bertrand.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
