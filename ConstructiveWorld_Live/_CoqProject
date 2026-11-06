@@ -379,3 +379,8 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
+AttnLogSumExpBound.v
+PinskerTwoPoint.v
+UpReqSqrt3Irrational.v
+UpReqSqrtF.v
+UpReqTBNCBridge.v
