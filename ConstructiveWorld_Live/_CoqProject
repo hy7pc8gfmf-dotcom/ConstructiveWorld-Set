@@ -379,11 +379,6 @@ tlw1463_pade_table.v
 abl_dtd_core1.v
 abl_dtr_core1.v
 abl_e_irrational.v
-LW3P2Prod.v
-LW3VarTSumBound.v
-Ln2Integrality.v
-UpAblD1S9_UpReqAttnIter.v
-abl_tvd_stationary.v
 UpReqStepKLEtaInst.v
 UpAblEps49RKDBase.v
 RealKLDecomp.v
@@ -413,3 +408,8 @@ UpStepKL.v
 EpsOptimalReach.v
 Arch_PA_04.v
 abl_tail_pos_certs.v
+AttnLogSumExpBound.v
+PinskerTwoPoint.v
+UpReqSqrt3Irrational.v
+UpReqSqrtF.v
+UpReqTBNCBridge.v
