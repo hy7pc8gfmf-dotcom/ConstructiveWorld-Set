@@ -389,3 +389,9 @@ Arch_Up_01.v
 UpReqAttnIter.v
 UpAblT3_UpReqAlign.v
 UpAblT1_UpReqDist.v
+WeakTriangleClose.v
+d519a2_cert.v
+u5c_ln2_gap1_convbinom.v
+abl_Pr_erdos_core.v
+piu1909_sall_upper.v
+piu_zz_kernel_sum.v
