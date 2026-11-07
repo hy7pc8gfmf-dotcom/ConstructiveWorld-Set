@@ -39,7 +39,7 @@ Proof. destruct H. apply eq_refl. Qed.
 Definition NatLe (n m : nat) : Set := Id (Nat.leb n m) true.
 
 (* Pre-recast Prop bridges restored verbatim at their original names        *)
-(* (S01 v2 pure-increment correction, 2026-11-06; twin of the S01_BaseRing  *)
+(* S01 v2 pure-increment correction; twin of the S01_BaseRing               *)
 (* correction block).  Proof faces only.                                    *)
 Lemma NatLe_drop : forall n m : nat, NatLe n m -> (n <= m)%nat.
 Proof.
@@ -60,7 +60,7 @@ Proof.
 Qed.
 
 (* Native informative direction family over the carrier [NatLe] (I-suffix   *)
-(* names per the 2026-11-06 correction).  The carrier [NatLe n m] is the    *)
+(* names per the pure-increment correction).  The carrier [NatLe n m] is    *)
 (* boolean identity face [Id (Nat.leb n m) true].  The native faces read    *)
 (* and write boundedness certificates as value-level data; both are total   *)
 (* projections, so the extracted code carries no partial branch and no      *)
@@ -101,7 +101,7 @@ Proof.
 Qed.
 
 (* Bridge: Prop order face read out of the boolean identity evidence        *)
-(* (2026-11-06 correction form of the bridge pair). *)
+(* Pure-increment correction form of the bridge pair. *)
 Lemma NatLe_lift_le : forall n m : nat, @Id bool (Nat.leb n m) true -> (n <= m)%nat.
 Proof.
   intros n m H.
