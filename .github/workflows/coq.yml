@@ -150,6 +150,26 @@ jobs:
             b="${f%.vo}"
             [ -f "$b.v" ] || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged ghost $f"; }
           done
+          # 20261108 out-of-registry lesson (run #220 att2, Inconsistent assumptions
+          # over module BeukersLists): the mirror can carry .vo for .v files that
+          # have no order.txt row (unregistered supply). Build compiles registered
+          # rows only, so such .vo stay frozen while their upstream deps get
+          # rebuilt; coqchk's *.vo full scan then loads the stale one first and
+          # the whole certification dies on the tear. Certification surface must
+          # equal the registered surface: purge any .vo whose stem has no row.
+          tr -d '\r' < ConstructiveWorld_Live/order.txt \
+            | grep -v '^#' | grep -v '^[[:space:]]*$' | sed 's/#.*//' \
+            | sort -u > /tmp/reg_stems.txt
+          nreg="$(wc -l < /tmp/reg_stems.txt)"
+          echo "registered stems: $nreg"
+          if [ "$nreg" -gt 0 ]; then
+            find ConstructiveWorld_Live -maxdepth 1 -name "*.vo" | while read -r f; do
+              b="$(basename "$f" .vo)"
+              grep -qx "$b" /tmp/reg_stems.txt || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged out-of-registry $f"; }
+            done
+          else
+            echo "WARN: order.txt parsed to zero stems - registry purge skipped (fail-open)"
+          fi
           # 【20261102 Rocq 9.3 换基·首炉禁播 9.1 .vo】.vo 魔数 9.1=43 6f 71 21 00 01 5f f4（0x15FF4）／
           # 9.3=…00 01 60 bc（0x160BC）。本地实测：开发树 258 .vo 全 9.1（含 45 ghost）·set93c 213 .vo 全 9.3 零侧车。
           # 9.1 .vo 播入 9.3 炉＝coqc Require 代际红／coqchk 不可判；指纹 SKIP 还会放行同名 9.1 陈旧件。
