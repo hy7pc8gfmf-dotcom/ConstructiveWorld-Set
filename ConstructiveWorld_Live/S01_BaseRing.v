@@ -89,7 +89,7 @@ Definition NatLe (n m : nat) : Set := Id (Nat.leb n m) true.
 
 (* ---- Pre-recast Prop kernel bridges: NatLe <-> (<=)%nat, restored      ---- *)
 (* ---- verbatim at their original names (S01 v2 pure-increment           ---- *)
-(* ---- correction, 2026-11-06: the native informative family moved to    ---- *)
+(* ---- correction: the native informative family moved to                 ---- *)
 (* ---- the I-suffix names below so the pre-recast faces keep theirs;     ---- *)
 (* ---- signatures and proof bodies are byte-identical to the main        ---- *)
 (* ---- baseline).  Proof faces only; proof-bridge registry entries       ---- *)
@@ -145,7 +145,7 @@ Lemma NatLe_liftI : forall n m : nat, @Id bool (Nat.leb n m) true -> NatLe n m.
 Proof. intros n m H. exact H. Qed.
 
 (* Set-level [Id] to Leibniz equality eliminator (z2v_idS_eq statement form;  *)
-(* I-suffix family name per the 2026-11-06 correction). *)
+(* I-suffix family name per the pure-increment correction). *)
 Lemma id_eq_SI : forall (A : Set) (x y : A), Id x y -> x = y.
 Proof.
   intros A x y H.
@@ -173,7 +173,7 @@ Proof.
 Qed.
 
 (* Bridge: Prop order face read out of the boolean identity evidence          *)
-(* (2026-11-06 correction form of the bridge pair). *)
+(* Pure-increment correction form of the bridge pair. *)
 Lemma NatLe_lift_le : forall n m : nat, @Id bool (Nat.leb n m) true -> (n <= m)%nat.
 Proof.
   intros n m H.
