@@ -165,7 +165,8 @@ jobs:
           if [ "$nreg" -gt 0 ]; then
             find ConstructiveWorld_Live -maxdepth 1 -name "*.vo" | while read -r f; do
               b="$(basename "$f" .vo)"
-              grep -qx "$b" /tmp/reg_stems.txt || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged out-of-registry $f"; }
+              # reg stems carry the .v suffix (sed only strips the #annotation)
+              grep -qx "${b}.v" /tmp/reg_stems.txt || { rm -f "$f" "$b.vobuild.md5" 2>/dev/null || true; echo "purged out-of-registry $f"; }
             done
           else
             echo "WARN: order.txt parsed to zero stems - registry purge skipped (fail-open)"
