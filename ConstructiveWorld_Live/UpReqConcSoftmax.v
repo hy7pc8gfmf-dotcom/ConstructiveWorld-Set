@@ -1,11 +1,33 @@
-(* ==========================================================================)
-   UpReqConcSoftmax.v — conc softmax 求和接口的绝对值界
-   使命: csm_sumf 定义与求和接口件（csm_sum_eq_list/ext/linear/add/le）、csm_abs_pointwise、csm_abs_list_le_eps（列表逐 eps 三角）、csm_abs_pair_tri_eps 与主件 csm_abs_sum_le_eps。
-   依赖: CW_ConstructiveWorld_219、UpReqAlgebra、UpReqSumD；Stdlib List、QArith、Setoid、Morphisms、Lia。
-   对标: 有限和绝对值不等式的 softmax 求和接口版本。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — absolute-value bounds over the concrete softmax summation interface. *)
+
+(** * UpReqConcSoftmax: absolute-value bounds over the summation
+       interface of the concrete softmax.
+
+    Mission.  The [csm_sumf] definition and the summation-interface
+    members [csm_sum_eq_list]/[csm_sum_ext]/[csm_sum_linear]/
+    [csm_sum_add]/[csm_sum_le]; the triangle chain [csm_abs_pointwise],
+    [csm_abs_list_le_eps], [csm_abs_pair_tri_eps], and the main member
+    [csm_abs_sum_le_eps].
+
+    Dependencies.  Stdlib [List], [QArith.QArith], [QArith.Qabs],
+    [Setoid], [Morphisms], [Lia].  Requires [S01_BaseRing] through
+    [S15_TailFEPUp], [UpReqAlgebra], [UpReqSumD] of this development;
+    [CW_ConstructiveWorld_219] read-only.
+
+    References.  This development, UpReqConcSoftmax.v, the baseline
+    module in ConstructiveWorld-Main whose statement names are carried
+    over here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements and fields are carried by
+      [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
+      [NatLe]); statements extract with [Obj.magic] = 0 and no erasure;
+      [coqchk] reports [Axioms: none].  Every member [Qed]-closed, zero
+      admitted statements, no classical logic; the statement face is
+      Set-carried with zero Prop leakage.
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqConcSoftmax.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 From Stdlib Require Import List.
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Setoid Morphisms.
@@ -30,22 +52,29 @@ Require Import UpReqAlgebra.
 Require Import UpReqSumD.
 Import RealInterfaceEnhancedMod.
 
-(* ============ 折叠机器与五槽委派（柯西 Real 实数面） ============ *)
+(* Derivation provenance: the softmax-summation-interface version of the
+   finite-sum absolute-value inequality. *)
+
+(* ============ The folding machinery and the five-slot delegation
+   (Cauchy Real layer) ============ *)
 
 Section CsmSumOver.
 
 Variable S : Set.
 Variable enum : list S.
 
-(* 具体有限和算子：enum 列表折叠（sumd_sumf 处方的同构自持） *)
+(* The concrete finite-sum operator: folding over the enum list (a
+   self-contained isomorphic form of the sumd_sumf prescription). *)
 Definition csm_sumf (f : S -> Real) : Real := sumd_list_sum S f enum.
 
-(* C 档：钥匙桥（折叠处方定义性即列表和，req_refl 保底，sumd_sum_eq_list 同款） *)
+(* Grade C: the key bridge (the folding prescription is definitionally the
+   list sum, grounded by req_refl; same shape as sumd_sum_eq_list). *)
 Lemma csm_sum_eq_list : forall g : S -> Real,
   real_eq (csm_sumf g) (sumd_list_sum S g enum).
 Proof. intro g. exact (req_refl (sumd_list_sum S g enum)). Qed.
 
-(* B 档：外延槽（sumd_sum_ext 委派；csm_sumf 折叠处方可转换） *)
+(* Grade B: the extensionality slot (delegated to sumd_sum_ext; the
+   csm_sumf folding prescription is convertible). *)
 Lemma csm_sum_ext : forall f g : S -> Real,
   (forall s : S, real_eq (f s) (g s)) -> real_eq (csm_sumf f) (csm_sumf g).
 Proof.
@@ -57,7 +86,8 @@ Proof.
              (sumd_list_sum S g t) (H x) IH).
 Qed.
 
-(* B 档：数乘线性槽（sumd_sum_linear 委派） *)
+(* Grade B: the scalar-multiplication linearity slot (delegated to
+   sumd_sum_linear). *)
 Lemma csm_sum_linear : forall (a : Real) (f : S -> Real),
   real_eq (csm_sumf (fun s : S => mult a (f s))) (mult a (csm_sumf f)).
 Proof.
@@ -79,7 +109,7 @@ Proof.
                 (distrib a (f x) (sumd_list_sum S f t)))).
 Qed.
 
-(* B 档：可加槽（sumd_sum_add 委派） *)
+(* Grade B: the additivity slot (delegated to sumd_sum_add). *)
 Lemma csm_sum_add : forall f g : S -> Real,
   real_eq (csm_sumf (fun s : S => plus (f s) (g s)))
       (plus (csm_sumf f) (csm_sumf g)).
@@ -103,7 +133,7 @@ Proof.
                 (g x) (sumd_list_sum S g t))).
 Qed.
 
-(* B 档：单调槽（sumd_sum_le 委派） *)
+(* Grade B: the monotonicity slot (delegated to sumd_sum_le). *)
 Lemma csm_sum_le : forall f g : S -> Real,
   (forall s : S, real_le (f s) (g s)) -> real_le (csm_sumf f) (csm_sumf g).
 Proof.
@@ -115,7 +145,8 @@ Proof.
              (sumd_list_sum S g t) (H x) IH).
 Qed.
 
-(* B 档：非负槽（sumd_list_sum_nonneg 直供折叠形） *)
+(* Grade B: the nonnegativity slot (supplied directly in folding form by
+   sumd_list_sum_nonneg). *)
 Lemma csm_sum_zero_nonneg : forall f : S -> Real,
   (forall s : S, real_le zero (f s)) -> real_le zero (csm_sumf f).
 Proof.
@@ -130,9 +161,11 @@ Proof.
                 (H x) IH)).
 Qed.
 
-(* ============ A 档：三角核心件（本件增量） ============ *)
+(* ============ Grade A: the triangle core members (the increment of this
+   file) ============ *)
 
-(* —— Route A 逐点机（real_plus/real_abs/real_zero 全透明 repr 引理） —— *)
+(* — Route A pointwise machinery (fully transparent repr lemmas for
+   real_plus/real_abs/real_zero) — *)
 
 Lemma csm_repr_plus : forall (A B : Real) (n : nat),
   projT1 (real_plus A B) n == projT1 A n + projT1 B n.
@@ -145,7 +178,8 @@ Proof. intros A n. destruct A as [u Hu]. reflexivity. Qed.
 Lemma csm_repr_zero : forall n : nat, projT1 real_zero n == 0%Q.
 Proof. intro n. cbv [projT1 real_zero]. exact (Qeq_refl 0%Q). Qed.
 
-(* 逐点三角：Qabs(Σ f)(n) ≤ (Σ |f|)(n)（纯 Q 层，逐 n 全域成立） *)
+(* Pointwise triangle: Qabs(sum f)(n) <= (sum |f|)(n) (purely at the Q
+   layer, holding for every n). *)
 Lemma csm_abs_pointwise : forall (l : list S) (f : S -> Real) (n : nat),
   Qle (Qabs (projT1 (sumd_list_sum S f l) n))
       (projT1 (sumd_list_sum S (fun s : S => real_abs (f s)) l) n).
@@ -170,7 +204,8 @@ Proof.
       * exact (IH f n).
 Qed.
 
-(* 列表档：|Σ_l f| < (Σ_l |f|) + eps（0 < eps；real_lt 组合，逐点 eps 边际） *)
+(* List level: |sum_l f| < (sum_l |f|) + eps (0 < eps; combined at the
+   real_lt level with a pointwise eps margin). *)
 Lemma csm_abs_list_le_eps : forall (l : list S) (f : S -> Real) (eps : Real),
   real_lt zero eps ->
   real_le (abs (sumd_list_sum S f l))
@@ -215,10 +250,12 @@ Proof.
                   H0D (Qle_refl (we n - 0)))).
 Qed.
 
-(* 逐对三角（Bishop 逐 eps 形）：|x+y| ≤ |x| + |y| + eps（0 < eps）
-   metric 代换法：real_metric_triangle_eps (x+y) x zero eps 认证机直供
-   le (|(x+y)−zero|) (|(x+y)−x| + |x−zero| + eps)，再将 metric 形
-   逐槽 req 衔接到 abs 形（|a−zero|==|a|、|(x+y)−x|==|y|、加法重排）。 *)
+(* Pairwise triangle (Bishop per-eps form): |x+y| <= |x| + |y| + eps
+   (0 < eps).  Metric substitution method: the certificate machine
+   real_metric_triangle_eps (x+y) x zero eps directly supplies
+   le (|(x+y) - zero|) (|(x+y) - x| + |x - zero| + eps); the metric form
+   is then carried slot by slot along req to the abs form
+   (|a - zero| == |a|, |(x+y) - x| == |y|, and rearranged addition). *)
 Lemma csm_abs_pair_tri_eps : forall x y eps : Real,
   real_lt zero eps ->
   real_le (abs (plus x y)) (plus (abs x) (plus (abs y) eps)).
@@ -290,7 +327,9 @@ Proof.
                     (le_refl (plus (abs y) (plus (abs x) eps))))))).
 Qed.
 
-(* 主件：csm_sumf 处方的逐 eps 三角（rsq 对应副本 abs_sum_le 槽的 eps 形直供） *)
+(* Main member: the per-eps triangle for the csm_sumf prescription (direct
+   supply of the eps form of the abs_sum_le slot of the corresponding rsq
+   copy). *)
 Definition csm_abs_sum_le_eps : forall (f : S -> Real) (eps : Real),
   real_lt zero eps ->
   real_le (abs (csm_sumf f)) (plus (csm_sumf (fun s : S => abs (f s))) eps)
@@ -298,7 +337,8 @@ Definition csm_abs_sum_le_eps : forall (f : S -> Real) (eps : Real),
 
 End CsmSumOver.
 
-(* ============ 公理面证据：新件零外部未证假设（全 Closed，前提=显式参数） ============ *)
+(* ============ Assumption-face evidence: the new members have zero external unproven
+   assumptions (all Closed, premises = explicit arguments) ============ *)
 Print Assumptions csm_sum_eq_list.
 Print Assumptions csm_sum_ext.
 Print Assumptions csm_sum_linear.

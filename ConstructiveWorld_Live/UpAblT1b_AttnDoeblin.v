@@ -1,34 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpAblT1b_AttnDoeblin.v —— 假设消融工程 T1b 伴生实例化消解件      *)
-(* 工程：FA1 普查第①批 swap/Fubini 族 + 第②批 abs 幂等族            *)
-(* 原树零改：本件为独立配套模块，只读使用基座，不入注册面（随 R 波）      *)
-(*                                                              *)
-(* 源文件坐标（Live_X 现档实态实测，与 ConstructiveWorld-Main 树行号齐）： *)
-(*   AttnDoeblin.v L154 sum_swap_cc（双和交换槽）                    *)
-(*   AttnDoeblin.v L157 abs_ge_zero_id_cc（le 版 abs 恒等缺口）       *)
-(*   AttnDoeblin.v L472 bs_swap（诚实接口三件之首）                   *)
-(*   AttnDoeblin.v L475 bs_abs（诚实接口三件之二）                    *)
-(*   同节已闭合槽：L444 enum、L485 sum_eq_list（枚举求和规范化）        *)
-(* 使用位判据（判例 翻案形）：swap 槽=sum_eq_list 槽+列表 Fubini        *)
-(*   组合学整体导出，非独立接口位；abs 槽=AbsLeId 直接代入。                *)
-(*                                                              *)
-(* 非平凡性分级（详见 attn/_tt1b_消融报告-.md 分级表）：        *)
-(*   abl_AtnDoeblin_sum_swap_cc ：N2（判例 段一+段二导出链复刻）        *)
-(*   abl_AtnDoeblin_bs_swap     ：N1（同语句双槽对偶，L472=L154 同形）   *)
-(*   abl_AtnDoeblin_abs_ge_zero_id_cc ：N1（AbsLeId L50 直接代入）         *)
-(*   abl_AtnDoeblin_bs_abs      ：N1（同语句双槽对偶，L475=L157 同形）   *)
-(*                                                              *)
-(* 红线自审（全部打勾）：                                             *)
-(*  [x] 现档实态取证已做：Live_X 与 Main 树 L154/157/472/475 行号齐      *)
-(*  [x] 逐字抽取：被消融槽语句自现档源码逐字拷入（参序/命名/隐式位同形）  *)
-(*  [x] 使用位实证：判例卡 bs_swap 可消融结论+P7D 件在库为先例坐标      *)
-(*  [x] 分级 N/T 已逐件标注（W 件不发本件；本件零 W）                   *)
-(*  [x] 禁词双轨零：头注全中文表述（含英文原词字面亦零）                 *)
-(*  [x] 编译闭合+文尾逐件假设面打印全闭                                 *)
-(*  [x] 提取检验 Obj.magic=0：输出目录树外隔离（attn/logs/g3 留痕）      *)
-(*  [x] 模块核验 EXIT=0：attn/logs/g4 留痕（后台长窗）                  *)
-(*  [x] 四检留痕：attn/logs/g{1..4}-UpAblT1b_AttnDoeblin.log            *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — discharged slot instances for the swap and absolute-value interfaces of the attention module. *)
+
+(** * UpAblT1b_AttnDoeblin: instances closing the swap and
+    absolute-value identity slots of [AttnDoeblin].
+
+    Mission.  The double-sum exchange for the two swap slots
+      [abl_AtnDoeblin_sum_swap_cc]/[abl_AtnDoeblin_bs_swap], derived
+      wholesale from the enumeration-normalization slot [sum_eq_list]
+      via a list-Fubini layer, and the absolute-value identity slots
+      [abl_AtnDoeblin_abs_ge_zero_id_cc]/[abl_AtnDoeblin_bs_abs] as
+      direct instantiations of [AbsLeId].
+
+    Dependencies.  Stdlib [List].  Requires [S01_BaseRing] through
+      [S15_TailFEPUp], [AttnDoeblin] and [AbsLeId] of this
+      development.
+
+    References.  This development, UpAblT1b_AttnDoeblin.v, the baseline
+      module in ConstructiveWorld-Main whose statement names are carried
+      over here verbatim (statement-face Set-carrier completion); the
+      closed slots are [sum_swap_cc], [bs_swap], [abs_ge_zero_id_cc],
+      [bs_abs] of [AttnDoeblin].
+
+    Constructivity.  All statements are predicated on the Set-valued
+      identity [Id]; proofs use list induction, step congruence
+      ([id_cong]/[id_cong2]) and transitivity; statements extract with
+      [Obj.magic] = 0 and no erasure; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpAblT1b_AttnDoeblin.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.
@@ -49,16 +48,19 @@ Require Import S15_TailFEPUp.
 Require Import AttnDoeblin.
 Require Import AbsLeId.
 
-(* ################ 段一：列表 Fubini 组合学（判例 段一形复刻） ################
-   出节机 AttnDoeblin.bs_list_sum（顶层定档）上的逐点同余/加法线性/
-   零函数退化/双重和交换。段一各件为基础模块，不单独计入战果。 *)
+(* ==================== Part 1. List-Fubini combinatorics over the discharged machine ==================== *)
+(* Pointwise congruence, additivity, the zero-function degeneration and
+   the double-sum exchange for the top-level machine
+   [AttnDoeblin.bs_list_sum]; these lemmas are the basic layer the swap
+   slot is derived from. *)
 
 Section AblListSum.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 Context {SS : StateSpace RI}.
 
-(* 逐点 Id ⟹ 列表和 Id（bs_list_sum 上的同余延拓） *)
+(* Pointwise [Id] implies [Id] of the list sums (congruence extension
+   along [bs_list_sum]). *)
 Lemma abl_lsum_ext : forall (f g : S -> R) (l : list S),
   (forall x : S, Id (f x) (g x)) ->
   Id (AttnDoeblin.bs_list_sum f l) (AttnDoeblin.bs_list_sum g l).
@@ -68,7 +70,7 @@ Proof.
   - simpl. exact (id_cong2 plus (H x) IH).
 Qed.
 
-(* 列表和的加法线性 *)
+(* Additivity of the list sum. *)
 Lemma abl_lsum_add : forall (f g : S -> R) (l : list S),
   Id (AttnDoeblin.bs_list_sum (fun s : S => plus (f s) (g s)) l)
      (plus (AttnDoeblin.bs_list_sum f l) (AttnDoeblin.bs_list_sum g l)).
@@ -81,7 +83,8 @@ Proof.
                                      (g x) (AttnDoeblin.bs_list_sum g t)).
 Qed.
 
-(* 零函数列表和为零（使用 bs_list_const_sum ＋ mult 零元） *)
+(* The list sum of the zero function is zero (via [bs_list_const_sum]
+   and the multiplicative zero). *)
 Lemma abl_lsum_zero : forall l : list S,
   Id zero (AttnDoeblin.bs_list_sum (fun _ : S => zero) l).
 Proof.
@@ -90,7 +93,8 @@ Proof.
           (id_sym (AttnDoeblin.bs_list_const_sum zero l))).
 Qed.
 
-(* 双重列表和交换（一般形：内外列表分立；Fubini 组合学核心） *)
+(* Exchange of a double list sum (general form, outer and inner lists
+   independent; the core of the Fubini combinatorics). *)
 Lemma abl_lsum_fubini_gen : forall (f : S -> S -> R) (l1 l2 : list S),
   Id (AttnDoeblin.bs_list_sum (fun s : S => AttnDoeblin.bs_list_sum (f s) l2) l1)
      (AttnDoeblin.bs_list_sum (fun s' : S => AttnDoeblin.bs_list_sum (fun s : S => f s s') l1) l2).
@@ -108,9 +112,11 @@ Qed.
 
 End AblListSum.
 
-(* ################ 段二：swap 族消融主件（判例 段二形） ################
-   sum_swap_cc 槽（L154）/bs_swap 槽（L472）在 sum_eq_list 槽（L485，
-   已闭合槽）+段一组合学下整体导出——swap 位非独立接口位。 *)
+(* ==================== Part 2. The swap slots, derived wholesale ==================== *)
+(* The [sum_swap_cc] and [bs_swap] slots of [AttnDoeblin] follow
+   wholesale from the enumeration-normalization slot [sum_eq_list]
+   plus the Part 1 combinatorics — the swap position is not an
+   independent interface slot. *)
 
 Section AblSwap.
 Context {RI : RealInterfaceEnhanced}.
@@ -122,7 +128,8 @@ Variable enum : list S.
 Variable sum_eq_list : forall g : S -> R,
   Id (sum_over_S g) (AttnDoeblin.bs_list_sum g enum).
 
-(* 主件：L154 sum_swap_cc 槽语句逐字形；前提减薄=仅需求和规范化槽 *)
+(* Main statement, in the verbatim shape of the [sum_swap_cc] slot; the
+   only premise is the normalization slot [sum_eq_list]. *)
 Theorem abl_AtnDoeblin_sum_swap_cc : forall f : S -> S -> R,
   Id (sum_over_S (fun s : S => sum_over_S (fun s' : S => f s s')))
      (sum_over_S (fun s' : S => sum_over_S (fun s : S => f s s'))).
@@ -141,7 +148,8 @@ Proof.
   exact (id_sym (sum_eq_list (fun s' : S => sum_over_S (fun s : S => f s s')))).
 Qed.
 
-(* 对偶件：L472 bs_swap 槽同语句（N1 双槽对偶，非重复计数） *)
+(* Dual statement: the same proposition as the [bs_swap] slot (the two
+   slots share one proof). *)
 Corollary abl_AtnDoeblin_bs_swap : forall f : S -> S -> R,
   Id (sum_over_S (fun s : S => sum_over_S (fun s' : S => f s s')))
      (sum_over_S (fun s' : S => sum_over_S (fun s : S => f s s'))).
@@ -151,23 +159,25 @@ Qed.
 
 End AblSwap.
 
-(* ################ 段三：abs 幂等族消融（AbsLeId L50 直接代入形） ################
-   abs_ge_zero_id_cc 槽（L157）/bs_abs 槽（L475）：AbsLeId 抽象层主件
-   直接代入（其可判定序扩展槽出节全参化后全闭，先例件在库已验）。 *)
+(* ==================== Part 3. Absolute-value idempotence slots ==================== *)
+(* The [abs_ge_zero_id_cc] and [bs_abs] slots of [AttnDoeblin] are
+   direct instantiations of the main [AbsLeId] lemma; its decidable-
+   order extension slot closes fully once the discharged parameters
+   are generalized. *)
 
 Section AblAbs.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 Context {DO : DecidableOrder RI}.
 
-(* 主件：L157 abs_ge_zero_id_cc 槽语句逐字形 *)
+(* Main statement, in the verbatim shape of the [abs_ge_zero_id_cc] slot. *)
 Theorem abl_AtnDoeblin_abs_ge_zero_id_cc : forall a : R, le zero a -> Id (abs a) a.
 Proof.
   intros a Ha.
   exact (ali_abs_ge_zero_id a Ha).
 Qed.
 
-(* 对偶件：L475 bs_abs 槽同语句（N1 双槽对偶） *)
+(* Dual statement: the same proposition as the [bs_abs] slot. *)
 Corollary abl_AtnDoeblin_bs_abs : forall a : R, le zero a -> Id (abs a) a.
 Proof.
   exact abl_AtnDoeblin_abs_ge_zero_id_cc.
@@ -175,7 +185,7 @@ Qed.
 
 End AblAbs.
 
-(* ################ 收尾：文尾逐件假设面打印（G2 留痕） ################ *)
+(* Closure audit: [Print Assumptions] on every statement. *)
 Print Assumptions abl_lsum_ext.
 Print Assumptions abl_lsum_add.
 Print Assumptions abl_lsum_zero.

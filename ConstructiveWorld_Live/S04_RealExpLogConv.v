@@ -1,60 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ========================================================================= *)
-(* 【ToyR 工程·· 】玩具级定理同名非平凡替换稿（补标头注）       *)
-(*                                                                           *)
-(* 本稿系 ToyR 工程 替换落件（原名落件）；落件时头部漏植工程标记，本块由  *)
-(*  于  补设：仅加头注，语句面／证明体／         *)
-(* Require 面                                                                *)
-(* 零改动；原头注紧随本块之后原样保留。来源刀面权威记录：消融50/。       *)
-(* 替换定理清单：r_pow_nonneg／mult_one_minus_r／telescoping／               *)
-(* one_minus_kappa_pos／mult_swap_mid／mult_swap_outer／minus_pos／          *)
-(* mult_minus_distr_r（共 8 条）                                             *)
-(* 非平凡性口径：正体内联与显式直造链（逐段换形闭合），消除单跳转发；无一    *)
-(* 行拆分式假非平凡。                                                        *)
-(* 本稿零公理、零承认件、全闭合、纯构造性、无经典逻辑；落件时与本次补标      *)
-(* 抽验编译均验零承认。                                                      *)
-(* ========================================================================= *)
-(* ============================================================
-     （tier1 二段·切片二）同名替换注记 —— S04_RealExpLogConv.v
-   本件为同名替换稿：原件全文保留（声明序/原头注/其余引理逐字未动），
-   仅八条玩具证明体替换为定义层显式重演，语句面零改动：
-   ① r_pow_nonneg：兄弟件 r_pow_pos 归纳正体就地内联（归纳骨架与两支
-     叶项 one_pos/mult_positive 逐段直取金标体），叶位改 lt_le_iff 桥
-     左支显式构造子（inl）闭合，消对兄弟件的单跳转发。
-   ② mult_one_minus_r：unfold 后改 id_trans 两段链（mult_plus_distr_r
-     展开 + id_cong2 双侧同余），消两段 apply 链。
-   ③ telescoping：改 id_trans 两段链（id_sym plus_assoc 换形 + id_cong
-     逐段 plus_assoc/plus_comm/plus_opp/plus_zero 闭合），消 apply 链。
-   ④ one_minus_kappa_pos：lt_id_l 五参全显式直造（id_sym plus_opp 换形
-     + lt_plus_compat_lt_le 严界见证），消 apply 链。
-   ⑤ mult_swap_mid：id_trans 三段链（id_sym mult_assoc + id_cong
-     mult_comm 换形 + mult_assoc 闭合），消三段 apply 链。
-   ⑥ mult_swap_outer：id_trans 两段链（id_cong 换形 + mult_swap_mid
-     双实例复合），消单跳组合。
-   ⑦ minus_pos：lt_id_l 全参直造（id_sym plus_opp 换形 +
-     lt_plus_compat_lt_le 加法严界），消两段 apply 链。
-   ⑧ mult_minus_distr_r：id_trans 五段嵌套链（mult_comm/distrib/
-     id_cong/opp_mult_r 逐段换形闭合），消单跳封装。
-   验绿方式：池内全件编译（单根 vo_9.1 预编译树），四证齐：
-     rc=0、零错误锚、vo 新于 v、文尾八条 Print Assumptions 全 Closed。
-   余六条复核判级：接口桥位三类（entropy_gradient_strict_mono/
-     gradient_diff_from_zero/dynamics_step_unfold，转发目标为节假设
-     Variable 槽，无定义面可展）、深链转发三类（gradient_zero_neg_
-     entropy_truth/dynamics_greedy_locally_optimal/elbo_lower_bound，
-   ============================================================ *)
+(* ConstructiveWorld-Set — Real exp/log interface, gradient-ascent convergence, and maximum-entropy duality. *)
 
-(* ============================================================ *)
-(* S04_RealExpLogConv.v                                        *)
-(*                                                             *)
-(* 目的：实数指数/对数接口与其收敛性：exp/log 基本式、卷积与     *)
-(*       温度参数化 Boltzmann 族的最大熵对偶（构造性 Set 层）。  *)
-(* 主件：max_entropy_is_boltzmann_temp（同能量 ⟹ 熵最大，温度    *)
-(*       版）与 entropy_max_unique_temp（唯一性，温度版）。      *)
-(* 依赖：S01_BaseRing、S02_CauchyComplete、S03_QExp；Stdlib      *)
-(*       （QArith、Qabs、Qround、List、Bool、Arith、Setoid、     *)
-(*       Morphisms、Lia、Qminmax）。                             *)
-(* 备注：本件为 CW_ConstructiveWorld_219.v 之拆分分片，原文区间  *)
-(*       L13801-L18733，去头正文与原文区间逐字节同源。           *)
-(* ============================================================ *)
+(** * S04_RealExpLogConv: real exp/log interface, gradient-ascent convergence,
+    and maximum-entropy duality.
+
+    Mission.  The exp/log interface of [RealInterface] and its convergence
+      theory: Cauchy arguments for gradient ascent ([dynamics_converges],
+      [iterate_cauchy], [grad_squeeze_zero]), the contraction family
+      ([gradient_step_contraction], [grad_decay_positive_iter]), the unique
+      attractor [unique_attractor], the free-energy block ([gibbs_inequality],
+      [free_energy_kl_decomp], [min_free_energy_is_boltzmann],
+      [max_entropy_is_boltzmann_temp], [entropy_max_unique_temp],
+      [elbo_lower_bound], [evidence_kl_decomp], [elbo_explicit]).
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [QArith.Qround],
+      [List], [Bool], [Arith.Arith], [Setoid], [Morphisms], [Lia],
+      [QArith.Qminmax]; and [S01_BaseRing], [S02_CauchyComplete],
+      [S03_QExp] of this development.
+
+    References.  A split fragment of [CW_ConstructiveWorld_219].v, the
+      baseline module of ConstructiveWorld-Main (range L13801-L18733);
+      statement names carried over verbatim.
+
+    Constructivity.  All statements carried by [Set] via the decidable
+      carriers [Id]/[lt]/[le] of [S01_BaseRing]; axiom-free, nothing
+      admitted, every proof closed by [Qed].
+
+    Build.  [coqc -native-compiler no -q -Q . "" S04_RealExpLogConv.v]
+      compiles cleanly (exit 0) after [S01_BaseRing] and its siblings. *)
+
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -80,7 +53,8 @@ Variable real_log_mult : forall a b : R, lt zero a -> lt zero b ->
                            Id (real_log (mult a b)) (plus (real_log a) (real_log b)).
 Variable real_log_one : Id (real_log one) zero.
 Variable real_log_lt : forall a b : R, lt a b -> lt (real_log a) (real_log b).
-(* 前置引理：real_log_one 槽由兄弟字段（real_exp_zero+real_log_exp）推导—— 基座消融波 T1 终判位8；签名保持式三件套之 T；零承认件 *)
+(* Derived lemma: the [real_log_one] slot follows from the sibling fields
+   [real_exp_zero] and [real_log_exp]; nothing is admitted. *)
 Lemma real_log_one_derived : Id (real_log one) zero.
 Proof.
   exact (id_trans (id_sym (id_cong real_log real_exp_zero))
@@ -91,27 +65,23 @@ Qed.
 End RealExpLogInterface.
 
 (* ============================================================ *)
-(* 可微性相关章节：组合律作为假设变量                         *)
+(* Differentiability section: the composition law as an assumption variable. *)
 (* ============================================================ *)
 
-(* 注：原 DifferentiableComposeHyp Section 的 Variable differentiable_compose
-   已删除——链式法则已在 L14249 完整证明（Theorem differentiable_compose），
-   该 Variable 为虚假假设（零引用），P0 审计清除（v65 应证定理优先级分析）。 *)
+
 
 (* ============================================================ *)
-(* 熵导数与收敛性定理（假设变量形式）                          *)
+(* Entropy derivative and convergence theorems, stated with section
+   assumption variables. *)
 (* ============================================================ *)
 
-(* 原 Section EntropyDerivative（L8768-8805，entropy_differentiable Variable）已删除——
-   P0.5 冗余清理（备份 80）：其熵可微性已由 L17171 Section EntropyDifferentiable 的
-   Theorem entropy_differentiable（Differentiable entropy_ent）实质证明替代；
-   旧 Section 零下游引用。 *)
+
 
 Section ConvergenceTheorem.
 
 Context {RI : RealInterfaceEnhanced}.
 
-(* 解包 RealInterface 字段 *)
+(* Unpack the fields of [RealInterface]. *)
 Let R := @R RI.
 Let zero := @zero RI.
 Let one := @one RI.
@@ -129,9 +99,11 @@ Variable entropy_gradient : R -> R.
 Variable dynamics : R -> R.
 Variable eta : R.
 
-(* 动力学是梯度上升步进（诚实接口）：x_{n+1} = x_n + η·g(x_n)。
-   dynamics_converges 的收敛论证依赖此结构——dynamics 抽象无定义时
-   收敛不可证，补此接口使 iterate 的单步差公式成为可证定理。 *)
+(* The dynamics is a gradient-ascent step, stated explicitly as an interface
+   assumption: x_{n+1} = x_n + eta * g(x_n).  The convergence proof of
+   [dynamics_converges] rests on this structure: with [dynamics] left
+   abstract, convergence is not provable; this assumption makes the
+   one-step difference formula for [iterate] a theorem. *)
 Variable dynamics_gradient_step : forall x : R,
   Id (dynamics x) (plus x (mult eta (entropy_gradient x))).
 
@@ -148,25 +120,28 @@ Variable gradient_lipschitz :
 Variable S_max : R.
 Variable entropy_upper_bound : forall E_A, le (entropy E_A) S_max.
 
-(* iterate 的单步差公式（非平凡代数核心）：x_{n+1} − x_n == η·g(x_n)。
-   归纳于 n，用 dynamics_gradient_step 逐点替换。 *)
+(* One-step difference formula for [iterate] (the nontrivial algebraic
+   core): x_{n+1} - x_n == eta * g(x_n); by induction on [n], rewriting
+   pointwise with [dynamics_gradient_step]. *)
 Theorem iterate_step_diff : forall (E_A : R) (n : nat),
   Id (minus (iterate dynamics (Datatypes.S n) E_A) (iterate dynamics n E_A))
      (mult eta (entropy_gradient (iterate dynamics n E_A))).
 Proof.
   intros E_A n. induction n as [| n IH]; simpl.
-  - (* 基例：dynamics E_A − E_A == eta·g(E_A)。
-       dynamics E_A == plus E_A (eta·g(E_A))（dynamics_gradient_step）⟹
-       minus (plus E_A (eta·g)) E_A == eta·g（minus_plus_cancel_r）。 *)
+  - (* Base case: dynamics E_A - E_A == eta * g(E_A).
+   From [dynamics_gradient_step], dynamics E_A == plus E_A (eta * g(E_A)),
+   so minus (plus E_A (eta * g)) E_A == eta * g by [minus_plus_cancel_r]. *)
     assert (Hstep : Id (dynamics E_A) (plus E_A (mult eta (entropy_gradient E_A))))
       by exact (dynamics_gradient_step E_A).
     assert (Hgoal : Id (minus (plus E_A (mult eta (entropy_gradient E_A))) E_A)
                        (mult eta (entropy_gradient E_A)))
       by exact (minus_plus_cancel_r E_A (mult eta (entropy_gradient E_A))).
     exact (id_trans (id_cong (fun z => minus z E_A) Hstep) Hgoal).
-  - (* 归纳步：iterate dynamics (S(Datatypes.S n)) E_A − iterate dynamics (Datatypes.S n) E_A
-       == dynamics(iterate dynamics (Datatypes.S n) E_A) − iterate dynamics (Datatypes.S n) E_A
-       == eta·g(iterate dynamics (Datatypes.S n) E_A)（基例模式）。 *)
+  - (* Induction step: iterate dynamics (S (Datatypes.S n)) E_A
+   - iterate dynamics (Datatypes.S n) E_A
+   == dynamics (iterate dynamics (Datatypes.S n) E_A)
+      - iterate dynamics (Datatypes.S n) E_A
+   == eta * g (iterate dynamics (Datatypes.S n) E_A), as in the base case. *)
     assert (Hstep : Id (dynamics (iterate dynamics (Datatypes.S n) E_A))
                        (plus (iterate dynamics (Datatypes.S n) E_A)
                              (mult eta (entropy_gradient (iterate dynamics (Datatypes.S n) E_A)))))
@@ -180,16 +155,20 @@ Proof.
     exact (id_trans (id_cong (fun z => minus z (iterate dynamics (Datatypes.S n) E_A)) Hstep) Hgoal).
 Qed.
 
-(* 梯度单调性（严格凹 ⟹ 梯度严格递减）：lt x y -> lt (g y) (g x)。
-   strict_concavity 的显式化——收敛论证的凹性核心，标明迭代前提可复用。 *)
+(* Monotonicity of the gradient (strict concavity implies a strictly
+   decreasing gradient): lt x y -> lt (g y) (g x).  This restates
+   [strict_concavity]; it is the concavity core of the convergence argument
+   and records that the iteration premise is reusable. *)
 Theorem entropy_gradient_strict_mono : forall x y : R,
   lt x y -> lt (entropy_gradient y) (entropy_gradient x).
 Proof.
   intros x y Hxy. exact (strict_concavity x y Hxy).
 Qed.
 
-(* 梯度差的有界性（L-Lipschitz 的零起点特化）：|g(x) − g(0)| ≤ L·|x|。
-   gradient_lipschitz 于 y := zero——收敛论证中梯度绝对值的界。 *)
+(* Boundedness of the gradient difference (the L-Lipschitz bound at
+   y := zero): |g(x) - g(zero)| <= L * |x|.  An instance of
+   [gradient_lipschitz]; it bounds the gradient magnitude in the
+   convergence argument. *)
 Theorem gradient_diff_from_zero : forall x : R,
   le (abs (minus (entropy_gradient x) (entropy_gradient zero)))
      (mult L (abs (minus x zero))).
@@ -197,8 +176,9 @@ Proof.
   intro x. exact (gradient_lipschitz x zero).
 Qed.
 
-(* 单步差的绝对值：|x_{n+1} − x_n| == |η|·|g(x_n)|。
-   由 iterate_step_diff + abs_mult 换形。 *)
+(* Absolute value of the one-step difference:
+   |x_{n+1} - x_n| == |eta| * |g(x_n)|, by [iterate_step_diff] and
+   [abs_mult]. *)
 Theorem iterate_step_abs_diff : forall (E_A : R) (n : nat),
   Id (abs (minus (iterate dynamics (Datatypes.S n) E_A) (iterate dynamics n E_A)))
      (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))).
@@ -211,29 +191,33 @@ Proof.
   apply (abs_mult eta (entropy_gradient (iterate dynamics n E_A))).
 Qed.
 
-(* 梯度差的递推界：|g(x_{n+1}) − g(x_n)| ≤ L·|η|·|g(x_n)|。
-   gradient_lipschitz 于 x_{n+1}, x_n + iterate_step_abs_diff 链。
-   收敛论证的核心递推——步长差由梯度绝对值控制。 *)
+(* Recursive bound on the gradient difference:
+   |g(x_{n+1}) - g(x_n)| <= L * |eta| * |g(x_n)|, chaining
+   [gradient_lipschitz] at x_{n+1}, x_n with [iterate_step_abs_diff].
+   This is the core recursion of the convergence argument: the step
+   difference is controlled by the gradient magnitude. *)
 Theorem gradient_step_recurrence : forall (E_A : R) (n : nat),
   le (abs (minus (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))
                  (entropy_gradient (iterate dynamics n E_A))))
      (mult (mult L (abs eta)) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
   intros E_A n.
-  (* gradient_lipschitz：|g(x_{n+1}) − g(x_n)| ≤ L·|x_{n+1} − x_n| *)
+  (* gradient_lipschitz: |g(x_{n+1}) - g(x_n)| <= L * |x_{n+1} - x_n| *)
   assert (Hlip : le (abs (minus (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))
                                 (entropy_gradient (iterate dynamics n E_A))))
                     (mult L (abs (minus (iterate dynamics (Datatypes.S n) E_A)
                                         (iterate dynamics n E_A)))))
     by exact (gradient_lipschitz (iterate dynamics (Datatypes.S n) E_A)
                                  (iterate dynamics n E_A)).
-  (* 换 |x_{n+1} − x_n| 为 |η|·|g(x_n)|（iterate_step_abs_diff） *)
+  (* rewrite the factor |x_{n+1} - x_n| to |eta| * |g(x_n)|
+   ([iterate_step_abs_diff]) *)
   assert (Habs : Id (abs (minus (iterate dynamics (Datatypes.S n) E_A)
                                 (iterate dynamics n E_A)))
                     (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))))
     by exact (iterate_step_abs_diff E_A n).
   apply (le_trans _ (mult L (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A))))) _).
-  - (* Hlip : |g(x_{n+1})−g(x_n)| ≤ L·|x_{n+1}−x_n|，换 RHS 的 |x_{n+1}−x_n| 为 |η|·|g| *)
+  - (* Hlip : |g(x_{n+1}) - g(x_n)| <= L * |x_{n+1} - x_n|;
+   rewrite the right-hand factor |x_{n+1} - x_n| to |eta| * |g| *)
     apply (le_id_r (abs (minus (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))
                                (entropy_gradient (iterate dynamics n E_A))))
                    (mult L (abs (minus (iterate dynamics (Datatypes.S n) E_A)
@@ -241,7 +225,8 @@ Proof.
                    (mult L (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))))
                    (id_cong (fun z => mult L z) Habs)
                    Hlip).
-  - (* 中间项 L·(|η|·|g|) ≤ 目标 (L·|η|)·|g|：mult_assoc 换形 + le_refl *)
+  - (* intermediate factor L * (|eta| * |g|) <= (L * |eta|) * |g|:
+   [mult_assoc] followed by [le_refl] *)
     apply (le_id_r (mult L (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))))
                    (mult L (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))))
                    (mult (mult L (abs eta)) (abs (entropy_gradient (iterate dynamics n E_A))))
@@ -249,16 +234,18 @@ Proof.
                    (le_refl _)).
 Qed.
 
-(* 梯度绝对值沿上升迭代单调：x < y、0 < g(y) < g(x) ⟹ |g(y)| ≤ |g(x)|。
-   由 entropy_gradient_strict_mono（g 严格递减）+ abs_pos（正数保持）。
-   收敛论证关键：|g(x_{n+1})| ≤ |g(x_n)|（柯西性的收缩基础）。 *)
+(* The gradient magnitude decreases monotonically along the ascent
+   iteration: x < y and 0 < g(y) < g(x) imply |g(y)| <= |g(x)|, from
+   [entropy_gradient_strict_mono] (g strictly decreasing) and [abs_pos]
+   (positivity is preserved).  Key for convergence: |g(x_{n+1})| <= |g(x_n)|,
+   the contraction behind the Cauchy property. *)
 Theorem gradient_abs_mono : forall x y : R,
   lt x y -> lt zero (entropy_gradient y) ->
   lt (entropy_gradient y) (entropy_gradient x) ->
   le (abs (entropy_gradient y)) (abs (entropy_gradient x)).
 Proof.
   intros x y Hxy Hgypos Hgygx.
-  (* |g(y)| = g(y)（abs_pos，0 < g(y)）≤ g(x) = |g(x)|（abs_pos，0 < g(y) < g(x) ⟹ 0 < g(x)） *)
+  (* |g(y)| = g(y) (abs_pos, 0 < g(y)) <= g(x) = |g(x)| (abs_pos, 0 < g(y) < g(x) implies 0 < g(x)) *)
   assert (Hgxpos : lt zero (entropy_gradient x))
     by (apply (lt_trans _ (entropy_gradient y) _); [exact Hgypos | exact Hgygx]).
   assert (Habsy : Id (abs (entropy_gradient y)) (entropy_gradient y))
@@ -276,21 +263,18 @@ Proof.
                  (lt_le_iff _ _ (inl Hgygx))).
 Qed.
 
-(* 原 dynamics_converges Variable 已由 ConvergenceCauchy Section 内 Theorem
-   dynamics_converges（备份 80 后，lim 夹逼核心 grad_squeeze_zero）替换——
-   见 L9607 前：以 ConvergenceCauchy 条件集（kappa 几何衰减等）证明，
-   前提为初始梯度非零 lt zero (abs (entropy_gradient (iterate dynamics 0 E_A)))。 *)
+
 
 End ConvergenceTheorem.
 
 (* ============================================================ *)
-(* 工程③阶段 B / P1-2：柯西论证（合并自 probe_converge2.v）      *)
+(* The Cauchy argument. *)
 (* ============================================================ *)
 Section ConvergenceCauchy.
 
 Context {RI : RealInterfaceEnhanced}.
 
-(* 解包 RealInterface 字段 *)
+(* Unpack the fields of [RealInterface]. *)
 Let R := @R RI.
 Let zero := @zero RI.
 Let one := @one RI.
@@ -304,7 +288,8 @@ Let minus := @minus RI.
 Let lim := @lim RI.
 Let metric := @metric RI.
 
-(* 复制 ConvergenceTheorem 的诚实接口 Variable（同主文件 L7385-7407） *)
+(* Restate the interface variables of [ConvergenceTheorem] so that this
+   section is self-contained. *)
 Variable entropy : R -> R.
 Variable entropy_gradient : R -> R.
 Variable dynamics : R -> R.
@@ -321,37 +306,52 @@ Variable gradient_lipschitz :
 Variable S_max : R.
 Variable entropy_upper_bound : forall E_A, le (entropy E_A) S_max.
 
-(* 新接口字段（诚实标准性质，先例纪律） *)
-(* (0) metric 由范数诱导（同 smetric_snorm 先例） *)
+(* Further interface fields (standard properties as explicit assumptions). *)
+(* (0) the metric is induced by the norm, as in [smetric_snorm] *)
 Variable metric_abs : forall a b : R, Id (metric a b) (abs (minus a b)).
-(* (1) 梯度绝对值几何衰减（强凹收缩 content，诚实接口假设） *)
+(* (1) geometric decay of the gradient magnitude (the strong-concavity
+   contraction factor; explicit interface assumption) *)
 Variable kappa : R.
 Variable kappa_pos : lt zero kappa.
 Variable kappa_lt_one : lt kappa one.
 Variable gradient_abs_decay : forall (E_A : R) (n : nat),
   le (abs (entropy_gradient (iterate dynamics (Datatypes.S n) E_A)))
      (mult kappa (abs (entropy_gradient (iterate dynamics n E_A)))).
-(* (2) lt+le 混合加保序（诚实接口假设，与主文件 DPO Section L12330 同族：
-      抽象 R 层构造性缺此性质，0 < 1−κ 需要） *)
-(* [墙族登记·RW-MIX 混合保序] 接口层结构墙（论文7§9.1 三分表；uabm_wall 先例 ToyR_UpAblP7_UMixSelect.v:155）：接口仅载严格-严格/弱-弱加法保序（S01:232-233），无「严格从弱」产生子，本位接口层不可导，禁硬证禁纯删；具体层已证供给 real_lt_plus_compat_lt_le（S07_RealSetoidExpLog.v:6147，cms_bs_lpc 同件）——消解走实例层供给或 TB-2 字段化归一批。 *)
+(* (2) mixed strict/weak addition compatibility (explicit interface
+   assumption; the abstract [R] layer lacks this property, which
+   0 < 1 - kappa requires) *)
+(* Interface-level note: [RealInterfaceEnhanced] carries only strict-strict
+   and weak-weak addition compatibility ([lt_plus_compat],
+   [le_plus_compat]); no generator derives a strict inequality from a weak
+   one at the interface level, so mixed lt/le compatibility is postulated
+   here and supplied by the concrete layer as [real_lt_plus_compat_lt_le]
+   in [S07_RealSetoidExpLog]. *)
 Variable lt_plus_compat_lt_le : forall a b c d : R, lt a b -> le c d -> lt (plus a c) (plus b d).
-(* [墙族登记·RW-MIX 混合保序（对偶 le_lt 形）] 接口层结构墙（论文7§9.1 三分表；uabm_wall 先例 ToyR_UpAblP7_UMixSelect.v:155）：接口仅载严格-严格/弱-弱加法保序（S01:232-233），无「严格从弱」产生子，本位接口层不可导，禁硬证禁纯删；具体层已证供给 real_lt_plus_compat_lt_le（S07_RealSetoidExpLog.v:6147，cms_bs_lpc 同件）——消解走实例层供给或 TB-2 字段化归一批。 *)
+(* Interface-level note, dual [le]/[lt] form: same situation as the previous
+   field — mixed compatibility is not derivable at the interface level and
+   is supplied by the concrete layer as [real_lt_plus_compat_lt_le]
+   ([S07_RealSetoidExpLog]). *)
 Variable lt_plus_compat_le_lt : forall a b c d : R, le a b -> lt c d -> lt (plus a c) (plus b d).
 
-(* 主文件 ConvergenceTheorem 闭包定理的显式别名（Section 内 Variables 同名） *)
+(* Explicit aliases for the closure theorems of [ConvergenceTheorem]
+   (the section variables carry the same names). *)
 Let iter_abs := (@iterate_step_abs_diff RI entropy_gradient dynamics eta dynamics_gradient_step).
 Let iter_diff := (@iterate_step_diff RI entropy_gradient dynamics eta dynamics_gradient_step).
 
-(* ===== R 层幂 ===== *)
+(* ===== Powers in the [R] layer ===== *)
 Fixpoint r_pow (x : R) (n : nat) : R :=
   match n with
   | 0%nat => one
   | Datatypes.S m => mult x (r_pow x m)
   end.
 
-(* Step 4 新接口字段（诚实标准性质，先例纪律） *)
-(* (3) 度量自反零：metric a a == zero（构造性度量标准性质，抽象层缺） *)
-(* 前置引理（原 Variable 换同名 Lemma， 基座消融波 T2 终判 B04）：由 metric_abs+minus 展开+plus_opp+abs_zero 导出；零承认件 *)
+(* Interface fields for the final stage (standard properties as explicit
+   assumptions). *)
+(* (3) metric reflexivity at zero: metric a a == zero (a standard
+   constructive metric property, missing at the abstract layer) *)
+(* Auxiliary lemma (a former variable restated as a same-named lemma):
+   from [metric_abs], unfolding [minus], then [plus_opp] and [abs_zero];
+   nothing is admitted. *)
 Lemma metric_refl_zero : forall a : R, Id (metric a a) zero.
 Proof.
   intros a.
@@ -359,11 +359,12 @@ Proof.
          (id_trans (id_cong abs (plus_opp a)) abs_zero)).
 Qed.
 
-(* (4) 几何击穿（R 层阿基米德性质）：0<a、0<eps ⟹ ∃n, a·κ^n < eps *)
+(* (4) geometric breakout (archimedean property in the [R] layer):
+   0 < a and 0 < eps imply there exists n with a * kappa^n < eps *)
 Variable r_arch_pow : forall (a : R), lt zero a -> forall eps : R, lt zero eps ->
   sigT (fun n : nat => lt (mult a (r_pow kappa n)) eps).
 
-(* 幂正性：0 < x ⟹ 0 < x^n *)
+(* positivity of powers: 0 < x implies 0 < x^n *)
 Lemma r_pow_pos : forall x n, lt zero x -> lt zero (r_pow x n).
 Proof.
   intros x n Hx. induction n as [| m IH]; simpl.
@@ -371,7 +372,7 @@ Proof.
   - apply (mult_positive x (r_pow x m) Hx IH).
 Qed.
 
-(* 幂非负：0 < x ⟹ 0 ≤ x^n *)
+(* nonnegativity of powers: 0 < x implies 0 <= x^n *)
 Lemma r_pow_nonneg : forall x n, lt zero x -> le zero (r_pow x n).
 Proof.  intros x n Hx.
   assert (Hpos : lt zero (r_pow x n)).
@@ -381,12 +382,12 @@ Proof.  intros x n Hx.
   exact (lt_le_iff _ _ (inl Hpos)).
 Qed.
 
-(* 幂单调递减：0 < b < 1 ⟹ b^{S n} ≤ b^n *)
+(* powers decrease monotonically: 0 < b < 1 implies b^(S n) <= b^n *)
 Lemma r_pow_dec : forall b n, lt zero b -> lt b one -> le (r_pow b (Datatypes.S n)) (r_pow b n).
 Proof.
   intros b n Hb Hblt.
   induction n as [| m IH]; simpl.
-  - (* b^1 = b·1 ≤ 1：mult_one 换形 *)
+  - (* b^1 = b * 1 <= 1, by [mult_one] *)
     apply (le_id_l _ b _).
     + apply (mult_one b).
     + apply (lt_le_iff _ _ (inl Hblt)).
@@ -398,29 +399,30 @@ Proof.
         exact IH.
 Qed.
 
-(* ===== 梯度绝对值几何衰减迭代：|g(x_{n+k})| ≤ κ^k·|g(x_n)| ===== *)
+(* ===== geometric decay of the gradient magnitude over the iteration:
+   |g(x_{n+k})| <= kappa^k * |g(x_n)| ===== *)
 Lemma grad_decay_iter : forall (E_A : R) (n k : nat),
   le (abs (entropy_gradient (iterate dynamics (n + k) E_A)))
      (mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
   intros E_A n k.
   induction k as [| k IH]; simpl.
-  - (* k = 0：|g(x_n)| ≤ 1·|g(x_n)|（mult_comm + mult_one 换形） *)
+  - (* k = 0: |g(x_n)| <= 1 * |g(x_n)|, by [mult_comm] and [mult_one] *)
     rewrite (Nat.add_0_r n).
     apply (le_id_r _ (abs (entropy_gradient (iterate dynamics n E_A))) _).
     + apply (id_trans (id_sym (mult_one (abs (entropy_gradient (iterate dynamics n E_A)))))
                       (id_sym (mult_comm one (abs (entropy_gradient (iterate dynamics n E_A)))))).
     + apply le_refl.
-  - (* k = S k'：|g(x_{n+S k'})| ≤ κ·|g(x_{n+k'})| ≤ κ·(κ^{k'}·|g(x_n)|) == κ^{S k'}·|g(x_n)| *)
+  - (* k = S k': |g(x_{n+S k'})| <= kappa * |g(x_{n+k'})| <= kappa * (kappa^{k'} * |g(x_n)|) == kappa^{S k'} * |g(x_n)| *)
     apply (le_trans _ (mult kappa (abs (entropy_gradient (iterate dynamics (n + k) E_A)))) _).
-    + (* 单步衰减：gradient_abs_decay at (n+k) *)
+    + (* single-step decay: [gradient_abs_decay] at (n + k) *)
       rewrite (Nat.add_succ_r n k).
       apply (le_id_l _ (abs (entropy_gradient (iterate dynamics (Datatypes.S (n + k)) E_A))) _).
       * reflexivity.
       * exact (gradient_abs_decay E_A (n + k)).
-    + (* κ·|g(x_{n+k})| ≤ κ·(κ^k·|g(x_n)|) == (κ·κ^k)·|g(x_n)|：le_trans + mult_assoc *)
+    + (* kappa * |g(x_{n+k})| <= kappa * (kappa^k * |g(x_n)|) == (kappa * kappa^k) * |g(x_n)|: le_trans + mult_assoc *)
       apply (le_trans _ (mult kappa (mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A))))) _).
-      * (* κ·Y ≤ κ·(κ^k·X)：mult_comm 换形 + le_mult_compat *)
+      * (* kappa * Y <= kappa * (kappa^k * X), by [mult_comm] and [le_mult_compat] *)
         apply (le_id_l _ (mult (abs (entropy_gradient (iterate dynamics (n + k) E_A))) kappa) _).
         -- apply (mult_comm kappa (abs (entropy_gradient (iterate dynamics (n + k) E_A)))).
         -- apply (le_id_r _ (mult (mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A)))) kappa) _).
@@ -429,13 +431,15 @@ Proof.
                                     (mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A))))
                                     kappa kappa_pos).
               exact IH.
-      * (* κ·(κ^k·X) ≤ (κ·κ^k)·X：le_id_r + mult_assoc 正向 *)
+      * (* kappa * (kappa^k * X) <= (kappa * kappa^k) * X, by [le_id_r] and
+   [mult_assoc] in the forward direction *)
         apply (le_id_r _ (mult kappa (mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A))))) _).
         -- apply (mult_assoc kappa (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A)))).
         -- apply le_refl.
 Qed.
 
-(* ===== 多步步长收缩：|x_{n+k+1} − x_{n+k}| ≤ |η|·(κ^k)·|g(x_n)| ===== *)
+(* ===== multi-step contraction:
+   |x_{n+k+1} - x_{n+k}| <= |eta| * kappa^k * |g(x_n)| ===== *)
 Lemma iterate_step_abs_diff_iter : forall (E_A : R) (n k : nat),
   le (abs (minus (iterate dynamics (n + Datatypes.S k) E_A)
                  (iterate dynamics (n + k) E_A)))
@@ -443,25 +447,26 @@ Lemma iterate_step_abs_diff_iter : forall (E_A : R) (n k : nat),
 Proof.
   intros E_A n k.
   induction k as [| k IH]; simpl.
-  - (* k = 0：|x_{n+1} − x_n| ≤ |η|·(1·|g(x_n)|) *)
+  - (* k = 0: |x_{n+1} - x_n| <= |eta| * (1 * |g(x_n)|) *)
     rewrite (Nat.add_1_r n). rewrite (Nat.add_0_r n).
     apply (le_id_l _ (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))) _).
-    + (* 步长差 == |η|·|g|：iterate_step_abs_diff *)
+    + (* step difference == |eta| * |g|, by [iterate_step_abs_diff] *)
       exact (iter_abs E_A n).
-    + (* |η|·|g| ≤ |η|·(1·|g|)：mult_comm + mult_one 换形 *)
+    + (* |eta| * |g| <= |eta| * (1 * |g|), by [mult_comm] and [mult_one] *)
       apply (le_id_r _ (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))) _).
       * apply (id_cong (fun z => mult (abs eta) z)
                        (id_sym (id_trans (mult_comm one (abs (entropy_gradient (iterate dynamics n E_A))))
                                          (mult_one (abs (entropy_gradient (iterate dynamics n E_A))))))).
       * apply le_refl.
-  - (* k = S k'：|x_{n+S(S k')} − x_{n+S k'}| ≤ |η|·|g(x_{n+S k'})| ≤ |η|·(κ^{S k'}·|g(x_n)|) *)
+  - (* k = S k': |x_{n+S(S k')} - x_{n+S k'}| <= |eta| * |g(x_{n+S k'})| <= |eta| * (kappa^{S k'} * |g(x_n)|) *)
     apply (le_trans _ (mult (abs eta) (abs (entropy_gradient (iterate dynamics (n + Datatypes.S k) E_A)))) _).
-    + (* 单步差：iterate_step_abs_diff at (n + S k) *)
+    + (* one-step difference: [iterate_step_abs_diff] at (n + S k) *)
       rewrite (Nat.add_succ_r n (Datatypes.S k)).
       apply (le_id_l _ (mult (abs eta) (abs (entropy_gradient (iterate dynamics (n + Datatypes.S k) E_A)))) _).
       * exact (iter_abs E_A (n + Datatypes.S k)).
       * apply le_refl.
-    + (* |η|·|g(x_{n+S k'})| ≤ |η|·(κ^{S k'}·|g(x_n)|)：mult_comm 换形 + le_mult_compat_weak + grad_decay_iter *)
+    + (* |eta| * |g(x_{n + S k'})| <= |eta| * (kappa^(S k') * |g(x_n)|), by
+   [mult_comm], weak [le_mult_compat] and [grad_decay_iter] *)
       apply (le_id_l _ (mult (abs (entropy_gradient (iterate dynamics (n + Datatypes.S k) E_A))) (abs eta)) _).
       * apply (mult_comm (abs eta) (abs (entropy_gradient (iterate dynamics (n + Datatypes.S k) E_A)))).
       * apply (le_id_r _ (mult (mult (r_pow kappa (Datatypes.S k)) (abs (entropy_gradient (iterate dynamics n E_A)))) (abs eta)) _).
@@ -472,14 +477,15 @@ Proof.
            apply (grad_decay_iter E_A n (Datatypes.S k)).
 Qed.
 
-(* ===== R 层有限和 ===== *)
+(* ===== Finite sums in the [R] layer ===== *)
 Fixpoint sum_R (f : nat -> R) (n : nat) : R :=
   match n with
   | 0%nat => zero
   | Datatypes.S m => plus (sum_R f m) (f m)
   end.
 
-(* 和的逐项保序：∀k<n, f k ≤ g k ⟹ Σf ≤ Σg *)
+(* termwise monotonicity of sums: (forall k < n, f k <= g k) implies
+   sum f <= sum g *)
 Lemma sum_R_le : forall f g n,
   (forall k, NatLe (Datatypes.S k) n -> le (f k) (g k)) ->
   le (sum_R f n) (sum_R g n).
@@ -499,7 +505,7 @@ Proof.
       * apply (H m). apply NatLe_lift. apply Nat.le_refl.
 Qed.
 
-(* 和为零：全部项为零 ⟹ 和为零 *)
+(* a vanishing sum: if every term is zero then the sum is zero *)
 Lemma sum_R_zero : forall f n,
   (forall k, NatLe (Datatypes.S k) n -> Id (f k) zero) ->
   Id (sum_R f n) zero.
@@ -517,7 +523,7 @@ Proof.
                     (plus_zero zero)).
 Qed.
 
-(* mult (1−x)·y == y + (−x)·y：distrib + mult_one *)
+(* mult (1-x) * y == y + (-x) * y: distrib + mult_one *)
 Lemma mult_one_minus_r : forall x y,
   Id (mult (minus one x) y) (plus y (mult (opp x) y)).
 Proof.  intros x y.
@@ -527,7 +533,8 @@ Proof.  intros x y.
               (id_refl))).
 Qed.
 
-(* telescoping：1−A + A−B == 1−B（R 层环代数，用主文件 plus_assoc/plus_comm/plus_opp） *)
+(* telescoping: 1 - A + A - B == 1 - B (ring algebra in the [R] layer,
+   using [plus_assoc]/[plus_comm]/[plus_opp]/[plus_zero]) *)
 Lemma telescoping : forall a b,
   Id (plus (minus one a) (minus a b)) (minus one b).
 Proof.  intros a b.
@@ -540,16 +547,19 @@ Proof.  intros a b.
                   (id_trans (plus_comm zero (opp b)) (plus_zero (opp b))))))).
 Qed.
 
-(* ===== 几何级数闭式：(1−κ)·Σ_{k<m} κ^k == 1−κ^m ===== *)
+(* ===== closed form of the geometric series:
+   (1 - kappa) * sum_{k<m} kappa^k == 1 - kappa^m ===== *)
 Lemma geom_sum_closed : forall m,
   Id (mult (minus one kappa) (sum_R (r_pow kappa) m))
      (minus one (r_pow kappa m)).
 Proof.
   intros m.
   induction m as [| m IH]; simpl.
-  - (* m = 0：左边 (1−κ)·0 == 0，右边 1−1 == 0 *)
+  - (* m = 0: the left side is (1 - kappa) * 0 == 0 and the right side is
+   1 - 1 == 0 *)
     apply (id_trans (mult_zero (minus one kappa)) (id_sym (plus_opp one))).
-  - (* m = S m'：distrib 拆分 + IH + mult_one_minus_r + opp_mult_r + telescoping *)
+  - (* m = S m': distribute, apply the IH, then
+   [mult_one_minus_r], [opp_mult_r] and [telescoping] *)
     apply (id_trans (distrib (minus one kappa) (sum_R (r_pow kappa) m) (r_pow kappa m))).
     apply (id_trans (id_cong2 plus IH (id_refl))).
     apply (id_trans (id_cong2 plus (id_refl) (mult_one_minus_r kappa (r_pow kappa m)))).
@@ -559,7 +569,8 @@ Proof.
     apply (telescoping (r_pow kappa m) (mult kappa (r_pow kappa m))).
 Qed.
 
-(* 0 < 1−κ（from κ < 1）：lt_plus_compat_lt_le + plus_opp 构造 *)
+(* 0 < 1 - kappa (from kappa < 1): built from [lt_plus_compat_lt_le] and
+   [plus_opp] *)
 Lemma one_minus_kappa_pos : lt zero (minus one kappa).
 Proof.  unfold minus.
   exact (lt_id_l zero (plus kappa (opp kappa)) (plus one (opp kappa))
@@ -568,7 +579,7 @@ Proof.  unfold minus.
               kappa_lt_one (le_refl (opp kappa)))).
 Qed.
 
-(* 1−κ^m ≤ 1（from κ^m ≥ 0）：le_plus_nonneg_r + minus_plus_cancel *)
+(* 1-kappa^m <= 1 (from kappa^m >= 0): le_plus_nonneg_r + minus_plus_cancel *)
 Lemma one_minus_pow_le_one : forall m, le (minus one (r_pow kappa m)) one.
 Proof.
   intro m.
@@ -579,36 +590,39 @@ Proof.
     apply (r_pow_nonneg kappa m kappa_pos).
 Qed.
 
-(* 几何级数界：Σ_{k<m} κ^k ≤ 1/(1−κ)（闭式 + 1−κ^m≤1 + 乘正逆） *)
+(* bound on the geometric series: sum_{k<m} kappa^k <= 1/(1 - kappa),
+   from the closed form, 1 - kappa^m <= 1, and reverse monotonicity under
+   multiplication by a positive number *)
 Lemma geom_sum_bound : forall m,
   le (sum_R (r_pow kappa) m) (inv_pos (minus one kappa) one_minus_kappa_pos).
 Proof.
   intro m.
   set (I := inv_pos (minus one kappa) one_minus_kappa_pos).
   apply (le_id_r _ (mult one I) _).
-  - (* one·I == I *)
+  - (* one * I == I *)
     apply (id_trans (mult_comm one I) (mult_one I)).
-  - (* Σ ≤ one·I：Σ == (mult (1−κ) Σ)·I ≤ one·I *)
+  - (* sum <= one * I: sum == (mult (1-kappa) sum) * I <= one * I *)
     apply (le_id_l _ (mult (mult (minus one kappa) (sum_R (r_pow kappa) m)) I) _).
-    + (* Σ == mult (mult (1−κ) Σ) I *)
+    + (* sum == mult (mult (1-kappa) sum) I *)
       apply (id_trans (id_sym (mult_one (sum_R (r_pow kappa) m)))).
       apply (id_trans (id_cong (fun z => mult (sum_R (r_pow kappa) m) z)
                                (id_sym (inv_pos_correct (minus one kappa) one_minus_kappa_pos)))).
       apply (id_trans (mult_assoc (sum_R (r_pow kappa) m) (minus one kappa) I)).
       apply (id_cong (fun z => mult z I) (mult_comm (sum_R (r_pow kappa) m) (minus one kappa))).
-    + (* le (mult (mult (1−κ) Σ) I) (mult one I)：le_mult_compat_r *)
+    + (* le (mult (mult (1-kappa) sum) I) (mult one I): le_mult_compat_r *)
       apply (le_mult_compat_weak (mult (minus one kappa) (sum_R (r_pow kappa) m)) one I).
-      * (* 0 ≤ I：inv_pos_pos + lt_le_iff *)
+      * (* 0 <= I: inv_pos_pos + lt_le_iff *)
         apply (lt_le_iff _ _ (inl (inv_pos_pos (minus one kappa) one_minus_kappa_pos))).
-      * (* (1−κ)·Σ ≤ 1：geom_sum_closed + one_minus_pow_le_one *)
+      * (* (1-kappa) * sum <= 1: geom_sum_closed + one_minus_pow_le_one *)
         apply (le_id_l _ (minus one (r_pow kappa m)) _).
         -- apply (geom_sum_closed m).
         -- apply (one_minus_pow_le_one m).
 Qed.
 
-(* ===== Step 4：柯西论证收尾 ===== *)
+(* ===== Cauchy argument, final stage ===== *)
 
-(* metric 三角迭代到和：metric (x_{n+m}) (x_n) ≤ Σ_{k<m} metric (x_{n+k+1}) (x_{n+k}) *)
+(* iterate the metric triangle inequality into a sum:
+   metric (x_{n+m}) (x_n) <= sum_{k<m} metric (x_{n+k+1}) (x_{n+k}) *)
 Lemma metric_tail_le_sum : forall (E_A : R) (n m : nat),
   le (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))
      (sum_R (fun k => metric (iterate dynamics (n + Datatypes.S k) E_A)
@@ -616,15 +630,15 @@ Lemma metric_tail_le_sum : forall (E_A : R) (n m : nat),
 Proof.
   intros E_A n m.
   induction m as [| m IH]; simpl.
-  - (* m = 0：metric (x_n) (x_n) ≤ 0：metric_refl_zero *)
+  - (* m = 0: metric (x_n) (x_n) <= 0: metric_refl_zero *)
     rewrite (Nat.add_0_r n).
     apply (le_id_l _ zero _ (metric_refl_zero (iterate dynamics n E_A)) (le_refl zero)).
-  - (* m = S m'：metric 三角 + IH *)
+  - (* m = S m': metric triangle inequality plus the IH *)
     rewrite (Nat.add_succ_r n m).
     apply (le_trans _ (plus (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))
                             (metric (iterate dynamics (Datatypes.S (n + m)) E_A)
                                     (iterate dynamics (n + m) E_A))) _).
-    + (* metric_triangle + plus_comm 换形（步长+尾部 == 尾部+步长） *)
+    + (* [metric_triangle] with [plus_comm] (step + tail == tail + step) *)
       apply (le_id_r _ (plus (metric (iterate dynamics (Datatypes.S (n + m)) E_A)
                                      (iterate dynamics (n + m) E_A))
                              (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))) _).
@@ -645,7 +659,7 @@ Proof.
       * apply le_refl.
 Qed.
 
-(* sum_R 常数提取：Σ (a·f k) == a·(Σ f) *)
+(* constant extraction for [sum_R]: sum (a * f k) == a * (sum f) *)
 Lemma sum_R_scal_l : forall a f n,
   Id (sum_R (fun k => mult a (f k)) n) (mult a (sum_R f n)).
 Proof.
@@ -655,7 +669,7 @@ Proof.
   - apply (id_trans (id_cong2 plus IH (id_refl)) (id_sym (distrib a (sum_R f m) (f m)))).
 Qed.
 
-(* sum_R 右侧提取：Σ (f k·b) == (Σ f)·b *)
+(* right extraction for [sum_R]: sum (f k * b) == (sum f) * b *)
 Lemma sum_R_mult_r : forall f b n,
   Id (sum_R (fun k => mult (f k) b) n) (mult (sum_R f n) b).
 Proof.
@@ -665,7 +679,8 @@ Proof.
   - apply (id_trans (id_cong2 plus IH (id_refl)) (id_sym (mult_plus_distr_r (sum_R f m) (f m) b))).
 Qed.
 
-(* 尾部收缩：metric (x_{n+m}) (x_n) ≤ |η|·|g(x_n)|·S（S := 1/(1−κ)） *)
+(* tail contraction: metric (x_{n+m}) (x_n) <= |eta| * |g(x_n)| * S,
+   where S := 1/(1 - kappa) *)
 Lemma iterate_metric_tail_bound : forall (E_A : R) (n m : nat),
   le (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))
      (mult (abs eta)
@@ -676,11 +691,12 @@ Proof.
   apply (le_trans _ (sum_R (fun k => metric (iterate dynamics (n + Datatypes.S k) E_A)
                                            (iterate dynamics (n + k) E_A)) m) _).
   - apply (metric_tail_le_sum E_A n m).
-  - (* Σ 步长 ≤ Σ |η|κ^k|g| ≤ |η||g|·S *)
+  - (* sum of step sizes <= sum |eta| * kappa^k * |g| <= |eta| * |g| * S *)
     apply (le_trans _ (sum_R (fun k => mult (abs eta)
                                            (mult (r_pow kappa k)
                                                  (abs (entropy_gradient (iterate dynamics n E_A))))) m) _).
-    + (* 逐项：metric 步长 == |步长| ≤ |η|κ^k|g|（metric_abs + iterate_step_abs_diff_iter） *)
+    + (* termwise: each metric step == |step| <= |eta| * kappa^k * |g|
+   ([metric_abs] and [iterate_step_abs_diff_iter]) *)
       apply (sum_R_le (fun k => metric (iterate dynamics (n + Datatypes.S k) E_A)
                                        (iterate dynamics (n + k) E_A))
                       (fun k => mult (abs eta)
@@ -692,22 +708,24 @@ Proof.
       * apply (metric_abs (iterate dynamics (n + Datatypes.S k) E_A)
                           (iterate dynamics (n + k) E_A)).
       * apply (iterate_step_abs_diff_iter E_A n k).
-    + (* Σ |η|κ^k|g| ≤ |η||g|·S：sum 提取公共因子 *)
+    + (* sum |eta| * kappa^k * |g| <= |eta| * |g| * S: factor out the common
+   terms in the sum *)
       apply (le_id_l _ (mult (abs eta)
                              (mult (sum_R (r_pow kappa) m)
                                    (abs (entropy_gradient (iterate dynamics n E_A))))) _).
-      * (* Σ |η|(κ^k·X) == |η|·((Σκ^k)·X)：sum_R_scal_l + sum_R_mult_r *)
+      * (* sum |eta|(kappa^k * X) == |eta| * ((sumkappa^k) * X): sum_R_scal_l + sum_R_mult_r *)
         apply (id_trans (sum_R_scal_l (abs eta)
                           (fun k => mult (r_pow kappa k) (abs (entropy_gradient (iterate dynamics n E_A)))) m)
                         (id_cong (fun z => mult (abs eta) z)
                                  (sum_R_mult_r (r_pow kappa) (abs (entropy_gradient (iterate dynamics n E_A))) m))).
-      * (* |η|·((Σκ^k)·X) ≤ |η|·(I·X)：le_mult_compat_r（公共因子左）*)
+      * (* |eta| * ((sum kappa^k) * X) <= |eta| * (I * X), by [le_mult_compat]
+   with the common factor on the left *)
         apply (le_mult_compat_r (abs eta)
                                 (mult (sum_R (r_pow kappa) m) (abs (entropy_gradient (iterate dynamics n E_A))))
                                 (mult (abs (entropy_gradient (iterate dynamics n E_A)))
                                       (inv_pos (minus one kappa) one_minus_kappa_pos))).
         -- apply (abs_nonneg eta).
-        -- (* (Σκ^k)·X ≤ X·I：le_mult_compat_weak + mult_comm 换形 *)
+        -- (* (sum kappa^k) * X <= X * I, by weak [le_mult_compat] and [mult_comm] *)
            apply (le_id_r _ (mult (inv_pos (minus one kappa) one_minus_kappa_pos)
                                   (abs (entropy_gradient (iterate dynamics n E_A)))) _).
            ++ apply (mult_comm (inv_pos (minus one kappa) one_minus_kappa_pos)
@@ -719,32 +737,35 @@ Proof.
               ** apply (geom_sum_bound m).
 Qed.
 
-(* ===== Step 4 收尾：metric-柯西 ⟹ cauchy_complete ⟹ lim 存在 ===== *)
+(* ===== final stage: metric-Cauchy implies [cauchy_complete] implies the
+   limit exists ===== *)
 
-(* 非零步长（诚实接口假设：η = 0 时动力学平凡，收敛论证需要 |η| > 0） *)
+(* nonzero step size (explicit interface assumption: with eta = 0 the
+   dynamics is trivial, and the convergence argument needs |eta| > 0) *)
 Variable eta_abs_pos : lt zero (abs eta).
 
-(* 1/(1−κ) 与 a := |η|·|g(x_0)|·S（Section 级 Let） *)
+(* 1/(1 - kappa) and a := |eta| * |g(x_0)| * S (section-level [Let]) *)
 Let S := inv_pos (minus one kappa) one_minus_kappa_pos.
 
-(* 幂指数递减（迭代 r_pow_dec）：m ≤ n ⟹ κ^n ≤ κ^m *)
+(* decreasing powers ([r_pow_dec] by iteration): m <= n implies
+   kappa^n <= kappa^m *)
 Lemma r_pow_dec_iter : forall m n, (m <= n)%nat -> le (r_pow kappa n) (r_pow kappa m).
 Proof.
   intros m n Hmn.
   revert m Hmn.
   induction n as [| n IH]; intros m Hmn.
-  - (* n = 0：m ≤ 0 ⟹ m = 0 *)
+  - (* n = 0: m <= 0 implies m = 0 *)
     assert (Hm0 : m = 0%nat) by lia. subst m. apply le_refl.
-  - (* n = S n'：Nat.leb 判定 *)
+  - (* n = S n': decide with [Nat.leb] *)
     destruct (Nat.leb m n) eqn:Emn.
-    + (* m ≤ n：κ^{S n} ≤ κ^n ≤ κ^m *)
+    + (* m <= n: kappa^{S n} <= kappa^n <= kappa^m *)
       apply (le_trans _ (r_pow kappa n) _); [apply (r_pow_dec kappa n kappa_pos kappa_lt_one) | apply (IH m (proj1 (Nat.leb_le m n) Emn))].
-    + (* ¬m ≤ n：m = S n（m ≤ S n 前提） *)
+    + (* not (m <= n): then m = S n for some n (from the premise m <= S n) *)
       apply Nat.leb_gt in Emn.
       assert (Hm : m = Datatypes.S n) by lia. subst m. apply le_refl.
 Qed.
 
-(* 乘法中项交换：(a·b)·c == (a·c)·b *)
+(* swap the middle factor: (a * b) * c == (a * c) * b *)
 Lemma mult_swap_mid : forall a b c, Id (mult (mult a b) c) (mult (mult a c) b).
 Proof.  intros a b c.
   exact (id_trans (id_sym (mult_assoc a b c))
@@ -752,7 +773,8 @@ Proof.  intros a b c.
               (mult_assoc a c b))).
 Qed.
 
-(* 外项交换：(a·b)·c·d == (a·d)·c·b（两次 mult_swap_mid 组合） *)
+(* swap the outer factors: (a * b) * c * d == (a * d) * c * b,
+   composing [mult_swap_mid] twice *)
 Lemma mult_swap_outer : forall a b c d,
   Id (mult (mult (mult a b) c) d) (mult (mult (mult a c) d) b).
 Proof.  intros a b c d.
@@ -760,7 +782,8 @@ Proof.  intros a b c d.
            (mult_swap_mid (mult a c) b d)).
 Qed.
 
-(* 梯度界辅助：|η||g(x_n)|·S ≤ (|η||g0|·S)·κ^n（grad_decay_iter + 保序 + 重排） *)
+(* gradient-bound helper: |eta| * |g(x_n)| * S <= (|eta| * |g0| * S) * kappa^n,
+   from [grad_decay_iter], monotonicity, and rearrangement *)
 Lemma grad_bound_aux : forall E_A n,
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   le (mult (abs eta) (mult (abs (entropy_gradient (iterate dynamics n E_A))) S))
@@ -769,12 +792,13 @@ Lemma grad_bound_aux : forall E_A n,
 Proof.
   intros E_A n Hg0pos.
   apply (le_id_r _ (mult (abs eta) (mult (mult (r_pow kappa n) (abs (entropy_gradient (iterate dynamics 0 E_A)))) S)) _).
-  - (* |η|·((κ^n·g0)·S) == (|η|·g0·S)·κ^n：重排 *)
+  - (* |eta| * ((kappa^n * g0) * S) == (|eta| * g0 * S) * kappa^n:
+   rearrangement *)
     apply (id_trans (mult_assoc (abs eta) (mult (r_pow kappa n) (abs (entropy_gradient (iterate dynamics 0 E_A)))) S)).
     apply (id_trans (id_cong (fun z => mult z S)
                              (mult_assoc (abs eta) (r_pow kappa n) (abs (entropy_gradient (iterate dynamics 0 E_A)))))).
     apply (mult_swap_outer (abs eta) (r_pow kappa n) (abs (entropy_gradient (iterate dynamics 0 E_A))) S).
-  - (* |η|·(gn·S) ≤ |η|·((κ^n·g0)·S)：le_mult_compat_r + grad_decay_iter *)
+  - (* |eta| * (gn * S) <= |eta| * ((kappa^n * g0) * S): le_mult_compat_r + grad_decay_iter *)
     apply (le_mult_compat_r (abs eta)
                             (mult (abs (entropy_gradient (iterate dynamics n E_A))) S)
                             (mult (mult (r_pow kappa n) (abs (entropy_gradient (iterate dynamics 0 E_A)))) S)).
@@ -786,7 +810,8 @@ Proof.
       * apply (grad_decay_iter E_A 0 n).
 Qed.
 
-(* metric (x_m) (x_n) ≤ a·κ^{min m n}：metric 对称 + 尾部收缩 + grad_bound_aux *)
+(* metric (x_m) (x_n) <= a * kappa^(min m n): metric symmetry, tail
+   contraction, and [grad_bound_aux] *)
 Lemma iterate_metric_min_bound : forall E_A m n,
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   le (metric (iterate dynamics m E_A) (iterate dynamics n E_A))
@@ -795,7 +820,7 @@ Lemma iterate_metric_min_bound : forall E_A m n,
 Proof.
   intros E_A m n Hg0pos.
   destruct (Nat.leb m n) eqn:Emn.
-  - (* m ≤ n：metric 对称后以 m 为底 *)
+  - (* m <= n: by metric symmetry, take m as the base *)
     apply Nat.leb_le in Emn.
     apply (le_id_l _ (metric (iterate dynamics n E_A) (iterate dynamics m E_A)) _).
     { exact (metric_sym (iterate dynamics m E_A) (iterate dynamics n E_A)). }
@@ -805,7 +830,7 @@ Proof.
     apply (le_trans _ (mult (abs eta) (mult (abs (entropy_gradient (iterate dynamics m E_A))) S)) _).
     + apply (iterate_metric_tail_bound E_A m (n - m)).
     + apply (grad_bound_aux E_A m Hg0pos).
-  - (* n ≤ m：以 n 为底 *)
+  - (* n <= m: take n as the base *)
     apply Nat.leb_gt in Emn.
     rewrite (Nat.min_r m n (Nat.lt_le_incl n m Emn)).
     rewrite <- (Nat.sub_add n m (Nat.lt_le_incl n m Emn)).
@@ -815,7 +840,8 @@ Proof.
     + apply (grad_bound_aux E_A n Hg0pos).
 Qed.
 
-(* 柯西性：对任意 eps > 0，∃N，m,n ≥ N ⟹ metric (x_m) (x_n) < eps（几何击穿收尾） *)
+(* Cauchy property: for every eps > 0 there is N such that
+   metric (x_m) (x_n) < eps for m, n >= N (closed by geometric breakout) *)
 Lemma iterate_cauchy : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   forall eps : R, lt zero eps ->
@@ -835,10 +861,10 @@ Proof.
   assert (Hm' : (N0 <= m)%nat) by (apply NatLe_drop; exact Hm).
   assert (Hn' : (N0 <= n)%nat) by (apply NatLe_drop; exact Hn).
   apply (le_lt_trans _ (mult a (r_pow kappa (Nat.min m n))) _).
-  - (* metric (x_m) (x_n) ≤ a·κ^{min m n} *)
+  - (* metric (x_m) (x_n) <= a * kappa^{min m n} *)
     unfold a.
     apply (iterate_metric_min_bound E_A m n Hg0pos).
-  - (* a·κ^{min} ≤ a·κ^{N0} < eps（min ≥ N0 ⟹ κ^{min} ≤ κ^{N0}） *)
+  - (* a * kappa^{min} <= a * kappa^{N0} < eps (min >= N0 implies kappa^{min} <= kappa^{N0}) *)
     apply (le_lt_trans _ (mult a (r_pow kappa N0)) _).
     + apply (le_mult_compat_r a (r_pow kappa (Nat.min m n)) (r_pow kappa N0)).
       * apply (lt_le_iff _ _ (inl Ha)).
@@ -848,15 +874,17 @@ Qed.
 
 Variable log_lt_mono_cc : forall a b : R, lt zero a -> lt zero b -> lt a b -> lt (log a) (log b).
 
-(* nat 到 R 的嵌入（T4.2 局部；GRPO Section 的 of_nat 在文件更后处，避免前向引用） *)
+(* embedding of [nat] into [R] (local to this section; an [of_nat] for the
+   later GRPO section is defined further down in the file, avoiding a
+   forward reference) *)
 Fixpoint nat_to_R (n : nat) : R :=
   match n with
   | O => zero
   | Datatypes.S n' => plus one (nat_to_R n')
   end.
 
-(* ============ 引理 1：log 对幂的展开 ============ *)
-(* log (x^n) == of_nat n · log x（log_mult 归纳） *)
+(* ============ Lemma 1: logarithm of a power ============ *)
+(* log (x^n) == of_nat n * log x, by induction via [log_mult] *)
 Lemma log_pow_cc : forall (x : R) (n : nat), lt zero x ->
   Id (log (r_pow x n)) (mult (nat_to_R n) (log x)).
 Proof.
@@ -878,10 +906,12 @@ Proof.
     apply (id_sym Hr).
 Qed.
 
-(* ============ 引理 2：r_arch_pow 的 log 闭式击穿升级 ============ *)
-(* 存在性 N 升级：∃N，log(a·κ^N) ≤ log eps 且 a·κ^N < eps
-   （第一个分量即显式预算函数 N(eps) 的闭式特征：
-    数学上 N ≥ log(a/eps)/log(1/κ) 的 log 形式） *)
+(* ============ Lemma 2: upgrading the closed-form breakout of
+   [r_arch_pow] to the log scale ============ *)
+(* upgraded existence of N: there is N with log (a * kappa^N) <= log eps
+   and a * kappa^N < eps (the first component is the closed-form
+   characterization of the explicit budget function N(eps):
+   mathematically N >= log(a/eps) / log(1/kappa) on the log scale) *)
 Lemma r_arch_pow_log_budget : forall a : R, lt zero a -> forall eps : R, lt zero eps ->
   sigT (fun N : nat => And (le (log (mult a (r_pow kappa N))) (log eps))
                            (lt (mult a (r_pow kappa N)) eps)).
@@ -897,9 +927,11 @@ Proof.
   - exact HN0.
 Qed.
 
-(* ============ 主定理：显式可计算收敛率 ============ *)
-(* 升级 iterate_cauchy：N 满足闭式预算条件 log(a·κ^N) ≤ log eps
-   （a := |η|·|g(E_A)|·S 的 log 击穿），并仍是柯西点 *)
+(* ============ Main theorem: an explicit computable convergence rate
+   ============ *)
+(* upgrade of [iterate_cauchy]: N satisfies the closed-form budget
+   condition log (a * kappa^N) <= log eps (the log breakout for
+   a := |eta| * |g(E_A)| * S) and is still a Cauchy point *)
 Theorem iterate_cauchy_explicit_N : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   forall eps : R, lt zero eps ->
@@ -934,7 +966,7 @@ Proof.
       * exact HNgeo.
 Qed.
 
-(* lim 存在：metric-柯西 ⟹ cauchy_complete ⟹ lim *)
+(* the limit exists: metric-Cauchy implies [cauchy_complete] implies [lim] *)
 Lemma iterate_lim_exists : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   ExistsT (fun E_star : R => lim (fun n => iterate dynamics n E_A) E_star).
@@ -948,12 +980,15 @@ Proof.
   exact (HN m n Hm Hn).
 Qed.
 
-(* ===== P2.5 可推部分：梯度绝对值单调衰减（strict_concavity 组装） =====
-   0 < η、0 < g(x_n)、0 < g(x_{n+1}) ⟹ |g(x_{n+1})| ≤ |g(x_n)|。
-   链：x_n < x_{n+1}（η·g(x_n) > 0）→ g(x_{n+1}) < g(x_n)（strict_concavity）
-        → |g(x_{n+1})| ≤ |g(x_n)|（gradient_abs_mono）。 *)
+(* ===== the gradient magnitude decreases monotonically (assembled from
+   [strict_concavity]) =====
+   0 < eta, 0 < g(x_n), 0 < g(x_{n+1}) imply |g(x_{n+1})| <= |g(x_n)|.
+   Chain: x_n < x_{n+1} (eta * g(x_n) > 0), then
+   g(x_{n+1}) < g(x_n) by [strict_concavity], then
+   |g(x_{n+1})| <= |g(x_n)| by [gradient_abs_mono]. *)
 
-(* gradient_abs_mono 闭包别名（只依赖 entropy_gradient） *)
+(* closure alias for [gradient_abs_mono] (depending only on
+   [entropy_gradient]) *)
 Let gmono := (@gradient_abs_mono RI entropy_gradient).
 
 Theorem iterate_grad_abs_mono : forall (E_A : R) (n : nat),
@@ -964,14 +999,14 @@ Theorem iterate_grad_abs_mono : forall (E_A : R) (n : nat),
      (abs (entropy_gradient (iterate dynamics n E_A))).
 Proof.
   intros E_A n Heta Hgn Hgn1.
-  (* x_{n+1} == x_n + η·g(x_n)（dynamics_gradient_step at iterate n） *)
+  (* x_{n+1} == x_n + eta * g(x_n) (dynamics_gradient_step at iterate n) *)
   assert (Hxnext : Id (iterate dynamics (Datatypes.S n) E_A)
                       (plus (iterate dynamics n E_A) (mult eta (entropy_gradient (iterate dynamics n E_A))))).
   { simpl. exact (dynamics_gradient_step (iterate dynamics n E_A)). }
-  (* 0 < η·g(x_n)（mult_positive） *)
+  (* 0 < eta * g(x_n) (mult_positive) *)
   assert (Heta_g : lt zero (mult eta (entropy_gradient (iterate dynamics n E_A)))).
   { apply (mult_positive eta (entropy_gradient (iterate dynamics n E_A)) Heta Hgn). }
-  (* x_n < x_n + η·g(x_n)（lt_plus_compat_lt_le + plus_zero） *)
+  (* x_n < x_n + eta * g(x_n) (lt_plus_compat_lt_le + plus_zero) *)
   assert (Hlt0 : lt (iterate dynamics n E_A)
                    (plus (iterate dynamics n E_A) (mult eta (entropy_gradient (iterate dynamics n E_A))))).
   { apply (lt_id_l (iterate dynamics n E_A)
@@ -987,33 +1022,37 @@ Proof.
                    (plus (iterate dynamics n E_A) (mult eta (entropy_gradient (iterate dynamics n E_A))))
                    (iterate dynamics (Datatypes.S n) E_A)
                    (id_sym Hxnext) Hlt0). }
-  (* g(x_{n+1}) < g(x_n)：strict_concavity *)
+  (* g(x_{n+1}) < g(x_n): strict_concavity *)
   assert (Hgdec : lt (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))
                      (entropy_gradient (iterate dynamics n E_A))).
   { apply (strict_concavity (iterate dynamics n E_A) (iterate dynamics (Datatypes.S n) E_A)).
     exact Hlt. }
-  (* |g(x_{n+1})| ≤ |g(x_n)|：gradient_abs_mono *)
+  (* |g(x_{n+1})| <= |g(x_n)|: gradient_abs_mono *)
   apply (gmono (iterate dynamics n E_A) (iterate dynamics (Datatypes.S n) E_A)).
   - exact Hlt.
   - exact Hgn1.
   - exact Hgdec.
 Qed.
 
-(* ===== P1-2 收尾：lim 夹逼核心 + dynamics_converges 组装（备份 80 后） ===== *)
+(* ===== final assembly: the squeeze lemma for [lim] and the composition of
+   [dynamics_converges] ===== *)
 
-(* 新增诚实接口字段（先例纪律：标准性质先例） *)
-(* (5) lim 的 eps-N 语义：收敛序列在度量下逼近极限（构造性收敛标准性质，
-       Real 实例 real_lim 即 eps-N 定义；抽象 R 层接口仅 lim_unique 缺此） *)
+(* further interface fields (standard properties as explicit assumptions) *)
+(* (5) eps-N semantics of [lim]: a convergent sequence approximates its
+   limit in the metric (the standard constructive convergence property;
+   the [Real] instance [real_lim] is defined eps-N; the abstract [R] layer
+   interface only has [lim_unique]) *)
 Variable lim_metric_approx : forall (u : nat -> R) (l : R),
   lim u l -> forall eps : R, lt zero eps ->
     sigT (fun N : nat => forall n : nat, NatLe N n -> lt (metric (u n) l) eps).
 
-(* (6) 任意小非负 ⟹ ≤ 0：∀eps>0, x < eps ⟹ x ≤ 0（构造性有序域标准性质，
-       与 r_arch_pow 同族；lim 夹逼收尾需要） *)
+(* (6) arbitrarily small nonnegative implies <= 0: for all eps > 0,
+   x < eps implies x <= 0 (standard constructive ordered-field property,
+   same family as [r_arch_pow]; needed to close the [lim] squeeze) *)
 Variable le_all_eps_zero : forall x : R,
   (forall eps : R, lt zero eps -> lt x eps) -> le x zero.
 
-(* 辅助：abs (minus x zero) == abs x *)
+(* auxiliary: abs (minus x zero) == abs x *)
 Lemma abs_minus_zero : forall a : R, Id (abs (minus a zero)) (abs a).
 Proof.
   intro a.
@@ -1028,7 +1067,7 @@ Proof.
   apply (id_cong abs Hm).
 Qed.
 
-(* 辅助：NatLe 构造（n ≤ m ⟹ NatLe n m） *)
+(* auxiliary: building [NatLe] (n <= m implies NatLe n m) *)
 Lemma natle_of_le : forall n m, (n <= m)%nat -> NatLe n m.
 Proof.
   intros n m H.
@@ -1040,11 +1079,14 @@ Proof.
     lia.
 Qed.
 
-(* 夹逼核心：lim x_n E_star（iterate 序列）+ 初始梯度非零 ⟹ g(E_star) == 0。
-   论证：对任意 eps > 0，取 n ≥ max N1 N2——
-   |g(E_star) − g(x_n)| ≤ L·metric (x_n) E_star < eps2（lim_metric_approx + gradient_lipschitz）
-   |g(x_n)| ≤ κ^n·|g0| < eps2（grad_decay_iter + r_arch_pow）
-   三角 + eps/2 分割 ⟹ metric (g E_star) zero < eps ⟹ le_all_eps_zero ⟹ = 0。 *)
+(* squeeze core: lim x_n E_star for the iterate sequence, plus a nonzero
+   initial gradient, implies g(E_star) == 0.
+   Argument: for every eps > 0 take n >= max N1 N2, so
+   |g(E_star) - g(x_n)| <= L * metric (x_n) E_star < eps/2
+     ([lim_metric_approx] and [gradient_lipschitz]),
+   |g(x_n)| <= kappa^n * |g0| < eps/2 ([grad_decay_iter] and [r_arch_pow]);
+   triangle inequality and splitting eps in half give
+   metric (g E_star) zero < eps, hence g E_star == 0 by [le_all_eps_zero]. *)
 Lemma grad_squeeze_zero : forall (E_A E_star : R),
   lim (fun n => iterate dynamics n E_A) E_star ->
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
@@ -1121,12 +1163,12 @@ Proof.
   - apply (@metric_pos RI).
 Qed.
 
-(* 组装：dynamics_converges（以 ConvergenceCauchy 条件集替换 ConvergenceTheorem 的 Variable）。
-   前提：初始梯度非零（iterate_lim_exists 需要）+ 收敛步长条件（原 Variable 前提保留）。
-   链：iterate_lim_exists 给 lim 存在 → grad_squeeze_zero 夹逼 g(E_star) == 0。
-   ⚠  T4.4 判据：`lt zero (minus (plus one one) (mult L eta))`（Hstep）已移除——
-   证明体零引用（仅用 Hg0pos），收敛前提链 iterate_lim_exists / grad_squeeze_zero 均不含
-   该形态前提，下游零引用（grep dynamics_converges 仅注释与定义处）。 *)
+(* Assembly of [dynamics_converges]: the section variables of
+   [ConvergenceTheorem] are replaced by the premises of
+   [ConvergenceCauchy] — a nonzero initial gradient (needed by
+   [iterate_lim_exists]) plus the step-size condition.
+   Chain: [iterate_lim_exists] provides the limit, then
+   [grad_squeeze_zero] squeezes g(E_star) == 0. *)
 Theorem dynamics_converges : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   ExistsT (fun E_star : R =>
@@ -1142,28 +1184,31 @@ Proof.
 Qed.
 
 (* ============================================================
-   论文4 收敛缺口补强（κ 定理化方向， 并入）：
-   从 μ-强凹 + Lipschitz + 步长约束推正分支梯度收缩
-   核心：gradient_step_contraction（单步收缩）、
-         gradient_step_abs_contraction（绝对值收缩 κ := 1−ημ）、
-         gradient_iterate_abs_decay（单步迭代收缩）、
-         grad_decay_positive_iter（κ 幂衰减）。
-   诚实接口新增：μ-强凹（standard 优化假设，非经典公理）。
-   纪律：纯构造性 / Set 层 / 零 承认 / 零经典。
+   Contraction theorems for gradient ascent under strong concavity:
+   from mu-strong concavity, a Lipschitz gradient and a step-size
+   constraint to a positive-branch gradient contraction.  Core lemmas:
+   [gradient_step_contraction] (one-step contraction),
+   [gradient_step_abs_contraction] (absolute-value contraction with
+   kappa := 1 - eta * mu), [gradient_iterate_abs_decay] (iterated
+   one-step contraction), [grad_decay_positive_iter] (kappa-power decay).
+   New interface content: mu-strong concavity, a standard optimization
+   assumption, not a classical axiom.
    ============================================================ *)
-(* 新增：μ-强凹（x < y ⟹ μ(y−x) ≤ g(x) − g(y)，凹性模量化） *)
+(* mu-strong concavity: x < y implies mu * (y - x) <= g(x) - g(y)
+   (the concavity modulus, quantified) *)
 Variable mu : R.
 Variable mu_pos : lt zero mu.
 Variable strong_concavity : forall x y : R, lt x y ->
   le (mult mu (minus y x)) (minus (entropy_gradient x) (entropy_gradient y)).
-(* ===== K0 动力学单步展开：dynamics x = x + η·g(x) ===== *)
+(* ===== one-step unfolding of the dynamics:
+   dynamics x = x + eta * g(x) ===== *)
 Lemma dynamics_step_unfold : forall x : R,
   Id (dynamics x) (plus x (mult eta (entropy_gradient x))).
 Proof.
   intros x. exact (dynamics_gradient_step x).
 Qed.
 
-(* 辅助：minus a b + b == a（减法可逆） *)
+(* auxiliary: minus a b + b == a (invertibility of subtraction) *)
 Lemma minus_plus_cancel_gap : forall a b : R,
   Id (plus (minus a b) b) a.
 Proof.
@@ -1174,10 +1219,12 @@ Proof.
   apply (plus_zero a).
 Qed.
 
-(* ===== K1a 正分支单步收缩（非绝对值版）：
-   g(x) > 0 且 ημ < 1 ⟹ g(dynamics x) ≤ (1−ημ)·g(x)
-   链：x < dyn（η·g>0）→ 强凹给 μ(dyn−x) ≤ g(x)−g(dyn)
-        → (ημ)g ≤ g(x)−g(dyn) → 移项得 g(dyn) ≤ g(x)−(ημ)g == (1−ημ)g *)
+(* ===== positive-branch one-step contraction (non-absolute-value form):
+   g(x) > 0 and eta * mu < 1 imply g(dynamics x) <= (1 - eta * mu) * g(x).
+   Chain: x < dynamics x (since eta * g(x) > 0); strong concavity gives
+   mu * (dynamics x - x) <= g(x) - g(dynamics x); hence
+   (eta * mu) * g(x) <= g(x) - g(dynamics x), and rearranging gives
+   g(dynamics x) <= g(x) - (eta * mu) * g(x) == (1 - eta * mu) * g(x). *)
 Lemma gradient_step_contraction : forall x : R,
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1186,7 +1233,7 @@ Lemma gradient_step_contraction : forall x : R,
      (mult (minus one (mult eta mu)) (entropy_gradient x)).
 Proof.
   intros x Heta Heta_mu Hgx.
-  (* x < dynamics x：η·g(x) > 0 ⟹ x < x + η·g(x) *)
+  (* x < dynamics x: eta * g(x) > 0 implies x < x + eta * g(x) *)
   assert (Heta_g : lt zero (mult eta (entropy_gradient x)))
     by exact (mult_positive eta (entropy_gradient x) Heta Hgx).
   assert (Hlt : lt x (dynamics x)).
@@ -1196,9 +1243,9 @@ Proof.
                    (id_sym (dynamics_step_unfold x))).
     apply (lt_plus_compat_le_lt x x zero (mult eta (entropy_gradient x)) (le_refl x) Heta_g).
   }
-  (* 强凹：μ(dynamics x − x) ≤ g(x) − g(dynamics x) *)
+  (* strong concavity: mu * (dynamics x - x) <= g(x) - g(dynamics x) *)
   pose proof (strong_concavity x (dynamics x) Hlt) as Hsc.
-  (* minus (dynamics x) x == η·g(x) *)
+  (* minus (dynamics x) x == eta * g(x) *)
   assert (Hdiff : Id (minus (dynamics x) x) (mult eta (entropy_gradient x))).
   {
     unfold minus.
@@ -1210,14 +1257,14 @@ Proof.
     apply (id_trans (plus_comm zero (mult eta (entropy_gradient x)))).
     apply (plus_zero (mult eta (entropy_gradient x))).
   }
-  (* 代入 Hdiff：μ·(η·g(x)) ≤ g(x) − g(dyn) *)
+  (* instantiate Hdiff: mu * (eta * g(x)) <= g(x) - g(dynamics x) *)
   assert (Hsc' : le (mult mu (mult eta (entropy_gradient x)))
                     (minus (entropy_gradient x) (entropy_gradient (dynamics x)))).
   { apply (le_id_l (mult mu (mult eta (entropy_gradient x)))
                    (mult mu (minus (dynamics x) x))
                    (minus (entropy_gradient x) (entropy_gradient (dynamics x)))
                    (id_sym (id_cong (fun z => mult mu z) Hdiff)) Hsc). }
-  (* 换形：(ημ)·g(x) ≤ g(x) − g(dyn) *)
+  (* reshape: (eta * mu) * g(x) <= g(x) - g(dynamics x) *)
   assert (Hmm : Id (mult mu (mult eta (entropy_gradient x)))
                    (mult (mult eta mu) (entropy_gradient x))).
   {
@@ -1234,9 +1281,9 @@ Proof.
                    (mult mu (mult eta (entropy_gradient x)))
                    (minus (entropy_gradient x) (entropy_gradient (dynamics x)))
                    (id_sym Hmm) Hsc'). }
-  (* 移项：从 A ≤ B−C 推 C ≤ B−A
-     1. 加 C：le (A+C) ((B−C)+C) == B ⟹ le (A+C) B
-     2. 加 (opp A)：le ((A+C)+opp A) (B+opp A) ⟹ le C (B−A) *)
+  (* rearrangement: from A <= B - C derive C <= B - A.
+   1. add C: le (A + C) ((B - C) + C) == B gives le (A + C) B;
+   2. add (opp A): le ((A + C) + opp A) (B + opp A) gives le C (B - A). *)
   pose (A := mult (mult eta mu) (entropy_gradient x)).
   pose (B := entropy_gradient x).
   pose (C := entropy_gradient (dynamics x)).
@@ -1250,7 +1297,7 @@ Proof.
   {
     apply (le_plus_compat (plus A C) B (opp A) (opp A) H1 (le_refl (opp A))).
   }
-  (* 左侧化简：(A+C)+opp A == C *)
+  (* the left side simplifies: (A + C) + opp A == C *)
   assert (H3 : Id (plus (plus A C) (opp A)) C).
   {
     unfold A. unfold C.
@@ -1264,18 +1311,22 @@ Proof.
                              (plus_opp (mult (mult eta mu) (entropy_gradient x))))).
     apply (id_trans (plus_zero (entropy_gradient (dynamics x)))). apply id_refl.
   }
-  (* 右侧：plus B (opp A) == minus (g x) ((ημ)g) == 目标形态 *)
+  (* right side: plus B (opp A) == minus (g x) ((eta * mu) * g) == the
+   target shape *)
   assert (H4 : Id (plus B (opp A)) (minus (entropy_gradient x) (mult (mult eta mu) (entropy_gradient x)))).
   { unfold A, B. apply id_refl. }
-  (* 组装：le C (minus B ((ημ)g)) *)
+  (* assemble: le C (minus B ((eta * mu) * g)) *)
   assert (H5 : le C (minus (entropy_gradient x) (mult (mult eta mu) (entropy_gradient x)))).
   {
     apply (le_id_l C (plus (plus A C) (opp A)) (minus (entropy_gradient x) (mult (mult eta mu) (entropy_gradient x))) (id_sym H3)).
     apply (le_id_r (plus (plus A C) (opp A)) (plus B (opp A)) (minus (entropy_gradient x) (mult (mult eta mu) (entropy_gradient x))) H4 H2).
   }
-  (* 目标：le (g dyn) (mult (minus one (ημ)) (g x))；需 (1−ημ)·g == g − (ημ)g *)
-  (* 目标：le C (mult (minus one (ημ)) g)；H5 : le C (minus g ((ημ)g))
-     用 le_id_r 换 RHS：minus g ((ημ)g) == mult (minus one (ημ)) g *)
+  (* goal: le (g (dynamics x)) (mult (minus one (eta * mu)) (g x));
+   need (1 - eta * mu) * g == g - (eta * mu) * g *)
+  (* goal: le C (mult (minus one (eta * mu)) g), with
+   H5 : le C (minus g ((eta * mu) * g));
+   rewrite the right side by [le_id_r]:
+   minus g ((eta * mu) * g) == mult (minus one (eta * mu)) g *)
   assert (H6 : Id (minus (entropy_gradient x) (mult (mult eta mu) (entropy_gradient x)))
                   (mult (minus one (mult eta mu)) (entropy_gradient x))).
   {
@@ -1288,16 +1339,20 @@ Proof.
                  (mult (minus one (mult eta mu)) (entropy_gradient x)) H6 H5).
 Qed.
 
-(* ===== 辅助：严格减正：a < b ⟹ 0 < b − a（K3 的 κ 正性需要） ===== *)
+(* ===== helper, strict subtraction of positives: a < b implies 0 < b - a
+   (needed for the positivity of kappa below) ===== *)
 Lemma minus_pos : forall a b : R, lt a b -> lt zero (minus b a).
 Proof.  intros a b Hab.
   unfold minus.
   exact (lt_id_l zero (plus a (opp a)) (plus b (opp a)) (id_sym (plus_opp a))
            (lt_plus_compat_lt_le a b (opp a) (opp a) Hab (le_refl (opp a)))).
 Qed.
-(* ===== K1c 正分支单步绝对值收缩：g(x)>0 且 g(dyn)>0 且 ημ<1
-   ⟹ |g(dyn)| ≤ (1−ημ)·|g(x)|
-   证明：K1a 给 g(dyn) ≤ (1−ημ)g(x)；双正 ⟹ |g| = g（abs_pos）⟹ 直接换形 *)
+(* ===== positive-branch one-step absolute-value contraction:
+   g(x) > 0, g(dynamics x) > 0 and eta * mu < 1 imply
+   |g(dynamics x)| <= (1 - eta * mu) * |g(x)|.
+   The one-step contraction gives g(dynamics x) <= (1 - eta * mu) * g(x);
+   with both sides positive, |g| = g by [abs_pos], so the result is a
+   direct reshape. *)
 Lemma gradient_step_abs_contraction : forall x : R,
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1307,13 +1362,14 @@ Lemma gradient_step_abs_contraction : forall x : R,
      (mult (minus one (mult eta mu)) (abs (entropy_gradient x))).
 Proof.
   intros x Heta Heta_mu Hgx Hgdyn.
-  (* |g(dyn)| == g(dyn)（abs_pos） *)
+  (* |g(dyn)| == g(dyn) (abs_pos) *)
   assert (Habsd : Id (abs (entropy_gradient (dynamics x))) (entropy_gradient (dynamics x)))
     by exact (abs_pos (entropy_gradient (dynamics x)) Hgdyn).
-  (* |g(x)| == g(x)（abs_pos） *)
+  (* |g(x)| == g(x) (abs_pos) *)
   assert (Habsx : Id (abs (entropy_gradient x)) (entropy_gradient x))
     by exact (abs_pos (entropy_gradient x) Hgx).
-  (* 目标换形：g(dyn) ≤ (1−ημ)·g(x)（K1a） *)
+  (* reshape the goal to g(dynamics x) <= (1 - eta * mu) * g(x)
+   (the one-step contraction) *)
   apply (le_id_l (abs (entropy_gradient (dynamics x)))
                  (entropy_gradient (dynamics x))
                  (mult (minus one (mult eta mu)) (abs (entropy_gradient x)))
@@ -1325,8 +1381,10 @@ Proof.
                  (gradient_step_contraction x Heta Heta_mu Hgx)).
 Qed.
 
-(* ===== K2 正分支单步迭代收缩：任意步正（前提）⟹ |g(x_{n+1})| ≤ κ·|g(x_n)|
-   κ := 1−ημ；证明：K1c 实例化 x := iterate dynamics n E_A *)
+(* ===== positive-branch iterated one-step contraction: if every step is
+   positive (assumption), then |g(x_{n+1})| <= kappa * |g(x_n)| with
+   kappa := 1 - eta * mu; instantiate the absolute-value contraction at
+   x := iterate dynamics n E_A *)
 Theorem gradient_iterate_abs_decay : forall (E_A : R) (n : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1335,17 +1393,21 @@ Theorem gradient_iterate_abs_decay : forall (E_A : R) (n : nat),
      (mult (minus one (mult eta mu)) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
   intros E_A n Heta Heta_mu Hall.
-  (* x := iterate dynamics n E_A；前提 g(x) > 0 和 g(dyn x) > 0 *)
+  (* x := iterate dynamics n E_A; the premises are g(x) > 0 and
+   g(dynamics x) > 0 *)
   assert (Hgn : lt zero (entropy_gradient (iterate dynamics n E_A))).
   { apply Hall. apply NatLe_lift. lia. }
   assert (Hgn1 : lt zero (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))).
   { apply Hall. apply NatLe_lift. lia. }
-  (* dynamics (iterate dynamics n E_A) 与 iterate (S n) E_A 定义性相等（iterate 是 Fixpoint） *)
+  (* dynamics (iterate dynamics n E_A) and iterate (S n) E_A are
+   definitionally equal ([iterate] is a [Fixpoint]) *)
   exact (gradient_step_abs_contraction (iterate dynamics n E_A) Heta Heta_mu Hgn Hgn1).
 Qed.
 
-(* ===== K3 正分支 κ 幂衰减：|g(x_{n+k})| ≤ κ^k·|g(x_n)|（归纳，同 grad_decay_iter 结构）
-   κ := 1−ημ；前提：全轨道正（j ≤ n+k） *)
+(* ===== positive-branch kappa-power decay:
+   |g(x_{n+k})| <= kappa^k * |g(x_n)| (by induction, with the same
+   structure as [grad_decay_iter]); kappa := 1 - eta * mu;
+   premise: the whole orbit is positive (j <= n + k) *)
 Theorem grad_decay_positive_iter : forall (E_A : R) (n k : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1354,25 +1416,27 @@ Theorem grad_decay_positive_iter : forall (E_A : R) (n k : nat),
      (mult (r_pow (minus one (mult eta mu)) k) (abs (entropy_gradient (iterate dynamics n E_A)))).
 Proof.
   intros E_A n k Heta Heta_mu Hall.
-  (* κ > 0：1−ημ > 0（由 ημ < 1） *)
+  (* kappa > 0: 1 - eta * mu > 0, from eta * mu < 1 *)
   assert (Hkpos : lt zero (minus one (mult eta mu))).
   { apply (minus_pos _ _ Heta_mu). }
   induction k as [| k IH]; simpl.
-  - (* k = 0：|g(x_n)| ≤ 1·|g(x_n)| *)
+  - (* k = 0: |g(x_n)| <= 1 * |g(x_n)| *)
     rewrite (Nat.add_0_r n).
     apply (le_id_r _ (abs (entropy_gradient (iterate dynamics n E_A))) _).
     + apply (id_trans (id_sym (mult_one (abs (entropy_gradient (iterate dynamics n E_A)))))
                       (id_sym (mult_comm one (abs (entropy_gradient (iterate dynamics n E_A)))))).
     + apply le_refl.
-  - (* k = S k'：|g(x_{n+S k'})| ≤ κ·|g(x_{n+k'})| ≤ κ·(κ^{k'}·|g(x_n)|) == κ^{S k'}·|g(x_n)| *)
+  - (* k = S k': |g(x_{n+S k'})| <= kappa * |g(x_{n+k'})| <= kappa * (kappa^{k'} * |g(x_n)|) == kappa^{S k'} * |g(x_n)| *)
     apply (le_trans _ (mult (minus one (mult eta mu)) (abs (entropy_gradient (iterate dynamics (n + k) E_A)))) _).
-    + (* 单步：K2 at (n+k)，前提 j ≤ S(n+k) 由 Hall 给（n + S k' == S(n+k)） *)
+    + (* one step: the contraction at (n + k); the premise j <= S (n + k) comes
+   from the IH (n + S k' == S (n + k)) *)
       rewrite (Nat.add_succ_r n k).
       apply (gradient_iterate_abs_decay E_A (n + k) Heta Heta_mu).
       intros j Hj. apply Hall. apply NatLe_lift.
       assert (Hjle : (j <= Datatypes.S (n + k))%nat) by (apply NatLe_drop; exact Hj).
       lia.
-    + (* 归纳步：κ·(κ^{k'}·|g(x_n)|) == κ^{S k'}·|g(x_n)|（mult_assoc + comm 换形） *)
+    + (* induction step: kappa * (kappa^k' * |g(x_n)|) == kappa^(S k') * |g(x_n)|
+   ([mult_assoc] and commutativity) *)
       assert (IH' : le (abs (entropy_gradient (iterate dynamics (n + k) E_A)))
                         (mult (r_pow (minus one (mult eta mu)) k) (abs (entropy_gradient (iterate dynamics n E_A))))).
       { apply IH. intros j Hj. apply Hall. apply NatLe_lift.
@@ -1389,32 +1453,40 @@ Proof.
                                        IH')).
 Qed.
 
-(* ================================================================
-   论文4 差距一闭合（gradient_zero → is_truth），排序 4，
-   诚实接口 entropy_tangent（凹函数切线不等式，一阶条件：
-   f(y) ≤ f(x) + f'(x)·(y−x)，对所有 x y——标准优化假设，非经典公理）
-   ⟹ gradient_zero_entropy_max：驻点（g(x)==0）是熵的全局最大点。
-   绕开三分律（判例 障碍：Set 层无三分律，Real 层 Qlt_le_dec 三分
-   可判定但需数百行 ε-δ）与积分（Real 层无 RInt/FTC）。
-   is_truth 桥：以 L := −entropy（损失=负熵）则 is_truth (−entropy) x 成立。
-   纪律：纯构造性 / Set 层 / 零 承认 / 零经典。
-   ================================================================ *)
-(* 凹性切线不等式（诚实接口，同 strict_concavity 的量化版本） *)
+(* ============================================================
+   From a stationary point to a global maximum of the entropy:
+   the interface field [entropy_tangent] — the tangent inequality of a
+   concave function, the first-order condition
+   f(y) <= f(x) + f'(x) * (y - x) for all x, y, a standard optimization
+   assumption rather than a classical axiom — implies
+   [gradient_zero_entropy_max]: a stationary point (g(x) == 0) is a global
+   maximum of the entropy.  This avoids both trichotomy (the [Set] layer
+   has none; the [Real] layer's decidable Q-based trichotomy would need
+   hundreds of lines of eps-delta work) and integration (the [Real] layer
+   has no integral).  Bridge to is_truth: with L := -entropy (loss =
+   negative entropy) the statement is_truth (-entropy) x holds.
+   ============================================================ *)
+(* tangent inequality for concavity (interface assumption; the quantified
+   version of [strict_concavity]) *)
 Variable entropy_tangent : forall x y : R,
   le (entropy y) (plus (entropy x) (mult (entropy_gradient x) (minus y x))).
 
-(* 差距一闭合：g(x)==0 ⟹ entropy y ≤ entropy x（驻点是全局最大点）
-   证明：切线不等式 + g(x)==0 ⟹ entropy y ≤ entropy x + 0·(y−x) == entropy x。
-   代数链：g(x)·(y−x) == 0·(y−x)（Hg）== 0（mult_comm + mult_zero）⟹ plus 吸收。 *)
+(* stationary point implies global maximum: g(x) == 0 implies
+   entropy y <= entropy x.
+   Proof: the tangent inequality with g(x) == 0 gives
+   entropy y <= entropy x + 0 * (y - x) == entropy x.
+   Algebra: g(x) * (y - x) == 0 * (y - x) (Hg) == 0 by [mult_comm] and
+   [mult_zero], then [plus] absorbs. *)
 Theorem gradient_zero_entropy_max : forall x : R,
   Id (entropy_gradient x) zero ->
   forall y : R, le (entropy y) (entropy x).
 Proof.
   intros x Hg y.
-  (* 切线不等式：entropy y ≤ entropy x + g(x)·(y−x) *)
+  (* tangent inequality: entropy y <= entropy x + g(x) * (y - x) *)
   assert (Htangent : le (entropy y) (plus (entropy x) (mult (entropy_gradient x) (minus y x))))
     by exact (entropy_tangent x y).
-  (* 代数：g(x)·(y−x) == 0·(y−x) == 0，plus (entropy x) 0 == entropy x *)
+  (* algebra: g(x) * (y - x) == 0 * (y - x) == 0, and
+   plus (entropy x) 0 == entropy x *)
   assert (Hid : Id (plus (entropy x) (mult (entropy_gradient x) (minus y x))) (entropy x)).
   {
     apply (id_trans (id_cong (fun z => plus (entropy x) z)
@@ -1423,39 +1495,47 @@ Proof.
                                                  (mult_zero (minus y x)))))).
     apply (plus_zero (entropy x)).
   }
-  (* 组装：entropy y ≤ plus ... 且 plus ... == entropy x ⟹ entropy y ≤ entropy x *)
+  (* assemble: entropy y <= plus (...) and plus (...) == entropy x give
+   entropy y <= entropy x *)
   exact (le_id_r (entropy y) (plus (entropy x) (mult (entropy_gradient x) (minus y x))) (entropy x) Hid Htangent).
 Qed.
 
-(* is_truth 桥：g(x)==0 ⟹ (−entropy) 在 x 处全局最小（is_truth 形式，损失=负熵） *)
+(* bridge to is_truth: g(x) == 0 means (-entropy) is globally minimized at
+   x (the is_truth form, with loss = negative entropy) *)
 Theorem gradient_zero_neg_entropy_truth : forall x : R,
   Id (entropy_gradient x) zero ->
   forall y : R, le (opp (entropy x)) (opp (entropy y)).
 Proof.
   intros x Hg y.
-  (* 由差距一：le (entropy y) (entropy x) ⟹ opp 保序反号 *)
+  (* from the previous theorem: le (entropy y) (entropy x) — [opp] reverses
+   the order with a sign flip *)
   apply (opp_le_compat (entropy y) (entropy x)).
   exact (gradient_zero_entropy_max x Hg y).
 Qed.
 
 (* ============================================================
-   论文4 收敛缺口补强（差距二闭合，，检验 _dbg_unique_attractor.v 验证）：
-   唯一吸引子 —— 任意两条轨道（任意初值）的极限相同。
-   路线：弱三分（诚实接口 Variable，Real 层 real_weak_trich L32526 已证供给）
-         + 严格递减（strict_concavity）⟹ 驻点唯一（gradient_zero_unique）
-         ⟹ grad_squeeze_zero + 驻点唯一组装唯一吸引子（unique_attractor）
-         ⟹ PCT 组装（attractor_converges_unique_truth：极限 = 唯一吸引子
-           = 驻点 = −entropy 的 is_truth 点；差距一已由
-           gradient_zero_neg_entropy_truth 闭合，差距二由 unique_attractor 闭合）。
-   纪律：纯构造性 / Set 层 / 禁 Prop 定义 / 信息性证明 / 零 承认 /
-         零经典（无排中律、无经典实数公理）/ 可提取 OCaml。
+   Unique attractor: any two orbits (from arbitrary initial points) have
+   the same limit.  Route: weak trichotomy (an interface assumption,
+   supplied constructively by the [Real]-layer [real_weak_trich]) plus the
+   strictly decreasing gradient ([strict_concavity]) give uniqueness of the
+   stationary point ([gradient_zero_unique]); then [grad_squeeze_zero]
+   squeezes each orbit's limit to the stationary point, and uniqueness of
+   the stationary point gives uniqueness of the limit ([unique_attractor]);
+   finally the convergence-to-truth assembly
+   ([attractor_converges_unique_truth]): the limit = the unique attractor =
+   the stationary point = the is_truth point of -entropy.
    ============================================================ *)
-(* 诚实接口假设：弱三分（Real 层 real_weak_trich L32526 已证，构造性成立；
-   ¬(x<y) ∧ ¬(y<x) ⟹ x==y，非 LPO——整体三分律才等价 LPO） *)
-(* [墙族登记·RW-TIGHT 紧性] 接口层紧性公设（Not(lt)×2→Id）：RealInterface(Enhanced) 无紧性字段，接口层不可导，禁硬证；具体层 real_weak_trich 已证（S07_RealSetoidExpLog.v:5748，构造性成立）——TB-2 字段化归一批把实例供给上收；Not 形=Prop 红线对象，Set 重述仅重写载体不消内容（白皮书§0红线2）。 *)
+(* interface assumption: weak trichotomy (proved constructively in the
+   [Real] layer as [real_weak_trich]: not (x < y) and not (y < x) imply
+   Id x y — this is not LPO; only full trichotomy is equivalent to LPO) *)
+(* interface-level note: the tightness postulate (two negated strict
+   inequalities imply Id) has no field in [RealInterfaceEnhanced] and is
+   not derivable at the interface level; the concrete layer supplies it
+   constructively as [real_weak_trich] in [S07_RealSetoidExpLog]. *)
 Variable weak_trich : forall x y : R, Not (lt x y) -> Not (lt y x) -> Id x y.
 
-(* K1：驻点唯一性（g 严格递减 ⟹ 至多一个驻点） *)
+(* uniqueness of the stationary point: a strictly decreasing g has at most
+   one stationary point *)
 Lemma gradient_zero_unique : forall x y : R,
   Id (entropy_gradient x) zero ->
   Id (entropy_gradient y) zero ->
@@ -1463,16 +1543,17 @@ Lemma gradient_zero_unique : forall x y : R,
 Proof.
   intros x y Hgx Hgy.
   apply weak_trich.
-  - (* Not (lt x y)：假设 lt x y ⟹ strict_concavity 给 lt (g y) (g x)
-       ⟹ 代入 g x == 0（lt_id_r）⟹ lt (g y) zero
-       ⟹ 代入 g y == 0（lt_id_l）⟹ lt zero zero ⟹ 矛盾 lt_irrefl *)
+  - (* for not (lt x y): assume lt x y; [strict_concavity] gives
+   lt (g y) (g x); substituting g x == 0 ([lt_id_r]) gives lt (g y) zero;
+   substituting g y == 0 ([lt_id_l]) gives lt zero zero, contradicting
+   [lt_irrefl] *)
     intro Hxy.
     pose proof (strict_concavity x y Hxy) as Hdec.
     apply (lt_irrefl zero).
     apply (lt_id_l zero (entropy_gradient y) zero).
     + apply id_sym. exact Hgy.
     + apply (lt_id_r (entropy_gradient y) (entropy_gradient x) zero Hgx Hdec).
-  - (* Not (lt y x)：对称 *)
+  - (* for not (lt y x): symmetric *)
     intro Hyx.
     pose proof (strict_concavity y x Hyx) as Hdec.
     apply (lt_irrefl zero).
@@ -1481,9 +1562,10 @@ Proof.
     + apply (lt_id_r (entropy_gradient x) (entropy_gradient y) zero Hgy Hdec).
 Qed.
 
-(* K3：唯一吸引子 —— 任意两条轨道（任意初值、任意极限）的极限相同。
-   grad_squeeze_zero（L14234）把每条轨道的极限夹逼为驻点；
-   gradient_zero_unique（K1）保证驻点唯一 ⟹ 极限相同。 *)
+(* unique attractor: any two orbits (arbitrary initial points, arbitrary
+   limits) have the same limit.  [grad_squeeze_zero] squeezes the limit of
+   each orbit to the stationary point, and [gradient_zero_unique] makes the
+   stationary point unique, so the limits coincide. *)
 Theorem unique_attractor : forall (E_A E_A' : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A'))) ->
@@ -1498,10 +1580,12 @@ Proof.
   exact (gradient_zero_unique E1 E2 Hg1 Hg2).
 Qed.
 
-(* PCT 组装：任意轨道极限 = 唯一吸引子 = 驻点 = −entropy 的 is_truth 点。
-   差距一（驻点 ⟹ is_truth）由 gradient_zero_neg_entropy_truth（L14611）闭合；
-   差距二（单轨 ⟹ 全局吸引）由 unique_attractor 闭合。
-   And 为 Set 层信息性合取，可提取。 *)
+(* assembly: every orbit's limit = the unique attractor = the stationary
+   point = the is_truth point of -entropy.
+   The first gap (stationary point implies is_truth) is closed by
+   [gradient_zero_neg_entropy_truth]; the second gap (a single orbit
+   implies global attraction) is closed by [unique_attractor].
+   [And] here is the informative Set-level conjunction and is extractable. *)
 Theorem attractor_converges_unique_truth : forall (E_A E_A' : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A'))) ->
@@ -1524,7 +1608,7 @@ Qed.
 
 End ConvergenceCauchy.
 (* ============================================================ *)
-(* 关键证明：SumExpPositive / ArgminCorrectness 等             *)
+(* key statements: [SumExpPositive], [ArgminCorrectness] and friends *)
 (* ============================================================ *)
 
 Section KeyProofs.
@@ -1535,7 +1619,7 @@ Section SumExpPositive.
 
 Variable Token : Set.
 
-(* 解包字段（使用不同名称避免遮蔽） *)
+(* unpack the fields (under different names to avoid shadowing) *)
 Let R := @R RI.
 Let zero := @zero RI.
 Let plus := @plus RI.
@@ -1569,7 +1653,7 @@ Proof.
       simpl.
       apply plus_positive_local.
       * apply exp_neg_pos_local.
-      * apply IH. intro H. inversion H.   (* 或者 [destruct H] *)
+      * apply IH. intro H. inversion H.   (* or [destruct H] *)
 Qed.
 
 End SumExpPositive.
@@ -1675,30 +1759,32 @@ Proof.
   - inversion HIn.
   - simpl.
     destruct (argmin_aux_correct prefix rest w0 (total_loss (prefix ++ [w0]))) as [Hbest Hmin].
-    (* 获得 snd 与 fst 的关系 *)
+    (* obtain the relation between snd and fst *)
     assert (Hsnd := argmin_aux_snd_correct prefix rest w0 (total_loss (prefix ++ [w0])) id_refl).
     assert (Hsnde : snd (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0]))) =
                     total_loss (prefix ++ [fst (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0])))]))
       by exact (match Hsnd in (Id _ z) return
                   (snd (argmin_aux prefix rest (w0, total_loss (prefix ++ [w0]))) = z)
                 with | id_refl => eq_refl end).
-    (* 分析 w 在 vocab 中的两种可能 *)
+    (* analyze the two possibilities for w in the vocabulary *)
     inversion HIn as [Hw | HIn']; subst.
-    + (* 情况1：w = w0 *)
+    + (* case 1: w = w0 *)
       rewrite <- Hsnde.
       apply Hbest.
-    + (* 情况2：w 在 rest 中 *)
+    + (* case 2: w occurs in rest *)
       rewrite <- Hsnde.
       apply Hmin. assumption.
 Qed.
 
-(* 贪心动力学：单步扩展为追加 pick_best（总损失最小者） *)
+(* greedy dynamics: one step extends the sequence by appending
+   [pick_best] (the token of least total loss) *)
 Definition dynamics (s : list Token) : list Token :=
   s ++ [pick_best s].
 
-(* 贪心动力学的局部最优性（补齐预测性质.txt 模块1 目标）：
-   对任意前缀 prefix 与候选 token w，动力学扩展（追加 pick_best）的
-   总损失不超过追加任意 w 的总损失——贪心步是局部最优的。 *)
+(* local optimality of the greedy dynamics: for any prefix and candidate
+   token w, extending by the greedy step (appending [pick_best]) has total
+   loss no larger than extending by w — the greedy step is locally
+   optimal. *)
 Theorem dynamics_greedy_locally_optimal :
   forall prefix w,
     InT w vocab ->
@@ -1761,12 +1847,12 @@ Proof.
     exact (id_trans H1 H2).
   - intros s2.
     pose proof (IH (prefix ++ [w]) s2) as IH_s2.
-    (* 步骤 1：定义展开左侧 *)
+    (* step 1: unfold the left-hand side by definition *)
     assert (Hdef_left : Id (sequence_loss_prefix prefix ((w :: rest) ++ s2))
                            (plus (neg_log_prob prefix w)
                                  (sequence_loss_prefix (prefix ++ [w]) (rest ++ s2)))).
     { simpl. apply id_refl. }
-    (* 步骤 2：使用归纳假设和结合律 *)
+    (* step 2: use the IH and associativity *)
     assert (Hcong : Id (plus (neg_log_prob prefix w)
                             (sequence_loss_prefix (prefix ++ [w]) (rest ++ s2)))
                      (plus (neg_log_prob prefix w)
@@ -1786,7 +1872,7 @@ Proof.
                                  (sequence_loss_prefix (prefix ++ [w]) rest))
                            (sequence_loss_prefix ((prefix ++ [w]) ++ rest) s2))).
     { exact (id_trans Hcong Hassoc). }
-    (* 步骤 3：定义展开右侧并应用列表等式 *)
+    (* step 3: unfold the right-hand side and apply the list equation *)
     assert (Hdef_right : Id (plus (plus (neg_log_prob prefix w)
                                         (sequence_loss_prefix (prefix ++ [w]) rest))
                                   (sequence_loss_prefix ((prefix ++ [w]) ++ rest) s2))
@@ -1799,7 +1885,7 @@ Proof.
                                     (sequence_loss_prefix p s2))).
       apply id_sym. apply id_app_cons_assoc.
     }
-    (* 最终组合 *)
+    (* final composition *)
     exact (id_trans Hdef_left (id_trans Hmid Hdef_right)).
 Qed.
 
@@ -1808,7 +1894,7 @@ End SequenceLossPrefixApp.
 End KeyProofs.
 
 (* ============================================================ *)
-(* 第八部分：论文核心内容的构造性形式化补全与缺失提取         *)
+(* constructive formalization of the remaining core content *)
 (* ============================================================ *)
 
 Import PropositionConvergenceCore.
@@ -1861,7 +1947,7 @@ Context {RI : RealInterfaceEnhanced}.
 Context {SS : StateSpace RI}.
 Context {SO : SumOver RI SS}.
 
-(* 解包字段 *)
+(* unpack the fields *)
 Let R := @R RI.
 Let S := @S RI SS.
 Let zero := @zero RI.
@@ -1903,7 +1989,7 @@ Definition is_attractor (L : S -> R) (s : S) : Set :=
 
 End GradientDescentAndAttractor.
 
-(* 层级命题汇聚的聚合函数实现 *)
+(* the aggregation function collecting hierarchical propositions *)
 Section HierarchicalPropositions.
 Context {RI : RealInterfaceEnhanced}.
 Context {SS : StateSpace RI}.
@@ -1943,7 +2029,7 @@ Context {RI : RealInterfaceEnhanced}.
 Context {SS : StateSpace RI}.
 Context {SO : SumOver RI SS}.
 
-(* 绑定基本类型和函数 *)
+(* bind the basic types and functions *)
 Let R := @R RI.
 Let S := @S RI SS.
 Let zero := @zero RI.
@@ -1980,33 +2066,37 @@ Variable detailed_balance :
     Id (mult (boltzmann_prob s) (transition s s'))
        (mult (boltzmann_prob s') (transition s' s)).
 
-(* 非平凡实现：详细平衡 ⟹ 稳态（马尔可夫链基本定理）。
-   纯构造性：逐点详细平衡 + 求和线性（sum_over_S_linear） + 转移归一化。
-   注意：本 section 有 Let 解包（Let sum_over_S/mult 等），接口字段陈述为投影级，
-   需 change 到 Let 层再 rewrite（见判例）。 *)
+(* detailed balance implies stationarity (a fundamental theorem of Markov
+   chains).  Constructive route: pointwise detailed balance, linearity of
+   the sum ([sum_over_S_linear]), and normalization of the transition
+   kernel.  Note: this section has [Let] bindings (Let sum_over_S, mult,
+   ...), so the interface fields are stated at projection level — [change]
+   to the [Let] layer before [rewrite]. *)
 Theorem steady_state_boltzmann :
   forall s,
     Id (sum_over_S (fun s' => mult (boltzmann_prob s') (transition s' s)))
        (boltzmann_prob s).
 Proof.
   intro s.
-  (* 1. 逐点详细平衡：∀s', p(s')·T(s',s) = p(s)·T(s,s') *)
+  (* 1. pointwise detailed balance: forall s', p(s') * T(s', s) = p(s) * T(s, s') *)
   assert (Hpoint : forall s', Id (mult (boltzmann_prob s') (transition s' s))
                                (mult (boltzmann_prob s) (transition s s'))).
   { intro s'. apply (detailed_balance s' s). }
-  (* 2. 用外延性（sum_over_S_ext）在求和参数内替换 *)
+  (* 2. replace inside the sum by function extensionality ([sum_over_S_ext]) *)
   assert (Hswap : Id (sum_over_S (fun s' => mult (boltzmann_prob s') (transition s' s)))
                      (sum_over_S (fun s' => mult (boltzmann_prob s) (transition s s')))).
   { apply sum_over_S_ext. exact Hpoint. }
   rewrite Hswap.
-  (* 3. 提出常数因子 p(s)（sum_over_S_linear 投影陈述 → change 到 Let 层） *)
+  (* 3. factor out the constant p(s) ([sum_over_S_linear], stated at
+   projection level — [change] to the [Let] layer first) *)
   pose proof (@sum_over_S_linear RI SS SO (boltzmann_prob s) (fun s' => transition s s')) as Hlin.
   change (Id (sum_over_S (fun s' => mult (boltzmann_prob s) (transition s s')))
              (mult (boltzmann_prob s) (sum_over_S (fun s' => transition s s')))) in Hlin.
   rewrite Hlin.
-  (* 4. 转移归一化：Σ_{s'} T(s,s') = 1 *)
+  (* 4. normalization of the kernel: sum_{s'} T(s, s') = 1 *)
   rewrite (transition_normalization s).
-  (* 5. p(s)·1 = p(s)（mult_one 投影陈述 → change 到 Let 层） *)
+  (* 5. p(s) * 1 = p(s) ([mult_one] at projection level — [change] to the
+   [Let] layer) *)
   pose proof (mult_one (boltzmann_prob s)) as Hm1.
   change (Id (mult (boltzmann_prob s) one) (boltzmann_prob s)) in Hm1.
   rewrite Hm1.
@@ -2016,7 +2106,8 @@ Qed.
 End BoltzmannSteadyState.
 
 (* ============================================================ *)
-(* 项 6 工具（，通用接口层）：正乘严格消去（lt 版）   *)
+(* helper for the next group (general interface layer): strict cancellation
+   by a positive factor (lt form) *)
 (* ============================================================ *)
 Section TempStrictTools.
 Context {RI : RealInterfaceEnhanced}.
@@ -2035,7 +2126,8 @@ Let lt := @lt RI.
 Let inv_pos := @inv_pos RI.
 Let sum_over_S := @sum_over_S RI SS SO.
 
-(* 正乘严格消去：c > 0 且 a·c > 0 ⟹ a > 0（a == (a·c)·inv c） *)
+(* strict cancellation by a positive factor: c > 0 and a * c > 0 imply a > 0,
+   since a == (a * c) * (inv c) *)
 Lemma lt_mult_pos_cancel : forall a c : R, lt zero c -> lt zero (mult a c) -> lt zero a.
 Proof.
   intros a c Hc H.
@@ -2056,7 +2148,7 @@ Context {RI : RealInterfaceEnhanced}.
 Context {SS : StateSpace RI}.
 Context {SO : SumOver RI SS}.
 
-(* 显式绑定基本类型与函数 *)
+(* bind the basic types and functions explicitly *)
 Let R := @R RI.
 Let S := @S RI SS.
 Let zero := @zero RI.
@@ -2067,7 +2159,7 @@ Let inv_pos := @inv_pos RI.
 Let exp_neg := @exp_neg RI.
 Let le := @le RI.
 Let lt := @lt RI.
-Let log := @log RI.                       (* 注意：free_energy 中使用了 log *)
+Let log := @log RI.                       (* note: [free_energy] uses [log] *)
 Let sum_over_S := @sum_over_S RI SS SO.
 
 Variable base_loss : S -> R.
@@ -2089,10 +2181,11 @@ Definition boltzmann_dist : S -> R :=
   fun s => mult (inv_pos Z Z_pos) (exp_neg (mult (inv_pos D D_pos) (base_loss s))).
 
 (* ============================================================ *)
-(* 训练-推理闭环（非平凡实现：自由能与 Boltzmann 分布的精确连接）*)
+(* the training-inference loop: the free energy connected exactly to the
+   Boltzmann distribution *)
 (* ============================================================ *)
 
-(* sum 的负号线性：Σ (-f) = -Σ f *)
+(* linearity of the sum over negatives: sum (-f) = -(sum f) *)
 Lemma sum_opp :
   forall (f : S -> R),
     Id (sum_over_S (fun s => opp (f s))) (opp (sum_over_S f)).
@@ -2121,7 +2214,8 @@ Proof.
   exact (id_trans H1 H2).
 Qed.
 
-(* sum 的减法线性：Σ (f - g) = Σ f - Σ g（由 add + opp 推出） *)
+(* linearity of the sum over differences: sum (f - g) = sum f - sum g,
+   from additivity and opposites *)
 Lemma sum_over_S_minus :
   forall (f g : S -> R),
     Id (sum_over_S (fun s => minus (f s) (g s)))
@@ -2137,7 +2231,9 @@ Proof.
   exact (id_trans Hadd (id_cong (fun x => plus (sum_over_S f) x) Hopp)).
 Qed.
 
-(* Boltzmann 分布归一化：Σ_s p_b(s) = 1（概率质量守恒；平凡版——配分函数定义的重述） *)
+(* normalization of the Boltzmann distribution: sum_s p_b(s) = 1
+   (conservation of probability mass; a restatement of the definition of
+   the partition function) *)
 Theorem boltzmann_normalized :
   Id (sum_over_S boltzmann_dist) one.
 Proof.
@@ -2152,9 +2248,10 @@ Proof.
   exact (id_trans Hlin (id_trans (id_cong (fun x => mult (inv_pos Z Z_pos) x) HZ) Hcc)).
 Qed.
 
-(* 非平凡版本：凸组合归一化守恒——概率分布的凸组合闭包
-   （混合策略 / 模型集成 / 蒸馏的数学基础；分布代数的守恒律，
-    非配分函数定义的重述）。 *)
+(* the nontrivial version: normalization is preserved by convex combinations
+   of distributions (the mathematical basis of mixture strategies, model
+   ensembles and distillation; a conservation law of the algebra of
+   distributions, not a restatement of the partition-function definition) *)
 Theorem boltzmann_mix_normalized :
   forall (p q : S -> R) (alpha : R) (Halpha : lt zero alpha) (Halpha1 : lt zero (minus one alpha)),
     normalized p -> normalized q ->
@@ -2177,7 +2274,8 @@ Proof.
   rewrite Hm1.
   assert (Hm2 : Id (mult (minus one alpha) one) (minus one alpha)) by exact (mult_one (minus one alpha)).
   rewrite Hm2.
-  (* 目标：plus alpha (minus one alpha) = one——assert + exact 链（避免 unfold/rewrite 目标依赖） *)
+  (* goal: plus alpha (minus one alpha) = one — an [assert] + [exact] chain,
+   avoiding unfold/rewrite dependencies of the goal *)
   assert (Hfin : Id (plus alpha (minus one alpha)) one).
   {
     unfold minus.
@@ -2203,7 +2301,8 @@ Proof.
   exact Hfin.
 Qed.
 
-(* Boltzmann 分布的对数分解：log p_b(s) = -log Z - E(s)/D *)
+(* logarithmic decomposition of the Boltzmann distribution:
+   log p_b(s) = -log Z - E(s) / D *)
 Theorem boltzmann_log_decomp :
   forall s : S,
     Id (log (boltzmann_dist s))
@@ -2229,20 +2328,24 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 训练-推理闭环定理：自由能在 Boltzmann 分布处的显式值        *)
-(*   F[p_b] = ⟨E⟩ + D·Σ p_b·log p_b = -D·log Z                 *)
+(* training-inference loop: the explicit value of the free energy at the
+   Boltzmann distribution *)
+(* F[p_b] = ⟨E⟩ + D * sum p_b * log p_b = -D * log Z *)
 (* ============================================================ *)
-(* 训练阶段：自由能最小化（min_free_energy_is_boltzmann）给出 Boltzmann 分布；
-   推理阶段：该分布的熵-能量平衡坍缩出精确闭合值 -D·log Z。
-   非平凡推导链：逐点对数分解（boltzmann_log_decomp）→
-   求和线性/负号线性（sum_over_S_add/linear + sum_opp）→
-   归一化（boltzmann_normalized）→ 环代数坍缩。 *)
+(* training: minimization of the free energy ([min_free_energy_is_boltzmann])
+   yields the Boltzmann distribution; inference: at that distribution the
+   entropy-energy balance collapses to the exact closed value -D * log Z.
+   Chain: pointwise logarithmic decomposition ([boltzmann_log_decomp]),
+   linearity of sums and negatives ([sum_over_S_add], [sum_over_S_linear],
+   [sum_opp]), normalization ([boltzmann_normalized]), then ring algebra
+   collapses the expression. *)
 Theorem free_energy_boltzmann :
   Id (free_energy boltzmann_dist) (mult (opp D) (log Z)).
 Proof.
   unfold free_energy.
   set (Eavg := sum_over_S (fun s => mult (boltzmann_dist s) (base_loss s))).
-  (* Let 层桥接：字段引理 → 节内定义（判例 模式：exact 走转换，rewrite 需同层断言） *)
+  (* bridge between the [Let] layer and field lemmas: use [exact] with a
+   conversion; [rewrite] needs an assertion at the same level *)
   assert (Hdist : forall a b c : R, Id (mult a (plus b c)) (plus (mult a b) (mult a c)))
     by exact (distrib).
   assert (Hoppl : forall a b : R, Id (mult a (opp b)) (opp (mult a b)))
@@ -2263,7 +2366,7 @@ Proof.
     by exact (plus_zero).
   assert (Hpo : forall a : R, Id (plus a (opp a)) zero)
     by exact (plus_opp).
-  (* 步骤 1：逐点分解 p_b(s)·log p_b(s) *)
+  (* step 1: pointwise decomposition of p_b(s) * log p_b(s) *)
   assert (Hpoint :
     forall s : S,
       Id (mult (boltzmann_dist s) (log (boltzmann_dist s)))
@@ -2297,7 +2400,7 @@ Proof.
     rewrite Hswap.
     reflexivity.
   }
-  (* 步骤 2：对 s 求和：Σ p_b·log p_b = -log Z - (1/D)·⟨E⟩ *)
+  (* step 2: sum over s: sum p_b * log p_b = -log Z - (1/D) * <E> *)
   assert (Hsum :
     Id (sum_over_S (fun s => mult (boltzmann_dist s) (log (boltzmann_dist s))))
        (plus (opp (log Z))
@@ -2318,7 +2421,7 @@ Proof.
       by exact (sum_over_S_add (fun s => mult (boltzmann_dist s) (opp (log Z)))
                                (fun s => opp (mult (inv_pos D D_pos) (mult (boltzmann_dist s) (base_loss s))))).
     rewrite Hadd.
-    (* 第一项：Σ p_b·(-log Z) = (-log Z)·Σ p_b = -log Z *)
+    (* first term: sum p_b * (-log Z) = (-log Z) * sum p_b = -log Z *)
     assert (Hsw1 : Id (sum_over_S (fun s => mult (boltzmann_dist s) (opp (log Z))))
                       (sum_over_S (fun s => mult (opp (log Z)) (boltzmann_dist s)))).
     {
@@ -2335,7 +2438,7 @@ Proof.
     rewrite Hnorm.
     assert (Hm1 : Id (mult (opp (log Z)) one) (opp (log Z))) by exact (Hmo (opp (log Z))).
     rewrite Hm1.
-    (* 第二项：Σ opp((1/D)·p_b·E) = opp((1/D)·Σ p_b·E) *)
+    (* second term: sum opp((1/D) * p_b * E) = opp((1/D) * sum p_b * E) *)
     assert (Hso : Id (sum_over_S (fun s => opp (mult (inv_pos D D_pos) (mult (boltzmann_dist s) (base_loss s)))))
                      (opp (sum_over_S (fun s => mult (inv_pos D D_pos) (mult (boltzmann_dist s) (base_loss s))))))
       by exact (sum_opp (fun s => mult (inv_pos D D_pos) (mult (boltzmann_dist s) (base_loss s)))).
@@ -2347,7 +2450,7 @@ Proof.
     reflexivity.
   }
   rewrite Hsum.
-  (* 步骤 3：D·(-log Z - (1/D)·⟨E⟩) = -D·log Z - ⟨E⟩ *)
+  (* step 3: D * (-log Z - (1/D) * <E>) = -D * log Z - <E> *)
   assert (Hmd : Id (mult D (plus (opp (log Z)) (opp (mult (inv_pos D D_pos) Eavg))))
                   (plus (opp (mult D (log Z))) (opp Eavg))).
   {
@@ -2370,7 +2473,7 @@ Proof.
     reflexivity.
   }
   rewrite Hmd.
-  (* 步骤 4：⟨E⟩ + (-D·log Z - ⟨E⟩) = -D·log Z（环代数坍缩） *)
+  (* step 4: <E> + (-D * log Z - <E>) = -D * log Z (ring algebra) *)
   assert (Hfin : Id (plus Eavg (plus (opp (mult D (log Z))) (opp Eavg)))
                     (opp (mult D (log Z)))).
   {
@@ -2396,25 +2499,31 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 训练-推理闭环皇冠定理：自由能-相对熵恒等式                  *)
-(*   F[p] = F[p_b] + D·KL(p || p_b)                             *)
+(* the free-energy / relative-entropy identity of the training-inference
+   loop *)
+(* F[p] = F[p_b] + D * KL(p || p_b) *)
 (* ============================================================ *)
-(* 含义：对任意归一化分布 p，自由能等于 Boltzmann 自由能加上   *)
-(* 温度 D 乘相对熵。⟹ 训练（自由能最小化）与推理（分布逼近     *)
-(* Boltzmann）精确等价——最小化 F 就是最小化 KL。              *)
-(* 非平凡推导：能量用对数分解反解 E = -D·(log p_b + log Z)，   *)
-(* 逐点替换 + 求和线性/负号线性 + 归一化坍缩。                 *)
+(* meaning: for every normalized distribution p, the free energy equals the
+   Boltzmann free energy plus *)
+(* the temperature D times the relative entropy; hence training
+   (minimizing the free energy) and inference (approximating the *)
+(* Boltzmann distribution) are exactly equivalent — minimizing F is the
+   same as minimizing KL. *)
+(* derivation: solve E from the logarithmic decomposition as
+   E = -D * (log p_b + log Z), then *)
+(* substitute pointwise and use linearity of sums and negatives plus
+   normalization. *)
 (* ------------------------------------------------------------ *)
 
-(* 引理 1：能量反解——由 boltzmann_log_decomp 得
-   E(s) = -D·(log p_b(s) + log Z) *)
+(* lemma 1: solving for the energy — from [boltzmann_log_decomp],
+   E(s) = -D * (log p_b(s) + log Z) *)
 Lemma energy_in_log_boltzmann :
   forall s : S,
     Id (base_loss s)
        (opp (mult D (plus (log (boltzmann_dist s)) (log Z)))).
 Proof.
   intro s.
-  (* log p_b = -log Z - E/D ⟹ log p_b + log Z = -E/D *)
+  (* log p_b = -log Z - E/D implies log p_b + log Z = -E/D *)
   assert (Hlog : Id (log (boltzmann_dist s))
                     (plus (opp (log Z)) (opp (mult (inv_pos D D_pos) (base_loss s)))))
     by exact (boltzmann_log_decomp s).
@@ -2451,7 +2560,8 @@ Proof.
       by exact (id_trans (plus_comm zero (opp (mult (inv_pos D D_pos) (base_loss s)))) (plus_zero (opp (mult (inv_pos D D_pos) (base_loss s))))).
     exact (id_trans Hc (id_trans H1 (id_trans H2 (id_trans H3 (id_trans H4 H5))))).
   }
-  (* D·(-E/D) = -E；目标反号后为 E = -D·(log p_b + log Z) *)
+  (* D * (-E/D) = -E; after negating, the goal reads
+   E = -D * (log p_b + log Z) *)
   assert (Hmd : Id (mult D (plus (log (boltzmann_dist s)) (log Z)))
                    (opp (base_loss s))).
   {
@@ -2475,7 +2585,7 @@ Proof.
     }
     exact (id_trans Hc2 (id_trans Hopp (id_cong opp Hcc))).
   }
-  (* E = -D·(log p_b + log Z)：由 mult D (log p_b + log Z) = -E 反号 *)
+  (* E = -D * (log p_b + log Z): negate mult D (log p_b + log Z) = -E *)
   assert (Hinv : Id (opp (mult D (plus (log (boltzmann_dist s)) (log Z))))
                     (base_loss s)).
   {
@@ -2489,7 +2599,8 @@ Proof.
   exact (id_sym Hinv).
 Qed.
 
-(* 引理 2：逐点分解 mult (p s) (base_loss s) = -D·p·log p_b - D·p·log Z *)
+(* lemma 2: pointwise decomposition
+   mult (p s) (base_loss s) = -D * p * log p_b - D * p * log Z *)
 Lemma p_times_energy_decomp :
   forall (p : S -> R) (s : S),
     Id (mult (p s) (base_loss s))
@@ -2506,7 +2617,8 @@ Proof.
   assert (Hopp : Id (mult (p s) (opp (mult D (plus (log (boltzmann_dist s)) (log Z)))))
                     (opp (mult (p s) (mult D (plus (log (boltzmann_dist s)) (log Z))))))
     by exact (opp_mult_l (p s) (mult D (plus (log (boltzmann_dist s)) (log Z)))).
-  (* mult (p s) (mult D X) = mult D (mult (p s) X)（交换重组） *)
+  (* mult (p s) (mult D X) = mult D (mult (p s) X) (re-grouping by
+   commutativity) *)
   assert (Hsw : Id (mult (p s) (mult D (plus (log (boltzmann_dist s)) (log Z))))
                    (mult D (mult (p s) (plus (log (boltzmann_dist s)) (log Z))))).
   {
@@ -2521,7 +2633,7 @@ Proof.
       by exact (id_sym (mult_assoc D (p s) (plus (log (boltzmann_dist s)) (log Z)))).
     exact (id_trans H1 (id_trans H2 H3)).
   }
-  (* distrib：mult (p s) (log p_b + log Z) = p·log p_b + p·log Z *)
+  (* distrib: mult (p s) (log p_b + log Z) = p * log p_b + p * log Z *)
   assert (Hdist : Id (mult (p s) (plus (log (boltzmann_dist s)) (log Z)))
                      (plus (mult (p s) (log (boltzmann_dist s))) (mult (p s) (log Z))))
     by exact (distrib (p s) (log (boltzmann_dist s)) (log Z)).
@@ -2536,7 +2648,7 @@ Proof.
                     (plus (mult D (mult (p s) (log (boltzmann_dist s))))
                           (mult D (mult (p s) (log Z)))))
     by exact (id_trans Hsw2 Hdist2).
-  (* opp 展开：opp (X + Y) = opp X + opp Y *)
+  (* unfold opp: opp (X + Y) = opp X + opp Y *)
   assert (Hop : Id (opp (plus (mult D (mult (p s) (log (boltzmann_dist s))))
                               (mult D (mult (p s) (log Z)))))
                    (plus (opp (mult D (mult (p s) (log (boltzmann_dist s)))))
@@ -2550,7 +2662,7 @@ Proof.
   exact (id_trans Hc (id_trans Hopp (id_trans Hc2 Hop))).
 Qed.
 
-(* 主定理：F[p] = F[p_b] + D·KL(p || p_b) *)
+(* main theorem: F[p] = F[p_b] + D * KL(p || p_b) *)
 Theorem free_energy_kl_decomp :
   forall p : S -> R,
     normalized p ->
@@ -2560,13 +2672,14 @@ Theorem free_energy_kl_decomp :
 Proof.
   intros p Hnorm.
   unfold normalized in Hnorm.
-  (* 展开 LHS 的 free_energy p（RHS 的 free_energy boltzmann_dist 保持完整，供 Hfb 重写） *)
+  (* unfold [free_energy] p on the left (free_energy boltzmann_dist on the
+   right is kept intact for rewriting by Hfb) *)
   assert (Hfe_p : Id (free_energy p)
                      (plus (sum_over_S (fun s => mult (p s) (base_loss s)))
                            (mult D (sum_over_S (fun s => mult (p s) (log (p s))))))).
   { reflexivity. }
   rewrite Hfe_p.
-  (* 步骤 1：Σ p·E = -D·Σ p·log p_b - D·log Z *)
+  (* step 1: sum p * E = -D * sum p * log p_b - D * log Z *)
   assert (Hse : Id (sum_over_S (fun s => mult (p s) (base_loss s)))
                    (plus (opp (mult D (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s))))))
                          (opp (mult D (log Z))))).
@@ -2607,7 +2720,7 @@ Proof.
                        (mult D (sum_over_S (fun s => mult (p s) (log Z)))))
       by exact (sum_over_S_linear D (fun s => mult (p s) (log Z))).
     rewrite Hlin2.
-    (* 内层：Σ p·log Z = log Z·Σ p = log Z（归一化） *)
+    (* inner layer: sum p * log Z = log Z * sum p = log Z (normalization) *)
     assert (HlogZ : Id (sum_over_S (fun s => mult (p s) (log Z))) (log Z)).
     {
       assert (Hsw : Id (sum_over_S (fun s => mult (p s) (log Z)))
@@ -2628,7 +2741,8 @@ Proof.
     reflexivity.
   }
   rewrite Hse.
-  (* 步骤 2：F[p_b] = -D·log Z（已证 free_energy_boltzmann + opp_mult_r） *)
+  (* step 2: F[p_b] = -D * log Z (from the proven [free_energy_boltzmann] and
+   [opp_mult_r]) *)
   assert (Hfb : Id (free_energy boltzmann_dist) (opp (mult D (log Z)))).
   {
     assert (Hfb0 : Id (free_energy boltzmann_dist) (mult (opp D) (log Z)))
@@ -2638,13 +2752,13 @@ Proof.
     exact (id_trans Hfb0 Hoppr).
   }
   rewrite Hfb.
-  (* 步骤 3：KL 展开——mult D (Σ p·(log p - log p_b))
-     = D·Σ p·log p - D·Σ p·log p_b *)
+  (* step 3: expand KL — mult D (sum p * (log p - log p_b))
+   = D * sum p * log p - D * sum p * log p_b *)
   assert (Hkl : Id (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s))))))
                   (plus (mult D (sum_over_S (fun s => mult (p s) (log (p s)))))
                         (opp (mult D (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s)))))))).
   {
-    (* 逐点：p·(log p - log p_b) = p·log p - p·log p_b *)
+    (* pointwise: p * (log p - log p_b) = p * log p - p * log p_b *)
     assert (Hpt2 : forall s : S,
                     Id (mult (p s) (minus (log (p s)) (log (boltzmann_dist s))))
                        (plus (mult (p s) (log (p s)))
@@ -2678,7 +2792,7 @@ Proof.
                       (opp (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s))))))
       by exact (sum_opp (fun s => mult (p s) (log (boltzmann_dist s)))).
     rewrite Hso3.
-    (* 提取 D（线性） *)
+    (* factor out D (linearity) *)
     assert (HdistD : Id (mult D (plus (sum_over_S (fun s => mult (p s) (log (p s))))
                                       (opp (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s)))))))
                         (plus (mult D (sum_over_S (fun s => mult (p s) (log (p s)))))
@@ -2696,12 +2810,13 @@ Proof.
                           (id_cong (fun x => plus (mult D (sum_over_S (fun s => mult (p s) (log (p s))))) x) HoppD)).
     exact HcD.
   }
-  (* 步骤 4：主目标环代数坍缩
-     (opp A + opp (D log Z)) + D·Σp log p
-     = opp (D log Z) + (D·Σp log p + opp A)  其中 A := D·Σ p log p_b *)
+  (* step 4: the main goal collapses by ring algebra:
+   (opp A + opp (D * log Z)) + D * sum p * log p
+   = opp (D * log Z) + (D * sum p * log p + opp A),
+   where A := D * sum p * log p_b *)
   set (A := mult D (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s))))).
   set (B := mult D (sum_over_S (fun s => mult (p s) (log (p s))))).
-  (* 重写 KL 侧：目标含 B 与 opp A *)
+  (* rewrite the KL side: the goal contains B and opp A *)
   assert (Hkl2 : Id (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s))))))
                     (plus B (opp A))).
   {
@@ -2709,7 +2824,7 @@ Proof.
     exact Hkl.
   }
   rewrite Hkl2.
-  (* 目标：(opp A + opp (D log Z)) + B = opp (D log Z) + (B + opp A) *)
+  (* goal: (opp A + opp (D * log Z)) + B = opp (D * log Z) + (B + opp A) *)
   assert (Hfin : Id (plus (plus (opp A) (opp (mult D (log Z)))) B)
                     (plus (opp (mult D (log Z))) (plus B (opp A)))).
   {
@@ -2734,7 +2849,8 @@ Proof.
   exact Hfin.
 Qed.
 
-(* 推论：自由能差 = D × 相对熵（差形式，常用于训练目标分解） *)
+(* corollary: the free-energy difference equals D times the relative
+   entropy (difference form, used to decompose training objectives) *)
 Theorem free_energy_kl_diff :
   forall p : S -> R,
     normalized p ->
@@ -2748,7 +2864,7 @@ Proof.
                              (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s))))))))
     by exact (free_energy_kl_decomp p Hnorm).
   rewrite Hdecomp.
-  (* F_b + (F - F_b 项) ⟹ 目标：plus F_b KL 的 opp 形式 *)
+  (* F_b + (the F - F_b term) — the goal in the opp form of plus F_b KL *)
   assert (Hcn : Id (plus (plus (free_energy boltzmann_dist)
                                (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s)))))))
                          (opp (free_energy boltzmann_dist)))
@@ -2776,30 +2892,32 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* F[p] - F[q] = D·(KL(p‖p_b) - KL(q‖p_b))
-   深化意义：自由能差等于两分布各自相对 Boltzmann 的 KL 之差。
-   给出任意两候选分布的相对质量排序：F[p] ≤ F[q] ⟺
-   KL(p‖p_b) ≤ KL(q‖p_b)。支撑：模型选择、分布逼近偏序、
-   生成模型的相对评估、蒸馏中师生差距的度量。 *)
+(* F[p] - F[q] = D * (KL(p || p_b) - KL(q || p_b)): the free-energy
+   difference equals the difference of the KL divergences to the Boltzmann
+   distribution.  This ranks any two candidate distributions:
+   F[p] <= F[q] iff KL(p || p_b) <= KL(q || p_b), supporting model
+   selection, orderings on distributional approximations, comparative
+   evaluation of generative models, and measuring the teacher-student gap
+   in distillation. *)
 Theorem free_energy_diff_kl :
   forall p q : S -> R,
     normalized p -> normalized q ->
     Id (minus (free_energy p) (free_energy q)) (mult D (minus (sum_over_S (fun s0 => mult (p s0) (minus (log (p s0)) (log (boltzmann_dist s0))))) (sum_over_S (fun s0 => mult (q s0) (minus (log (q s0)) (log (boltzmann_dist s0))))))).
 
   intros p q Hnp Hnq.
-  (* 1. 两侧各自的 free_energy_kl_diff *)
+  (* 1. [free_energy_kl_diff] on both sides *)
   assert (Hp : Id (minus (free_energy p) (free_energy boltzmann_dist))
                   (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s)))))))
     by exact (free_energy_kl_diff p Hnp).
   assert (Hq : Id (minus (free_energy q) (free_energy boltzmann_dist))
                   (mult D (sum_over_S (fun s => mult (q s) (minus (log (q s)) (log (boltzmann_dist s)))))))
     by exact (free_energy_kl_diff q Hnq).
-  (* 2. ring_minus_trans：F[p]-F[q] = (F[p]-F_b) - (F[q]-F_b) *)
+  (* 2. ring_minus_trans: F[p]-F[q] = (F[p]-F_b) - (F[q]-F_b) *)
   assert (Hsplit : Id (minus (free_energy p) (free_energy q))
                       (minus (minus (free_energy p) (free_energy boltzmann_dist))
                              (minus (free_energy q) (free_energy boltzmann_dist))))
     by exact (ring_minus_trans (free_energy p) (free_energy q) (free_energy boltzmann_dist)).
-  (* 3. 代入 Hp、Hq：(D·KL_p) - (D·KL_q) = D·(KL_p - KL_q) *)
+  (* 3. substitute Hp, Hq: (D * KL_p) - (D * KL_q) = D * (KL_p - KL_q) *)
   assert (Hsub : Id (minus (free_energy p) (free_energy q)) (minus (mult D (sum_over_S (fun s0 => mult (p s0) (minus (log (p s0)) (log (boltzmann_dist s0)))))) (mult D (sum_over_S (fun s0 => mult (q s0) (minus (log (q s0)) (log (boltzmann_dist s0)))))))).
 
   {
@@ -2815,7 +2933,7 @@ Theorem free_energy_diff_kl :
       by exact (id_cong (fun x => minus (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s)))))) x) Hq).
     exact (id_trans Hsplit (id_trans H1 H2)).
   }
-  (* 4. mult_minus_distr_l 反向：D·(KL_p - KL_q) = (D·KL_p) - (D·KL_q) *)
+  (* 4. [mult_minus_distr_l] in reverse: D * (KL_p - KL_q) = (D * KL_p) - (D * KL_q) *)
   assert (Hm : Id (minus (mult D (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s))))))
                          (mult D (sum_over_S (fun s => mult (q s) (minus (log (q s)) (log (boltzmann_dist s)))))))
                   (mult D (minus (sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (boltzmann_dist s)))))
@@ -2824,12 +2942,14 @@ Theorem free_energy_diff_kl :
   exact (id_trans Hsub Hm).
 Qed.
 
-(* 相对熵（KL 散度）：KL(p || q) := Σ_s p(s)·(log p(s) - log q(s)) *)
+(* relative entropy (KL divergence):
+   KL(p || q) := sum_s p(s) * (log p(s) - log q(s)) *)
 Definition relative_entropy (p q : S -> R) : R :=
   sum_over_S (fun s => mult (p s) (minus (log (p s)) (log (q s)))).
 
-(* 关键代数引理：p·(log p - log q) = p·log(p/q)，且
-   p·(q/p) = q（分式约分；用于 Gibbs 不等式逐点项） *)
+(* key algebraic lemmas: p * (log p - log q) = p * log(p/q), and
+   p * (q/p) = q (cancellation of the fraction; used for the pointwise
+   terms of the Gibbs inequality) *)
 Lemma gibbs_pointwise :
   forall (p q : S -> R) (s : S),
     lt zero (p s) -> lt zero (q s) ->
@@ -2837,22 +2957,23 @@ Lemma gibbs_pointwise :
        (mult (p s) (minus (log (p s)) (log (q s)))).
 Proof.
   intros p q s Hps Hqs.
-  (* log(q/p) ≤ q/p - 1（log 凹性切线，q/p > 0） *)
+  (* log(q/p) <= q/p - 1 (the tangent line of the concave log, for q/p > 0) *)
   assert (Hratio_pos : lt zero (mult (q s) (inv_pos (p s) Hps)))
     by exact (mult_positive (q s) (inv_pos (p s) Hps) Hqs (inv_pos_pos (p s) Hps)).
   assert (Hlin : le (log (mult (q s) (inv_pos (p s) Hps)))
                     (minus (mult (q s) (inv_pos (p s) Hps)) one))
     by exact (log_le_linear (mult (q s) (inv_pos (p s) Hps)) Hratio_pos).
-  (* 反号：-(q/p - 1) ≤ -log(q/p)，即 1 - q/p ≤ log(p/q) *)
+  (* negate: -(q/p - 1) <= -log(q/p), i.e. 1 - q/p <= log(p/q) *)
   assert (Hopp : le (opp (minus (mult (q s) (inv_pos (p s) Hps)) one))
                     (opp (log (mult (q s) (inv_pos (p s) Hps)))))
     by exact (opp_le_compat (log (mult (q s) (inv_pos (p s) Hps)))
                             (minus (mult (q s) (inv_pos (p s) Hps)) one) Hlin).
-  (* log(p/q) = -log(q/p)（log_div_neg） *)
+  (* log(p/q) = -log(q/p) (log_div_neg) *)
   assert (Hld : Id (log (mult (p s) (inv_pos (q s) Hqs)))
                    (opp (log (mult (q s) (inv_pos (p s) Hps)))))
     by exact (log_div_neg (p s) (q s) Hps Hqs).
-  (* 目标 RHS 用 log(p/q) 替换：mult (p s) (minus (log p) (log q)) = mult (p s) (log (p/q)) *)
+  (* replace the right side of the goal using log(p/q):
+   mult (p s) (minus (log p) (log q)) = mult (p s) (log (p/q)) *)
   assert (Hrhs : Id (mult (p s) (minus (log (p s)) (log (q s))))
                     (mult (p s) (log (mult (p s) (inv_pos (q s) Hqs))))).
   {
@@ -2862,26 +2983,27 @@ Proof.
     exact (id_sym (id_cong (fun x => mult (p s) x) Hlogdiv)).
   }
   rewrite Hrhs.
-  (* 目标：minus (p s) (q s) ≤ mult (p s) (log (p/q))
-     用 p·(1 - q/p) ≤ p·log(p/q)（log_le_linear 反号 + le_mult_compat） *)
+  (* goal: minus (p s) (q s) <= mult (p s) (log (p/q));
+   use p * (1 - q/p) <= p * log(p/q) (the negated [log_le_linear] with
+   [le_mult_compat]) *)
   assert (Hstep1 : le (mult (p s) (opp (minus (mult (q s) (inv_pos (p s) Hps)) one)))
                       (mult (p s) (opp (log (mult (q s) (inv_pos (p s) Hps))))))
     by exact (le_mult_compat_r (p s)
                                (opp (minus (mult (q s) (inv_pos (p s) Hps)) one))
                                (opp (log (mult (q s) (inv_pos (p s) Hps))))
                                (lt_le_iff _ _ (inl Hps)) Hopp).
-  (* p·log(p/q) = p·(-log(q/p)) *)
+  (* p * log(p/q) = p * (-log(q/p)) *)
   assert (Hstep2 : Id (mult (p s) (log (mult (p s) (inv_pos (q s) Hqs))))
                       (mult (p s) (opp (log (mult (q s) (inv_pos (p s) Hps))))))
     by exact (id_cong (fun x => mult (p s) x) Hld).
   rewrite <- Hstep2 in Hstep1.
-  (* 目标 LHS：p·(1 - q/p) = p - p·(q/p) = p - q *)
+  (* left side of the goal: p * (1 - q/p) = p - p * (q/p) = p - q *)
   assert (Hlhs : Id (minus (p s) (q s))
                     (mult (p s) (opp (minus (mult (q s) (inv_pos (p s) Hps)) one)))).
   {
     (* mult (p s) (opp (minus X one)) = opp (mult (p s) (minus X one))
-       = opp (minus (mult (p s) X) (mult (p s) one)) = opp (minus (p·X) (p·1))
-       mult (p s) X = q s，mult (p s) one = p s ⟹ = opp (minus (q s) (p s)) = minus (p s) (q s) *)
+ = opp (minus (mult (p s) X) (mult (p s) one)) = opp (minus (p * X) (p * 1))
+ mult (p s) X = q s, mult (p s) one = p s implies = opp (minus (q s) (p s)) = minus (p s) (q s) *)
     assert (Hoppl : Id (mult (p s) (opp (minus (mult (q s) (inv_pos (p s) Hps)) one)))
                        (opp (mult (p s) (minus (mult (q s) (inv_pos (p s) Hps)) one))))
       by exact (opp_mult_l (p s) (minus (mult (q s) (inv_pos (p s) Hps)) one)).
@@ -2919,8 +3041,10 @@ Proof.
   exact Hstep1.
 Qed.
 
-(* Gibbs 不等式：归一化正分布的相对熵非负（KL ≥ 0）。
-   非平凡：log 凹性切线 + 逐点分式约分 + 求和保序。 *)
+(* Gibbs inequality: the relative entropy of normalized positive
+   distributions is nonnegative (KL >= 0).
+   Route: the tangent line of the concave log, pointwise fraction
+   cancellation, and monotonicity of sums. *)
 Theorem gibbs_inequality :
   forall p q : S -> R,
     normalized p -> positive_dist p ->
@@ -2929,7 +3053,8 @@ Theorem gibbs_inequality :
 Proof.
   intros p q Hnp Hpp Hnq Hpq.
   unfold relative_entropy.
-  (* 逐点：p - q ≤ p·(log p - log q)，求和保序 ⟹ Σ(p-q) ≤ KL *)
+  (* pointwise: p - q <= p * (log p - log q); monotonicity of sums gives
+   sum (p - q) <= KL *)
   assert (Hpt : forall s, le (minus (p s) (q s))
                             (mult (p s) (minus (log (p s)) (log (q s)))))
     by (intro s; apply (gibbs_pointwise p q s); [exact (Hpp s) | exact (Hpq s)]).
@@ -2938,7 +3063,8 @@ Proof.
     by exact (sum_over_S_le (fun s => minus (p s) (q s))
                             (fun s => mult (p s) (minus (log (p s)) (log (q s))))
                             Hpt).
-  (* Σ(p - q) = Σp - Σq = 1 - 1 = 0（归一化 + sum_over_S_add + sum_opp） *)
+  (* sum (p - q) = sum p - sum q = 1 - 1 = 0 (normalization with
+   [sum_over_S_add] and [sum_opp]) *)
   assert (Hsum0 : Id (sum_over_S (fun s => minus (p s) (q s))) zero).
   {
     unfold minus.
@@ -2961,15 +3087,18 @@ Proof.
   exact Hle.
 Qed.
 
-(* Gibbs 等号条件：KL(p||q) = 0 ⟹ p = q（逐点）。
-   证明链：
-   1) d(s) := p·(log p - log q) - (p - q) ≥ 0（gibbs_pointwise + le_minus_nonneg）；
-   2) Σ d = KL - Σ(p-q) = 0 - 0 = 0（sum_over_S_minus + 归一化）；
-   3) sum_over_S_zero_nonneg：Σ d = 0 且 d ≥ 0 ⟹ d(s) = 0；
-   4) minus_eq_cancel：p·(log p - log q) = p - q；
-   5) log_div 换形 + mult_cancel_l（p > 0）⟹ log(q/p) = q/p - 1；
-   6) log_eq_linear（log 严格凹）⟹ q/p = 1；
-   7) mult_cancel_r（inv_pos p > 0）⟹ q = p。 *)
+(* equality case of Gibbs: KL(p || q) = 0 implies p = q pointwise.
+   Chain:
+   1) d(s) := p * (log p - log q) - (p - q) >= 0
+      ([gibbs_pointwise] and [le_minus_nonneg]);
+   2) sum d = KL - sum (p - q) = 0 - 0 = 0 ([sum_over_S_minus] and
+      normalization);
+   3) [sum_over_S_zero_nonneg]: sum d = 0 with d >= 0 forces d(s) = 0;
+   4) [minus_eq_cancel]: p * (log p - log q) = p - q;
+   5) reshape with [log_div] and cancel p > 0 by [mult_cancel_l]:
+      log(q/p) = q/p - 1;
+   6) [log_eq_linear] (strict concavity of log) gives q/p = 1;
+   7) [mult_cancel_r] with inv p > 0 gives q = p. *)
 Theorem gibbs_equality :
   forall p q : S -> R,
     normalized p -> positive_dist p ->
@@ -2979,7 +3108,7 @@ Theorem gibbs_equality :
 Proof.
   intros p q Hnp Hpp Hnq Hpq Hkl0 s0.
   unfold relative_entropy in Hkl0.
-  (* 1) d ≥ 0 逐点 *)
+  (* 1) d >= 0 pointwise *)
   assert (Hd_nonneg : forall s, le zero (minus (mult (p s) (minus (log (p s)) (log (q s))))
                                              (minus (p s) (q s)))).
   {
@@ -2987,7 +3116,7 @@ Proof.
     apply le_minus_nonneg.
     apply (gibbs_pointwise p q s); [exact (Hpp s) | exact (Hpq s)].
   }
-  (* 2) Σ d = 0 *)
+  (* 2) sum d = 0 *)
   assert (Hd_sum : Id (sum_over_S (fun s => minus (mult (p s) (minus (log (p s)) (log (q s))))
                                              (minus (p s) (q s)))) zero).
   {
@@ -3026,18 +3155,18 @@ Proof.
                 (fun s => minus (mult (p s) (minus (log (p s)) (log (q s))))
                                 (minus (p s) (q s)))
                 Hd_nonneg Hd_sum s0).
-  (* 4) p·(log p - log q) = p - q *)
+  (* 4) p * (log p - log q) = p - q *)
   assert (Hrel : Id (mult (p s0) (minus (log (p s0)) (log (q s0))))
                    (minus (p s0) (q s0)))
     by exact (minus_eq_cancel (mult (p s0) (minus (log (p s0)) (log (q s0))))
                               (minus (p s0) (q s0)) Hd0s).
-  (* 5) 换形：log(p/q) = log p - log q；q/p 反号 *)
+  (* 5) reshape: log(p/q) = log p - log q; negate q/p *)
   assert (Hlhs : Id (mult (p s0) (minus (log (p s0)) (log (q s0))))
                     (mult (p s0) (log (mult (p s0) (inv_pos (q s0) (Hpq s0))))))
     by exact (id_sym (id_cong (fun x => mult (p s0) x)
                               (log_div (p s0) (q s0) (Hpp s0) (Hpq s0)))).
   rewrite Hlhs in Hrel.
-  (* p·log(p/q) = p·(-log(q/p)) *)
+  (* p * log(p/q) = p * (-log(q/p)) *)
   assert (Hlogneg : Id (log (mult (p s0) (inv_pos (q s0) (Hpq s0))))
                        (opp (log (mult (q s0) (inv_pos (p s0) (Hpp s0))))))
     by exact (log_div_neg (p s0) (q s0) (Hpp s0) (Hpq s0)).
@@ -3045,7 +3174,8 @@ Proof.
                      (mult (p s0) (opp (log (mult (q s0) (inv_pos (p s0) (Hpp s0)))))))
     by exact (id_cong (fun x => mult (p s0) x) Hlogneg).
   rewrite Hlhs2 in Hrel.
-  (* RHS：p - q = p·(1 - q/p)（由 gibbs_pointwise 内恒等反向） *)
+  (* right side: p - q = p * (1 - q/p), reading the identity inside
+   [gibbs_pointwise] backwards *)
   assert (Hrhs : Id (minus (p s0) (q s0))
                     (mult (p s0) (opp (minus (mult (q s0) (inv_pos (p s0) (Hpp s0))) one)))).
   {
@@ -3083,7 +3213,7 @@ Proof.
     exact (id_sym (id_trans Hoppl (id_trans (id_cong opp Hfull) Hopp2))).
   }
   rewrite Hrhs in Hrel.
-  (* 6) mult_cancel_l（p > 0）：-log(q/p) = -(q/p - 1) ⟹ log(q/p) = q/p - 1 *)
+  (* 6) mult_cancel_l (p > 0): -log(q/p) = -(q/p - 1) implies log(q/p) = q/p - 1 *)
   assert (Hopp_eq : Id (opp (log (mult (q s0) (inv_pos (p s0) (Hpp s0)))))
                        (opp (minus (mult (q s0) (inv_pos (p s0) (Hpp s0))) one)))
     by exact (mult_cancel_l (p s0)
@@ -3101,12 +3231,13 @@ Proof.
       by exact (double_neg (minus (mult (q s0) (inv_pos (p s0) (Hpp s0))) one)).
     exact (id_trans H2 (id_trans (id_cong opp Hopp_eq) H3)).
   }
-  (* 7) log_eq_linear：log(q/p) = q/p - 1 ⟹ q/p = 1 *)
+  (* 7) log_eq_linear: log(q/p) = q/p - 1 implies q/p = 1 *)
   assert (Hratio_pos : lt zero (mult (q s0) (inv_pos (p s0) (Hpp s0))))
     by exact (mult_positive (q s0) (inv_pos (p s0) (Hpp s0)) (Hpq s0) (inv_pos_pos (p s0) (Hpp s0))).
   assert (Hratio_one : Id (mult (q s0) (inv_pos (p s0) (Hpp s0))) one)
     by exact (log_eq_linear (mult (q s0) (inv_pos (p s0) (Hpp s0))) Hratio_pos Hlog_eq).
-  (* 8) q·(1/p) = 1 = p·(1/p) ⟹ q = p（mult_cancel_r 消 inv_pos p > 0） *)
+  (* 8) q * (1/p) = 1 = p * (1/p) gives q = p ([mult_cancel_r] with
+   inv p > 0) *)
   assert (Hpr : Id (mult (p s0) (inv_pos (p s0) (Hpp s0))) one)
     by exact (inv_pos_correct (p s0) (Hpp s0)).
   assert (Hqr : Id (mult (q s0) (inv_pos (p s0) (Hpp s0)))
@@ -3115,7 +3246,8 @@ Proof.
   exact (id_sym (mult_cancel_r (inv_pos (p s0) (Hpp s0)) (q s0) (p s0) (inv_pos_pos (p s0) (Hpp s0)) Hqr)).
 Qed.
 
-(* Boltzmann 分布正性：p_b(s) > 0（逆元正 × 指数正） *)
+(* positivity of the Boltzmann distribution: p_b(s) > 0
+   (positivity of inverses times positivity of the exponential) *)
 Lemma boltzmann_dist_pos :
   forall s : S, lt zero (boltzmann_dist s).
 Proof.
@@ -3126,22 +3258,25 @@ Proof.
   - apply exp_neg_pos.
 Qed.
 
-(* 自由能最小化定理（原假设变量降级为定理）：
-   F[p_b] ≤ F[p]——Boltzmann 分布是自由能全局极小值点。
-   证明：F[p] = F[p_b] + D·KL(p||p_b)（free_energy_kl_decomp）
-   + KL ≥ 0（gibbs_inequality）+ D > 0 保序。 *)
+(* minimization of the free energy (a former assumption variable, restated
+   as a theorem): F[p_b] <= F[p] — the Boltzmann distribution is a global
+   minimizer of the free energy.
+   Proof: F[p] = F[p_b] + D * KL(p || p_b) ([free_energy_kl_decomp]),
+   KL >= 0 ([gibbs_inequality]), and monotonicity under multiplication by
+   D > 0. *)
 Theorem min_free_energy_is_boltzmann :
   forall p : S -> R,
     normalized p -> positive_dist p ->
     le (free_energy boltzmann_dist) (free_energy p).
 Proof.
   intros p Hnp Hpp.
-  (* 1. F[p] = F[p_b] + D·KL(p||p_b) *)
+  (* 1. F[p] = F[p_b] + D * KL(p||p_b) *)
   assert (Hdecomp : Id (free_energy p)
                        (plus (free_energy boltzmann_dist)
                              (mult D (relative_entropy p boltzmann_dist))))
     by exact (free_energy_kl_decomp p Hnp).
-  (* 2. KL ≥ 0（gibbs_inequality；boltzmann_dist 归一化 + 正性） *)
+  (* 2. KL >= 0 ([gibbs_inequality]; [boltzmann_dist] is normalized and
+   positive) *)
   assert (Hkl : le zero (relative_entropy p boltzmann_dist)).
   {
     apply (gibbs_inequality p boltzmann_dist).
@@ -3150,7 +3285,8 @@ Proof.
     - exact (boltzmann_normalized).
     - intro s. exact (boltzmann_dist_pos s).
   }
-  (* 3. D > 0 保序：0 ≤ KL ⟹ D·0 ≤ D·KL ⟹ 0 ≤ D·KL *)
+  (* 3. monotonicity under D > 0: 0 <= KL gives D * 0 <= D * KL, i.e.
+   0 <= D * KL *)
   assert (Hdkl : le zero (mult D (relative_entropy p boltzmann_dist))).
   {
     assert (Hm : le (mult D zero) (mult D (relative_entropy p boltzmann_dist)))
@@ -3159,7 +3295,8 @@ Proof.
     assert (Hz : Id (mult D zero) zero) by exact (mult_zero D).
     exact (le_id_l zero (mult D zero) (mult D (relative_entropy p boltzmann_dist)) (id_sym Hz) Hm).
   }
-  (* 4. F[p_b] ≤ F[p_b] + D·KL = F[p]（le_plus_compat + le_refl + le_id_l 归约） *)
+  (* 4. F[p_b] <= F[p_b] + D * KL = F[p] (reduce by [le_plus_compat],
+   [le_refl] and [le_id_l]) *)
   assert (Hfin : le (free_energy boltzmann_dist)
                     (plus (free_energy boltzmann_dist) (mult D (relative_entropy p boltzmann_dist)))).
   {
@@ -3177,9 +3314,11 @@ Proof.
   exact (le_id_r (free_energy boltzmann_dist) (plus (free_energy boltzmann_dist) (mult D (relative_entropy p boltzmann_dist))) (free_energy p) (id_sym Hdecomp) Hfin).
 Qed.
 
-(* 自由能最小点唯一性：若 p 达到与 Boltzmann 相同的自由能，则 p = p_b（逐点）。
-   证明：F[p] = F[p_b] + D·KL 且 F[p] = F[p_b] ⟹ D·KL = 0 ⟹ KL = 0（D > 0
-   mult_cancel_l）⟹ p = p_b（gibbs_equality）。 *)
+(* uniqueness of the free-energy minimizer: if p attains the same free
+   energy as the Boltzmann distribution, then p = p_b pointwise.
+   Proof: F[p] = F[p_b] + D * KL and F[p] = F[p_b] give D * KL = 0, hence
+   KL = 0 by cancellation with D > 0 ([mult_cancel_l]), hence p = p_b
+   ([gibbs_equality]). *)
 Theorem free_energy_min_unique :
   forall p : S -> R,
     normalized p -> positive_dist p ->
@@ -3187,12 +3326,12 @@ Theorem free_energy_min_unique :
     forall s : S, Id (p s) (boltzmann_dist s).
 Proof.
   intros p Hnp Hpp Hfeq s.
-  (* 1. F[p] = F[p_b] + D·KL（恒等式） *)
+  (* 1. F[p] = F[p_b] + D * KL (the identity) *)
   assert (Hdecomp : Id (free_energy p)
                        (plus (free_energy boltzmann_dist)
                              (mult D (relative_entropy p boltzmann_dist))))
     by exact (free_energy_kl_decomp p Hnp).
-  (* 2. 由 F[p] = F[p_b] 得 D·KL = 0（消去 F[p_b]） *)
+  (* 2. F[p] = F[p_b] gives D * KL = 0 (cancel F[p_b]) *)
   assert (Hdkl0 : Id (mult D (relative_entropy p boltzmann_dist)) zero).
   {
     assert (H1 : Id (plus (free_energy boltzmann_dist)
@@ -3203,41 +3342,49 @@ Proof.
                           (mult D (relative_entropy p boltzmann_dist)))
                    (free_energy boltzmann_dist))
       by exact (id_trans H1 Hfeq).
-    (* plus FB KL = FB ⟹ KL = 0（plus_cancel 消去 FB） *)
+    (* plus FB KL = FB gives KL = 0 (cancel FB by [plus_cancel]) *)
     exact (plus_cancel_zero (free_energy boltzmann_dist) (mult D (relative_entropy p boltzmann_dist)) H2).
   }
-  (* 3. D > 0 ⟹ KL = 0（mult_cancel_l） *)
+  (* 3. D > 0 implies KL = 0 (mult_cancel_l) *)
   assert (Hkl0 : Id (relative_entropy p boltzmann_dist) zero).
   {
-    (* mult D KL = zero 且 D > 0：需由 D·KL = 0 得 KL = 0
-       （用 mult_cancel_l 的零版本：mult a b = mult a zero 且 a > 0 ⟹ b = zero） *)
+    (* mult D KL = zero with D > 0: derive KL = 0 from D * KL = 0 using the
+   zero version of [mult_cancel_l]: mult a b = mult a zero with a > 0
+   gives b = zero *)
     assert (Hcz : Id (mult D (relative_entropy p boltzmann_dist))
                      (mult D zero))
       by exact (id_trans Hdkl0 (id_sym (mult_zero D))).
     exact (mult_cancel_l D (relative_entropy p boltzmann_dist) zero D_pos Hcz).
   }
-  (* 4. gibbs_equality：KL = 0 ⟹ p = p_b *)
+  (* 4. gibbs_equality: KL = 0 implies p = p_b *)
   exact (gibbs_equality p boltzmann_dist Hnp Hpp (boltzmann_normalized) (fun t => boltzmann_dist_pos t) Hkl0 s).
 Qed.
 
 (* ============================================================ *)
-(* 最大熵原理（统计力学第三支柱：自由能-熵对偶）               *)
+(* the maximum-entropy principle (third pillar of statistical mechanics:
+   the free-energy/entropy duality) *)
 (* ============================================================ *)
-(* 前两条：自由能唯一极小（min_free_energy_is_boltzmann +       *)
-(* free_energy_min_unique），KL 精确度量偏离（free_energy_kl_   *)
-(* decomp）。此处补第三条：同能量约束下 Boltzmann 分布是熵最大 *)
-(* 分布，且熵亏 = KL（偏离的熵学度量）。                       *)
+(* the first two pillars: unique minimum of the free energy
+   ([min_free_energy_is_boltzmann] and *)
+(* [free_energy_min_unique]) and KL as the exact deviation measure
+   ([free_energy_kl_ *)
+(* decomp]).  This section adds the third: under an equal-energy constraint
+   the Boltzmann distribution maximizes the entropy, *)
+(* and the entropy deficit equals KL (the entropic measure of deviation). *)
 (* ------------------------------------------------------------ *)
 
-(* 信息熵：S[p] := -Σ_s p(s)·log p(s)（分布版，顶层 entropy 为 R→R 版） *)
+(* information entropy: S[p] := -sum_s p(s) * log p(s) (distribution
+   version; the top-level [entropy] is the R -> R version) *)
 Definition entropy_dist (p : S -> R) : R :=
   sum_over_S (fun s => mult (p s) (opp (log (p s)))).
 
-(* 能量期望：⟨E⟩_p := Σ_s p(s)·base_loss(s)（最大熵的约束量） *)
+(* expected energy: <E>_p := sum_s p(s) * base_loss(s) (the constrained
+   quantity of the maximum-entropy problem) *)
 Definition energy_expectation (p : S -> R) : R :=
   sum_over_S (fun s => mult (p s) (base_loss s)).
 
-(* 熵分解：Σ p·log p = -S[p]（由 sum_over_S_ext + opp_mult_l + double_neg + sum_opp） *)
+(* entropy decomposition: sum p * log p = -S[p] (via [sum_over_S_ext],
+   [opp_mult_l], double negation, and [sum_opp]) *)
 Lemma entropy_neg_sum :
   forall p : S -> R,
     Id (sum_over_S (fun s => mult (p s) (log (p s))))
@@ -3267,7 +3414,7 @@ Proof.
   exact Hso.
 Qed.
 
-(* 自由能-熵-能量恒等式：F[p] = ⟨E⟩_p - D·S[p] *)
+(* free-energy/entropy/energy identity: F[p] = <E>_p - D * S[p] *)
 Lemma free_energy_entropy :
   forall p : S -> R,
     Id (free_energy p)
@@ -3281,10 +3428,11 @@ Proof.
   exact (id_cong (fun x => plus (sum_over_S (fun s => mult (p s) (base_loss s))) (mult D x)) Hneg).
 Qed.
 
-(* 熵差-相对熵恒等式：同能量约束（⟨E⟩_p = ⟨E⟩_b）下
-   S[p_b] - S[p] = KL(p || p_b)。
-   证明：F[p] = F[p_b] + D·KL（自由能恒等式）
-   + 自由能-熵-能量恒等式（F = ⟨E⟩ - D·S）+ 同能量消去 + D > 0 消去。 *)
+(* entropy-difference/relative-entropy identity: under the equal-energy
+   constraint (<E>_p = <E>_b), S[p_b] - S[p] = KL(p || p_b).
+   Proof: F[p] = F[p_b] + D * KL (the free-energy identity) and
+   F = <E> - D * S on both sides; the equal energies cancel, then D > 0
+   cancels. *)
 Theorem entropy_deficit_kl :
   forall p : S -> R,
     normalized p -> positive_dist p ->
@@ -3293,19 +3441,19 @@ Theorem entropy_deficit_kl :
        (relative_entropy p boltzmann_dist).
 Proof.
   intros p Hnp Hpp Henergy.
-  (* 1. F[p] = F[p_b] + D·KL（自由能恒等式） *)
+  (* 1. F[p] = F[p_b] + D * KL (the free-energy identity) *)
   assert (Hdecomp : Id (free_energy p)
                        (plus (free_energy boltzmann_dist)
                              (mult D (relative_entropy p boltzmann_dist))))
     by exact (free_energy_kl_decomp p Hnp).
-  (* 2. 两侧换成 ⟨E⟩ - D·S 形式 *)
+  (* 2. rewrite both sides in the <E> - D * S form *)
   assert (Hfe_p : Id (free_energy p)
                      (plus (energy_expectation p) (mult D (opp (entropy_dist p)))))
     by exact (free_energy_entropy p).
   assert (Hfe_b : Id (free_energy boltzmann_dist)
                      (plus (energy_expectation boltzmann_dist) (mult D (opp (entropy_dist boltzmann_dist)))))
     by exact (free_energy_entropy boltzmann_dist).
-  (* 3. ⟨E⟩_p - D·S[p] = ⟨E⟩_b - D·S[p_b] + D·KL *)
+  (* 3. ⟨E⟩_p - D * S[p] = ⟨E⟩_b - D * S[p_b] + D * KL *)
   assert (Htot : Id (plus (energy_expectation p) (mult D (opp (entropy_dist p))))
                    (plus (plus (energy_expectation boltzmann_dist)
                                (mult D (opp (entropy_dist boltzmann_dist))))
@@ -3323,7 +3471,7 @@ Proof.
       by exact (id_cong (fun x => plus x (mult D (relative_entropy p boltzmann_dist))) Hfe_b).
     exact (id_trans H1 H2).
   }
-  (* 4. 同能量消去 ⟨E⟩：-D·S[p] = -D·S[p_b] + D·KL *)
+  (* 4. cancel the equal energies <E>: -D * S[p] = -D * S[p_b] + D * KL *)
   assert (Hcancel : Id (mult D (opp (entropy_dist p)))
                        (plus (mult D (opp (entropy_dist boltzmann_dist)))
                              (mult D (relative_entropy p boltzmann_dist)))).
@@ -3356,7 +3504,8 @@ Proof.
                                (mult D (relative_entropy p boltzmann_dist)))
                          H2r).
   }
-  (* 5. 环消去：由 -D·S[p] = -D·S[p_b] + D·KL 且 D > 0 推出 S[p_b] - S[p] = KL *)
+  (* 5. ring cancellation: from -D * S[p] = -D * S[p_b] + D * KL and D > 0,
+   derive S[p_b] - S[p] = KL *)
   exact (ring_d_cancel D (entropy_dist p) (entropy_dist boltzmann_dist)
                       (relative_entropy p boltzmann_dist) D_pos Hcancel).
 Qed.
@@ -3372,7 +3521,7 @@ Proof.
   assert (Hdef : Id (minus (entropy_dist boltzmann_dist) (entropy_dist p))
                     (relative_entropy p boltzmann_dist))
     by exact (entropy_deficit_kl p Hnp Hpp Henergy).
-  (* 2. KL ≥ 0（gibbs_inequality：p 与 p_b 均归一化正） *)
+  (* 2. KL >= 0 ([gibbs_inequality]: both p and p_b normalized and positive) *)
   assert (Hkl : le zero (relative_entropy p boltzmann_dist)).
   {
     apply (gibbs_inequality p boltzmann_dist).
@@ -3381,12 +3530,13 @@ Proof.
     - exact (boltzmann_normalized).
     - intro s. exact (boltzmann_dist_pos s).
   }
-  (* 3. 0 ≤ S[p_b] - S[p] ⟹ S[p] ≤ S[p_b]（le_minus_nonneg 的逆：用 minus_plus_cancel） *)
+  (* 3. 0 <= S[p_b] - S[p] gives S[p] <= S[p_b] (converse of
+   [le_minus_nonneg], via [minus_plus_cancel]) *)
   assert (Hnonneg : le zero (minus (entropy_dist boltzmann_dist) (entropy_dist p)))
     by exact (le_id_r zero (relative_entropy p boltzmann_dist)
                      (minus (entropy_dist boltzmann_dist) (entropy_dist p))
                      (id_sym Hdef) Hkl).
-  (* S[p] + (S[p_b] - S[p]) = S[p_b]（minus_plus_cancel）⟹ le S[p] S[p_b] *)
+  (* S[p] + (S[p_b] - S[p]) = S[p_b] (minus_plus_cancel)implies le S[p] S[p_b] *)
   assert (Hplus : Id (plus (entropy_dist p) (minus (entropy_dist boltzmann_dist) (entropy_dist p)))
                      (entropy_dist boltzmann_dist))
     by exact (minus_plus_cancel (entropy_dist p) (entropy_dist boltzmann_dist)).
@@ -3399,15 +3549,23 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* T2.2：温度-期望能量单调性（论文2 主之二）                *)
-(*   主定理：t1 < t2 ⟹ E_temp(t1) ≤ E_temp(t2)（温度升高 ⟹ 能量期望不降） *)
-(*   方法：变分法——Gibbs 不等式交叉相加（无导数、无三分律）    *)
-(*     KL(q‖p_β) ≥ 0 对 (q=p_{β2},β=β1) 与 (q=p_{β1},β=β2)    *)
-(*     相加 ⟹ (β1−β2)(E1−E2) ≤ 0；β1−β2 > 0 ⟹ E1 ≤ E2        *)
-(*   诚实接口假设（Real 层可实例化，非经典公理）：             *)
-(*     sum_over_S_pos    —— 有限和正项和为正（Section Alignment 同款，有限和可实例化） *)
-(*     inv_pos_lt_compat —— Real 层 real_inv_lt_contra（严格逆反序） *)
-(*     lt_minus_nonneg   —— Real 层逐 eps 直构（Qlt_minus_iff 提升） *)
+(* monotonicity of the expected energy in the temperature *)
+(*   main statement: t1 < t2 implies E_temp(t1) <= E_temp(t2)
+   (raising the temperature never decreases the expected energy) *)
+(*   method: variational — add the two crossed Gibbs inequalities
+   (no derivatives, no trichotomy) *)
+(*     KL(q || p_beta) >= 0 at (q = p_beta2, beta = beta1) and
+   (q = p_beta1, beta = beta2) *)
+(*     adding gives (beta1 - beta2) * (E1 - E2) <= 0; with
+   beta1 - beta2 > 0, E1 <= E2 *)
+(*   explicit assumptions (instantiable in the [Real] layer, no classical
+   axioms): *)
+(*     [sum_over_S_pos] — a finite sum of positive terms is positive
+   (instantiable for finite sums) *)
+(*     [inv_pos_lt_compat] — the [Real]-layer [real_inv_lt_contra]
+   (strict reversal by the inverse) *)
+(*     [lt_minus_nonneg] — built pointwise per eps in the [Real] layer
+   (lifting of Qlt_minus_iff) *)
 (* ============================================================ *)
 Variable sum_over_S_pos : forall f : S -> R,
   (forall s : S, lt zero (f s)) -> lt zero (sum_over_S f).
@@ -3415,9 +3573,11 @@ Variable inv_pos_lt_compat : forall a b : R, forall Ha : lt zero a, forall Hb : 
   lt a b -> lt (inv_pos b Hb) (inv_pos a Ha).
 Variable lt_minus_nonneg : forall a b : R, lt a b -> lt zero (minus b a).
 
-(* ---------- 自证代数引理（接口层，纯构造性） ---------- *)
+(* ---------- self-proved algebraic lemmas (interface layer, purely
+   constructive) ---------- *)
 
-(* 加法保序的逆：a+c ≤ b+c ⟹ a ≤ b（有序交换群消去，le_id 代数） *)
+(* converse of additive compatibility: a + c <= b + c implies a <= b
+   (cancellation in an ordered abelian group, [le_id] algebra) *)
 Lemma le_plus_cancel_l : forall a b c : R, le (plus a c) (plus b c) -> le a b.
 Proof.
   intros a b c H.
@@ -3437,7 +3597,7 @@ Proof.
       apply (le_plus_compat (plus a c) (plus b c) (opp c) (opp c) H (le_refl (opp c))).
 Qed.
 
-(* 减法非负的逆：a − b ≤ 0 ⟹ a ≤ b *)
+(* converse of nonnegative difference: a - b <= 0 implies a <= b *)
 Lemma le_minus_nonneg_rev : forall a b : R, le (minus a b) zero -> le a b.
 Proof.
   intros a b H.
@@ -3453,7 +3613,8 @@ Proof.
     + apply (le_plus_compat (minus a b) zero b b H (le_refl b)).
 Qed.
 
-(* 乘正数消去：c > 0 且 a·c ≤ 0 ⟹ a ≤ 0（a == (a·c)·inv c） *)
+(* cancellation by a positive factor: c > 0 and a * c <= 0 imply a <= 0,
+   since a == (a * c) * (inv c) *)
 Lemma le_mult_pos_cancel : forall a c : R, lt zero c -> le (mult a c) zero -> le a zero.
 Proof.
   intros a c Hc H.
@@ -3469,7 +3630,8 @@ Proof.
       * exact H.
 Qed.
 
-(* 乘法对减法的右分配：mult (minus a b) c == minus (mult a c) (mult b c) *)
+(* right distributivity of multiplication over subtraction:
+   mult (minus a b) c == minus (mult a c) (mult b c) *)
 Lemma mult_minus_distr_r : forall a b c : R,
   Id (mult (minus a b) c) (minus (mult a c) (mult b c)).
 Proof.  intros a b c.
@@ -3481,9 +3643,10 @@ Proof.  intros a b c.
                     (id_cong (fun x => plus (mult a c) x) (opp_mult_r b c)))))).
 Qed.
 
-(* ---------- T2.2 温度参数化定义 ---------- *)
+(* ---------- temperature-parameterized definitions ---------- *)
 
-(* 温度参数化配分函数（诚实接口：温度 t 的配分 Σ_s e^{-e_s/t}） *)
+(* temperature-parameterized partition function (interface assumption:
+   the partition of temperature t is sum_s e^(-e_s/t)) *)
 Variable Z_temp : R -> R.
 Variable Z_temp_spec : forall t : R, forall Ht : lt zero t,
   Id (Z_temp t) (sum_over_S (fun s => exp_neg (mult (inv_pos t Ht) (base_loss s)))).
@@ -3499,7 +3662,7 @@ Proof.
     apply exp_neg_pos.
 Qed.
 
-(* 温度参数化 Boltzmann 分布与期望能量 *)
+(* temperature-parameterized Boltzmann distribution and expected energy *)
 Definition boltzmann_dist_temp (t : R) (Ht : lt zero t) : S -> R :=
   fun s => mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))).
 
@@ -3534,7 +3697,8 @@ Proof.
   - apply exp_neg_pos.
 Qed.
 
-(* log p_β(s) == −log Z − β·e_s（温度版对数分解） *)
+(* log p_beta(s) == -log Z - beta * e_s (temperature-version logarithmic
+   decomposition) *)
 Theorem boltzmann_log_temp_decomp : forall t : R, forall Ht : lt zero t, forall s : S,
   Id (log (boltzmann_dist_temp t Ht s))
      (plus (opp (log (Z_temp t))) (opp (mult (inv_pos t Ht) (base_loss s)))).
@@ -3561,14 +3725,15 @@ Proof.
   reflexivity.
 Qed.
 
-(* 熵显式公式：H(p_β) == β·E(p_β) + log Z（β := inv t） *)
+(* explicit entropy formula: H(p_beta) == beta * E(p_beta) + log Z
+   (beta := inv t) *)
 Theorem entropy_temp_explicit : forall t : R, forall Ht : lt zero t,
   Id (entropy_dist (boltzmann_dist_temp t Ht))
      (plus (mult (inv_pos t Ht) (energy_exp_temp t Ht)) (log (Z_temp t))).
 Proof.
   intros t Ht.
   unfold entropy_dist, energy_exp_temp, boltzmann_dist_temp.
-  (* 逐点：p·(−log p) == p·(βe) + p·logZ *)
+  (* pointwise: p * (-log p) == p * (beta * e) + p * log Z *)
   assert (Hpt : forall s : S,
     Id (mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))))
              (opp (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))))))
@@ -3581,7 +3746,7 @@ Proof.
                                  (exp_neg (mult (inv_pos t Ht) (base_loss s)))))
                       (plus (opp (log (Z_temp t))) (opp (mult (inv_pos t Ht) (base_loss s)))))
       by exact (boltzmann_log_temp_decomp t Ht s).
-    (* −log p == logZ + βe *)
+    (* -log p == logZ + betae *)
     assert (Hopp : Id (opp (plus (opp (log (Z_temp t))) (opp (mult (inv_pos t Ht) (base_loss s)))))
                       (plus (log (Z_temp t)) (mult (inv_pos t Ht) (base_loss s)))).
     { exact (id_trans (opp_plus (opp (log (Z_temp t))) (opp (mult (inv_pos t Ht) (base_loss s))))
@@ -3589,7 +3754,7 @@ Proof.
                                 (double_neg (log (Z_temp t))))
                        (id_cong (fun x => plus (log (Z_temp t)) x)
                                 (double_neg (mult (inv_pos t Ht) (base_loss s)))))). }
-    (* p·(−log p) == p·(logZ + βe) == p·(βe) + p·logZ *)
+    (* p * (-log p) == p * (logZ + betae) == p * (betae) + p * logZ *)
     assert (Hcomm : Id (plus (log (Z_temp t)) (mult (inv_pos t Ht) (base_loss s)))
                        (plus (mult (inv_pos t Ht) (base_loss s)) (log (Z_temp t))))
       by exact (plus_comm (log (Z_temp t)) (mult (inv_pos t Ht) (base_loss s))).
@@ -3598,7 +3763,8 @@ Proof.
            (id_trans (id_cong (fun x => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) x) Hcomm)
                      (distrib (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))))
                               (mult (inv_pos t Ht) (base_loss s)) (log (Z_temp t)))))). }
-  (* Σ 线性：Σ p·(βe) + Σ p·logZ（手动链，无 rewrite） *)
+  (* linearity of the sum: sum p * (beta * e) + sum p * log Z
+   (explicit chain, no [rewrite]) *)
   assert (H1 : Id (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))))
                                            (opp (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))))))))
                    (sum_over_S (fun s => plus (mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (mult (inv_pos t Ht) (base_loss s)))
@@ -3614,7 +3780,7 @@ Proof.
                           (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (log (Z_temp t))))))
     by exact (sum_over_S_add (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (mult (inv_pos t Ht) (base_loss s)))
                              (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (log (Z_temp t)))).
-  (* Σ p·(βe) == β·Σ p·e *)
+  (* sum p * (betae) == beta * sum p * e *)
   assert (Hlin1 : Id (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (mult (inv_pos t Ht) (base_loss s))))
                      (mult (inv_pos t Ht) (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (base_loss s))))).
   { assert (Hpt2 : forall s : S,
@@ -3628,7 +3794,7 @@ Proof.
     exact (id_trans (sum_over_S_ext _ _ Hpt2)
            (sum_over_S_linear (inv_pos t Ht)
              (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (base_loss s)))). }
-  (* Σ p·logZ == logZ·Σ p == logZ *)
+  (* sum p * logZ == logZ * sum p == logZ *)
   assert (Hlin2 : Id (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (log (Z_temp t))))
                      (log (Z_temp t))).
   { assert (Hpt3 : forall s : S,
@@ -3644,9 +3810,10 @@ Proof.
                    (id_cong (fun x => plus (mult (inv_pos t Ht) (sum_over_S (fun s => mult (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))) (base_loss s)))) x) Hlin2)))).
 Qed.
 
-(* ---------- T2.2 变分法主体 ---------- *)
+(* ---------- variational core ---------- *)
 
-(* 相对熵对 Boltzmann 的显式分解：KL(q‖p_β) == −H(q) + β·E(q) + log Z *)
+(* explicit decomposition of the relative entropy against the Boltzmann
+   distribution: KL(q || p_beta) == -H(q) + beta * E(q) + log Z *)
 Theorem relative_entropy_temp_decomp : forall t : R, forall Ht : lt zero t, forall q : S -> R,
   normalized q ->
   Id (relative_entropy q (boltzmann_dist_temp t Ht))
@@ -3655,21 +3822,21 @@ Theorem relative_entropy_temp_decomp : forall t : R, forall Ht : lt zero t, fora
 Proof.
   intros t Ht q Hnq.
   unfold relative_entropy, entropy_dist, energy_expectation, boltzmann_dist_temp.
-  (* 逐点：q·(log q − log p) == q·log q − q·log p *)
+  (* pointwise: q * (log q - log p) == q * log q - q * log p *)
   assert (Hpt : forall s : S,
     Id (mult (q s) (minus (log (q s)) (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))))))
        (minus (mult (q s) (log (q s)))
               (mult (q s) (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))))))).
   { intro s. apply mult_minus_distr_l. }
-  (* Σ q·log q == −H(q) *)
+  (* sum q * log q == -H(q) *)
   assert (Hq1 : Id (sum_over_S (fun s => mult (q s) (log (q s)))) (opp (entropy_dist q))).
   { unfold entropy_dist.
     apply entropy_neg_sum. }
-  (* Σ q·log p == −β·E(q) − log Z（手动链） *)
+  (* sum q * log p == -beta * E(q) - log Z (explicit chain) *)
   assert (Hq2 : Id (sum_over_S (fun s => mult (q s) (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s)))))))
                    (plus (opp (mult (inv_pos t Ht) (sum_over_S (fun s => mult (q s) (base_loss s)))))
                          (opp (log (Z_temp t))))).
-  { (* 逐点：q·log p == opp(q·logZ) + opp(q·βe) *)
+  { (* pointwise: q * log p == opp (q * log Z) + opp (q * beta * e) *)
     assert (Hpt2 : forall s : S,
       Id (mult (q s) (log (mult (inv_pos (Z_temp t) (Z_temp_pos t Ht)) (exp_neg (mult (inv_pos t Ht) (base_loss s))))))
          (plus (opp (mult (q s) (log (Z_temp t))))
@@ -3698,7 +3865,7 @@ Proof.
                             (sum_over_S (fun s => opp (mult (q s) (mult (inv_pos t Ht) (base_loss s)))))))
       by exact (sum_over_S_add (fun s => opp (mult (q s) (log (Z_temp t))))
                                (fun s => opp (mult (q s) (mult (inv_pos t Ht) (base_loss s))))).
-    (* Σ q·logZ == logZ（常数提取 + 归一化） *)
+    (* sum q * log Z == log Z (constant extraction and normalization) *)
     assert (Hs1 : Id (sum_over_S (fun s => mult (q s) (log (Z_temp t)))) (log (Z_temp t))).
     { assert (Hc : forall s : S, Id (mult (q s) (log (Z_temp t))) (mult (log (Z_temp t)) (q s)))
         by (intro s; apply mult_comm).
@@ -3706,7 +3873,7 @@ Proof.
              (id_trans (sum_over_S_linear (log (Z_temp t)) q)
                        (id_trans (id_cong (fun x => mult (log (Z_temp t)) x) Hnq)
                                  (mult_one (log (Z_temp t)))))). }
-    (* Σ q·(βe) == β·Σ q·e *)
+    (* sum q * (betae) == beta * sum q * e *)
     assert (Hs2 : Id (sum_over_S (fun s => mult (q s) (mult (inv_pos t Ht) (base_loss s))))
                      (mult (inv_pos t Ht) (sum_over_S (fun s => mult (q s) (base_loss s))))).
     { assert (Hc2 : forall s : S, Id (mult (q s) (mult (inv_pos t Ht) (base_loss s)))
@@ -3726,7 +3893,8 @@ Proof.
            (id_trans (id_cong (fun x => plus (opp (log (Z_temp t))) (opp x)) Hs2)
                      (plus_comm (opp (log (Z_temp t)))
                                 (opp (mult (inv_pos t Ht) (sum_over_S (fun s => mult (q s) (base_loss s)))))))))))). }
-  (* 组装：minus (Σ q·log q) (Σ q·log p) == −H + βE + logZ（手动链） *)
+  (* assemble: minus (sum q * log q) (sum q * log p) == -H + beta * E + log Z
+   (explicit chain) *)
   assert (Hopp : Id (opp (plus (opp (mult (inv_pos t Ht) (sum_over_S (fun s => mult (q s) (base_loss s)))))
                                  (opp (log (Z_temp t)))))
                     (plus (mult (inv_pos t Ht) (sum_over_S (fun s => mult (q s) (base_loss s))))
@@ -3758,7 +3926,9 @@ Proof.
                    Hfin)).
 Qed.
 
-(* 变分界：任意归一化正分布 q 的熵-能量组合 ≤ log Z（Gibbs 不等式展开） *)
+(* variational bound: the entropy-energy combination of any normalized
+   positive distribution q is at most log Z (expanding the Gibbs
+   inequality) *)
 Theorem variational_temp_bound : forall t : R, forall Ht : lt zero t, forall q : S -> R,
   normalized q -> positive_dist q ->
   le (minus (entropy_dist q) (mult (inv_pos t Ht) (energy_expectation q)))
@@ -3772,14 +3942,14 @@ Proof.
                     (plus (plus (opp (entropy_dist q)) (mult (inv_pos t Ht) (energy_expectation q))) (log (Z_temp t))))
     by (apply (relative_entropy_temp_decomp t Ht q Hnq)).
   rewrite Hrel in Hkl.
-  (* 移项 1：0 ≤ −H + βE + logZ ⟹ H ≤ βE + logZ *)
+  (* rearrangement 1: 0 <= -H + beta * E + log Z gives H <= beta * E + log Z *)
   assert (Hstep1 : le (entropy_dist q) (plus (mult (inv_pos t Ht) (energy_expectation q)) (log (Z_temp t)))).
   { apply (le_id_l (entropy_dist q) (plus (entropy_dist q) zero)).
     - exact (id_sym (plus_zero (entropy_dist q))).
     - apply (le_id_r (plus (entropy_dist q) zero)
              (plus (entropy_dist q) (plus (plus (opp (entropy_dist q)) (mult (inv_pos t Ht) (energy_expectation q))) (log (Z_temp t))))
              (plus (mult (inv_pos t Ht) (energy_expectation q)) (log (Z_temp t)))).
-      + (* H + (−H + βE + logZ) == βE + logZ *)
+      + (* H + (-H + betaE + logZ) == betaE + logZ *)
         apply (id_trans (plus_assoc (entropy_dist q)
                                     (plus (opp (entropy_dist q)) (mult (inv_pos t Ht) (energy_expectation q)))
                                     (log (Z_temp t)))
@@ -3794,11 +3964,11 @@ Proof.
       + apply (le_plus_compat (entropy_dist q) (entropy_dist q) zero
                (plus (plus (opp (entropy_dist q)) (mult (inv_pos t Ht) (energy_expectation q))) (log (Z_temp t)))
                (le_refl (entropy_dist q)) Hkl). }
-  (* 移项 2：H ≤ βE + logZ ⟹ H − βE ≤ logZ *)
+  (* rearrangement 2: H <= beta * E + log Z gives H - beta * E <= log Z *)
   apply (le_id_r (plus (entropy_dist q) (opp (mult (inv_pos t Ht) (energy_expectation q))))
          (plus (plus (mult (inv_pos t Ht) (energy_expectation q)) (log (Z_temp t))) (opp (mult (inv_pos t Ht) (energy_expectation q))))
          (log (Z_temp t))).
-  - (* (βE + logZ) − βE == logZ *)
+  - (* (betaE + logZ) - betaE == logZ *)
     apply (id_trans (id_sym (plus_assoc (mult (inv_pos t Ht) (energy_expectation q)) (log (Z_temp t)) (opp (mult (inv_pos t Ht) (energy_expectation q)))))
            (id_trans (id_cong (fun x => plus (mult (inv_pos t Ht) (energy_expectation q)) x)
                               (plus_comm (log (Z_temp t)) (opp (mult (inv_pos t Ht) (energy_expectation q)))))
@@ -3811,7 +3981,8 @@ Proof.
                            Hstep1 (le_refl (opp (mult (inv_pos t Ht) (energy_expectation q))))).
 Qed.
 
-(* ============ T2.2 主定理：温度-期望能量单调性 ============ *)
+(* ============ main theorem: monotonicity of the expected energy in the
+   temperature ============ *)
 Theorem energy_exp_temp_mono : forall t1 t2 : R, forall Ht1 : lt zero t1, forall Ht2 : lt zero t2,
   lt t1 t2 -> le (energy_exp_temp t1 Ht1) (energy_exp_temp t2 Ht2).
 Proof.
@@ -3820,10 +3991,10 @@ Proof.
   set (E1 := energy_exp_temp t1 Ht1). set (E2 := energy_exp_temp t2 Ht2).
   set (H1 := entropy_dist (boltzmann_dist_temp t1 Ht1)). set (H2 := entropy_dist (boltzmann_dist_temp t2 Ht2)).
   set (Z1 := Z_temp t1). set (Z2 := Z_temp t2).
-  (* β2 < β1（inv 严格反序：t1 < t2 ⟹ 1/t2 < 1/t1） *)
+  (* beta2 < beta1 (strict reversal by [inv]: t1 < t2 gives 1/t2 < 1/t1) *)
   assert (Hb : lt b2 b1) by (unfold b1, b2; apply (inv_pos_lt_compat t1 t2 Ht1 Ht2 Ht12)).
   assert (Hbpos : lt zero (minus b1 b2)) by (unfold b1, b2; apply (lt_minus_nonneg b2 b1 Hb)).
-  (* 变分 bound ×2 *)
+  (* the variational bound, twice *)
   assert (Hv1 : le (minus H2 (mult b1 E2)) (log Z1)).
   { unfold H2, E2, Z1, b1.
     apply (variational_temp_bound t1 Ht1 (boltzmann_dist_temp t2 Ht2)).
@@ -3834,7 +4005,8 @@ Proof.
     apply (variational_temp_bound t2 Ht2 (boltzmann_dist_temp t1 Ht1)).
     - apply boltzmann_dist_temp_normalized.
     - intro s. apply boltzmann_dist_temp_pos. }
-  (* 熵显式代入（手动替换，无 rewrite） *)
+  (* substitute the explicit entropy formula (manual replacement, no
+   [rewrite]) *)
   assert (Hex1 : Id H1 (plus (mult b1 E1) (log Z1))).
   { unfold H1, b1, E1, Z1. apply entropy_temp_explicit. }
   assert (Hex2 : Id H2 (plus (mult b2 E2) (log Z2))).
@@ -3847,7 +4019,9 @@ Proof.
   { apply (le_id_l (minus (plus (mult b1 E1) (log Z1)) (mult b2 E1)) (minus H1 (mult b2 E1)) (log Z2)).
     - exact (id_cong (fun x => minus x (mult b2 E1)) (id_sym Hex1)).
     - exact Hv2. }
-  (* minus 内化简：minus (plus (mult b2 E2) (log Z2)) (mult b1 E2) == plus (mult (minus b2 b1) E2) (log Z2) *)
+  (* simplify inside minus:
+   minus (plus (mult b2 E2) (log Z2)) (mult b1 E2)
+   == plus (mult (minus b2 b1) E2) (log Z2) *)
   assert (Hm1 : Id (minus (plus (mult b2 E2) (log Z2)) (mult b1 E2))
                    (plus (mult (minus b2 b1) E2) (log Z2))).
   { unfold minus.
@@ -3876,7 +4050,8 @@ Proof.
                    (minus (plus (mult b1 E1) (log Z1)) (mult b2 E1)) (log Z2)).
     - exact (id_sym Hm2).
     - exact Hv2'. }
-  (* 移项：le (plus X (log Z2)) (log Z1) ⟹ le X (minus (log Z1) (log Z2)) *)
+  (* rearrange: le (plus X (log Z2)) (log Z1) gives
+   le X (minus (log Z1) (log Z2)) *)
   assert (Hshift1 : le (mult (minus b2 b1) E2) (minus (log Z1) (log Z2))).
   { apply (le_id_l (mult (minus b2 b1) E2) (plus (plus (mult (minus b2 b1) E2) (log Z2)) (opp (log Z2)))).
     - exact (id_trans (id_sym (plus_zero (mult (minus b2 b1) E2)))
@@ -3891,7 +4066,7 @@ Proof.
                      (id_cong (fun x => plus (mult (minus b1 b2) E1) x) (plus_opp (log Z1)))))).
     - apply (le_plus_compat (plus (mult (minus b1 b2) E1) (log Z1)) (log Z2)
                              (opp (log Z1)) (opp (log Z1)) Hv2'' (le_refl (opp (log Z1)))). }
-  (* 相加 *)
+  (* add *)
   assert (Hsum : le (plus (mult (minus b2 b1) E2) (mult (minus b1 b2) E1))
                    (plus (minus (log Z1) (log Z2)) (minus (log Z2) (log Z1)))).
   { apply (le_plus_compat (mult (minus b2 b1) E2) (minus (log Z1) (log Z2))
@@ -3923,7 +4098,7 @@ Proof.
                               (id_sym (opp_mult_l (minus b1 b2) E2)))
            (id_trans (id_sym (distrib (minus b1 b2) (opp E2) E1))
                      (id_cong (fun x => mult (minus b1 b2) x) (plus_comm (opp E2) E1)))))). }
-  (* 组装：le (mult (minus b1 b2) (minus E1 E2)) zero *)
+  (* assemble: le (mult (minus b1 b2) (minus E1 E2)) zero *)
   assert (Hmain : le (mult (minus b1 b2) (minus E1 E2)) zero).
   { apply (le_id_l (mult (minus b1 b2) (minus E1 E2))
                    (plus (mult (minus b2 b1) E2) (mult (minus b1 b2) E1))).
@@ -3932,7 +4107,7 @@ Proof.
                      (plus (minus (log Z1) (log Z2)) (minus (log Z2) (log Z1))) zero).
       + exact Hz.
       + exact Hsum. }
-  (* 乘正数消去 ⟹ E1 ≤ E2 *)
+  (* cancel the positive factor: E1 <= E2 *)
   assert (Hcancel : le (minus E1 E2) zero).
   { apply (le_mult_pos_cancel (minus E1 E2) (minus b1 b2) Hbpos).
     apply (le_id_l (mult (minus E1 E2) (minus b1 b2)) (mult (minus b1 b2) (minus E1 E2))).
@@ -3942,8 +4117,10 @@ Proof.
 Qed.
 
 
-(* 熵唯一最大：同能量约束且 S[p] = S[p_b] ⟹ p = p_b。
-   证明：S[p_b] - S[p] = KL 且等熵 ⟹ KL = 0 ⟹ gibbs_equality。 *)
+(* unique entropy maximum: under the equal-energy constraint,
+   S[p] = S[p_b] implies p = p_b.
+   Proof: S[p_b] - S[p] = KL, and equal entropies give KL = 0, hence
+   [gibbs_equality]. *)
 Theorem entropy_max_unique :
   forall p : S -> R,
     normalized p -> positive_dist p ->
@@ -3956,32 +4133,40 @@ Proof.
   assert (Hdef : Id (minus (entropy_dist boltzmann_dist) (entropy_dist p))
                     (relative_entropy p boltzmann_dist))
     by exact (entropy_deficit_kl p Hnp Hpp Henergy).
-  (* 2. 等熵 ⟹ KL = 0（minus_self_zero：S[p]=S[p_b] ⟹ S[p_b]-S[p] = 0） *)
+  (* 2. equal entropies give KL = 0 ([minus_self_zero]:
+   S[p] = S[p_b] gives S[p_b] - S[p] = 0) *)
   assert (Hkl0 : Id (relative_entropy p boltzmann_dist) zero).
   {
     assert (Hmz : Id (minus (entropy_dist boltzmann_dist) (entropy_dist p)) zero)
       by exact (minus_self_zero (entropy_dist boltzmann_dist) (entropy_dist p) (id_sym Hent)).
     exact (id_trans (id_sym Hdef) Hmz).
   }
-  (* 3. gibbs_equality：KL = 0 ⟹ p = p_b *)
+  (* 3. gibbs_equality: KL = 0 implies p = p_b *)
   exact (gibbs_equality p boltzmann_dist Hnp Hpp (boltzmann_normalized) (fun t => boltzmann_dist_pos t) Hkl0 s).
 Qed.
 
 (* ============================================================ *)
-(* A-3：T2.2 对偶合拢——温度参数化 Boltzmann 族的约束熵最大     *)
-(*   闭环（论文2 最大熵 Lagrange 对偶的构造性证明）             *)
-(*   组装：entropy_temp_explicit（熵显式公式）+                 *)
-(*   relative_entropy_temp_decomp（KL 温度分解）+               *)
-(*   entropy_deficit_kl_temp（熵亏 = KL，温度版）⟹              *)
-(*   max_entropy_is_boltzmann_temp（同能量 ⟹ 熵最大，温度版）   *)
-(*   + entropy_max_unique_temp（同能量同熵 ⟹ 唯一，温度版）⟹    *)
-(*   temp_energy_dual_closed（sigT 对偶闭环：对每个温度 t，      *)
-(*   约束能量 E_temp(t) 下熵最大化问题解存在且唯一）             *)
+(* closing the temperature duality: constrained entropy maximization of *)
+(*   the temperature-parameterized Boltzmann family (a constructive proof
+   of the maximum-entropy Lagrange duality) *)
+(*   assembled from [entropy_temp_explicit] (explicit entropy formula), *)
+(*   [relative_entropy_temp_decomp] (temperature decomposition of KL), *)
+(*   [entropy_deficit_kl_temp] (entropy deficit = KL, temperature version),
+   giving *)
+(*   [max_entropy_is_boltzmann_temp] (equal energy implies maximal entropy,
+   temperature version) and *)
+(*   [entropy_max_unique_temp] (equal energy and equal entropy imply
+   uniqueness, temperature version), hence *)
+(*   [temp_energy_dual_closed] (a sigT duality closure: for every
+   temperature t, *)
+(*   the entropy maximization problem under the constraint E_temp(t) has an
+   existent and unique solution). *)
 (* ============================================================ *)
 
-(* 熵亏 = KL（温度版）：同约束能量 E(p) == E_temp(t) 下，
-   S[p_t] − S[p] == KL(p‖p_t)——组装 entropy_temp_explicit +
-   relative_entropy_temp_decomp + 同能量换形（β·E(p) == β·E(p_t)）*)
+(* entropy deficit = KL (temperature version): under the constraint
+   E(p) == E_temp(t), S[p_t] - S[p] == KL(p || p_t), assembled from
+   [entropy_temp_explicit] and [relative_entropy_temp_decomp] plus the
+   equal-energy rewrite (beta * E(p) == beta * E(p_t)) *)
 Theorem entropy_deficit_kl_temp : forall t : R, forall Ht : lt zero t, forall p : S -> R,
   normalized p -> positive_dist p ->
   Id (energy_expectation p) (energy_exp_temp t Ht) ->
@@ -3994,14 +4179,15 @@ Proof.
   set (Sp := entropy_dist p).
   set (Spt := entropy_dist B).
   set (K := relative_entropy p B).
-  (* KL(p‖p_t) == −S[p] + β·E(p) + log Z *)
+  (* KL(p‖p_t) == -S[p] + beta * E(p) + log Z *)
   assert (Hkl : Id K (plus (plus (opp Sp) (mult (inv_pos t Ht) (energy_expectation p))) (log (Z_temp t)))).
   { unfold K, Sp, B. exact (relative_entropy_temp_decomp t Ht p Hnp). }
-  (* S[p_t] == β·E(p_t) + log Z *)
+  (* S[p_t] == beta * E(p_t) + log Z *)
   assert (Hse : Id Spt (plus (mult (inv_pos t Ht) Et) (log (Z_temp t)))).
   { unfold Spt, Et, B. exact (entropy_temp_explicit t Ht). }
-  (* 换形：−S[p] + β·E(p) + log Z == [β·E(p_t) + log Z] − S[p]
-     （结合/交换重组 + 同能量替换 β·E(p) == β·E(p_t)） *)
+  (* reshape: -S[p] + beta * E(p) + log Z == [beta * E(p_t) + log Z] - S[p]
+   (re-grouping by associativity/commutativity and the equal-energy
+   substitution beta * E(p) == beta * E(p_t)) *)
   assert (Hkl' : Id K (plus (plus (mult (inv_pos t Ht) Et) (log (Z_temp t))) (opp Sp))).
   {
     apply (id_trans Hkl).
@@ -4010,24 +4196,27 @@ Proof.
     apply (id_cong (fun x => plus (plus x (log (Z_temp t))) (opp Sp))
                    (id_cong (fun x => mult (inv_pos t Ht) x) Henergy)).
   }
-  (* 目标：minus Spt Sp == K；minus Spt Sp == plus Spt (opp Sp) == [β·E(p_t)+log Z] − Sp（Hse 正向 + Hkl' 反向） *)
+  (* goal: minus Spt Sp == K; minus Spt Sp == plus Spt (opp Sp) ==
+   [beta * E(p_t) + log Z] - Sp (Hse forward, Hkl' backward) *)
   unfold minus.
   apply (id_trans (id_cong (fun x => plus x (opp Sp)) Hse) (id_sym Hkl')).
 Qed.
 
-(* 温度版最大熵：同约束能量 E(p) == E_temp(t) ⟹ S[p] ≤ S[p_t]
-   （组装 entropy_deficit_kl_temp + gibbs_inequality + le 链，仿固定温度版骨架） *)
+(* maximum entropy, temperature version: E(p) == E_temp(t) implies
+   S[p] <= S[p_t] (assembling [entropy_deficit_kl_temp],
+   [gibbs_inequality] and the le chain, following the fixed-temperature
+   skeleton) *)
 Theorem max_entropy_is_boltzmann_temp : forall t : R, forall Ht : lt zero t, forall p : S -> R,
   normalized p -> positive_dist p ->
   Id (energy_expectation p) (energy_exp_temp t Ht) ->
   le (entropy_dist p) (entropy_dist (boltzmann_dist_temp t Ht)).
 Proof.
   intros t Ht p Hnp Hpp Henergy.
-  (* 1. S[p_t] - S[p] = KL（温度版熵亏） *)
+  (* 1. S[p_t] - S[p] = KL (temperature-version entropy deficit) *)
   assert (Hdef : Id (minus (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p))
                     (relative_entropy p (boltzmann_dist_temp t Ht)))
     by exact (entropy_deficit_kl_temp t Ht p Hnp Hpp Henergy).
-  (* 2. KL ≥ 0（gibbs_inequality：p 与 p_t 均归一化正） *)
+  (* 2. KL >= 0 ([gibbs_inequality]: both p and p_t normalized and positive) *)
   assert (Hkl : le zero (relative_entropy p (boltzmann_dist_temp t Ht))).
   {
     apply (gibbs_inequality p (boltzmann_dist_temp t Ht)).
@@ -4036,7 +4225,7 @@ Proof.
     - exact (boltzmann_dist_temp_normalized t Ht).
     - intro s. exact (boltzmann_dist_temp_pos t Ht s).
   }
-  (* 3. 0 ≤ S[p_t] - S[p] ⟹ S[p] ≤ S[p_t] *)
+  (* 3. 0 <= S[p_t] - S[p] implies S[p] <= S[p_t] *)
   assert (Hnonneg : le zero (minus (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p)))
     by exact (le_id_r zero (relative_entropy p (boltzmann_dist_temp t Ht))
                      (minus (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p))
@@ -4052,8 +4241,10 @@ Proof.
                  (entropy_dist (boltzmann_dist_temp t Ht)) Hplus Hle).
 Qed.
 
-(* 温度版唯一性：同约束能量 + 同熵 ⟹ p == p_t 逐点
-   （组装 entropy_deficit_kl_temp + minus_self_zero + gibbs_equality，仿固定温度版骨架） *)
+(* uniqueness, temperature version: equal constrained energy and equal
+   entropy imply p == p_t pointwise (assembling [entropy_deficit_kl_temp],
+   [minus_self_zero] and [gibbs_equality], following the fixed-temperature
+   skeleton) *)
 Theorem entropy_max_unique_temp : forall t : R, forall Ht : lt zero t, forall p : S -> R,
   normalized p -> positive_dist p ->
   Id (energy_expectation p) (energy_exp_temp t Ht) ->
@@ -4065,20 +4256,23 @@ Proof.
   assert (Hdef : Id (minus (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p))
                     (relative_entropy p (boltzmann_dist_temp t Ht)))
     by exact (entropy_deficit_kl_temp t Ht p Hnp Hpp Henergy).
-  (* 2. 等熵 ⟹ KL = 0 *)
+  (* 2. equal entropies give KL = 0 *)
   assert (Hkl0 : Id (relative_entropy p (boltzmann_dist_temp t Ht)) zero).
   {
     assert (Hmz : Id (minus (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p)) zero)
       by exact (minus_self_zero (entropy_dist (boltzmann_dist_temp t Ht)) (entropy_dist p) (id_sym Hent)).
     exact (id_trans (id_sym Hdef) Hmz).
   }
-  (* 3. gibbs_equality：KL = 0 ⟹ p = p_t *)
+  (* 3. gibbs_equality: KL = 0 implies p = p_t *)
   exact (gibbs_equality p (boltzmann_dist_temp t Ht) Hnp Hpp (boltzmann_dist_temp_normalized t Ht)
                        (fun s => boltzmann_dist_temp_pos t Ht s) Hkl0 s).
 Qed.
 
-(* 对偶闭环（A-3 主定理）：对每个温度 t（= 每个约束能量 E_temp(t)），
-   熵最大化问题解存在（sigT 见证 p_t 本身）且最优（同能量熵最大）且唯一（同能量同熵 ⟹ 逐点相等） *)
+(* duality closure: for every temperature t (equivalently, every
+   constrained energy E_temp(t)), the entropy maximization problem has a
+   solution ([sigT], witnessed by p_t itself), an optimal one (maximal
+   entropy at equal energy) and a unique one (equal energy and equal
+   entropy imply pointwise equality) *)
 Theorem temp_energy_dual_closed : forall t : R, forall Ht : lt zero t,
   sigT (fun pb : S -> R =>
     And (And (normalized pb) (positive_dist pb))
@@ -4107,15 +4301,20 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 项 6：温度-能量严格单调（，T2.2/A-3 严格化）       *)
-(*   陈述（差正形态）：t1 < t2 且 KL(p_t2 竖线竖线 p_t1) > 0     *)
-(*     ⟹ 0 < E(t2) − E(t1)。恒等：                              *)
-(*     (b1−b2)·(E2−E1) == KL1 + KL2（两温度 KL 分解相减）        *)
-(*   诚实条件（T4.3）：KL 严格正接口（能量非平凡 ⟹ 满足）       *)
+(* strict monotonicity of the temperature against the energy *)
+(*   statement (positive-difference form): t1 < t2 and
+   KL(p_t2 || p_t1) > 0 *)
+(*     imply 0 < E(t2) - E(t1).  Identity: *)
+(*     (b1 - b2) * (E2 - E1) == KL1 + KL2 (subtracting the two temperature
+   KL decompositions) *)
+(*   explicit condition: a strict-positivity interface for KL (satisfied
+   whenever the energies are nontrivial) *)
 (* ============================================================ *)
 
-(* KL 分解换形：−S2 + b1·E2 + log Z1 == (b1−b2)·E2 + (log Z1 − log Z2)
-   （S2 == b2·E2 + log Z2 代入 + opp_plus + 结合交换重排） *)
+(* KL decomposition reshape: -S2 + b1 * E2 + log Z1 ==
+   (b1 - b2) * E2 + (log Z1 - log Z2)
+   (substituting S2 == b2 * E2 + log Z2, then [opp_plus] and
+   associativity/commutativity) *)
 Lemma temp_strict_A_chain2 : forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
   Id (plus (plus (opp (entropy_dist (boltzmann_dist_temp t2 Ht2))) (mult (inv_pos t1 Ht1) (energy_exp_temp t2 Ht2))) (log (Z_temp t1)))
      (plus (mult (minus (inv_pos t1 Ht1) (inv_pos t2 Ht2)) (energy_exp_temp t2 Ht2))
@@ -4169,7 +4368,8 @@ Proof.
   exact Hfin.
 Qed.
 
-(* 简化（避免超长结合链）：直接逐步 trans——见 temp_strict_ident2 *)
+(* simplification (avoiding a very long associativity chain): transitivity
+   step by step, as in [temp_strict_ident2] *)
 Lemma temp_strict_ident2 : forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
   Id (plus (relative_entropy (boltzmann_dist_temp t2 Ht2) (boltzmann_dist_temp t1 Ht1))
            (relative_entropy (boltzmann_dist_temp t1 Ht1) (boltzmann_dist_temp t2 Ht2)))
@@ -4206,7 +4406,7 @@ Proof.
     apply (id_cong2 plus HK1 HK2).
   }
   apply (id_trans Hsum).
-  (* log 抵消（Hz 同前） *)
+  (* cancel the log terms (as with Hz above) *)
   assert (Hz : Id (plus (minus (log Z1) (log Z2)) (minus (log Z2) (log Z1))) zero).
   { unfold minus.
     apply (id_trans (id_sym (plus_assoc (log Z1) (opp (log Z2)) (plus (log Z2) (opp (log Z1)))))
@@ -4233,12 +4433,16 @@ Proof.
                               (opp_mult_r (minus b1 b2) E1))
                      (id_sym (mult_minus_distr_l (minus b1 b2) E2 E1)))).
   }
-  (* 逐步：M1 := plus (plus (mult d E2)(minus L1 L2)) (plus (mult d' E1)(minus L2 L1))
-            == plus (mult d E2)(plus (minus L1 L2)(plus (mult d' E1)(minus L2 L1)))（assoc 反向）
-            == plus (mult d E2)(plus (mult d' E1)(plus (minus L1 L2)(minus L2 L1)))（comm 交换内层）
-            == plus (mult d E2)(plus (mult d' E1) zero)（Hz）
-            == plus (mult d E2)(mult d' E1)（plus_zero）
-            == mult d (minus E2 E1)（Hmain2） *)
+  (* step by step:
+   M1 := plus (plus (mult d E2) (minus L1 L2))
+              (plus (mult d' E1) (minus L2 L1))
+   == plus (mult d E2) (plus (minus L1 L2) (plus (mult d' E1) (minus L2 L1)))
+      (associativity, reversed)
+   == plus (mult d E2) (plus (mult d' E1) (plus (minus L1 L2) (minus L2 L1)))
+      (commutativity, inner swap)
+   == plus (mult d E2) (plus (mult d' E1) zero)  (by Hz)
+   == plus (mult d E2) (mult d' E1)  ([plus_zero])
+   == mult d (minus E2 E1)  (by Hmain2) *)
   assert (H1 : Id (plus (plus (mult (minus b1 b2) E2) (minus (log Z1) (log Z2)))
                         (plus (mult (minus b2 b1) E1) (minus (log Z2) (log Z1))))
                   (plus (mult (minus b1 b2) E2)
@@ -4307,8 +4511,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 最终定理：温度-能量严格单调（差正形态）                      *)
-(*   t1 < t2 且 KL(p_t2 竖线竖线 p_t1) > 0 ⟹ 0 < E2 − E1        *)
+(* final theorem: strict monotonicity of the temperature against the energy
+   (positive-difference form) *)
+(*   t1 < t2 and KL(p_t2 || p_t1) > 0 imply 0 < E2 - E1 *)
 (* ============================================================ *)
 Theorem energy_exp_temp_strict_mono : forall (t1 t2 : R) (Ht1 : lt zero t1) (Ht2 : lt zero t2),
   lt t1 t2 ->
@@ -4320,10 +4525,10 @@ Proof.
   set (E1 := energy_exp_temp t1 Ht1). set (E2 := energy_exp_temp t2 Ht2).
   set (B1 := boltzmann_dist_temp t1 Ht1). set (B2 := boltzmann_dist_temp t2 Ht2).
   set (K1 := relative_entropy B2 B1). set (K2 := relative_entropy B1 B2).
-  (* β2 < β1 且 d := b1 − b2 > 0 *)
+  (* beta2 < beta1 and d := b1 - b2 > 0 *)
   assert (Hb : lt b2 b1) by (unfold b1, b2; apply (inv_pos_lt_compat t1 t2 Ht1 Ht2 Ht12)).
   assert (Hbd : lt zero (minus b1 b2)) by (unfold b1, b2; apply (lt_minus_nonneg b2 b1 Hb)).
-  (* K2 ≥ 0（gibbs 不等式） *)
+  (* K2 >= 0 (Gibbs inequality) *)
   assert (Hkl2 : le zero K2).
   { unfold K2, B1, B2.
     apply (gibbs_inequality (boltzmann_dist_temp t1 Ht1) (boltzmann_dist_temp t2 Ht2)).
@@ -4331,22 +4536,23 @@ Proof.
     - intro s. apply (boltzmann_dist_temp_pos t1 Ht1 s).
     - apply (boltzmann_dist_temp_normalized t2 Ht2).
     - intro s. apply (boltzmann_dist_temp_pos t2 Ht2 s). }
-  (* K1 + K2 > 0（K1 > 0 且 K2 ≥ 0 ⟹ K1 ≤ K1+K2 ⟹ lt 传递） *)
+  (* K1 + K2 > 0 (K1 > 0 and K2 >= 0 give K1 <= K1 + K2, then transitivity
+   of lt) *)
   assert (Hklsum : lt zero (plus K1 K2)).
   {
     apply (lt_le_trans zero K1 (plus K1 K2)).
     - unfold K1, B1, B2. exact Hkl1.
     - apply (le_plus_nonneg_r K1 K2). exact Hkl2.
   }
-  (* 恒等：K1 + K2 == d·(E2−E1) *)
+  (* identity: K1 + K2 == d * (E2 - E1) *)
   assert (Hid : Id (plus K1 K2) (mult (minus b1 b2) (minus E2 E1))).
   { unfold K1, K2, b1, b2, E1, E2. exact (temp_strict_ident2 t1 t2 Ht1 Ht2). }
-  (* 0 < d·(E2−E1)（lt_id_r 替换） *)
+  (* 0 < d * (E2 - E1) (replacing by [lt_id_r]) *)
   assert (Hprod : lt zero (mult (minus b1 b2) (minus E2 E1))).
   { apply (lt_id_r zero (plus K1 K2) (mult (minus b1 b2) (minus E2 E1))).
     - exact Hid.
     - exact Hklsum. }
-  (* 正乘严格消去 ⟹ 0 < E2 − E1（先 comm 换序） *)
+  (* cancel the positive factor: 0 < E2 - E1 (commute first) *)
   apply (lt_mult_pos_cancel (minus E2 E1) (minus b1 b2) Hbd).
   apply (lt_id_r zero (mult (minus b1 b2) (minus E2 E1))
                   (mult (minus E2 E1) (minus b1 b2))).
@@ -4359,32 +4565,42 @@ Qed.
 
 
 (* ============================================================ *)
-(* RLHF 对齐（当前 AI 训练核心：KL 正则化奖励最大化）          *)
+(* KL-regularized reward maximization (the alignment setting of modern
+   model training) *)
 (* ============================================================ *)
-(* 上帝视角：现代 LLM 对齐（RLHF/DPO/PPO）的目标是               *)
-(*   maximize  E_π[r] - β·KL(π‖π_ref)                          *)
-(* 即：在偏离参考策略 π_ref 不超过 KL 惩罚的前提下最大化奖励。 *)
-(* 数学上这是 Boltzmann 机制的精确复刻（奖励替代能量，参考策略 *)
-(* 替代均匀先验）——本 Section 给出闭式解与最优性定理：        *)
-(*   最优策略 π*(s) ∝ π_ref(s)·e^{r(s)/β}（奖励加权 Boltzmann），*)
-(*   且它是唯一最优解。                                        *)
+(* the goal of modern alignment (RLHF/DPO/PPO): *)
+(* maximize E_pi[r] - beta * KL(pi‖pi_ref) *)
+(* maximize reward while staying within a KL penalty of the reference
+   policy pi_ref. *)
+(* Mathematically this replicates the Boltzmann mechanism exactly (reward
+   in place of energy, the reference *)
+(* policy in place of the uniform prior).  This section proves the
+   closed-form solution and its optimality: *)
+(* the optimal policy is pi*(s) proportional to pi_ref(s) * e^(r(s)/beta)
+   (a reward-weighted Boltzmann), *)
+(* and it is the unique optimum. *)
 (* ------------------------------------------------------------ *)
 
 (* ============================================================ *)
-(* 前三条支柱（自由能唯一极小 / KL 度量 / 熵最大）给出理论闭环；*)
-(* 此处补实操接口：交叉熵 H(p,q) := -Σ p·log q。              *)
-(* 由 energy_in_log_boltzmann（E = -D·(log p_b + log Z)）得    *)
-(*   ⟨E⟩_p = -D·(H(p,p_b) + log Z)                             *)
-(*   F[p] = ⟨E⟩_p - D·S[p] = -D·(H(p,p_b) + log Z + S[p])      *)
-(* 即训练（最小化 F）等价于最小化交叉熵 H(p,p_b)（固定 p_b）。 *)
+(* the first three pillars (unique minimum of the free energy, KL as the
+   deviation measure, maximum entropy) close the theory; *)
+(* this section adds the practical interface: cross-entropy
+   H(p, q) := -sum p * log q. *)
+(* From [energy_in_log_boltzmann] (E = -D * (log p_b + log Z)), *)
+(* ⟨E⟩_p = -D * (H(p,p_b) + log Z) *)
+(* F[p] = ⟨E⟩_p - D * S[p] = -D * (H(p,p_b) + log Z + S[p]) *)
+(* training (minimizing F) is equivalent to minimizing the cross-entropy
+   H(p, p_b) at fixed p_b. *)
 (* ------------------------------------------------------------ *)
 
-(* 交叉熵：H(p,q) := -Σ_s p(s)·log q(s) *)
+(* cross-entropy: H(p, q) := -sum_s p(s) * log q(s) *)
 Definition cross_entropy (p q : S -> R) : R :=
   sum_over_S (fun s => mult (p s) (opp (log (q s)))).
 
-(* 交叉熵-相对熵-熵恒等式：H(p,q) = S[p] + KL(p||q)
-   （信息论核心：交叉熵 = 自熵 + 相对熵。由定义展开 + 求和线性） *)
+(* cross-entropy/relative-entropy/entropy identity:
+   H(p, q) = S[p] + KL(p || q)
+   (the information-theoretic core: cross-entropy = own entropy + relative
+   entropy; expanding the definitions and using linearity of sums) *)
 Theorem cross_entropy_decomp :
   forall p q : S -> R,
     Id (cross_entropy p q)
@@ -4392,9 +4608,10 @@ Theorem cross_entropy_decomp :
 Proof.
   intros p q.
   unfold cross_entropy, entropy_dist, relative_entropy.
-  (* Σ p·(-log q) = Σ p·(-log p) + Σ p·(log p - log q) *)
-  (* 逐点：mult (p s) (opp (log (q s))) = plus (mult (p s) (opp (log (p s))))
-                                            (mult (p s) (minus (log (p s)) (log (q s)))) *)
+  (* sum p * (-log q) = sum p * (-log p) + sum p * (log p - log q) *)
+  (* pointwise: mult (p s) (opp (log (q s))) =
+   plus (mult (p s) (opp (log (p s))))
+        (mult (p s) (minus (log (p s)) (log (q s)))) *)
   assert (Hpt : forall s, Id (mult (p s) (opp (log (q s))))
                             (plus (mult (p s) (opp (log (p s))))
                                   (mult (p s) (minus (log (p s)) (log (q s)))))).
@@ -4405,15 +4622,16 @@ Proof.
                     (plus (mult (p s) (opp (log (p s))))
                           (mult (p s) (plus (log (p s)) (opp (log (q s)))))))
       by exact (distrib (p s) (opp (log (p s))) (plus (log (p s)) (opp (log (q s))))).
-    (* 左侧化简：opp (log p) + (log p - log q) = -log q（minus_plus_cancel） *)
+    (* left side: opp (log p) + (log p - log q) = -log q
+   ([minus_plus_cancel]) *)
     assert (Hcancel : Id (plus (opp (log (p s))) (plus (log (p s)) (opp (log (q s)))))
                          (opp (log (q s)))).
     {
-      (* assoc：opp log p + (log p - log q) = (opp log p + log p) - log q *)
+      (* assoc: opp log p + (log p - log q) = (opp log p + log p) - log q *)
       assert (Ha : Id (plus (opp (log (p s))) (plus (log (p s)) (opp (log (q s)))))
                       (plus (plus (opp (log (p s))) (log (p s))) (opp (log (q s)))))
         by exact (plus_assoc (opp (log (p s))) (log (p s)) (opp (log (q s)))).
-      (* 内层抵消：opp log p + log p = 0 *)
+      (* inner cancellation: opp (log p) + log p = 0 *)
       assert (Hz : Id (plus (opp (log (p s))) (log (p s))) zero)
         by exact (id_trans (plus_comm (opp (log (p s))) (log (p s))) (plus_opp (log (p s)))).
       (* (opp log p + log p) - log q = 0 - log q = -log q *)
@@ -4427,12 +4645,13 @@ Proof.
     assert (Hleft : Id (mult (p s) (plus (opp (log (p s))) (plus (log (p s)) (opp (log (q s))))))
                        (mult (p s) (opp (log (q s)))))
       by exact (id_cong (fun x => mult (p s) x) Hcancel).
-    (* 右侧展开：mult (p s) (log p - log q) = mult (p s) (log p) + mult (p s) (-log q) *)
+    (* right side: mult (p s) (log p - log q) = mult (p s) (log p) + mult (p s) (-log q) *)
     assert (Hdist2 : Id (mult (p s) (plus (log (p s)) (opp (log (q s)))))
                         (plus (mult (p s) (log (p s))) (mult (p s) (opp (log (q s))))))
       by exact (distrib (p s) (log (p s)) (opp (log (q s)))).
-    (* 目标：mult (p s) (-log q) = plus (mult (p s) (-log p)) (mult (p s) (log p - log q))
-       由 Hd 反向（Hleft 后两侧换位） *)
+    (* goal: mult (p s) (-log q) = plus (mult (p s) (-log p))
+                                       (mult (p s) (log p - log q)),
+   reading Hd backwards (after Hleft, swap the two sides) *)
     exact (id_trans (id_sym Hleft) Hd).
   }
   assert (Hext : Id (sum_over_S (fun s => mult (p s) (opp (log (q s)))))
@@ -4461,7 +4680,8 @@ Theorem energy_cross_entropy :
 Proof.
   intros p Hnp.
   unfold energy_expectation, cross_entropy.
-  (* 逐点：mult (p s) (base_loss s) = mult (p s) (-D·(log p_b s + log Z)) *)
+  (* pointwise: mult (p s) (base_loss s) =
+   mult (p s) (-D * (log p_b s + log Z)) *)
   assert (Hpt : forall s, Id (mult (p s) (base_loss s))
                             (mult (p s) (opp (mult D (plus (log (boltzmann_dist s)) (log Z)))))).
   {
@@ -4476,7 +4696,7 @@ Proof.
                              (fun s => mult (p s) (opp (mult D (plus (log (boltzmann_dist s)) (log Z)))))
                              Hpt).
   rewrite Hext.
-  (* 逐点展开为 -D·(p·log p_b + p·log Z) *)
+  (* expand pointwise to -D * (p * log p_b + p * log Z) *)
   assert (Hpt2 : forall s, Id (mult (p s) (opp (mult D (plus (log (boltzmann_dist s)) (log Z)))))
                              (opp (mult D (plus (mult (p s) (log (boltzmann_dist s)))
                                                 (mult (p s) (log Z)))))).
@@ -4559,7 +4779,7 @@ Proof.
     by exact (sum_over_S_add (fun s => mult (p s) (log (boltzmann_dist s)))
                              (fun s => mult (p s) (log Z))).
   rewrite Hadd.
-  (* Σ p·log p_b = -cross_entropy（cross_entropy := Σ p·(-log p_b)） *)
+  (* sum p * log p_b = -cross_entropy (cross_entropy := sum p * (-log p_b)) *)
   assert (Hce : Id (sum_over_S (fun s => mult (p s) (log (boltzmann_dist s))))
                    (opp (sum_over_S (fun s => mult (p s) (opp (log (boltzmann_dist s))))))).
   {
@@ -4581,7 +4801,7 @@ Proof.
     exact (id_trans Hext3 Hso3).
   }
   rewrite Hce.
-  (* Σ p·log Z = log Z（归一化） *)
+  (* sum p * log Z = log Z (normalization) *)
   assert (Hlz : Id (sum_over_S (fun s => mult (p s) (log Z))) (log Z)).
   {
     assert (Hsw : Id (sum_over_S (fun s => mult (p s) (log Z)))
@@ -4599,14 +4819,15 @@ Proof.
     reflexivity.
   }
   rewrite Hlz.
-  (* 目标：opp (mult D (plus (opp (cross_entropy p boltzmann_dist)) (log Z)))
-     实际 = D·(Σp log p_b + log Z) 取负 = D·(-H + log Z) 取负
-     = plus (mult D H) (opp (mult D (log Z)))。 *)
-  (* 直接用原始 cross_entropy 定义匹配目标 RHS *)
+  (* goal: opp (mult D (plus (opp (cross_entropy p boltzmann_dist)) (log Z)))
+   equals -(D * (sum p log p_b + log Z)) = -(-H + log Z)
+   = plus (mult D H) (opp (mult D (log Z))). *)
+  (* match the right side of the goal using the original [cross_entropy]
+   definition directly *)
   unfold cross_entropy.
-  (* 目标：opp (mult D (plus (opp (Σ p·(-log p_b))) (log Z)))
-     = plus (mult D (Σ p·(-log p_b))) (opp (mult D (log Z)))
-     由 ring_opp_plus_neg 恒等式。 *)
+  (* goal: opp (mult D (plus (opp (sum p * (-log p_b))) (log Z))) =
+   plus (mult D (sum p * (-log p_b))) (opp (mult D (log Z))),
+   by the ring identity opp (X + Y) = opp X + opp Y *)
   assert (Hring : forall X Y : R, Id (opp (mult D (plus (opp X) Y)))
                                     (plus (mult D X) (opp (mult D Y)))).
   {
@@ -4624,32 +4845,39 @@ Proof.
       by exact (id_cong (fun x => plus x (opp (mult D Y))) H3).
     exact (id_trans H1 (id_trans H2 H4)).
   }
-  (* 目标现在：Id (opp (mult D (plus (opp S) (log Z)))) (plus (mult D S) (opp (mult D (log Z))))
-     其中 S := sum_over_S (fun s => mult (p s) (opp (log (boltzmann_dist s)))) *)
+  (* the goal now: Id (opp (mult D (plus (opp S) (log Z))))
+                   (plus (mult D S) (opp (mult D (log Z)))),
+   where S := sum_over_S (fun s => mult (p s) (opp (log (boltzmann_dist s)))) *)
   exact (Hring (sum_over_S (fun s => mult (p s) (opp (log (boltzmann_dist s))))) (log Z)).
 Qed.
 
 (* ============================================================ *)
-(* 变分推断：ELBO 与证据下界（VI 核心，改进恒等式.txt 块 1）   *)
+(* variational inference: the ELBO and the evidence lower bound *)
 (* ============================================================ *)
-(* 在自由能框架中，ELBO(q) := -F[q] 是证据（配分函数对数的能量   *)
-(* 形式 opp (free_energy boltzmann_dist)）的变分下界；训练（最大   *)
-(* 化 ELBO）等价于最小化自由能。三定理：                         *)
-(*   (a) elbo_lower_bound：ELBO(q) ≤ evidence（自由能最小化 + 取负）*)
-(*   (b) evidence_kl_decomp：evidence = ELBO(q) + D·KL(q||p_b)     *)
-(*       ——证据与 ELBO 的差距精确等于 KL 散度（VI 核心恒等式）；  *)
-(*   (c) elbo_explicit：ELBO 的熵+能量显式形式。                  *)
+(* in the free-energy framework, ELBO(q) := -F[q] is a variational lower *)
+(* bound on the evidence (the energy form of the log partition function,
+   opp (free_energy boltzmann_dist)); training (maximizing *)
+(* the ELBO) is equivalent to minimizing the free energy.  Three theorems: *)
+(*   (a) [elbo_lower_bound]: ELBO(q) <= evidence (free-energy minimization,
+   negated); *)
+(* (b) evidence_kl_decomp: evidence = ELBO(q) + D * KL(q||p_b) *)
+(*       the gap between the evidence and the ELBO equals the KL divergence
+   exactly (the core identity of variational inference); *)
+(*   (c) [elbo_explicit]: the explicit entropy-plus-energy form of the
+   ELBO. *)
 (* ------------------------------------------------------------ *)
 
-(* ELBO：变分分布 q 的证据下界 *)
+(* ELBO: the evidence lower bound of the variational distribution q *)
 Definition elbo (q : S -> R) : R :=
   opp (free_energy q).
 
-(* 证据：配分函数对数的能量形式（D·log Z 的抽象，无需 D = 1） *)
+(* evidence: the energy form of the log partition function (an abstraction
+   of D * log Z, no need for D = 1) *)
 Definition evidence : R :=
   opp (free_energy boltzmann_dist).
 
-(* ELBO(q) ≤ evidence：由自由能最小化直接推出（取负 + opp_le_compat） *)
+(* ELBO(q) <= evidence: directly from free-energy minimization (negation
+   with [opp_le_compat]) *)
 Theorem elbo_lower_bound :
   forall q : S -> R,
     normalized q -> positive_dist q ->
@@ -4661,9 +4889,10 @@ Proof.
   exact (min_free_energy_is_boltzmann q Hnq Hpq).
 Qed.
 
-(* 证据的 KL 分解：evidence = ELBO(q) + D·KL(q||p_b)
-   变分推断的核心恒等式——证据与 ELBO 的差距精确等于 KL 散度
-   （由 free_energy_kl_decomp 取负移项：-F[b] = -F[q] + D·KL） *)
+(* KL decomposition of the evidence: evidence = ELBO(q) + D * KL(q || p_b).
+   The core identity of variational inference: the gap between the evidence
+   and the ELBO equals the KL divergence exactly (negating
+   [free_energy_kl_decomp]: -F[b] = -F[q] + D * KL) *)
 Theorem evidence_kl_decomp :
   forall q : S -> R,
     normalized q ->
@@ -4718,7 +4947,8 @@ Proof.
   exact (id_sym Htarget).
 Qed.
 
-(* ELBO 的显式分解：-F[q] = -⟨E⟩_q + D·S[q]（S[q] := -Σ q·log q 信息熵） *)
+(* explicit decomposition of the ELBO: -F[q] = -<E>_q + D * S[q]
+   (S[q] := -sum q * log q, the information entropy) *)
 Theorem elbo_explicit :
   forall q : S -> R,
     Id (elbo q)
@@ -4726,7 +4956,8 @@ Theorem elbo_explicit :
              (mult D (entropy_dist q))).
 Proof.
   intro q.
-  (* free_energy 为泛化 λ，unfold 不 β-归约 ⟹ change（内核转换） *)
+  (* [free_energy] is a generalized lambda; [unfold] does not beta-reduce, so
+   use [change] (a kernel conversion) *)
   change (Id (opp (plus (sum_over_S (fun s => mult (q s) (base_loss s)))
                         (mult D (sum_over_S (fun s => mult (q s) (log (q s)))))))
              (plus (opp (sum_over_S (fun s => mult (q s) (base_loss s))))
@@ -4763,23 +4994,27 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* ELBO 紧性与证据差距的精确 KL 形式（变分推断闭环补全）       *)
+(* tightness of the ELBO and the exact KL form of the evidence gap *)
 (* ============================================================ *)
-(* (a) 当变分分布 q 恰好为 Boltzmann 后验时，ELBO 无间隙地      *)
-(*     达到证据值（等号条件——变分推断的"零误差"态）；           *)
-(* (b) 对任意归一化 q，evidence − ELBO(q) 精确等于 D·KL(q||p_b)，*)
-(*     为 VI 训练提供可量化的后验逼近误差指标。                  *)
+(* (a) when the variational distribution q is exactly the Boltzmann
+   posterior, the ELBO attains *)
+(*     the evidence value with no gap (the equality case — the zero-error
+   state of variational inference); *)
+(* (b) for any normalized q, evidence - ELBO(q) equals D * KL(q || p_b)
+   exactly, *)
+(*     a quantifiable posterior-approximation error for training. *)
 (* ------------------------------------------------------------ *)
 
-(* KL(p||p) = 0（相对熵自零；FreeEnergyMinimization 内自证）：
-   展开定义后逐点 p s·(log p s − log p s) = p s·0 = 0，
-   经 sum_over_S_ext + sum_over_S_linear + mult_zero 收尾。 *)
+(* KL(p || p) = 0 (self-relative-entropy vanishes; proved inside
+   FreeEnergyMinimization): after unfolding, pointwise
+   p s * (log p s - log p s) = p s * 0 = 0, closed by [sum_over_S_ext],
+   [sum_over_S_linear] and [mult_zero]. *)
 Lemma relative_entropy_self_zero' : forall p : S -> R,
   Id (relative_entropy p p) zero.
 Proof.
   intro p.
   unfold relative_entropy.
-  (* 逐点：p s·(log p s − log p s) = zero *)
+  (* pointwise: p s * (log p s - log p s) = zero *)
   assert (Hpt : forall s, Id (mult (p s) (minus (log (p s)) (log (p s)))) zero).
   {
     intro s.
@@ -4792,7 +5027,8 @@ Proof.
     by exact (sum_over_S_ext _ _ Hpt).
   assert (Hzero : Id (sum_over_S (fun s => zero)) zero).
   {
-    (* 零函数 = mult zero (常一函数) 逐点；sum_over_S_linear 收尾 *)
+    (* the zero function equals mult zero (the constant-one function)
+   pointwise; closed by [sum_over_S_linear] *)
     assert (Hsame : Id (sum_over_S (fun s => zero))
                        (sum_over_S (fun s => mult zero one)))
       by (apply sum_over_S_ext; intro s; exact (id_sym (id_trans (mult_comm zero one) (mult_zero one)))).
@@ -4807,15 +5043,18 @@ Proof.
   exact (id_trans Hext Hzero).
 Qed.
 
-(* (a) ELBO 在 Boltzmann 分布处紧致：ELBO[p_b] = evidence。
-    证明：evidence_kl_decomp 给 evidence = ELBO[p_b] + D·KL(p_b||p_b)，
-    relative_entropy_self_zero' 给 KL(p_b||p_b) = 0，故 evidence = ELBO[p_b]。
-    非平凡：KL 自零 + 环代数消去。 *)
+(* (a) the ELBO is tight at the Boltzmann distribution:
+   ELBO[p_b] = evidence.
+   Proof: [evidence_kl_decomp] gives evidence = ELBO[p_b] + D * KL(p_b || p_b),
+   and [relative_entropy_self_zero'] gives KL(p_b || p_b) = 0, hence
+   evidence = ELBO[p_b].
+   Content: vanishing self-relative-entropy plus ring cancellation. *)
 Theorem elbo_tight :
   Id (elbo boltzmann_dist) evidence.
 Proof.
   unfold evidence.
-  (* evidence = ELBO[p_b] + D·KL(p_b||p_b)（KL 分解在 q = p_b 处） *)
+  (* evidence = ELBO[p_b] + D * KL(p_b || p_b) (the KL decomposition at
+   q = p_b) *)
   assert (Hkl : Id (mult D (relative_entropy boltzmann_dist boltzmann_dist)) zero).
   {
     assert (Hself : Id (relative_entropy boltzmann_dist boltzmann_dist) zero)
@@ -4833,10 +5072,12 @@ Proof.
   exact (id_sym (id_trans Hdec Hplus)).
 Qed.
 
-(* (b) 证据-ELBO 差距 = D·KL(q||p_b)（变分差距的精确诊断）。
-    证明：evidence_kl_decomp 给 evidence = ELBO(q) + D·KL(q||p_b)，
-    两侧减 ELBO(q)（minus_plus_cancel_r：minus (plus a b) a = b）。
-    非平凡：KL 分解恒等式 + 减法消去。 *)
+(* (b) the evidence-ELBO gap equals D * KL(q || p_b) (an exact diagnostic
+   of the variational gap).
+   Proof: [evidence_kl_decomp] gives evidence = ELBO(q) + D * KL(q || p_b);
+   subtract ELBO(q) on both sides ([minus_plus_cancel_r]:
+   minus (plus a b) a = b).
+   Content: the KL decomposition identity plus cancellation by subtraction. *)
 Theorem evidence_gap_kl :
   forall q : S -> R,
     normalized q ->
@@ -4847,7 +5088,8 @@ Proof.
   assert (Hdec : Id evidence
                    (plus (elbo q) (mult D (relative_entropy q boltzmann_dist))))
     by exact (evidence_kl_decomp q Hnq).
-  (* 两侧减 elbo q：minus evidence (elbo q) = minus (plus (elbo q) KL') (elbo q) = KL' *)
+  (* subtract elbo q on both sides:
+   minus evidence (elbo q) = minus (plus (elbo q) KL') (elbo q) = KL' *)
   assert (Hminus : Id (minus evidence (elbo q))
                       (minus (plus (elbo q) (mult D (relative_entropy q boltzmann_dist))) (elbo q)))
     by exact (id_cong (fun x => minus x (elbo q)) Hdec).
@@ -4858,17 +5100,20 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 交叉熵训练目标的 KL 等价性（单调改进与hentic KL 控制.txt 块3）*)
+(* KL equivalence of the cross-entropy training objective *)
 (* ============================================================ *)
-(* 核心：cross_entropy(p,q) − cross_entropy(p,p) = KL(p||q)     *)
-(* 含义：固定目标分布 p 时，最小化交叉熵就是最小化 KL(p||q)。    *)
-(* 非平凡：cross_entropy_decomp + KL 自零 + 环代数重组。         *)
+(* core: cross_entropy(p, q) - cross_entropy(p, p) = KL(p || q) *)
+(* meaning: with the target distribution p fixed, minimizing cross-entropy
+   is minimizing KL(p || q). *)
+(* route: [cross_entropy_decomp], vanishing self-relative-entropy, and
+   ring-algebra regrouping. *)
 (* ------------------------------------------------------------ *)
 
-(* 交叉熵减自熵 = KL：H(p,q) − H(p,p) = KL(p||q)。
-   证明：H(p,q) = S[p] + KL(p||q)（cross_entropy_decomp），
-   H(p,p) = S[p] + KL(p||p) = S[p]（KL 自零），
-   相减：S[p] + KL(p||q) − S[p] = KL(p||q)（plus_assoc + plus_opp）。 *)
+(* cross-entropy minus own entropy = KL: H(p, q) - H(p, p) = KL(p || q).
+   Proof: H(p, q) = S[p] + KL(p || q) ([cross_entropy_decomp]);
+   H(p, p) = S[p] + KL(p || p) = S[p] (self-KL vanishes);
+   subtracting: S[p] + KL(p || q) - S[p] = KL(p || q)
+   ([plus_assoc] and [plus_opp]). *)
 Theorem cross_entropy_minus_self :
   forall p q : S -> R,
     Id (minus (cross_entropy p q) (cross_entropy p p))
@@ -4879,7 +5124,7 @@ Proof.
   assert (H1 : Id (cross_entropy p q)
                   (plus (entropy_dist p) (relative_entropy p q)))
     by exact (cross_entropy_decomp p q).
-  (* H(p,p) = S[p] + KL(p||p) = S[p]（KL 自零） *)
+  (* H(p, p) = S[p] + KL(p || p) = S[p] (self-KL vanishes) *)
   assert (H2 : Id (cross_entropy p p) (entropy_dist p)).
   {
     assert (H2a : Id (cross_entropy p p)
@@ -4894,7 +5139,7 @@ Proof.
       by exact (plus_zero (entropy_dist p)).
     exact (id_trans H2a (id_trans H2c H2d)).
   }
-  (* H(p,q) − H(p,p) = (S + KL) − S = KL *)
+  (* H(p,q) - H(p,p) = (S + KL) - S = KL *)
   assert (Hmain : Id (minus (plus (entropy_dist p) (relative_entropy p q)) (entropy_dist p))
                      (relative_entropy p q)).
   {
@@ -4917,18 +5162,21 @@ Proof.
       by exact (id_trans (plus_comm zero (relative_entropy p q)) (plus_zero (relative_entropy p q))).
     exact (id_trans Ha (id_trans Hb (id_trans Hc (id_trans Hd He)))).
   }
-  (* 组装：H(p,q) − H(p,p) = (S+KL) − S = KL *)
+  (* assemble: H(p, q) - H(p, p) = (S + KL) - S = KL *)
   assert (Hrepl : Id (minus (cross_entropy p q) (cross_entropy p p))
                      (minus (plus (entropy_dist p) (relative_entropy p q)) (entropy_dist p)))
     by exact (id_cong2 minus H1 H2).
   exact (id_trans Hrepl Hmain).
 Qed.
 
-(* 训练等价性：交叉熵下降量 = KL 下降量（固定目标 p）。
-   若 H(p,q2) ≤ H(p,q1)，则 KL(p||q2) ≤ KL(p||q1)。
-   非平凡：cross_entropy_decomp 分解 + 共同被加项消去 + 差分非负链。 *)
+(* training equivalence: decreases in cross-entropy are decreases in KL
+   (target p fixed).  If H(p, q2) <= H(p, q1), then
+   KL(p || q2) <= KL(p || q1).
+   Route: the [cross_entropy_decomp] decomposition, cancelling the common
+   summand, and a nonnegative-difference chain. *)
 
-(* 局部引理：共同被加项消去 minus (plus A B) (plus A C) = minus B C *)
+(* local lemma: cancelling a common summand,
+   minus (plus A B) (plus A C) = minus B C *)
 Lemma minus_plus_common_local : forall A B C : R,
   Id (minus (plus A B) (plus A C)) (minus B C).
 Proof.
@@ -4954,9 +5202,9 @@ Theorem training_equivalence :
     le (relative_entropy p q2) (relative_entropy p q1).
 Proof.
   intros p q1 q2 Hce.
-  (* 差分恒等：(H2 − H1) = (KL2 − KL1)。
-     H2 = S + KL2、H1 = S + KL1（cross_entropy_decomp），
-     相减经 minus_plus_common_local 消共同项 S。 *)
+  (* difference identity: (H2 - H1) = (KL2 - KL1).
+   H2 = S + KL2 and H1 = S + KL1 ([cross_entropy_decomp]);
+   subtracting cancels the common term S via [minus_plus_common_local]. *)
   assert (Hdiff : Id (minus (cross_entropy p q2) (cross_entropy p q1))
                      (minus (relative_entropy p q2) (relative_entropy p q1))).
   {
@@ -4976,10 +5224,12 @@ Proof.
       by exact (minus_plus_common_local (entropy_dist p) (relative_entropy p q2) (relative_entropy p q1)).
     exact (id_trans Hrepl Hcancel).
   }
-  (* 由 Hce : le H2 H1 得 le zero (minus H1 H2)（le_minus_nonneg H2 H1） *)
+  (* from Hce : le H2 H1 derive le zero (minus H1 H2)
+   ([le_minus_nonneg] H2 H1) *)
   assert (Hd : le zero (minus (cross_entropy p q1) (cross_entropy p q2)))
     by exact (le_minus_nonneg (cross_entropy p q2) (cross_entropy p q1) Hce).
-  (* 替换：minus H1 H2 = minus KL1 KL2（cross_entropy_decomp + 共同项消去） *)
+  (* substitute: minus H1 H2 = minus KL1 KL2 ([cross_entropy_decomp] and
+   cancellation of the common term) *)
   assert (Hdiff' : Id (minus (cross_entropy p q1) (cross_entropy p q2))
                       (minus (relative_entropy p q1) (relative_entropy p q2))).
   {
@@ -5003,7 +5253,7 @@ Proof.
     by exact (le_id_r zero (minus (cross_entropy p q1) (cross_entropy p q2))
                       (minus (relative_entropy p q1) (relative_entropy p q2))
                       Hdiff' Hd).
-  (* le KL2 KL1：KL2 ≤ KL2 + (KL1 − KL2) = KL1 *)
+  (* le KL2 KL1: KL2 <= KL2 + (KL1 - KL2) = KL1 *)
   apply (le_id_r (relative_entropy p q2)
                  (plus (relative_entropy p q2) (minus (relative_entropy p q1) (relative_entropy p q2)))
                  (relative_entropy p q1)
@@ -5015,14 +5265,19 @@ Qed.
 End FreeEnergyMinimization.
 
 (* ============================================================ *)
-(* RLHF 对齐（当前 AI 训练核心：KL 正则化奖励最大化）          *)
+(* KL-regularized reward maximization (the alignment setting of modern
+   model training) *)
 (* ============================================================ *)
-(* 现代 LLM 对齐（RLHF/DPO/PPO）的目标：                        *)
-(*   maximize  E_π[r] - β·KL(π‖π_ref)                          *)
-(* 在偏离参考策略 π_ref（SFT 策略）不超过 KL 惩罚的前提下最大化*)
-(* 奖励。数学上是 Boltzmann 机制的精确复刻（奖励替代能量、参考 *)
-(* 策略替代均匀先验）。闭式解：π*(s) ∝ π_ref(s)·e^{r(s)/β}。   *)
-(* 最优性 J(pi) <= J(pi_star) 由奖励反解 + Gibbs 不等式严格证明。     *)
+(* the goal of modern alignment (RLHF/DPO/PPO): *)
+(* maximize E_pi[r] - beta * KL(pi‖pi_ref) *)
+(* maximize reward while staying within a KL penalty of the reference
+   policy pi_ref (the SFT policy). *)
+(* Mathematically this replicates the Boltzmann mechanism exactly (reward
+   in place of energy, the reference *)
+(* policy in place of the uniform prior).  Closed form:
+   pi*(s) proportional to pi_ref(s) * e^(r(s)/beta). *)
+(* Optimality J(pi) <= J(pi_star) is proved via solving back for the reward
+   plus the Gibbs inequality. *)
 (* ------------------------------------------------------------ *)
 
 Print Assumptions r_pow_nonneg.

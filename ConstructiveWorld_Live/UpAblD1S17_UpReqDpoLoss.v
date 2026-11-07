@@ -1,27 +1,39 @@
-(* ==========================================================================
-   UpAblD1S17_UpReqDpoLoss.v - DPO alignment partition positivity certificate
-   and premise packaging.
-   Mission. 使命: uabd1s17_dpo_zap_pos (the positivity supply certificate for
-     Z_align) together with the thirteen-slot premise packaging record
-     uabd1s17_dpo_pack13 and its supplied witness uabd1s17_dpo_pack13_supplied.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlign of the
-     -Set lineage world; the interface is the argument-less Class
-     RealInterfaceEnhancedSetoid (module RealInterfaceEnhancedMod).
-   References. 对标: DPO alignment partition positivity premise (supply
-     certificate for the alignment partition variable). Statement names
-     carried over verbatim from the source piece; adaptation = pure binder
-     removal + notation rebinding on this world's own precedent (the source
-     argumented Class applications raised "Illegal application
-     (Non-functional construction)" against the argument-less interface):
-     R := Real by notation (UpReqSumD.v L58), predicate face real_lt
-     (UpReqSumD.v L113-114), law fields resolved as bare names through the
-     global instance RealEnhancedReal (UpReqSumD.v L68-72).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; the tail Print Assumptions probes
-     report the closure face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> "" -Q . ""
-     UpAblD1S17_UpReqDpoLoss.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — DPO alignment partition positivity certificate and premise packaging. *)
+
+(** * UpAblD1S17_UpReqDpoLoss: the DPO alignment partition positivity
+      certificate and its premise packaging record.
+
+    Mission.  [uabd1s17_dpo_zap_pos] (the positivity supply certificate
+      for [Z_align]) together with the thirteen-slot premise packaging
+      record [uabd1s17_dpo_pack13] and its supplied witness
+      [uabd1s17_dpo_pack13_supplied].
+
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
+      [UpReqAlign] of this development; the interface is the
+      argument-less Class [RealInterfaceEnhancedSetoid] (module
+      [RealInterfaceEnhancedMod]).
+
+    References.  This development, UpAblD1S17_UpReqDpoLoss.v, the
+      baseline module in ConstructiveWorld-Main whose statement names
+      are carried over here verbatim (statement-face Set-carrier
+      completion).  The baseline statement is the DPO alignment
+      partition positivity premise (supply certificate for the alignment
+      partition variable).  Adaptation = pure binder removal + notation
+      rebinding on this development's own precedent (the source
+      argumented Class applications raised "Illegal application
+      (Non-functional construction)" against the argument-less
+      interface): [R := Real] by notation (UpReqSumD.v L58), predicate
+      face [real_lt] (UpReqSumD.v L113-114), law fields resolved as bare
+      names through the global instance [RealEnhancedReal]
+      (UpReqSumD.v L68-72).
+
+    Constructivity.  All Set-layer statements; every station closed by
+      [Qed], zero admitted items; the tail [Print Assumptions] probes
+      report the closure face; no new axioms.
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpAblD1S17_UpReqDpoLoss.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

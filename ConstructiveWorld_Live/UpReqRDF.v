@@ -1,11 +1,32 @@
-(* ==========================================================================)
-   UpReqRDF.v — req 可微函数接口：RDF 记录与运算微分定理
-   使命: ReqDiffPlain 类与 reqRDF 记录、req_rdf_plus/mult/opp/minus/compose/affine 运算微分定理族、req_cross_entropy_softmax_diff/req_mse_diff 两应用件、ReqEntropyDiff 节（熵可微）与 MV 区（reqRDFMV 记录、内积 Lipschitz、伴随梯度拉回）。
-   依赖: CW_ConstructiveWorld_219、UpReqAlgebra、UpReqSLM；Stdlib List。
-   对标: 微分运算规则（和/积/链式/伴随）在 req 接口上的形式化。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — differentiable functions over the req interface: the RDF record and the differentiation theorems. *)
+
+(** * UpReqRDF: the RDF record and the differentiation theorem family
+      over the [req] interface.
+
+    Mission.  The [ReqDiffPlain] class of plain-form premise slots and the
+      [reqRDF] record (derivative with eps-delta correctness budgets); the
+      operation theorems [req_rdf_plus]/[req_rdf_mult]/[req_rdf_opp]/
+      [req_rdf_minus]/[req_rdf_compose]/[req_rdf_affine]; the applications
+      [req_cross_entropy_softmax_diff]/[req_mse_diff]; the [ReqEntropyDiff]
+      section; the MV region (the [reqRDFMV] record, the inner-product
+      Lipschitz slot, the adjoint-gradient pullbacks
+      [req_rdf_mv_compose]/[req_rdf_mv_vec_compose]).
+
+    Dependencies.  The backbone [S01_BaseRing] .. [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqSLM]; Stdlib [List].
+
+    References.  Statements carried over verbatim from the
+      differentiable-function sections of the ConstructiveWorld-Main
+      baseline ([Differentiable] fields, the scalar/entropy/MV clusters);
+      the carrier is pinned to the global [Real] with relation fields
+      [real_eq]/[real_lt]/[real_le]; plain slots live in [ReqDiffPlain].
+
+    Constructivity.  All proofs close by [Qed]; zero admission words; no
+      classical logic; statement faces carried by [Set] (order/equality
+      predicates Set-valued, zero Prop leakage).
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqRDF.v] compiles
+      cleanly (exit 0); artifact head bytes [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -28,30 +49,36 @@ From Stdlib Require Import List.
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
 
-(* 载体钉定（UpReqSLM.v 同款）：RealInterfaceEnhancedSetoid 在本树为无参 Class
-   （S07_RealSetoidExpLog.v:8075）·字段经全局 Real 实例 RealEnhancedReal 解析；
-   生成期带参 binder 已删，载体 R 由下行 Notation 钉定为全局 Real。
-   关系字段 req/lt/le 经 Notation 直接绑定具体 S02_CauchyComplete 形
-   real_eq/real_lt/real_le（恰为全局实例对这些字段的赋值·语句面 elaboration 同项）——
-   盒装类字段投影在提取期为擦除面、与具体载体混用生成 Obj.magic 转写；
-   绑定后提取载荷为真数据（ConcMixSelFeed.v 同款）。 *)
+(* Carrier pinning (the [UpReqSLM] pattern): [RealInterfaceEnhancedSetoid] *)
+(* is a zero-argument Class in this tree ([S07_RealSetoidExpLog]; the     *)
+(* global instance [RealEnhancedReal] resolves the fields); the           *)
+(* generation binders were removed and the carrier R is pinned to the     *)
+(* global Real by the Notations below.  The relation fields req/lt/le are *)
+(* bound by Notation to the concrete S02_CauchyComplete shapes            *)
+(* [real_eq]/[real_lt]/[real_le] (exactly the global instance's field     *)
+(* values, the same terms the statement face elaborates to): boxed class  *)
+(* field projections are erasure faces at extraction and generate         *)
+(* [Obj.magic] rewrites when mixed with the concrete carrier, while the   *)
+(* bound forms extract as true data (the [ConcMixSelFeed] pattern). *)
 Notation R := Real.
 Notation req := real_eq.
 Notation lt := real_lt.
 Notation le := real_le.
 
 (* ===================================================================== *)
-(* Part 0：桥假设位组（T2① 假设位道，头注登记表第 4 条）                            *)
+(* Part 0: the bridge premise-slot group (honest assumption slots). *)
 (* ===================================================================== *)
 
-(* R 接口被逐 eps 化字段的 plain 对应副本槽（三槽）+ log 全称对应副本槽（一槽）
-   + r_max plain 槽（一槽，增量节登记：裁决书 clip_lower 行
-   「需补 r_max_ge_plain : le a (r_max a b) 槽」——min 双槽不覆盖 r_max 侧，
-   本槽为 Id RealInterfaceEnhanced r_max_le_l 字段 plain 对应副本，T2① 零证明槽）。
-   逐槽核对：abs_triangle_plain <- Id RealInterfaceEnhanced abs_triangle；
-   min_le_l_plain/min_le_r_plain <- Id min_le_l/min_le_r；
-   log_inv_exp_neg_slot <- Id log_inv_exp_neg（req 接口仅反向 exp_neg_log_inv）；
-   r_max_ge_plain <- Id r_max_le_l。 *)
+(* Plain counterpart slots for the eps-form interface fields (three), a   *)
+(* slot for the log round-trip field (one), and one plain r_max slot —    *)
+(* the min slot pair does not cover the r_max side, so [r_max_ge_plain :  *)
+(* le a (r_max a b)] is carried as the plain counterpart of the interface *)
+(* [r_max_le_l] field (a zero-proof assumption slot).                     *)
+(* Slot inventory: [abs_triangle_plain] mirrors the interface              *)
+(* [abs_triangle]; [min_le_l_plain]/[min_le_r_plain] mirror                *)
+(* [min_le_l]/[min_le_r]; [log_inv_exp_neg_slot] mirrors                  *)
+(* [log_inv_exp_neg] (the req interface only carries the reverse          *)
+(* [exp_neg_log_inv]); [r_max_ge_plain] mirrors [r_max_le_l]. *)
 Class ReqDiffPlain := {
   abs_triangle_plain : forall a b : R, le (abs (plus a b)) (plus (abs a) (abs b));
   min_le_l_plain : forall a b : R, le (min a b) a;
@@ -61,7 +88,8 @@ Class ReqDiffPlain := {
 }.
 
 (* ===================================================================== *)
-(* Part 0.5：reqRDF 记录桥（Id Differentiable L1439 逐字段对应副本）                *)
+(* Part 0.5: the [reqRDF] record bridge (field-by-field counterpart of    *)
+(* the baseline [Differentiable] record). *)
 (* ===================================================================== *)
 
 Record reqRDF (f : R -> R) : Set := {
@@ -74,20 +102,27 @@ Record reqRDF (f : R -> R) : Set := {
 }.
 
 (* ===================================================================== *)
-(* Part 1：公共机器件（helpers；全簇使用）                                     *)
+(* Part 1: shared machine lemmas (helpers; consumed across the cluster). *)
 (* ===================================================================== *)
 
 Section ReqRDFBase.
 
-(* 载体 R 已钉定为全局 Real；接口字段经全局实例 RealEnhancedReal 解析——本节无抽象载体/实例参数。 *)
-(* 诚实接口披露（红线⑤·Variable 形·UpReqConcMixSel.lt_plus_compat_lt_le 同形）：
-   plain 非负槽 real_le zero (abs a)（真前提·类 abs_nonneg 仅 eps 形不可消解）；
-   语义同 UpReqSLM 的同名 plain 槽，承载取具体 real_le 面以保证
-   提取载荷为真数据（盒装类字段投影为擦除面·与具体载体混用即 Obj.magic 转写）。 *)
+(* The carrier R is pinned to the global Real; the interface fields      *)
+(* resolve through the global instance [RealEnhancedReal] — this section *)
+(* has no abstract carrier or instance arguments. *)
+(* Honest interface disclosure (a Variable-form slot, the same shape as   *)
+(* [UpReqConcMixSel.lt_plus_compat_lt_le]): the plain nonnegativity slot  *)
+(* [real_le zero (abs a)] is a real premise — the class [abs_nonneg] is   *)
+(* only an eps form and cannot be resolved from it.  The semantics match  *)
+(* the same-named plain slot of [UpReqSLM]; the carrier is the concrete   *)
+(* [real_le] face so the extraction payload is true data (boxed class     *)
+(* field projections are erasure faces, and mixing with the concrete      *)
+(* carrier means [Obj.magic] rewrites). *)
 Variable abs_nonneg_plain : forall a : R, le zero (abs a).
 Context {RDP : ReqDiffPlain}.
 
-(* req_minus 双侧兼容（Id 系无对应：req_minus 非接口字段的公共机） *)
+(* two-sided compatibility of [req_minus] (no baseline counterpart:       *)
+(* [req_minus] is not an interface field, so this is the shared machine). *)
 Lemma req_rdf_minus_compat_r : forall a x y : R, req x y -> req (req_minus a x) (req_minus a y).
 Proof.
   intros a x y H. unfold req_minus.
@@ -100,8 +135,10 @@ Proof.
   exact (req_plus_compat a b (opp x) (opp x) H (req_refl (opp x))).
 Qed.
 
-(* eps/2 正性（req_two_pos 规范见证形；见证相关性——Qed 不透明常量间零转换，
-   必须字段直证而非重述 UpReqAlgebra req_half_pos 的内嵌见证形） *)
+(* positivity of one half (the canonical witness form of [req_two_pos];    *)
+(* witness-relevant: Qed-opaque constants do not convert, so the field is  *)
+(* proved directly rather than restating the inlined witness of            *)
+(* [UpReqAlgebra.req_half_pos]). *)
 Lemma req_rdf_half_pos : forall e : R, lt zero e ->
   lt zero (mult (inv_pos (plus one one) req_two_pos) e).
 Proof.
@@ -111,7 +148,7 @@ Proof.
   - exact He.
 Qed.
 
-(* 0 ≤ eps·|h|（eps>0；abs_nonneg_plain 槽使用位） *)
+(* [0 <= eps * |h|] for [eps > 0] (consumes the [abs_nonneg_plain] slot). *)
 Lemma req_rdf_zero_le_mult_abs : forall eps h : R, lt zero eps -> le zero (mult eps (abs h)).
 Proof.
   intros eps h Heps.
@@ -123,8 +160,9 @@ Proof.
              (lt_le_iff zero eps (inl Heps))).
 Qed.
 
-(* E ≡ 0 ⟹ |E| ≤ eps·|h|（零误差件统一完成：const/id/power_nat 基例/ce/mse 头/      *)
-(* mv_const/mv_linear 共七处使用） *)
+(* [E == 0] entails [|E| <= eps * |h|] (the uniform closing lemma for the  *)
+(* zero-error cases; consumed seven times: const/id/power_nat base case/  *)
+(* ce/mse heads/mv_const/mv_linear). *)
 Lemma req_rdf_abs_zero_le : forall E eps h : R,
   lt zero eps -> req E zero -> le (abs E) (mult eps (abs h)).
 Proof.
@@ -136,20 +174,23 @@ Proof.
              (req_rdf_zero_le_mult_abs eps h Heps)).
 Qed.
 
-(* |x| + 1 > 0（mult/compose 的 Lipschitz 常数正性位） *)
+(* [|x| + 1 > 0] (the Lipschitz-constant positivity slot of               *)
+(* mult/compose). *)
 Lemma req_rdf_abs_plus_one_pos : forall a : R, lt zero (plus (abs a) one).
 Proof.
   intro a.
   exact (req_plus_le_lt_pos (abs a) one (abs_nonneg_plain a) one_pos).
 Qed.
 
-(* 0 ≤ |a+b|（abs_triangle_plain 槽直引壳——零内容别名，使用侧签名短） *)
+(* [0 <= |a+b|] (a zero-content alias consuming the [abs_triangle_plain]  *)
+(* slot; keeps use-site signatures short). *)
 Lemma req_rdf_abs_triangle : forall a b : R, le (abs (plus a b)) (plus (abs a) (abs b)).
 Proof.
   intros a b. exact (abs_triangle_plain a b).
 Qed.
 
-(* L·(inv L·t) == t（L>0；compose/mv_compose/mv_vec 的 inv 消去位，三处使用） *)
+(* [L * (inv L * t) == t] for [L > 0] (the inv cancellation slot; used    *)
+(* three times: compose/mv_compose/mv_vec). *)
 Lemma req_rdf_inv_cancel : forall (L t : R) (HL : lt zero L),
   lt zero t -> req (mult L (mult (inv_pos L HL) t)) t.
 Proof.
@@ -164,7 +205,8 @@ Proof.
     + exact (req_trans (mult one t) (mult t one) t (mult_comm one t) (mult_one t)).
 Qed.
 
-(* (inv L·e4)·L ≤ e4（L>0；compose 的 eps_f·L ≤ eps4 与 mv 簇同形位，两处使用） *)
+(* [(inv L * e4) * L <= e4] for [L > 0] (the same-shape slot for compose's *)
+(* [eps_f * L <= eps4] and the mv cluster; used twice). *)
 Lemma req_rdf_inv_scale_le : forall (L e4 : R) (HL : lt zero L),
   le (mult (mult (inv_pos L HL) e4) L) e4.
 Proof.
@@ -195,7 +237,7 @@ Proof.
   - apply le_refl.
 Qed.
 
-(* eps/2·s + eps/2·s == eps·s（plus 完成核算） *)
+(* [(eps/2) * s + (eps/2) * s == eps * s] (the plus closing arithmetic). *)
 Lemma req_rdf_half_pair_req : forall e s : R,
   req (plus (mult (mult (inv_pos (plus one one) req_two_pos) e) s)
             (mult (mult (inv_pos (plus one one) req_two_pos) e) s))
@@ -229,7 +271,8 @@ Proof.
   - apply le_refl.
 Qed.
 
-(* eps/4·s + eps/4·s == (eps/2)·s（mult/compose 完成核算第一级） *)
+(* [(eps/4) * s + (eps/4) * s == (eps/2) * s] (the first level of the     *)
+(* mult/compose closing arithmetic). *)
 Lemma req_rdf_quarter_pair_req : forall e s : R,
   req (plus (mult (mult (inv_pos (plus one one) req_two_pos)
                         (mult (inv_pos (plus one one) req_two_pos) e)) s)
@@ -270,7 +313,8 @@ Proof.
   - apply le_refl.
 Qed.
 
-(* half_le_one L25729 req 对位（req_rdf_half_le_self 使用位） *)
+(* req counterpart of the baseline [half_le_one] (consumed by             *)
+(* [req_rdf_half_le_self]). *)
 Lemma req_rdf_half_le_one : le (inv_pos (plus one one) req_two_pos) one.
 Proof.
   apply (le_id_l (inv_pos (plus one one) req_two_pos)
@@ -291,7 +335,8 @@ Proof.
 Qed.
 
 
-(* eps/2·s ≤ eps·s（half_le_self L25748 req 对位；系数非负使用位） *)
+(* [(eps/2) * s <= eps * s] (req counterpart of the baseline              *)
+(* [half_le_self]; consumed at the nonnegative-coefficient sites). *)
 Lemma req_rdf_half_le_self : forall a : R,
   le zero a -> le (mult (inv_pos (plus one one) req_two_pos) a) a.
 Proof.
@@ -339,7 +384,8 @@ Qed.
 
 
 
-(* |X·Y| ≤ |X|·|Y|（abs_mult 字段的 le 壳——mult/compose 核算统一入口） *)
+(* [|X * Y| <= |X| * |Y|] (the le shell of the [abs_mult] field — the     *)
+(* uniform entry for the mult/compose arithmetic). *)
 Lemma req_rdf_abs_mult_le : forall a b : R, le (abs (mult a b)) (mult (abs a) (abs b)).
 Proof.
   intros a b.
@@ -347,9 +393,11 @@ Proof.
                  (abs_mult a b) (le_refl (mult (abs a) (abs b)))).
 Qed.
 
-(* 增量界：|u−(v+d·h)| ≤ e·|h| ⟹ |u−v| ≤ (|d|+e)·|h|
-   （mult 的 Hdf_bound/Hdg_bound 与 compose 的 |Dg| ≤ L·|h| 三处使用；
-   Id 证明体 minus_split+三角+核算的重排压缩） *)
+(* increment bound: [|u - (v + d*h)| <= e * |h|] entails                  *)
+(* [|u - v| <= (|d| + e) * |h|]                                          *)
+(* (used three times: [Hdf_bound]/[Hdg_bound] of mult and compose's       *)
+(* [|Dg| <= L * |h|]; a compact reordering of the baseline proof's        *)
+(* minus_split + triangle + arithmetic). *)
 Lemma req_rdf_delta_bound : forall u v d e hh : R,
   le (abs (req_minus u (plus v (mult d hh)))) (mult e (abs hh)) ->
   le (abs (req_minus u v)) (mult (plus (abs d) e) (abs hh)).
@@ -384,20 +432,27 @@ Qed.
 End ReqRDFBase.
 
 (* ===================================================================== *)
-(* Part 2：标量簇 §4 (c) 10 件 + entropy 1 件（逐件核对清单 1-11）                 *)
+(* Part 2: the scalar cluster (10 statements) plus entropy (1); items     *)
+(* 1-11 below. *)
 (* ===================================================================== *)
 
 Section ReqRDFScalar.
 
-(* 载体 R 已钉定为全局 Real；接口字段经全局实例 RealEnhancedReal 解析——本节无抽象载体/实例参数。 *)
-(* 诚实接口披露（红线⑤·Variable 形·UpReqConcMixSel.lt_plus_compat_lt_le 同形）：
-   plain 非负槽 real_le zero (abs a)（真前提·类 abs_nonneg 仅 eps 形不可消解）；
-   语义同 UpReqSLM 的同名 plain 槽，承载取具体 real_le 面以保证
-   提取载荷为真数据（盒装类字段投影为擦除面·与具体载体混用即 Obj.magic 转写）。 *)
+(* The carrier R is pinned to the global Real; the interface fields      *)
+(* resolve through the global instance [RealEnhancedReal] — this section *)
+(* has no abstract carrier or instance arguments. *)
+(* Honest interface disclosure (a Variable-form slot, the same shape as   *)
+(* [UpReqConcMixSel.lt_plus_compat_lt_le]): the plain nonnegativity slot  *)
+(* [real_le zero (abs a)] is a real premise — the class [abs_nonneg] is   *)
+(* only an eps form and cannot be resolved from it.  The semantics match  *)
+(* the same-named plain slot of [UpReqSLM]; the carrier is the concrete   *)
+(* [real_le] face so the extraction payload is true data (boxed class     *)
+(* field projections are erasure faces, and mixing with the concrete      *)
+(* carrier means [Obj.magic] rewrites). *)
 Variable abs_nonneg_plain : forall a : R, le zero (abs a).
 Context {RDP : ReqDiffPlain}.
 
-(* ---- 件 1：differentiable_const L25035 -> req_rdf_const ------------------- *)
+(* ---- item 1: differentiable_const -> [req_rdf_const] ------------------- *)
 
 Lemma req_rdf_const : forall c : R, reqRDF (fun _ => c).
 Proof.
@@ -426,7 +481,7 @@ Proof.
     exact (req_rdf_abs_zero_le abs_nonneg_plain (req_minus c (plus c (mult zero h))) eps h Heps Herr).
 Qed.
 
-(* ---- 件 2：differentiable_id L25069 -> req_rdf_id ------------------------- *)
+(* ---- item 2: differentiable_id -> [req_rdf_id] ------------------------- *)
 
 Lemma req_rdf_id : reqRDF (fun x => x).
 Proof.
@@ -446,7 +501,7 @@ Proof.
     exact (req_rdf_abs_zero_le abs_nonneg_plain (req_minus (plus x h) (plus x (mult one h))) eps h Heps Herr).
 Qed.
 
-(* ---- 件 3：differentiable_plus L25098 -> req_rdf_plus --------------------- *)
+(* ---- item 3: differentiable_plus -> [req_rdf_plus] --------------------- *)
 
 Theorem req_rdf_plus : forall f g : R -> R,
   reqRDF f -> reqRDF g -> reqRDF (fun x => plus (f x) (g x)).
@@ -534,10 +589,13 @@ Proof.
         -- exact (req_rdf_half_pair_le eps (abs h)).
 Qed.
 
-(* ---- 公共机器件 2：乘积份额/四项积/inv 完成（mult 主件使用） ---------------- *)
+(* ---- shared machine 2: product share / four-product / inv closing      *)
+(* (used by the mult main proof) ---------------- *)
 
-(* |a| ≤ m 且 m·e == E4、0 ≤ hh ⟹ |a|·(e·hh) ≤ E4·hh
-   （Id Hshare+Hsh2 两段核算的压缩壳；mult 两处使用，hh 恒为 |h| 位） *)
+(* [|a| <= m] with [m * e == E4] and [0 <= hh] entails                    *)
+(* [|a| * (e * hh) <= E4 * hh]                                           *)
+(* (a compact shell of the baseline's two-step Hshare+Hsh2 arithmetic;    *)
+(* used twice by mult, with hh always the [|h|] slot). *)
 Lemma req_rdf_share : forall a m e E4 hh : R,
   le (abs a) m -> lt zero e -> req (mult m e) E4 -> le zero hh ->
   le (mult (abs a) (mult e hh)) (mult E4 hh).
@@ -555,7 +613,8 @@ Proof.
                (le_refl (mult E4 hh))).
 Qed.
 
-(* (a1·s)·(a2·s) == (a1·a2)·(s·s)（Id Hs1-Hs6 六步链的压缩壳；mult Hthird 使用） *)
+(* [(a1 * s) * (a2 * s) == (a1 * a2) * (s * s)] (a compact shell of the   *)
+(* baseline's six-step Hs1-Hs6 chain; used at the mult Hthird site). *)
 Lemma req_rdf_four_mult : forall a1 a2 s : R,
   req (mult (mult a1 s) (mult a2 s)) (mult (mult a1 a2) (mult s s)).
 Proof.
@@ -591,7 +650,8 @@ Proof.
                              (mult_assoc (mult a1 a2) s s)).
 Qed.
 
-(* D·((inv D·e2)·hh) == e2·hh（D>0；mult Hdq 与 compose 预算完成同形使用） *)
+(* [D * ((inv D * e2) * hh) == e2 * hh] for [D > 0] (used at the mult Hdq  *)
+(* site and in the same-shaped compose budget closing). *)
 Lemma req_rdf_inv_pair : forall (D : R) (HD : lt zero D) (e2 hh : R),
   req (mult D (mult (mult (inv_pos D HD) e2) hh)) (mult e2 hh).
 Proof.
@@ -618,8 +678,9 @@ Proof.
                                       (req_refl hh))).
 Qed.
 
-(* ---- 件 4：differentiable_mult L25172 -> req_rdf_mult（Id 版 321 行主件；     *)
-(*      误差分解使用 req_mult_diff_decomp@UpReqAlgebra L1162） ------------------ *)
+(* ---- item 4: differentiable_mult -> [req_rdf_mult] (the main theorem   *)
+(*      of the baseline cluster; the error decomposition uses             *)
+(*      [req_mult_diff_decomp] of [UpReqAlgebra]) ------------------ *)
 
 Theorem req_rdf_mult : forall f g : R -> R,
   reqRDF f -> reqRDF g -> reqRDF (fun x => mult (f x) (g x)).
@@ -744,7 +805,8 @@ Proof.
                                               (plus (f x) (mult (rdf_df f Hf x) h))))
                        (mult (req_minus (f (plus x h)) (f x))
                              (req_minus (g (plus x h)) (g x))))).
-        -- (* 三项上界：eps4·|h|、eps4·|h|、eps2·|h| 合并 ≤ eps·|h| *)
+        -- (* merging the three upper bounds [eps4*|h|], [eps4*|h|],       *)
+           (* [eps2*|h|] into [<= eps*|h|] *)
            assert (Hb1 : le (abs (mult (f x) (req_minus (g (plus x h))
                                                         (plus (g x) (mult (rdf_df g Hg x) h)))))
                             (mult eps4 (abs h))).
@@ -940,7 +1002,7 @@ Proof.
 Qed.
 
 
-(* ---- 件 5：differentiable_opp L25551 -> req_rdf_opp ------------------------ *)
+(* ---- item 5: differentiable_opp -> [req_rdf_opp] ------------------------ *)
 
 Theorem req_rdf_opp : forall f : R -> R, reqRDF f -> reqRDF (fun x => opp (f x)).
 Proof.
@@ -1027,8 +1089,9 @@ Proof.
       + exact (Hd2 h Hh).
 Qed.
 
-(* ---- 件 6：differentiable_minus L25596 -> req_rdf_minus ------------------- *)
-(*      req_minus δ 透明：plus∘opp 使用后目标转换闭合（unfold 后直接匹配） --------- *)
+(* ---- item 6: differentiable_minus -> [req_rdf_minus] ------------------- *)
+(*      [req_minus] is transparently [plus . opp]: after unfolding, the   *)
+(*      goal converts and closes by direct matching --------- *)
 
 Theorem req_rdf_minus : forall f g : R -> R,
   reqRDF f -> reqRDF g -> reqRDF (fun x => req_minus (f x) (g x)).
@@ -1046,8 +1109,9 @@ Proof.
   - exact (fun h Hh => Hd2 h Hh).
 Qed.
 
-(* ---- 件 7：differentiable_power_nat L25631 -> req_power_nat +               *)
-(*        req_rdf_power_nat（归纳 + req_rdf_mult 载体重建） --------------------- *)
+(* ---- item 7: differentiable_power_nat -> [req_power_nat] +             *)
+(*        [req_rdf_power_nat] (induction with the [req_rdf_mult] carrier  *)
+(*        reconstruction) --------------------- *)
 
 Fixpoint req_power_nat (n : nat) (x : R) : R :=
   match n with
@@ -1085,7 +1149,8 @@ Proof.
                         req_rdf_id IH).
 Qed.
 
-(* ---- 公共机器件 3：A == (A−Y)+Y（compose 分解引擎） ------------------------- *)
+(* ---- shared machine 3: [A == (A - Y) + Y] (the compose decomposition   *)
+(* engine) ------------------------- *)
 
 Lemma req_rdf_minus_pair : forall A Y : R, req A (plus (req_minus A Y) Y).
 Proof.
@@ -1101,7 +1166,8 @@ Proof.
 Qed.
 
 
-(* (a+b)−c == a+(b−c)（Id minus_plus_zero_r L26076 req 对位，mse/compose 使用） *)
+(* [(a + b) - c == a + (b - c)] (req counterpart of the baseline          *)
+(* [minus_plus_zero_r]; used by mse/compose). *)
 Lemma req_minus_plus_zero_r : forall a b c : R,
   req (req_minus (plus a b) c) (plus a (req_minus b c)).
 Proof.
@@ -1180,9 +1246,11 @@ Proof.
                             (req_plus_zero_l (mult C (req_minus (req_minus G g0) (mult D h))))).
 Qed.
 
-(* ---- 件 8：differentiable_compose L25762 -> req_rdf_compose ----------------- *)
+(* ---- item 8: differentiable_compose -> [req_rdf_compose] ----------------- *)
 
-(* 函数 req-兼容槽（T2①；Id 靠 Leibniz 免费换形，req 侧诚实假设位——登记表第 5 条） *)
+(* the function req-compatibility slot (an honest premise: the baseline   *)
+(* transports freely via Leibniz equality, the req side needs the         *)
+(* explicit slot). *)
 Theorem req_rdf_compose : forall f g : R -> R,
   reqRDF f -> reqRDF g ->
   (forall u v : R, req u v -> req (f u) (f v)) ->
@@ -1429,7 +1497,8 @@ Proof.
 + exact (le_trans (abs (plus (req_minus (f (g (plus x h))) (plus (f (g x)) (mult (rdf_df f Hf (g x)) (req_minus (g (plus x h)) (g x))))) (mult (rdf_df f Hf (g x)) (req_minus (req_minus (g (plus x h)) (g x)) (mult (rdf_df g Hg x) h))))) (plus (abs (req_minus (f (g (plus x h))) (plus (f (g x)) (mult (rdf_df f Hf (g x)) (req_minus (g (plus x h)) (g x)))))) (abs (mult (rdf_df f Hf (g x)) (req_minus (req_minus (g (plus x h)) (g x)) (mult (rdf_df g Hg x) h))))) (mult eps (abs h)) (req_rdf_abs_triangle (req_minus (f (g (plus x h))) (plus (f (g x)) (mult (rdf_df f Hf (g x)) (req_minus (g (plus x h)) (g x))))) (mult (rdf_df f Hf (g x)) (req_minus (req_minus (g (plus x h)) (g x)) (mult (rdf_df g Hg x) h)))) (le_trans (plus (abs (req_minus (f (g (plus x h))) (plus (f (g x)) (mult (rdf_df f Hf (g x)) (req_minus (g (plus x h)) (g x)))))) (abs (mult (rdf_df f Hf (g x)) (req_minus (req_minus (g (plus x h)) (g x)) (mult (rdf_df g Hg x) h))))) (plus (mult eps4 (abs h)) (mult eps4 (abs h))) (mult eps (abs h)) (le_plus_compat (abs (req_minus (f (g (plus x h))) (plus (f (g x)) (mult (rdf_df f Hf (g x)) (req_minus (g (plus x h)) (g x)))))) (mult eps4 (abs h)) (abs (mult (rdf_df f Hf (g x)) (req_minus (req_minus (g (plus x h)) (g x)) (mult (rdf_df g Hg x) h)))) (mult eps4 (abs h)) HT1 HT2) (le_trans (plus (mult eps4 (abs h)) (mult eps4 (abs h))) (mult eps (abs h)) (mult eps (abs h)) (req_rdf_quarter_pair_le_final eps (abs h) Heps (abs_nonneg_plain h)) (le_refl (mult eps (abs h)))))).
 Qed.
 
-(* ---- 辅件：(a+b)−c == a+(b−c)（mse/compose 分解引擎） ------------------------ *)
+(* ---- helper: [(a + b) - c == a + (b - c)] (the mse/compose             *)
+(* decomposition engine) ------------------------ *)
 
 Lemma req_rdf_minus_plus_zero_r : forall a b c : R,
   req (req_minus (plus a b) c) (plus (req_minus a c) b).
@@ -1447,7 +1516,8 @@ Proof.
     + exact (plus_assoc a (opp c) b).
 Qed.
 
-(* ---- 辅件：(x+h−t)² − ((x−t)² + 2(x−t)h) == h²（Id square_diff_expand        *)
+(* ---- helper: [(x+h-t)^2 - ((x-t)^2 + 2*(x-t)*h) == h^2] (the baseline   *)
+(* [square_diff_expand] *)
 
 
 Lemma req_rdf_square_diff_expand : forall x target h : R,
@@ -1504,8 +1574,10 @@ Proof.
   - exact (req_trans (req_minus (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (req_minus x target) h)) (plus (mult h (req_minus x target)) (mult h h))) (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h))) (req_minus (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (mult h h)) (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h))) (mult h h) (req_sym (req_minus (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (mult h h)) (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h))) (req_minus (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (req_minus x target) h)) (plus (mult h (req_minus x target)) (mult h h))) (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h))) (req_rdf_minus_compat_l (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (mult h h)) (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (req_minus x target) h)) (plus (mult h (req_minus x target)) (mult h h))) (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (req_sym (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (req_minus x target) h)) (plus (mult h (req_minus x target)) (mult h h))) (plus (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (mult h h)) HR))) (req_minus_plus_cancel_r (plus (mult (req_minus x target) (req_minus x target)) (mult (mult (plus one one) (req_minus x target)) h)) (mult h h))).
 Qed.
 
-(* ---- 件 9：cross_entropy_softmax_diff L26015 -> req_cross_entropy_softmax_diff *)
-(*   （log_inv_exp_neg_slot 槽使用；误差经折叠为恒等映射后归零——Id Hfold 同构）  *)
+(* ---- item 9: cross_entropy_softmax_diff ->                             *)
+(* [req_cross_entropy_softmax_diff]                                        *)
+(*   (consumes the [log_inv_exp_neg_slot]; the error folds to the identity *)
+(*   map and vanishes — the baseline Hfold shape)  *)
 
 Theorem req_cross_entropy_softmax_diff :
   reqRDF (fun logit => log_inv (exp_neg logit) (exp_neg_pos logit)).
@@ -1536,9 +1608,10 @@ Proof.
                                eps h Heps Herr).
 Qed.
 
-(* ---- 件 10：mse_diff L26174 -> req_mse_diff -------------------------------- *)
-(*   （辅件 req_rdf_square_diff_expand 已承载；delta = min one eps，             *)
-(*    min_le_*_plain 双槽使用；|h^2| = |h|^2 <= eps|h| 经 le_mult_compat_weak）  *)
+(* ---- item 10: mse_diff -> [req_mse_diff] -------------------------------- *)
+(*   (carried by the helper [req_rdf_square_diff_expand]; delta =          *)
+(*   [min one eps] with the [min_le_*_plain] slot pair;                    *)
+(*   [|h^2| = |h|^2 <= eps*|h|] via [le_mult_compat_weak])  *)
 
 Theorem req_mse_diff : forall target : R,
   reqRDF (fun pred => mult (req_minus pred target) (req_minus pred target)).
@@ -1576,10 +1649,13 @@ Proof.
                    (inl (lt_le_trans (abs h) (min one eps) eps Hh (min_le_r_plain one eps)))).
 Qed.
 
-(* ---- 增量件（增量清单动作 4 唯一实建件）：differentiable_affine L25493       *)
-(*   -> req_rdf_affine。f(x)=a·x+b，df=a，误差恒为零——req_mult_plus_distr_r      *)
-(*   换形（右分配经 mult_comm 三跳换左侧）+ plus 重组三步 + req_minus_self_zero   *)
-(*   完成；预算走 req_rdf_abs_zero_le abs_nonneg_plain 统一零误差道（同 req_rdf_const 形）。       *)
+(* ---- item: differentiable_affine -> [req_rdf_affine].  [f(x) = a*x+b],  *)
+(*   [df = a], the error is identically zero: reshape by                  *)
+(*   [req_mult_plus_distr_r] (right distributivity moved left through      *)
+(*   [mult_comm] in three hops), reassociate the plus in three steps and   *)
+(*   close by [req_minus_self_zero]; the budget goes through the uniform   *)
+(*   zero-error channel [req_rdf_abs_zero_le] on the [abs_nonneg_plain]    *)
+(*   slot (the [req_rdf_const] shape). *)
 
 Theorem req_rdf_affine : forall a b : R, reqRDF (fun x => plus (mult a x) b).
 Proof.
@@ -1631,14 +1707,19 @@ Proof.
                                   (plus_assoc (mult a x) b (mult a h)))).
 Qed.
 
-(* ---- 件 11：entropy_differentiable L26368 -> req_entropy_differentiable ----- *)
-(*   （域前提位：rdf_log_diff 槽 = "正总值可微函数的 log 链闭合"——Id             *)
-(*    log_differentiable 全称槽的 req 域化同位；Omega_B_wd 诚实位 = req compose  *)
-(*    的函数兼容位——Id funext 免费而 req 接口无，诚实登记表登记）                  *)
+(* ---- item 11: entropy_differentiable -> [req_entropy_differentiable] ----- *)
+(*   (the domain premise slot [rdf_log_diff] = "the log chain closes for   *)
+(*   differentiable functions with positive total", the req-domained       *)
+(*   counterpart of the baseline's universal [log_differentiable] slot;    *)
+(*   the [Omega_B_wd] honesty slot is the req compose function             *)
+(*   compatibility premise — the baseline gets it from funext for free,    *)
+(*   the req interface has no such transport, so it stays an explicit      *)
+(*   slot)  *)
 
 Section ReqEntropyDiff.
 
-(* R/RIS/RNN/RDP 由外层 ReqRDFScalar 节继承（嵌套节零重复声明） *)
+(* R/RIS/RNN/RDP are inherited from the outer [ReqRDFScalar] section (no  *)
+(* redeclaration in the nested section). *)
 
 Variable Omega_A : R -> R.
 Variable Omega_B : R -> R.
@@ -1682,17 +1763,23 @@ Qed.
 End ReqEntropyDiff.
 
 (* ===================================================================== *)
-(* Part 3：MV 桥（桥C2-MV/MVVec）——reqStateSpace/reqHilbertSpace/             *)
-(*   reqStateSpaceExtended 定义级转写 + reqRDFMV/reqRDFMVVec 记录桥。          *)
-(*   诚实差异登记表（MV 区追加，接续头注登记表）：                                 *)
-(*   5. 律字段分层修正（登记表 2 的类型级落实）：R 值律（metric_sym/sminus、        *)
-(*      inner_sym/splus_l/smult_l、snorm_smult/triangle、proj_orthogonal）req 形； *)
-(*      载体律（splus/smult 簇、metric_zero/clim_unique/inner_definite 结论位）    *)
-(*      Id 形——载体 req 形需载体集oid字段而 16 件使用面实证全在 R 值层（逐件       *)
-(*      核读），零使用即零假设，诚实从简。req 形更弱，使用安全方向。              *)
-(*   6. rdf_inner_zero 槽（⟨szero,h⟩ ≡ zero）：req 接口零 id_cong——szero 入     *)
-(*      inner 实参位换形无运输机（既有同族限制），T2① 假设位接续；Id 侧      *)
-(*      inner_szero_l 为可证定理，其 req 对位件接口级不可复刻，登记显式假设。      *)
+(* Part 3: the MV bridge — definitional transcriptions of the state and   *)
+(* Hilbert space records plus the [reqRDFMV]/[reqRDFMVVec] record bridges. *)
+(* Honest-difference notes for the MV region:                             *)
+(* 5. Law-field layering: the R-valued laws ([metric_sym]/[sminus],       *)
+(*    [inner_sym]/[splus_l]/[smult_l], [snorm_smult]/[triangle],           *)
+(*    [proj_orthogonal]) take the req form; the carrier laws (the         *)
+(*    [splus]/[smult] families, and the conclusions of [metric_zero],      *)
+(*    [clim_unique], [inner_definite]) keep the baseline Leibniz form —   *)
+(*    the req carrier form would need carrier-setoid fields, and all      *)
+(*    sixteen use sites sit at the R-value layer, so zero uses means zero *)
+(*    assumptions.  The req form is weaker; this is the safe direction.   *)
+(* 6. The [rdf_inner_zero] slot ([<szero, h> == zero]): the req interface *)
+(*    has no [id_cong], so substituting [szero] into an [inner] argument  *)
+(*    position has no transport (a standing same-family restriction); the *)
+(*    baseline [inner_szero_l] is a provable theorem, but its req         *)
+(*    counterpart is not replicable at the interface level, so it stays   *)
+(*    an explicit assumption. *)
 (* ===================================================================== *)
 
 Record reqStateSpace := {
@@ -1800,12 +1887,13 @@ Record reqRDFMVVec
 }.
 
 (* ===================================================================== *)
-(* Part 4：MV 区使用件（件 12-16；清单 §5 结论逐位落实）                       *)
+(* Part 4: the MV-region statements (items 12-16). *)
 (* ===================================================================== *)
 
 Section ReqRDFMV.
 
-(* R/RIS/RNN/RDP 由外层 Section ReqRDFScalar 继承，此处不重复声明。 *)
+(* R/RIS/RNN/RDP are inherited from the outer [Section ReqRDFScalar]; not *)
+(* redeclared here. *)
 Context (SS : reqStateSpace).
 Context (HSE : reqStateSpaceExtended SS).
 Context (HS : reqHilbertSpace SS).
@@ -1816,7 +1904,8 @@ Let spl : Sc -> Sc -> Sc := rs_plus SS.
 Let mtr : Sc -> Sc -> R := rs_metric SS.
 Let inn : Sc -> Sc -> R := rh_inner SS HS.
 
-(* 辅件（清单 (b|桥) 显式假设接续）：inner_splus_r L26722 req 对位——字段直推       *)
+(* helper: req counterpart of [inner_splus_r] — direct from the interface *)
+(* field. *)
 Lemma req_inner_splus_r : forall x y z : Sc,
   req (inn x (spl y z)) (plus (inn x y) (inn x z)).
 Proof.
@@ -1831,8 +1920,8 @@ Proof.
                              (rh_inner_sym SS HS z x)).
 Qed.
 
-(* ---- 件 12：differentiable_mv_const L26786 -> req_rdf_mv_const ------------- *)
-(*   （rdf_inner_zero 槽使用；登记表 6） --------------------------------------- *)
+(* ---- item 12: differentiable_mv_const -> [req_rdf_mv_const] ------------- *)
+(*   (consumes the [rdf_inner_zero] slot)  *)
 
 Variable rdf_inner_zero : forall h : Sc, req (inn S0 h) zero.
 
@@ -1869,9 +1958,9 @@ Proof.
                     (le_id_l (abs zero) zero (mult eps (mtr h S0)) abs_zero Hzm)).
 Qed.
 
-(* ---- 件 13：differentiable_mv_linear L26837 -> req_rdf_mv_linear ----------- *)
-(*   （注意力 logits 可微：attention_score(s) = ⟨s,key⟩，df = key；             *)
-(*    req_inner_splus_r 辅件使用） ------------------------------------------- *)
+(* ---- item 13: differentiable_mv_linear -> [req_rdf_mv_linear] ----------- *)
+(*   (the attention logits are differentiable: attention_score(s) =        *)
+(*   <s, key> with df = key; consumes the [req_inner_splus_r] helper)  *)
 
 Theorem req_rdf_mv_linear : forall a : Sc, reqRDFMV SS HS (fun x => inn a x).
 Proof.
@@ -1905,10 +1994,12 @@ Proof.
                     (le_id_l (abs zero) zero (mult eps (mtr h S0)) abs_zero Hzm)).
 Qed.
 
-(* ---- 件 14：differentiable_mv_plus L26885 -> req_rdf_mv_plus --------------- *)
-(*   （req_inner_splus_r 使用 + req_rdf_plus 同构 eps/2 核算；req 接口 min        *)
-(*    plain-le 双槽（ReqDiffPlain）对应副本 Id min_le_l/min_le_r；误差分解三跳：       *)
-(*    inner 线性换形 -> plus 换中 -> req_minus_plus_distr 拆两支） -------------- *)
+(* ---- item 14: differentiable_mv_plus -> [req_rdf_mv_plus] --------------- *)
+(*   (consumes [req_inner_splus_r] plus the [req_rdf_plus]-shaped eps/2    *)
+(*   arithmetic; the min plain-le slot pair of [ReqDiffPlain] mirrors the  *)
+(*   baseline [min_le_l]/[min_le_r]; the error decomposes in three hops:   *)
+(*   inner linearity, the plus middle swap, then [req_minus_plus_distr]    *)
+(*   splits the two branches)  *)
 
 Theorem req_rdf_mv_plus : forall f g : Sc -> R,
   reqRDFMV SS HS f -> reqRDFMV SS HS g ->
@@ -2007,7 +2098,8 @@ Proof.
         -- exact (req_rdf_half_pair_le eps (mtr h S0)).
 Qed.
 
-(* ---- 件 15 辅件甲（R 层纯代数）：Id minus_minus_distr req 对位 -------------- *)
+(* ---- item 15 helper A (pure R-layer algebra): req counterpart of        *)
+(* [minus_minus_distr] -------------- *)
 
 Lemma req_rdf_minus_minus_distr : forall A B C : R,
   req (req_minus (req_minus A B) C) (req_minus A (plus B C)).
@@ -2025,9 +2117,10 @@ Proof.
                                (req_opp_plus B C)))).
 Qed.
 
-(* ---- 件 15/16 辅件乙（R 层纯代数）：通用误差分解 --------------------------- *)
-(*   Id mv_vec_diff_decomp L27450 req 对位：A−(B+X) ≡ (A−(B+Y)) + (Y−X)。       *)
-(*   零假设位（req_minus 展开后纯 plus/opp/req_opp_plus 链）。 ------------------ *)
+(* ---- item 15/16 helper B (pure R-layer algebra): the general error      *)
+(* decomposition [A - (B + X) == (A - (B + Y)) + (Y - X)].                 *)
+(*   Zero premise slots (after unfolding [req_minus] a pure                *)
+(*   [plus]/[opp]/[req_opp_plus] chain).  ------------------ *)
 
 Lemma req_rdf_mv_vec_decomp : forall A B X Y : R,
   req (req_minus A (plus B X)) (plus (req_minus A (plus B Y)) (req_minus Y X)).
@@ -2081,7 +2174,8 @@ Proof.
                  (plus A (opp (plus B X))) Hre).
 Qed.
 
-(* ---- 件 15 辅件丙：乘积形误差分解（Id mv_compose_diff_decomp L26739 对位）--- *)
+(* ---- item 15 helper C: the product-form error decomposition (req        *)
+(* counterpart of the baseline mv_compose_diff_decomp) ---- *)
 
 Lemma req_rdf_mv_compose_decomp : forall A B C U W : R,
   req (req_minus A (plus B (mult C W)))
@@ -2104,17 +2198,20 @@ Proof.
                                     (req_mult_minus_distr_l C U W))).
 Qed.
 
-(* ---- 内积 Lipschitz 槽（T2① 假设位；Id inner_lipschitz L26779 sigT 同构）--- *)
+(* ---- the inner-product Lipschitz slot (honest premise; the sigT shape   *)
+(* of the baseline [inner_lipschitz]) ---- *)
 
 Variable req_inner_lipschitz : forall a : Sc,
   sigT (fun N : R => And (le zero N) (forall h : Sc,
     le (abs (inn a h)) (mult N (mtr h S0)))).
 
-(* ---- 件 15：differentiable_mv_compose L26959 -> req_rdf_mv_compose ---------- *)
-(*   （req_inner_lipschitz 槽使用；外层 g 函数兼容前提位沿件 8 req_rdf_compose    *)
-(*    先例；预算 eps4=eps/4：T1 ≤ eps_g·|Dg| ≤ eps4·s（req_rdf_inv_scale_le）；   *)
-(*    T2 ≤ |dg(f x)|·eps_f·s ≤ eps4·s（inv_pos_correct 核算）；                   *)
-(*    完成 req_rdf_quarter_pair_le_final） ------------------------------------ *)
+(* ---- item 15: differentiable_mv_compose -> [req_rdf_mv_compose] ---------- *)
+(*   (consumes the [req_inner_lipschitz] slot; the outer-g function        *)
+(*   compatibility premise follows the [req_rdf_compose] precedent of      *)
+(*   item 8; the budget eps4 = eps/4: T1 <= eps_g * |Dg| <= eps4 * s       *)
+(*   ([req_rdf_inv_scale_le]); T2 <= |dg (f x)| * eps_f * s <= eps4 * s    *)
+(*   ([inv_pos_correct] arithmetic); closed by                             *)
+(*   [req_rdf_quarter_pair_le_final])  *)
 
 Theorem req_rdf_mv_compose : forall (f : Sc -> R) (g : R -> R),
   reqRDFMV SS HS f -> reqRDF g ->
@@ -2178,7 +2275,8 @@ Proof.
     assert (Hef : le eps_f one).
     { exact (min_le_l_plain one (mult (inv_pos M HM) eps4)). }
     assert (Hspos : le zero s) by exact (rs_metric_pos SS h S0).
-    (* (a) |Dg| ≤ L·s：split + 三角 + eps_f/N 两支 + 系数 (eps_f+N) ≤ L *)
+    (* (a) [|Dg| <= L * s]: split + triangle + the eps_f/N branches + the   *)
+    (* coefficient [(eps_f + N) <= L] *)
     assert (HDg : le (abs Dg) (mult L s)).
     { apply (le_id_l (abs Dg)
                (abs (plus (req_minus (f (spl x h)) (plus (f x) (inn (df x) h)))
@@ -2232,7 +2330,7 @@ Proof.
                                (mult_comm (mult (inv_pos L HL) dgd) L)
                                (req_rdf_inv_cancel L dgd HL Hdg1))
                     (lt_mult_compat s (mult (inv_pos L HL) dgd) L HL Hh_dgds))). }
-    (* T1：外层误差 ≤ eps_g·|Dg| ≤ eps4·s *)
+    (* T1: the outer error [<= eps_g * |Dg| <= eps4 * s] *)
     assert (HT1 : le (abs (req_minus (g (f (spl x h)))
                                      (plus (g (f x)) (mult (dg (f x)) Dg))))
                       (mult eps4 s)).
@@ -2369,7 +2467,8 @@ Proof.
                                 (lt_le_iff zero one (inl one_pos))))).
             -- exact (le_mult_compat_weak (mult (mult (inv_pos M HM) eps4) M)
                           eps4 s Hspos (req_rdf_inv_scale_le M eps4 HM)). }
-    (* 完成：E ≡ T1 + T2，|T1+T2| ≤ eps4·s + eps4·s ≤ eps·s *)
+    (* closing: [E == T1 + T2] with [|T1 + T2| <= eps4 * s + eps4 * s       *)
+    (* <= eps * s] *)
     apply (le_id_l (abs (req_minus (g (f (spl x h)))
                                    (plus (g (f x))
                                          (inn (rs_mult SS (dg (f x)) (df x))
@@ -2434,9 +2533,11 @@ Proof.
         -- exact (req_rdf_quarter_pair_le_final eps s Heps Hspos).
 Qed.
 
-(* ---- 件 16 假设位组（T2① 假设位；Id MultivariableDifferentiable vec 区三 Variable *)
-(*   同构 + 场兼容/第二参线性/度量平移三诚实位——载体 Id 无内积运输机，接口级     *)
-(*   接续，登记表登记） --------------------------------------------------------- *)
+(* ---- item 16 premise-slot group (honest slots; isomorphic to the three  *)
+(*   Variables of the baseline vec region, plus three honesty slots: the   *)
+(*   field compatibility, second-argument linearity and metric            *)
+(*   translation — the baseline carrier has no inner-product transport,    *)
+(*   so they continue at the interface level)  *)
 
 Variable req_mv_adjoint : forall Ld : Sc -> Sc,
   sigT (fun Lad : Sc -> Sc => forall h w : Sc,
@@ -2455,11 +2556,15 @@ Variable req_inner_sminus_r : forall (a u v : Sc),
 Variable req_smetric_sminus_zero : forall u v : Sc,
   req (mtr (req_sminus SS u v) S0) (mtr u v).
 
-(* ---- 件 16：differentiable_mv_vec_compose L27495 -> req_rdf_mv_vec_compose -- *)
-(*   （req_mv_adjoint/req_op_lipschitz/req_inner_lipschitz/req_sfield_wd/        *)
-(*    req_inner_sminus_r/req_smetric_sminus_zero 六槽使用；伴随拉回梯度；        *)
-(*    通用误差分解 req_rdf_mv_vec_decomp 直接匹配；预算同件 15，T1 eps_g·|Dg| 系，     *)
-(*    T2 N_a·|⟨a,Dg⟩−⟨a,dfh⟩| 系；完成 quarter_pair_le_final） ------------------ *)
+(* ---- item 16: differentiable_mv_vec_compose ->                          *)
+(* [req_rdf_mv_vec_compose] --                                             *)
+(*   (six slots consumed: [req_mv_adjoint]/[req_op_lipschitz]/             *)
+(*   [req_inner_lipschitz]/[req_sfield_wd]/[req_inner_sminus_r]/           *)
+(*   [req_smetric_sminus_zero]; adjoint pullback gradient; the general     *)
+(*   error decomposition [req_rdf_mv_vec_decomp] matches directly; the     *)
+(*   budget is as in item 15, T1 the [eps_g * |Dg|] family and T2 the      *)
+(*   [N_a * |<a, Dg> - <a, df h>|] family; closed by                       *)
+(*   [quarter_pair_le_final])  *)
 
 Theorem req_rdf_mv_vec_compose : forall (f : Sc -> Sc) (g : Sc -> R),
   reqRDFMVVec SS f -> reqRDFMV SS HS g ->
@@ -2519,7 +2624,8 @@ Proof.
     assert (Hef : le eps_f one).
     { exact (min_le_l_plain one (mult (inv_pos M HM) eps4)). }
     assert (Hspos : le zero s) by exact (rs_metric_pos SS h S0).
-    (* 载体差消去（Id splus_sminus_cancel L27272 同族；记录 Id 律字段直推） *)
+    (* carrier-difference cancellation (the same family as the baseline     *)
+    (* [splus_sminus_cancel]; direct from the record's law fields) *)
     assert (Hcancel : Id (spl (f x) Dg) (f (spl x h))).
     { unfold req_sminus.
       assert (H1 : Id (spl (f x) (spl (f (spl x h)) (rs_opp SS (f x))))
@@ -2624,7 +2730,8 @@ Proof.
                                     (le_refl (mult (mult (inv_pos L HL) eps4) L)))).
             -- exact (le_mult_compat_weak (mult (mult (inv_pos L HL) eps4) L)
                           eps4 s Hspos (req_rdf_inv_scale_le L eps4 HL)). }
-    (* T2：伴随梯度内积差 ≤ N_a 系 *)
+    (* T2: the adjoint-gradient inner-product difference bounded by the     *)
+    (* [N_a] family *)
     assert (HT2 : le (abs (req_minus (inn (dg (f x)) Dg)
                                      (inn (dg (f x)) (df x h))))
                       (mult eps4 s)).
@@ -2719,7 +2826,8 @@ Proof.
                                (mult (mult (inv_pos M HM) eps4) M)
                                eps4 s Hspos (req_rdf_inv_scale_le M eps4 HM)). }
                  exact Hcoef. }
-    (* 完成：伴随恒等式换形 + 通用分解 + 三角 + eps/4 核算 *)
+    (* closing: the adjoint-identity reshape + the general decomposition +  *)
+    (* triangle + the eps/4 arithmetic *)
     apply (le_id_l (abs (req_minus (g (f (spl x h)))
                                    (plus (g (f x)) (inn adj h))))
                    (abs (plus (req_minus (g (f (spl x h)))
@@ -2794,8 +2902,6 @@ Qed.
 End ReqRDFMV.
 
 (* ===================================================================== *)
-
-(*   3 孤立 Qed 与追加占位标记截除，早期版本快照另存独立档案）    *)
 (* ===================================================================== *)
 End ReqRDFScalar.
 

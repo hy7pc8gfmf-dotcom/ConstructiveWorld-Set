@@ -1,91 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ========================================================================= *)
-(* 【ToyR 工程·· 】玩具级定理同名非平凡替换稿（补标头注）       *)
-(*                                                                           *)
-(* 本稿系 ToyR 工程 替换落件（原名落件）；落件时头部漏植工程标记，本块由  *)
-(*  于  补设：仅加头注，语句面／证明体／         *)
-(* Require 面                                                                *)
-(* 零改动；原头注紧随本块之后原样保留。来源刀面权威记录：消融50/。       *)
-(* 替换定理清单：req_r_pow_nonneg／req_minus_pos／req_one_minus_kappa_pos    *)
-(* ／req_abs_minus_zero／req_gradient_zero_neg_entropy_truth（共 5 条）      *)
-(* 非平凡性口径：幂正体归纳内联与序界直造，消除单跳转发；无一行拆分式假非    *)
-(* 平凡。                                                                    *)
-(* 本稿零公理、零承认件、全闭合、纯构造性、无经典逻辑；落件时与本次补标      *)
-(* 抽验编译均验零承认。                                                      *)
-(* ========================================================================= *)
-(* ============================================================ *)
-(* UpReqCauchy.v *)
-(* *)
-(* 目的： 梯度下降收敛链的 req 层副本（熵梯度幂衰减）。 *)
-(* 主件： req_grad_decay_iter / req_r_pow_dec 幂衰减族与 req_sum_R_le 尾和界。 *)
-(* 依赖： CW_ConstructiveWorld_219、UpReqAlgebra、UpReqSLM。 *)
-(* 备注： 熵函数、梯度、动力学与步长前提以 Section 变量给出；幂衰减为显式迭代构造。 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — the req-carrier gradient-descent convergence chain (entropy-gradient power decay). *)
 
-(* UpReqCauchy.v — 签名迁移批 5 · 波 2：Section ConvergenceCauchy 机械平移（43 件 (b)）
-   §0.5 ReqNonnegPlain 双参数 Require 换轨依存，节参挂实例、语句零变化；
-   纯 term-mode（req_trans 链 + compat 字段桥），零 setoid 改写器依赖；
-   Set 层语句（req/lt/le 全 Set 值，零 Prop 泄露；And/Not/Or/ExistsT 用 L66-73 Set 版）。
-   ----------------------------------------------------------------
-   诚实签名变化登记表（判据 §0.2-3/-4/-5 逐件登记）：
-   1. B 类 Variable 全部假设位逐位保留（T2①）：entropy/entropy_gradient/dynamics/eta/
-      dynamics_gradient_step/strict_concavity/L/L_pos/gradient_lipschitz/S_max/
-      entropy_upper_bound/metric_abs/kappa/kappa_pos/kappa_lt_one/gradient_abs_decay/
-      lt_plus_compat_lt_le/lt_plus_compat_le_lt/metric_refl_zero/r_arch_pow/eta_abs_pos/
-      log_lt_mono_cc/lim_metric_approx/le_all_eps_zero/mu/mu_pos/strong_concavity/
-      entropy_tangent/weak_trich——Id→req 同形换字（Id 换 req，minus 换 req_minus）。
-   2. 判据 0.2-5 假设位（Id 证明依存 plain 形、setoid 接口已 eps 化不可导出）：
-      - abs_nonneg_plain : forall a, le zero (abs a)
-        （setoid abs_nonneg eps 形 @L40553；依存件：req_iterate_step_abs_diff_iter/
-        req_iterate_metric_tail_bound/req_grad_bound_aux/req_grad_squeeze_zero——
-        Require 依存其 Class 字段（节参挂实例），语句零变化）
-      - metric_pos_plain : forall a b, le zero (metric a b)
-        （setoid metric_pos eps 形 @L40585；依存件：req_grad_squeeze_zero 完成位——同上换轨）
-      - metric_triangle_plain : forall a b c, le (metric a c) (plus (metric a b) (metric b c))
-        （setoid metric_triangle eps 形 @L40584；依存件：req_metric_tail_le_sum/
-   3. 判据 0.2-4 log 前提化（setoid log 带 lt zero x 前提 @L40570 区）：
-      - log_lt_mono_cc Variable 前提位升格：forall a b, lt zero a -> lt zero b ->
-        （log_mult 字段见证位逐字匹配要求：字段结论固定 mult_positive 形见证，
-        opaque 引理见证不可 conversion——规范形 Fixpoint 见证 delta+iota 可导）。
-        以 sigT 封装为结论第一分量（Hp : lt zero (...)），零 witness-in-statement 摩擦。
-   4. (d) 冻结 2 件（natle_to_le @L14643 / natle_of_le @L14747，纯 nat Id 机器）：
-      跨接口 Require 复用 原件（裸名），零重证——规划书 §3.4 路线；
-      req_iterate_cauchy 结论位改 NatLe 形（cauchy_complete 字段 L40591 对接形），
-      Id 的 (N <= m)%nat 前提由 natle_to_le 复用件在证内桥接。
-   5. §7.7 ConvergenceTheorem 3 助件节内自持（ 对位件，依存前置）：
-      req_iterate_step_diff / req_iterate_step_abs_diff / req_gradient_abs_mono
-      （Id @L13880/L13929/L13982）——仅依存本节 Variables， 可凭本文件已证明对位。
-   6. minus 非接口字段：全节语句以 req_minus（UpReqAlgebra）书写，证内 unfold；
-      Id 接口字段 minus_plus_cancel/minus_plus_cancel_r/le_plus_nonneg_r/le_mult_compat_r/
-      half_pos/half_twice/abs_minus_sym 依存位 → UpReqAlgebra req_minus_plus_cancel/
-      req_minus_plus_cancel_r/req_le_plus_nonneg_r/req_le_mult_compat_r/
-      req_half_pos_loc（本节自持，req_two_pos 见证形）/req_half_twice/req_abs_minus_sym。
-   ----------------------------------------------------------------
-   覆盖核对（req 件名 -> Id 原件 @ 行号；§2 逐件表 43 件 (b)）：
-   载体：req_r_pow<-14071 req_sum_R<-14191 req_nat_to_R<-14559（iterate 顶层复用 @1394）
-   幂族：req_r_pow_pos<-14085 req_r_pow_nonneg<-14093 req_r_pow_dec<-14100
-     req_r_pow_dec_iter<-14438 req_pow_pos_c（规范见证，req_log_pow_cc 配套）
-   衰减：req_grad_decay_iter<-14117 req_iterate_step_abs_diff_iter<-14154
-     req_gradient_abs_mono<-13982(§7.7) req_iterate_grad_abs_mono<-14674
-   求和：req_sum_R_le<-14198 req_sum_R_zero<-14215 req_sum_R_scal_l<-14356
-     req_sum_R_mult_r<-14366
-   代数：req_mult_one_minus_r<-14228 req_telescoping<-14238 req_mult_swap_mid<-14455
-     req_mult_swap_outer<-14464 req_abs_minus_zero<-14732 req_minus_plus_cancel_gap<-14882
-     req_dynamics_step_unfold<-14875 req_minus_pos<-15007
-   等比：req_geom_sum_closed<-14251 req_one_minus_kappa_pos<-14270
-     req_one_minus_pow_le_one<-14279 req_geom_sum_bound<-14290
-   度量尾界：req_metric_tail_le_sum<-14319(+1 假设位) req_iterate_metric_tail_bound<-14376
-     req_grad_bound_aux<-14473 req_iterate_metric_min_bound<-14499
-   柯西/lim 簇（解冻 5 件，接口字段 L40589-40596 实测）：req_iterate_cauchy<-14528
-     req_r_arch_pow_log_budget<-14592 req_iterate_cauchy_explicit_N<-14610
-     req_iterate_lim_exists<-14653 req_grad_squeeze_zero<-14763(+2 假设位)
-     req_dynamics_converges<-14845 req_unique_attractor<-15197
-     req_attractor_converges_unique_truth<-15215
-   μ-强凹族：req_gradient_step_contraction<-14896 req_gradient_step_abs_contraction<-15016
-     req_gradient_iterate_abs_decay<-15045 req_grad_decay_positive_iter<-15064
-   驻点族：req_gradient_zero_entropy_max<-15120 req_gradient_zero_neg_entropy_truth<-15142
-     req_gradient_zero_unique<-15169
-   log 族：req_log_pow_cc<-14567（前提化）
-   ---------------------------------------------------------------- *)
+(** * UpReqCauchy: the convergence chain of the gradient dynamics over the
+      [req] interface.
+
+    Mission.  The [Section UpReqConvergenceCauchy]: the power carrier
+      [req_r_pow] and its decay family, per-step contractions
+      [req_grad_decay_iter]/[req_iterate_step_abs_diff_iter], the finite
+      sums [req_sum_R_le] and geometric series [req_geom_sum_closed],
+      metric tail bounds, Cauchyness and limits ([req_iterate_cauchy],
+      [req_iterate_lim_exists], [req_grad_squeeze_zero]), convergence
+      [req_dynamics_converges], the mu-strong-concavity contractions, the
+      stationary points with their unique attractor, [req_log_pow_cc].
+
+    Dependencies.  The backbone [S01_BaseRing] .. [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqSLM]; Stdlib [Arith], [Lia].
+
+    References.  Statements carried over verbatim from the
+      convergence-section statements of the ConstructiveWorld-Main
+      baseline; minus is [req_minus] with the algebra interface fields
+      consumed from their [UpReqAlgebra] counterparts.
+
+    Constructivity.  Term-mode proofs ([req_trans] chains, no setoid
+      rewriting); statement faces carried by [Set] ([req]/[lt]/[le] all
+      Set-valued); the plain-form premise slots [abs_nonneg_plain],
+      [metric_pos_plain]/[metric_triangle_plain] stay explicit; zero
+      axioms; all proofs close by [Qed].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqCauchy.v] compiles
+      cleanly (exit 0); artifact head bytes [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -114,10 +56,9 @@ Import RealInterfaceEnhancedMod.
    the carrier argument per the G09_MiscSmall.v nw10cure convention. *)
 Notation R := Real.
 
-(* Pool-build self-held machine (seat_abl19): the frozen nat Id machine
-   natle_to_le (Id-generation S04_RealExpLogConv.v:926, not migrated into the
-   pool's S01-S15) is inlined here verbatim per the file's own header rule
-   "节内自持" — pure nat Id machine, zero interface dependency. *)
+(* The nat machine [natle_to_le] is inlined here verbatim from
+   [S04_RealExpLogConv] (not re-exported by the S01-S15 chain):
+   a pure nat machine with zero interface dependency. *)
 Lemma natle_to_le : forall n m, NatLe n m -> (n <= m)%nat.
 Proof.
   intros n m H.
@@ -132,16 +73,14 @@ Qed.
 (* ============================================================ *)
 Section UpReqConvergenceCauchy.
 
-(* A-face adaptation (M43 nw10cure, per UpReqAlign3.v precedent): the argument-bearing
+(* A-face adaptation (per the [UpReqAlign3] precedent): the argument-bearing
    generation binders Context {R : Set} {RIS : RealInterfaceEnhancedSetoid R}. are
    deleted; the carrier R is bound to the global Real by the file-top Notation above,
    and the class fields resolve through the global instance RealEnhancedReal.
-   the argument-bearing generation binders Context {R : Set}
-   {RIS : RealInterfaceEnhancedSetoid R}. are deleted; the carrier R is bound to
-   the global Real by the file-top Notation above. Zero Obj.magic, zero Prop
-   casts, statement faces preserved verbatim. *)
+   Zero Obj.magic, zero Prop casts, statement faces preserved verbatim. *)
 
-(* ============ A. 诚实接口 Variable（B 类假设位逐位保留 T2①） ============ *)
+(* ============ A. Honest-interface Variables (all premise slots kept     *)
+(* verbatim) ============ *)
 
 Variable entropy : R -> R.
 Variable entropy_gradient : R -> R.
@@ -159,10 +98,10 @@ Variable gradient_lipschitz :
 Variable S_max : R.
 Variable entropy_upper_bound : forall E_A, le (entropy E_A) S_max.
 
-(* metric 由范数诱导（同 Id 节 L14048 同位） *)
+(* the metric is induced by the norm. *)
 Variable metric_abs : forall a b : R, req (metric a b) (abs (req_minus a b)).
 
-(* 梯度绝对值几何衰减（Id L14051-14055 同位） *)
+(* geometric decay of the absolute gradient. *)
 Variable kappa : R.
 Variable kappa_pos : lt zero kappa.
 Variable kappa_lt_one : lt kappa one.
@@ -170,21 +109,25 @@ Variable gradient_abs_decay : forall (E_A : R) (n : nat),
   le (abs (entropy_gradient (iterate dynamics (Datatypes.S n) E_A)))
      (mult kappa (abs (entropy_gradient (iterate dynamics n E_A)))).
 
-(* lt+le 混合加保序（Id L14060-14061 同位） *)
+(* order preservation of addition for mixed [lt]/[le] pairs. *)
 Variable lt_plus_compat_lt_le : forall a b c d : R, lt a b -> le c d -> lt (plus a c) (plus b d).
 Variable lt_plus_compat_le_lt : forall a b c d : R, le a b -> lt c d -> lt (plus a c) (plus b d).
 
-(* ============ A+. 判据 0.2-5 假设位（reqNonnegPlain 双参数 Require 换轨 + triangle 参数位自持，登记表 2） ============ *)
-(* Id 证明依存 plain 形 abs_nonneg/metric_pos/metric_triangle，setoid 接口对应字段
-   已 Bishop eps 化（L40553/L40584/L40585），plain 形不可由 eps 形导出（序无消去）。
-   （ 原节内自持 Variable 副本已删）→ 节参挂 ReqNonnegPlain 实例依存其字段：
-   投影 R/RIS/实例三位全隐式，裸名依存走类型类推断（本地实例 RN），证明体逐位零改动，
-   实例位 discharged 为隐式参数（Print Assumptions 仍 Closed，零新增公理面）。
-   Variable 先例同构）。 *)
+(* ============ A+. Plain-form premise slots ============ *)
+(* The proofs depend on the plain forms [abs_nonneg], [metric_pos] and    *)
+(* [metric_triangle]; the setoid-interface counterparts of these fields   *)
+(* are Bishop eps forms, and the plain forms are not derivable from the   *)
+(* eps forms (the order has no cancellation).  The section therefore      *)
+(* carries a [ReqNonnegPlain] instance through the section variable and   *)
+(* consumes its fields: all projections are implicit, bare-name           *)
+(* dependencies go through instance inference (the local instance [RN]),  *)
+(* and the instance is discharged as an implicit argument ([Print         *)
+(* Assumptions] stays Closed; no new axiom face). *)
 Context {RN : ReqNonnegPlain}.
 Variable metric_triangle_plain : forall a b c : R, le (metric a c) (plus (metric a b) (metric b c)).
 
-(* req_half_pos_loc：req_two_pos 见证形（req_half_pos 的见证规范形版本，登记表 6） *)
+(* req_half_pos_loc: the witness form built from [req_two_pos] (the       *)
+(* canonical-witness variant of [req_half_pos]). *)
 Lemma req_half_pos_loc : forall a : R, lt zero a ->
   lt zero (mult (inv_pos (plus one one) req_two_pos) a).
 Proof.
@@ -194,9 +137,10 @@ Proof.
   - exact Ha.
 Qed.
 
-(* ============ B. §7.7 ConvergenceTheorem 3 助件（节内自持， 对位） ============ *)
+(* ============ B. The three convergence-theorem helper lemmas            *)
+(* (self-held in this section) ============ *)
 
-(* Id iterate_step_diff L13880：x_{n+1} − x_n == η·g(x_n) *)
+(* one iteration step: [x_{n+1} - x_n == eta * g(x_n)]. *)
 Lemma req_iterate_step_diff : forall (E_A : R) (n : nat),
   req (req_minus (iterate dynamics (Datatypes.S n) E_A) (iterate dynamics n E_A))
       (mult eta (entropy_gradient (iterate dynamics n E_A))).
@@ -226,7 +170,7 @@ Proof.
                                               (mult eta (entropy_gradient (iterate dynamics (Datatypes.S n) E_A))))).
 Qed.
 
-(* Id iterate_step_abs_diff L13929：|x_{n+1} − x_n| == |η|·|g(x_n)| *)
+(* absolute value of one step: [|x_{n+1} - x_n| == |eta| * |g(x_n)|]. *)
 Lemma req_iterate_step_abs_diff : forall (E_A : R) (n : nat),
   req (abs (req_minus (iterate dynamics (Datatypes.S n) E_A) (iterate dynamics n E_A)))
       (mult (abs eta) (abs (entropy_gradient (iterate dynamics n E_A)))).
@@ -241,7 +185,7 @@ Proof.
                    (abs_mult eta (entropy_gradient (iterate dynamics n E_A)))).
 Qed.
 
-(* Id gradient_abs_mono L13982：x < y、0 < g(y) < g(x) ⟹ |g(y)| ≤ |g(x)| *)
+(* if [x < y] and [0 < g(y) < g(x)], then [|g(y)| <= |g(x)|]. *)
 Lemma req_gradient_abs_mono : forall x y : R,
   lt x y -> lt zero (entropy_gradient y) ->
   lt (entropy_gradient y) (entropy_gradient x) ->
@@ -260,7 +204,7 @@ Proof.
                  (lt_le_iff _ _ (inl Hgygx))).
 Qed.
 
-(* ============ C. R 层幂载体（Id L14071 同构） ============ *)
+(* ============ C. The R-layer power carrier ============ *)
 
 Fixpoint req_r_pow (x : R) (n : nat) : R :=
   match n with
@@ -270,11 +214,12 @@ Fixpoint req_r_pow (x : R) (n : nat) : R :=
 
 Variable metric_refl_zero : forall a : R, req (metric a a) zero.
 
-(* 几何击穿（Id L14082 同位；req_r_pow 载体形） *)
+(* geometric annihilation: powers of [kappa] eventually fall below any    *)
+(* positive bound (the [req_r_pow] carrier form). *)
 Variable r_arch_pow : forall (a : R), lt zero a -> forall eps : R, lt zero eps ->
   sigT (fun n : nat => lt (mult a (req_r_pow kappa n)) eps).
 
-(* Id r_pow_pos L14085 *)
+(* powers of a positive are positive. *)
 Lemma req_r_pow_pos : forall x n, lt zero x -> lt zero (req_r_pow x n).
 Proof.
   intros x n Hx. induction n as [| m IH]; cbn -[req req_refl req_sym req_trans zero one plus mult opp abs lt le req_plus_compat req_mult_compat req_opp_compat req_abs_compat req_lt_compat req_le_compat plus_assoc plus_comm plus_zero plus_opp mult_assoc mult_comm mult_one distrib mult_zero lt_irrefl lt_trans le_refl le_trans le_antisym le_lt_trans lt_le_trans lt_le_iff le_id_l le_id_r lt_id_l lt_id_r inv_pos inv_pos_correct one_pos lt_plus_compat le_plus_compat plus_positive mult_positive lt_mult_compat le_mult_compat le_mult_compat_weak opp_lt_compat lt_zero_opp opp_le_compat inv_pos_pos inv_pos_ext inv_pos_le_compat min min_le_l min_le_r min_pos r_max r_max_le_l r_max_le_r r_max_l_iff r_max_r_iff pos_test pos_test_lt lt_pos_test pos_part pos_part_def pos_part_nonneg mr_if mr_if_true mr_if_false abs_nonneg abs_triangle abs_zero abs_mult abs_opp abs_pos exp_neg exp_neg_pos exp_neg_zero exp_neg_plus exp_neg_decr exp_neg_le_decr log log_mult log_one log_le_linear_eps log_inv log_inv_log exp_neg_log_inv metric metric_sym metric_pos metric_zero metric_triangle lim lim_unique cauchy_complete].
@@ -282,14 +227,15 @@ Proof.
   - apply (mult_positive x (req_r_pow x m) Hx IH).
 Qed.
 
-(* 规范 Fixpoint 正性见证（req_log_pow_cc 的 log_mult 字段见证位配套，登记表 3） *)
+(* canonical Fixpoint positivity witness (the witness supplied to the     *)
+(* [log_mult] field of [req_log_pow_cc]). *)
 Fixpoint req_pow_pos_c (x : R) (Hx : lt zero x) (n : nat) : lt zero (req_r_pow x n) :=
   match n with
   | 0%nat => one_pos
   | Datatypes.S m => mult_positive x (req_r_pow x m) Hx (req_pow_pos_c x Hx m)
   end.
 
-(* Id r_pow_nonneg L14093 *)
+(* powers of a positive are nonnegative. *)
 Lemma req_r_pow_nonneg : forall x n, lt zero x -> le zero (req_r_pow x n).
 Proof.
   intros x n Hx.
@@ -300,7 +246,7 @@ Proof.
   exact (lt_le_iff zero (req_r_pow x n) (inl Hpos)).
 Qed.
 
-(* Id r_pow_dec L14100：0 < b < 1 ⟹ b^{S n} ≤ b^n *)
+(* if [0 < b < 1] then [b^{S n} <= b^n]. *)
 Lemma req_r_pow_dec : forall b n, lt zero b -> lt b one ->
   le (req_r_pow b (Datatypes.S n)) (req_r_pow b n).
 Proof.
@@ -317,7 +263,8 @@ Proof.
         exact IH.
 Qed.
 
-(* ============ D. 梯度绝对值几何衰减迭代（Id L14117） ============ *)
+(* ============ D. Geometric decay of the absolute gradient along the     *)
+(* iteration ============ *)
 
 Lemma req_grad_decay_iter : forall (E_A : R) (n k : nat),
   le (abs (entropy_gradient (iterate dynamics (n + k) E_A)))
@@ -355,7 +302,7 @@ Proof.
         -- apply le_refl.
 Qed.
 
-(* ============ E. 多步步长收缩（Id L14154） ============ *)
+(* ============ E. Multi-step contraction of the step size ============ *)
 
 Lemma req_iterate_step_abs_diff_iter : forall (E_A : R) (n k : nat),
   le (abs (req_minus (iterate dynamics (n + Datatypes.S k) E_A)
@@ -398,7 +345,8 @@ Proof.
            apply (req_grad_decay_iter E_A n (Datatypes.S k)).
 Qed.
 
-(* ============ F. R 层有限和载体 + 求和机器（Id L14191-14226） ============ *)
+(* ============ F. The R-layer finite-sum carrier and summation machine   *)
+(* ============ *)
 
 Fixpoint req_sum_R (f : nat -> R) (n : nat) : R :=
   match n with
@@ -406,7 +354,7 @@ Fixpoint req_sum_R (f : nat -> R) (n : nat) : R :=
   | Datatypes.S m => plus (req_sum_R f m) (f m)
   end.
 
-(* Id sum_R_le L14198 *)
+(* summation preserves the pointwise order. *)
 Lemma req_sum_R_le : forall f g n,
   (forall k, (k < n)%nat -> le (f k) (g k)) ->
   le (req_sum_R f n) (req_sum_R g n).
@@ -423,7 +371,7 @@ Proof.
       * apply (H m (Nat.lt_succ_diag_r m)).
 Qed.
 
-(* Id sum_R_zero L14215 *)
+(* a pointwise-zero summand sums to zero. *)
 Lemma req_sum_R_zero : forall f n,
   (forall k, (k < n)%nat -> req (f k) zero) ->
   req (req_sum_R f n) zero.
@@ -438,9 +386,9 @@ Proof.
                      (plus_zero zero)).
 Qed.
 
-(* ============ G. 代数辅件（Id L14228-14249） ============ *)
+(* ============ G. Algebraic helpers ============ *)
 
-(* Id mult_one_minus_r L14228：mult (1−x)·y == y + (−x)·y *)
+(* [(1 - x) * y == y + (- x) * y]. *)
 Lemma req_mult_one_minus_r : forall x y : R,
   req (mult (req_minus one x) y) (plus y (mult (opp x) y)).
 Proof.
@@ -455,7 +403,7 @@ Proof.
                                     (req_refl (mult (opp x) y)))).
 Qed.
 
-(* Id telescoping L14238：1−A + A−B == 1−B *)
+(* telescoping: [(1 - A) + (A - B) == 1 - B]. *)
 Lemma req_telescoping : forall a b : R,
   req (plus (req_minus one a) (req_minus a b)) (req_minus one b).
 Proof.
@@ -487,9 +435,9 @@ Proof.
                                                                      (plus_zero (opp b))))))).
 Qed.
 
-(* ============ H. 几何级数机器（Id L14251-14317） ============ *)
+(* ============ H. The geometric-series machine ============ *)
 
-(* Id geom_sum_closed L14251：(1−κ)·Σ_{k<m} κ^k == 1−κ^m *)
+(* closed geometric sum: [(1 - kappa) * sum_{k<m} kappa^k == 1 - kappa^m]. *)
 Lemma req_geom_sum_closed : forall m : nat,
   req (mult (req_minus one kappa) (req_sum_R (req_r_pow kappa) m))
       (req_minus one (req_r_pow kappa m)).
@@ -532,7 +480,7 @@ Proof.
     exact (req_telescoping (req_r_pow kappa m) (mult kappa (req_r_pow kappa m))).
 Qed.
 
-(* Id one_minus_kappa_pos L14270：0 < 1−κ *)
+(* [0 < 1 - kappa]. *)
 Lemma req_one_minus_kappa_pos : lt zero (req_minus one kappa).
 Proof.
   unfold req_minus.
@@ -542,7 +490,7 @@ Proof.
               (le_refl (opp kappa)))).
 Qed.
 
-(* Id one_minus_pow_le_one L14279：1−κ^m ≤ 1 *)
+(* [1 - kappa^m <= 1]. *)
 Lemma req_one_minus_pow_le_one : forall m, le (req_minus one (req_r_pow kappa m)) one.
 Proof.
   intro m.
@@ -556,7 +504,7 @@ Proof.
     apply (req_r_pow_nonneg kappa m kappa_pos).
 Qed.
 
-(* Id geom_sum_bound L14290：Σ_{k<m} κ^k ≤ 1/(1−κ) *)
+(* [sum_{k<m} kappa^k <= 1/(1 - kappa)]. *)
 Lemma req_geom_sum_bound : forall m,
   le (req_sum_R (req_r_pow kappa) m) (inv_pos (req_minus one kappa) req_one_minus_kappa_pos).
 Proof.
@@ -595,11 +543,14 @@ Proof.
         -- apply (req_one_minus_pow_le_one m).
 Qed.
 
-(* ============ I. metric 尾界（Id L14319-14436；+1 假设位 metric_triangle_plain） ============ *)
+(* ============ I. Metric tail bounds (one extra premise slot:            *)
+(* [metric_triangle_plain]) ============ *)
 
-(* Id metric_tail_le_sum L14319：metric 三角迭代到和。
-   签名差异登记（登记表 2）：setoid metric_triangle 为 eps 形（L40584），Id 证明依存 plain 形
-   不可导出（序无消去）→ 新增假设位 metric_triangle_plain，语句与 Id 原件逐字同形。 *)
+(* the metric triangle inequality iterated to a sum.  Signature note:    *)
+(* the setoid [metric_triangle] field is a Bishop eps form, and the plain *)
+(* form needed here is not derivable from it (the order has no            *)
+(* cancellation), so the extra premise slot [metric_triangle_plain] is    *)
+(* introduced; the statement is otherwise the plain triangle iteration. *)
 Lemma req_metric_tail_le_sum : forall (E_A : R) (n m : nat),
   le (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))
      (req_sum_R (fun k => metric (iterate dynamics (n + Datatypes.S k) E_A)
@@ -633,7 +584,7 @@ Proof.
       * apply le_refl.
 Qed.
 
-(* Id sum_R_scal_l L14356 *)
+(* scalar extraction on the left of a sum. *)
 Lemma req_sum_R_scal_l : forall a f n,
   req (req_sum_R (fun k => mult a (f k)) n) (mult a (req_sum_R f n)).
 Proof.
@@ -650,7 +601,7 @@ Proof.
                      (req_sym _ _ (distrib a (req_sum_R f m) (f m)))).
 Qed.
 
-(* Id sum_R_mult_r L14366 *)
+(* scalar extraction on the right of a sum. *)
 Lemma req_sum_R_mult_r : forall f b n,
   req (req_sum_R (fun k => mult (f k) b) n) (mult (req_sum_R f n) b).
 Proof.
@@ -668,7 +619,8 @@ Proof.
                      (req_sym _ _ (req_mult_plus_distr_r (req_sum_R f m) (f m) b))).
 Qed.
 
-(* Id iterate_metric_tail_bound L14376：尾部收缩（plain abs_nonneg 依存位 ×2，登记表 2） *)
+(* tail contraction (consumes the plain-form [abs_nonneg] premise slot    *)
+(* twice). *)
 Lemma req_iterate_metric_tail_bound : forall (E_A : R) (n m : nat),
   le (metric (iterate dynamics (n + m) E_A) (iterate dynamics n E_A))
      (mult (abs eta)
@@ -732,15 +684,16 @@ Proof.
               ** apply (req_geom_sum_bound m).
 Qed.
 
-(* ============ J. 幂递减 + 乘法交换 + 梯度界（Id L14398-14497） ============ *)
+(* ============ J. Power decrease, multiplication swaps and the gradient  *)
+(* bound ============ *)
 
-(* 非零步长（Id L14398 同位） *)
+(* the step size is nonzero. *)
 Variable eta_abs_pos : lt zero (abs eta).
 
-(* 1/(1−κ)（Id L14401 同位） *)
+(* the reciprocal [1/(1 - kappa)]. *)
 Let S := inv_pos (req_minus one kappa) req_one_minus_kappa_pos.
 
-(* Id r_pow_dec_iter L14438：m ≤ n ⟹ κ^n ≤ κ^m *)
+(* if [m <= n] then [kappa^n <= kappa^m]. *)
 Lemma req_r_pow_dec_iter : forall m n, (m <= n)%nat -> le (req_r_pow kappa n) (req_r_pow kappa m).
 Proof.
   intros m n Hmn.
@@ -754,7 +707,7 @@ Proof.
       assert (Hm : m = Datatypes.S n) by lia. subst m. apply le_refl.
 Qed.
 
-(* Id mult_swap_mid L14455 *)
+(* middle swap for multiplication. *)
 Lemma req_mult_swap_mid : forall a b c : R, req (mult (mult a b) c) (mult (mult a c) b).
 Proof.
   intros a b c.
@@ -768,7 +721,7 @@ Proof.
                               (mult_assoc a c b))).
 Qed.
 
-(* Id mult_swap_outer L14464 *)
+(* outer swap for multiplication. *)
 Lemma req_mult_swap_outer : forall a b c d : R,
   req (mult (mult (mult a b) c) d) (mult (mult (mult a c) d) b).
 Proof.
@@ -781,7 +734,8 @@ Proof.
                    (req_mult_swap_mid (mult a c) b d)).
 Qed.
 
-(* Id grad_bound_aux L14473（plain abs_nonneg 依存位，登记表 2） *)
+(* auxiliary gradient bound (consumes the plain-form [abs_nonneg] premise *)
+(* slot). *)
 Lemma req_grad_bound_aux : forall E_A n,
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   le (mult (abs eta) (mult (abs (entropy_gradient (iterate dynamics n E_A))) S))
@@ -815,7 +769,8 @@ Proof.
       * apply (req_grad_decay_iter E_A 0 n).
 Qed.
 
-(* Id iterate_metric_min_bound L14499 *)
+(* metric between two iterates, bounded through the initial gradient and  *)
+(* the [kappa^(min m n)] decay. *)
 Lemma req_iterate_metric_min_bound : forall E_A m n,
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   le (metric (iterate dynamics m E_A) (iterate dynamics n E_A))
@@ -842,7 +797,8 @@ Proof.
     + apply (req_grad_bound_aux E_A n Hg0pos).
 Qed.
 
-(* ============ K. 柯西性（Id L14528-14564；结论位 NatLe 形对接 cauchy_complete，登记表 4） ============ *)
+(* ============ K. Cauchyness (conclusion in [NatLe] form, matching the   *)
+(* [cauchy_complete] field) ============ *)
 
 Lemma req_iterate_cauchy : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
@@ -872,12 +828,13 @@ Proof.
     + exact HN0.
 Qed.
 
-(* ============ L. log 族（Id L14565-14641；log 前提化，登记表 3） ============ *)
+(* ============ L. The log family ([log] premises made explicit)          *)
+(* ============ *)
 
 Variable log_lt_mono_cc : forall (a b : R) (Ha : lt zero a) (Hb : lt zero b),
   lt a b -> lt (log a Ha) (log b Hb).
 
-(* nat 到 R 嵌入载体（Id L14559 同构；reqd_nat_to_R 先例） *)
+(* the nat-to-R embedding carrier. *)
 Fixpoint req_nat_to_R (n : nat) : R :=
   match n with
   | O => zero
@@ -943,7 +900,8 @@ Proof.
   - exact HN0.
 Qed.
 
-(* Id iterate_cauchy_explicit_N L14610：显式可计算收敛率主定理（Hp 见证 sigT 封装，登记表 3） *)
+(* the explicitly computable convergence-rate main theorem (the positivity *)
+(* witness is packaged as the first component of the [sigT] conclusion). *)
 Theorem req_iterate_cauchy_explicit_N : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   forall (eps : R) (Hep : lt zero eps),
@@ -982,7 +940,7 @@ Proof.
       * exact HNgeo.
 Qed.
 
-(* ============ M. lim 存在（Id L14653-14672；lim 簇解冻件 1/5，字段 L40591 实测） ============ *)
+(* ============ M. Existence of the limit ============ *)
 
 Lemma req_iterate_lim_exists : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
@@ -997,7 +955,7 @@ Proof.
   exact (HN m n Hm Hn).
 Qed.
 
-(* ============ N. 梯度绝对值单调（Id L14674-14730） ============ *)
+(* ============ N. Monotonicity of the absolute gradient ============ *)
 
 Theorem req_iterate_grad_abs_mono : forall (E_A : R) (n : nat),
   lt zero eta ->
@@ -1036,7 +994,8 @@ Proof.
   - exact Hgdec.
 Qed.
 
-(* ============ O. lim 的 eps-N 语义 + 任意小非负（Id L14725-14731 同位） ============ *)
+(* ============ O. The eps-N semantics of [lim] and arbitrary-small       *)
+(* nonnegativity ============ *)
 
 Variable lim_metric_approx : forall (u : nat -> R) (l : R),
   lim u l -> forall eps : R, lt zero eps ->
@@ -1045,7 +1004,7 @@ Variable lim_metric_approx : forall (u : nat -> R) (l : R),
 Variable le_all_eps_zero : forall x : R,
   (forall eps : R, lt zero eps -> lt x eps) -> le x zero.
 
-(* ============ P. 辅件（Id L14732-14762） ============ *)
+(* ============ P. Helpers ============ *)
 
 
 Lemma req_opp_zero : req (opp zero) zero.
@@ -1058,7 +1017,7 @@ Proof.
                    (plus_opp zero)).
 Qed.
 
-(* Id abs_minus_zero L14732：abs (a − 0) == abs a *)
+(* [abs (a - 0) == abs a]. *)
 Lemma req_abs_minus_zero : forall a : R, req (abs (req_minus a zero)) (abs a).
 Proof.
   intro a.
@@ -1068,7 +1027,8 @@ Proof.
               (plus_zero a))).
 Qed.
 
-(* ============ Q. lim 夹逼核心（Id L14763-14844；+2 假设位，登记表 2） ============ *)
+(* ============ Q. The [lim] squeeze core (two extra premise slots)       *)
+(* ============ *)
 
 Lemma req_grad_squeeze_zero : forall (E_A E_star : R),
   lim (fun n => iterate dynamics n E_A) E_star ->
@@ -1153,7 +1113,7 @@ Proof.
   - apply metric_pos_plain.
 Qed.
 
-(* ============ R. dynamics_converges 组装（Id L14845-14874；lim 簇解冻件 2/5） ============ *)
+(* ============ R. Assembly of [req_dynamics_converges] ============ *)
 
 Theorem req_dynamics_converges : forall (E_A : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
@@ -1169,21 +1129,21 @@ Proof.
   - exact (req_grad_squeeze_zero E_A E_star Hlim Hg0pos).
 Qed.
 
-(* ============ S. μ-强凹族（Id L14917-15063 同位） ============ *)
+(* ============ S. The mu-strong-concavity family ============ *)
 
 Variable mu : R.
 Variable mu_pos : lt zero mu.
 Variable strong_concavity : forall x y : R, lt x y ->
   le (mult mu (req_minus y x)) (req_minus (entropy_gradient x) (entropy_gradient y)).
 
-(* Id dynamics_step_unfold L14875 *)
+(* one dynamics step in the [req_minus] shape. *)
 Lemma req_dynamics_step_unfold : forall x : R,
   req (dynamics x) (plus x (mult eta (entropy_gradient x))).
 Proof.
   intros x. exact (dynamics_gradient_step x).
 Qed.
 
-(* Id minus_plus_cancel_gap L14882 *)
+(* adding [b] cancels a subtraction: [(a - b) + b == a]. *)
 Lemma req_minus_plus_cancel_gap : forall a b : R,
   req (plus (req_minus a b) b) a.
 Proof.
@@ -1196,7 +1156,7 @@ Proof.
                               (plus_zero a))).
 Qed.
 
-(* Id gradient_step_contraction L14896：K1a 正分支单步收缩 *)
+(* single-step contraction on the positive branch. *)
 Lemma req_gradient_step_contraction : forall x : R,
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1348,7 +1308,7 @@ Proof.
                  (mult (req_minus one (mult eta mu)) (entropy_gradient x)) H6 H5).
 Qed.
 
-(* Id minus_pos L15007：a < b ⟹ 0 < b − a *)
+(* [a < b] entails [0 < b - a]. *)
 Lemma req_minus_pos : forall a b : R, lt a b -> lt zero (req_minus b a).
 Proof.
   intros a b Hab. unfold req_minus.
@@ -1357,7 +1317,7 @@ Proof.
            (lt_plus_compat_lt_le a b (opp a) (opp a) Hab (le_refl (opp a)))).
 Qed.
 
-(* Id gradient_step_abs_contraction L15016：K1c 正分支单步绝对值收缩 *)
+(* single-step absolute-value contraction on the positive branch. *)
 Lemma req_gradient_step_abs_contraction : forall x : R,
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1384,7 +1344,7 @@ Proof.
                  (req_gradient_step_contraction x Heta Heta_mu Hgx)).
 Qed.
 
-(* Id gradient_iterate_abs_decay L15045：K2 正分支单步迭代收缩 *)
+(* iteration decay of the absolute gradient on the positive branch. *)
 Theorem req_gradient_iterate_abs_decay : forall (E_A : R) (n : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1400,7 +1360,7 @@ Proof.
   exact (req_gradient_step_abs_contraction (iterate dynamics n E_A) Heta Heta_mu Hgn Hgn1).
 Qed.
 
-(* Id grad_decay_positive_iter L15064：K3 正分支 κ 幂衰减 *)
+(* kappa-power decay of the iteration on the positive branch. *)
 Theorem req_grad_decay_positive_iter : forall (E_A : R) (n k : nat),
   lt zero eta ->
   lt (mult eta mu) one ->
@@ -1437,12 +1397,12 @@ Proof.
                                            IH')).
 Qed.
 
-(* ============ T. 驻点族 + 唯一吸引子（Id L15120-15233） ============ *)
+(* ============ T. Stationary points and the unique attractor ============ *)
 
 Variable entropy_tangent : forall x y : R,
   le (entropy y) (plus (entropy x) (mult (entropy_gradient x) (req_minus y x))).
 
-(* Id gradient_zero_entropy_max L15120 *)
+(* a zero gradient makes [x] an entropy maximizer. *)
 Theorem req_gradient_zero_entropy_max : forall x : R,
   req (entropy_gradient x) zero ->
   forall y : R, le (entropy y) (entropy x).
@@ -1474,7 +1434,7 @@ Proof.
   exact (le_id_r (entropy y) (plus (entropy x) (mult (entropy_gradient x) (req_minus y x))) (entropy x) Hid Htangent).
 Qed.
 
-(* Id gradient_zero_neg_entropy_truth L15142 *)
+(* the same fact stated through [opp] (negated entropy ordering). *)
 Theorem req_gradient_zero_neg_entropy_truth : forall x : R,
   req (entropy_gradient x) zero ->
   forall y : R, le (opp (entropy x)) (opp (entropy y)).
@@ -1484,10 +1444,10 @@ Proof.
            (req_gradient_zero_entropy_max x Hg y)).
 Qed.
 
-(* 弱三分（Id L15169 同位；Real 层 real_weak_trich L32526 已证可满足） *)
+(* the weak trichotomy (satisfied by the Real-layer [real_weak_trich]). *)
 Variable weak_trich : forall x y : R, Not (lt x y) -> Not (lt y x) -> req x y.
 
-(* Id gradient_zero_unique L15169：K1 驻点唯一性 *)
+(* uniqueness of the stationary point. *)
 Lemma req_gradient_zero_unique : forall x y : R,
   req (entropy_gradient x) zero ->
   req (entropy_gradient y) zero ->
@@ -1509,7 +1469,7 @@ Proof.
     + apply (lt_id_r (entropy_gradient x) (entropy_gradient y) zero Hgy Hdec).
 Qed.
 
-(* Id unique_attractor L15197：K3 唯一吸引子（lim 簇解冻件 4/5） *)
+(* the unique attractor. *)
 Theorem req_unique_attractor : forall (E_A E_A' : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A'))) ->
@@ -1524,7 +1484,8 @@ Proof.
   exact (req_gradient_zero_unique E1 E2 Hg1 Hg2).
 Qed.
 
-(* Id attractor_converges_unique_truth L15215（lim 簇解冻件 5/5；And 为 Set 层乘积） *)
+(* every trajectory converges to the unique attractor ([And] is the       *)
+(* Set-layer product). *)
 Theorem req_attractor_converges_unique_truth : forall (E_A E_A' : R),
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A))) ->
   lt zero (abs (entropy_gradient (iterate dynamics 0 E_A'))) ->
@@ -1548,19 +1509,20 @@ Qed.
 End UpReqConvergenceCauchy.
 
 (* ============================================================ *)
-(* ---- (d) 冻结清单（本节 2 件；§1.1 边界2；零证明行） ----      *)
+(* ---- Frozen nat machinery (two statements, no proof lines in this     *)
+(* section) ----                                                         *)
 (*                                                              *)
-(* 1. natle_to_le（Id @L14643）：纯 nat Id 机器（NatLe/leb/  *)
-(*    ≤，零 R）；req 侧依存 = 跨接口 Require 复用 原件裸名    *)
-(*    （规划书 §3.4；GRPO grpo_count_one 预定路线同款），零重证。  *)
-(*    依存位：req_iterate_cauchy / req_iterate_cauchy_explicit_N / *)
-(*    req_grad_squeeze_zero（证内 (N <= n)%nat 桥接）。            *)
-(* 2. natle_of_le（Id @L14747）：同上；req 侧依存 = 跨接口    *)
-(*    Require 复用 原件裸名。依存位：req_grad_squeeze_zero    *)
-(*    （Nat.max 两翼 NatLe 构造）。                                *)
-(* 另：req_iterate_cauchy 结论位由 Id 的 (N <= m)%nat 前提改为      *)
-(* NatLe 前提（cauchy_complete 字段 L40591 对接形）——语义同构，     *)
-(* 依存 iterate_lim_exists 零摩擦，登记头注登记表 4。                *)
+(* 1. [natle_to_le]: a pure nat machine over [NatLe] and [leb], with no  *)
+(*    R content; the req-side consumers reuse the bare name across the   *)
+(*    interface [Require] without re-proving.  Consumers:                *)
+(*    [req_iterate_cauchy] / [req_iterate_cauchy_explicit_N] /           *)
+(*    [req_grad_squeeze_zero] (bridging [(N <= n)%nat] inside proofs).   *)
+(* 2. [natle_of_le]: likewise; consumer: [req_grad_squeeze_zero] (a      *)
+(*    [NatLe] construction on both wings of [Nat.max]).                  *)
+(* Also: [req_iterate_cauchy] carries its bounded-index premise as       *)
+(* [NatLe] (the form expected by the [cauchy_complete] field) instead of *)
+(* a bare [(N <= m)%nat]; the two are semantically equivalent and the    *)
+(* bridge happens inside the proof.                                      *)
 (* ============================================================ *)
 Print Assumptions req_r_pow_nonneg.
 Print Assumptions req_minus_pos.

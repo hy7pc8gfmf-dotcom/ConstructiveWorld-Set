@@ -1,31 +1,45 @@
-(* ==========================================================================
-   UpAblD1S17_UpReqAttnGibbs.v - single-point instance record and supply
-   theorem for the nineteen fields of the UpReqAttnGibbs section interface.
-   Mission. 使命: constructive single-point witnesses for the thermal
-     partition-sum positivity, the evicted-partition positivity and the
-     exponential geometric decay premises, assembled into the record
-     uabd1s17_gib_pack18 with its supply theorem; the source module itself
-     is not Required.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqCauchy,
-     G07_KLWall of the -Set lineage world; interface = the argument-less
-     Class RealInterfaceEnhancedSetoid (module RealInterfaceEnhancedMod).
-   References. 对标: statement names carried over verbatim; adaptation =
-     binder-shell removal + notation rebinding + supply-face convergence on
-     this world's own precedent (the source argumented Class applications
-     raised "Illegal application (Non-functional construction)"): the binder
-     pair (R : Set) (RIS : RealInterfaceEnhancedSetoid R) is removed, R :=
-     Real by notation (UpReqSumD.v L58), law fields resolve as bare names
-     through the global instance RealEnhancedReal (UpReqSumD.v L68-72), the
-     predicate faces are real_eq/real_lt/real_le (UpReqSumD.v L113-114), and
-     uabd1s17_gib_geobreak carries the same global constants as the consumed
-     supply theorem klcx_exp_neg_geo_break_iface (G07_KLWall).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; no classical logic; the keep_dec
-     premise carries the explicit witness inl tt at the Set-carried Or/Not
-     face (S01_BaseRing); tail Print Assumptions report the closure face.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> "" -Q . ""
-     UpAblD1S17_UpReqAttnGibbs.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — single-point instance record and supply theorem for the attention-Gibbs section interface. *)
+
+(** * UpAblD1S17_UpReqAttnGibbs: the nineteen fields of the
+      [UpReqAttnGibbs] section interface assembled into one single-point
+      instance record with its supply theorem.
+
+    Mission.  Constructive single-point witnesses for the thermal
+      partition-sum positivity, the evicted-partition positivity and the
+      exponential geometric decay premises, assembled into the record
+      [uabd1s17_gib_pack18] with its supply theorem; the source module
+      itself is not Required.
+
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqCauchy], [G07_KLWall] of this development; interface = the
+      argument-less Class [RealInterfaceEnhancedSetoid] (module
+      [RealInterfaceEnhancedMod]).
+
+    References.  This development, UpAblD1S17_UpReqAttnGibbs.v, the
+      baseline module in ConstructiveWorld-Main whose statement names
+      are carried over here verbatim (statement-face Set-carrier
+      completion).  Adaptation = binder-shell removal + notation
+      rebinding + supply-face convergence on this development's own
+      precedent (the source argumented Class applications raised
+      "Illegal application (Non-functional construction)"): the binder
+      pair [(R : Set)] [(RIS : RealInterfaceEnhancedSetoid R)] is
+      removed, [R := Real] by notation (UpReqSumD.v L58), law fields
+      resolve as bare names through the global instance
+      [RealEnhancedReal] (UpReqSumD.v L68-72), the predicate faces are
+      [real_eq]/[real_lt]/[real_le] (UpReqSumD.v L113-114), and
+      [uabd1s17_gib_geobreak] carries the same global constants as the
+      consumed supply theorem [klcx_exp_neg_geo_break_iface]
+      ([G07_KLWall]).
+
+    Constructivity.  All Set-layer statements; every station closed by
+      [Qed], zero admitted items; no classical logic; the [keep_dec]
+      premise carries the explicit witness [inl tt] at the Set-carried
+      [Or]/[Not] face ([S01_BaseRing]); tail [Print Assumptions] report
+      the closure face.
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpAblD1S17_UpReqAttnGibbs.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

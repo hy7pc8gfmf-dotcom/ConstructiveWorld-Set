@@ -1,33 +1,32 @@
-(* ========================================================================= *)
-(* LW2UpperBound - explicit rational upper suppression of the Hermite        *)
-(* endpoint functional.                                                      *)
-(* 模块名：LW2UpperBound.  数学使命：对节点泛函                              *)
-(*         lambda n f = sum_{j=0}^{n+1} sum_{k<|f|} c_{jk} * f^{(k)}(j)      *)
-(*         （c_{jk} ∈ {−1,0,1}，定义在 LW2Hermite）建立显式有理常数上界：    *)
-(*         在「节点 {0,…,n+1} 面上各阶导数取值的逐节点压制」前提下，         *)
-(*         |lambda n f| ≤ (节点个数 × 多项式长度) · E，继而取 π 界常数       *)
-(*         10/3（S10 双岸界 real_pi_leibniz_lt_ten_thirds 的有理上岸）的     *)
-(*         幂为统一界 E，经阶乘压制链 (10/3)^N ≤ N!（LW0FactGrowth）封顶于   *)
-(*         |lambda n f| ≤ c_n，c_n 为含节点个数与 π 界的显式 Q 常数函数，    *)
-(*         并给出 (c_n # 1) 字形的整数化推论。                  *)
-(* 依赖清单：LW0QPoly（QPoly 及 eval/deriv_iter 点态律）；LW2Hermite         *)
-(*         （lw2_lambda / lw2_lambda_coef / lw2_node / lw2_qsum0）；         *)
-(*         LW0FactGrowth（lw0_q_of_nat 族、lw0_pi_bound_dominated_even、     *)
-(*         lw0_q_pow_mono_base）；S02_CauchyComplete（QleT' 及双向桥、       *)
-(*         qleT'_trans）；S03_QExp（q_fact / q_pow）；Stdlib QArith/Qabs、   *)
-(*         Arith、Lia。                                                      *)
-(* 对标行：Hermite 1873 (C. R. Acad. Sci. Paris 77) 的上界半边——组合分部    *)
-(*         积分证明中 |L(f)| ≤ C·max|f^{(k)}(j)| 的显式常数形态；π<10/3      *)
-(*         取自库内 S10_KVQuantTrig 的 Leibniz 级数双岸估计（仅取 10/3）。   *)
-(* 构造性注记：全部语句 Set 层承载——前提位与结论位一律 QleT'（Id 判定形），  *)
-(*         零 Prop 前提位、零存在变元；归纳为泛形递推结构（m 泛形和压制件    *)
-(*         lw2u_qsum0_abs_le 为核心）；零公理、零承认、零经典逻辑；          *)
-(*         Separate Extraction 后 Obj.magic 计数为零。                      *)
-(* 编译配方：env COQLIB/ROCQLIB 指向 Rocq 9.1 库，沙箱内同置依赖件           *)
-(*         （LW0QPoly/LW2Hermite/LW0FactGrowth 的 .v 先行编译绿、S01/S02/S03 *)
-(*         的 .vo 暂存），然后                                              *)
-(*         "coqc.exe -q -Q . "" LW2UpperBound.v"。                           *)
-(* ========================================================================= *)
+(* ConstructiveWorld-Set -- the explicit rational upper suppression of the Hermite endpoint functional. *)
+(** * LW2UpperBound: explicit rational upper suppression of the Hermite
+    endpoint functional.
+
+    Mission.  For the node functional
+      lambda n f = sum_{j=0}^{n+1} sum_{k<|f|} c_{jk} · f^{(k)}(j)
+      (c_{jk} ∈ {−1,0,1}, defined in LW2Hermite), an explicit rational
+      constant upper bound: under per-node suppression of the derivative
+      values on the node faces {0,...,n+1}, |lambda n f| <= (node count ×
+      length) · E; with the pi-bound constant 10/3 as the uniform E and the
+      factorial suppression (10/3)^N <= N! capping, |lambda n f| <= c_n,
+      plus the (c_n # 1) integralized corollary.
+
+    Dependencies.  [LW0QPoly] (QPoly, eval/deriv_iter laws); [LW2Hermite]
+      ([lw2_lambda], [lw2_lambda_coef], [lw2_node], [lw2_qsum0]);
+      [LW0FactGrowth] (lw0_q_of_nat family, [lw0_pi_bound_dominated_even]);
+      [S02_CauchyComplete] (QleT' and bridges); [S03_QExp]
+      ([q_fact]/[q_pow]); Stdlib [QArith]/[Qabs], [Arith], [Lia].
+
+    References.  Hermite 1873 (C. R. Acad. Sci. Paris 77), the upper-bound
+      half; pi < 10/3 from S10_KVQuantTrig's Leibniz two-bank estimate;
+      the same-name ConstructiveWorld-Main baseline.
+
+    Constructivity.  All statements Set-carried (uniformly QleT' premises
+      and conclusions, zero Prop premises, zero existential arguments);
+      generic recursion with [lw2u_qsum0_abs_le] as the core; axiom-free,
+      no classical logic; Obj.magic count zero after Separate Extraction.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" LW2UpperBound.v] (direct call, cpu_guard wrapped). *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith Lia.
 Require Import S02_CauchyComplete.
@@ -37,17 +36,19 @@ Require Import LW0FactGrowth.
 Require Import LW2Hermite.
 
 (* ------------------------------------------------------------------ *)
-(* 第 1 节.  自然数有理像的小辅助等式与 QleT' 等式桥.                   *)
+(* Section 1.  small auxiliary equations for the rational image of natural   *)
+(* numbers and the QleT' equality bridges.                                   *)
 (* ------------------------------------------------------------------ *)
 
-(* Qmake 乘法分解：同分母积的分子 = 分子积。 *)
+(* The Qmake multiplication decomposition: the numerator of a product with a
+   common denominator = the product of the numerators. *)
 Lemma lw2u_make_mul : forall (a b : Z) (d e : positive),
   QeqT ((a # d) * (b # e)) ((a * b) # (d * e))%Q.
 Proof.
   intros a b d e. apply qeq_imp_qeqT. unfold Qeq, Qmult. cbn [Qnum Qden]. lia.
 Qed.
 
-(* 有理像的后继分解：q(n+1) = q(n) + 1。 *)
+(* The successor decomposition of the rational image: q(n+1) = q(n) + 1. *)
 Lemma lw2u_q_of_nat_succ : forall m : nat,
   QeqT (lw0_q_of_nat (Datatypes.S m)) (lw0_q_of_nat m + (1 # 1)%Q).
 Proof.
@@ -56,7 +57,7 @@ Proof.
   rewrite Hz. lia.
 Qed.
 
-(* 有理像的乘法同态：q(a·b) = q(a)·q(b)。 *)
+(* The multiplicative homomorphism of the rational image: q(a·b) = q(a)·q(b). *)
 Lemma lw2u_q_of_nat_mul : forall a b : nat,
   QeqT (lw0_q_of_nat (a * b)) (lw0_q_of_nat a * lw0_q_of_nat b).
 Proof.
@@ -65,7 +66,7 @@ Proof.
   rewrite Hz. lia.
 Qed.
 
-(* QleT' 右侧等式桥：x ≤T' y 且 y == z 蕴含 x ≤T' z。 *)
+(* The QleT' right equality bridge: x ≤T' y and y == z imply x ≤T' z. *)
 Lemma lw2u_qleT'_eq_r : forall x y z : Q,
   QleT' x y -> y == z -> QleT' x z.
 Proof.
@@ -73,7 +74,7 @@ Proof.
   apply Qle_to_QleT'. rewrite He. apply (Qle_refl z).
 Qed.
 
-(* QleT' 左侧等式桥：x == y 且 y ≤T' z 蕴含 x ≤T' z。 *)
+(* The QleT' left equality bridge: x == y and y ≤T' z imply x ≤T' z. *)
 Lemma lw2u_qleT'_eq_l : forall x y z : Q,
   QleT' y z -> x == y -> QleT' x z.
 Proof.
@@ -83,9 +84,11 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 2 节.  泛形和的统一界压制（n 泛形递推核心）.                      *)
-(* 对和 lw2_qsum0 g m = g 0 + … + g (m-1)，若每项绝对值 ≤ T，则         *)
-(* |lw2_qsum0 g m| ≤ m · T。三角形不等式逐层推进，计数由有理像承载。    *)
+(* Section 2.  uniform-bound suppression of the generic sum (the core of the *)
+(* generic recursion).  For the sum lw2_qsum0 g m = g 0 + ... + g (m-1), if  *)
+(* every term has absolute value <= T, then |lw2_qsum0 g m| <= m · T.  The   *)
+(* triangle inequality advances layer by layer; the counting is carried by   *)
+(* the rational image.                                                       *)
 (* ------------------------------------------------------------------ *)
 
 Lemma lw2u_qsum0_abs_le : forall (m : nat) (g : nat -> Q) (T : Q),
@@ -93,12 +96,12 @@ Lemma lw2u_qsum0_abs_le : forall (m : nat) (g : nat -> Q) (T : Q),
   QleT' (Qabs (lw2_qsum0 g m)) (lw0_q_of_nat m * T).
 Proof.
   intros m. induction m as [| m IH]; intros g T H.
-  - (* 基例：空和为 0，|0| ≤ 0·T = 0。 *)
+  - (* Base case: the empty sum is 0, |0| ≤ 0·T = 0. *)
     cbn [lw2_qsum0]. apply Qle_to_QleT'.
     assert (Hz : lw0_q_of_nat 0 * T == 0%Q).
     { unfold lw0_q_of_nat. cbn [Z.of_nat]. ring. }
     rewrite Hz. apply (Qle_refl 0%Q).
-  - (* 归纳步：|Σ_m + g m| ≤ |Σ_m| + |g m| ≤ m·T + T = (m+1)·T。 *)
+  - (* Induction step: |Σ_m + g m| ≤ |Σ_m| + |g m| ≤ m·T + T = (m+1)·T. *)
     cbn [lw2_qsum0].
     assert (Hprev : QleT' (Qabs (lw2_qsum0 g m)) (lw0_q_of_nat m * T)).
     { apply IH. intros j Hj. apply H. lia. }
@@ -117,8 +120,9 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 3 节.  节点系数的绝对值界.                                        *)
-(* 系数表 lw2_lambda_coef 只取 −1,0,1 三值，故其绝对值 ≤ 1。            *)
+(* Section 3.  the absolute-value bound of the node coefficients.            *)
+(* The coefficient table lw2_lambda_coef takes only the three values -1,0,1, *)
+(* so its absolute value is <= 1.                                            *)
 (* ------------------------------------------------------------------ *)
 
 Lemma lw2u_coef_abs_le_one : forall (n j k : nat),
@@ -130,9 +134,10 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 4 节.  单节点面压制.                                              *)
-(* 固定节点 j：|Σ_{k<|f|} c_{jk} f^{(k)}(j)| ≤ |f| · E，只要每个         *)
-(* |f^{(k)}(j)| ≤ E。由系数绝对值 ≤ 1、乘积绝对值分解与第 2 节闭合。     *)
+(* Section 4.  single-node face suppression.                                 *)
+(* Fixed node j: |Σ_{k<|f|} c_{jk} f^{(k)}(j)| <= |f| · E whenever every     *)
+(* |f^{(k)}(j)| <= E.  Closed by the coefficient absolute value <= 1, the    *)
+(* product absolute-value decomposition, and Section 2.                      *)
 (* ------------------------------------------------------------------ *)
 
 Lemma lw2u_node_term_abs_le : forall (n : nat) (f : QPoly) (j : nat) (E : Q),
@@ -161,9 +166,11 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 5 节.  主压制链（逐节点压制前提 → 显式常数上界）.                 *)
-(* 若节点 j = 0,…,n+1 面上一切 |f^{(k)}(j)| ≤ E，则                     *)
-(* |lambda n f| ≤ (n+2)·|f|·E——节点个数 n+2 与多项式长度 |f| 显式入界。  *)
+(* Section 5.  the main suppression chain (per-node suppression premise ->   *)
+(* explicit constant upper bound).                                           *)
+(* If every |f^{(k)}(j)| <= E on the node faces j = 0,...,n+1, then          *)
+(* |lambda n f| <= (n+2)·|f|·E -- the node count n+2 and the polynomial      *)
+(* length |f| enter the bound explicitly.                                    *)
 (* ------------------------------------------------------------------ *)
 
 Theorem lw2_L_upper_nodes : forall (n : nat) (f : QPoly) (E : Q),
@@ -189,12 +196,15 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 6 节.  π 界常数封顶：上界主件.                                    *)
-(* 取统一界 E = (10/3)^{22+2n}（10/3 为 S10 双岸界 π < 10/3 的有理      *)
-(* 上岸常数），经阶乘压制 (10/3)^N ≤ N! 得                              *)
-(*   |lambda n f| ≤ (n+2)·|f|·(22+2n)!  =: c_n.                         *)
-(* c_n 为显式 Q 常数函数：含节点个数 n+2、多项式长度 |f| 与 π 界链终点  *)
-(* (22+2n)!；其幂-阶乘核为 |L(f)| ≤ C^N·(N!) 形压制链。                  *)
+(* Section 6.  capping by the pi-bound constant: the main upper-bound piece. *)
+(* Taking the uniform bound E = (10/3)^{22+2n} (10/3 is the rational upper   *)
+(* bank constant of the S10 two-bank bound pi < 10/3), the factorial         *)
+(* suppression (10/3)^N <= N! gives                                          *)
+(*   |lambda n f| <= (n+2)·|f|·(22+2n)!  =: c_n.                             *)
+(* c_n is an explicit Q constant function: it contains the node count n+2,   *)
+(* the polynomial length |f|, and the endpoint of the pi-bound chain         *)
+(* (22+2n)!; its power-factorial core is the suppression chain of the shape  *)
+(* |L(f)| <= C^N·(N!).                                                       *)
 (* ------------------------------------------------------------------ *)
 
 Definition lw2u_c_n (n ell : nat) : Q :=
@@ -225,13 +235,16 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* 第 7 节.  (c_n # 1) 字形推论：整数化常数.                            *)
-(* 先立 Z 层幂的 Q 像桥：整数 z 的 Q 像的 q_pow 等于 z^N 的 Q 像；再以   *)
-(* π 界常数的整数化放大 10（因 (10/3)^N ≤ 10^N）封顶为 Zmake 字形       *)
-(* |lambda n f| ≤ ((n+2)·|f| 之有理像 × 10^{22+2n}) # 1。               *)
+(* Section 7.  the (c_n # 1) shape corollary: the integralized constant.     *)
+(* First establish the Q-image bridge for Z-layer powers: the q_pow of the   *)
+(* Q image of an integer z equals the Q image of z^N; then cap, with the     *)
+(* integralized enlargement 10 of the pi-bound constant (since               *)
+(* (10/3)^N <= 10^N), into the Zmake shape                                   *)
+(* |lambda n f| <= (rational image of (n+2)·|f| × 10^{22+2n}) # 1.           *)
 (* ------------------------------------------------------------------ *)
 
-(* 整分母 1 的 Z 幂桥：q_pow (z#1) N == (z^{N} # 1)。泛形归纳结构。 *)
+(* The Z-power bridge with integral denominator 1: q_pow (z#1) N ==
+   (z^{N} # 1).  A generic inductive structure. *)
 Lemma lw2u_qpow_zmake : forall (z : Z) (N : nat),
   QeqT (q_pow (z # 1)%Q N) ((z ^ Z.of_nat N) # 1)%Q.
 Proof.
@@ -246,9 +259,10 @@ Proof.
     rewrite Z.pow_1_r. lia.
 Qed.
 
-(* Zmake 字形主推论：c_n 的整数化常数 =
-   (节点个数×长度之有理像的分子) × 10^{22+2n}，其中 10 为 π 界常数
-   10/3 的整数化放大（10/3 ≤ 10）。 *)
+(* The main Zmake-shape corollary: the integralized constant of c_n =
+   (the numerator of the rational image of node-count × length) ×
+   10^{22+2n}, where 10 is the integralized enlargement of the pi-bound
+   constant 10/3 (10/3 ≤ 10). *)
 Theorem lw2_L_upper_hermite_zmake : forall (n : nat) (f : QPoly),
   (forall j k, Nat.le j (Datatypes.S n) -> Nat.lt k (length f) ->
      QleT' (Qabs (qpoly_eval (qpoly_deriv_iter k f) (lw2_node j)))
@@ -300,7 +314,7 @@ Proof.
 Qed.
 
 (* ========================================================================= *)
-(* 提取检验与公理面自审：提取产物零 Obj.magic，各语句 Closed。               *)
+(* Extraction check and axiom-face self-audit: the extraction products contain zero Obj.magic, and every statement is Closed. *)
 (* ========================================================================= *)
 
 From Stdlib Require Import Extraction.

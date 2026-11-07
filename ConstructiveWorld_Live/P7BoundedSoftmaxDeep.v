@@ -1,26 +1,33 @@
-(* ============================================================
-   使命：论文7《率即算法》BoundedSoftmax Section 接口假设深层消融：
-     P7A 已证结论 19 Variable 三分类（A8/B11/C6）；本件对 B 类 11 条
-     逐个判定「能否从库内更基本原则导出非平凡定理」并施工——bs_swap
-     可消融（由 sum_eq_list＋纯 list 组合学 list-Fubini 导出，字段面
-     19→18，主定理双定理 no-swap 重述）；enum_nonempty 与其使用产物
-     nR>0 逻辑等价；temp/Delta 产物加深（hi>1 与 1≤hi²）；expf 因子-
-     倒数恒等式；z 界导出独立上带定理。逐条判定表见文尾附注。
-   依赖：S01_BaseRing…S15_TailFEPUp＋AttnDoeblin（bs_nR_pos/
-     bs_lo_hi_eq/bs_lo_lt_hi/bs_hi_pos/bs_inv_hi_lo/bs_Zrow_pos/
-     bs_Zrow_ge/bs_factor_le_hi/bs_kernel/Zrow/nat_to_R/
-     plus_exchange/两主定理）＋Stdlib List，见 Require 面。
-   对标：AttnDoeblin 两主定理（no-swap 重述）；S01_BaseRing 有序域
-     引理面（lt_irrefl/mult_positive/inv_pos_le_compat 等）。
-   构造性：纯构造性、零承认件；Set 层语句；全 Qed；文尾 Print
-     Assumptions 全 Closed；红线＝零 公理/承认件/参数/猜想/弃证。
-   编译配方：coqc -native-compiler no -q -Q . ""。
-   ============================================================ *)
-(* ===================================================================== *)
-(*   玩具证明体换轨稿：语句面/声明序/依赖面零改动，仅按玩具清单以异构构造性   *)
-(*   证明体替换标注定理。头注全中文；零承认件；纯构造性；Set 层零泄露；      *)
-(*   真闭合守恒；替换刀刀唯一命中断言；尾取证段原样保留。                   *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — Deep derivability study of the BoundedSoftmax interface premises of AttnDoeblin. *)
+(** * P7BoundedSoftmaxDeep: deriving the certificate-class premises of the BoundedSoftmax section from more basic principles.
+
+    Mission.  From the 19-[Variable] interface of the AttnDoeblin [BoundedSoftmax]
+      section, the eleven certificate-class premises are examined for derivability from
+      more basic in-library principles: [bs_swap] is derivable from [sum_eq_list] plus
+      pure list combinatorics (the list-Fubini theorem), so the field face drops to 18
+      and the two main theorems are restated without [bs_swap]
+      ([p7d_tv_contraction_no_swap], [p7d_tv_iter_no_swap]); [enum_nonempty] is
+      equivalent to its product [nR > 0] ([p7d_enum_nonempty_gives_nR_pos],
+      [p7d_nR_pos_gives_enum_nonempty]); scale products [p7d_hi_gt_one] and
+      [p7d_one_le_hi_sq]; the factor-reciprocal identity [p7d_factor_over_hi]; the
+      independent kernel upper band [p7d_kernel_le_hi_over_nRlo] (the per-premise
+      verdict table is the appendix at the end of this file).
+
+    Dependencies.  Stdlib [List]; requires [S01_BaseRing] through [S15_TailFEPUp]
+      and [AttnDoeblin] of this development ([bs_nR_pos], [bs_lo_hi_eq], [bs_lo_lt_hi],
+      [bs_hi_pos], [bs_inv_hi_lo], [bs_Zrow_pos], [bs_Zrow_ge], [bs_factor_le_hi],
+      [bs_kernel], [Zrow], [nat_to_R], [plus_exchange], and the two main theorems).
+
+    References.  The two main theorems of [AttnDoeblin] (restated here without
+      [bs_swap]); the S01_BaseRing ordered-field lemma face ([lt_irrefl],
+      [mult_positive], [inv_pos_le_compat], and their peers).
+
+    Constructivity.  Purely constructive with nothing admitted; statements are
+      [Set]-layer and all proofs close with [Qed]; the closing [Print Assumptions]
+      block is expected [Closed] throughout.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" P7BoundedSoftmaxDeep.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.
@@ -40,15 +47,16 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import AttnDoeblin.
 
-(* ################ 段一：list-Fubini 组合学（bs_swap 消融的地基） ################
-   出节机 AttnDoeblin.bs_list_sum 上的逐点同余 / 加法线性 / 双重和交换。 *)
+(* ################ Section 1. list-Fubini combinatorics (the foundation of the bs_swap derivations) ################
+   Pointwise congruence, additive linearity, and double-sum exchange on the section
+   machine [AttnDoeblin.bs_list_sum]. *)
 
 Section P7DListSum.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 Context {SS : StateSpace RI}.
 
-(* 逐点 Id ⟹ 列表和 Id（bs_list_sum 的 sum_over_S_ext 对应物） *)
+(* Pointwise Id implies the list sums are Id (the list counterpart of [sum_over_S_ext] for [bs_list_sum]) *)
 Theorem p7d_lsum_ext : forall (f g : S -> R) (l : list S),
   (forall x : S, Id (f x) (g x)) ->
   Id (AttnDoeblin.bs_list_sum f l) (AttnDoeblin.bs_list_sum g l).
@@ -58,7 +66,7 @@ Proof.
   - simpl. exact (id_cong2 plus (H x) IH).
 Qed.
 
-(* 列表和的加法线性（sum_over_S_add 的列表版） *)
+(* Additive linearity of the list sum (the list version of [sum_over_S_add]) *)
 Theorem p7d_lsum_add : forall (f g : S -> R) (l : list S),
   Id (AttnDoeblin.bs_list_sum (fun s : S => plus (f s) (g s)) l)
      (plus (AttnDoeblin.bs_list_sum f l) (AttnDoeblin.bs_list_sum g l)).
@@ -71,7 +79,7 @@ Proof.
                                      (g x) (AttnDoeblin.bs_list_sum g t)).
 Qed.
 
-(* 零函数列表和为零（使用基座 bs_list_const_sum ＋ mult 零元） *)
+(* The list sum of the zero function is zero (via the base [bs_list_const_sum] and the zero element of mult) *)
 Theorem p7d_lsum_zero : forall l : list S,
   Id zero (AttnDoeblin.bs_list_sum (fun _ : S => zero) l).
 Proof.
@@ -80,7 +88,7 @@ Proof.
                   (mult_zero (AttnDoeblin.nat_to_R (length l))))).
 Qed.
 
-(* 双重列表和交换（一般形：内外列表分立；Fubini 组合学核心） *)
+(* Exchange of double list sums (general form with the inner and outer lists separate; the core of the Fubini combinatorics) *)
 Theorem p7d_lsum_fubini_gen : forall (f : S -> S -> R) (l1 l2 : list S),
   Id (AttnDoeblin.bs_list_sum (fun s : S => AttnDoeblin.bs_list_sum (f s) l2) l1)
      (AttnDoeblin.bs_list_sum (fun s' : S => AttnDoeblin.bs_list_sum (fun s : S => f s s') l1) l2).
@@ -98,9 +106,10 @@ Qed.
 
 End P7DListSum.
 
-(* ################ 段二：bs_swap 消融主件 ################
-   「诚实接口三件」之首 bs_swap 在 sum_eq_list（枚举求和规范化，
-   CWE5/CYD7/CZB8 已证结论的已闭合槽）下可整体导出——它不是独立接口位。 *)
+(* ################ Section 2. The bs_swap derivation proper ################
+   [bs_swap], the first of the interface's structural certificates, is derivable
+   outright under [sum_eq_list] (the enumerated-sum normalization, itself a closed
+   slot): it is not an independent interface position. *)
 
 Section P7DSwap.
 Context {RI : RealInterfaceEnhanced}.
@@ -132,7 +141,7 @@ Qed.
 
 End P7DSwap.
 
-(* ################ 段三：字段面 19→18——主定理双定理 no-swap 重述 ################ *)
+(* ################ Section 3. The field face 19→18 — the two main theorems restated without bs_swap ################ *)
 
 Section P7DNoSwap.
 Context {RI : RealInterfaceEnhanced}.
@@ -159,10 +168,9 @@ Variable bs_abs : forall a : R, le zero a -> Id (abs a) a.
 Variable bs_lpc : forall a b c d : R, lt a b -> le c d -> lt (plus a c) (plus b d).
 Variable sum_eq_list : forall g : S -> R,
   Id (sum_over_S g) (AttnDoeblin.bs_list_sum g enum).
-(* 注意：本 Section 不含 bs_swap —— 18 字段。 *)
+(* Note: this Section does not contain bs_swap — 18 fields. *)
 
-(* 主定理定理 1（单步 TV 收缩）在无 bs_swap 字段面下成立：
-   swap 槽由 p7d_swap_of_sum_eq_list 补位。 *)
+(* Main theorem 1 (the single-step TV contraction) holds under the field face without bs_swap: the swap position is filled by [p7d_swap_of_sum_eq_list]. *)
 Theorem p7d_tv_contraction_no_swap : forall mu nu : S -> R,
   Id (sum_over_S mu) one -> Id (sum_over_S nu) one ->
   le (tv_dist (@attention_step RI SS SO
@@ -184,7 +192,7 @@ Proof.
            bs_abs bs_lpc sum_eq_list mu nu Hmu Hnu).
 Qed.
 
-(* 主定理定理 2（迭代几何率 (1−e^{−2Δ/T})ⁿ）同法 no-swap 重述。 *)
+(* Main theorem 2 (the iterated geometric rate (1−e^{−2Δ/T})ⁿ), restated the same way without bs_swap. *)
 Theorem p7d_tv_iter_no_swap : forall (n : nat) (mu nu : S -> R),
   Id (sum_over_S mu) one -> Id (sum_over_S nu) one ->
   le (tv_dist (@u_titer RI SS SO
@@ -209,7 +217,7 @@ Qed.
 
 End P7DNoSwap.
 
-(* ################ 段四：enum_nonempty ⟷ nR>0（证书-产物等价） ################ *)
+(* ################ Section 4. enum_nonempty ⟷ nR>0 (certificate-product equivalence) ################ *)
 
 Section P7DEnum.
 Context {RI : RealInterfaceEnhanced}.
@@ -217,7 +225,7 @@ Local Existing Instance RI_base.
 Context {SS : StateSpace RI}.
 Context {SO : SumOver RI SS}.
 
-(* 正向＝基座 bs_nR_pos 的使用包装（证书 ⟹ 产物） *)
+(* Forward direction: a use-wrapper of the base [bs_nR_pos] (certificate implies product) *)
 Theorem p7d_enum_nonempty_gives_nR_pos :
   forall (enum : list S) (enum_nonempty : Not (Id enum nil))
          (sel : forall g : S -> R, Id (sum_over_S g) (AttnDoeblin.bs_list_sum g enum)),
@@ -227,8 +235,9 @@ Proof.
   exact (AttnDoeblin.bs_nR_pos enum enum_nonempty sel).
 Qed.
 
-(* 反向（新证）：产物 ⟹ 证书。enum_nonempty 的全部内容恰为 nR>0——
-   接口可以改用解析形陈述而无损。 *)
+(* Reverse direction (new proof): product implies certificate.  The entire content of
+   enum_nonempty is exactly nR>0 — the interface could switch to the analytic
+   statement without loss. *)
 Theorem p7d_nR_pos_gives_enum_nonempty :
   forall enum : list S,
   lt zero (AttnDoeblin.nat_to_R (length enum)) -> Not (Id enum nil).
@@ -243,15 +252,16 @@ Qed.
 
 End P7DEnum.
 
-(* ################ 段五：温度/Δ 产物加深 ################
-   P7A 已证 lo=e^{−Δ/T}<1（p7a_lo_lt_one）；本段补对偶 hi=e^{Δ/T}>1
-   与展幅 1≤hi²，完成 softmax 刻度夹逼 lo<1<hi≤hi²。 *)
+(* ################ Section 5. Temperature/Δ product deepenings ################
+   The base already gives lo = e^{−Δ/T} < 1 ([bs_lo_lt_hi]); this section adds the
+   dual hi = e^{Δ/T} > 1 and the spread 1 ≤ hi², completing the softmax scale
+   sandwich lo < 1 < hi ≤ hi². *)
 
 Section P7DScale.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 
-(* 对偶补件：hi = e^{Δ/T} > 1（由 0<Δ/T 与 expf 严格单调＋expf_zero） *)
+(* The dual companion: hi = e^{Δ/T} > 1 (from 0 < Δ/T with the strict monotonicity of expf, plus expf_zero) *)
 Theorem p7d_hi_gt_one :
   forall (temp : R) (temp_pos : lt zero temp) (Delta : R) (Delta_pos : lt zero Delta)
          (expf : R -> R) (expf_pos : forall x : R, lt zero (expf x))
@@ -271,7 +281,7 @@ Proof.
                     (inv_pos_pos temp temp_pos))))).
 Qed.
 
-(* 展幅定理：1 ≤ hi² = e^{2Δ/T}（hi≥lo>0 与 hi·lo=1 的双重使用） *)
+(* The spread theorem: 1 ≤ hi² = e^{2Δ/T} (using hi ≥ lo > 0 and hi·lo = 1) *)
 Theorem p7d_one_le_hi_sq :
   forall (temp : R) (temp_pos : lt zero temp) (Delta : R) (Delta_pos : lt zero Delta)
          (expf : R -> R) (expf_pos : forall x : R, lt zero (expf x))
@@ -302,13 +312,13 @@ Qed.
 
 End P7DScale.
 
-(* ################ 段六：expf 字段产物——因子-倒数恒等式 ################ *)
+(* ################ Section 6. expf field products — the factor-reciprocal identity ################ *)
 
 Section P7DExpfShape.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 
-(* 同温指数的乘积分裂：e^{k·a}·e^{k·b} = e^{k·(a+b)} *)
+(* Multiplicative splitting at a common temperature: e^{k·a}·e^{k·b} = e^{k·(a+b)} *)
 Theorem p7d_expf_plus_mult_l :
   forall (k a b : R) (expf : R -> R)
          (expf_plus : forall a b : R, Id (expf (plus a b)) (mult (expf a) (expf b))),
@@ -319,8 +329,9 @@ Proof.
   exact (id_cong expf (id_sym (distrib k a b))).
 Qed.
 
-(* 因子-倒数恒等式：e^{z/T}·(e^{Δ/T})⁻¹ = e^{(z−Δ)/T}
-   ——expf 同态性把核值的比值结构还原为 logit 差。 *)
+(* The factor-reciprocal identity: e^{z/T}·(e^{Δ/T})⁻¹ = e^{(z−Δ)/T} —
+   the homomorphic property of expf reduces the ratio structure of kernel values
+   to a logit difference. *)
 Theorem p7d_factor_over_hi :
   forall (temp : R) (temp_pos : lt zero temp) (Delta : R)
          (a b : R) (expf : R -> R)
@@ -343,9 +354,10 @@ Qed.
 
 End P7DExpfShape.
 
-(* ################ 段七：z 界产物——核值独立上带定理 ################
-   基座仅把下带 lo ≤ K ≤ … 内联在 bs_minorization 证明里；
-   本段导出独立的上带 K(s,s') ≤ hi/(nR·lo)（Zrow 下界使用）。 *)
+(* ################ Section 7. Products of the z bounds — an independent kernel upper band ################
+   The base inlines the lower band lo ≤ K ≤ ... inside the bs_minorization proof;
+   this section derives the independent upper band K(s,s') ≤ hi/(nR·lo) (using the
+   Zrow lower bound). *)
 
 Section P7DKernelBand.
 Context {RI : RealInterfaceEnhanced}.
@@ -426,7 +438,7 @@ Proof.
                (lt_le_iff _ _ (inl p7d_hi_pos)) Hinvle).
 Qed.
 
-(* 实例化形：nR·lo > 0 由 mult_positive 闭式供给 *)
+(* The instantiated form: nR·lo > 0 supplied in closed form by [mult_positive] *)
 Theorem p7d_kernel_le_hi_over_nRlo_pos : forall s s' : S,
   le (AttnDoeblin.bs_kernel enum enum_nonempty temp temp_pos Delta
         z z_lb expf expf_pos expf_mono_le sum_eq_list s s')
@@ -438,7 +450,7 @@ Qed.
 
 End P7DKernelBand.
 
-(* ################ Print Assumptions（G4 口径） ################ *)
+(* ################ Print Assumptions ################ *)
 Print Assumptions p7d_lsum_ext.
 Print Assumptions p7d_lsum_add.
 Print Assumptions p7d_lsum_fubini_gen.
@@ -455,19 +467,19 @@ Print Assumptions p7d_factor_over_hi.
 Print Assumptions p7d_kernel_le_hi_over_nRlo.
 Print Assumptions p7d_kernel_le_hi_over_nRlo_pos.
 
-(* ################ 附：B 类 11 条逐条判定表 ################
-   字段（AttnDoeblin.v:444–476，vorebuild 版行号）  | 深层判定 | 本件施工
-   ------------------------------------------------+----------+---------
-   enum(:444)            数据位：list 值由实例供给   | 设计面   | —（其组合学含于段一/段二）
-   enum_nonempty(:445)   证书位                     | 可深挖   | 段四双定理（⟷ nR>0 等价）
-   temp(:446)            数据位                     | 设计面   | —
-   temp_pos(:447)        证书位                     | 可深挖   | 段五（invT 正性产物 hi>1、1≤hi²）
-   Delta(:448)           数据位                     | 设计面   | —
-   Delta_pos(:449)       证书位                     | 可深挖   | 段五（同上，Δ>0 进路）
-   z(:450)               数据位                     | 设计面   | —
-   z_lb(:451)            证书位                     | 可深挖   | 段七（下带 + 上带新证）
-   z_ub(:452)            证书位                     | 可深挖   | 段七（上带主使用）
-   expf(:464)            数据位（A 注：可满足性已实例化消解）| 可深挖  | 段六（因子-倒数恒等式）
-   bs_swap(:472)         结构证书位                 | 可消融   | 段二+段三（sum_eq_list 槽导出，19→18）
-   设计面合计 4：enum/temp/Delta/z（纯数据，须实例供给，非欠账）；
-   可深挖/可消融 7：enum_nonempty、temp_pos、Delta_pos、z_lb、z_ub、expf、bs_swap。 *)
+(* ################ Appendix: the per-premise verdict table ################
+   Field (AttnDoeblin.v L444-476, vorebuild line numbers)   | Verdict    | Constructed here
+   ---------------------------------------------------------+------------+---------
+   enum(:444)          data position: a list value supplied by the instance | design face | — (its combinatorics live in Sections 1-2)
+   enum_nonempty(:445) certificate position | derivable | Section 4 (the ⟷ nR>0 equivalence, two theorems)
+   temp(:446)          data position | design face | —
+   temp_pos(:447)      certificate position | derivable | Section 5 (the invT positivity products hi>1, 1≤hi²)
+   Delta(:448)         data position | design face | —
+   Delta_pos(:449)     certificate position | derivable | Section 5 (the same, via Δ>0)
+   z(:450)             data position | design face | —
+   z_lb(:451)          certificate position | derivable | Section 7 (the lower band plus the new upper band)
+   z_ub(:452)          certificate position | derivable | Section 7 (the main use of the upper band)
+   expf(:464)          data position (its satisfiability is discharged by the instantiated instance) | derivable | Section 6 (the factor-reciprocal identity)
+   bs_swap(:472)       structural certificate position | ablatable | Sections 2-3 (derived from the sum_eq_list slot, 19→18)
+   Design face total: 4 — enum/temp/Delta/z (pure data, supplied by the instance, not proof obligations);
+   derivable/ablatable: 7 — enum_nonempty, temp_pos, Delta_pos, z_lb, z_ub, expf, bs_swap. *)

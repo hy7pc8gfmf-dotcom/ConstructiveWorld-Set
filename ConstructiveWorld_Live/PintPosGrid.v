@@ -39,11 +39,12 @@ Require Import S02_CauchyComplete.
 Require Import PolyIntegral.
 
 (* ============================================================ *)
-(* §1 内部支撑小件（Q 层，仅证内）                                    *)
+(* Section 1. Internal support lemmas (Q layer, proof-internal).     *)
 (* ============================================================ *)
 
-(* 非负两数之积非负（Qle 层；Qle_trans 过 0·b + Qmult_le_compat_r，
-   复刻 PintMono pm_mult_r0_le 先例手法） *)
+(* the product of nonnegative numbers is nonnegative (Qle layer;
+   [Qle_trans] through 0·b plus [Qmult_le_compat_r], following the
+   pattern of [pm_mult_r0_le] in PintMono) *)
 Lemma pg_mult0 : forall a b : Q, Qle 0 a -> Qle 0 b -> QleT' 0 (a * b).
 Proof.
   intros a b Ha Hb. apply (Qle_to_QleT' 0 (a * b)).
@@ -54,8 +55,9 @@ Proof.
     + exact Hb.
 Qed.
 
-(* 右减端换形：x ≤ y ⟹ 0 ≤ y − x（Qplus_le_compat 双边件配 Qplus_opp_r
-   折叠左端；绕开 stdlib 本轨缺单边 le_compat_r 的坑） *)
+(* reshaping the right-subtracted end: x <= y -> 0 <= y - x (the
+   two-sided [Qplus_le_compat] paired with [Qplus_opp_r] folding the
+   left end; the stdlib track here has no one-sided le_compat_r) *)
 Lemma pg_qle_minus_r : forall x y : Q, Qle x y -> QleT' 0 (y - x).
 Proof.
   intros x y H. apply (Qle_to_QleT' 0 (y - x)).
@@ -66,20 +68,23 @@ Proof.
     + apply Qle_refl.
 Qed.
 
-(* 数值件：0 < 1/64（vm_compute 一步；S02 qltT_0_1 同型先例） *)
+(* numeric fact: 0 < 1/64 (one [vm_compute] step; same shape as
+   [qltT_0_1] in S02) *)
 Lemma pg_lt_1_64 : QltT 0 (1 # 64).
 Proof. apply (Qlt_to_QltT 0 (1 # 64)). vm_compute. reflexivity. Qed.
 
 (* ============================================================ *)
-(* §2 反例定义与恒等式肢                                              *)
+(* Section 2. Counterexample definition and the identity leg.        *)
 (* ============================================================ *)
 
-(* 反例多项式（pint 系数列表编码，头 = 常数项）：
-   pg_counterex(x) = −11/64 + x·(1 + x·(−1)) = −x² + x − 11/64 *)
+(* the counterexample polynomial (pint coefficient-list encoding, head
+   = constant term):
+   pg_counterex(x) = -11/64 + x·(1 + x·(-1)) = -x² + x - 11/64 *)
 Definition pg_counterex : list Q := (- 11 # 64) :: (1 # 1) :: (- 1 # 1) :: nil.
 
-(* 恒等式肢：pg_counterex(x) == 1/64 + (3/4−x)·(x−1/4)
-   （平方差分解 1/16 − (x−1/2)² = (3/4−x)(x−1/4) 的承载形） *)
+(* identity leg: pg_counterex(x) == 1/64 + (3/4−x)·(x−1/4)
+   (carrying form of the square decomposition
+   1/16 − (x−1/2)² = (3/4−x)(x−1/4)) *)
 Lemma pg_counterex_eval_eq : forall x : Q,
   QeqT (pint_eval pg_counterex x) ((1 # 64) + ((3 # 4) - x) * (x - (1 # 4))).
 Proof.
@@ -87,10 +92,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 肢1：段上逐点正（带显式正下界 1/64——强于「严格正」原命题）        *)
+(* Section 3. First leg: pointwise positivity on the segment (with   *)
+(* the explicit positive lower bound 1/64, stronger than the         *)
+(* original strict-positivity claim).                                *)
 (* ============================================================ *)
 
-(* 主件：x ∈ [1/4,3/4] ⟹ pg_counterex(x) ≥ 1/64（QleT' Set 面） *)
+(* main statement: x ∈ [1/4,3/4] -> pg_counterex(x) >= 1/64 (the
+   QleT' Set face) *)
 Theorem pg_counterex_seg_ge : forall x : Q,
   QleT' (1 # 4) x -> QleT' x (3 # 4) ->
   QleT' (1 # 64) (pint_eval pg_counterex x).
@@ -114,7 +122,8 @@ Proof.
     + exact HP.
 Qed.
 
-(* 原命题同形件：x ∈ [1/4,3/4] ⟹ pg_counterex(x) > 0（QltT Set 面） *)
+(* statement in the shape of the original claim: x ∈ [1/4,3/4] ->
+   pg_counterex(x) > 0 (the QltT Set face) *)
 Theorem pg_counterex_seg_pos : forall x : Q,
   QleT' (1 # 4) x -> QleT' x (3 # 4) ->
   QltT 0 (pint_eval pg_counterex x).
@@ -134,7 +143,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 肢2：积分负（数值封闭计算：∫ = −1/192 < 0）                      *)
+(* Section 4. Second leg: negative integral (closed numeric          *)
+(* computation: ∫ = −1/192 < 0).                                     *)
 (* ============================================================ *)
 
 Theorem pg_counterex_int_neg : QltT (pint_integral pg_counterex) 0.
@@ -143,11 +153,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 否定性见证封装（Set 面 Type 积：双肢并列即 P1b 原命题已证结论件）        *)
+(* Section 5. Negative-witness packaging (a Set-face Type product:   *)
+(* the two legs side by side certify the refutation of the original  *)
+(* P1b claim).                                                       *)
 (*                                                               *)
-(*   pg_P1b_counterexample 的存在 ⟹ 「段上逐点正 ⟹ 积分正」原命题     *)
-(*   不可能获得全量证明——任何如此机器作用于 pg_counterex 即与肢2 矛盾。 *)
-(*   P1b 从「缺网格机器」改判为「命题需强化」（修正方向见文件头结论）。  *)
+(*   The existence of [pg_P1b_counterexample] shows the original     *)
+(*   claim "pointwise positive on a segment -> positive integral"    *)
+(*   admits no full proof: any such machine applied to pg_counterex  *)
+(*   contradicts the second leg.  P1b is thereby reclassified from   *)
+(*   "missing grid machine" to "statement needs strengthening" (the  *)
+(*   strengthening routes are described in the file header).         *)
 (* ============================================================ *)
 
 Definition pg_P1b_death_certificate : Set :=
@@ -161,7 +176,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 提取检验 + 假设审计留痕（编译期 stdout，verify 复核）               *)
+(* Extraction check plus assumption audit (compile-time stdout,      *)
+(* re-checked during verification).                                  *)
 (* ============================================================ *)
 
 Extraction "pintposgrid_extract.ml"

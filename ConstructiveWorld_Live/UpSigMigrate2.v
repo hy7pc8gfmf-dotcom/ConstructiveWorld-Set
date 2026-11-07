@@ -1,82 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpSigMigrate2.v *)
-(* *)
-(* 目的： 签名迁移第二段：指数/对数接口与配分面。 *)
-(* 主件： boltzmann_dist_m2 / free_energy_m2 定义族与 req_exp_neg_ext / req_log_inv_one_inv 接口。 *)
-(* 依赖： CW_ConstructiveWorld_219。 *)
-(* 备注： 承第一段载体约定；指数与对数接口为显式前提面。 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — Signature migration part 2: exponential and logarithmic interfaces with the partition face of the RLHF chain. *)
 
-(* UpSigMigrate2.v — ：论文 1 §4 RLHF 核心链（定理 4.1–4.4）
-   的 req 系（setoid 层）重述 + RealEnhancedReal 实例装配 + 端到端主定理。
+(** * UpSigMigrate2: setoid-level [req] restatement of the §4 RLHF core chain
+      of paper 1 (theorems 4.1–4.4) with two-state end-to-end theorems.
 
-   结构：
-   Part A  §4.1 通用出口 req 系重述（对 Id 系 CW L15759-16440 FreeEnergyMinimization 节）
-           —— 相对试点 UpSigMigrate.v 的升级：试点把 Id 上游已证件
-              energy_in_log_boltzmann / free_energy_boltzmann 作桥假设给出，
-              此处全部内部真证（req_log_inv_one_inv / req_boltzmann_log_decomp /
-              Real 实例由 real_log_exp_neg CW L42231 消解）。
-   Part B  对齐层 req 系重述（对 Id 系 CW L18734-19158 Alignment 节）：
-             req_rlhf_optimal        —— J(pi) <= J(pi_star)           （Id L19049）
-             req_rlhf_optimal_eps    —— Bishop 逐 eps 形态（Real 层 real_rlhf_optimal_eps
-                                        L43804 同构，端到端可消解）
-             req_rlhf_free_energy_kl —— F[pi] == F[pi*] + beta·KL （Id L20290 间隙恒等）
-             req_dpo_optimal         —— Id L19096
-             req_rlhf_optimal_unique —— Id L19128
-           桥假设 = Id 免费件的 req 签名给出：b_gibbs_pos / b_gibbs_sum_eps
-           （Id 已证 gibbs_inequality L16629；Real 层 real_gibbs_inequality_eps
-           b_mult_cancel / b_gibbs_eq（Id 字段 mult_cancel_l / log_eq_linear 使用链，
-           setoid 层 log_eq_linear 为构造性诚实边界）。
-   Part C  两状态具体实例（S := bool + real_list_sum）装配消解 +
-           端到端主定理定理（供提取检验使用，Obj.magic=0）。
+    Mission.  Part A restates the §4.1 free-energy interface: [req_exp_neg_ext],
+      [req_log_inv_one_inv], the [boltzmann_dist_m2]/[free_energy_m2] family,
+      the Boltzmann triple, and the decompositions [req_free_energy_boltzmann]/
+      [req_free_energy_kl_decomp].  Part B restates the alignment layer
+      ([a_rlhf_optimal], [a_rlhf_optimal_eps], [a_dpo_optimal],
+      [a_rlhf_optimal_unique], [a_rlhf_suboptimality_gap],
+      [a_rlhf_policy_improvement]); Part C the two-state end-to-end theorems.
 
-   纪律：纯构造性；Set 层语句零 Prop；全 Qed；无 Id 消去（全 req_trans 链 +
-   compat 桥）；禁词面与试点一致。
+    Dependencies.  Requires [S01_BaseRing]–[S15_TailFEPUp] of this development
+      (notably [S07_RealSetoidExpLog] for [RealInterfaceEnhancedSetoid] and its
+      instance [RealEnhancedReal]); the summation/logarithm fields and the Gibbs
+      bridges are explicit Section premises (honest interface, no silent gaps).
 
-   ------------------------------------------------------------------
-   （括号层中断）+ L1001 陈述句多右括号 + L1034 起深度失衡到文件尾，
-   且缺 End ReqAlignCore；a_KL_ext_r / a_fe_kl_decomp / a_min_free_energy_eps
-   三件按既有模板重写已证明。潜伏错 6 处一并已证明：a_partition 的 req_sym
-   方向/因子缺失、a_pi_star_normalized 的被积函数错形、Part B 误用 Part A
-   求和假设名 sum_linear、a_fe_ext 陈述 Hg 未绑定、req_mult_compat 元数
-   缺位、a_pb_pos 以 Qed 不透明件阻断与 Part A 出口的 conversion（改透明
-   Definition 直取 req_boltzmann_positive）。
-   [续建 §4.2-4.4] a_pb_normalized / a_fe_boltzmann_pistar / a_add_cancel_r
-   （右消去引擎）+ 4.2 a_rlhf_optimal（Id L19049 对位）+ 4.2
-   a_rlhf_optimal_eps（Bishop 逐 eps，real_rlhf_optimal_eps L43804 对位，
-   环收尾 A+oppX<=B ⟹ A<=B+X）+ 4.3b a_dpo_optimal（Id L19096 对位）+
-   4.4 a_rlhf_optimal_unique（Id L19128 对位；加法消去 + b_mult_cancel +
-   b_gibbs_eq 桥使用链，req 世界无 destruct 注入消去的构造性替代）。
-   [Part C 端到端] R:=Real（RealEnhancedReal 消解）+ S:=bool（两状态）+
-   sumf:=real_list_sum[true;false]；三性质消解使用基座 real_list_sum 三件；
-   c_partition 逐项消解；主定理 #1 two_state_free_energy_boltzmann（F[p_b]==
-   p_u=(1/2,1/2) 的自由能-KL 分解）各以核心定理一次性 exact 使用；
-   c_mult_cancel_l = (c.2) 左乘消去引擎实例。G3 提取检验
-   upsigmigrate2_probe（Obj.magic=0，验后删）。
-   ------------------------------------------------------------------
-   [分段点已证明] 幸存稿 Part C 三处实例-evar 易碎位（apply 类字段投影
-   于具体 Real 层统一失败：c_partition L1355 / c_mult_cancel_l /
-   c_pu_normalized）→ 全显式参数 exact 形态已证明（c_exp_neg_zero 先例）。
-   [卸载元数实证] 主定理使用件 13/16 元 exact 调用经依赖闭包分析确证：
-   section 卸载 = 语句 ∪ 证明项传递使用变量（req_free_energy_boltzmann
-   经 p_times_energy_decomp→boltzmann_log_decomp→{log_compat,log_exp_neg}
-   且经 sum_pb_cancel→boltzmann_normalized→partition_condition，15 槽全满）。
-   8/8 Closed + 全称多态件提取 upsigmigrate2_core.ml Obj.magic=0
-   （具体实例闭包 81 magic = 依赖记录擦除恒等伪影，非 Prop 泄露）；
-   ------------------------------------------------------------------
-   [核对修正] 权威对应矩阵（论文1-220基态-论文代码对应矩阵.md §4）实证
-   定理 4.1–4.4 = rlhf_optimal / rlhf_optimal_unique / rlhf_suboptimality_gap
-   dpo_optimal 记为 4.3b/4.4，实为定理 5.2 对位，dpo 件保留不删）。
-   [续建 §4.3] a_rlhf_suboptimality_gap（Id L20554 对位）：J*−J == β·KL
-   前向 KL 显式值；4.1 KL 分解 + pb==pistar 双换元（a_fe_boltzmann_pistar /
-   a_KL_ext_r）+ A+opp(A+X)==X 环收尾，全 req_trans 链。
-   [续建 §4.4] a_rlhf_policy_improvement（Id L20591 对位）：KL_new <= KL_old
-   ⟹ J_old <= J_new；4.3 ×2 换元 + β>0 左乘保序（le_mult_compat 经
-   mult_comm 双换元）+ le_plus_compat 两侧加 opp J* + 消去串 Hsimpl
-   + opp_le_compat 双负完成。
-   [端到端主定理复核] Part C 主定理 #1/#2 复跑 G3 提取（upsigmigrate2r_probe）：
-   多态核 Obj.magic=0 + ocamlopt 可执行 + Print Assumptions 全 Closed；
-   ------------------------------------------------------------------ *)
+    References.  This development; the baseline module of the same name in
+      ConstructiveWorld-Main, whose statement names are carried over verbatim
+      (statement-face Set-carrier completion), following its
+      [FreeEnergyMinimization] and [Alignment] sections.
+
+    Constructivity.  All named statements are carried by [Set]; the predicate
+      notations bind to the global real face ([req] := [real_eq], [lt] :=
+      [real_lt], [le] := [real_le]); proofs close by [Qed] along [req_trans]
+      chains; extraction gives [Obj.magic] = 0; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpSigMigrate2.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -95,28 +46,34 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Import RealInterfaceEnhancedMod.
 
-(* S07 世系适配：本世界 RealInterfaceEnhancedSetoid 为零参类
-   （S07_RealSetoidExpLog L8075，字段全由全局 Real 承载；全局实例
-   RealEnhancedReal L8740）。有参绑定面 Context {R : Set}
-   {RIS : RealInterfaceEnhancedSetoid R} 系异树形，移除；承载集 R 以
-   记号绑定全局 Real（UpAblT6_UpReqAlign2 先例同款）。
-   述语面绑定（UpSigMigrate 先例同款）：类字段声明面即全局实面
-   （req/lt/le 字段类型直书 real_eq/real_lt/real_le），语句取实面记号
-   与字段声明面对齐，提取面免 Obj.magic 强转；实例字段
-   req:=real_eq / lt:=real_lt / le:=real_le，两读可互转。 *)
+(* S07 lineage adaptation: [RealInterfaceEnhancedSetoid] in this world is a
+   parameterless class ([S07_RealSetoidExpLog] [L8075]; every field is
+   carried by the global [Real]; global instance [RealEnhancedReal] [L8740]).
+   The parameterized binding face [Context {R : Set}
+   {RIS : RealInterfaceEnhancedSetoid R}] belongs to the other tree and is
+   dropped; the carrier set [R] is bound to the global [Real] by notation,
+   in the same style as [UpAblT6_UpReqAlign2].  The predicate face binds the
+   class fields directly to the global real face (the [req]/[lt]/[le] field
+   types spell [real_eq]/[real_lt]/[real_le] verbatim), so statements use the
+   real-face notation aligned with the field declarations and extraction
+   needs no [Obj.magic] casts; the instance fields [req] := [real_eq],
+   [lt] := [real_lt], [le] := [real_le] are inter-convertible with the class
+   reading, as in [UpSigMigrate]. *)
 Notation R := Real.
 Notation req := real_eq.
 Notation lt := real_lt.
 Notation le := real_le.
 
 (* ============================================================ *)
-(* Part A：§4.1 通用出口的 req 系重述                            *)
-(*   Id 模板：CW L15759-16440（Context {RI : RealInterfaceEnhanced}） *)
+(* Part A. req-family restatement of the §4.1 general exit       *)
+(*   Template: the [FreeEnergyMinimization] section of the       *)
+(*   ConstructiveWorld-Main baseline, [L15759]-[L16440]          *)
+(*   ([Context {RI : RealInterfaceEnhanced}]).                   *)
 (* ============================================================ *)
 Section ReqFECore.
 Variable S : Set.
 
-(* ---- SumOver 的 req 签名对接面（Id 系 SumOver 类的 setoid 对偶规格） ---- *)
+(* ---- req-signature interface of [SumOver]: the setoid dual of the Id-carried [SumOver] class ---- *)
 Variable sumf : (S -> R) -> R.
 Hypothesis sum_ext :
   forall f g : S -> R, (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
@@ -127,7 +84,7 @@ Hypothesis sum_linear :
   forall (a : R) (f : S -> R),
     req (sumf (fun s => mult a (f s))) (mult a (sumf f)).
 
-(* ---- 节参数（对齐 Id 系 L15778-15791） ---- *)
+(* ---- Section parameters (mirroring the upstream [L15778]-[L15791]) ---- *)
 Variable base_loss : S -> R.
 Variable D : R.
 Variable D_pos : lt zero D.
@@ -136,8 +93,8 @@ Variable Z_pos : lt zero Z.
 Hypothesis partition_condition :
   req Z (sumf (fun s => exp_neg (mult (inv_pos D D_pos) (base_loss s)))).
 
-(* ---- 诚实缺口桥（setoid 类真缺字段；Real 实例消解见 Part C） ---- *)
-(* log ∘ exp_neg 消去：Id 系 log_exp_neg（CW L592 已证引理）的 req 给出 *)
+(* ---- Honest gap bridges (fields genuinely missing from the setoid class; resolved for the [Real] instance in Part C) ---- *)
+(* Cancellation of [log] ∘ [exp_neg]: the req form of the upstream lemma [log_exp_neg], proved in the ConstructiveWorld-Main baseline at [L592] *)
 Hypothesis req_log_exp_neg :
   forall x : R, req (log (exp_neg x) (exp_neg_pos x)) (opp x).
 
@@ -145,7 +102,7 @@ Hypothesis req_log_compat :
   forall (a b : R) (Ha : lt zero a) (Hb : lt zero b),
     req a b -> req (log a Ha) (log b Hb).
 
-(* ---- 节内定义（setoid 惯例形态；log 族带正性前提） ---- *)
+(* ---- Section definitions (setoid convention; the [log] family carries positivity premises) ---- *)
 Definition positive_dist_m2 (p : S -> R) : Set := forall s : S, lt zero (p s).
 Definition normalized_m2 (p : S -> R) : Set := req (sumf p) one.
 Definition rminus_m2 (a b : R) : R := plus a (opp b).
@@ -156,7 +113,7 @@ Definition free_energy_m2 (p : S -> R) (Hp : positive_dist_m2 p) : R :=
        (mult D (sumf (fun s => mult (p s) (log (p s) (Hp s))))).
 
 (* ============================================================ *)
-(* A0. req 代数前奏（试点 UpSigMigrate.v 已证模板；仅使用接口字段） *)
+(* A0. req algebra preliminaries (proved in [UpSigMigrate.v]; only interface fields are used) *)
 (* ============================================================ *)
 
 Lemma req_plus_zero_r : forall a : R, req (plus zero a) a.
@@ -288,7 +245,7 @@ Proof.
     + apply (req_opp_compat (mult b a) (mult a b)). apply mult_comm.
 Qed.
 
-(* 乘积交换三步链（Id 系 mult swap 模板）：a·(b·c) == b·(a·c) *)
+(* three-step commutation chain for products (the upstream mult-swap template): a·(b·c) == b·(a·c) *)
 Lemma req_mult_swap : forall a b c : R, req (mult a (mult b c)) (mult b (mult a c)).
 Proof.
   intros a b c.
@@ -302,8 +259,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* A1. exp_neg 的 req 兼容（Id 系 id_cong exp_neg 免费件；        *)
-(*     经 le_antisym + exp_neg_le_decr 字段派生——B1 先例形态）    *)
+(* A1. req compatibility of [exp_neg] (the upstream id_cong      *)
+(*     exp_neg free lemma, derived from the [le_antisym] and     *)
+(*     [exp_neg_le_decr] fields)                                 *)
 (* ============================================================ *)
 Lemma req_exp_neg_ext : forall x y : R, req x y -> req (exp_neg x) (exp_neg y).
 Proof.
@@ -314,7 +272,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* A2. log_inv_one_inv 的 req 化（Id 系 log_inv_one_inv 免费件）  *)
+(* A2. req form of [log_inv_one_inv] (free lemma upstream)       *)
 (* ============================================================ *)
 Lemma req_log_inv_one_inv :
   forall (x : R) (Hx : lt zero x),
@@ -370,8 +328,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* A3. Boltzmann 三件套（Id 系 boltzmann_pos/normalized/         *)
-(*     boltzmann_log_decomp 的 req 化；log_decomp 为本件新增真证） *)
+(* A3. The Boltzmann triple: req forms of the upstream           *)
+(*     boltzmann_pos/boltzmann_normalized/boltzmann_log_decomp;  *)
+(*     the log_decomp step is proved internally here             *)
 (* ============================================================ *)
 Lemma req_boltzmann_positive : positive_dist_m2 boltzmann_dist_m2.
 Proof.
@@ -416,7 +375,7 @@ Proof.
                          (log (exp_neg (mult (inv_pos D D_pos) (base_loss s))) (exp_neg_pos (mult (inv_pos D D_pos) (base_loss s)))))
                    (plus (opp (log Z Z_pos))
                          (opp (mult (inv_pos D D_pos) (base_loss s))))).
-  - (* 正性前提换形桥：log 的依赖证据经 req_log_compat 自反换形 *)
+  - (* positivity-premise transport: the dependent evidence of [log] is transported by [req_log_compat] on a reflexive instance *)
     apply (req_trans (log (boltzmann_dist_m2 s) Hpb)
                      (log (mult (inv_pos Z Z_pos) (exp_neg (mult (inv_pos D D_pos) (base_loss s))))
                           (mult_positive (inv_pos Z Z_pos)
@@ -442,7 +401,7 @@ Proof.
     + exact (req_log_exp_neg (mult (inv_pos D D_pos) (base_loss s))).
 Qed.
 
-(* 能量对数恒等：E == opp(D·(log p_b + log Z))（Id 系 L16116 上游件的 req 内部真证） *)
+(* energy-log identity: E == opp(D·(log p_b + log Z)); internal req proof of the upstream statement at [L16116] *)
 Lemma req_energy_in_log :
   forall (s : S) (Hpb : lt zero (boltzmann_dist_m2 s)),
     req (base_loss s)
@@ -453,7 +412,7 @@ Proof.
                     (plus (opp (log Z Z_pos))
                           (opp (mult (inv_pos D D_pos) (base_loss s)))))
     by exact (req_boltzmann_log_decomp s Hpb).
-  (* 肢 1：lgb + lgZ == opp m，m := E/D *)
+  (* branch 1: lgb + lgZ == opp m, where m := E/D *)
   assert (H1 : req (plus (log (boltzmann_dist_m2 s) Hpb) (log Z Z_pos))
                    (opp (mult (inv_pos D D_pos) (base_loss s)))).
   { apply (req_trans (plus (log (boltzmann_dist_m2 s) Hpb) (log Z Z_pos))
@@ -465,7 +424,7 @@ Proof.
                              (plus (opp (log Z Z_pos))
                                    (opp (mult (inv_pos D D_pos) (base_loss s))))
                              (log Z Z_pos) (log Z Z_pos) Hld (req_refl (log Z Z_pos))).
-    - (* 环代数：(opp lgZ + opp m) + lgZ == opp m *)
+    - (* ring algebra: (opp lgZ + opp m) + lgZ == opp m *)
       apply (req_trans (plus (plus (opp (log Z Z_pos))
                                  (opp (mult (inv_pos D D_pos) (base_loss s))))
                            (log Z Z_pos))
@@ -507,7 +466,7 @@ Proof.
                                             (plus_comm (opp (log Z Z_pos)) (log Z Z_pos))
                                             (plus_opp (log Z Z_pos)))).
         * apply plus_zero. }
-  (* 肢 2/3：D·(lgb + lgZ) == D·(opp m) == opp(D·m) == opp(loss) *)
+  (* branches 2/3: D·(lgb + lgZ) == D·(opp m) == opp(D·m) == opp(loss) *)
   assert (Hchain : req (mult D (plus (log (boltzmann_dist_m2 s) Hpb) (log Z Z_pos)))
                        (opp (base_loss s))).
   { apply (req_trans (mult D (plus (log (boltzmann_dist_m2 s) Hpb) (log Z Z_pos)))
@@ -542,7 +501,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* A4. 求和层：Σ opp f == opp Σ f（Id 系 L15801 sum_opp 的 req 版） *)
+(* A4. summation layer: Σ opp f == opp Σ f (req version of the upstream [sum_opp] at [L15801]) *)
 (* ============================================================ *)
 Lemma req_sum_opp :
   forall f : S -> R, req (sumf (fun s => opp (f s))) (opp (sumf f)).
@@ -567,7 +526,7 @@ Proof.
       * apply (req_opp_compat (mult one (sumf f)) (sumf f)). apply req_mult_one_l.
 Qed.
 
-(* Σ u·opp v == opp Σ u·v（mult-opp 求和直引） *)
+(* Σ u·opp v == opp Σ u·v (direct appeal to the mult-opp summand identity) *)
 Lemma req_sum_mult_opp :
   forall u v : S -> R,
     req (sumf (fun s => mult (u s) (opp (v s))))
@@ -585,8 +544,9 @@ Qed.
 
 (* ============================================================ *)
 
-(*     （Id 系 L16198 p_times_energy_decomp 的 req 版；能量对数     *)
-(*      恒等已内部真证，试点此处为桥假设——本件升级点）             *)
+(*     (req version of the upstream [p_times_energy_decomp] at [L16198]; the   *)
+(*      energy-log identity is proved internally here, where [UpSigMigrate]    *)
+(*      carried it as a bridge premise — the upgrade point of this file)      *)
 (* ============================================================ *)
 Lemma req_p_times_energy_decomp :
   forall (p : S -> R) (s : S),
@@ -621,7 +581,7 @@ Proof.
     apply req_opp_plus.
 Qed.
 
-(* Σ p_b·u == u（u 任意；归一化直推） *)
+(* Σ p_b·u == u for arbitrary u (direct consequence of normalization) *)
 Lemma req_sum_pb_cancel :
   forall u : R,
     req (sumf (fun s => mult (boltzmann_dist_m2 s) u)) u.
@@ -696,11 +656,11 @@ Theorem req_free_energy_kl_decomp :
                                    (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))).
 Proof.
   intros p Hp p0.
-  (* 桥：F[p_b] == mult (opp D) lgZ == opp (D·lgZ)（Id 系步骤 2 的 req 形态） *)
+  (* bridge: F[p_b] == mult (opp D) lgZ == opp (D·lgZ) (req form of upstream step 2) *)
   assert (Hfb' : req (free_energy_m2 boltzmann_dist_m2 req_boltzmann_positive)
                      (opp (mult D (log Z Z_pos)))).
   { exact req_free_energy_boltzmann. }
-  (* 步骤 1：Σ p·E == opp A + opp DlgZ（Id 原件 Hse） *)
+  (* step 1: Σ p·E == opp A + opp DlgZ (upstream [Hse]) *)
   assert (Hse : req (sumf (fun s => mult (p s) (base_loss s)))
                     (plus (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))
                           (opp (mult D (log Z Z_pos))))).
@@ -724,7 +684,7 @@ Proof.
                                (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))
                                (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                                (opp (mult D (log Z Z_pos)))).
-        - (* Σ opp(D·p·lgpb) == opp(D·Σ p·lgpb)：sum_opp + D 线性提取 *)
+        - (* Σ opp(D·p·lgpb) == opp(D·Σ p·lgpb): req_sum_opp plus linearity in D *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))
                            (opp (sumf (fun s => mult D (mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))
                            (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))).
@@ -732,7 +692,7 @@ Proof.
           { apply (req_opp_compat (sumf (fun s => mult D (mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))
                                   (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))).
             { apply (sum_linear D (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))). } }
-        - (* Σ opp(D·p·lgZ) == opp(D·lgZ)：sum_opp + D 线性 + Σ p·lgZ = lgZ·Σp = lgZ 归一化链 *)
+        - (* Σ opp(D·p·lgZ) == opp(D·lgZ): req_sum_opp, linearity in D, and the normalization chain Σ p·lgZ = lgZ·Σ p = lgZ *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                            (opp (sumf (fun s => mult D (mult (p s) (log Z Z_pos)))))
                            (opp (mult D (log Z Z_pos)))).
@@ -765,7 +725,7 @@ Proof.
                       { apply mult_one. } } } } } } }
   }
   }
-  (* 步骤 3：D·KL == B + opp A（Id 原件 Hkl） *)
+  (* step 3: D·KL == B + opp A (upstream [Hkl]) *)
   assert (Hkl : req (mult D (sumf (fun s =>
                       mult (p s) (rminus_m2 (log (p s) (p0 s)) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))
                     (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))
@@ -830,7 +790,7 @@ Proof.
     { apply req_refl. }
     { apply req_mult_opp_l. } }
 
-  (* 步骤 4：环代数坍缩（Id 原件 Hfin：(opp A + opp DlgZ) + B → opp DlgZ + (B + opp A)） *)
+  (* step 4: ring-algebra collapse (upstream [Hfin]: (opp A + opp DlgZ) + B -> opp DlgZ + (B + opp A)) *)
   assert (Hfin : req (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))
                      (plus (opp (mult D (log Z Z_pos))) (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s))))))))).
   { set (A := (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))).
@@ -859,7 +819,7 @@ Proof.
       { apply plus_comm. }
       { apply req_refl. } }
     apply plus_comm. }
-  (* 装配：Hleg1（free_energy_m2 p 定义展开 conversion + Hse 于 compat 槽）；Hleg2（Hfin + Hfb'/Hkl 反向收尾槽） *)
+  (* assembly: Hleg1 (conversion by unfolding the definition of [free_energy_m2 p], with [Hse] in the compat slot); Hleg2 ([Hfin] with [Hfb']/[Hkl] in the reverse closing slots) *)
   assert (Hleg1 : req (free_energy_m2 p p0) (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))).
   { unfold free_energy.
     apply (req_plus_compat (sumf (fun s => mult (p s) (base_loss s))) (plus (opp (mult D (sumf (fun s => mult (p s) (log (boltzmann_dist_m2 s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))).
@@ -878,19 +838,20 @@ Qed.
 
 End ReqFECore.
 (* ============================================================ *)
-(* Part B：对齐层 req 系重述（Id 模板：CW L18734-19158 Alignment）  *)
-(*   权威矩阵对位（论文1-220基态-论文代码对应矩阵 §4）：              *)
-(*   4.1 rlhf_optimal ↔ a_rlhf_optimal(_eps)；4.2 optimal_unique      *)
-(*   ↔ a_rlhf_optimal_unique；4.3 suboptimality_gap@L20554 ↔          *)
-(*   a_rlhf_suboptimality_gap；4.4 policy_improvement@L20591 ↔        *)
-(*   a_rlhf_policy_improvement；另有 dpo_optimal（定理 5.2 对位）       *)
-(*   与 a_fe_kl_decomp（§8 统一视角锚 rlhf_free_energy_kl@L20290 对位）。 *)
-(*   诚实桥（req 签名给出 Id 免费件）：                              *)
-(*     b_gibbs_pos/b_gibbs_sum_eps（Id 已证 gibbs_inequality L16629；*)
-(*        Real 层 real_gibbs_inequality_eps L41704 逐 eps 消解）     *)
-(*     b_log_exp_neg（real_log_exp_neg 消解）/ b_log_compat（        *)
-(*        real_log_wd 消解）/ b_mult_cancel+b_gibbs_eq（Id 字段       *)
-(*        mult_cancel_l/log_eq_linear 使用链，G6 遗留）。             *)
+(* Part B. req-family restatement of the alignment layer             *)
+(*   (template: the [Alignment] section of the ConstructiveWorld-     *)
+(*   Main baseline, [L18734]-[L19158]).  Matrix correspondence:       *)
+(*   4.1 rlhf_optimal <-> a_rlhf_optimal(_eps); 4.2 optimal_unique    *)
+(*   <-> a_rlhf_optimal_unique; 4.3 rlhf_suboptimality_gap@L20554 <-> *)
+(*   a_rlhf_suboptimality_gap; 4.4 rlhf_policy_improvement@L20591 <-> *)
+(*   a_rlhf_policy_improvement; also dpo_optimal (theorem 5.2) and    *)
+(*   a_fe_kl_decomp (the unified-view anchor rlhf_free_energy_kl@L20290). *)
+(*   Honest bridges (req signatures of the upstream free lemmas):     *)
+(*     b_gibbs_pos/b_gibbs_sum_eps (upstream gibbs_inequality L16629; *)
+(*        resolved eps-wise by the Real-layer real_gibbs_inequality_eps L41704) *)
+(*     b_log_exp_neg (resolved by [real_log_exp_neg]) / b_log_compat  *)
+(*        (resolved by [real_log_wd]) / b_mult_cancel+b_gibbs_eq (the *)
+(*        upstream field mult_cancel_l/log_eq_linear usage chain).    *)
 (* ============================================================ *)
 Section ReqAlignCore.
 Variable S : Set.
@@ -927,7 +888,7 @@ Definition fe_a (p : S -> R) (Hp : pdist_a p) : R :=
        (mult beta (sumf (fun s => mult (p s) (log (p s) (Hp s))))).
 Definition J_a (p : S -> R) (Hp : pdist_a p) : R := opp (fe_a p Hp).
 
-(* 诚实桥 *)
+(* honest bridges *)
 Hypothesis b_log_exp_neg :
   forall x : R, req (log (exp_neg x) (exp_neg_pos x)) (opp x).
 Hypothesis b_log_compat :
@@ -945,7 +906,7 @@ Hypothesis b_gibbs_eq :
   forall (p q : S -> R) (Hp : pdist_a p) (Hq : pdist_a q),
     req (kl_a p q Hp Hq) zero -> forall s : S, req (p s) (q s).
 
-(* exp_neg 的 req 兼容（le_antisym 派生，B1 先例） *)
+(* req compatibility of [exp_neg] (derived from [le_antisym] and [exp_neg_le_decr]) *)
 Lemma a_exp_neg_ext : forall x y : R, req x y -> req (exp_neg x) (exp_neg y).
 Proof.
   intros x y Hxy.
@@ -954,7 +915,7 @@ Proof.
   - apply exp_neg_le_decr. apply (lt_le_iff x y). apply (inr Hxy).
 Qed.
 
-(* 对齐能量-闭式解指数恒等（Id L18858 的 req 版） *)
+(* alignment-energy closed-form exponential identity (req version of the upstream statement at [L18858]) *)
 Lemma a_align_energy_exp :
   forall s : S, (req (exp_neg (mult (inv_pos beta beta_pos) (align_energy_a s))) (mult (pi_ref s) (exp_neg (opp (mult (inv_pos beta beta_pos) (reward s)))))).
 Proof.
@@ -997,14 +958,16 @@ Proof.
         apply mult_comm.
 Qed.
 
-(* ---- B2：对齐装配件（boltzmann 装配 / partition / pi_star_pos / 归一化） ---- *)
-(* 对齐帧 Boltzmann 装配 = Part A 出口 boltzmann_dist_m2 于对齐参数处实例
-   （Part A 段已 End，出口带显式 S 参数——幸存基线缺 S 位为本件修复点） *)
+(* ---- B2. alignment assembly (boltzmann assembly / partition / pi_star_pos / normalization) ---- *)
+(* the alignment-frame Boltzmann assembly instantiates the Part A export [boltzmann_dist_m2]
+   at the alignment parameters (the Part A section is closed by [End], so the export
+   takes the explicit [S] argument) *)
 Definition pb_a : S -> R :=
   boltzmann_dist_m2 S align_energy_a beta beta_pos Z_align_a_sum Z_align_a_pos.
 
-(* 透明件：直接取 Part A 出口 req_boltzmann_positive（Qed 不透明件之间的
-   conversion 桥——语句层使用 Part A 结论时正性证明位必须 δ 相同） *)
+(* transparent definition: taken directly from the Part A export [req_boltzmann_positive]
+   (a conversion bridge between Qed-opaque terms — when a statement cites the Part A
+   conclusion, the positivity proof slot must hold the delta-same term) *)
 Definition a_pb_pos : pdist_a pb_a :=
   req_boltzmann_positive S align_energy_a beta beta_pos
                          Z_align_a_sum Z_align_a_pos.
@@ -1049,7 +1012,7 @@ Proof.
     exact a_pi_star_normalized.
 Qed.
 
-(* ---- B3：fe_a 外延 + KL 外延 ---- *)
+(* ---- B3. extensionality of [fe_a] and of [kl_a] ---- *)
 Lemma a_fe_ext :
   forall (f g : S -> R) (Hf : pdist_a f) (Hfg : forall s : S, req (f s) (g s)) (Hg : pdist_a g),
     req (fe_a f Hf) (fe_a g Hg).
@@ -1087,7 +1050,7 @@ Proof.
         exact (Hqq s).
 Qed.
 
-(* fe_a(pb) == fe_a(pistar)：装配桥（4.2/4.3/4.4 共用） *)
+(* fe_a(pb) == fe_a(pistar): the assembly bridge (shared by 4.2/4.3/4.4) *)
 Lemma a_fe_boltzmann_pistar :
   req (fe_a pb_a a_pb_pos) (fe_a (fun s : S => pi_star_a s) a_pi_star_pos).
 Proof.
@@ -1095,9 +1058,9 @@ Proof.
            (fun s : S => a_boltzmann_is_pi_star s) a_pi_star_pos).
 Qed.
 
-(* ---- 4.1 对齐实例：F_a[p] == F_a[p_b] + beta·KL_a(p‖p_b) ---- *)
-(* 使用 Part A 主定理 req_free_energy_kl_decomp 于对齐参数处实例化
-   （base_loss := align_energy_a，D := beta，Z := Z_align_a_sum） *)
+(* ---- 4.1 alignment instance: F_a[p] == F_a[p_b] + beta·KL_a(p‖p_b) ---- *)
+(* instantiates the Part A theorem [req_free_energy_kl_decomp] at the alignment
+   parameters ([base_loss] := [align_energy_a], [D] := [beta], [Z] := [Z_align_a_sum]) *)
 Lemma a_fe_kl_decomp :
   forall (p : S -> R) (Hn : nrm_a p) (Hp : pdist_a p),
     req (fe_a p Hp)
@@ -1110,7 +1073,7 @@ Proof.
            a_partition b_log_exp_neg b_log_compat p Hn Hp).
 Qed.
 
-(* ---- 4.2 前置（逐 eps，F 形）：fe_a[p_b] <= fe_a[p] + beta·eps ---- *)
+(* ---- 4.2 preliminary (eps-wise, F form): fe_a[p_b] <= fe_a[p] + beta·eps ---- *)
 Lemma a_min_free_energy_eps :
   forall (p : S -> R) (Hn : nrm_a p) (Hp : pdist_a p) (eps : R),
     lt zero eps ->
@@ -1165,9 +1128,9 @@ Proof.
                                        (req_refl (mult beta eps))))).
 Qed.
 
-(* ---- 4.2 主定理（精确形，Id rlhf_optimal@L19049 对位）：J(p) <= J(pistar) ---- *)
-(* 证明结构沿 Id 原件：KL 分解 ⟹ F(pb) <= F(p)（KL>=0 桥）⟹ F(pb)==F(pistar)
-   ⟹ req_le_compat 换元 ⟹ opp_le_compat 取负。 *)
+(* ---- 4.2 main theorem (exact form; upstream rlhf_optimal@L19049): J(p) <= J(pistar) ---- *)
+(* proof structure follows the upstream original: KL decomposition ⟹ F(pb) <= F(p) (KL>=0 bridge) ⟹ F(pb)==F(pistar)
+   ⟹ substitution by [req_le_compat] ⟹ negation by [opp_le_compat]. *)
 Theorem a_rlhf_optimal :
   forall (p : S -> R) (Hn : nrm_a p) (Hp : pdist_a p),
     le (J_a p Hp) (J_a pi_star_a a_pi_star_pos).
@@ -1205,9 +1168,9 @@ Proof.
                        a_fe_boltzmann_pistar (req_refl (fe_a p Hp)) Hmin).
 Qed.
 
-(* ---- 4.2 主定理（Bishop 逐 eps 形，real_rlhf_optimal_eps@L43804 对位）：
+(* ---- 4.2 main theorem (Bishop eps-wise form; upstream real_rlhf_optimal_eps@L43804):
    J(p) <= J(pistar) + beta·eps ---------------------------------------------- *)
-(* 环收尾恒等：A + opp X <= B ⟹ A <= B + X（Real 层同构步骤的 req 版） *)
+(* ring-closing identity: A + opp X <= B ⟹ A <= B + X (req version of the isomorphic Real-layer step) *)
 Theorem a_rlhf_optimal_eps :
   forall (p : S -> R) (Hn : nrm_a p) (Hp : pdist_a p) (eps : R),
     lt zero eps ->
@@ -1266,8 +1229,8 @@ Proof.
     - exact Hs3.
 Qed.
 
-(* ---- 4.3b DPO 最优性（Id dpo_optimal@L19096 对位）----
-   DPO 隐式奖励具体化：dpo 损失 = -J(pi)，由 a_rlhf_optimal 直接推出。 *)
+(* ---- 4.3b DPO optimality (upstream dpo_optimal@L19096) ----
+   DPO implicit-reward concretization: the DPO loss = -J(pi), a direct corollary of [a_rlhf_optimal]. *)
 Definition dpo_loss_a (p : S -> R) (Hp : pdist_a p) : R := opp (J_a p Hp).
 
 Theorem a_dpo_optimal :
@@ -1279,11 +1242,11 @@ Proof.
     exact (a_rlhf_optimal p Hn Hp).
 Qed.
 
-(* ---- 4.4 唯一性（Id rlhf_optimal_unique@L19128 对位）----
-   J(p) == J(pistar) ⟹ p == pistar（逐点）。
-   消去链：目标相等 ⟹ F 相等 ⟹ beta·KL == 0（加法消去）⟹ KL == 0
-   （b_mult_cancel）⟹ 逐点（b_gibbs_eq）⟹ pi* 换元。req 世界无 destruct+eq_ind
-   注入消去，此链为 (c.2) 消去引擎的 b 桥使用形态。 *)
+(* ---- 4.4 uniqueness (upstream rlhf_optimal_unique@L19128) ----
+   J(p) == J(pistar) ⟹ p == pistar (pointwise).
+   Elimination chain: goal equality ⟹ F equality ⟹ beta·KL == 0 (additive cancellation) ⟹ KL == 0
+   ([b_mult_cancel]) ⟹ pointwise ([b_gibbs_eq]) ⟹ substitution to [pi_star].  The req world has no
+   destruct/eq_ind injective elimination; this chain mirrors the cancellation engine of Part C. *)
 Lemma a_add_cancel_r : forall (u v w : R), req (plus u v) (plus u w) -> req v w.
 Proof.
   intros u v w H.
@@ -1342,12 +1305,13 @@ Proof.
                    (a_boltzmann_is_pi_star s)).
 Qed.
 
-(* ---- 4.3 次优差距（Id rlhf_suboptimality_gap@L20554 对位）----
-   J(pistar) − J(p) == beta·KL(p‖pistar)（前向 KL 显式值）。
-   链：4.1 对齐实例 KL 分解（a_fe_kl_decomp）+ pb==pistar 双换元
-   （F 左元 a_fe_boltzmann_pistar / KL 右元 a_KL_ext_r）
-   + J = −F 双负消去（req_double_neg）+ A + opp(A+X) == X 环收尾
-   （plus_assoc + plus_comm/plus_opp 消去）。全 req_trans 链，无 destruct。 *)
+(* ---- 4.3 suboptimality gap (upstream rlhf_suboptimality_gap@L20554) ----
+   J(pistar) − J(p) == beta·KL(p‖pistar) (explicit forward KL value).
+   Chain: the 4.1 alignment-instance KL decomposition ([a_fe_kl_decomp]) + the pb==pistar double
+   substitution (left F argument via [a_fe_boltzmann_pistar], right KL argument via [a_KL_ext_r])
+   + the double-negation elimination of J = −F ([req_double_neg]) + the ring closing
+   A + opp(A+X) == X ([plus_assoc] with [plus_comm]/[plus_opp] cancellation).  A pure
+   [req_trans] chain, no destruct. *)
 Theorem a_rlhf_suboptimality_gap :
   forall (p : S -> R) (Hn : nrm_a p) (Hp : pdist_a p),
     req (rminus_a (J_a pi_star_a a_pi_star_pos) (J_a p Hp))
@@ -1375,7 +1339,7 @@ Proof.
                                    (kl_a p pb_a Hp a_pb_pos)
                                    (kl_a p pi_star_a Hp a_pi_star_pos)
                                    (req_refl beta) Hkl))).
-  (* fe 形差距：opp F* + Fp == beta·KL（A + opp(A+X) == X 环收尾） *)
+  (* fe-form gap: opp F* + Fp == beta·KL (ring closing A + opp(A+X) == X) *)
   assert (Hgapfe : (req (plus (opp (fe_a pi_star_a a_pi_star_pos)) (fe_a p Hp))
                         (mult beta (kl_a p pi_star_a Hp a_pi_star_pos)))).
   { apply (req_trans (plus (opp (fe_a pi_star_a a_pi_star_pos)) (fe_a p Hp))
@@ -1422,7 +1386,7 @@ Proof.
                            (mult beta (kl_a p pi_star_a Hp a_pi_star_pos))).
           -- apply plus_comm.
           -- apply plus_zero. }
-  (* J 形出口：rminus_a J* Jp == opp F* + opp (opp Fp) == opp F* + Fp（δ+双负） *)
+  (* J-form exit: rminus_a J* Jp == opp F* + opp (opp Fp) == opp F* + Fp (delta plus double negation) *)
   exact (req_trans (rminus_a (J_a pi_star_a a_pi_star_pos) (J_a p Hp))
                    (plus (opp (fe_a pi_star_a a_pi_star_pos))
                          (opp (opp (fe_a p Hp))))
@@ -1440,11 +1404,12 @@ Proof.
                               Hgapfe)).
 Qed.
 
-(* ---- 4.4 策略改进单调性（Id rlhf_policy_improvement@L20591 对位）----
-   KL(p_new‖pistar) <= KL(p_old‖pistar) ⟹ J(p_old) <= J(p_new)。
-   链：4.3 差距恒等式 ×2（J* − Jq == β·KLq）+ β>0 左乘保序（le_mult_compat
-   经 mult_comm 双换元到左乘位）+ 两侧加 opp J*（le_plus_compat）
-   + opp J* + (J* + opp Jq) == opp Jq 消去串 + opp_le_compat 双负完成。 *)
+(* ---- 4.4 policy-improvement monotonicity (upstream rlhf_policy_improvement@L20591) ----
+   KL(p_new‖pistar) <= KL(p_old‖pistar) ⟹ J(p_old) <= J(p_new).
+   Chain: the 4.3 gap identity twice (J* − Jq == β·KLq) + order preservation under the
+   multiplier β>0 ([le_mult_compat] with a [mult_comm] double rewrite into the left-multiplication
+   position) + adding opp J* to both sides ([le_plus_compat])
+   + the cancellation string opp J* + (J* + opp Jq) == opp Jq + finishing with the double negation of [opp_le_compat]. *)
 Theorem a_rlhf_policy_improvement :
   forall (p_old p_new : S -> R)
          (Hn1 : nrm_a p_old) (Hp1 : pdist_a p_old)
@@ -1467,7 +1432,7 @@ Proof.
                             (le_mult_compat (kl_a p_new pi_star_a Hp2 a_pi_star_pos)
                                             (kl_a p_old pi_star_a Hp1 a_pi_star_pos)
                                             beta beta_pos Hkldec))). }
-  (* 消去串：opp J* + (J* + opp Jq) == opp Jq（A+opp(A+X)==X 的 J 形） *)
+  (* cancellation string: opp J* + (J* + opp Jq) == opp Jq (the J-form of A+opp(A+X)==X) *)
   assert (Hsimpl : forall (q : S -> R) (Hq : pdist_a q),
     req (plus (opp (J_a pi_star_a a_pi_star_pos))
               (plus (J_a pi_star_a a_pi_star_pos) (opp (J_a q Hq))))
@@ -1503,7 +1468,7 @@ Proof.
                          (opp (J_a q Hq))).
         * apply plus_comm.
         * apply plus_zero. }
-  (* J* − J_new <= J* − J_old（4.3 ×2 换元 + β 保序） *)
+  (* J* − J_new <= J* − J_old (the 4.3 identity substituted twice, with order preservation under β) *)
   assert (Hadd : (le (plus (opp (J_a pi_star_a a_pi_star_pos))
                            (plus (J_a pi_star_a a_pi_star_pos) (opp (J_a p_new Hp2))))
                      (plus (opp (J_a pi_star_a a_pi_star_pos))
@@ -1553,17 +1518,18 @@ Qed.
 
 End ReqAlignCore.
 (* ============================================================ *)
-(* Part C：两状态具体实例装配消解 + 端到端主定理                    *)
-(*   R := Real（Instance RealEnhancedReal 消解；req ≡ real_eq），   *)
-(*   S := bool（两状态），sumf := real_list_sum f [true; false]。  *)
-(*   链路：具体实例装配 → §4.1 核心定理使用 → G3 提取检验          *)
-(*   （upsigmigrate2_probe.ml，Obj.magic=0）。                     *)
+(* Part C. Two-state concrete instance assembly and end-to-end theorems *)
+(*   [R] := [Real] (resolved by the instance [RealEnhancedReal];         *)
+(*   [req] ≡ [real_eq]), [S] := [bool] (two states),                     *)
+(*   [sumf] := [real_list_sum] over [true; false].                       *)
+(*   Chain: concrete instance assembly -> use of the §4.1 core theorems  *)
+(*   -> extraction check ([Obj.magic] = 0).                              *)
 (* ============================================================ *)
 
 Definition bsum (f : bool -> Real) : Real :=
   real_list_sum bool f (cons true (cons false nil)).
 
-(* ---- 实例装配：求和三性质消解（使用基座 real_list_sum 三件） ---- *)
+(* ---- instance assembly: resolving the three summation properties (from the base [real_list_sum] lemmas) ---- *)
 Lemma c_sum_ext :
   forall f g : bool -> Real, (forall s : bool, req (f s) (g s)) -> req (bsum f) (bsum g).
 Proof.
@@ -1588,13 +1554,14 @@ Proof.
   exact (real_list_sum_linear bool a f (true :: false :: nil)).
 Qed.
 
-(* ---- 实例参数：D := 1，Z := 2（全部具体构造） ---- *)
+(* ---- instance parameters: D := 1, Z := 2 (all concrete constructions) ---- *)
 Definition two_state_loss : bool -> Real := fun _ : bool => real_zero.
 Definition two_state_Z : Real := real_plus real_one real_one.
 Definition two_state_Z_pos : lt zero two_state_Z :=
   real_plus_positive real_one real_one real_lt_zero_one real_lt_zero_one.
 
-(* 透明 Def：收拢 tactic 期实例-evar 易碎位（内核层 Definition 转换已验） *)
+(* transparent definition: collects the instance-evar fragility that tactic-mode unification
+   would otherwise meet (the conversion is settled at the kernel [Definition] layer) *)
 Definition two_state_inv_one : Real := inv_pos real_one real_lt_zero_one.
 
 Lemma c_exp_neg_zero :
@@ -1608,10 +1575,11 @@ Proof.
                    exp_neg_zero).
 Qed.
 
-(* partition 消解：e^{-0}+e^{-0} == 1+1 == Z（纯实例代数）
-   证明注记：原稿为单体式（19 行全显式参 exact）；本世系零参类字段经全局实例
-   投影，单体项的逐节点记录展开代价超线性（-time 实测该命令滞留 >小时级），
-   故同链分解为 H1/H2 两步（语句不变，全构造性，无新前提）。 *)
+(* partition resolution: e^{-0}+e^{-0} == 1+1 == Z (pure instance algebra).
+   Proof note: the chain is split into the two steps [H1]/[H2] because a monolithic term
+   would unfold the parameterless class fields node by node through the global-instance
+   projections at superlinear cost; the statement is unchanged, fully constructive, and no
+   new premises are introduced. *)
 Lemma c_partition :
   req two_state_Z
       (bsum (fun s : bool => exp_neg (mult (two_state_inv_one) real_zero))).
@@ -1631,7 +1599,7 @@ Proof.
                    H1 H2).
 Qed.
 
-(* ---- 装配件：Boltzmann 分布及其正性（Part A 出口件实例化） ---- *)
+(* ---- assembly: the Boltzmann distribution and its positivity (instantiating the Part A exports) ---- *)
 Definition two_state_boltz : bool -> Real :=
   boltzmann_dist_m2 bool two_state_loss real_one real_lt_zero_one
                     two_state_Z two_state_Z_pos.
@@ -1641,7 +1609,7 @@ Definition two_state_boltz_pos : forall s : bool, lt zero (two_state_boltz s) :=
                          two_state_Z two_state_Z_pos.
 
 (* ============================================================ *)
-(* 端到端主定理 #1：§4.1 核心定理 req_free_energy_boltzmann 使用     *)
+(* End-to-end main theorem #1: use of the §4.1 core theorem [req_free_energy_boltzmann] *)
 
 (* ============================================================ *)
 Theorem two_state_free_energy_boltzmann :
@@ -1654,7 +1622,7 @@ Proof.
            c_partition real_log_exp_neg real_log_wd).
 Qed.
 
-(* ---- 均匀策略 p_u = (1/2, 1/2) 及其正性/归一化 ---- *)
+(* ---- the uniform policy p_u = (1/2, 1/2), its positivity and normalization ---- *)
 Definition two_state_pu : bool -> Real :=
   fun _ : bool => inv_pos two_state_Z two_state_Z_pos.
 
@@ -1663,8 +1631,8 @@ Proof.
   intro s. exact (inv_pos_pos two_state_Z two_state_Z_pos).
 Qed.
 
-(* 左乘消去引擎（t > 0，req (t·x) (t·y) ⟹ req x y；req 世界无 destruct
-   注入消去，经 inv_pos_correct 环绕链构造——(c.2) 消去引擎实例形态） *)
+(* left-multiplication cancellation engine (t > 0, req (t·x) (t·y) ⟹ req x y; the req world has
+   no destruct injective elimination, so the engine is built as an [inv_pos_correct] ring chain) *)
 Lemma c_mult_cancel_l :
   forall (t x y : Real), lt zero t -> req (mult t x) (mult t y) -> req x y.
 Proof.
@@ -1690,13 +1658,13 @@ Proof.
                        (req_mult_one_l y)))))).
 Qed.
 
-(* p_u 归一化：1/2 + 1/2 == 1（2·配对 == 2·1 消去引擎实例化）
-   证明注记：原稿为单体式（36 行全显式参 exact）；本世系零参类字段经全局实例
-   投影，单体项与投影/实面混写的逐节点记录展开代价超线性（-time 实测单项
-   264s 量级），故同链改写：中间步全取 real_eq/real_plus/real_mult 实面
-   （S02 real_eq_trans/sym/refl、real_distrib、real_plus_zero、real_mult_one、
-   S03 real_inv_pos_correct、S07 RealSetoid.real_eq_plus_compat_adapt），
-   记录展开只余边界少数位（语句不变，全构造性，无新前提）。 *)
+(* normalization of p_u: 1/2 + 1/2 == 1 (the cancellation engine applied to 2·pair == 2·1).
+   Proof note: the intermediate steps are written on the real face directly ([real_eq]/
+   [real_plus]/[real_mult] via the S02 lemmas [real_eq_trans]/[real_eq_sym]/[real_eq_refl],
+   [real_distrib], [real_plus_zero], [real_mult_one], the S03 [real_inv_pos_correct], and the
+   S07 [RealSetoid.real_eq_plus_compat_adapt]), so record unfolding remains confined to a few
+   boundary positions (the statement is unchanged, fully constructive, and no new premises
+   are introduced). *)
 Lemma c_pu_normalized : req (bsum two_state_pu) one.
 Proof.
   set (u := real_inv_pos two_state_Z two_state_Z_pos).
@@ -1725,8 +1693,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 端到端主定理 #2：§4.1 核心定理 req_free_energy_kl_decomp 使用     *)
-(*   均匀策略 p_u 的自由能-KL 分解（可提取 Set 层语句）            *)
+(* End-to-end main theorem #2: use of the §4.1 core theorem [req_free_energy_kl_decomp] *)
+(*   the free-energy-KL decomposition of the uniform policy p_u (extractable Set-level statement) *)
 (* ============================================================ *)
 Theorem two_state_free_energy_kl_flagship :
   req (free_energy_m2 bool bsum two_state_loss real_one

@@ -1,10 +1,29 @@
-(* ==========================================================================)
-   Arch_Banach_01.v -- 命题族集注与实例化承载
-   使命：本件形式化以下命题族：bnhn_bnorm_plus、bnhn_bnorm_mult、bxcb_q_choose_out、bxcb_binom_eq_choose、bxcb_sentinel_bpa_4_2、bxcb_sentinel_qchoose_4_2、bxcb_sentinel_bridge_4_2、bxcb_sentinel_out_bpa_1_2、bxcb_sentinel_out_qchoose_1_2。
-   依赖：件内 Require 声明面所列库件。
-   构造性：全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载，零 Prop 泄露。
-   编译配方：Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""，cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — Banach-algebra exponential family: statement-cluster collection with instantiation carriers. *)
+
+(** * Arch_Banach_01: statement-cluster collection and instantiation
+      carriers for the Banach-algebra exponential.
+
+    Mission.  Formalizes the following statement families: [bnhn_bnorm_plus],
+      [bnhn_bnorm_mult], [bxcb_q_choose_out], [bxcb_binom_eq_choose],
+      [bxcb_sentinel_bpa_4_2], [bxcb_sentinel_qchoose_4_2],
+      [bxcb_sentinel_bridge_4_2], [bxcb_sentinel_out_bpa_1_2], and
+      [bxcb_sentinel_out_qchoose_1_2], together with the merged member
+      families carried by the section banners below (bxcb / bxdef / bxae /
+      bxoo / s3c).
+
+    Dependencies.  The library files listed in the Require face below.
+
+    References.  This development; the baseline module of the same name in
+      ConstructiveWorld-Main, whose statement names are carried over
+      verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All proofs close by [Qed], zero admission tokens, no
+      classical logic; the statement face is carried by the [Set] layer with
+      zero Prop leakage.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      Arch_Banach_01.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -29,13 +48,14 @@ Require Import UpReqBanachCauchyD.
 Require Import UpReqBanachDouble.
 Require Import UpReqBanachInvPre.
 
-(* ================= §1 bnhn_bnorm_plus 族 ================= *)
+(* ================= §1 the bnhn_bnorm_plus family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
-(* 件一：bnorm_plus 字段位（次可加）——                               *)
-(*   QleT' (bnorm (eplus a b)) (bnorm a + bnorm b)                  *)
-(*   （类字段 bnorm_plus 在 E-载体 bxib_E 上的同位定理；双层 qnorm    *)
-(*     退化 + Qabs_triangle 三段运输。）                             *)
+(* Piece 1: the bnorm_plus field position (subadditivity) —                          *)
+(*   QleT' (bnorm (eplus a b)) (bnorm a + bnorm b)                                   *)
+(*   (the colocated theorem for the class field bnorm_plus on the E-carrier          *)
+(*   bxib_E; the double qnorm degeneration plus a three-leg transport via            *)
+(*   Qabs_triangle.)                                                                 *)
 
 Lemma bnhn_bnorm_plus : forall a b : bxib_E,
   QleT' (bxib_bnorm (bxib_eplus a b))
@@ -44,18 +64,18 @@ Proof.
   intros a b. unfold bxib_bnorm.
   change (bxib_ev (bxib_eplus a b))
     with (bxib_qnorm (Qplus (bxib_ev a) (bxib_ev b))).
-  (* 双层 qnorm 退化（Id 不动点，QleT' 目标内 Leibniz 改写合法位） *)
+  (* double qnorm degeneration (an Id fixed point; the Leibniz rewrite is legitimate inside the QleT' goal) *)
   rewrite (bxib_qnorm_fix_id (Qplus (bxib_ev a) (bxib_ev b))).
   apply Qle_to_QleT'.
   apply (Qle_trans _ (Qabs (bxib_ev a + bxib_ev b)%Q) _).
-  - (* 左端换形：|qnorm (x+y)| ≤ |x+y|（Qeq 运输，非钉定位） *)
+  - (* left-end transport: |qnorm (x+y)| ≤ |x+y| (Qeq transport, not a pinned position) *)
     apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     exact (Qabs_wd _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev a + bxib_ev b)%Q))).
   - apply (Qle_trans _ (Qabs (bxib_ev a)%Q + Qabs (bxib_ev b)%Q)%Q _).
-    + (* 三角不等式（stdlib Qabs_triangle） *)
+    + (* the triangle inequality (stdlib [Qabs_triangle]) *)
       apply Qabs_triangle.
-    + (* 右端换形：|x|+|y| ≤ |qnorm x|+|qnorm y|
-         （Qplus_comp Proper 项式：x x' Hx y y' Hy 交错参序） *)
+    + (* right-end transport: |x|+|y| ≤ |qnorm x|+|qnorm y|
+         (the Qplus_comp Proper term with the interleaved argument order x x' Hx y y' Hy) *)
       apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       exact (Qplus_comp (Qabs (bxib_ev a)%Q) (Qabs (bxib_qnorm (bxib_ev a)))
                (Qabs_wd _ _ (Qeq_sym _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev a)))))
@@ -63,10 +83,11 @@ Proof.
                (Qabs_wd _ _ (Qeq_sym _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev b)))))).
 Qed.
 
-(* 件二：bnorm_mult 字段位（次可乘）——                               *)
-(*   QleT' (bnorm (emult a b)) (bnorm a * bnorm b)                  *)
-(*   （类字段 bnorm_mult 在 E-载体 bxib_E 上的同位定理；退化同款 +    *)
-(*     Qabs_Qmult 等式换形（Qeq 强于 Qle 经 qeq_le 降取）。）         *)
+(* Piece 2: the bnorm_mult field position (submultiplicativity) —                    *)
+(*   QleT' (bnorm (emult a b)) (bnorm a * bnorm b)                                   *)
+(*   (the colocated theorem for the class field bnorm_mult on the E-carrier          *)
+(*   bxib_E; the same degeneration plus an equality transport by Qabs_Qmult —        *)
+(*   Qeq is stronger than Qle and is demoted through qeq_le.)                        *)
 
 Lemma bnhn_bnorm_mult : forall a b : bxib_E,
   QleT' (bxib_bnorm (bxib_emult a b))
@@ -78,14 +99,14 @@ Proof.
   rewrite (bxib_qnorm_fix_id (Qmult (bxib_ev a) (bxib_ev b))).
   apply Qle_to_QleT'.
   apply (Qle_trans _ (Qabs (bxib_ev a * bxib_ev b)%Q) _).
-  - (* 左端换形：|qnorm (x*y)| ≤ |x*y| *)
+  - (* left-end transport: |qnorm (x*y)| ≤ |x*y| *)
     apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
     exact (Qabs_wd _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev a * bxib_ev b)%Q))).
   - apply (Qle_trans _ (Qabs (bxib_ev a)%Q * Qabs (bxib_ev b)%Q)%Q _).
-    + (* |x*y| == |x|·|y|（stdlib Qabs_Qmult，Qeq 经 qeq_le 降取 Qle） *)
+    + (* |x*y| == |x|·|y| (stdlib [Qabs_Qmult]; Qeq demoted to Qle via qeq_le) *)
       apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
-    + (* 右端换形：|x|·|y| ≤ |qnorm x|·|qnorm y|
-         （Qmult_comp Proper 项式：x x' Hx y y' Hy 交错参序） *)
+    + (* right-end transport: |x|·|y| ≤ |qnorm x|·|qnorm y|
+         (the Qmult_comp Proper term with the interleaved argument order x x' Hx y y' Hy) *)
       apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT.
       exact (Qmult_comp (Qabs (bxib_ev a)%Q) (Qabs (bxib_qnorm (bxib_ev a)))
                (Qabs_wd _ _ (Qeq_sym _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev a)))))
@@ -93,30 +114,36 @@ Proof.
                (Qabs_wd _ _ (Qeq_sym _ _ (qeqT_imp_qeq _ _ (bxib_qnorm_fix (bxib_ev b)))))).
 Qed.
 
-(* 核验记录（对称申报，不落承认件面）：                             *)
-(*   ① 本件即 INSTB 未消解项① 的闭合件：乘法群四面（bxem_ 系）+    *)
-(*     bnorm_plus/bnorm_mult（本件 bnhn_）全数补齐，E-载体对冻结类     *)
-(*     代数/范数字段位无剩余缺口（完备性字段照 INS 先例另列，        *)
-(*     bnorm_coef 钉定语句面修订属上游改形——两处维持原未消解项状态）。 *)
-(*   ② 伴随注：bxem_mult 与 bxib_emult 为 delta 同一定义              *)
-(*     （bxem_mult a b := bxib_emult a b），本件语句面取构造子直形。   *)
-(*   ③ 退化机同源性：本件双层退化 = bxem_mult_wd 同款                 *)
-(*     （fix_id → qnorm_id_of_qeqT → fix_id 链的 QleT' 版），          *)
-(*     序面用 Qabs_triangle/Qabs_Qmult 替 bxem 的 qeqT cong 位。       *)
+(* Verification record (declared symmetrically, no admission-face pieces):          *)
+(*   (1) this file closes unresolved item (1) of INSTB: the four multiplication-group  *)
+(*     faces (the bxem_ series) plus bnorm_plus/bnorm_mult (this file's bnhn_) are     *)
+(*     all filled in; the E-carrier has no remaining gaps in the frozen class's         *)
+(*     algebra/norm field positions (the completeness fields are listed separately,     *)
+(*     as in the INS precedent, and the bnorm_coef pinned-statement revision is an      *)
+(*     upstream reshaping — both keep their original unresolved status).                *)
+(*   (2) accompanying note: bxem_mult and bxib_emult are delta-identical definitions    *)
+(*     (bxem_mult a b := bxib_emult a b); the statement face here takes the constructor *)
+(*     direct form.                                                                     *)
+(*   (3) degeneration-machinery homology: this file's double degeneration matches       *)
+(*     bxem_mult_wd (the QleT' version of the fix_id -> qnorm_id_of_qeqT -> fix_id      *)
+(*     chain), with Qabs_triangle/Qabs_Qmult replacing bxem's qeqT cong positions on    *)
+(*     the order face.                                                                  *)
 
 Separate Extraction bnhn_bnorm_plus bnhn_bnorm_mult.
 
 Print Assumptions bnhn_bnorm_plus.
 Print Assumptions bnhn_bnorm_mult.
-(* ================= §2 bxcb_q_choose_out 族 ================= *)
-(* ================= §1 bxcb_q_choose_out 族 ================= *)
-(* ================= §1 bxcb_q_choose_out 族 ================= *)
+(* ================= §2 the bxcb_q_choose_out family ================= *)
+(* ================= §1 the bxcb_q_choose_out family ================= *)
+(* ================= §1 the bxcb_q_choose_out family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
-(* S1：出界语义对齐件——q_choose 的 Nat.sub 截断形显式化            *)
-(* k>n 时 (n−k) 截断为 0，分母 q_fact 0 = 1，故 q_choose n k        *)
-(*   == q_fact n / q_fact k == q_fact n * Qinv (q_fact k) ≠ 0，    *)
-(* 与 bpa_binom_out（== 0）形成两侧出界语义分账。                  *)
+(* S1: out-of-range semantics alignment — making the Nat.sub truncation shape of    *)
+(* q_choose explicit.  For k>n the (n−k) is truncated to 0 and the denominator      *)
+(* q_fact 0 = 1, hence q_choose n k                                                 *)
+(*   == q_fact n / q_fact k == q_fact n * Qinv (q_fact k) ≠ 0,                      *)
+(* which keeps the two sides' out-of-range semantics in separate accounts against   *)
+(* bpa_binom_out (== 0).                                                            *)
 
 Lemma bxcb_q_choose_out : forall n k : nat, (n < k)%nat ->
   q_choose n k == q_fact n * Qinv (q_fact k).
@@ -131,13 +158,13 @@ Proof.
   reflexivity.
 Qed.
 
-(* S2：主桥 bxcb_binom_eq_choose（对 n 归纳 + k 分段）             *)
-(*   forall n k, (k <= n)%nat -> bpa_binom n k == q_choose n k    *)
-(* 分段：k=0（bpa_binom_0 ↔ q_choose_0）；k=S n' 对角              *)
-(*   （bpa_binom_diag ↔ q_choose_n）；S k' < S n' 递归步——左 Pascal *)
-(*   是 bpa_binom 定义形（change/reflexivity 级，BA 手法），右      *)
-(*   Pascal 取 S07 q_choose_succ（复用不重写），末尾 (S k'−1)≡k'    *)
-(*   为 iota 转换取 Qeq_refl。                                    *)
+(* S2: the main bridge bxcb_binom_eq_choose (induction on n with a case split on k) *)
+(*   forall n k, (k <= n)%nat -> bpa_binom n k == q_choose n k                      *)
+(* Cases: k=0 (bpa_binom_0 ↔ q_choose_0); k=S n' the diagonal                       *)
+(*   (bpa_binom_diag ↔ q_choose_n); the recursive step S k' < S n' — the left       *)
+(*   Pascal side is the defining shape of bpa_binom (change/reflexivity level, the  *)
+(*   BA technique); the right Pascal side takes S07's q_choose_succ (reused, not    *)
+(*   rewritten); the final (S k'−1)≡k' is an iota conversion taken by Qeq_refl.     *)
 
 Lemma bxcb_binom_eq_choose : forall n k : nat, (k <= n)%nat ->
   bpa_binom n k == q_choose n k.
@@ -156,17 +183,19 @@ Proof.
         setoid_rewrite (IH k' ltac:(lia)).
         setoid_rewrite (IH (Datatypes.S k') ltac:(lia)).
         setoid_rewrite (qeqT_imp_qeq _ _ (q_choose_succ n' (Datatypes.S k') ltac:(lia) ltac:(lia))).
-        (* 项序与 sub 双坑：q_choose_succ 尾项是 (S k'−1)（变量 k' 下
-           Nat.sub 不约化，S-形免截断手法的对照坑），lia 桥 nat 层等式
-           换回 k'；bpa 定义形 k' 项在前，Qplus 非定义性交换再换位——
-           两步后两侧同形，Qeq_refl 闭合 *)
+        (* term order and the sub trap: the tail term of q_choose_succ is (S k'−1)
+           (with k' a variable, Nat.sub does not reduce — in contrast to the S-shaped
+           form where truncation is avoided); a lia-provided nat-level equation converts
+           it back to k'; the bpa defining shape lists the k' term first, so a
+           non-definitional Qplus swap reorders it — after these two steps both sides
+           share the same shape and Qeq_refl closes *)
         assert (Esub : (Datatypes.S k' - 1)%nat = k'%nat) by lia.
         rewrite Esub.
         setoid_rewrite (Qplus_comm (q_choose n' k') (q_choose n' (Datatypes.S k'))).
         apply Qeq_refl.
 Qed.
 
-(* S3：锚数值面（reflexivity/vm_compute 级烟测）                 *)
+(* S3: numeric anchor face (reflexivity/vm_compute-level spot checks) *)
 
 Lemma bxcb_sentinel_bpa_4_2 : bpa_binom 4%nat 2%nat == (6 # 1)%Q.
 Proof. vm_compute. reflexivity. Qed.
@@ -174,23 +203,24 @@ Proof. vm_compute. reflexivity. Qed.
 Lemma bxcb_sentinel_qchoose_4_2 : q_choose 4%nat 2%nat == (6 # 1)%Q.
 Proof. vm_compute. reflexivity. Qed.
 
-(* 桥上核验：主桥在 (4,2) 的直接实例 ==6 两侧一致 *)
+(* check on the bridge: the main bridge instantiated at (4,2) gives ==6 on both sides *)
 Lemma bxcb_sentinel_bridge_4_2 : bpa_binom 4%nat 2%nat == q_choose 4%nat 2%nat.
 Proof. apply bxcb_binom_eq_choose. lia. Qed.
 
-(* 出界锚对（反例实形入账）：n=1,k=2 两侧分歧——bpa 侧 0，        *)
-(* q_choose 侧 1!/2! = 1/2（Qinv (2#1)）；两件合账即证无假设全值域    *)
-(* 桥不可立，语义对齐 (k<=n) 面为必需。                            *)
+(* out-of-range anchor pair (a concrete counterexample on record): at n=1, k=2 the  *)
+(* two sides diverge — the bpa side gives 0, the q_choose side gives 1!/2! = 1/2    *)
+(* (Qinv (2#1)); the two together show that an assumption-free full-domain bridge   *)
+(* cannot be established, so the semantics-aligned (k<=n) face is necessary.        *)
 Lemma bxcb_sentinel_out_bpa_1_2 : bpa_binom 1%nat 2%nat == 0%Q.
 Proof. vm_compute. reflexivity. Qed.
 
 Lemma bxcb_sentinel_out_qchoose_1_2 : q_choose 1%nat 2%nat == Qinv (2 # 1).
 Proof. vm_compute. reflexivity. Qed.
 
-(* S4：主件 bxcb_term_split——C(k,j)/k! == 1/(j!·(k−j)!)            *)
-(* 下游 #29 exp_term_split 依存形。S07 已有同型原件                 *)
-(*   q_choose_div_fact（B2Tv2 卡点名），复用不重写；另附 BA 侧      *)
-(*   （bpa 系数）依存形 bxcb_term_split_binom。                    *)
+(* S4: the main lemma bxcb_term_split — C(k,j)/k! == 1/(j!·(k−j)!)                  *)
+(* the dependency shape of the downstream exp_term_split.  S07 already has an       *)
+(* identical original, q_choose_div_fact, which is reused rather than rewritten;    *)
+(* the BA-side (bpa coefficient) dependency shape bxcb_term_split_binom is added.   *)
 
 Lemma bxcb_term_split : forall k j : nat,
   q_choose k j / q_fact k == Qinv (q_fact j) * Qinv (q_fact (k - j)%nat).
@@ -207,11 +237,14 @@ Proof.
   apply qeqT_imp_qeq. apply (q_choose_div_fact k j).
 Qed.
 
-(* S5：薄桥——bpr2_q_choose（Prod2 阶乘比双层移植形）实例化           *)
-(* bpr2_q_choose n k := q_fact n / (q_fact k * q_fact (Nat.sub n k)) *)
-(* 与 q_choose n k 定义同构（delta 级），change 换形后主桥直用。    *)
-(* 分工：S07 q_choose=冻结原件；bpr2_=Prod2 移植形；bpa_binom=      *)
-(* Add Pascal 形。本桥把三形收拢到同一等价面。                     *)
+(* S5: a thin bridge — instantiating bpr2_q_choose (the Prod2 factorial-ratio       *)
+(* ported shape).                                                                   *)
+(* bpr2_q_choose n k := q_fact n / (q_fact k * q_fact (Nat.sub n k))                *)
+(* is definitionally isomorphic to q_choose n k (delta level); after a change       *)
+(* transport the main bridge applies directly.                                      *)
+(* Division of labor: S07's q_choose is the frozen original; bpr2_ is the Prod2     *)
+(* ported shape; bpa_binom is the Add-Pascal shape.  This bridge gathers the three  *)
+(* shapes onto one equivalence face.                                                *)
 
 Lemma bxcb_binom_eq_bpr2 : forall n k : nat, (k <= n)%nat ->
   bpa_binom n k == bpr2_q_choose n k.
@@ -221,20 +254,21 @@ Proof.
   apply bxcb_binom_eq_choose. exact H.
 Qed.
 
-(*   「Closed under the global context」；Separate Extraction       *)
-(*   UpReqBanachBinomBridge.ml Obj.magic 计数 =0；coqchk -o 全件     *)
+(*   "Closed under the global context"; Separate Extraction of                      *)
+(*   UpReqBanachBinomBridge.ml gives an Obj.magic count of 0; coqchk -o passes       *)
+(*   for all pieces.                                                                 *)
 
-(* ---- ToyR 追印：清单件假设面逐件打印，判读全闭 ---- *)
+(* ---- assumption print-out: each listed piece's assumption face printed individually, all read Closed ---- *)
 Print Assumptions bxcb_term_split.
-(* ================= §2 bxdef_emul 族 ================= *)
+(* ================= §2 the bxdef_emul family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
-(* S0：bxdef_emul——exp 元素乘法（主件左元连接位；普查全树无先名）    *)
+(* S0: bxdef_emul — the exp element multiplication (the connection position of the main lemma's left argument; a tree-wide census shows no earlier name) *)
 
 Definition bxdef_emul (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (x y : BA) : BA :=
   @bmult _ _ B x y.
 
-(* S1：Q 层工具件（Prop 引擎内衬，零 lia）                          *)
+(* S1: Q-layer utility lemmas (Prop-engine internals, zero lia) *)
 
 Lemma bxae_1p1_neq_0 : ~ ((1 + 1)%Q == 0)%Q.
 Proof. intros Hz. vm_compute in Hz. discriminate. Qed.
@@ -248,7 +282,7 @@ Proof. vm_compute. reflexivity. Qed.
 Lemma bxae_qltT_0_1 : QltT 0 1%Q.
 Proof. apply Qlt_to_QltT. exact bxae_qlt_0_1. Qed.
 
-(* x ≤ x + y（0 ≤ y） *)
+(* x ≤ x + y (0 ≤ y) *)
 Lemma bxae_Qle_add_r : forall x y : Q, Qle 0 y -> Qle x (x + y)%Q.
 Proof.
   intros x y Hy.
@@ -261,7 +295,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* x ≤ y + x（0 ≤ y） *)
+(* x ≤ y + x (0 ≤ y) *)
 Lemma bxae_Qle_add_l : forall x y : Q, Qle 0 y -> Qle x (y + x)%Q.
 Proof.
   intros x y Hy.
@@ -276,7 +310,7 @@ Qed.
 Lemma bxae_Qle_1_2 : Qle 1%Q (1 + 1)%Q.
 Proof. apply bxae_Qle_add_r. apply QleT'_to_Qle. apply Qle_0_1. Qed.
 
-(* 右乘严格单调（Qmult_lt_r iff 面） *)
+(* strict monotonicity of right multiplication (the Qmult_lt_r iff face) *)
 Lemma bxae_mult_lt_r : forall x y z : Q,
   Qlt x y -> Qlt 0 z -> Qlt (x * z) (y * z)%Q.
 Proof.
@@ -284,7 +318,7 @@ Proof.
   exact (proj2 (Qmult_lt_r x y z Hz) Hxy).
 Qed.
 
-(* 域律消去：e·/(y·x)·x == e·/y *)
+(* field-law cancellation: e·/(y·x)·x == e·/y *)
 Lemma bxae_cancel_mul : forall e x y : Q,
   ~ (y == 0) -> ~ (y * x == 0) -> (e * / (y * x)) * x == e * / y.
 Proof.
@@ -294,11 +328,11 @@ Proof.
   field. split; assumption.
 Qed.
 
-(* 半和合并：e·/2 + e·/2 == e *)
+(* half-sum merge: e·/2 + e·/2 == e *)
 Lemma bxae_half_add : forall e : Q, (e * / (1 + 1) + e * / (1 + 1))%Q == e%Q.
 Proof. intros e. field. Qed.
 
-(* 级数项非负：0 ≤ X^k/k! *)
+(* series terms nonnegative: 0 ≤ X^k/k! *)
 Lemma bxae_term_nonneg : forall (X : Q) (k : nat),
   Qle 0 X -> Qle 0 (q_pow X k / q_fact k)%Q.
 Proof.
@@ -313,7 +347,7 @@ Proof.
     apply Qle_to_QleT'. exact HX.
 Qed.
 
-(* 尾和非负 *)
+(* the tail sum is nonnegative *)
 Lemma bxae_etab_nonneg : forall (X : Q) (m n : nat),
   Qle 0 X -> Qle 0 (exp_tail_abs m n X).
 Proof.
@@ -335,7 +369,7 @@ Proof.
 Qed.
 
 
-(* 尾和对起点反单调：m1 ≤ m2 ⟹ tail(m2..n) ≤ tail(m1..n) *)
+(* the tail sum is antitone in its start: m1 ≤ m2 ⟹ tail(m2..n) ≤ tail(m1..n) *)
 Lemma bxae_etab_mono_start : forall (X : Q) (m1 m2 n : nat),
   Qle 0 X -> (m1 <= m2)%nat -> Qle (exp_tail_abs m2 n X) (exp_tail_abs m1 n X).
 Proof.
@@ -370,7 +404,7 @@ Proof.
         + exact (bxae_term_nonneg X (Datatypes.S n') HX).
         + apply Qle_refl. }
 Qed.
-(* 尾和分裂可加：tail(m1..n) == tail(m1..m2) + tail(m2..n) *)
+(* the tail sum splits additively: tail(m1..n) == tail(m1..m2) + tail(m2..n) *)
 Lemma bxae_etab_split : forall (X : Q) (m1 m2 n : nat),
   (m1 <= m2)%nat -> (m2 <= n)%nat ->
   exp_tail_abs m1 n X == (exp_tail_abs m1 m2 X + exp_tail_abs m2 n X)%Q.
@@ -405,7 +439,7 @@ Proof.
       ring.
 Qed.
 
-(* 尾和任意小：∃N，m ≥ N ⟹ tail(m..n) < e（任意 n） *)
+(* the tail sum is arbitrarily small: ∃N, m ≥ N ⟹ tail(m..n) < e (any n) *)
 Lemma bxae_etab_small : forall (X e : Q),
   Qle 0 X -> QltT 0 e ->
   sigT (fun N : nat => forall m n : nat, (N <= m)%nat ->
@@ -439,7 +473,7 @@ Proof.
                 (qeqT_sym_hw _ _ (exp_tail_abs_le_m m n X Hnm)) Heps)).
 Qed.
 
-(* α 部分和 == 1 + 尾（α_k := X^k/k!） *)
+(* the α partial sum == 1 + tail (with α_k := X^k/k!) *)
 Lemma bxae_ncvsum_alpha : forall (X : Q) (n : nat),
   ncv_qsum (fun i : nat => q_pow X i / q_fact i) (Datatypes.S n)
   == (1 + exp_tail_abs 0 n X)%Q.
@@ -461,7 +495,7 @@ Proof.
     ring.
 Qed.
 
-(* qsum 分裂（前窗 + 位移窗） *)
+(* qsum split (front window + shifted window) *)
 Lemma bxae_ncvsum_split_eq : forall (f : nat -> Q) (n1 d : nat),
   ncv_qsum f (Datatypes.S (n1 + d))%nat
   == (ncv_qsum f (Datatypes.S n1)
@@ -484,7 +518,7 @@ Proof.
     ring.
 Qed.
 
-(* 窗内逐点控制（range 限定前提，前窗点态界用） *)
+(* pointwise control within the window (a range-restricted premise, used for the front window's pointwise bound) *)
 Lemma bxae_ncvsum_le_ranged : forall (f g : nat -> Q) (n : nat),
   (forall k : nat, (k < n)%nat -> QleT' (f k) (g k)) ->
   QleT' (ncv_qsum f n) (ncv_qsum g n).
@@ -499,7 +533,7 @@ Proof.
     + apply Hle. lia.
 Qed.
 
-(* 位移 α 窗和 == 尾和 *)
+(* the shifted α window sum == the tail sum *)
 Lemma bxae_ncvsum_alpha_shift : forall (X : Q) (m d : nat),
   ncv_qsum (fun i : nat => q_pow X (Datatypes.S m + i) / q_fact (Datatypes.S m + i)) d
   == exp_tail_abs m (m + d)%nat X.
@@ -526,7 +560,7 @@ Proof.
     rewrite IH. ring.
 Qed.
 
-(* 主 Q 件：块和任意小（Mertens 型分窗） *)
+(* the main Q lemma: block sums arbitrarily small (Mertens-style window splitting) *)
 Lemma bxae_qblock_small : forall (X Y eps : Q),
   Qle 0 X -> Qle 0 Y -> QltT 0 eps ->
   sigT (fun N : nat => forall n : nat, (N <= n)%nat ->
@@ -535,7 +569,7 @@ Lemma bxae_qblock_small : forall (X Y eps : Q),
          (Datatypes.S n)) eps).
 Proof.
   intros X Y eps HX HY He.
-  (* Y 尾 < 1 阈 ⟹ 全局 β 和界 Bb *)
+  (* the Y tail below the 1 threshold ⟹ a global β-sum bound Bb *)
   destruct (bxae_etab_small Y 1%Q HY bxae_qltT_0_1) as [Ny Hy].
   assert (Hb : forall n : nat,
            Qle (1 + exp_tail_abs 0 n Y)%Q ((1 + 1)%Q + exp_tail_abs 0 Ny Y)).
@@ -564,7 +598,7 @@ Proof.
           -- apply Qle_refl.
           -- apply Qlt_le_weak. exact (Hy Ny n (Nat.le_refl Ny)).
         * apply Qle_refl. }
-  (* β 全局界 Bb 及其正性/抵消恒等（HP2 缩放链用） *)
+  (* the global β bound Bb with its positivity/cancellation identities (used in the HP2 scaling chain) *)
   set (Bb := ((1 + 1)%Q + exp_tail_abs 0 Ny Y)%Q).
   assert (HBb : Qlt 0 Bb).
   { unfold Bb.
@@ -582,7 +616,7 @@ Proof.
     - intros Hz.
       exact (match q_neq_of_lt ((1 + 1) * Bb)%Q HtwoBb
                (qeq_imp_qeqT _ _ Hz) with end). }
-  (* X 侧窗阈值（eps·/(2·Bb) 缩放额） *)
+  (* the X-side window threshold (the eps·/(2·Bb) scaled quantity) *)
   assert (HltE : Qlt 0 (eps * / (1 + 1))%Q).
   { apply QltT_to_Qlt. apply (ncv_qmult_lt0 eps (Qinv (1 + 1))).
     - exact (QltT_to_Qlt 0 eps He).
@@ -611,13 +645,13 @@ Proof.
     - intros Hz.
       exact (match q_neq_of_lt ((1 + 1) * SN)%Q HtwoSN
                (qeq_imp_qeqT _ _ Hz) with end). }
-  (* 分窗 *)
+  (* window split *)
   set (F := fun i : nat =>
               (q_pow X i / q_fact i) * exp_tail_abs (Nat.sub n i) n Y).
   replace (ncv_qsum F (Datatypes.S n)) with (ncv_qsum F (Datatypes.S (Na + d)))%nat
     by (f_equal; lia).
   rewrite bxae_ncvsum_split_eq.
-  (* 前窗：i ≤ Na *)
+  (* front window: i ≤ Na *)
   assert (HP1 : Qlt (ncv_qsum F (Datatypes.S Na)) (eps * / (1 + 1))%Q).
   { assert (Hlt1 : Qlt (exp_tail_abs (Nat.sub n Na) n Y * SN)
                        ((eps * / ((1 + 1) * SN)) * SN)%Q).
@@ -667,7 +701,7 @@ Proof.
           -- apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold SN. exact (bxae_ncvsum_alpha X Na).
           -- exact (bxae_etab_nonneg Y (Nat.sub n Na) n HY).
     - exact Hlt1. }
-  (* 后窗：i > Na（位移窗） *)
+  (* rear window: i > Na (the shifted window) *)
   assert (HP2 : Qlt (ncv_qsum (fun i : nat => F ((Datatypes.S Na + i)%nat)) d)
                     (eps * / (1 + 1))%Q).
   { assert (Hpt : forall i : nat,
@@ -732,7 +766,7 @@ Proof.
     apply (Qle_lt_trans _ (Bb * exp_tail_abs Na n X)%Q).
     - exact Hle3.
     - exact Hlt2. }
-  (* 合流：P1 < e/2，P2 < e/2 ⟹ P1 + P2 < e *)
+  (* confluence: P1 < e/2 and P2 < e/2 ⟹ P1 + P2 < e *)
   apply (Qle_lt_trans _
            (eps * / (1 + 1) + ncv_qsum (fun i : nat => F ((Datatypes.S Na + i)%nat)) d)%Q).
   - apply (Qplus_le_compat _ _ _ _).
@@ -748,9 +782,9 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply bxae_half_add.
 Qed.
 
-(* S2：Banach 层（行形三角 + 块分解 + 范数界 + 极限移位 + 主件）      *)
+(* S2: the Banach layer (row-shaped triangle + block decomposition + norm bounds + limit shift + the main lemma) *)
 
-(* QleT' 乘法双单调（0 ≤ x2 与 0 ≤ y1 显式前提，免 stdlib compat_l 缺位） *)
+(* QleT' double monotonicity of multiplication (with 0 ≤ x2 and 0 ≤ y1 as explicit premises, covering the missing stdlib compat_l) *)
 Lemma bxae_qleT'_mul_le : forall x1 y1 x2 y2 : Q,
   Qle x1 y1 -> Qle x2 y2 -> Qle 0 x2 -> Qle 0 y1 -> QleT' (x1 * x2) (y1 * y2)%Q.
 Proof.
@@ -762,7 +796,7 @@ Proof.
     apply (Qmult_le_compat_r x2 y2 y1); assumption.
 Qed.
 
-(* bsum 与 ncv_sum 同形桥 *)
+(* a same-shape bridge between bsum and ncv_sum *)
 Lemma bxae_bsum_ncvsum : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (x : nat -> BA) (n : nat),
   bae (bsum _ _ B n x) (ncv_sum _ _ B x n).
@@ -778,7 +812,7 @@ Proof.
     + apply (@bae_refl _ _ B).
 Qed.
 
-(* 零次幂项即单位：bpow x 0·(1/0!) == bone *)
+(* the zeroth-power term is the unit: bpow x 0·(1/0!) == bone *)
 Lemma bxae_B0_one : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (x : BA),
   bae (@bmult _ _ B (bpow _ _ B x 0%nat) (@bcoef _ _ B (/ q_fact 0%nat))) (@bone _ _ B).
 Proof.
@@ -791,7 +825,7 @@ Proof.
   - exact (@bcoef_one _ _ B).
 Qed.
 
-(* 项重排：coef c·(a^j·b^i) == (a^j·coef x)·(b^i·coef y)（c == x·y） *)
+(* term reassociation: coef c·(a^j·b^i) == (a^j·coef x)·(b^i·coef y) (c == x·y) *)
 Lemma bxae_term_reassoc : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
                                  (a b : BA) (j i : nat) (x y c : Q),
   c == (x * y)%Q ->
@@ -855,7 +889,7 @@ Proof.
            ++ exact (@bmult_assoc _ _ B (bpow _ _ B a j) (@bcoef _ _ B x)
                                   (@bmult _ _ B (bpow _ _ B b i) (@bcoef _ _ B y))).
 Qed.
-(* ①③ 对接：(a+b)^k/k! == Σ_{j≤k} A j·B (k−j)（行形，CBR 桥供系数） *)
+(* (1)+(3) junction: (a+b)^k/k! == Σ_{j≤k} A j·B (k−j) (row shape; the CBR bridge supplies the coefficients) *)
 Lemma bxae_binom_row : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA),
   bae (@bmult _ _ B a b) (@bmult _ _ B b a) ->
   forall k : nat,
@@ -885,7 +919,7 @@ Proof.
     + exact (bxcb_term_split_binom k j ltac:(lia)).
 Qed.
 
-(* ② 方块行形：esp a n·esp b n == Σ_{i≤n} A i·esp b n *)
+(* (2) the square row shape: esp a n·esp b n == Σ_{i≤n} A i·esp b n *)
 Lemma bxae_prod_row : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA) (n : nat),
   bae (@bmult _ _ B (exp_series_partial _ _ B a n) (exp_series_partial _ _ B b n))
          (bsum _ _ B (Datatypes.S n)
@@ -904,7 +938,7 @@ Proof.
                 @bmult _ _ B (bpow _ _ B a i) (@bcoef _ _ B (/ q_fact i)))).
 Qed.
 
-(* ④ 行形三角（自建归纳，免 bd2 转置）：
+(* (4) the row-shaped triangle (own induction, avoiding the bd2 transpose):
    esp (a+b) n == Σ_{i≤n} A i·esp b (n−i) *)
 Lemma bxae_tri_row : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA),
   bae (@bmult _ _ B a b) (@bmult _ _ B b a) ->
@@ -917,7 +951,7 @@ Lemma bxae_tri_row : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA
 Proof.
   intros BA bae B a b hab n.
   induction n as [| n' IH].
-  - (* 基例：bone == bzero + A 0·esp b 0 *)
+  - (* base case: bone == bzero + A 0·esp b 0 *)
     assert (Hq0 : (/ q_fact 0%nat)%Q = 1%Q) by reflexivity.
     change (exp_series_partial _ _ B (@bplus _ _ B a b) 0%nat) with (@bone _ _ B).
     change (bsum _ _ B (Datatypes.S 0%nat)
@@ -941,7 +975,7 @@ Proof.
         -- apply (@bae_refl _ _ B).
     + apply (@bae_sym _ _ B).
       exact (@bplus_zero_l _ _ B (@bmult _ _ B (@bmult _ _ B (@bone _ _ B) (@bcoef _ _ B 1%Q)) (@bone _ _ B))).
-  - (* 归纳步：set 命名短项结构 *)
+  - (* inductive step: set-names the short-term structure *)
     assert (Esub : Nat.sub (Datatypes.S n') (Datatypes.S n') = 0%nat) by lia.
     set (Ai := fun i : nat => @bmult _ _ B (bpow _ _ B a i) (@bcoef _ _ B (/ q_fact i))).
     set (Bj := fun j : nat => @bmult _ _ B (bpow _ _ B b j) (@bcoef _ _ B (/ q_fact j))).
@@ -953,24 +987,24 @@ Proof.
     set (R := fun i : nat =>
                 @bmult _ _ B (Ai i)
                     (exp_series_partial _ _ B b (Nat.sub (Datatypes.S n') i))).
-    (* LHS 前置 change：esp(S n') == esp n' + C，RHS bsum 剥末项 *)
+    (* leading change on the LHS: esp(S n') == esp n' + C; on the RHS, peel the last term of the bsum *)
     change (exp_series_partial _ _ B (@bplus _ _ B a b) (Datatypes.S n'))
       with (@bplus _ _ B (exp_series_partial _ _ B (@bplus _ _ B a b) n')
                 (@bmult _ _ B (bpow _ _ B (@bplus _ _ B a b) (Datatypes.S n'))
                           (@bcoef _ _ B (/ q_fact (Datatypes.S n'))))).
     change (bsum _ _ B (Datatypes.S (Datatypes.S n')) R)
       with (@bplus _ _ B (bsum _ _ B (Datatypes.S n') R) (R (Datatypes.S n'))).
-    (* R (S n') ≡ Tl（B0↔esp b 0） *)
+    (* R (S n') ≡ Tl (B0 ↔ esp b 0) *)
     assert (HRtl : bae Tl (R (Datatypes.S n'))).
     { unfold Tl, R, Ai, Bj. rewrite Esub.
       change (exp_series_partial _ _ B b 0%nat) with (@bone _ _ B).
       apply (@bmult_wd _ _ B); [apply (@bae_refl _ _ B) | exact (bxae_B0_one _ _ B b)]. }
-    (* C 行形 *)
+    (* the C row shape *)
     assert (HC : bae (@bmult _ _ B (bpow _ _ B (@bplus _ _ B a b) (Datatypes.S n'))
                                   (@bcoef _ _ B (/ q_fact (Datatypes.S n'))))
                          (bsum _ _ B (Datatypes.S (Datatypes.S n')) Fj)).
     { unfold Fj. exact (bxae_binom_row _ _ B a b hab (Datatypes.S n')). }
-    (* 剥末项：bsum (S (S n')) Fj == bsum (S n') Fj + Tl *)
+    (* peel the last term: bsum (S (S n')) Fj == bsum (S n') Fj + Tl *)
     assert (Hpeel : bae (bsum _ _ B (Datatypes.S (Datatypes.S n')) Fj)
                            (@bplus _ _ B (bsum _ _ B (Datatypes.S n') Fj) Tl)).
     { unfold Fj, Tl, Ai, Bj.
@@ -994,7 +1028,7 @@ Proof.
                                     (@bcoef _ _ B
                                        (/ q_fact (Nat.sub (Datatypes.S n') (Datatypes.S n'))))))).
       rewrite Esub. apply (@bae_refl _ _ B). }
-    (* 逐项合并：Hrow i + Fj i == R i（i < S n'） *)
+    (* per-term merge: Hrow i + Fj i == R i (for i < S n') *)
     assert (HR : forall i : nat, (i < Datatypes.S n')%nat ->
                    bae (@bplus _ _ B (Hrow i) (Fj i)) (R i)).
     { intros i Hi. unfold Hrow, Fj, R, Ai, Bj.
@@ -1006,8 +1040,8 @@ Proof.
                   (@bmult _ _ B (bpow _ _ B b (Datatypes.S (Nat.sub n' i)))
                            (@bcoef _ _ B (/ q_fact (Datatypes.S (Nat.sub n' i)))))).
       apply (@bae_sym _ _ B). apply (@bdistrib_l _ _ B). }
-    (* 总链（EXPADD5 重排）：esp+C → esp+ΣFj → esp+(ΣFj'+Tl) → 重结合
-       → (ΣHrow+ΣFj)+Tl → +R(S n') → Σ(Hrow+Fj)+R(S n') → 目标 *)
+    (* the total chain (the EXPADD5 rearrangement): esp+C -> esp+ΣFj -> esp+(ΣFj'+Tl) -> reassociate
+       -> (ΣHrow+ΣFj)+Tl -> +R(S n') -> Σ(Hrow+Fj)+R(S n') -> the goal *)
     eapply bae_trans with
       (b := @bplus _ _ B (exp_series_partial _ _ B (@bplus _ _ B a b) n')
                       (bsum _ _ B (Datatypes.S (Datatypes.S n')) Fj)).
@@ -1036,7 +1070,7 @@ Proof.
                 (fun i : nat => @bplus _ _ B (Hrow i) (Fj i)) R).
       intros i Hi. exact (HR i Hi). }
 Qed.
-(* 差=块和：esp a n·esp b n − esp (a+b) n == Σ_{i≤n} A i·(esp b n − esp b (n−i)) *)
+(* difference = block sum: esp a n·esp b n − esp (a+b) n == Σ_{i≤n} A i·(esp b n − esp b (n−i)) *)
 Lemma bxae_diff_block : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA),
   bae (@bmult _ _ B a b) (@bmult _ _ B b a) ->
   forall (n : nat),
@@ -1059,12 +1093,12 @@ Proof.
                         (@bplus _ _ B (exp_series_partial _ _ B b n)
                                  (@bopp _ _ B (exp_series_partial _ _ B b
                                             (Nat.sub n i))))).
-  (* 逐项：A i·esp b n == Hrow i + Kf i *)
+  (* per term: A i·esp b n == Hrow i + Kf i *)
   assert (Hpt : forall i : nat,
              bae (@bmult _ _ B (Ai i) (exp_series_partial _ _ B b n))
                     (@bplus _ _ B (Hrow i) (Kf i))).
   { intros i. unfold Hrow, Kf.
-    (* A·u == A·(v+(u+−v)) == A·v + A·(u+−v)（分配反演+群律消去） *)
+    (* A·u == A·(v+(u+−v)) == A·v + A·(u+−v) (distributing the inserted identity u == v+(u+−v), then group-law cancellation) *)
     eapply bae_trans with
       (b := @bmult _ _ B (Ai i)
                       (@bplus _ _ B (exp_series_partial _ _ B b (Nat.sub n i))
@@ -1135,7 +1169,7 @@ Proof.
       (b := @bplus _ _ B (bsum _ _ B (Datatypes.S n) Kf)
                    (@bplus _ _ B (bsum _ _ B (Datatypes.S n) Hrow)
                             (@bopp _ _ B (bsum _ _ B (Datatypes.S n) Hrow)))).
-    - (* bsum Kf == bsum Kf + (bsum Hrow + -bsum Hrow)：先 == 自身+0，再 wd_r *)
+    - (* bsum Kf == bsum Kf + (bsum Hrow + -bsum Hrow): first == itself+0, then wd_r *)
       eapply bae_trans with
         (b := @bplus _ _ B (bsum _ _ B (Datatypes.S n) Kf) (@bzero _ _ B)).
       + apply (@bae_sym _ _ B).
@@ -1164,7 +1198,7 @@ Proof.
     + apply (@bplus_wd_l _ _ B). exact H2.
     + exact H3.
 Qed.
-(* ④ 块和范数界：‖块 n‖ ≤T Σ_{i≤n} ‖a‖^i/i!·tail(‖b‖; n−i..n) *)
+(* (4) the block-sum norm bound: ‖block n‖ ≤T Σ_{i≤n} ‖a‖^i/i!·tail(‖b‖; n−i..n) *)
 Lemma bxae_block_norm_le : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA),
   bae (@bmult _ _ B a b) (@bmult _ _ B b a) ->
   forall n : nat,
@@ -1198,7 +1232,7 @@ Proof.
                                                (Nat.sub n i)))))
              (Datatypes.S n)).
   - apply ncv_qsum_le. intros i. destruct i as [| i'].
-    + (* i = 0：‖A 0‖ == 1（经 bcoef 1） *)
+    + (* i = 0: ‖A 0‖ == 1 (via bcoef 1) *)
       assert (Hn0 : (Nat.sub n 0 <= n)%nat) by lia.
       assert (HA0 : bae (@bmult _ _ B (bpow _ _ B a 0%nat)
                                   (@bcoef _ _ B (/ q_fact 0%nat)))
@@ -1228,7 +1262,7 @@ Proof.
              exact (esp_diff_le_tail _ _ B b (Nat.sub n 0) n Hn0).
           -- apply QleT'_to_Qle. apply (@bnorm_pos _ _ B).
           -- exact (QleT'_to_Qle _ _ Qle_0_1). }
-    + (* i = S i'：bnorm_esp_term × esp_diff_le_tail *)
+    + (* i = S i': bnorm_esp_term × esp_diff_le_tail *)
       assert (HnS : (Nat.sub n (Datatypes.S i') <= n)%nat) by lia.
       eapply qleT'_trans.
       * exact (@bnorm_mult _ _ B (@bmult _ _ B (bpow _ _ B a (Datatypes.S i'))
@@ -1245,7 +1279,7 @@ Proof.
            apply QleT'_to_Qle. exact (@bnorm_pos _ _ B a).
 Qed.
 
-(* ④ 差小：∀eps>0 ∃N，n≥N ⟹ ‖esp a n·esp b n − esp (a+b) n‖ < eps *)
+(* (4) small difference: ∀eps>0 ∃N, n≥N ⟹ ‖esp a n·esp b n − esp (a+b) n‖ < eps *)
 Lemma bxae_diff_small : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) (a b : BA),
   bae (@bmult _ _ B a b) (@bmult _ _ B b a) ->
   forall eps : Q, QltT 0 eps ->
@@ -1272,7 +1306,7 @@ Proof.
   - exact (HN n Hn).
 Qed.
 
-(* 极限移位：v→l 且 ‖u n − v n‖→0 ⟹ u→l *)
+(* limit shift: v→l and ‖u n − v n‖→0 ⟹ u→l *)
 Lemma bxae_lim_shift : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (u v : nat -> BA) (l : BA),
   blim _ _ B v l ->
@@ -1312,10 +1346,11 @@ Proof.
       * exact (HN2 n (NatLe_lift _ _ Hle2)).
 Qed.
 
-(* 六环合成：⑤ 左极限 + ④ 差小移位 + ⑥ 唯一性                      *)
-(* 迁移史注：bxae_ 族七件（term_reassoc/binom_row/tri_row/           *)
-(* diff_block/block_norm_le/diff_small/exp_add）签名收窄至零假设，   *)
-(* bnh_esp_term_binom 同位供给，hplus/hwd 形参全摘。                 *)
+(* six-link composition: (5) the left limit + (4) the small-difference shift + (6) uniqueness *)
+(* migration note: the seven bxae_ pieces (term_reassoc/binom_row/tri_row/           *)
+(* diff_block/block_norm_le/diff_small/exp_add) have their signatures narrowed to    *)
+(* zero premises, with bnh_esp_term_binom supplying the same position and the        *)
+(* hplus/hwd parameters removed entirely.                                            *)
 
 Theorem bxae_exp_add : forall (BA : Set) (bae : BA -> BA -> Set) (E : BanachAlgExt BA bae)
   (a b : BA),
@@ -1345,13 +1380,16 @@ Proof.
       exists N. intros n Hn.
       apply HN. exact (NatLe_drop _ _ Hn).
 Qed.
-(* ================= §2 bxoo_lim_esp_zero_bone 族 ================= *)
-(* ================= §1 bxoo_lim_esp_zero_bone 族 ================= *)
+(* ================= §2 the bxoo_lim_esp_zero_bone family ================= *)
+(* ================= §1 the bxoo_lim_esp_zero_bone family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
-(* S1 机械件一（bzero 邻域换骨）：零元级数部分和序列收敛到 bone。  *)
-(*   部分和恒一（bxdef_esp_zero_series/BXB bxb_series_zero 同面） *)
-(*   ⟹ 距离恒为 ‖bone+(−bone)‖=0 ⟹ N=0 闭式证书。               *)
+(* S1 mechanical piece 1 (the bzero-neighborhood reframe): the zero-element series *)
+(*   partial-sum sequence converges to bone.                                       *)
+(*   The partial sums are constantly one (the same face as bxdef_esp_zero_series /  *)
+(*   BXB bxb_series_zero)                                                          *)
+(*   ⟹ the distance is constantly ‖bone+(−bone)‖ = 0 ⟹ the closed-form certificate *)
+(*   N=0.                                                                          *)
 
 Lemma bxoo_lim_esp_zero_bone : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae),
   blim _ _ B (fun n : nat => exp_series_partial _ _ B (@bzero _ _ B) n) (@bone _ _ B).
@@ -1380,12 +1418,14 @@ Proof.
   exact Hq.
 Qed.
 
-(* S1 机械件二（CD3 形→blim 换骨）：near-one 邻域形与 blim 形     *)
-(*   在 l=bone 处逐字同构（blim u bone 展开=本假设形）。          *)
-(*   CD3 连接槽：若 bxcd_prod_near_one 实形为                    *)
-(*     forall B a q, QltT 0 q -> sigT N, forall n, NatLe N n ->  *)
-(*       QltT (bnorm (bplus (esp a n·esp(bopp a) n) (bopp bone))) q*)
-(*   则 bxoo_nearone_blim _ _ B _ (bxcd_prod_near_one _ _ B a) 一步上桥。 *)
+(* S1 mechanical piece 2 (the CD3-shape to blim reframe): the near-one neighborhood *)
+(*   shape and the blim shape are verbatim isomorphic at l=bone (unfolding blim u   *)
+(*   bone gives exactly this premise shape).                                        *)
+(*   CD3 connection slot: if the actual shape of bxcd_prod_near_one is              *)
+(*     forall B a q, QltT 0 q -> sigT N, forall n, NatLe N n ->                     *)
+(*       QltT (bnorm (bplus (esp a n·esp(bopp a) n) (bopp bone))) q                 *)
+(*   then bxoo_nearone_blim _ _ B _ (bxcd_prod_near_one _ _ B a) bridges in one     *)
+(*   step.                                                                          *)
 
 Lemma bxoo_nearone_blim : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (S : nat -> BA),
@@ -1397,8 +1437,10 @@ Proof.
   intros BA bae B S H q Hq. exact (H q Hq).
 Qed.
 
-(* S1 机械件三（emul 整理件）：乘法结合对称面（非交换类下唯一     *)
-(*   保安的整理形；类无 bmult_comm，交换面不可造，如实不强造）。   *)
+(* S1 mechanical piece 3 (the emul tidying piece): the associative symmetry face of *)
+(*   multiplication (the only tidying shape guaranteed under a noncommutative       *)
+(*   class; the class has no bmult_comm, so a commutativity face cannot be built —  *)
+(*   honestly not forced).                                                          *)
 
 Lemma bxoo_bmult_assoc_sym : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (x y z : BA),
@@ -1407,18 +1449,20 @@ Proof.
   intros BA bae B x y z. exact (@bae_sym _ _ B _ _ (@bmult_assoc _ _ B x y z)).
 Qed.
 
-(* S2 UNQ 连接形状（Set 面）：同序列双极限 bae 相等——            *)
-(*   主件必要件的形状钉。UNQ 落盘后若 bxuq_lim_uniq 与此同形，    *)
-(*   连接= exact (bxuq_lim_uniq B)；若参序/类索引异形，           *)
-(*   按本形状包一层换序适配（eps 留记为零，纯参序迁移）。          *)
+(* S2 the UNQ connection shape (Set face): two limits of the same sequence are      *)
+(*   bae-equal — the shape pin of the main lemma's necessary piece.  Once UNQ is in *)
+(*   place, if bxuq_lim_uniq has this same shape the connection is                  *)
+(*   exact (bxuq_lim_uniq B); if the argument order / class indices differ, wrap a  *)
+(*   reordering adapter around this shape (the eps record stays zero; a pure        *)
+(*   argument-order migration).                                                     *)
 
 Definition bxoo_uniq_shape (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae) : Set :=
   forall (u : nat -> BA) (x y : BA),
     blim _ _ B u x -> blim _ _ B u y -> bae x y.
 
-(* S3 尾件（④，参数化于③）：bxdef_exp bzero == bone。            *)
-(*   两条极限链同喂唯一性：bxdef_exp_spec（ExpDef 出口）+         *)
-(*   bxoo_lim_esp_zero_bone（S1 机械件一）。                      *)
+(* S3 the tail piece ((4), parameterized by (3)): bxdef_exp bzero == bone.          *)
+(*   Two limit chains feed uniqueness together: bxdef_exp_spec (the ExpDef export)  *)
+(*   + bxoo_lim_esp_zero_bone (S1 mechanical piece 1).                              *)
 
 Lemma bxoo_bzero_eq_bone_assembly : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae),
   bxoo_uniq_shape _ _ B -> bae (bxdef_exp _ _ B (@bzero _ _ B)) (@bone _ _ B).
@@ -1430,12 +1474,15 @@ Proof.
               (bxoo_lim_esp_zero_bone _ _ B)).
 Qed.
 
-(* S4 主装配件（①+②+③+④ 合取闭合，参数化于②③两闸门）：         *)
-(*   bae (e^a·e^(−a)) (e^0) := bae_trans                          *)
-(*     (唯一性：序列左极限 e^a·e^(−a) == 近邻极限 bone)            *)
-(*     (对称(④尾件))。                                            *)
-(*   全部装配步骤真实现（bae_trans 合取 + 唯一性两次使用 +         *)
-(*   对称换向），唯②的 blim 槽与③的 uniq 槽为显式假设。           *)
+(* S4 the main assembly piece ((1)+(2)+(3)+(4) closed by conjunction,               *)
+(*   parameterized by the two gates (2) and (3)):                                   *)
+(*   bae (e^a·e^(−a)) (e^0) := bae_trans                                            *)
+(*     (uniqueness: the sequence's left limit e^a·e^(−a) == the near-one limit      *)
+(*     bone)                                                                        *)
+(*     (the symmetry of the tail piece (4)).                                        *)
+(*   Every assembly step is genuinely implemented (the bae_trans conjunction +      *)
+(*   uniqueness used twice + the symmetric reversal); only (2)'s blim slot and      *)
+(*   (3)'s uniq slot remain explicit premises.                                      *)
 
 Theorem bxoo_exp_opp_one_assembly : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (a : BA),
@@ -1461,9 +1508,10 @@ Proof.
              (bxoo_bzero_eq_bone_assembly _ _ B Hunq))).
 Qed.
 
-(* S5 UNQ 闸闭合件（ o 落盘，检验预验后   *)
-(* 正册获取）：bxdef_exp bzero == bone——Ext 层无条件 bae 全等式，  *)
-(* B25 留记②「exp(0)=one 完全等式面」对 Ext 实例兑现。             *)
+(* S5 the UNQ-gate closing piece (obtained for the main ledger once the gate        *)
+(* material is written and pre-verified): bxdef_exp bzero == bone — an              *)
+(* unconditional bae equality on the Ext layer, closing the recorded open item      *)
+(* "the exp(0)=one complete-equality face" for the Ext instance.                    *)
 
 Corollary bxoo_bzero_eq_bone : forall (BA : Set) (bae : BA -> BA -> Set) (E : BanachAlgExt BA bae),
   bae (bxdef_exp _ _ (@bxce_base _ _ E) (@bzero _ _ (@bxce_base _ _ E)))
@@ -1474,13 +1522,16 @@ Proof.
   exact (bxuq_lim_uniq _ _ E).
 Qed.
 
-(*   ② CD12 真件 bxcd_prod_near_one（，          *)
-(*     调用位随之去 bxce_coef_plus/bxce_coef_wd 两实参——             *)
-(*     hplus/hwd 摘除后无须再喂字段，终面钉 Ext 层不变。              *)
-(*   ③ bxuq_lim_uniq _ _ E 剥 E 后=bxoo_uniq_shape base 同构。          *)
-(*   主件 bxoo_exp_opp_one：无条件 bae 全等式——                     *)
-(*     bae_trans（唯一性：序列左极限 e^a·e^(−a) == 近邻极限 bone）   *)
-(*     （对称（④尾件）），与 S4 装配件合取面逐字一致。              *)
+(*   (2) the CD12 genuine piece bxcd_prod_near_one (with its hplus/hwd premises     *)
+(*     removed, the call sites accordingly drop the two arguments                   *)
+(*     bxce_coef_plus/bxce_coef_wd — after removing hplus/hwd the fields no longer  *)
+(*     need feeding; the final face stays pinned to the Ext layer).                 *)
+(*   (3) bxuq_lim_uniq _ _ E, after stripping E, is isomorphic to bxoo_uniq_shape   *)
+(*     on the base.                                                                 *)
+(*   The main lemma bxoo_exp_opp_one: an unconditional bae equality —               *)
+(*     bae_trans (uniqueness: the sequence's left limit e^a·e^(−a) == the near-one  *)
+(*     limit bone) (the symmetry of the tail piece (4)), verbatim the same          *)
+(*     conjunction face as the S4 assembly piece.                                   *)
 
 Theorem bxoo_exp_opp_one : forall (BA : Set) (bae : BA -> BA -> Set) (E : BanachAlgExt BA bae)
   (a : BA),
@@ -1494,10 +1545,10 @@ Proof.
   apply (bxoo_nearone_blim _ _ (@bxce_base _ _ E)).
   exact (bxcd_prod_near_one _ _ (@bxce_base _ _ E) a).
 Qed.
-(* ================= §2 s3c_hplus_of 族 ================= *)
+(* ================= §2 the s3c_hplus_of family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
-(* 类字段→显式假设形供给锚（bnh 锚一同位：字段形≡假设形） *)
+(* the class-field to explicit-premise supply anchor (the bnh anchor-1 colocated position: the field shape ≡ the premise shape) *)
 Definition s3c_hplus_of (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   : forall q r : Q,
     bae (@bplus _ _ B (@bcoef _ _ B q) (@bcoef _ _ B r)) (@bcoef _ _ B (q + r)%Q)
@@ -1507,7 +1558,7 @@ Definition s3c_hwd_of (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   : forall q r : Q, q == r -> bae (@bcoef _ _ B q) (@bcoef _ _ B r)
   := fun q r Hq => @bcoef_wd _ _ B q r (qeq_imp_qeqT _ _ Hq).
 
-(* ① E 载体无条件 exp_add（消 bxae_exp_add 的 hplus/hwd 显式钉）    *)
+(* (1) the E-carrier's unconditional exp_add (removing the hplus/hwd explicit pins of bxae_exp_add) *)
 
 Theorem s3c_exp_add_base : forall (BA : Set) (bae : BA -> BA -> Set) (E : BanachAlgExt BA bae)
   (a b : BA),
@@ -1521,9 +1572,10 @@ Proof.
   exact (bxae_exp_add _ _ E a b hab).
 Qed.
 
-(* ② plain B 载体 exp_add 装配（六环合流：⑤左极限 + ④差小移位      *)
-(*   + ⑥唯一性（假设化）；唯一性槽以 bxoo_uniq_shape 显式给出——     *)
-(*   plain 类无 sep 字段，与 bxoo_exp_opp_one_assembly 同口径）      *)
+(* (2) the plain B-carrier exp_add assembly (the six-link confluence: (5) the left  *)
+(*   limit + (4) the small-difference shift + (6) uniqueness (as a premise); the    *)
+(*   uniqueness slot is given explicitly as bxoo_uniq_shape —                       *)
+(*   the plain class has no sep field, the same caliber as bxoo_exp_opp_one_assembly) *)
 
 Theorem s3c_exp_add_plain : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (a b : BA),
@@ -1537,9 +1589,9 @@ Proof.
   apply (Hunq (fun n : nat =>
                  @bmult _ _ B (exp_series_partial _ _ B a n)
                           (exp_series_partial _ _ B b n))).
-  - (* ⑤ 左极限：部分积序列 → e^a·e^b *)
+  - (* (5) the left limit: the partial-product sequence -> e^a·e^b *)
     exact (bxadd_esp_prod_blim _ _ B a b).
-  - (* ④ 差小移位：部分积序列 → e^(a+b) *)
+  - (* (4) the small-difference shift: the partial-product sequence -> e^(a+b) *)
     apply (bxae_lim_shift _ _ B
              (fun n : nat =>
                 @bmult _ _ B (exp_series_partial _ _ B a n)
@@ -1553,8 +1605,9 @@ Proof.
     exact (HN n (NatLe_drop N n Hn)).
 Qed.
 
-(* ③ 可逆性合流：(e^a) 的逆元 = e^{-a}                              *)
-(*   ③a Ext 载体无条件：e^a·e^{-a} == e^0 与 e^0 == bone 两绿件      *)
+(* (3) the invertibility confluence: the inverse of (e^a) is e^{-a}                 *)
+(*   (3a) unconditional on the Ext carrier: the two lemmas e^a·e^{-a} == e^0 and    *)
+(*   e^0 == bone                                                                    *)
 
 Theorem s3c_exp_opp_one_base : forall (BA : Set) (bae : BA -> BA -> Set) (E : BanachAlgExt BA bae)
   (a : BA),
@@ -1581,9 +1634,10 @@ Proof.
   - exact (bxoo_bzero_eq_bone _ _ E).
 Qed.
 
-(*   ③b plain 载体：bxoo_exp_opp_one_assembly 的 Hnear 槽闭合——     *)
-(*   bxcd_prod_near_one 的 hplus/hwd 显式假设喂基类字段（S6 注记     *)
-(*   「plain 喂不进」系类迁移前旧账，bnh 锚一后即通）。               *)
+(*   (3b) the plain carrier: the Hnear slot of bxoo_exp_opp_one_assembly is closed  *)
+(*   — the hplus/hwd explicit premises of bxcd_prod_near_one are fed from the base  *)
+(*   class fields (the earlier note "plain cannot be fed" was a pre-migration       *)
+(*   issue; it resolves once the bnh anchor-1 is in place).                         *)
 
 Theorem s3c_exp_opp_one_plain : forall (BA : Set) (bae : BA -> BA -> Set) (B : BanachAlg BA bae)
   (a : BA),
@@ -1615,7 +1669,7 @@ Proof.
   - exact (bxoo_bzero_eq_bone_assembly _ _ B Hunq).
 Qed.
 
-(* G4 假设面自证（PA≥1：主件四件）                                  *)
+(* assumption-face self-attestation (PA ≥ 1 for each of the four main pieces)       *)
 Print Assumptions s3c_exp_add_base.
 Print Assumptions s3c_exp_add_plain.
 Print Assumptions s3c_exp_inv_base.

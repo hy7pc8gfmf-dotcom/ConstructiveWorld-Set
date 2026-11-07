@@ -1,30 +1,33 @@
-(* ========================================================================== *)
-(*  UpReqBanachCauchyD.v - Banach-Cauchy D: diagonal-triangle estimate for   *)
-(*  double sums (the bxcd_ family).                                          *)
-(*                                                                           *)
-(*  使命：bxcd_ 族——bsum 折叠代数（pad_split/snoc/rev）、二项式项、F/G 范数  *)
-(*  界、Q2_bound 对、乘积近一主定理 bxcd_prod_near_one（闭式 sigT 界）。     *)
-(*  Mission: bsum folding algebra, binomial terms, F/G norm bounds, the      *)
-(*  Q2_bound pair, and bxcd_prod_near_one: the product of the partial        *)
-(*  exponential series of a and -a equals 1 + U with an explicit sigT bound. *)
-(*                                                                           *)
-(*  Ground: S-carrier wash of the Main-tree module of the same name.         *)
-(*  Statement faces are Set-carried (Id / QeqT / QleT' / QltT / NatLe /     *)
-(*  sigT); Prop atoms appear only inside proofs, through the gates           *)
-(*  NatLe_drop, QleT'_to_Qle, QltT_to_Qlt, qeqT_imp_qeq; bare-equation      *)
-(*  seams use the local id_eq_inv bridge (seat_abl12 precedent).             *)
-(*                                                                           *)
-(*  依赖：S01_BaseRing、S02_CauchyComplete、S03_QExp、UpReqBanachExp、       *)
-(*  UpReqBanachProd、UpReqBanachDouble、UpReqBanachExpBasic、                *)
-(*  UpReqBanachAdd、UpReqNormConv、UpReqBanachProd2、UpReqBanachInvPre、     *)
-(*  BanachNoHyp；Stdlib QArith、Arith、ZArith、Setoid、Morphisms、Lia。      *)
-(*                                                                           *)
-(*  构造性：全件 Qed 闭合、零承认词面、无经典逻辑；语句面 Set 承载，         *)
-(*  Prop 仅存证明体内（门桥见上）。                                          *)
-(*                                                                           *)
-(*  编译配方：rocq c -native-compiler no -Q . "" UpReqBanachCauchyD.v        *)
-(*  （Rocq 9.1 toolchain、cpu_guard 包裹同世界影子重编）。                   *)
-(* ========================================================================== *)
+(* ConstructiveWorld-Set — diagonal-triangle estimate for double sums. *)
+
+(** * UpReqBanachCauchyD: the diagonal-triangle estimate for double sums.
+
+    Mission.  The [bxcd_] family: [bsum] folding algebra
+      ([bxcd_pad_split]/[bxcd_snoc]/[bxcd_rev]), binomial terms, F/G
+      norm bounds, the [Q2_bound] pair, and [bxcd_prod_near_one]: the
+      product of the partial exponential series of [a] and [-a] equals
+      [1 + U] with an explicit [sigT] bound.
+
+    Dependencies.  [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
+      [UpReqBanachExp], [UpReqBanachProd], [UpReqBanachDouble],
+      [UpReqBanachExpBasic], [UpReqBanachAdd], [UpReqNormConv],
+      [UpReqBanachProd2], [UpReqBanachInvPre], [BanachNoHyp];
+      Stdlib [QArith], [Arith], [ZArith], [Setoid], [Morphisms], [Lia].
+
+    References.  This development, UpReqBanachCauchyD.v, the baseline
+      module in ConstructiveWorld-Main whose statement names are carried
+      over verbatim (statement-face Set-carrier completion: faces
+      Set-carried by [Id]/[QeqT]/[QleT']/[QltT]/[NatLe]/[sigT]; Prop
+      atoms only inside proofs via bridges [NatLe_drop], [QleT'_to_Qle],
+      [QltT_to_Qlt], [qeqT_imp_qeq]; bare seams use [id_eq_inv]).
+
+    Constructivity.  All named statements and fields are carried by [Set]
+      ([QltT]/[QleT']/[QeqT], [Id], [NatLe]); statements extract with
+      [Obj.magic] = 0 and no erasure; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpReqBanachCauchyD.v] compiles cleanly (exit 0); the first eight
+      bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

@@ -1,32 +1,33 @@
-(*
-  piu_zz_poincare_engine.v — Poincaré root-limit engine for the (2,3) n/2
-  Salikhov-type pi recurrence; part 1 of the engine build.
+(* ConstructiveWorld-Set — Poincaré root-limit engine for a Salikhov-type pi recurrence. *)
 
-  使命 (mission): for the third-order recurrence with polynomial
-  coefficients p0..p3 (transcribed verbatim from oSALIKHOVpi3.txt:86-93) this
-  file provides: (i) the Set-carried Q-valued recurrence predicate piu_zz_seq
-  with non-vanishing of the shift coefficient p3; (ii) the limit characteristic
-  polynomial (Ainf/Binf/Cinf), its commuted integer form piu_zz_charpoly_int
-  (indicial polynomial of oSALIKHOVpi3.txt:138-147 up to sign), the
-  leading-coefficient commensuration quadruple, and the Vieta readings
-  piu_zz_vieta_root_prod/_sum/_pair mechanizing |N1|^2 = 512/(27*N3); (iii)
-  the two-sided epsilon power-cage predicate piu_zz_power_cage with the proof
-  outline and sub-lemma checklist of the root-limit theorem
-  piu_zz_poincare_rootlimit, whose proof core is reserved for later parts and
-  whose statement is frozen below as a comment (never as an admitted
-  proof, so the compiled module carries no unproved claim).
+(** * piu_zz_poincare_engine: Poincaré root-limit engine, part 1.
 
-  依赖 (dependencies): Stdlib QArith, Qring, QArith.Qabs, Lia, Extraction (clean
-  chains; the module is compiled closed, see the Print Assumptions audit).
-  对标 (references): oSALIKHOVpi3.txt; D. Zeilberger, "A sequence of Diophantine
-  approximations to Pi that implies its irrationality"; H. Poincaré, Amer. J.
-  Math. 7 (1885) 203-258; S. Elaydi, An Introduction to Difference Equations,
-  3rd ed. (Poincaré-type theorems chapter).
-  构造性 (constructive notes): statements carried in Set (QeqT/QleT'/QltT/QneqT/sigT/prod);
-  piu_zz_qpow transparent; the frozen theorem is a comment, so the compiled
-  module carries no unproved claim.
-  编译配方 (build): rocq c -native-compiler no -q -Q . "" piu_zz_poincare_engine.v
-*)
+    Mission.  For the third-order recurrence with polynomial coefficients
+      [p0..p3] (verbatim from oSALIKHOVpi3.txt:86-93): (i) the Set-carried
+      Q-valued recurrence predicate [piu_zz_seq] with non-vanishing shift
+      coefficient [p3]; (ii) the limit characteristic polynomial
+      ([Ainf]/[Binf]/[Cinf]) with integer form [piu_zz_charpoly_int]
+      (indicial polynomial of oSALIKHOVpi3.txt:138-147 up to sign), the
+      commensuration quadruple, and Vieta readings mechanizing [|N1|^2 = 512/(27*N3)];
+      (iii) the epsilon power-cage predicate [piu_zz_power_cage] and the
+      [piu_zz_poincare_rootlimit] statement, frozen as a comment (its proof core belongs to later parts).
+
+    Dependencies.  Stdlib [QArith], [Qring], [QArith.Qabs], [Lia],
+      [Extraction]; the module is compiled closed (see [Print Assumptions]).
+
+    References.  oSALIKHOVpi3.txt; D. Zeilberger, "A sequence of
+      Diophantine approximations to Pi that implies its irrationality";
+      H. Poincaré, Amer. J. Math. 7 (1885) 203-258; S. Elaydi, An
+      Introduction to Difference Equations, 3rd ed.; the same-name
+      ConstructiveWorld-Main baseline module of this development.
+
+    Constructivity.  Statements carried in [Set]
+      ([QeqT]/[QleT']/[QltT]/[QneqT]/[sigT]/[prod]); the frozen theorem
+      is a comment, so the compiled module carries no unproved claim.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      piu_zz_poincare_engine.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith Qring Lia.
 From Stdlib Require Import QArith.Qabs.

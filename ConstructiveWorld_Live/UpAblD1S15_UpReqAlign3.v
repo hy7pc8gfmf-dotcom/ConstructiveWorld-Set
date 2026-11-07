@@ -1,33 +1,42 @@
-(* ==========================================================================
-   UpAblD1S15_UpReqAlign3.v - the sixteen UpReqAlign3 interface items,
-   discharged as a one-point canonical-carrier supply lemma.
-   Mission. 使命: one named instance declaration, one positivity
-     certificate for the alignment partition function at the one-point
-     instance, one record-type package uabd1s15_a3_pack16 restating the
-     sixteen interface slots in source declaration order (the Gibbs
-     nonnegativity slot carried as a universal premise - an
-     honest-interface slot, not claimed as a supply), and one discharge
-     theorem taking that premise.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlign2
-     (req2_Z_align / req2_pos_dist / req2_rel_ent) of the -Set lineage
-     world; argument-less Class RealInterfaceEnhancedSetoid; notation
-     rebind Notation R := Real; predicate faces converged to real_eq /
-     real_le / real_lt; bare field consumption through the global
-     instance.
-   References. 对标: the relative-entropy nonnegativity interface
-     (Gibbs-type inequality) of policy-evaluation comparison, at its
-     one-point instantiation. Statement names carried over verbatim;
-     adaptation = binder-pair removal + notation rebinding +
-     predicate-face convergence + space-slot monomorphise to unit (the
-     D1S17 record-form precedent, keeping the extracted payload real
-     data).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; the tail Print Assumptions probes
-     report the closure face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     UpAblD1S15_UpReqAlign3.v (cpu_guard thermal wrapper,
-     ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — one-point canonical-carrier discharge of the sixteen UpReqAlign3 interface items. *)
+
+(** * UpAblD1S15_UpReqAlign3: the sixteen [UpReqAlign3] interface items
+      discharged as a one-point canonical-carrier supply lemma.
+
+    Mission.  One named instance declaration, one positivity certificate
+      for the alignment partition function at the one-point instance,
+      one record-type package [uabd1s15_a3_pack16] restating the
+      sixteen interface slots in source declaration order (the Gibbs
+      nonnegativity slot carried as a universal premise - an
+      honest-interface slot, not claimed as a supply), and one discharge
+      theorem taking that premise.
+
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
+      [UpReqAlign2] ([req2_Z_align] / [req2_pos_dist] / [req2_rel_ent])
+      of this development; argument-less Class
+      [RealInterfaceEnhancedSetoid]; notation rebind
+      [Notation R := Real]; predicate faces converged to [real_eq] /
+      [real_le] / [real_lt]; bare field consumption through the global
+      instance.
+
+    References.  This development, UpAblD1S15_UpReqAlign3.v, the
+      baseline module in ConstructiveWorld-Main whose statement names
+      are carried over here verbatim (statement-face Set-carrier
+      completion).  The baseline interface is the relative-entropy
+      nonnegativity interface (Gibbs-type inequality) of
+      policy-evaluation comparison, at its one-point instantiation.
+      Adaptation = binder-pair removal + notation rebinding +
+      predicate-face convergence + space-slot monomorphise to unit (the
+      D1S17 record-form precedent, keeping the extracted payload real
+      data).
+
+    Constructivity.  All Set-layer statements; every station closed by
+      [Qed], zero admitted items; the tail [Print Assumptions] probes
+      report the closure face; no new axioms.
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpAblD1S15_UpReqAlign3.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

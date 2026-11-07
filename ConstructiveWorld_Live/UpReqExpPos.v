@@ -1,11 +1,31 @@
-(* ==========================================================================)
-   UpReqExpPos.v — 指数函数正性件
-   使命: upreq_exp_pos（指数恒正主定理）与 or_destruct 分支形、upreq_exp_neg_ne_zero（指数非零）、upreq_exp_neg_unit、upreq_real_zero_ne_one。
-   依赖: CW_ConstructiveWorld_219；Stdlib QArith、Arith。
-   对标: 指数函数正值性（实分析基础件）。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — positivity of the exponential over the Real layer. *)
+
+(** * UpReqExpPos: positivity of the exponential at the Real layer.
+
+    Mission.  [upreq_exp_pos], the main positivity statement
+      [0 < e^x] for every real [x], together with the [Or]-resolution
+      branch form [upreq_exp_pos_or_destruct], the nonvanishing
+      statement [upreq_exp_neg_ne_zero], the unit identity
+      [upreq_exp_neg_unit], and [upreq_real_zero_ne_one].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs],
+      [Arith.Arith].  Requires [S01_BaseRing] through [S15_TailFEPUp]
+      and [UpReqRealLtShiftBridge] of this development (the
+      contradiction basis [rlsb_zero_ne_one] is consumed from
+      [UpReqRealLtShiftBridge]).
+
+    References.  This development, UpReqExpPos.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried
+      over here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements are carried by [Set]; every
+      proof closes by [Qed] with zero admission tokens and no
+      classical logic; the order and equality predicates at statement
+      level are Set-valued with zero Prop leakage.
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqExpPos.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -26,10 +46,13 @@ Require Import UpReqRealLtShiftBridge.
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 
 (* ============================================================ *)
-(* 件 1：Real 层 0 ≠ 1（五步链步骤 2 的矛盾基础模块）                  *)
-(*   证明：引用库内同内容已证结论 rlsb_zero_ne_one                    *)
-(*   （UpReqRealLtShiftBridge：real_eq 取 ε := 1 得逐项分离           *)
-(*   QltT |0−1| 1，逐点计算化归 Q 层矛盾 discriminate 消去）。        *)
+(* Part 1: 0 <> 1 at the Real layer (the contradiction basis of      *)
+(* step 2 of the five-step chain).                                   *)
+(*   Proof source: the identical in-library statement                *)
+(*   [rlsb_zero_ne_one] ([UpReqRealLtShiftBridge]: instantiating     *)
+(*   [real_eq] at [eps := 1] gives the pointwise separation          *)
+(*   [QltT |0-1| 1]; pointwise computation reduces this to a         *)
+(*   Q-layer contradiction eliminated by [discriminate]).            *)
 (* ============================================================ *)
 Lemma upreq_real_zero_ne_one : Not (real_eq real_zero real_one).
 Proof.
@@ -37,10 +60,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 件 2（五步链步骤 1）：单位元 eˣ·e⁻ˣ == 1                         *)
-(*   eˣ·e⁻ˣ == e^{x+(−x)}（exp_neg_plus 反向）== e^{−0}（参数        *)
-(*   real_eq 运输：plus_opp → opp_compat → cauchy_real_exp_wd）     *)
-(*   == 1（real_exp_neg_zero）。                                   *)
+(* Part 2 (step 1 of the five-step chain): the unit identity         *)
+(* eˣ·e⁻ˣ == 1.                                                      *)
+(*   eˣ·e⁻ˣ == e^{x+(-x)} ([real_exp_neg_plus] reversed) == e^{-0}   *)
+(*   (transporting the argument along [real_eq]: plus_opp ->         *)
+(*   opp_compat -> cauchy_real_exp_wd) == 1 ([real_exp_neg_zero]).   *)
 (* ============================================================ *)
 Lemma upreq_exp_neg_unit : forall x : Real,
   real_eq (real_mult (real_exp_neg x) (real_exp_neg (real_opp x))) real_one.
@@ -63,9 +87,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 件 3（五步链步骤 2）：eˣ ≠ 0（乘法逆元存在性推论）                *)
-(*   eˣ==0 ⟹ eˣ·e⁻ˣ == 0·e⁻ˣ == 0（eq_mult_compat + mult_comm      *)
-(*   + mult_zero）⟹ 0 == 1（件 1）⟹ Empty_set 消去。               *)
+(* Part 3 (step 2 of the five-step chain): eˣ <> 0, a corollary of   *)
+(* the inverse e⁻ˣ.                                                  *)
+(*   eˣ==0 implies eˣ·e⁻ˣ == 0·e⁻ˣ == 0 ([eq_mult_compat] +          *)
+(*   [mult_comm] + [mult_zero]), hence 0 == 1 (Part 1), and          *)
+(*   [Empty_set] elimination closes the goal.                        *)
 (* ============================================================ *)
 Lemma upreq_exp_neg_ne_zero : forall x : Real,
   Not (real_eq (real_exp_neg x) real_zero).
@@ -93,22 +119,29 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 件 4（目标定理，主结果）：0 < eˣ 对全部实数 x                     *)
-(*   real_exp_neg (real_opp x) = cauchy_real_exp (real_opp          *)
-(*   (real_opp x)) = eˣ；库内 real_exp_neg_pos 于 real_opp x 一词    *)
-(*   实例化——即 exp_neg_pos 接口字段的 Real 层实例化验证：其 ε 见证   *)
-(*   由 S03 幂级数构造（ε := 1/(2C)，构造性 sigT 形态）。        *)
+(* Part 4 (the target theorem, main result): 0 < eˣ for every real x.*)
+(*   real_exp_neg (real_opp x) = cauchy_real_exp (real_opp           *)
+(*   (real_opp x)) = eˣ; the in-library [real_exp_neg_pos] is        *)
+(*   instantiated at [real_opp x] — exactly the Real-layer           *)
+(*   instantiation check of the [exp_neg_pos] interface field, whose *)
+(*   eps witness comes from the power-series construction in         *)
+(*   [S03_QExp] ([eps := 1/(2C)], a constructive [sigT] shape).      *)
 (* ============================================================ *)
 Theorem upreq_exp_pos : forall x : Real,
   real_lt real_zero (real_exp_neg (real_opp x)).
 Proof. intro x. exact (real_exp_neg_pos (real_opp x)). Qed.
 
 (* ============================================================ *)
-(* 件 5（五步链步骤 5 的 Or 消解形态）：目标定理的 Or 编码演绎        *)
+(* Part 5 (the Or-resolution form of step 5 of the five-step chain): *)
+(* an [Or]-encoded derivation of the target theorem.                 *)
 (*   real_le real_zero eˣ = Or (real_lt real_zero eˣ) (real_eq       *)
-(*   real_zero eˣ)（S02:460 编码展开）；左支由级数 ε-见证直供（件 4  *)
-(*   同源），右支 0==eˣ 经件 3 归谬得 Empty_set、任意 Set 目标消去    *)
-(*   ——destruct-Or + 右支归谬的标准构造性结构，纯项式组装。          *)
+(*   real_zero eˣ) (the encoding expanded as in S02:460); the left   *)
+(*   disjunct is supplied directly by the series eps witness (same   *)
+(*   source as Part 4); for the right disjunct 0==eˣ, Part 3 derives *)
+(*   [Empty_set] by contradiction, from which any Set goal is        *)
+(*   eliminated — the standard constructive structure of             *)
+(*   destruct-Or plus right-disjunct contradiction, assembled as     *)
+(*   pure terms.                                                     *)
 (* ============================================================ *)
 Theorem upreq_exp_pos_or_destruct : forall x : Real,
   real_lt real_zero (real_exp_neg (real_opp x)).

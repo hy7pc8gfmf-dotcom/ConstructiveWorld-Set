@@ -1,36 +1,33 @@
-(* ===================================================================== *)
-(*  五字段指针｜使命：Q 层多项式带余除法引擎首件——ln2 路线③（S6 恒等式肢）  *)
-(*    唯一无在册先例的代数件的最小可行基座。 依赖：Stdlib QArith/Qring/     *)
-(*    Qfield/List/Arith/ZArith/Extraction；S01_BaseRing S02_CauchyComplete *)
-(*    PolyIntegral（池外世界树在册件）。 构造性：纯构造性、零承认件；语句面  *)
-(*    全 Set（sigT/And/S02.QeqT/S01.Id 度谓词），Qeq==仅证内推理脚手架； *)
-(*    环闭全走「全变量形纯环小件」模式（坑卡 AL/AX）。 编译配方：source      *)
-(*    Live/toolchain/env.sh && unset COQLIB ROCQLIB && ulimit -s 65532 &&   *)
-(*    nice -19 rocq c -native-compiler no -Q vo_local_world_unified_0930    *)
-(*    "" abl_qpoly_divmod.v（道闸≤1＝单进程串行）。 对标：PolyIntegral      *)
-(*    pint_*（Q 系数列表先例）；BT §诚实边界路线③除法引擎；AE §3.3 路线③。 *)
-(* ===================================================================== *)
-(*  abl_qpoly_divmod.v —— Q 层多项式除法引擎·首件                           *)
-(*                                                                        *)
-(*  使命：按 BT 诚实边界清单，闭合 ln2 路线③「多项式除法引擎」的首件档位——   *)
-(*    Q 系数稠密列表多项式（头=常数项，循库内 PolyIntegral 先例）的          *)
-(*    【线性除数带余除法（综合除法）】引擎：                                *)
-(*      qpd_synth a p : list Q * Q —— p ÷ (x+a) 的（商列表, 余数标量），     *)
-(*      真结构 Fixpoint（头递归，非平凡算法体，可提取）；                    *)
-(*      qpd_pdivmod_lin_wit a p : sigT 封装（商+余数+双正确性肢）：          *)
-(*        ①等式肢 ∀x, QeqT (eval p x) (eval (x+a) x · eval 商 x + 余数)      *)
-(*        ②度肢   qpd_deglt 余式列表 (x+a)（Id bool 面，可判定）             *)
-(*    一般除法形【只登记不施工】：qpd_divmod_gen_type 留接口；               *)
-(*    线性→一般桥 qpd_lin_to_gen 已通（线性引擎经一般接口即使用）。          *)
-(*                                                                        *)
-(*  诚实边界：①一般形引擎不施工——头=常数项表示下一般长除法须自尾（最高次）   *)
-(*    剥项，非结构递归；线性综合除法恰是头结构递归的最大可闭合切片，此为      *)
-(*    表示法层面的真限制，非证明技巧欠缺。②商列表允许尾随零（稠密表示，      *)
-(*    求值语义不受影响，烟测如实呈现）。③qpd_lead 的非平凡引理（如幂单项     *)
-(*    首一性）只登记不施工。④使用前瞻（只登记不施工）：AE 路线③ Beukers     *)
-(*    恒等式 tⁿ(1−t)ⁿ == P_n·(1−t/2)^{n+1} + Σd_j(1−t/2)^{n+1−j} 的除法      *)
-(*    位，本件一般接口 qpd_divmod_gen_type 即其使用面。                     *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — Q-layer polynomial division engine: synthetic division by a linear divisor. *)
+(** * abl_qpoly_divmod: division with remainder by a linear divisor for dense [Q]-list polynomials.
+
+    Mission.  For dense coefficient lists with the head as the constant term (the
+      [PolyIntegral] convention), the linear-divisor division engine: [qpd_synth a p]
+      returns (quotient list, remainder scalar) for p ÷ (x+a) as a genuine structural
+      [Fixpoint] (head recursion, extractable); [qpd_pdivmod_lin_wit a p] packages it in
+      [sigT] with both correctness limbs — the equation limb (pointwise [QeqT]: eval p ==
+      eval (x+a) · eval quotient + remainder) and the degree limb ([qpd_deglt], an [Id] bool face, decidable).  The general interface [qpd_divmod_gen_type] is declared,
+      not implemented; the bridge [qpd_lin_to_gen] routes the linear engine through it.
+
+    Dependencies.  Stdlib [QArith], [Qring], [Qfield], [Lists.List], [Arith], [ZArith],
+      [Extraction]; requires [S01_BaseRing], [S02_CauchyComplete], [PolyIntegral] of
+      this development.
+
+    References.  The [pint_] family of [PolyIntegral] ([pint_coeff], [pint_eval],
+      [pint_add], [pint_scale] — Q-coefficient list polynomials); the general-division
+      face is [qpd_divmod_gen_pred]/[qpd_divmod_gen_type] with the bridge [qpd_lin_to_gen_sound].
+
+    Constructivity.  Purely constructive, nothing admitted; the statement face is
+      entirely [Set] ([sigT]/[And]/[QeqT]/[Id] degree predicates); [Qeq] (==) is only
+      intra-proof scaffolding; ring closures use all-variable pure ring atoms.
+      Honesty: the general long division is declared, not implemented (with head =
+      constant term it would peel from the tail, not structurally recursive — linear
+      synthetic division is the largest closable slice of this representation); quotient lists may carry trailing zeros (dense form, evaluation unaffected); non-trivial
+      [qpd_lead] lemmas (e.g. leading-power monicity) are declared, not implemented;
+      forward use: [qpd_divmod_gen_type] is the division position of the Beukers-identity route.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" abl_qpoly_divmod.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs QArith.Qring QArith.Qfield.
 From Stdlib Require Import Lists.List Arith.Arith ZArith.ZArith Extraction.
@@ -40,25 +37,28 @@ Require Import S01_BaseRing S02_CauchyComplete PolyIntegral.
 Open Scope Q_scope.
 
 (* ============================================================ *)
-(* §0 载体与度支持件（全 Set 面）                                 *)
-(*    多项式 = list Q 稠密系数表，头=常数项（PolyIntegral 先例）； *)
-(*    度约定：deg [] = 0（零多项式按度 0 记，度肢由可判定 Id 面    *)
-(*    诚实承载，不虚报 −∞ 惯例）。                                *)
+(* §0. Carrier and degree support (entirely Set-face)            *)
+(*   A polynomial is a dense [list Q] of coefficients with the head     *)
+(*   as the constant term (the [PolyIntegral] convention); degree       *)
+(*   convention: deg [] = 0 (the zero polynomial is recorded with       *)
+(*   degree 0; the degree limb is honestly carried by the decidable     *)
+(*   [Id] face rather than a fictional −∞ convention).                  *)
 (* ============================================================ *)
 
-(* 度：length − 1（空表记 0） *)
+(* Degree: length − 1 (the empty list recorded as 0) *)
 Definition qpd_deg (p : list Q) : nat :=
   match p with
   | [] => 0%nat
   | _ :: _ => pred (length p)
   end.
 
-(* 首系数（最高次项系数；越界/空表为 0，复用库内 pint_coeff） *)
+(* Leading coefficient (coefficient of the highest-degree term; 0 for the empty list or out of range, reusing the library [pint_coeff]) *)
 Definition qpd_lead (p : list Q) : Q :=
   pint_coeff p (pred (length p)).
 
-(* 度肢可判定谓词：deg r < deg q 的 Id bool 面（Set 层）
-   （坑卡：S01.Id 的 A 为最大隐式，@Id 显式给 A，bool 不可省写） *)
+(* Decidable predicate for the degree limb: deg r < deg q on the [Id] bool face ([Set]
+   layer).  Note: the type argument of the S01 [Id] is maximally implicit, so it is
+   given explicitly as [@Id bool ...]; the [bool] argument cannot be omitted. *)
 Definition qpd_deglt (r q : list Q) : Set :=
   @Id bool true (Nat.ltb (qpd_deg r) (qpd_deg q)).
 
@@ -77,8 +77,11 @@ Proof. intros c. apply qeq_imp_qeqT.
   cbn [qpd_lead pint_coeff length pred]. apply Qeq_refl. Qed.
 
 (* ============================================================ *)
-(* §1 全变量形纯环小件组（坑卡 AL/AX 模式：环闭原子全为变量，      *)
-(*    调用位以复合项直取代参；杜绝「环闭原子含复合项 ring 失灵」） *)
+(* §1. All-variable pure ring atom group: the ring-closure atoms *)
+(*   are plain variables, and call sites substitute compound     *)
+(*   terms directly — this avoids the failure mode where a       *)
+(*   ring-closure atom contains a compound term and [ring]       *)
+(*   stops matching.                                             *)
 (* ============================================================ *)
 
 Lemma qpd_ring_0l : forall e : Q, QeqT e (0 + e).
@@ -99,8 +102,9 @@ Proof. intros a x. apply qeq_imp_qeqT. ring. Qed.
 Lemma qpd_ring_base : forall a x : Q, QeqT 0 ((a + x) * 0 + 0).
 Proof. intros a x. apply qeq_imp_qeqT. ring. Qed.
 
-(* 综合除法步核心恒等式：p = c + x·p′，p′ = (x+a)·s′ + r′
-   ⟹ c·x⁰ 位的消去：c + x·((a+x)e + r) == (a+x)(r + x·e) + (c − a·r) *)
+(* The core identity of the synthetic-division step: if p = c + x·p′ and
+   p′ = (x+a)·s′ + r′, eliminating the c·x⁰ position gives
+   c + x·((a+x)e + r) == (a+x)(r + x·e) + (c − a·r) *)
 Lemma qpd_ring_lin_step : forall a c e r x : Q,
   QeqT (c + x * ((a + x) * e + r))
        ((a + x) * (r + x * e) + (c - a * r)).
@@ -118,13 +122,15 @@ Lemma qpd_ring_mullin : forall a e x : Q,
   QeqT ((0 + x * e) + a * e) ((x + a) * e).
 Proof. intros a e x. apply qeq_imp_qeqT. ring. Qed.
 
-(* 语义烟测配套：(x²+1) ÷ (x+1) 之商 x−1 的求值恒等式 *)
+(* Companion of the semantic smoke tests: the evaluation identity for the quotient x−1 of (x²+1) ÷ (x+1) *)
 Lemma qpd_ring_xminus1 : forall x : Q,
   QeqT ((-1) + x * (1 + x * (0 + x * 0))) (x + (-1)).
 Proof. intros x. apply qeq_imp_qeqT. ring. Qed.
 
 (* ============================================================ *)
-(* §2 求值脚手架（Horner 求值与系数运算的语义引理；== 仅证内）    *)
+(* §2. Evaluation scaffolding (semantic lemmas of Horner         *)
+(*   evaluation and of the coefficient operations; == appears    *)
+(*   only inside proofs)                                         *)
 (* ============================================================ *)
 
 Lemma qpd_eval_nil : forall x : Q, QeqT (pint_eval [] x) 0.
@@ -134,7 +140,7 @@ Lemma qpd_eval_cons : forall (c : Q) (p : list Q) (x : Q),
   QeqT (pint_eval (c :: p) x) (c + x * pint_eval p x).
 Proof. intros c p x. apply qeq_imp_qeqT. cbn [pint_eval]. apply Qeq_refl. Qed.
 
-(* 线性除式求值：eval (x+a) x == a + x *)
+(* Evaluation of the linear divisor: eval (x+a) x == a + x *)
 Lemma qpd_eval_lin_eq : forall a x : Q,
   QeqT (pint_eval (a :: 1 :: nil) x) (a + x).
 Proof.
@@ -145,7 +151,7 @@ Proof.
   exact (qeqT_imp_qeq _ _ (qpd_ring_lin_eval a x)).
 Qed.
 
-(* 常多项式求值：eval [r] x == r *)
+(* Evaluation of a constant polynomial: eval [r] x == r *)
 Lemma qpd_eval_const : forall r x : Q, QeqT (pint_eval (r :: nil) x) r.
 Proof.
   intros r x. apply qeq_imp_qeqT.
@@ -154,7 +160,7 @@ Proof.
   exact (qeqT_imp_qeq _ _ (qpd_ring_const r x)).
 Qed.
 
-(* 库内 pint_add（系数加法）的求值语义 *)
+(* Evaluation semantics of the library [pint_add] (coefficient-wise addition) *)
 Lemma qpd_eval_add : forall (p q : list Q) (x : Q),
   QeqT (pint_eval (pint_add p q) x) (pint_eval p x + pint_eval q x).
 Proof.
@@ -172,7 +178,7 @@ Proof.
                (qpd_ring_add a b (pint_eval p' x) (pint_eval q' x) x)).
 Qed.
 
-(* 库内 pint_scale（数乘）的求值语义 *)
+(* Evaluation semantics of the library [pint_scale] (scalar multiplication) *)
 Lemma qpd_eval_scale : forall (a : Q) (p : list Q) (x : Q),
   QeqT (pint_eval (pint_scale a p) x) (a * pint_eval p x).
 Proof.
@@ -186,7 +192,7 @@ Proof.
     exact (qeqT_imp_qeq _ _ (qpd_ring_scale a c (pint_eval p' x) x)).
 Qed.
 
-(* 乘线性式：(x+a)·s 的系数表 = 升位 s + a·s（系数运算组装件） *)
+(* Multiplication by the linear form: the coefficient list of (x+a)·s is the shift-lifted s plus a·s (an assembly of coefficient operations) *)
 Definition qpd_mul_lin (a : Q) (s : list Q) : list Q :=
   pint_add (0 :: s) (pint_scale a s).
 
@@ -201,10 +207,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 线性除数综合除法引擎（真 Fixpoint，头=常数项结构递归）       *)
-(*    不变式：qpd_synth a p = (s, r) 满足 p == (x+a)·s + r        *)
-(*    递归步：c::p′ 中 p′ 已归约出 (s′, r′)，则升位配平得          *)
-(*      商 = r′::s′，余 = c − a·r′（一次代入消去 c 位）。          *)
+(* §3. The linear-divisor synthetic division engine (a genuine   *)
+(*   Fixpoint, structural recursion on the head = constant       *)
+(*   term).  Invariant: qpd_synth a p = (s, r) with              *)
+(*   p == (x+a)·s + r.  Recursive step: for c::p′, once p′ has   *)
+(*   yielded (s′, r′), the lift-and-balance gives quotient =     *)
+(*   r′::s′ and remainder = c − a·r′ (one substitution           *)
+(*   eliminates the c position).                                 *)
 (* ============================================================ *)
 
 Fixpoint qpd_synth (a : Q) (p : list Q) : list Q * Q :=
@@ -213,7 +222,7 @@ Fixpoint qpd_synth (a : Q) (p : list Q) : list Q * Q :=
   | c :: p' => let (s', r') := qpd_synth a p' in (r' :: s', c - a * r')
   end.
 
-(* 双正确性肢谓词（Set 面：And × S02.QeqT × Id 度肢） *)
+(* The two-limb correctness predicate (Set face: And × S02.QeqT × the Id degree limb) *)
 Definition qpd_lin_pred (a : Q) (p : list Q) (s : list Q) (r : Q) : Set :=
   And
     (forall x : Q,
@@ -225,14 +234,14 @@ Lemma qpd_synth_sound : forall (a : Q) (p : list Q),
   qpd_lin_pred a p (fst (qpd_synth a p)) (snd (qpd_synth a p)).
 Proof.
   intros a p. induction p as [|c p' IH].
-  - (* 空表基例：0 == (x+a)·0 + 0，余 0 度 0 < 1 *)
+  - (* empty-list base case: 0 == (x+a)·0 + 0, and remainder 0 has degree 0 < 1 *)
     unfold qpd_lin_pred. cbn [qpd_synth fst snd]. split.
     + intros x. apply qeq_imp_qeqT.
       rewrite (qeqT_imp_qeq _ _ (qpd_eval_nil x)),
               (qeqT_imp_qeq _ _ (qpd_eval_lin_eq a x)).
       exact (qeqT_imp_qeq _ _ (qpd_ring_base a x)).
     + apply (qpd_deglt_const 0 a).
-  - (* 递归步：先解构内层商余，再一步代入消去 c 位 *)
+  - (* recursive step: destructure the inner quotient/remainder, then eliminate the c position by one substitution *)
     cbn [qpd_synth]. destruct (qpd_synth a p') as [s' r'] eqn:E.
     unfold qpd_lin_pred in IH. destruct IH as [IH1 IH2].
     unfold qpd_lin_pred. cbn [fst snd]. split.
@@ -249,7 +258,7 @@ Proof.
     + exact (qpd_deglt_const (c - a * r') a).
 Qed.
 
-(* sigT 封装：{（商, 余）| p == (x+a)·商 + 余 ∧ deg 余 < deg (x+a)} *)
+(* The sigT packaging: {(quotient, remainder) | p == (x+a)·quotient + remainder ∧ deg remainder < deg (x+a)} *)
 Definition qpd_pdivmod_lin_type (a : Q) (p : list Q) : Set :=
   sigT (fun w : list Q * Q => qpd_lin_pred a p (fst w) (snd w)).
 
@@ -257,10 +266,13 @@ Definition qpd_pdivmod_lin_wit (a : Q) (p : list Q) : qpd_pdivmod_lin_type a p :
   existT _ (qpd_synth a p) (qpd_synth_sound a p).
 
 (* ============================================================ *)
-(* §4 一般除法形接口（只登记不施工）＋ 线性→一般桥（已通）         *)
-(*    一般形规格：{（商, 余）| ∀x, eval p == eval q·eval 商 + eval 余 *)
-(*                ∧ deg 余 < deg q}——deg 肢自动排除 deg q = 0 的    *)
-(*    零除位，规格诚实无需另设非零前提。                           *)
+(* §4. The general-division interface (declared, not             *)
+(*   implemented) + the linear-to-general bridge (in place).     *)
+(*   General specification: {(quotient, remainder) | ∀x, eval p  *)
+(*   == eval q · eval quotient + eval remainder ∧ deg remainder  *)
+(*   < deg q} — the degree limb automatically rules out the      *)
+(*   deg q = 0 zero-divisor position, so the specification is    *)
+(*   honest without a separate nonzero premise.                  *)
 (* ============================================================ *)
 
 Definition qpd_divmod_gen_pred (p q : list Q) (w : list Q * list Q) : Set :=
@@ -273,7 +285,7 @@ Definition qpd_divmod_gen_pred (p q : list Q) (w : list Q * list Q) : Set :=
 Definition qpd_divmod_gen_type (p q : list Q) : Set :=
   sigT (qpd_divmod_gen_pred p q).
 
-(* 桥：线性引擎产出经一般接口即使用（余数标量升为常多项式 [r]） *)
+(* The bridge: the linear engine's output is used as-is through the general interface (the remainder scalar is lifted to the constant polynomial [r]) *)
 Lemma qpd_lin_to_gen_sound : forall (a : Q) (p : list Q),
   qpd_divmod_gen_pred p (a :: 1 :: nil)
     (fst (qpd_synth a p), snd (qpd_synth a p) :: nil).
@@ -290,11 +302,12 @@ Definition qpd_lin_to_gen (a : Q) (p : list Q) : qpd_divmod_gen_type p (a :: 1 :
            (qpd_lin_to_gen_sound a p).
 
 (* ============================================================ *)
-(* §5 数值烟测（BF 模式：vm_compute 零公设定装，实例小形）         *)
-(*    基准例：(x²+1) ÷ (x+1) ⟹ 商 x−1 余 2（任务指令指定）          *)
+(* §5. Numeric smoke tests (computed by [vm_compute]; no axioms; *)
+(*   small instances).  The reference example: (x²+1) ÷ (x+1)    *)
+(*   gives quotient x−1 and remainder 2.                         *)
 (* ============================================================ *)
 
-(* 烟测 0：空表边例——0 ÷ (x+3) = 商 0 余 0 *)
+(* Smoke test 0: the empty-list edge — 0 ÷ (x+3) = quotient 0, remainder 0 *)
 Lemma qpd_smoke0 :
   And (Id (fst (qpd_synth 3 (@nil Q))) (@nil Q))
       (QeqT (snd (qpd_synth 3 (@nil Q))) 0).
@@ -304,7 +317,7 @@ Proof.
   - cbn [qpd_synth snd]. apply id_refl.
 Qed.
 
-(* 烟测 1（任务指令基准）：(x²+1) ÷ (x+1) ⟹ 商 [−1;1;0]（=x−1，稠密含尾零）余 2 *)
+(* Smoke test 1 (the reference example): (x²+1) ÷ (x+1) gives quotient [−1;1;0] (= x−1, dense with a trailing zero) and remainder 2 *)
 Lemma qpd_smoke1_q :
   Id (fst (projT1 (qpd_pdivmod_lin_wit 1 (1 :: 0 :: 1 :: nil))))
      ((-1) :: 1 :: 0 :: nil).
@@ -314,7 +327,7 @@ Lemma qpd_smoke1_r :
   QeqT (snd (projT1 (qpd_pdivmod_lin_wit 1 (1 :: 0 :: 1 :: nil)))) 2.
 Proof. vm_compute. apply id_refl. Qed.
 
-(* 烟测 1 语义面：商 [−1;1;0] 的求值 == x−1（证内纯环小件直取） *)
+(* Smoke test 1, semantic face: the evaluation of the quotient [−1;1;0] is == x−1 (a direct all-variable ring atom inside the proof) *)
 Lemma qpd_smoke1_quot_sem : forall x : Q,
   QeqT (pint_eval (fst (qpd_synth 1 (1 :: 0 :: 1 :: nil))) x) (x + (-1)).
 Proof.
@@ -327,7 +340,7 @@ Proof.
   exact (qeqT_imp_qeq _ _ (qpd_ring_xminus1 x)).
 Qed.
 
-(* 烟测 2：自除 (x+1) ÷ (x+1) ⟹ 商 1 余 0 *)
+(* Smoke test 2: self-division (x+1) ÷ (x+1) gives quotient 1, remainder 0 *)
 Lemma qpd_smoke2_q :
   Id (fst (projT1 (qpd_pdivmod_lin_wit 1 (1 :: 1 :: nil))))
      (1 :: 0 :: nil).
@@ -337,7 +350,7 @@ Lemma qpd_smoke2_r :
   QeqT (snd (projT1 (qpd_pdivmod_lin_wit 1 (1 :: 1 :: nil)))) 0.
 Proof. vm_compute. apply id_refl. Qed.
 
-(* 烟测 3：负常数除数 (x²−1) ÷ (x−1) ⟹ 商 x+1 余 0 *)
+(* Smoke test 3: negative constant divisor — (x²−1) ÷ (x−1) gives quotient x+1, remainder 0 *)
 Lemma qpd_smoke3_q :
   Id (fst (projT1 (qpd_pdivmod_lin_wit (-1) ((-1) :: 0 :: 1 :: nil))))
      (1 :: 1 :: 0 :: nil).
@@ -348,7 +361,7 @@ Lemma qpd_smoke3_r :
 Proof. vm_compute. apply id_refl. Qed.
 
 (* ============================================================ *)
-(* §6 闭合：提取面 + Print Assumptions（红线四条逐条 PA）          *)
+(* §6. Closure: extraction face + Print Assumptions (per-statement audits) *)
 (* ============================================================ *)
 
 Separate Extraction qpd_synth qpd_mul_lin.
@@ -373,4 +386,4 @@ Print Assumptions qpd_smoke2_r.
 Print Assumptions qpd_smoke3_q.
 Print Assumptions qpd_smoke3_r.
 
-(* CC·多项式除法引擎首件终（born-green 目标） *)
+(* End of the polynomial division engine file. *)

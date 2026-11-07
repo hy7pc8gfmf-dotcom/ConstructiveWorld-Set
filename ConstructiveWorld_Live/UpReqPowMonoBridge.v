@@ -1,32 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpReqPowMonoBridge.v *)
-(* 目的： le_b 乘法保序闭包（非负右因子版）合成器。 *)
-(* 主件： x3d_le_b_mult_r_nonneg_or / x3d_le_b_mult_l_nonneg_or 与 x3d_le_b_mult_r_pos。 *)
-(* 依赖： CW_ConstructiveWorld_219、UpRealLeB、UpRealLeB2、UpRealLeB3。 *)
-(* 备注： 零上界的纯 B 形因子版仍为显式假设（见尾注）；本件为有界闭包的定理化。 *)
-(* ============================================================ *)
-(* X3d：任务说明源 = UpReqGeomIter.v 尾注【结论 I4｜PowB 幂单调衔接差距】：            *)
-(*   「t ≤ t1 ⟹ KL_{t1} ≤_B κ^t·KL_0」合成链 ①主件 B 伴件 ②KL_0 非负伴件               *)
-(*   ③powb_one_minus_eta_mono_dec 皆已绿，缺④「le_b 乘法保序闭包：a ≤_B b ∧ 0 ≤_B c     *)
-(*   ⟹ a·c ≤_B b·c」——本件补④的合成器族。难度定位：④的逐 eps 证卡在「把严格序乘上      *)
-(*   仅 B 形已知的因子 c」一步——B 形 0 ≤_B c 不给 Or 形 0≤c（两者构造性可分，单向桥       *)
-(*   x3d_le_nonneg_or_to_b）。强度三面：主面走 real_le_closure_b_nonneg（UpRealLeB2      *)
-(*   F.1 非负系数完成器，Or 形 0≤C 即可反用）＋ Or 形乘法单调三件套（S07：                 *)
-(*   real_le_mult_compat_weak 非负右/real_le_mult_compat_r 非负左/                        *)
-(*   RealSetoid.real_lt_le_iff_req lt 转 Or）。六件清单：件0 x3d_e0_key_lt（逆元压缩       *)
-(*   严格界子件 (w·inv(D))·M < w，件5 的 δ 乘出压回引擎，亦独立可复用）；件1                *)
-(*   x3d_le_b_mult_r_nonneg_or（Or 形 0≤c ⟹ a·c ≤_B b·c，主合成器）；件2                    *)
-(*   x3d_le_b_mult_l_nonneg_or（左因子形 c·a ≤_B c·b，comm 双运输）；件3                    *)
-(*   x3d_le_b_mult_r_pos（严格因子对照形，UpRealLeB3 件6 原证零重证）；件4                  *)
-(*   x3d_le_nonneg_or_to_b（非负证书 Or⟹B 单向桥，接口面说明件）；件5                       *)
-(*   x3d_le_b_mult_r_nonneg_bnd（有界版：a ≤_B b ∧ 0≤c ∧ c≤M ⟹ a·c ≤_B b·c，逐 eps 直证      *)
-(*   e₀:=eps·inv(M+1) 压回——结论 I4 定理化）。对接位（使用式验证件 _x3d_I4BridgeCheck，      *)
-(*   临时件不落正式树）：geodi_policy_iter_kl_geom_iter_B（①）＋件1（④）＋                 *)
-(*   powb_one_minus_eta_mono_dec（③）经 real_le_b_trans 合成 I4 链。红线自检：零未闭合      *)
-(*   证明（全 Qed）；零新依赖面；语句面全 Set 值；纯 term-mode 组装；禁词全零。编译配方：    *)
-(*   vo 树前置 -Q（EMPTY 处实为空串实参），cpu_guard 包装零裸调（CoreN 2），先 -vos 秒审    *)
-(*   再全量。                                                                              *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — le_b order-preserving multiplication closures (nonnegative-factor synthesizers). *)
+(** * UpReqPowMonoBridge: the [le_b] multiplication-monotonicity closure synthesizer family.
+
+    Mission.  Completes the missing piece of the synthesis chain behind the GeomIter
+      conclusion I4 ("t ≤ t1 ⟹ KL_{t1} ≤_B κ^t·KL_0"): the [le_b] multiplication
+      closure a ≤_B b ∧ 0 ≤ c ⟹ a·c ≤_B b·c.  A per-eps proof sticks at multiplying a
+      strict order by a factor known only in B form — B-form 0 ≤_B c does not give the
+      Or-form 0 ≤ c (constructively distinct; the one-way bridge [x3d_le_nonneg_or_to_b]).
+      Pieces: [x3d_e0_key_lt] (the reciprocal-compression strict bound (w·inv(D))·M < w);
+      [x3d_le_b_mult_r_nonneg_or] (the main synthesizer, Or-form nonnegative factor);
+      [x3d_le_b_mult_l_nonneg_or] (the left-factor form); [x3d_le_b_mult_r_pos] (the
+      strict-factor contrast alias of [leb3_le_b_pos_scale]); [x3d_le_nonneg_or_to_b]
+      (the Or⟹B bridge); [x3d_le_b_mult_r_nonneg_bnd] (the bounded version
+      a ≤_B b ∧ 0≤c ∧ c≤M, witness e₀ := eps·inv(M+1) — the theorization of the I4 upper-bound-material condition).
+
+    Dependencies.  Stdlib [PeanoNat]; requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpRealLeB], [UpRealLeB2], [UpRealLeB3] of this development.
+
+    References.  [real_le_closure_b_nonneg] (the Or-form nonnegative finisher of
+      UpRealLeB2); the Or-form multiplication-monotonicity trio of S07 ([real_le_mult_compat_weak],
+      [real_le_mult_compat_r], [RealSetoid.real_lt_le_iff_req]); the source brief is the
+      endnote of [UpReqGeomIter.v] (conclusion I4); the companion composition lives in the
+      use-side file [_x3d_I4BridgeCheck.v].
+
+    Constructivity.  Purely constructive, nothing admitted (all [Qed]); statements
+      [Set]-valued; pure term-mode assembly.  The unbounded B-form-factor version remains an
+      explicit assumption (the B⟹Or conversion is constructively unavailable).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpReqPowMonoBridge.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 
 From Stdlib Require Import PeanoNat.
 Require Import S01_BaseRing.
@@ -49,12 +50,13 @@ Require Import UpRealLeB2.
 Require Import UpRealLeB3.
 
 (* ============================================================ *)
-(* 〇、逆元压缩严格界子件                                                 *)
+(* 0. The reciprocal-compression strict bound engine             *)
 (* ============================================================ *)
 
-(* 件0：(w·inv(D))·M < w，前提 M<D、D>0、w>0。
-   链：inv(D)·M < inv(D)·D==1（严格乘法保序两跳）
-   ⟹ w·(inv(D)·M) < w·1==w（左因子 w>0 严格保序）⟹ assoc 换形完成。 *)
+(* Piece 0: (w·inv(D))·M < w under M < D, D > 0, w > 0.
+   Chain: inv(D)·M < inv(D)·D == 1 (two hops of strict multiplication
+   monotonicity) implies w·(inv(D)·M) < w·1 == w (strict preservation by
+   the positive left factor w), finished by an associative reshaping. *)
 Lemma x3d_e0_key_lt : forall (w M : Real)
     (HMlt1 : real_lt M (real_plus M real_one))
     (HMp : real_lt real_zero (real_plus M real_one))
@@ -67,7 +69,7 @@ Proof.
   assert (HiD : real_lt real_zero
                   (real_inv_pos (real_plus M real_one) HMp))
     by exact (real_inv_pos_pos (real_plus M real_one) HMp).
-  (* 跳1：M·inv(D) < (M+1)·inv(D)（M<M+1、inv(D)>0）经 comm 换形 *)
+  (* hop 1: M·inv(D) < (M+1)·inv(D) (M < M+1, inv(D) > 0), after commutativity reshaping *)
   assert (Hs1 : real_lt (real_mult (real_inv_pos (real_plus M real_one) HMp) M)
                   (real_mult (real_inv_pos (real_plus M real_one) HMp)
                      (real_plus M real_one))).
@@ -83,8 +85,7 @@ Proof.
                 (real_inv_pos (real_plus M real_one) HMp))
              (real_mult_lt_compat M (real_plus M real_one)
                 (real_inv_pos (real_plus M real_one) HMp) HMlt1 HiD)). }
-  (* 跳2：右端 inv(D)·(M+1)==1 归一（先 comm 至 D·inv(D) 形再归一），
-     得 inv(D)·M < 1 *)
+  (* hop 2: the right side inv(D)·(M+1) == 1 normalizes (first by commutativity to the D·inv(D) form), giving inv(D)·M < 1 *)
   assert (Hs2 : real_lt (real_mult (real_inv_pos (real_plus M real_one) HMp) M)
                   real_one).
   { exact (RealSetoid.real_lt_id_r
@@ -102,14 +103,14 @@ Proof.
                    (real_plus M real_one))
                 (real_inv_pos_correct (real_plus M real_one) HMp))
              Hs1). }
-  (* 跳3：左乘 w>0 严格保序，w·(inv(D)·M) < w·1 *)
+  (* hop 3: multiplication by w > 0 preserves strict order, w·(inv(D)·M) < w·1 *)
   assert (Hs3 : real_lt (real_mult w
                    (real_mult (real_inv_pos (real_plus M real_one) HMp) M))
                   (real_mult w real_one))
     by exact (real_mult_lt_compat_l
                 (real_mult (real_inv_pos (real_plus M real_one) HMp) M)
                 real_one w Hs2 Hw).
-  (* assoc 换形 + w·1==w 归一完成 *)
+  (* finish: associative reshaping plus the normalization w·1 == w *)
   exact (RealSetoid.real_lt_id_l
            (real_mult (real_mult w
               (real_inv_pos (real_plus M real_one) HMp)) M)
@@ -126,13 +127,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 一、主合成器：Or 形非负右因子的 le_b 乘法保序                          *)
+(* 1. The main synthesizer: le_b multiplication monotonicity for *)
+(*   an Or-form nonnegative right factor                         *)
 (* ============================================================ *)
 
-(* 件1：a ≤_B b 且 0≤c（Or 形）给 a·c ≤_B b·c。
-   完成器反用（C:=c，Or 形非负即可）：给 e>0 只需 Or 形 a·c ≤ b·c+c·e——
-   a<b+e 经 lt 转 Or 与非负右因子弱单调 ⟹ a·c ≤ (b+e)·c，
-   再 (b+e)·c==b·c+c·e 分配换形完成。 *)
+(* Piece 1: a ≤_B b and 0 ≤ c (Or form) give a·c ≤_B b·c.  The finisher is applied
+   in reverse (C := c; Or-form nonnegativity suffices): given e > 0 it is enough to
+   produce the Or form a·c ≤ b·c + c·e — from a < b+e, the lt-to-Or conversion and
+   weak monotonicity in the nonnegative right factor give a·c ≤ (b+e)·c, and
+   (b+e)·c == b·c + c·e completes it by a distributive reshaping. *)
 Lemma x3d_le_b_mult_r_nonneg_or : forall a b c : Real,
   real_le_b a b -> real_le real_zero c ->
   real_le_b (real_mult a c) (real_mult b c).
@@ -160,7 +163,7 @@ Proof.
                  (inl (H eps Heps))))).
 Qed.
 
-(* 件2：左因子形（c·a ≤_B c·b 方向），comm 双运输平移件1 *)
+(* Piece 2: the left-factor form (the c·a ≤_B c·b direction), transported from piece 1 by two commutativity steps *)
 Lemma x3d_le_b_mult_l_nonneg_or : forall a b c : Real,
   real_le_b a b -> real_le real_zero c ->
   real_le_b (real_mult c a) (real_mult c b).
@@ -174,11 +177,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 二、对照锚与接口面说明件                                               *)
+(* 2. The contrast anchor and the interface-face documentation pieces *)
 (* ============================================================ *)
 
-(* 件3：严格因子对照形（0<c 版）：UpRealLeB3 件6 leb3_le_b_pos_scale
-   签名对齐别名（原证零重证；本件三面对照的「严格面」锚）。 *)
+(* Piece 3: the strict-factor contrast form (the 0 < c version) — a signature-aligned
+   alias of [leb3_le_b_pos_scale] (UpRealLeB3 piece 6; the original proof is reused
+   verbatim).  It anchors the strict face of the three-form contrast. *)
 Lemma x3d_le_b_mult_r_pos : forall a b c : Real,
   real_le_b a b -> real_lt real_zero c ->
   real_le_b (real_mult a c) (real_mult b c).
@@ -187,9 +191,11 @@ Proof.
   exact (leb3_le_b_pos_scale a b c H Hc).
 Qed.
 
-(* 件4：非负证书单向桥：Or 形 0≤c 给 B 形 0 ≤_B c。
-   反向（B⟹Or）构造性不可通——④的因子若仅 B 形已知，本桥不通，
-   即结论 I4 显式假设的精确位置（件5 以有界上界 M 绕行，见下）。 *)
+(* Piece 4: the one-way bridge for the nonnegativity certificate — the Or form 0≤c
+   gives the B form 0 ≤_B c.  The reverse (B⟹Or) is constructively unavailable: if
+   the factor is known only in B form this bridge does not apply — precisely the
+   position of the explicit assumption named by conclusion I4 (piece 5 routes
+   around it with a bounded upper bound M, below). *)
 Lemma x3d_le_nonneg_or_to_b : forall c : Real,
   real_le real_zero c -> real_le_b real_zero c.
 Proof.
@@ -197,10 +203,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 三、有界非负右因子版（结论 I4「上界材料」条件的定理化）                  *)
-(*   a ≤_B b ∧ 0≤c ∧ c≤M ⟹ a·c ≤_B b·c：逐 eps 直证，                     *)
-(*   见证 e₀:=eps·inv(M+1)：a<b+e₀ 乘出后 e₀·c ≤ e₀·M < eps               *)
-(*   （件0 引擎）——δ 乘出压回 eps。                                       *)
+(* 3. The bounded nonnegative-right-factor version (the          *)
+(*   theorization of the upper-bound-material condition of       *)
+(*   conclusion I4): a ≤_B b ∧ 0≤c ∧ c≤M gives a·c ≤_B b·c, by a *)
+(*   direct per-eps proof with the witness e₀ := eps·inv(M+1):   *)
+(*   from a < b+e₀, after multiplying out, e₀·c ≤ e₀·M < eps     *)
+(*   (the piece-0 engine) — the surplus is pressed back below eps. *)
 (* ============================================================ *)
 Lemma x3d_le_b_mult_r_nonneg_bnd : forall a b c M : Real,
   real_le_b a b -> real_le real_zero c -> real_le c M ->
@@ -224,7 +232,7 @@ Proof.
     - apply (real_le_plus_compat real_zero M real_one real_one).
       + exact HMle0.
       + apply real_le_refl. }
-  (* 见证 e₀ := eps·inv(M+1) > 0 与件0 关键界 e₀·M < eps *)
+  (* the witness e₀ := eps·inv(M+1) > 0 and the piece-0 key bound e₀·M < eps *)
   assert (HinvMp : real_lt real_zero
     (real_inv_pos (real_plus M real_one) HMp))
     by exact (real_inv_pos_pos (real_plus M real_one) HMp).
@@ -236,7 +244,7 @@ Proof.
     (real_mult (real_mult eps (real_inv_pos (real_plus M real_one) HMp)) M)
     eps)
     by exact (x3d_e0_key_lt eps M HMlt1 HMp Heps).
-  (* Or 形链：a ≤ b+e₀ ⟹ a·c ≤ (b+e₀)·c（非负右因子弱单调） *)
+  (* the Or-form chain: a ≤ b+e₀ implies a·c ≤ (b+e₀)·c (weak monotonicity in the nonnegative right factor) *)
   assert (Hmono1 : real_le (real_mult a c)
                      (real_mult (real_plus b
                         (real_mult eps
@@ -252,7 +260,7 @@ Proof.
                    (inl (H (real_mult eps
                           (real_inv_pos (real_plus M real_one) HMp))
                           He0pos)))).
-  (* 分配换形：(b+e₀)·c == b·c + e₀·c（comm→左分配→compat 换序） *)
+  (* distributive reshaping: (b+e₀)·c == b·c + e₀·c (comm, then left distributivity, then a compatibility reordering) *)
   assert (Hdist : real_eq
     (real_mult (real_plus b
        (real_mult eps (real_inv_pos (real_plus M real_one) HMp))) c)
@@ -285,7 +293,7 @@ Proof.
        (real_mult (real_mult eps
           (real_inv_pos (real_plus M real_one) HMp)) c)))
     by exact (RealSetoid.real_le_id_r (real_mult a c) _ _ Hdist Hmono1).
-  (* e₀·c ≤ e₀·M（非负左因子单调：e₀>0、c≤M） *)
+  (* e₀·c ≤ e₀·M (monotonicity in the nonnegative left factor: e₀ > 0, c ≤ M) *)
   assert (Hmono2 : real_le
     (real_mult (real_mult eps (real_inv_pos (real_plus M real_one) HMp)) c)
     (real_mult (real_mult eps (real_inv_pos (real_plus M real_one) HMp)) M))
@@ -315,7 +323,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 四、假设审计（全件 Closed，证据在编译日志）                             *)
+(* 4. Assumption audit (all Closed; the evidence is in the compile log) *)
 (* ============================================================ *)
 
 Print Assumptions x3d_e0_key_lt.
@@ -326,11 +334,14 @@ Print Assumptions x3d_le_nonneg_or_to_b.
 Print Assumptions x3d_le_b_mult_r_nonneg_bnd.
 
 (* ============================================================ *)
-(* 尾注：诚实登记表                                                        *)
+(* Endnote: the honest registration table                        *)
 
-(*   「B 形因子＋上界面」（件5，结论所指上界材料的定理化）；③powb 单调、  *)
-(*   ①② GeomIter 伴件的合成闭环在使用式验证件 _x3d_I4BridgeCheck.v       *)
-(*   完成：Hkl0or（Or 形 KL_0 非负证书）在位时「t ≤ t1 ⟹ KL_{t1} ≤_B     *)
-(*   κ^t·KL_0」全闭合。零上界且因子仅 B 形已知的④仍显式假设——卡点即          *)
-(*   B⟹Or 转换位（件4 反向），禁特设构造（分层保底纪律）。                    *)
+(*   The B-form-factor-with-upper-bound face (piece 5) theorizes the upper-bound
+   material named by conclusion I4; the composition closure of the powb
+   monotonicity and GeomIter companion pieces is completed in the use-side
+   verification file [_x3d_I4BridgeCheck.v]: with [Hkl0or] (the Or-form KL_0
+   nonnegativity certificate) in place, the chain "t ≤ t1 ⟹ KL_{t1} ≤_B
+   κ^t·KL_0" closes fully.  The unbounded piece with a factor known only in B
+   form remains an explicit assumption — the blocker is exactly the B⟹Or
+   conversion position (the reverse of piece 4). *)
 (* ============================================================ *)

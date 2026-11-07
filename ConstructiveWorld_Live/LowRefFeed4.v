@@ -1,32 +1,33 @@
-(* ==========================================================================
-   LowRefFeed4.v - four-slot re-feed (pure re-feed, zero new mathematics).
-   Mission. 使命: three forwarder theorems lf4_lt_plus_compat_lt_le_h,
-     lf4_inv_pos_lt_contra and lf4_sum_swap_i, each discharging an
-     inventoried interface-slot statement by one exact step from an
-     in-register supply lemma; a fourth inventoried slot (the setoid-face
-     strict-order extension) is disclosed as not discharged: the two
-     worlds carry no bridging instance, so the slot stays honestly open.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlgebra,
-     UpReqSumD, fa53_compat_abs (fa53_lt_plus_compat_lt_le_dec /
-     fa53_abs_ge_zero_id_dec), InvPosLtCompat (ipl_upfirewall_102_shape)
-     of the -Set lineage world; both the S01 interface face
-     (RealInterfaceEnhanced, DecidableOrder) and the argument-less Class
-     RealInterfaceEnhancedSetoid (module RealInterfaceEnhancedMod).
-   References. 对标: the lt_plus_compat_lt_le_h slot (strict-plus
-     compatibility with one weak side), the inv_pos_lt_contra slot
-     (strict-inverse antitonicity), the sum_swap_i slot (double-sum
-     exchange at the enumerated finite-sum instance). Statement names
-     carried over verbatim; adaptation = argument-less-face rebinding:
-     R := Real by notation, predicate faces real_eq / real_lt on the
-     setoid face, sumd_sumf / sumd_list_sum_swap at the world's
-     argument-less export face (S enum f).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; pure term mode (exact supplies,
-     zero rewrite tactics); assumption slots inherited from the supplies;
-     no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     LowRefFeed4.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — four-slot re-feed, zero new mathematics. *)
+(** * LowRefFeed4: three forwarder theorems; one inventoried slot open.
+    Mission.  Three forwarder theorems [lf4_lt_plus_compat_lt_le_h],
+      [lf4_inv_pos_lt_contra], and [lf4_sum_swap_i], each discharging an
+      inventoried interface-slot statement by one [exact] step from an
+      in-register supply lemma; a fourth inventoried slot (the setoid-face
+      strict-order extension) is disclosed as not discharged: the two worlds
+      carry no bridging instance, so the slot stays honestly open.
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqSumD], [fa53_compat_abs]
+      ([fa53_lt_plus_compat_lt_le_dec], [fa53_abs_ge_zero_id_dec]),
+      [InvPosLtCompat] ([ipl_upfirewall_102_shape]) of this development;
+      both the S01 interface face ([RealInterfaceEnhanced],
+      [DecidableOrder]) and the argument-less [Class]
+      [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
+    References.  This development and the ConstructiveWorld-Main baseline
+      module of the same name: the [lt_plus_compat_lt_le_h] slot (strict-plus
+      compatibility with one weak side), the [inv_pos_lt_contra] slot
+      (strict-inverse antitonicity), the [sum_swap_i] slot (double-sum
+      exchange at the enumerated finite-sum instance); statement names
+      verbatim; adaptation = argument-less-face rebinding: [R := Real] by
+      notation, predicate faces [real_eq]/[real_lt] on the setoid face,
+      [sumd_sumf]/[sumd_list_sum_swap] at the argument-less export face.
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; pure term mode ([exact]
+      supplies, zero rewrite tactics); assumption slots inherited from the
+      supplies; no new axioms.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LowRefFeed4.v] compiles cleanly (exit 0) under the [cpu_guard]
+      thermal wrapper with [ulimit -s 65532]. *)
 
 Require Import fa53_compat_abs.
 Require Import InvPosLtCompat.

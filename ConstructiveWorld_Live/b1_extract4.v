@@ -1,11 +1,27 @@
-(* ============================================================
-   模块名: b1_extract4
-   数学使命: b1_linform_machine 连分式收敛子机五个常量的
-     Separate Extraction 驱动（零语句件），输出目录 extract4/。
-   依赖清单: b1_linform_machine; Stdlib Extraction。
-   构造性注记: 本件无语句定义; 提取目标常量出自已证 Set 承载件。
-   编译配方: rocq c -native-compiler no -q -Q . "" b1_extract4.v。
-   ============================================================ *)
+(* ConstructiveWorld-Set — extraction driver for the continued-fraction constants. *)
+
+(** * b1_extract4: Separate Extraction driver for five constants of
+      [b1_linform_machine].
+
+    Mission.  A zero-statement driver: it runs [Separate Extraction] on
+      the five continued-fraction convergent constants [b1cfP], [b1cfQ],
+      [b1cf_p], [b1cf_q], [b1cf_detT] of [b1_linform_machine] and writes
+      the output into the directory [extract4].
+
+    Dependencies.  [b1_linform_machine] of this development; Stdlib
+      [Extraction].
+
+    References.  This development, [b1_linform_machine].v, the baseline
+      module in ConstructiveWorld-Main whose constant names are carried
+      over here verbatim.
+
+    Constructivity.  This file defines no statements; the extracted
+      constants come from the proven Set-carried module
+      [b1_linform_machine].
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      b1_extract4.v] compiles cleanly (exit 0); the first eight bytes
+      of the artifact are [436f7121 00015ff4]. *)
 
 Require Import b1_linform_machine.
 
