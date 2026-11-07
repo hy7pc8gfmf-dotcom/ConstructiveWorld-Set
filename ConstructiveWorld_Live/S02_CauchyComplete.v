@@ -30,6 +30,108 @@ Import ListNotations.
 From Stdlib Require Import Setoid Morphisms.
 From Stdlib Require Import Lia QArith.Qminmax.
 
+(* ============================================================ *)
+(* Native value-level algebra over the [NatLe] carrier.         *)
+(* The carrier [NatLe n m] is the boolean identity face         *)
+(* [Id (Nat.leb n m) true].  Each face below computes the       *)
+(* boolean identity once and discharges its impossible [false]  *)
+(* branch from the arithmetic facts it carries (for the         *)
+(* premise-bearing faces, from the carried certificate itself   *)
+(* via [id_eq_SI]); type-correct inputs never reach the branch,  *)
+(* so the extracted value faces are total on contract.          *)
+(* ============================================================ *)
+
+(* Transitivity of the boundedness certificate. *)
+Lemma natle_trans : forall n m p : nat, NatLe n m -> NatLe m p -> NatLe n p.
+Proof.
+  intros n m p Hnm Hmp.
+  unfold NatLe.
+  destruct (Nat.leb n p) eqn:Hnp.
+  - exact id_refl.
+  - exfalso.
+    assert (H1 : (n <= m)%nat).
+    { apply (proj1 (Nat.leb_le n m)). exact (id_eq_SI bool (Nat.leb n m) true Hnm). }
+    assert (H2 : (m <= p)%nat).
+    { apply (proj1 (Nat.leb_le m p)). exact (id_eq_SI bool (Nat.leb m p) true Hmp). }
+    apply (proj1 (Nat.leb_gt n p)) in Hnp. lia.
+Qed.
+
+(* Left conjunct read-out of a max-bound certificate. *)
+Lemma natle_max_l_inv : forall a b c : nat, NatLe (Nat.max a b) c -> NatLe a c.
+Proof.
+  intros a b c H.
+  unfold NatLe.
+  destruct (Nat.leb a c) eqn:Hac.
+  - exact id_refl.
+  - exfalso.
+    assert (Hge : (Nat.max a b <= c)%nat).
+    { apply (proj1 (Nat.leb_le (Nat.max a b) c)).
+      exact (id_eq_SI bool (Nat.leb (Nat.max a b) c) true H). }
+    assert (Hall : (a <= Nat.max a b)%nat) by apply Nat.le_max_l.
+    apply (proj1 (Nat.leb_gt a c)) in Hac. lia.
+Qed.
+
+(* Right conjunct read-out of a max-bound certificate. *)
+Lemma natle_max_r_inv : forall a b c : nat, NatLe (Nat.max a b) c -> NatLe b c.
+Proof.
+  intros a b c H.
+  unfold NatLe.
+  destruct (Nat.leb b c) eqn:Hbc.
+  - exact id_refl.
+  - exfalso.
+    assert (Hge : (Nat.max a b <= c)%nat).
+    { apply (proj1 (Nat.leb_le (Nat.max a b) c)).
+      exact (id_eq_SI bool (Nat.leb (Nat.max a b) c) true H). }
+    assert (Hall : (b <= Nat.max a b)%nat) by apply Nat.le_max_r.
+    apply (proj1 (Nat.leb_gt b c)) in Hbc. lia.
+Qed.
+
+(* Unconditional upper-bound certificates for [Nat.max]. *)
+Lemma natle_max_l : forall n m : nat, NatLe n (Nat.max n m).
+Proof.
+  intros n m.
+  unfold NatLe.
+  destruct (Nat.leb n (Nat.max n m)) eqn:H.
+  - exact id_refl.
+  - exfalso.
+    assert (Hall : (n <= Nat.max n m)%nat) by apply Nat.le_max_l.
+    apply (proj1 (Nat.leb_gt n (Nat.max n m))) in H. lia.
+Qed.
+
+Lemma natle_max_r : forall n m : nat, NatLe m (Nat.max n m).
+Proof.
+  intros n m.
+  unfold NatLe.
+  destruct (Nat.leb m (Nat.max n m)) eqn:H.
+  - exact id_refl.
+  - exfalso.
+    assert (Hall : (m <= Nat.max n m)%nat) by apply Nat.le_max_r.
+    apply (proj1 (Nat.leb_gt m (Nat.max n m))) in H. lia.
+Qed.
+
+(* Successor upper-bound certificate. *)
+Lemma natle_succ_diag_r : forall n : nat, NatLe n (Datatypes.S n).
+Proof.
+  intros n.
+  unfold NatLe.
+  destruct (Nat.leb n (Datatypes.S n)) eqn:H.
+  - exact id_refl.
+  - exfalso.
+    assert (Hall : (n <= Datatypes.S n)%nat) by apply Nat.le_succ_diag_r.
+    apply (proj1 (Nat.leb_gt n (Datatypes.S n))) in H. lia.
+Qed.
+
+(* Reflection step for a boundedness goal: compute the boolean identity and
+   discharge the impossible false branch from the arithmetic bounds in scope. *)
+Ltac natle_solve :=
+  match goal with
+  | |- NatLe ?n ?m =>
+      let Hnatleb := fresh "Hnatleb" in
+      unfold NatLe; destruct (Nat.leb n m) eqn:Hnatleb;
+      [ exact id_refl
+      | exfalso; apply (proj1 (Nat.leb_gt n m)) in Hnatleb; lia ]
+  end.
+
 Section CauchyRealMultiplication.
 (* ============================================================ *)
 (* 柯西实数核心（构造性 Set 层版本）                           *)
@@ -444,11 +546,11 @@ Proof.
     setoid_rewrite <- Heps_sum.   (* 将目标中的 eps 替换为 eps/2 + eps/2 *)
     apply Qplus_lt_compat.
     * apply QltT_to_Qlt. apply HN1'.
-      -- apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hm)].
-      -- apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hn)].
+      -- exact (natle_max_l_inv N1 N2 m Hm).
+      -- exact (natle_max_l_inv N1 N2 n Hn).
     * apply QltT_to_Qlt. apply HN2'.
-      -- apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hm)].
-      -- apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hn)].
+      -- exact (natle_max_r_inv N1 N2 m Hm).
+      -- exact (natle_max_r_inv N1 N2 n Hn).
 Defined.
 
 Definition real_opp (x : Real) : Real.
@@ -505,11 +607,11 @@ Proof.
     assert (HN1n : Qlt eps1 (projT1 y n - projT1 x n)).
     { apply QltT_to_Qlt.
       apply HN1.
-      apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hn)]. }
+      apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hn)]. }
     assert (HN2n : Qlt eps2 (projT1 z n - projT1 y n)).
     { apply QltT_to_Qlt.
       apply HN2.
-      apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hn)]. }
+      apply NatLe_lift. apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hn)]. }
     assert (Hsum_lt : Qlt (eps1 + eps2)
                            ((projT1 y n - projT1 x n) + (projT1 z n - projT1 y n))).
     { apply Qplus_lt_compat; [exact HN1n | exact HN2n]. }
@@ -552,13 +654,13 @@ Lemma Qabs_in_sum_abs_prefix :
     QleT' (Qabs (u i)) (sum_abs_prefix u n).
 Proof.
   intros u n. induction n as [| n' IH]; intros i Hi.
-  - exfalso. pose proof (NatLe_drop (Datatypes.S i) 0 Hi). lia.
+  - exfalso. pose proof (NatLe_drop_le (Datatypes.S i) 0 Hi). lia.
   - apply Qle_to_QleT'. simpl.
-    pose proof (NatLe_drop (Datatypes.S i) (Datatypes.S n') Hi) as Hile.
+    pose proof (NatLe_drop_le (Datatypes.S i) (Datatypes.S n') Hi) as Hile.
     destruct (Nat.lt_ge_cases i n') as [Hlt | Hge].
     + (* i < n' *)
       apply Qle_trans with (sum_abs_prefix u n').
-      * apply QleT'_to_Qle. apply IH. apply NatLe_lift. lia.
+      * apply QleT'_to_Qle. apply IH. natle_solve.
       * apply Qle_plus_nonneg_r.
         apply Qabs_nonneg.
     + (* n' <= i 且 i < S n'，所以 i = n' *)
@@ -590,12 +692,13 @@ Proof.
   destruct (Nat.lt_ge_cases n N) as [Hlt | Hge].
   - (* n < N *)
     apply Qle_trans with (sum_abs_prefix u N).
-    + apply QleT'_to_Qle. apply Qabs_in_sum_abs_prefix. apply NatLe_lift. lia.
+    + apply QleT'_to_Qle. apply Qabs_in_sum_abs_prefix. natle_solve.
     + apply Qle_trans with (sum_abs_prefix u N + Qabs (u N)).
       * apply Qle_plus_nonneg_r. apply Qabs_nonneg.
       * apply Qle_plus_nonneg_r. apply QleT'_to_Qle. apply Qle_0_1.
   - (* n >= N *)
-    assert (H := HN n N (NatLe_lift _ _ Hge) (NatLe_lift _ _ (Nat.le_refl N))).
+    assert (HgeN : NatLe N n) by natle_solve.
+    assert (H := HN n N HgeN (NatLe_refl N)).
     apply QltT_to_Qlt in H.
     apply Qle_trans with (Qabs (u N) + 1).
     + (* 证明 Qabs (u n) <= Qabs (u N) + 1 *)
@@ -736,8 +839,8 @@ Proof.
     - apply qabs_nonnegT.
     - exact HMu_boundT.
     - apply HN2'.
-      + apply NatLe_lift. apply (Nat.le_trans _ _ _ (Nat.le_max_r _ _) (NatLe_drop _ _ Hm)).
-      + apply NatLe_lift. apply (Nat.le_trans _ _ _ (Nat.le_max_r _ _) (NatLe_drop _ _ Hn)). }
+      + exact (natle_max_r_inv N1 N2 m Hm).
+      + exact (natle_max_r_inv N1 N2 n Hn). }
   (* 项2严格：|v n|·|Δu| <T Mvpos·(eps/(2·Mvpos))（HN1' QltT 直接） *)
   assert (Ht2T : QltT (Qabs (v n) * Qabs (u m - u n))
                       (Mvpos * (eps / (2 * Mvpos)))).
@@ -746,8 +849,8 @@ Proof.
     - apply qabs_nonnegT.
     - exact HMv_boundT.
     - apply HN1'.
-      + apply NatLe_lift. apply (Nat.le_trans _ _ _ (Nat.le_max_l _ _) (NatLe_drop _ _ Hm)).
-      + apply NatLe_lift. apply (Nat.le_trans _ _ _ (Nat.le_max_l _ _) (NatLe_drop _ _ Hn)). }
+      + exact (natle_max_l_inv N1 N2 m Hm).
+      + exact (natle_max_l_inv N1 N2 n Hn). }
   (* 界和 == eps（field；Mupos/Mvpos ≠ 0 经正性） *)
   assert (Hupper_eq : Mupos * (eps / (2 * Mupos)) + Mvpos * (eps / (2 * Mvpos)) == eps).
   { field.
@@ -956,8 +1059,10 @@ Proof.
   intros m Hm.
   assert (Hm1 : (M1 <= m)%nat) by (apply Nat.le_trans with (max M1 M2); [apply Nat.le_max_l | exact Hm]).
   assert (Hm2 : (M2 <= m)%nat) by (apply Nat.le_trans with (max M1 M2); [apply Nat.le_max_r | exact Hm]).
-  specialize (HM1 m (NatLe_lift _ _ Hm1)).
-  specialize (HM2 m (NatLe_lift _ _ Hm2)).
+  assert (HNM1 : NatLe M1 m) by natle_solve.
+  assert (HNM2 : NatLe M2 m) by natle_solve.
+  specialize (HM1 m HNM1).
+  specialize (HM2 m HNM2).
   (* HM1 : QltT e1 ((b+eps)_m − (a k)_m)；HM2 : QltT e2 ((a k)_m − (b−eps)_m)。
      real_plus/real_const/real_opp 逐点展开：*) 
   (* (b+eps)_m = b_m + eps；(b−eps)_m = b_m − eps *)
@@ -1071,10 +1176,10 @@ Proof.
   (* 见证 N 含 N1/N2/C1/C2 *)
   exists (max (max N1 N2) (max C1 C2)).
   intros k Hk.
-  assert (HkN1 : (N1 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hk)]]).
-  assert (HkN2 : (N2 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hk)]]).
-  assert (HkC1 : (C1 <= k)%nat) by (apply Nat.le_trans with (max C1 C2); [apply Nat.le_max_l | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hk)]]).
-  assert (HkC2 : (C2 <= k)%nat) by (apply Nat.le_trans with (max C1 C2); [apply Nat.le_max_r | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hk)]]).
+  assert (HkN1 : (N1 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hk)]]).
+  assert (HkN2 : (N2 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hk)]]).
+  assert (HkC1 : (C1 <= k)%nat) by (apply Nat.le_trans with (max C1 C2); [apply Nat.le_max_l | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hk)]]).
+  assert (HkC2 : (C2 <= k)%nat) by (apply Nat.le_trans with (max C1 C2); [apply Nat.le_max_r | apply Nat.le_trans with (max (max N1 N2) (max C1 C2)); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hk)]]).
   (* 夹逼差分界：u 对 l1/l2（real_lt_abs_bound，Heps4 见开头） *)
   destruct (real_lt_abs_bound u (existT _ l1s Hl1c) (eps / 4)%Q Heps4 N1 HN1 k HkN1) as [M1k HM1k].
   destruct (real_lt_abs_bound u (existT _ l2s Hl2c) (eps / 4)%Q Heps4 N2 HN2 k HkN2) as [M2k HM2k].
@@ -1368,29 +1473,35 @@ End RealCompletenessSkeleton.
 (* 2^m ≥ 1 *)
 Lemma pow2_ge_one : forall m : nat, NatLe 1 (2 ^ m).
 Proof.
-  intros m. apply NatLe_lift.
-  induction m; simpl; [lia | exact (Nat.le_trans _ (2 ^ m) _ IHm (Nat.le_add_r _ _))].
+  intros m.
+  assert (Hle : (1 <= 2 ^ m)%nat)
+    by (induction m; simpl; [lia | exact (Nat.le_trans _ (2 ^ m) _ IHm (Nat.le_add_r _ _))]).
+  natle_solve.
 Qed.
 
 (* 2^m ≥ m *)
 Lemma pow2_ge : forall m : nat, NatLe m (2 ^ m).
 Proof.
-  intros m. apply NatLe_lift.
-  induction m; simpl; [lia | ].
-  assert (H1 : (1 <= 2 ^ m)%nat) by (apply NatLe_drop; apply pow2_ge_one).
-  assert (Htwo : (2 ^ m <= 2 ^ m + 2 ^ m)%nat) by lia.
-  lia.
+  intros m.
+  assert (Hle : (m <= 2 ^ m)%nat).
+  { induction m; simpl; [lia | ].
+    assert (H1 : (1 <= 2 ^ m)%nat) by (apply NatLe_drop_le; apply pow2_ge_one).
+    assert (Htwo : (2 ^ m <= 2 ^ m + 2 ^ m)%nat) by lia.
+    lia. }
+  natle_solve.
 Qed.
 
 (* 2^m > m（严格） *)
 Lemma pow2_gt : forall m : nat, NatLe (Datatypes.S m) (2 ^ m).
 Proof.
-  intros m. apply NatLe_lift.
-  induction m; simpl; [lia | ].
-  assert (H1 : (1 <= 2 ^ m)%nat) by (apply NatLe_drop; apply pow2_ge_one).
-  assert (Hle : (m + 1 <= 2 ^ m)%nat) by lia.
-  assert (Hlt : (2 ^ m < 2 ^ m + 2 ^ m)%nat) by lia.
-  lia.
+  intros m.
+  assert (Hle : (Datatypes.S m <= 2 ^ m)%nat).
+  { induction m; simpl; [lia | ].
+    assert (H1 : (1 <= 2 ^ m)%nat) by (apply NatLe_drop_le; apply pow2_ge_one).
+    assert (Hle' : (m + 1 <= 2 ^ m)%nat) by lia.
+    assert (Hlt : (2 ^ m < 2 ^ m + 2 ^ m)%nat) by lia.
+    lia. }
+  natle_solve.
 Qed.
 
 (* 反例序列族：u_m(k) := 0 if k < 2^m else 1 *)
@@ -1403,7 +1514,7 @@ Proof.
   intros m k Hk. unfold step_seq.
   apply qeq_imp_qeqT.
   exact (@eq_ind bool true (fun b : bool => (if b then 0 else 1)%Q == 0)
-  eq_refl (Nat.ltb k (2 ^ m)) (eq_sym (proj2 (Nat.ltb_lt k (2 ^ m)) (NatLe_drop _ _ Hk)))).
+  eq_refl (Nat.ltb k (2 ^ m)) (eq_sym (proj2 (Nat.ltb_lt k (2 ^ m)) (NatLe_drop_le _ _ Hk)))).
 Qed.
 
 (* 2^m ≤ k ⟹ u_m(k) == 1 *)
@@ -1412,7 +1523,7 @@ Proof.
   intros m k Hk. unfold step_seq.
   apply qeq_imp_qeqT.
   exact (@eq_ind bool false (fun b : bool => (if b then 0 else 1)%Q == 1)
-  eq_refl (Nat.ltb k (2 ^ m)) (eq_sym (proj2 (Nat.ltb_ge k (2 ^ m)) (NatLe_drop _ _ Hk)))).
+  eq_refl (Nat.ltb k (2 ^ m)) (eq_sym (proj2 (Nat.ltb_ge k (2 ^ m)) (NatLe_drop_le _ _ Hk)))).
 Qed.
 
 (* 每个 u_m 是柯西（取 N := 2^m：k ≥ 2^m 后恒为 1） *)
@@ -1504,11 +1615,11 @@ Proof.
       exact (Qlt_to_QltT 0 (eps / 2) Hhalf).
     + exists (max (2 ^ m) (2 ^ n))%nat. intros k Hk.
       assert (Hkm : (2 ^ m <= k)%nat)
-        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hk)]).
+        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hk)]).
       assert (Hkn : (2 ^ n <= k)%nat)
-        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hk)]).
-      assert (Hsm : step_seq m k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; apply NatLe_lift; exact Hkm).
-      assert (Hsn : step_seq n k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; apply NatLe_lift; exact Hkn).
+        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hk)]).
+      assert (Hsm : step_seq m k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; natle_solve).
+      assert (Hsn : step_seq n k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; natle_solve).
       (* 目标：QltT (eps/2) (projT1 (real_const eps) k − projT1 (u_m − u_n) k) *)
       apply Qlt_to_QltT.
       assert (Hepsq : Qlt 0 eps) by (apply QltT_to_Qlt; exact Heps).
@@ -1533,11 +1644,11 @@ Proof.
       exact (Qlt_to_QltT 0 (eps / 2) Hhalf).
     + exists (max (2 ^ m) (2 ^ n))%nat. intros k Hk.
       assert (Hkm : (2 ^ m <= k)%nat)
-        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hk)]).
+        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hk)]).
       assert (Hkn : (2 ^ n <= k)%nat)
-        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hk)]).
-      assert (Hsm : step_seq m k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; apply NatLe_lift; exact Hkm).
-      assert (Hsn : step_seq n k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; apply NatLe_lift; exact Hkn).
+        by (apply Nat.le_trans with (max (2 ^ m) (2 ^ n)); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hk)]).
+      assert (Hsm : step_seq m k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; natle_solve).
+      assert (Hsn : step_seq n k == 1) by (apply qeqT_imp_qeq; apply step_seq_ge; natle_solve).
       apply Qlt_to_QltT.
       assert (Hepsq : Qlt 0 eps) by (apply QltT_to_Qlt; exact Heps).
       assert (Hgoal :
@@ -1594,20 +1705,20 @@ Proof.
   { unfold k.
     assert (HmM : (M <= m)%nat) by (unfold m; apply Nat.le_max_r).
     apply (Nat.le_trans _ m _ HmM).
-    apply NatLe_drop. apply pow2_ge. }
+    apply NatLe_drop_le. apply pow2_ge. }
   (* HM m n k HmN HnN HkM : QltT (Qabs (u_m(k) − u_n(k))) (1/2) *)
   assert (Hbad : QltT (Qabs (projT1 (step_real m) k - projT1 (step_real n) k)) (1/2))
     by (apply (HM m n k HmN HnN HkM)).
   (* u_m(k) == 1，u_n(k) == 0 ⟹ |1 − 0| == 1 *)
   assert (Hsm : step_seq m k == 1).
-  { apply qeqT_imp_qeq. apply step_seq_ge. apply NatLe_lift. unfold k. apply Nat.le_refl. }
+  { apply qeqT_imp_qeq. apply step_seq_ge. unfold k. apply NatLe_refl. }
   assert (Hsn0 : step_seq n k == 0).
-  { apply qeqT_imp_qeq. apply step_seq_lt. apply NatLe_lift. unfold n, k.
+  { apply qeqT_imp_qeq. apply step_seq_lt. unfold n, k.
     (* k = 2^m < 2^(S m) = 2^n *)
     assert (Htwo : (2 ^ Datatypes.S m)%nat = (2 * 2 ^ m)%nat) by (simpl; reflexivity).
     rewrite Htwo.
-    assert (Hp : (1 <= 2 ^ m)%nat) by (apply NatLe_drop; apply pow2_ge_one).
-    lia. }
+    assert (Hp : (1 <= 2 ^ m)%nat) by (apply NatLe_drop_le; apply pow2_ge_one).
+    natle_solve. }
   (* 化简 Hbad 到 ¬(Qlt 1 (1/2)) *)
   apply (not_qlt_one_half).
   apply Qlt_to_QltT.
@@ -1824,47 +1935,46 @@ Lemma reg_index_mono : forall (fmod : nat -> nat) (a b : nat),
 Proof.
   intros fmod. induction b as [| b' IHb]; intros Ha.
   - (* b = 0：a = 0 ⟹ f a = f 0 ≤ f 0 *)
-    destruct a; simpl; apply NatLe_lift; lia.
+    destruct a; simpl.
+    + apply NatLe_refl.
+    + exfalso. lia.
   - (* b = S b'：分 a = S b' 或 a ≤ b' *)
     destruct (Nat.eq_dec a (Datatypes.S b')) as [Heq | Hne].
-    + subst. apply NatLe_lift. lia.
+    + subst. apply NatLe_refl.
     + assert (Ha_le : (a <= b')%nat) by lia.
-      (* f a ≤ f b'（IH）≤ S (f b') ≤ max (S (f b')) (fmod (S b')) = f (S b') *)
-      apply NatLe_lift.
-      apply (Nat.le_trans _ (reg_index fmod b') _ (NatLe_drop _ _ (IHb Ha_le))).
-      (* 目标：reg_index fmod b' ≤ reg_index fmod (S b') = max (S (f b')) (fmod (S b')) *)
-      change ((reg_index fmod b' <=
-              Nat.max (Datatypes.S (reg_index fmod b')) (fmod (Datatypes.S b')))%nat).
-      apply Nat.le_trans with (Nat.max (Datatypes.S (reg_index fmod b')) (fmod (Datatypes.S b'))).
-      * apply Nat.le_trans with (Datatypes.S (reg_index fmod b')).
-        -- apply Nat.le_succ_diag_r.
-        -- apply Nat.le_max_l.
-      * reflexivity.
+      (* f a ≤ f b' (IH) ≤ S (f b') ≤ max (S (f b')) (fmod (S b')) = f (S b'),
+         chained by value-face transitivity *)
+      exact (natle_trans (reg_index fmod a) (reg_index fmod b')
+              (reg_index fmod (Datatypes.S b')) (IHb Ha_le)
+              (natle_trans (reg_index fmod b') (Datatypes.S (reg_index fmod b'))
+                 (reg_index fmod (Datatypes.S b'))
+                 (natle_succ_diag_r (reg_index fmod b'))
+                 (natle_max_l (Datatypes.S (reg_index fmod b')) (fmod (Datatypes.S b'))))).
 Qed.
 
 (* reg_index 覆盖：f(k) ≥ k *)
 Lemma reg_index_ge : forall (fmod : nat -> nat) (k : nat),
   NatLe k (reg_index fmod k).
 Proof.
-  intros fmod. induction k; [ apply NatLe_lift; lia | apply NatLe_lift ].
-  (* 目标：S k ≤ f (S k) = max (S (f k)) (fmod (S k))
-     链：S k ≤ S (f k)（IH 的 succ 单调）≤ max ... *)
-  apply (Nat.le_trans _ (Datatypes.S (reg_index fmod k)) _).
-  - exact (le_n_S k (reg_index fmod k) (NatLe_drop _ _ IHk)).
-  - change ((Datatypes.S (reg_index fmod k) <=
-            Nat.max (Datatypes.S (reg_index fmod k)) (fmod (Datatypes.S k)))%nat).
-    apply Nat.le_max_l.
+  intros fmod. induction k.
+  - (* base: the boolean identity for leb 0 (fmod 0) holds by computation *)
+    exact id_refl.
+  - (* step: S k <= S (f k) reads off IHk by iota conversion on leb, and
+       S (f k) <= max (S (f k)) (fmod (S k)) is the unconditional max face *)
+    exact (natle_trans (Datatypes.S k) (Datatypes.S (reg_index fmod k))
+            (reg_index fmod (Datatypes.S k)) IHk
+            (natle_max_l (Datatypes.S (reg_index fmod k)) (fmod (Datatypes.S k)))).
 Qed.
 
 (* reg_index 控制模：f(k) ≥ fmod(k) 恒成立 *)
 Lemma reg_index_fmod : forall (fmod : nat -> nat) (k : nat),
   NatLe (fmod k) (reg_index fmod k).
 Proof.
-  intros fmod k. induction k; [ apply NatLe_lift; simpl; lia | apply NatLe_lift ].
-  (* 目标：fmod (S k) ≤ f (S k) = max (S (f k)) (fmod (S k)) *)
-  change ((fmod (Datatypes.S k) <=
-           Nat.max (Datatypes.S (reg_index fmod k)) (fmod (Datatypes.S k)))%nat).
-  apply Nat.le_max_r.
+  intros fmod k. induction k.
+  - (* base: reg_index fmod 0 reduces to fmod 0, so the slot is reflexive *)
+    apply NatLe_refl.
+  - (* step: fmod (S k) <= max (S (f k)) (fmod (S k)) is the unconditional max face *)
+    exact (natle_max_r (Datatypes.S (reg_index fmod k)) (fmod (Datatypes.S k))).
 Qed.
 
 (* 正则化：v := u ∘ f，f 由柯西模驱动（f(k) ≥ 模(1/(k+2))） *)
@@ -1904,15 +2014,16 @@ Proof.
     set (fa := reg_index fmod a).
     set (fb := reg_index fmod b).
     (* 目标：|u(fa) − u(fb)| < 1/(a+2) *)
-    assert (Hfa_fmod : (fmod a <= fa)%nat) by (unfold fa; apply NatLe_drop; apply reg_index_fmod).
-    assert (Hfa_le_fb : (fa <= fb)%nat) by (unfold fa, fb; apply NatLe_drop; apply reg_index_mono; exact Hab).
+    assert (Hfa_fmod : (fmod a <= fa)%nat) by (unfold fa; apply NatLe_drop_le; apply reg_index_fmod).
+    assert (Hfa_le_fb : (fa <= fb)%nat) by (unfold fa, fb; apply NatLe_drop_le; apply reg_index_mono; exact Hab).
     (* u 的柯西性：Hu (1/(a+2)#1) (q_arch_inv_pos a) 给阈值 fmod a：
        对 m n ≥ fmod a，|u m − u n| < 1/(a+2)。取 m := fa, n := fb。 *)
     assert (Hc : QltT (Qabs (u fa - u fb)) (1 / (Z.of_nat (a + 2) # 1))).
     { apply (projT2 (Hu (1 / (Z.of_nat (a + 2) # 1))
                         (q_arch_inv_pos a))
-                    fa fb (NatLe_lift _ _ Hfa_fmod)).
-      apply NatLe_lift. apply (Nat.le_trans _ fa _ Hfa_fmod Hfa_le_fb). }
+                    fa fb (reg_index_fmod fmod a)).
+      exact (natle_trans (fmod a) fa fb (reg_index_fmod fmod a)
+              (reg_index_mono fmod a b Hab)). }
     (* 目标：Qlt (Qabs (u fa − u fb)) (1/(a+2)#1) —— 即 Hc 本身（QltT 转 Qlt） *)
     unfold fa, fb in Hc.
     exact Hc.
@@ -1924,13 +2035,14 @@ Proof.
     set (fmod := fun j : nat => reg_mod u Hu j).
     set (fa := reg_index fmod a).
     set (fb := reg_index fmod b).
-    assert (Hfb_fmod : (fmod b <= fb)%nat) by (unfold fb; apply NatLe_drop; apply reg_index_fmod).
-    assert (Hfb_le_fa : (fb <= fa)%nat) by (unfold fa, fb; apply NatLe_drop; apply reg_index_mono; lia).
+    assert (Hfb_fmod : (fmod b <= fb)%nat) by (unfold fb; apply NatLe_drop_le; apply reg_index_fmod).
+    assert (Hfb_le_fa : (fb <= fa)%nat) by (unfold fa, fb; apply NatLe_drop_le; apply reg_index_mono; lia).
     assert (Hc : QltT (Qabs (u fb - u fa)) (1 / (Z.of_nat (b + 2) # 1))).
     { apply (projT2 (Hu (1 / (Z.of_nat (b + 2) # 1))
                         (q_arch_inv_pos b))
-                    fb fa (NatLe_lift _ _ Hfb_fmod)).
-      apply NatLe_lift. apply (Nat.le_trans _ fb _ Hfb_fmod Hfb_le_fa). }
+                    fb fa (reg_index_fmod fmod b)).
+      exact (natle_trans (fmod b) fb fa (reg_index_fmod fmod b)
+              (reg_index_mono fmod b a (Nat.lt_le_incl _ _ Hba))). }
     (* 目标：Qlt (Qabs (u fa − u fb)) (1/(b+2)#1) == |u(fb) − u(fa)| 的对称上界 *)
     assert (Hsym : Qabs (u fa - u fb) == Qabs (u fb - u fa)).
     { apply qeqT_imp_qeq. apply q_abs_minus_sym. }
@@ -1951,9 +2063,9 @@ Proof.
   assert (Hmin : (N <= Nat.min a b)%nat).
   { destruct (Nat.le_gt_cases a b) as [Hab' | Hba'].
     - (* min a b = a：N ≤ a ✓ *)
-      destruct (nat_min_l a b Hab'). exact (NatLe_drop _ _ Ha).
+      destruct (nat_min_l a b Hab'). exact (NatLe_drop_le _ _ Ha).
     - (* min a b = b：N ≤ b ✓ *)
-      destruct (nat_min_r a b (Nat.lt_le_incl _ _ Hba')). exact (NatLe_drop _ _ Hb). }
+      destruct (nat_min_r a b (Nat.lt_le_incl _ _ Hba')). exact (NatLe_drop_le _ _ Hb). }
   (* 统一模：|v a − v b| < 1/(min a b + 2) ≤ 1/(N+2) < eps *)
   assert (Hum : Qlt (Qabs (regularize u Hu a - regularize u Hu b))
                     (1 / (Z.of_nat (Nat.min a b + 2) # 1))) by (apply QltT_to_Qlt; apply regularize_uniform_mod).
@@ -1986,12 +2098,14 @@ Proof.
   assert (Hfk : (C <= reg_index (fun j => reg_mod u Hu j) k)%nat).
   {
     (* f k ≥ k ≥ C *)
-    apply (Nat.le_trans _ k _ (NatLe_drop _ _ Hk)).
-    apply NatLe_drop. apply reg_index_ge.
+    apply (Nat.le_trans _ k _ (NatLe_drop_le _ _ Hk)).
+    apply NatLe_drop_le. apply reg_index_ge.
   }
   (* HC k (f k) Hk Hfk：|u k − u(f k)| < eps/2 *)
   assert (Hc : QltT (Qabs (u k - u (reg_index (fun j => reg_mod u Hu j) k))) (eps / 2)%Q).
-  { apply (HC k (reg_index (fun j => reg_mod u Hu j) k) Hk (NatLe_lift _ _ Hfk)). }
+  { apply (HC k (reg_index (fun j => reg_mod u Hu j) k) Hk
+            (natle_trans C k (reg_index (fun j => reg_mod u Hu j) k) Hk
+               (reg_index_ge (fun j => reg_mod u Hu j) k))). }
   (* |v k − u k| == |u(f k) − u k| == |u k − u(f k)|（对称） *)
   assert (Hgoal : Qlt (Qabs (regularize u Hu k - u k)) eps).
   {
@@ -2350,9 +2464,9 @@ Proof.
     setoid_rewrite <- Heps_sum.
     apply Qplus_lt_compat.
     + apply QltT_to_Qlt. apply HN1.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_l N1 N2) (NatLe_drop _ _ Hn)).
+      exact (natle_max_l_inv N1 N2 n Hn).
     + apply QltT_to_Qlt. apply HN2.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_r N1 N2) (NatLe_drop _ _ Hn)).
+      exact (natle_max_r_inv N1 N2 n Hn).
 Qed.
 
 (* ============================================================ *)
@@ -2504,10 +2618,10 @@ Proof.
     apply Qlt_to_QltT.
     assert (Hlt1 : Qlt eps1 (projT1 y n - projT1 x n)).
     { apply QltT_to_Qlt. apply HN1.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_l N1 N2) (NatLe_drop _ _ Hn)). }
+      exact (natle_max_l_inv N1 N2 n Hn). }
     assert (Hd2 : Qlt (Qabs (projT1 y n - projT1 z n)) (eps1 / 2)).
     { apply QltT_to_Qlt. apply HN2.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_r N1 N2) (NatLe_drop _ _ Hn)). }
+      exact (natle_max_r_inv N1 N2 n Hn). }
     (* z_n - x_n = (y_n - x_n) + (z_n - y_n) > eps1 - eps1/2 = eps1/2 *)
     assert (Hsum : projT1 z n - projT1 x n == (projT1 y n - projT1 x n) + (projT1 z n - projT1 y n)).
     { ring. }
@@ -2547,10 +2661,10 @@ Proof.
     apply Qlt_to_QltT.
     assert (Hlt1 : Qlt eps1 (projT1 z n - projT1 y n)).
     { apply QltT_to_Qlt. apply HN1.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_l N1 N2) (NatLe_drop _ _ Hn)). }
+      exact (natle_max_l_inv N1 N2 n Hn). }
     assert (Hd2 : Qlt (Qabs (projT1 x n - projT1 y n)) (eps1 / 2)).
     { apply QltT_to_Qlt. apply HN2.
-      apply NatLe_lift. exact (Nat.le_trans _ (max N1 N2) _ (Nat.le_max_r N1 N2) (NatLe_drop _ _ Hn)). }
+      exact (natle_max_r_inv N1 N2 n Hn). }
     (* z_n - x_n = (z_n - y_n) + (y_n - x_n) > eps1 - eps1/2 = eps1/2 *)
     assert (Hsum : projT1 z n - projT1 x n == (projT1 z n - projT1 y n) + (projT1 y n - projT1 x n)).
     { ring. }
@@ -2606,8 +2720,8 @@ Proof.
   destruct (Hbd (eps / 2)%Q Hhalf0) as [N2 HN2].
   exists (max N1 N2).
   intros k Hk.
-  assert (HkN1 : (N1 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hk)]).
-  assert (HkN2 : (N2 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hk)]).
+  assert (HkN1 : (N1 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hk)]).
+  assert (HkN2 : (N2 <= k)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hk)]).
   (* 目标：QltT (Qabs (projT1 (a−b) k − projT1 (c−d) k)) eps *)
   apply Qlt_to_QltT.
   (* 换形：(a−b) − (c−d) == (a−c) − (b−d)（ring） *)
@@ -2733,14 +2847,16 @@ Proof.
   (* e1 < eps − (x k − y k)：HM1 k 经 Hpt1 换形 *)
   assert (Hlt1 : Qlt e1 (eps - (projT1 x k - projT1 y k))).
   {
-    pose proof (HM1 k (NatLe_lift _ _ Hk1)) as HM1k.
+    assert (HMk1 : NatLe M1 k) by natle_solve.
+    pose proof (HM1 k HMk1) as HM1k.
     apply QltT_to_Qlt in HM1k.
     setoid_rewrite Hpt1 in HM1k.
     exact HM1k.
   }
   assert (Hlt2 : Qlt e2 (eps - (projT1 y k - projT1 x k))).
   {
-    pose proof (HM2 k (NatLe_lift _ _ Hk2)) as HM2k.
+    assert (HMk2 : NatLe M2 k) by natle_solve.
+    pose proof (HM2 k HMk2) as HM2k.
     apply QltT_to_Qlt in HM2k.
     setoid_rewrite Hpt2 in HM2k.
     exact HM2k.
@@ -2801,7 +2917,7 @@ Proof.
   { destruct (Nat.le_gt_cases a b) as [Hab | Hba].
     - destruct (nat_min_l a b Hab). exact Ha.
     - destruct (nat_min_r a b (Nat.lt_le_incl _ _ Hba)). exact Hb. }
-  apply NatLe_lift. exact Hle.
+  natle_solve.
 Qed.
 
 (* Q 层：0 < eps ⟹ 0 < 2·eps（2eps = eps+eps > 0） *)
@@ -2903,10 +3019,10 @@ Proof.
   exists (max N0 N1).
   intros m n Hm Hn.
   (* m,n ≥ N0、m,n ≥ N1 *)
-  assert (HmN0 : (N0 <= m)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hm)]).
-  assert (HnN0 : (N0 <= n)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hn)]).
-  assert (HmN1 : (N1 <= m)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hm)]).
-  assert (HnN1 : (N1 <= n)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hn)]).
+  assert (HmN0 : (N0 <= m)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hm)]).
+  assert (HnN0 : (N0 <= n)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hn)]).
+  assert (HmN1 : (N1 <= m)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hm)]).
+  assert (HnN1 : (N1 <= n)%nat) by (apply Nat.le_trans with (max N0 N1); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hn)]).
   set (M := Nat.min m n).
   (* M ≥ N0、M ≥ N1（M = min m n 且 m,n ≥ N0/N1） *)
   assert (HMN0 : (N0 <= M)%nat).
@@ -2968,7 +3084,7 @@ Proof.
       - exact Heps3.
       - (* 项 2a：|v_m(M) − v_m(L)| < eps/9：统一模 min(M,L) ≥ N0 *)
         apply Qlt_to_QltT.
-        assert (HmL : (N0 <= Nat.min M L)%nat) by (apply NatLe_drop; apply nat_le_min; exact HMN0 || exact HLN0).
+        assert (HmL : (N0 <= Nat.min M L)%nat) by (apply NatLe_drop_le; apply nat_le_min; exact HMN0 || exact HLN0).
         assert (Hum : Qlt (Qabs (projT1 (regularized_family u m) M - projT1 (regularized_family u m) L))
                           (1 / (Z.of_nat (Nat.min M L + 2) # 1)))
           by (apply QltT_to_Qlt; apply regularized_family_uniform_mod).
@@ -2987,7 +3103,7 @@ Proof.
         exact H2b.
       - (* 项 2c：|v_n(L) − v_n(M)| < eps/9：统一模 min(L,M) ≥ N0 *)
         apply Qlt_to_QltT.
-        assert (HmL : (N0 <= Nat.min L M)%nat) by (apply NatLe_drop; apply nat_le_min; exact HLN0 || exact HMN0).
+        assert (HmL : (N0 <= Nat.min L M)%nat) by (apply NatLe_drop_le; apply nat_le_min; exact HLN0 || exact HMN0).
         assert (Hum : Qlt (Qabs (projT1 (regularized_family u n) L - projT1 (regularized_family u n) M))
                           (1 / (Z.of_nat (Nat.min L M + 2) # 1)))
           by (apply QltT_to_Qlt; apply regularized_family_uniform_mod).
@@ -3083,8 +3199,9 @@ Proof.
   (* 项 A：|u_n(k) − v_n(k)| < eps/2（HC0 给 |v_n − u_n|，对称换形） *)
   assert (HA : Qlt (Qabs (projT1 (u n) k - projT1 (regularized_family u n) k)) (eps / 2)%Q).
   {
+    assert (HC0k : NatLe C0 k) by natle_solve.
     assert (Hc : QltT (Qabs (projT1 (regularized_family u n) k - projT1 (u n) k)) (eps / 2)%Q)
-      by (apply (HC0 k (NatLe_lift _ _ HkC0))).
+      by (apply (HC0 k HC0k)).
     (* Hc 转 Qlt，再在 Qlt 层用 Qeq 换形（Qlt 兼容 Qeq 的 Proper 已有） *)
     pose proof (QltT_to_Qlt _ _ Hc) as Hcq.
     (* 目标：Qlt (Qabs (u_n − v_n)) (eps/2)；Hcq：Qlt (Qabs (v_n − u_n)) (eps/2)。
@@ -3111,7 +3228,7 @@ Proof.
                     (eps / 2)%Q Heps2).
     - (* |v_n(k) − v_n(L)| < (eps/2)/3 = eps/6：统一模 < 1/(N0+2) < eps/6 *)
       apply Qlt_to_QltT.
-      assert (HmL : (N0 <= Nat.min k L)%nat) by (apply NatLe_drop; apply nat_le_min; exact HkN0 || exact HLN0).
+      assert (HmL : (N0 <= Nat.min k L)%nat) by (apply NatLe_drop_le; apply nat_le_min; exact HkN0 || exact HLN0).
       assert (Hum : Qlt (Qabs (projT1 (regularized_family u n) k - projT1 (regularized_family u n) L))
                         (1 / (Z.of_nat (Nat.min k L + 2) # 1)))
         by (apply QltT_to_Qlt; apply regularized_family_uniform_mod).
@@ -3128,7 +3245,7 @@ Proof.
       exact H2b.
     - (* |v_k(L) − v_k(k)| < eps/6：统一模 *)
       apply Qlt_to_QltT.
-      assert (HmL : (N0 <= Nat.min L k)%nat) by (apply NatLe_drop; apply nat_le_min; exact HLN0 || exact HkN0).
+      assert (HmL : (N0 <= Nat.min L k)%nat) by (apply NatLe_drop_le; apply nat_le_min; exact HLN0 || exact HkN0).
       assert (Hum : Qlt (Qabs (projT1 (regularized_family u k) L - projT1 (regularized_family u k) k))
                         (1 / (Z.of_nat (Nat.min L k + 2) # 1)))
         by (apply QltT_to_Qlt; apply regularized_family_uniform_mod).
@@ -3220,7 +3337,7 @@ Proof.
         with ((projT1 (regularized_family u k) k - projT1 (u n) k) + eps) by ring.
       (* 由 HC k Hk：|u_n(k) − v_k(k)| < eps/2；需 |v_k(k) − u_n(k)| < eps/2（对称） *)
       assert (Hd : Qlt (Qabs (projT1 (u n) k - projT1 (regularized_family u k) k)) (eps / 2)%Q)
-        by (apply QltT_to_Qlt; apply (HC k (NatLe_drop _ _ Hk))).
+        by (apply QltT_to_Qlt; apply (HC k (NatLe_drop_le _ _ Hk))).
       assert (Hd2 : Qlt (Qabs (projT1 (regularized_family u k) k - projT1 (u n) k)) (eps / 2)%Q).
       {
         (* 目标 Qlt (Qabs (v_k−u_n)) (eps/2)；Hd : Qlt (Qabs (u_n−v_k)) (eps/2)。
@@ -3241,7 +3358,7 @@ Proof.
       change (projT1 (real_plus l (real_opp (real_const eps))) k) with (projT1 (regularized_family u k) k + (- eps)).
       (* 目标：Qlt (eps/2) (u_n(k) − (v_k(k) + −eps)) == eps + (u_n(k) − v_k(k)) *)
       assert (Hd : Qlt (Qabs (projT1 (u n) k - projT1 (regularized_family u k) k)) (eps / 2)%Q)
-        by (apply QltT_to_Qlt; apply (HC k (NatLe_drop _ _ Hk))).
+        by (apply QltT_to_Qlt; apply (HC k (NatLe_drop_le _ _ Hk))).
       setoid_replace (projT1 (u n) k - (projT1 (regularized_family u k) k + (- eps)))
         with (eps + (projT1 (u n) k - projT1 (regularized_family u k) k)) by ring.
       exact (QltT_to_Qlt _ _
@@ -3308,8 +3425,8 @@ Proof.
     rewrite H0 in Hsum.
     apply Qlt_to_QltT. exact Hsum.
   - exists (max N1 N2). intros n Hn.
-    assert (Hn1 : (N1 <= n)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop _ _ Hn)]).
-    assert (Hn2 : (N2 <= n)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop _ _ Hn)]).
+    assert (Hn1 : (N1 <= n)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_l | exact (NatLe_drop_le _ _ Hn)]).
+    assert (Hn2 : (N2 <= n)%nat) by (apply Nat.le_trans with (max N1 N2); [apply Nat.le_max_r | exact (NatLe_drop_le _ _ Hn)]).
     (* 逐点展开投影：projT1 (b+d) n == projT1 b n + projT1 d n；projT1 (a+c) n == a_n + c_n *)
     assert (Hpt_bd : projT1 (real_plus b d) n == projT1 b n + projT1 d n)
       by (apply qeqT_imp_qeq; apply real_plus_proj).
@@ -3575,7 +3692,7 @@ Proof.
       setoid_rewrite Hmu.
       (* 目标：Qlt (eps/2) (c·l_m + eps − c·u_n(m)) == eps − c·(u_n(m) − l_m) *)
       assert (Hd : Qlt (Qabs (projT1 (u n) m - projT1 l m)) eps')
-        by (apply QltT_to_Qlt; exact (HM m (NatLe_drop _ _ Hm))).
+        by (apply QltT_to_Qlt; exact (HM m (NatLe_drop_le _ _ Hm))).
       (* c·(u_n(m) − l_m) < eps/2（q_scal_eps_half）；换形目标为 eps/2 < eps − c·Δ *)
       assert (Hscal : Qlt (c * (projT1 (u n) m - projT1 l m)) (eps / 2))
         by (unfold eps'; apply QltT_to_Qlt; apply q_scal_eps_half; [exact Heps | apply Qlt_to_QltT; exact Hd]).
@@ -3606,7 +3723,7 @@ Proof.
       setoid_rewrite Hmu.
       (* 目标：Qlt (eps/2) (c·u_n(m) − (c·l_m − eps)) == eps + c·(u_n(m) − l_m)
          即 −(c·(u_n(m) − l_m)) < eps/2（q_scal_eps_half_neg） *)
-      assert (Hd : Qlt (Qabs (projT1 (u n) m - projT1 l m)) eps') by (apply QltT_to_Qlt; exact (HM m (NatLe_drop _ _ Hm))).
+      assert (Hd : Qlt (Qabs (projT1 (u n) m - projT1 l m)) eps') by (apply QltT_to_Qlt; exact (HM m (NatLe_drop_le _ _ Hm))).
       assert (Hscal : Qlt (- (c * (projT1 (u n) m - projT1 l m))) (eps / 2))
         by (unfold eps'; apply QltT_to_Qlt; apply q_scal_eps_half_neg; [exact Heps | apply Qlt_to_QltT; exact Hd]).
       (* 目标 eps/2 < c·u_n(m) − (c·l_m − eps) ⟺ eps/2 < eps + c·(u_n(m) − l_m)（ring）
@@ -3687,7 +3804,8 @@ Proof.
   (* 上界：u_n(k) − l_k < eps（由 e1 < eps − (u_n(k) − l_k) 且 e1 > 0） *)
   assert (Hlt1 : Qlt e1 (eps - (projT1 (u n) k - projT1 l k))).
   {
-    pose proof (HM1 k (NatLe_lift _ _ Hk1)) as HM1k.
+    assert (HMk1 : NatLe M1 k) by natle_solve.
+    pose proof (HM1 k HMk1) as HM1k.
     apply QltT_to_Qlt in HM1k.
     setoid_rewrite Hpt1 in HM1k.
     (* 目标 e1 < eps − (u_n k − l k)；HM1k : e1 < l_k + eps − u_n k == eps − (u_n k − l k)
@@ -3698,7 +3816,8 @@ Proof.
   }
   assert (Hlt2 : Qlt e2 (projT1 (u n) k - (projT1 l k - eps))).
   {
-    pose proof (HM2 k (NatLe_lift _ _ Hk2)) as HM2k.
+    assert (HMk2 : NatLe M2 k) by natle_solve.
+    pose proof (HM2 k HMk2) as HM2k.
     apply QltT_to_Qlt in HM2k.
     setoid_rewrite Hpt2 in HM2k.
     exact HM2k.
@@ -3976,7 +4095,7 @@ Proof.
       setoid_replace (projT1 (real_mult l1 l2) m + eps - projT1 (real_mult (u n) (v n)) m)
         with (eps - (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) by ring.
       assert (Hd : Qlt (Qabs (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) (eps / 2)%Q)
-        by (apply QltT_to_Qlt; apply (HM m (NatLe_drop _ _ Hm))).
+        by (apply QltT_to_Qlt; apply (HM m (NatLe_drop_le _ _ Hm))).
       apply (proj2 (Qlt_minus_iff (eps / 2) (eps - (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)))).
       setoid_replace (eps - (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m) + - (eps / 2))
         with (eps / 2 - (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) by field.
@@ -4000,7 +4119,7 @@ Proof.
       setoid_replace (projT1 (real_mult (u n) (v n)) m - (projT1 (real_mult l1 l2) m + (- eps)))
         with (eps + (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) by ring.
       assert (Hd : Qlt (Qabs (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) (eps / 2)%Q)
-        by (apply QltT_to_Qlt; apply (HM m (NatLe_drop _ _ Hm))).
+        by (apply QltT_to_Qlt; apply (HM m (NatLe_drop_le _ _ Hm))).
       apply (proj2 (Qlt_minus_iff (eps / 2) (eps + (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)))).
       setoid_replace (eps + (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m) + - (eps / 2))
         with (eps / 2 + (projT1 (real_mult (u n) (v n)) m - projT1 (real_mult l1 l2) m)) by field.

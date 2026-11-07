@@ -87,7 +87,13 @@ Definition not_InT {A : Set} (x : A) (l : list A) : Set :=
 
 Definition NatLe (n m : nat) : Set := Id (Nat.leb n m) true.
 
-(* ---- 完全构造论证 kernel 桥：NatLe ↔ (<=)%nat（Set 序界 ↔ Prop 序界）---- *)
+(* ---- Pre-recast Prop kernel bridges: NatLe <-> (<=)%nat, restored      ---- *)
+(* ---- verbatim at their original names (S01 v2 pure-increment           ---- *)
+(* ---- correction, 2026-11-06: the native informative family moved to    ---- *)
+(* ---- the I-suffix names below so the pre-recast faces keep theirs;     ---- *)
+(* ---- signatures and proof bodies are byte-identical to the main        ---- *)
+(* ---- baseline).  Proof faces only; proof-bridge registry entries       ---- *)
+(* ---- (CONSTRAINTS.md section 11).                                      ---- *)
 Lemma NatLe_drop : forall n m : nat, NatLe n m -> (n <= m)%nat.
 Proof.
   intros n m H.
@@ -106,6 +112,73 @@ Proof.
   - exfalso.
     apply (proj1 (Nat.leb_gt n m)) in E.
     lia.
+Qed.
+
+(* ---- Native informative direction family over the carrier [NatLe]      ---- *)
+(* ---- (plan-A informative recast; I-suffix names).  The carrier         ---- *)
+(* ---- [NatLe n m] is the boolean identity face [Id (Nat.leb n m) true]  ---- *)
+(* ---- (qpg_degge1 statement form).  The native faces read and write     ---- *)
+(* ---- boundedness certificates as value-level data; both are total      ---- *)
+(* ---- projections, so the extracted code carries no partial branch.     ---- *)
+(* Performance budget of this family (4d line, measured on this tree,      *)
+(* ocamlc bytecode, Sys.time): the native read and write faces             *)
+(* ([NatLe_dropI] / [NatLe_liftI]) are total projections, O(1): 80-107 ns  *)
+(* per round-trip under the default unary recipe, 60-69 ns under the       *)
+(* integer realizer recipe (Extract Inlined Constant Nat.leb => "(<=)",    *)
+(* stdlib ExtrOcamlNatInt line-64 form).  The computation-bearing face     *)
+(* [NatLe_refl] scans [Nat.leb]: the unary recipe is O(first argument) at  *)
+(* ~18 ns per step (17.8 ms for a single 10^6-step call), the realizer     *)
+(* recipe is O(1) (51.5 ns per call; a single 10^6 call below measurement  *)
+(* resolution).  The restored Prop write face [NatLe_lift] keeps the       *)
+(* baseline partial body that recomputes [Nat.leb] with an unreachable     *)
+(* assert-false branch (same ladder: ~18 ns per step, 4.54 us per call at  *)
+(* 250 steps, 19.7 ms for a single (10^6,10^6) call); it is registered     *)
+(* with that partiality note and stays off value paths.  Proof-side        *)
+(* reasoning stays on the Prop faces above and the bridges below; value    *)
+(* paths consume the I faces.                                              *)
+(* Read face: boundedness certificate as a boolean identity value. *)
+Lemma NatLe_dropI : forall n m : nat, NatLe n m -> @Id bool (Nat.leb n m) true.
+Proof. intros n m H. exact H. Qed.
+
+(* Write face: mirror of [NatLe_dropI]. *)
+Lemma NatLe_liftI : forall n m : nat, @Id bool (Nat.leb n m) true -> NatLe n m.
+Proof. intros n m H. exact H. Qed.
+
+(* Set-level [Id] to Leibniz equality eliminator (z2v_idS_eq statement form;  *)
+(* I-suffix family name per the 2026-11-06 correction). *)
+Lemma id_eq_SI : forall (A : Set) (x y : A), Id x y -> x = y.
+Proof.
+  intros A x y H.
+  exact (match H in Id _ z return x = z with id_refl => eq_refl end).
+Qed.
+
+(* Reflection face: [NatLe n n] holds for every n, by direct computation. *)
+Lemma NatLe_refl : forall n : nat, NatLe n n.
+Proof.
+  intros n. unfold NatLe. destruct (Nat.leb n n) eqn:E.
+  - exact id_refl.
+  - exfalso. exact (Nat.lt_irrefl n (proj1 (Nat.leb_gt n n) E)).
+Qed.
+
+(* Prop-faced bridges below serve proof positions only and are entered in the *)
+(* proof-bridge registry (CONSTRAINTS.md section 11); every value-level       *)
+(* consumption of the family goes through the I faces above.  Bridge pair     *)
+(* (Prop order read-outs): [NatLe_drop_le] reads the order face out of the    *)
+(* carrier, [NatLe_lift_le] out of the raw boolean identity face.             *)
+Lemma NatLe_drop_le : forall n m : nat, NatLe n m -> (n <= m)%nat.
+Proof.
+  intros n m H.
+  apply (proj1 (Nat.leb_le n m)).
+  exact (id_eq_SI bool (Nat.leb n m) true (NatLe_dropI n m H)).
+Qed.
+
+(* Bridge: Prop order face read out of the boolean identity evidence          *)
+(* (2026-11-06 correction form of the bridge pair). *)
+Lemma NatLe_lift_le : forall n m : nat, @Id bool (Nat.leb n m) true -> (n <= m)%nat.
+Proof.
+  intros n m H.
+  apply (proj1 (Nat.leb_le n m)).
+  exact (id_eq_SI bool (Nat.leb n m) true H).
 Qed.
 
 Class RealInterface := {
