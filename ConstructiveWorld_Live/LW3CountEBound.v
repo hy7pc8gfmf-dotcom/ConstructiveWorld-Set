@@ -1,15 +1,33 @@
-(* LW3CountEBound.v                                                       *)
-(* 使命：M3 主语句 count·E<1 前提的数值实例化——锚例多项式 1+t 上显式给出  *)
-(*       尺度与衰减形标量，使节点计数因子乘标量严格小于一的严格比较在      *)
-(*       Set 层以可判定比较闭合；并附逐节点界网格的数值边界件。            *)
-(* 依赖：LW3ETranscendental（只读正本）及其 Require 闭包 S02/S03/LW0/     *)
-(*       LW1/LW2 系；衰减常数正性取在库生产件 lw3_decay_E_posT。          *)
-(* 对标：E-STAGING-LW3-PROBEPIN；E-STAGING-LW3-KNZWALL（纯 Set 值钉形    *)
-(*       与透明归约工艺）；M0 数值门槛判例工艺。                           *)
-(* 构造性：语句面全 Set（sigT 见证＋And 积形＋QltT 严格形），语句与前提   *)
-(*       位零 Prop；提取并集仅数据名；禁引六族零命中。                     *)
-(* 编译配方：coqc 全路径 -q -Q . "" -Q ConstructiveWorld-Main/            *)
-(*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。  *)
+(* ConstructiveWorld-Set — numeric instantiation of the count-times-E strict premise. *)
+
+(** * LW3CountEBound: the count-times-E premise instantiated at the anchor polynomial.
+
+    Mission.  On the anchor [p374] = 1 + t at scale one ([N374]), the
+      master premise "node-count factor times decay scalar below one" is
+      witnessed at the explicit pair ([N374], [E374]): [lw3_countE374]
+      packages the decay positivity (via [lw3_decay_E_posT]) and the
+      strict [QltT] comparison; the boundary data [lw3_p3viol374],
+      [lw3_f5374_val] and kin, [lw3_joint374] delimit the per-node bound
+      grid at the top node.
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith_base], [QArith.Qabs]; requires [S01_BaseRing],
+      [S02_CauchyComplete], [S03_QExp], the LW0/LW1/LW2 modules and
+      [LW3ETranscendental] (read-only) of this development.
+
+    References.  This development, [LW3ETranscendental].v; the baseline
+      module of the same name in ConstructiveWorld-Main, whose statement
+      names are carried over here verbatim.
+
+    Constructivity.  All named statements are carried by [Set]
+      ([sigT] witnesses, [And] products and [QltT] strict forms); zero
+      admission words; no classical axioms; extraction names data only
+      ([p374], [N374], [m374], [count374], [E374]), with generic lemma
+      parameters surfacing as [Obj.magic] (disclosed per the census).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW3CountEBound.v] compiles cleanly (exit 0); the first eight bytes
+      of the artifact are [436f7121 00015ff4]. *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import QArith_base.

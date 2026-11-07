@@ -1,11 +1,33 @@
-(* ==========================================================================)
-   UpConstitution.v — 预算宪法：增长破界声明的可判定校验
-   使命: q_decay_breaks（几何衰减破界定理）、claim_pass/check_claim/check_report 可判定校验器、constitution_nonvacuous（非空洞性）、四反例 invalid_claim_counter_*、claim_chain 链式复合与 real_budget_witness 演示。
-   依赖: S01–S15 系、UpBudgetReal（携 G01_CoreMicro）；Stdlib QArith、Lia。
-   对标: 资源预算声明的一致性校验（几何级数增长约束的形式化）。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（等词为 QeqT/Id，序谓词为 QleT'/QltT，预算为 NatLe/sigT，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 rocq c -native-compiler no -Q . ""（cpu_guard v3 包裹限载）。
-   ========================================================================== *)
+(* ConstructiveWorld-Set -- a budget constitution: decidable validation of growth-breakthrough declarations. *)
+(** * UpConstitution: decidable validation of growth-breakthrough claims.
+
+    Mission.  [q_decay_breaks] (the geometric-decay breakthrough
+      theorem), the decidable validators
+      [claim_pass]/[check_claim]/[check_report],
+      [constitution_nonvacuous] (non-vacuity), the four counterexamples
+      [invalid_claim_counter_*], the chained composition [claim_chain],
+      and the [real_budget_witness] demonstration.  Semantics: each
+      step shrinks the baseline [c0] by the factor [(1 - kappa)]; a
+      valid declaration strictly crosses the threshold [eps] within
+      [N] steps.
+
+    Dependencies.  [S01_BaseRing]..[S15_TailFEPUp], [UpBudgetReal];
+      Stdlib [QArith] [Lia].
+
+    References.  Consistency validation of resource-budget declarations
+      (a formalization of geometric-growth constraints); [UpBudgetReal]
+      ([r_arch_pow_real], the Real-layer counterpart whose budget is
+      this constitution's breakthrough budget); the same-name
+      ConstructiveWorld-Main baseline.
+
+    Constructivity.  Every proof closes by [Qed]; zero admission faces,
+      no classical logic; statement faces are Set-carried (equalities
+      as [QeqT]/[Id], order predicates as [QleT']/[QltT], budgets as
+      [NatLe]/[sigT]; zero Prop leakage).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpConstitution.v] compiles cleanly (exit 0); the first eight bytes
+      of the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Lia.
@@ -28,27 +50,25 @@ Require Import UpBudgetReal.
 
 Local Open Scope Q_scope.
 
-(* ============================================================ *)
-(* §0 件 1：改进声明的 Set 层类型                                 *)
-(* ============================================================ *)
-(* 形态裁决：早期草案把 QleT/QltT 证挤进 sigT 类型，使 κ≥1 的声明   *)
-(* 不可构造——与件 4「构造具体反例声明」直接冲突（反例必须可构造才能   *)
-(* 被验证器拒收）。故裁决为：无约束 Record + 验证器判定。            *)
-(* 语义：每步按 (1−κ) 收缩基线 c0，声明 N 步内严格跨过阈值 eps。      *)
+(* ================= Section 0. Piece 1: the Set-layer type of improvement declarations ================= *)
+(* Design note: the [QleT]/[QltT] proofs are not packed into a [sigT] type -- that shape would make  *)
+(* declarations with [kappa >= 1] non-constructible, directly conflicting with Piece 4 (concrete *)
+(* counterexample declarations must be constructible for the validator to reject them).  The settled *)
+(* shape is therefore: an unconstrained [Record] plus validator adjudication. *)
+(* Semantics: each step shrinks the baseline [c0] by the factor [(1 - kappa)]; the declaration asserts *)
+(* that the threshold [eps] is strictly crossed within [N] steps. *)
 
 Record claim_decl : Set := mk_claim {
-  cl_c0 : Q;        (* 当前基线值 c0 *)
-  cl_eps : Q;       (* 目标阈值 eps *)
-  cl_kappa : Q;     (* 声明改进率 κ *)
-  cl_N : nat;       (* 声明到达预算 N *)
-  cl_id : nat       (* 声明 id *)
+  cl_c0 : Q;        (* the current baseline value [c0] *)
+  cl_eps : Q;       (* the target threshold [eps] *)
+  cl_kappa : Q;     (* the declared improvement rate [kappa] *)
+  cl_N : nat;       (* the declared reaching budget [N] *)
+  cl_id : nat       (* the declaration id *)
 }.
 
-(* ============================================================ *)
-(* §1 Q 层代数微件（桥与换形；LCAudit 先例口径）                    *)
-(*   语句面全 Set 化：== → QeqT、Qle → QleT'、Qlt → QltT；          *)
-(*   证明内部经 qeqT_imp_qeq / QltT_to_Qlt / QleT'_to_Qle 三桥中转。 *)
-(* ============================================================ *)
+(* ================= Section 1. Q-layer algebra micro-facts (bridges and rewrites; the [LCAudit] precedent caliber) ================= *)
+(*   Statement faces fully Set-ified: [==] -> [QeqT], [Qle] -> [QleT'], [Qlt] -> [QltT]; *)
+(*   proofs route through the three bridges [qeqT_imp_qeq] / [QltT_to_Qlt] / [QleT'_to_Qle]. *)
 
 Lemma uc_qeq_le : forall x y : Q, QeqT x y -> QleT' x y.
 Proof.
@@ -88,7 +108,7 @@ pose proof (QltT_to_Qlt z x H0) as H0'.
 rewrite He in H0'. exact H0'.
 Qed.
 
-(* 倒数正性（Q 层自足版；三分判定构造性收尾） *)
+(* Positivity of the reciprocal (the self-contained Q-layer version; finished constructively by the three-way decision) *)
 Lemma uc_inv_pos : forall x : Q, QltT 0 x -> QltT 0 (1 / x).
 Proof.
 intros x Hx. apply Qlt_to_QltT.
@@ -128,7 +148,7 @@ destruct (Q_dec 0 (1 / x)) as [[H | H] | H].
   exact (Qlt_irrefl 0%Q Hlt0).
 Qed.
 
-(* 序的加 −x 换形 *)
+(* Adding [-x] rewrites the order *)
 Lemma uc_le_opp_shift : forall x y : Q, QleT' x y -> QleT' 0 (y + - x).
 Proof.
 intros x y H. apply Qle_to_QleT'.
@@ -178,7 +198,7 @@ apply (Qle_trans _ ((- x) + x) _).
   rewrite Hopp. apply Qle_refl.
 Qed.
 
-(* 乘法右消去（严格版；Q_dec 三分构造性收尾） *)
+(* Right multiplication cancellation (strict version; finished constructively by the three-way [Q_dec]) *)
 Lemma uc_cancel_lt_r : forall a b p : Q,
   QltT 0 p -> QltT (a * p) (b * p) -> QltT a b.
 Proof.
@@ -194,9 +214,7 @@ destruct (Q_dec a b) as [[H1 | H2] | H3].
   rewrite <- H3 in Hlt. exact Hlt.
 Qed.
 
-(* ============================================================ *)
-(* §2 q_pow 幂代数（使用 q_pow）                      *)
-(* ============================================================ *)
+(* ================= Section 2. [q_pow] power algebra (using [q_pow]) ================= *)
 
 Lemma uc_pow_eq_compat : forall (x y : Q) (n : nat),
   QeqT x y -> QeqT (q_pow x n) (q_pow y n).
@@ -243,7 +261,7 @@ intros a b n Hab. induction n as [| n IH]; simpl.
   rewrite H1. reflexivity.
 Qed.
 
-(* 衰减指数下降：0 ≤ x ≤ 1 ⟹ x^(p+q) ≤ x^p（sc_qpow_dec 迭代） *)
+(* Decaying exponents decrease: [0 <= x <= 1] implies [x^(p+q) <= x^p] (iterated via [sc_qpow_dec]) *)
 Lemma uc_pow_le_drop : forall (x : Q) (p q : nat),
   QleT' 0 x -> QleT' x 1 -> QleT' (q_pow x (p + q)%nat) (q_pow x p).
 Proof.
@@ -257,9 +275,7 @@ intros x p q Hx0 Hx1. induction q as [| q IH].
   + exact IH.
 Qed.
 
-(* ============================================================ *)
-(* §3 Q 形 Bernoulli：(1+c)^n ≥ 1 + n·c（c ≥ 0）                  *)
-(* ============================================================ *)
+(* ================= Section 3. the Q-form Bernoulli inequality: [(1+c)^n >= 1 + n*c] for [c >= 0] ================= *)
 
 Lemma uc_znat_pos : forall n : nat, QleT' 0 (Z.of_nat n # 1).
 Proof. intro n. apply Qle_to_QleT'. unfold Qle. simpl. lia. Qed.
@@ -282,13 +298,13 @@ induction n as [| n IH].
     { rewrite Hs. ring. }
     rewrite Hface. apply Qle_refl.
   + apply (Qle_trans _ ((1 + (Z.of_nat n # 1) * c) * (1 + c)) _).
-    * (* (1 + n·c) + c ≤ (1+n·c)·(1+c)：差项 n·c·c ≥ 0 *)
+    * (* [(1 + n*c) + c <= (1 + n*c)*(1 + c)]: the difference term [n*c*c >= 0] *)
       apply (Qle_trans _ ((1 + (Z.of_nat n # 1) * c) + c + (Z.of_nat n # 1) * c * c) _).
       -- apply (Qle_trans _ ((1 + (Z.of_nat n # 1) * c) + c + 0) _).
          ++ rewrite (Qplus_0_r ((1 + (Z.of_nat n # 1) * c) + c)). apply Qle_refl.
          ++ apply Qplus_le_compat.
             ** apply Qle_refl.
-            ** (* 0 ≤ (n#1·c)·c *)
+            ** (* [0 <= (n#1 * c) * c] *)
                apply (Qle_trans _ (0 * c)%Q _).
                { assert (Hz : 0 * c == 0%Q) by ring.
                  rewrite Hz. apply Qle_refl. }
@@ -305,7 +321,7 @@ induction n as [| n IH].
       -- assert (Hmbe : (1 + (Z.of_nat n # 1) * c) + c + (Z.of_nat n # 1) * c * c
                      == (1 + (Z.of_nat n # 1) * c) * (1 + c)) by ring.
          rewrite Hmbe. apply Qle_refl.
-    * (* (1+c) 单调放大（0 ≤ 1+c） *)
+    * (* scaling up by the monotone factor [(1+c)] (with [0 <= 1+c]) *)
       rewrite (qeqT_imp_qeq _ _ (q_pow_succ (1 + c) n)).
       rewrite (Qmult_comm (1 + c) (q_pow (1 + c) n)).
       apply (Qmult_le_compat_r (1 + (Z.of_nat n # 1) * c) (q_pow (1 + c) n) (1 + c)
@@ -321,9 +337,7 @@ induction n as [| n IH].
       exact Hle0c.
 Qed.
 
-(* ============================================================ *)
-(* §4 Q 层阿基米德击破：真增长率必有正预算（Qarchimedean + Bernoulli）*)
-(* ============================================================ *)
+(* ================= Section 4. the Q-layer Archimedean breakthrough: a genuine growth rate yields a positive budget ([Qarchimedean] + Bernoulli) ================= *)
 
 Theorem uc_growth_breaks : forall (c T : Q),
   QltT 0 c -> QltT 0 T ->
@@ -380,11 +394,9 @@ split.
   apply (Qlt_le_trans _ _ _ H4 Hb).
 Qed.
 
-(* ============================================================ *)
-(* §5 Q 层几何衰减击破（r_arch_pow_real 的 Q 层自足对应件）          *)
-(*   κ∈(0,1)、c0>0、eps>0 ⟹ 存在正预算 N 使 c0·(1−κ)^N < eps        *)
-(*   预算 N 的显式形态：Qarchimedean 在 c0/eps 除以 κ/(1−κ) 上解出。  *)
-(* ============================================================ *)
+(* ================= Section 5. the Q-layer geometric-decay breakthrough (the self-contained Q-layer counterpart of [r_arch_pow_real]) ================= *)
+(*   [kappa in (0,1)], [c0 > 0], [eps > 0] imply a positive budget [N] with [c0 * (1-kappa)^N < eps]. *)
+(*   The explicit shape of the budget [N]: [Qarchimedean] solved on [c0/eps] over [kappa/(1-kappa)]. *)
 
 Theorem q_decay_breaks : forall (k c0 eps : Q),
   QltT 0 k -> QltT k 1 -> QltT 0 c0 -> QltT 0 eps ->
@@ -448,20 +460,18 @@ exists N. split.
   + apply Qlt_to_QltT. exact Hmul.
 Qed.
 
-(* ============================================================ *)
-(* §6 件 2：可判定验证器（Defined 可执行）                          *)
-(*   六个单门判定器：bool 判定 + 依赖 match 同步发放 Set 层证书；      *)
-(*   拒绝时发拒绝码（可反驳性：负向判定同样精确）。                   *)
-(* ============================================================ *)
+(* ================= Section 6. Piece 2: the decidable validator ([Defined], hence executable) ================= *)
+(*   Six single-gate deciders: a bool decision plus a dependent [match] that simultaneously issues the Set-layer certificate; *)
+(*   on rejection a reject code is issued (refutability: negative verdicts are equally exact). *)
 
-(* 拒绝码（E 模式：反例与陈述同权，负向判定携带可机器检查的理由） *)
+(* Reject codes (E-mode: counterexamples carry the same weight as statements; negative verdicts carry machine-checkable reasons) *)
 Inductive claim_reject : Set :=
-| rj_kappa   (* kappa 不在 [0,1)：零衰减捷径或负率 *)
-| rj_budget  (* N = 0：即时报达声明 *)
-| rj_data    (* c0 < 0 或 eps <= 0：基线/阈值不合法 *)
-| rj_reach.  (* 预算 N 内不跨阈值：无见证承诺 *)
+| rj_kappa   (* [kappa] not in [0,1): the zero-decay shortcut or a negative rate *)
+| rj_budget  (* [N = 0]: an instant-reach declaration *)
+| rj_data    (* [c0 < 0] or [eps <= 0]: an illegal baseline/threshold *)
+| rj_reach.  (* the threshold is not crossed within the budget [N]: no witness commitment *)
 
-(* 通过证书：六证包（每门一张 Id 型 Set 层证） *)
+(* The pass certificate: a six-certificate pack (one [Id]-typed Set-layer certificate per gate) *)
 Definition claim_pass (cl : claim_decl) : Set :=
   And (And (QleT' 0 (cl_kappa cl)) (QltT (cl_kappa cl) 1))
       (And (NatLe 1 (cl_N cl))
@@ -469,7 +479,7 @@ Definition claim_pass (cl : claim_decl) : Set :=
                 (QltT (cl_c0 cl * q_pow (1 - cl_kappa cl) (cl_N cl))
                       (cl_eps cl)))).
 
-(* 门 1a：0 <= kappa *)
+(* Gate 1a: [0 <= kappa] *)
 Definition kap_low_dec (cl : claim_decl)
   : Or (QleT' 0 (cl_kappa cl))
        (And (Id (Qle_bool 0 (cl_kappa cl)) false) claim_reject) :=
@@ -479,7 +489,7 @@ Definition kap_low_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_kappa)
   end.
 
-(* 门 1b：kappa < 1 *)
+(* Gate 1b: [kappa < 1] *)
 Definition kap_high_dec (cl : claim_decl)
   : Or (QltT (cl_kappa cl) 1)
        (And (Id (Qlt_bool (cl_kappa cl) 1) false) claim_reject) :=
@@ -489,7 +499,7 @@ Definition kap_high_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_kappa)
   end.
 
-(* 门 2：N >= 1 *)
+(* Gate 2: [N >= 1] *)
 Definition bud_dec (cl : claim_decl)
   : Or (NatLe 1 (cl_N cl))
        (And (Id (Nat.leb 1 (cl_N cl)) false) claim_reject) :=
@@ -499,7 +509,7 @@ Definition bud_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_budget)
   end.
 
-(* 门 3a：0 <= c0 *)
+(* Gate 3a: [0 <= c0] *)
 Definition dat_c0_dec (cl : claim_decl)
   : Or (QleT' 0 (cl_c0 cl))
        (And (Id (Qle_bool 0 (cl_c0 cl)) false) claim_reject) :=
@@ -509,7 +519,7 @@ Definition dat_c0_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_data)
   end.
 
-(* 门 3b：0 < eps *)
+(* Gate 3b: [0 < eps] *)
 Definition dat_eps_dec (cl : claim_decl)
   : Or (QltT 0 (cl_eps cl))
        (And (Id (Qlt_bool 0 (cl_eps cl)) false) claim_reject) :=
@@ -519,7 +529,7 @@ Definition dat_eps_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_data)
   end.
 
-(* 门 4：到达性——N 步内严格跨阈值 *)
+(* Gate 4: reachability -- the threshold is strictly crossed within [N] steps *)
 Definition reach_dec (cl : claim_decl)
   : Or (QltT (cl_c0 cl * q_pow (1 - cl_kappa cl) (cl_N cl)) (cl_eps cl))
        (And (Id (Qlt_bool (cl_c0 cl * q_pow (1 - cl_kappa cl) (cl_N cl))
@@ -532,7 +542,8 @@ Definition reach_dec (cl : claim_decl)
   | false => inr (@id_refl bool false, rj_reach)
   end.
 
-(* 宪法执行器本体：顺序过六门，全过发证书，首个不过发拒绝码 *)
+(* The constitution executor itself: the six gates in sequence; all passing issues the certificate, *)
+(* the first failing gate issues a reject code *)
 Definition check_claim (cl : claim_decl) : Or (claim_pass cl) claim_reject :=
   match kap_low_dec cl with
   | inr (_, r) => inr r
@@ -559,7 +570,7 @@ Definition check_claim (cl : claim_decl) : Or (claim_pass cl) claim_reject :=
     end
   end.
 
-(* 可判定总结报（vm_compute 友好输出形态） *)
+(* The decidable summary report (a [vm_compute]-friendly output shape) *)
 Inductive claim_verdict : Set :=
 | v_pass : claim_verdict
 | v_reject : claim_reject -> claim_verdict.
@@ -570,7 +581,7 @@ Definition check_report (cl : claim_decl) : claim_verdict :=
   | inr r => v_reject r
   end.
 
-(* 判定总全性：任何声明必得裁决 *)
+(* Totality of adjudication: every declaration gets a verdict *)
 Lemma check_claim_total : forall cl : claim_decl,
   Or (sigT (fun w : claim_pass cl => Id (check_claim cl) (inl w)))
      (sigT (fun r : claim_reject => Id (check_claim cl) (inr r))).
@@ -591,8 +602,9 @@ destruct (reach_dec cl) as [hr|[f5 r5]];
 left. exists (((hk0, hk1), (hb, ((hc0, he), hr)))). reflexivity.
 Qed.
 
-(* 证书 ⟹ 验证器判 inl（负向分支携带 bool=false 证据，可被证书证伪消解；
-   inl 见证取判定器实际产出——Set 层 Id 不做证明项无关性比较） *)
+(* A certificate makes the validator return [inl] (the negative branches carry [bool = false] evidence,
+   refuted by the certificates; the [inl] witness is the decider's actual output -- the Set-layer [Id]
+   does not quotient by proof irrelevance) *)
 Lemma check_claim_inl_of_pass : forall (cl : claim_decl),
   claim_pass cl -> sigT (fun w => Id (check_claim cl) (inl w)).
 Proof.
@@ -613,9 +625,7 @@ destruct (kap_low_dec cl) as [g0|[f0 r0]].
 - exfalso. pose proof (id_trans (id_sym hk0) f0) as Hc0x. inversion Hc0x.
 Qed.
 
-(* ============================================================ *)
-(* §7 件 3：健全性——验证器通过 ⟹ 击破见证存在                       *)
-(* ============================================================ *)
+(* ================= Section 7. Piece 3: soundness -- validator passage implies a breakthrough witness exists ================= *)
 
 Theorem valid_claim_yields_breakthrough : forall (cl : claim_decl) (w : claim_pass cl),
   Id (check_claim cl) (inl w) ->
@@ -627,7 +637,7 @@ intros cl w Hw. exists (cl_N cl). split.
 - destruct w as [[hk0 hk1] [hb [[hc0 he] hr]]]. exact hr.
 Qed.
 
-(* 严格证的降格：Qle_bool 为 false ⟹ QltT y x（Qle_bool 三分换形） *)
+(* Downgrading a non-strict certificate: [Qle_bool = false] implies [QltT y x] (the three-way [Qle_bool] rewrite) *)
 Lemma uc_qle_bool_false_inv : forall x y : Q, Id (Qle_bool x y) false -> QltT y x.
 Proof.
 intros x y Hf.
@@ -653,7 +663,7 @@ destruct (Qle_bool x y) eqn:Eb.
   exact (Qlt_trans y x y Hyx Hxy).
 Qed.
 
-(* 宪法非空洞：真增长率必有可通过验证器的预算（q_decay_breaks 消解） *)
+(* The constitution is non-vacuous: a genuine growth rate yields a budget that passes the validator (discharged by [q_decay_breaks]) *)
 Theorem constitution_nonvacuous : forall (c0 eps k : Q) (i : nat),
   QltT 0 k -> QltT k 1 -> QltT 0 c0 -> QltT 0 eps ->
   sigT (fun N => sigT (fun w => Id (check_claim (mk_claim c0 eps k N i)) (inl w))).
@@ -673,22 +683,20 @@ pose proof (check_claim_inl_of_pass (mk_claim c0 eps k N i) Hp) as Hw.
 destruct Hw as [w Hwin]. exists w. exact Hwin.
 Qed.
 
-(* ============================================================ *)
-(* §8 件 4：可反驳性——具体反例的精确判定（E 模式）                   *)
-(* ============================================================ *)
+(* ================= Section 8. Piece 4: refutability -- exact verdicts on concrete counterexamples (E-mode) ================= *)
 
-(* 反例 1：kappa = 1 的零衰减捷径声明（(1-kappa)^N ≡ 0 作弊路径，宪法禁收） *)
+(* Counterexample 1: the zero-decay shortcut declaration with [kappa = 1] (the [(1-kappa)^N == 0] cheat path; the constitution rejects it) *)
 Definition claim_bad_kappa1 : claim_decl := mk_claim (8 # 10) (1 # 10) 1 5 11.
 
-(* 反例 2：负率声明 *)
+(* Counterexample 2: a negative-rate declaration *)
 Definition claim_bad_kappaneg : claim_decl :=
   mk_claim (8 # 10) (1 # 10) (-1 # 2) 5 12.
 
-(* 反例 3：N = 0 的即时报达声明 *)
+(* Counterexample 3: an instant-reach declaration with [N = 0] *)
 Definition claim_bad_budget : claim_decl :=
   mk_claim (8 # 10) (1 # 10) (1 # 2) 0 13.
 
-(* 反例 4：边界恰不跨阈（1·(1/2)^1 = 1/2 不 < 1/2）——无见证承诺 *)
+(* Counterexample 4: exactly at the boundary without crossing ([1 * (1/2)^1 = 1/2] is not strictly below [1/2]) -- no witness commitment *)
 Definition claim_bad_reach : claim_decl := mk_claim 1 (1 # 2) (1 # 2) 1 14.
 
 Theorem invalid_claim_counter_kappa1 :
@@ -707,11 +715,9 @@ Theorem invalid_claim_counter_reach :
   Id (check_report claim_bad_reach) (v_reject rj_reach).
 Proof. vm_compute. reflexivity. Qed.
 
-(* ============================================================ *)
-(* §9 件 5：声明复合——自我改进链的宪法闭合                          *)
-(* ============================================================ *)
+(* ================= Section 9. Piece 5: claim composition -- constitutional closure of self-improvement chains ================= *)
 
-(* 复合声明：率并集复合 kA+kB-kA*kB，预算相加，接口闸 epsA == c0B *)
+(* The composed declaration: rates compose as [kA + kB - kA*kB], budgets add, and the interface gate is [epsA == c0B] *)
 Definition chain_claim (A B : claim_decl) : claim_decl :=
   mk_claim (cl_c0 A) (cl_eps B)
            (cl_kappa A + cl_kappa B - cl_kappa A * cl_kappa B)
@@ -762,8 +768,8 @@ apply (uc_qeq_lt_r ((1 - kA) * (1 - kB)) (1 + - (kA + kB - kA * kB)) 0%Q).
 - apply Qlt_to_QltT. exact Hpre.
 Qed.
 
-(* 复合链到达性：c0 过 A 链跨 epsA、epsA 过 B 链跨 epsB
-   ⟹ c0 以复合率在 NA+NB 内跨 epsB *)
+(* Chain-composition reachability: [c0] crossing [epsA] through the A chain and [epsA] crossing [epsB]
+   through the B chain imply that [c0] crosses [epsB] within [NA + NB] steps at the composed rate *)
 Lemma uc_chain_reach : forall (c0 e1 e2 kA kB : Q) (NA NB : nat),
   QleT' 0 c0 -> QleT' 0 kA -> QltT kA 1 -> QleT' 0 kB -> QltT kB 1 ->
   QltT (c0 * q_pow (1 - kA) NA) e1 ->
@@ -874,7 +880,7 @@ apply (Qlt_trans
 - exact HrB'.
 Qed.
 
-(* 复合定理：两条有效声明接链后，复合声明仍过验证器 *)
+(* The composition theorem: after chaining two valid declarations, the composed declaration still passes the validator *)
 Theorem claim_chain : forall (A B : claim_decl) (wA : claim_pass A) (wB : claim_pass B),
   Id (Qeq_bool (cl_eps A) (cl_c0 B)) true ->
   Id (check_claim A) (inl wA) -> Id (check_claim B) (inl wB) ->
@@ -906,10 +912,8 @@ apply (check_claim_inl_of_pass (chain_claim A B)
          (((Hk0c, Hk1c), (Hbc, ((hc0A, heB), Hreach))))).
 Qed.
 
-(* ============================================================ *)
-(* §10 Real 层对接件（并列形态）：r_arch_pow_real 的预算即             *)
-(*     宪法的击破预算——同一 sigT (fun N => ...) 形状，两套承载        *)
-(* ============================================================ *)
+(* ================= Section 10. the Real-layer hookup (a parallel shape): the budget of [r_arch_pow_real] is exactly *)
+(*     the constitution's breakthrough budget -- the same [sigT (fun N => ...)] shape, two carriers ================= *)
 
 Definition real_budget_witness (kappa a eps : Real)
   (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
@@ -917,12 +921,10 @@ Definition real_budget_witness (kappa a eps : Real)
   : sigT (fun N : nat => real_lt (real_mult a (r_pow kappa N)) eps) :=
   r_arch_pow_real kappa Hk1 Hk2 a Ha eps Heps.
 
-(* ============================================================ *)
-(* §11 vm_compute 数值自测（G3 样例输出源）                          *)
-(* ============================================================ *)
+(* ================= Section 11. [vm_compute] numeric self-tests (the sample output source) ================= *)
 
 Definition demo_ok : claim_decl := mk_claim (8 # 10) (1 # 10) (1 # 2) 5 21.
-(* c0=4/5, eps=1/10, kappa=1/2, N=5：4/5·(1/2)^5 = 1/40 < 1/10 —— 合法改进声明 *)
+(* [c0 = 4/5], [eps = 1/10], [kappa = 1/2], [N = 5]: [4/5 * (1/2)^5 = 1/40 < 1/10] -- a legal improvement declaration *)
 
 Eval vm_compute in check_report demo_ok.
 Eval vm_compute in check_report claim_bad_kappa1.
@@ -933,8 +935,6 @@ Eval vm_compute in check_report claim_bad_reach.
 Lemma test_demo_ok_pass : Id (check_report demo_ok) v_pass.
 Proof. vm_compute. reflexivity. Qed.
 
-(* ============================================================ *)
-(* §12 提取检验（G3：提取面自检，零 magic 词面）                     *)
-(* ============================================================ *)
+(* ================= Section 12. extraction checks (self-audit of the extraction face; zero [Obj.magic] occurrences) ================= *)
 
 Set Warnings "-extraction-opaque-accessed".

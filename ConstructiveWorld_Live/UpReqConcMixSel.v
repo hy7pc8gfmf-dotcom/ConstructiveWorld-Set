@@ -1,17 +1,39 @@
 (* ============================================================ *)
-(* UpReqConcMixSel.v —— 使命：本件形式化 req 面混合选择器与注意力核混合时间的    *)
-(*   对应层：cmk_ 系 k 选取器/幂机器（CmkMixSelect）与收束件              *)
-(*   cmk_attention_mixing_time（及 <= 版，CmkMixTime），以及 expf 迷你     *)
-(*   接口的 req 面一件全供（cmk_expf_realizable）。另附 CmkMixTime 六个参数位   *)
-(*   与世界数据参数位的就地消解定理（cmkr_ 系：sumf 以 csm_sumf 实现化，      *)
-(*   sum 四个参数位与 sum_eq_list 由 csm_ 系供给，世界数据取 Fin 2 实例读法）。  *)
-(* 依赖：CW_ConstructiveWorld_219、UpReqAlgebra、UpReqSumD、              *)
-(*   UpReqConcSoftmax、UpReqSampling、AttnDoeblin。                       *)
-(* 对标：mathlib 有限和与 softmax 核混合时间的构造性 Set 层对应物。       *)
-(* 构造性注记：Set 层承载，零承认；选择器与收束件全 Defined 可提取；      *)
-(*   消解定理全由库内已证件以显式实参供给，可提取面零 Prop 残留。         *)
-(* 编译配方：Rocq 9.1 直调 coqc，cpu_guard 包裹。                         *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — req-face mixed k-selection and attention-kernel mixing time. *)
+
+(** * UpReqConcMixSel: req-face counterparts of the mixed k-selector and
+      the attention-kernel mixing time.
+
+    Mission.  The req-face layer of mixed selection on the reals: the
+      selector and power machinery ([cmk_scale], [cmk_r_pow], section
+      [CmkMixSelect]) with the Bernoulli key inequality
+      ([cmk_bernoulli_upper]) and the selection heads ([cmk_k_select],
+      [cmk_pow_budget], [cmk_k_select_le]); the closing statements
+      [cmk_attention_mixing_time] and [cmk_attention_mixing_time_le]
+      (section [CmkMixTime]); the one-statement supply of the expf mini
+      interface ([cmk_expf_realizable]); and resolved certificates for
+      the declared slots of [CmkMixTime] (the [cmkr_] family: the sum
+      interface realized at [sumf := csm_sumf], the world data at a
+      two-point instance).
+
+    Dependencies.  Stdlib [List]. Requires [S01_BaseRing] through
+      [S15_TailFEPUp], [UpReqAlgebra], [UpReqSumD], [UpReqConcSoftmax],
+      [UpReqSampling], and [AttnDoeblin] of this development.
+
+    References.  This development, and the baseline module of the same
+      name in ConstructiveWorld-Main whose statement names are carried
+      over here verbatim; the [ums_]/[amt_]/[rsq_] families are the
+      mirrored statements reused here.
+
+    Constructivity.  All statements are carried by [Set] over the
+      req/lt/le carriers; no admitted statements; the selector and
+      closing statements close by [Defined] and stay extractable; the
+      resolved supplies close by [Qed] from already-proved lemmas with
+      explicit arguments; the [Print Assumptions] audits report Closed.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpReqConcMixSel.v] compiles cleanly (exit 0); the first eight
+      bytes of the artifact are [436f7121 000160bc]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.
@@ -37,30 +59,34 @@ Require Import AttnDoeblin.
 Import RealInterfaceEnhancedMod.
 Import ListNotations.
 
-(* 载体钉定：RealInterfaceEnhancedSetoid 在本树为无参 Class（S07_RealSetoidExpLog），
-   其字段经全局 Real 实例 RealEnhancedReal 解析；抽象载体 R 钉定为具体 Real。
-   关系字段 req/lt/le 经 Notation 直接绑定具体 S02_CauchyComplete 形
-   real_eq/real_lt/real_le——恰为全局实例对这些字段的赋值，语句面 elaboration
-   同项（ConcMixSelFeed.v 同款）。 *)
+(* Carrier concretization: [RealInterfaceEnhancedSetoid] is a parameterless
+   class in this tree ([S07_RealSetoidExpLog]) whose fields resolve through the
+   global [Real] instance [RealEnhancedReal]; the abstract carrier [R] is fixed
+   to the concrete [Real]. The relation fields req/lt/le bind through [Notation]
+   directly to the [S02_CauchyComplete] forms [real_eq]/[real_lt]/[real_le] —
+   exactly the values the global instance assigns to those fields, so
+   statement-face elaboration sees the same terms (the same convention as
+   [ConcMixSelFeed.v]). *)
 Notation R := Real.
 Notation req := real_eq.
 Notation lt := real_lt.
 Notation le := real_le.
 
-(* ============================================================ *)
-(* Section CmkMixSelect：S2 · k 选取器 req 面对应形（ums_ 系逐件）        *)
-(* ============================================================ *)
+(* ==================== Section [CmkMixSelect]: req-face counterparts of the k-selector (one lemma per [ums_] statement) ==================== *)
 
 Section CmkMixSelect.
 
-(* 字段经全局实例 RealEnhancedReal 解析——本节无抽象实例参数。 *)
+(* Fields resolve through the global instance [RealEnhancedReal]; this section
+   declares no abstract instance. *)
 
-(* 诚实接口：混合 lt+le 加法保序（Id 面 UMixSelect 同位 Variable 对应形；   *)
-(*   req 类字段仅 strict-strict lt_plus_compat，混合形抽象层不可内证） *)
+(* Honest interface: the mixed lt+le compatibility of addition (mirrors the
+   same-section Variable of the Id-face [UMixSelect]; the class fields provide
+   only the strict-strict [lt_plus_compat], and the mixed form is not provable
+   at this level of abstraction). *)
 Variable lt_plus_compat_lt_le : forall a b c d : R,
   lt a b -> le c d -> lt (plus a c) (plus b d).
 
-(* ---- 双向等式保序helper（req 面 id_cong 限制形：plus/mult 各双侧） ---- *)
+(* ---- bidirectional equality congruence helpers (req-face restrictions of [id_cong]: either side of plus/mult) ---- *)
 
 Lemma cmk_plus_congr_l : forall (a x y : R), req x y -> req (plus a x) (plus a y).
 Proof. intros a x y H. exact (req_plus_compat a a x y (req_refl a) H). Defined.
@@ -74,14 +100,15 @@ Proof. intros a x y H. exact (req_mult_compat a a x y (req_refl a) H). Defined.
 Lemma cmk_mult_congr_r : forall (b x y : R), req x y -> req (mult x b) (mult y b).
 Proof. intros b x y H. exact (req_mult_compat x y b b H (req_refl b)). Defined.
 
-(* 端点 x y 由证书类型唯一确定，置隐（长链换形书写简洁位） *)
+(* the endpoints [x] and [y] are determined by the certificate types, so they
+   are made implicit (keeps long reshaping chains readable) *)
 Arguments cmk_plus_congr_l a {x y} _.
 Arguments cmk_plus_congr_r b {x y} _.
 Arguments cmk_mult_congr_l a {x y} _.
 Arguments cmk_mult_congr_r b {x y} _.
 
 (* ============================================================ *)
-(* Part 1：nat-尺度部分和累加器（ums_scale req 对应）                  *)
+(* Part 1. The nat-scale partial-sum accumulator (the req counterpart of [ums_scale]) *)
 (* ============================================================ *)
 
 Fixpoint cmk_scale (k : nat) (w : R) : R :=
@@ -90,7 +117,7 @@ Fixpoint cmk_scale (k : nat) (w : R) : R :=
   | Datatypes.S m => plus w (cmk_scale m w)
   end.
 
-(* nat-尺度非负：0 ≤ w ⟹ 0 ≤ k·w（@ums_scale_nonneg） *)
+(* nat-scale nonnegativity: 0 <= w gives 0 <= k*w (the [@ums_scale_nonneg] counterpart) *)
 Lemma cmk_scale_nonneg : forall (w : R) (k : nat),
   le zero w -> le zero (cmk_scale k w).
 Proof.
@@ -101,7 +128,7 @@ Proof.
              (le_plus_compat zero w zero (cmk_scale k w) Hw IH)).
 Defined.
 
-(* nat-尺度严格正：0 < w ⟹ 0 < (S k)·w（@ums_scale_S_pos） *)
+(* nat-scale strict positivity: 0 < w gives 0 < (S k)*w (the [@ums_scale_S_pos] counterpart) *)
 Lemma cmk_scale_S_pos : forall (w : R) (k : nat),
   lt zero w -> lt zero (cmk_scale (Datatypes.S k) w).
 Proof.
@@ -112,7 +139,7 @@ Proof.
               Hw (cmk_scale_nonneg w k (lt_le_iff zero w (inl Hw))))).
 Defined.
 
-(* boost 正性：1 + k·w > 0（@ums_boost_pos） *)
+(* boost positivity: 1 + k*w > 0 (the [@ums_boost_pos] counterpart) *)
 Lemma cmk_boost_pos : forall (w : R) (k : nat),
   le zero w -> lt zero (plus one (cmk_scale k w)).
 Proof.
@@ -124,22 +151,22 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 2：抽象环化简小件（@ums 环化简 req 链重放）                        *)
+(* Part 2. Abstract ring simplification lemmas (the [@ums] ring-simplification chains replayed over req) *)
 (* ============================================================ *)
 
-(* 1·x == x（@ums_mult_one_l） *)
+(* 1*x == x (the [@ums_mult_one_l] counterpart) *)
 Lemma cmk_mult_one_l : forall x : R, req (mult one x) x.
 Proof.
   intro x. exact (req_trans _ _ _ (mult_comm one x) (mult_one x)).
 Defined.
 
-(* x·(−y) == −(x·y)（@ums_mult_opp_r；UpReqAlgebra req_opp_mult_l 直连） *)
+(* x*(-y) == -(x*y) (the [@ums_mult_opp_r] counterpart; [req_opp_mult_l] of [UpReqAlgebra] applies directly) *)
 Lemma cmk_mult_opp_r : forall x y : R, req (mult x (opp y)) (opp (mult x y)).
 Proof.
   intros x y. exact (req_opp_mult_l x y).
 Defined.
 
-(* 乘法换位：(a·b)·c == b·(a·c)（@ums_mult_swap） *)
+(* multiplication swap: (a*b)*c == b*(a*c) (the [@ums_mult_swap] counterpart) *)
 Lemma cmk_mult_swap : forall a b c : R,
   req (mult (mult a b) c) (mult b (mult a c)).
 Proof.
@@ -150,7 +177,7 @@ Proof.
            (req_sym _ _ (mult_assoc b a c))).
 Defined.
 
-(* 逆元消去：x·(y·inv(x)) == y（0 < x；@ums_mult_div） *)
+(* inverse cancellation: x*(y*inv(x)) == y for 0 < x (the [@ums_mult_div] counterpart) *)
 Lemma cmk_mult_div : forall (x y : R) (H : lt zero x),
   req (mult x (mult y (inv_pos x H))) y.
 Proof.
@@ -166,7 +193,7 @@ Proof.
   exact (mult_one y).
 Defined.
 
-(* 右加平移（le）：0 ≤ d ⟹ x ≤ x + d（@ums_le_plus_r） *)
+(* right addition shift for le: 0 <= d gives x <= x + d (the [@ums_le_plus_r] counterpart) *)
 Lemma cmk_le_plus_r : forall x d : R, le zero d -> le x (plus x d).
 Proof.
   intros x d Hd.
@@ -174,7 +201,7 @@ Proof.
            (le_plus_compat x x zero d (le_refl x) Hd)).
 Defined.
 
-(* 减法可逆：(a − b) + b == a（@ums_minus_plus_cancel） *)
+(* subtraction is invertible on the right: (a - b) + b == a (the [@ums_minus_plus_cancel] counterpart) *)
 Lemma cmk_minus_plus_cancel : forall a b : R, req (plus (req_minus a b) b) a.
 Proof.
   intros a b. unfold req_minus.
@@ -186,7 +213,7 @@ Proof.
   exact (plus_zero a).
 Defined.
 
-(* 减法 ≤ 本体：0 ≤ d ⟹ X − d ≤ X（@ums_minus_le） *)
+(* subtraction stays below itself for le: 0 <= d gives X - d <= X (the [@ums_minus_le] counterpart) *)
 Lemma cmk_minus_le : forall X d : R, le zero d -> le (req_minus X d) X.
 Proof.
   intros X d Hd.
@@ -195,10 +222,10 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 3：率证书小件与幂面（@ums omd/rpow 系）                        *)
+(* Part 3. Rate-certificate lemmas and the power face (the [@ums] omd/rpow family) *)
 (* ============================================================ *)
 
-(* 0 < w < 1 ⟹ 0 < 1−w（@ums_omd_lt_one） *)
+(* 0 < w < 1 gives 0 < 1-w (the [@ums_omd_lt_one] counterpart) *)
 Lemma cmk_omd_lt_one : forall w : R,
   lt zero w -> lt w one -> lt zero (req_minus one w).
 Proof.
@@ -208,7 +235,7 @@ Proof.
   exact (lt_plus_compat_lt_le w one (opp w) (opp w) Hw1 (le_refl (opp w))).
 Defined.
 
-(* omd 双重补：x == 1−(1−x)（@ums_omd_id；req 链式重放） *)
+(* double complement for omd: x == 1-(1-x) (the [@ums_omd_id] counterpart; replayed as a req chain) *)
 Lemma cmk_omd_id : forall x : R, req x (req_minus one (req_minus one x)).
 Proof.
   intro x. apply req_sym. unfold req_minus.
@@ -224,7 +251,7 @@ Proof.
                     (req_trans _ _ _ (plus_comm zero x) (plus_zero x)))))).
 Defined.
 
-(* 幂外延：底相等 ⟹ 幂相等（@ums_rpow_eq_compat） *)
+(* the power respects equality of bases: equal bases give equal powers (the [@ums_rpow_eq_compat] counterpart) *)
 Fixpoint cmk_r_pow (x : R) (n : nat) : R :=
   match n with
   | Datatypes.O => one
@@ -239,7 +266,7 @@ Proof.
   - exact (req_mult_compat x y _ _ Hxy IH).
 Defined.
 
-(* 幂正：0 < a ⟹ 0 < a^k（@ums_rpow_pos） *)
+(* power positivity: 0 < a gives 0 < a^k (the [@ums_rpow_pos] counterpart) *)
 Lemma cmk_rpow_pos : forall (a : R) (k : nat),
   lt zero a -> lt zero (cmk_r_pow a k).
 Proof.
@@ -248,7 +275,7 @@ Proof.
   - exact (mult_positive a (cmk_r_pow a k) Ha IH).
 Defined.
 
-(* 幂对底的 req 外延：w == w' ⟹ cmk_scale k w == cmk_scale k w'           *)
+(* the nat-scale accumulator respects req on its base: x == y gives [cmk_scale k x] == [cmk_scale k y] *)
 Lemma cmk_scale_congr : forall (k : nat) (x y : R),
   req x y -> req (cmk_scale k x) (cmk_scale k y).
 Proof.
@@ -257,7 +284,7 @@ Proof.
   - exact (req_plus_compat x y (cmk_scale k x) (cmk_scale k y) Hxy (IH x y Hxy)).
 Defined.
 
-(* nat-尺度对右因子的分配：(k·x)·z == k·(x·z)（@ums_scale_mult_distrib） *)
+(* the nat-scale accumulator distributes over the right factor: (k*x)*z == k*(x*z) (the [@ums_scale_mult_distrib] counterpart) *)
 Lemma cmk_scale_mult_distrib : forall (k : nat) (x z : R),
   req (mult (cmk_scale k x) z) (cmk_scale k (mult x z)).
 Proof.
@@ -277,11 +304,12 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 4：Bernoulli 上形式（@ums_bernoulli_upper 关键引理 req 对应）      *)
+(* Part 4. The Bernoulli upper bound (req counterparts of the key [@ums_bernoulli_upper] lemmas) *)
 (* ============================================================ *)
 
-(* 泛型环主件（cancel-ready 形）：(1−w)(1+w+s) + (w+s)·w == 1+s           *)
-(* （@ums_bernoulli_cancel req 链式重放，cmk_plus_congr 系逐步换形） *)
+(* the generic ring core in cancel-ready shape: (1-w)(1+w+s) + (w+s)*w == 1+s *)
+(* (the [@ums_bernoulli_cancel] counterpart replayed as a req chain, reshaped step
+   by step through the [cmk_plus_congr] family) *)
 Lemma cmk_bernoulli_cancel : forall w s : R,
   req (plus (mult (req_minus one w) (plus one (plus w s))) (mult (plus w s) w))
        (plus one s).
@@ -359,7 +387,7 @@ Proof.
   exact (cmk_plus_congr_l one (plus_zero s)).
 Defined.
 
-(* 消去转减法形：X + Y == Z ⟹ X == Z − Y（@ums_cancel_to_minus） *)
+(* cancellation in subtraction form: X + Y == Z gives X == Z - Y (the [@ums_cancel_to_minus] counterpart) *)
 Lemma cmk_cancel_to_minus : forall X Y Z : R,
   req (plus X Y) Z -> req X (req_minus Z Y).
 Proof.
@@ -373,7 +401,7 @@ Proof.
                  (cmk_plus_congr_r (opp Y) HC)))).
 Defined.
 
-(* 环化简给出口：(1−u)(1+u+a) == (1+a) − (u+a)·u（@ums_ring_sc） *)
+(* the ring simplification exit: (1-u)(1+u+a) == (1+a) - (u+a)*u (the [@ums_ring_sc] counterpart) *)
 Lemma cmk_ring_sc : forall u a : R,
   req (mult (req_minus one u) (plus one (plus u a)))
        (req_minus (plus one a) (mult (plus u a) u)).
@@ -385,21 +413,22 @@ Proof.
            (cmk_bernoulli_cancel u a)).
 Defined.
 
-(* 主墙：(1−w)^k·(1+k·w) ≤ 1（0 < w < 1；@ums_bernoulli_upper） *)
+(* the key inequality: (1-w)^k * (1+k*w) <= 1 for 0 < w < 1 (the [@ums_bernoulli_upper] counterpart) *)
 Lemma cmk_bernoulli_upper : forall (w : R) (k : nat),
   lt zero w -> lt w one ->
   le (mult (cmk_r_pow (req_minus one w) k) (plus one (cmk_scale k w))) one.
 Proof.
   intros w k Hwp Hwlt. induction k as [| k IH].
-  - (* k = 0：1·(1+0) == 1 *)
+  - (* base case k = 0: 1*(1+0) == 1 *)
     change (le (mult one (plus one (cmk_scale 0 w))) one).
     exact (le_id_l (mult one (plus one (cmk_scale 0 w))) one one
              (req_trans _ _ _ (mult_comm one (plus one (cmk_scale 0 w)))
                 (req_trans _ _ _ (mult_one (plus one (cmk_scale 0 w)))
                            (plus_zero one)))
              (le_refl one)).
-  - (* 归纳步：环化简 (1−w)(1+(k+1)w) == (1+kw) − ((k+1)w)·w ≤ 1+kw；        *)
-    (* 再乘幂正性分支接 IH 换位（@ums 同构） *)
+  - (* induction step: ring simplification gives
+       (1-w)(1+(k+1)w) == (1+kw) - ((k+1)w)*w <= 1+kw, and positivity of the
+       power lets the commuted IH close it (the [@ums] isomorph) *)
     assert (Hbpos : lt zero (req_minus one w))
       by exact (cmk_omd_lt_one w Hwp Hwlt).
     assert (HPk : lt zero (cmk_r_pow (req_minus one w) k))
@@ -462,7 +491,7 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 5：逆元环节（@ums_le_inv）                                       *)
+(* Part 5. The inverse step (the [@ums_le_inv] counterpart) *)
 (* ============================================================ *)
 
 Lemma cmk_le_inv : forall (A B : R) (HB : lt zero B),
@@ -486,7 +515,7 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 6：k 选取尾链核（@ums_pow_tail）                                *)
+(* Part 6. The tail-chain core of the k-selection (the [@ums_pow_tail] counterpart) *)
 (* ============================================================ *)
 
 Lemma cmk_pow_tail :
@@ -508,7 +537,7 @@ Proof.
     by exact (cmk_boost_pos w (Datatypes.S N) Hwle).
   set (invB := inv_pos boost Hboost0).
   assert (HinvB : lt zero invB) by exact (inv_pos_pos boost Hboost0).
-  (* ---- 预算前提：TV0 < Ms·budget ---- *)
+  (* ---- budget premise: TV0 < Ms*budget ---- *)
   assert (Hstep : lt (mult (mult TV0 invwb) wb)
                        (mult (cmk_scale (Datatypes.S N) one) wb))
     by exact (lt_mult_compat (mult TV0 invwb)
@@ -545,7 +574,7 @@ Proof.
                 (plus (mult Ms budget) budget) Hb0
                 (cmk_le_plus_r (mult Ms budget) budget Hbudget0))). }
   exists (Datatypes.S N).
-  (* ---- 主链：κ^(S N)·TV0 < budget ---- *)
+  (* ---- main chain: kappa^(S N)*TV0 < budget ---- *)
   assert (Heqp : req (cmk_r_pow kappa (Datatypes.S N))
                        (cmk_r_pow (req_minus one w) (Datatypes.S N)))
     by exact (cmk_rpow_eq_compat kappa (req_minus one w) (Datatypes.S N) Heqk).
@@ -575,10 +604,10 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 7：选择器双头（@ums_k_select / ums_pow_budget / ums_k_select_le）  *)
+(* Part 7. The selection heads (the [@ums_k_select] / [@ums_pow_budget] / [@ums_k_select_le] counterparts) *)
 (* ============================================================ *)
 
-(* 主形：le 前件 + le 形 Arch 直给（@ums_k_select 同形对应） *)
+(* the le-premise form, with the le-shaped Archimedean premise passed straight through (the [@ums_k_select] counterpart) *)
 Lemma cmk_k_select :
   forall (kappa TV0 budget : R),
     lt zero kappa -> lt kappa one ->
@@ -608,7 +637,8 @@ Proof.
     by exact (mult_positive (req_minus one kappa) budget hwp Hbudget).
   assert (Hinvwbp : lt zero (inv_pos (mult (req_minus one kappa) budget) Hwb))
     by exact (inv_pos_pos (mult (req_minus one kappa) budget) Hwb).
-  (* Arch 应用点：TV0·inv(w·budget) ≥ 0（le 前件经 weak 乘法保序） *)
+  (* Archimedean premise point: TV0*inv(w*budget) >= 0 (le premises propagate
+     through the weak multiplicative compatibility) *)
   assert (Hxle : le zero (mult TV0
                      (inv_pos (mult (req_minus one kappa) budget) Hwb))).
   { exact (le_id_l zero
@@ -629,7 +659,7 @@ Proof.
            hwp hwlt Heqk Ha (lt_le_iff zero budget (inl Hbudget)) HN).
 Defined.
 
-(* 严格版（lt 前件 + lt 形 Arch；@ums_pow_budget 同形对应） *)
+(* the strict variant (lt premises and an lt-shaped Archimedean premise; the [@ums_pow_budget] counterpart) *)
 Lemma cmk_pow_budget :
   forall (kappa TV0 budget : R),
     lt zero kappa -> lt kappa one ->
@@ -659,7 +689,8 @@ Proof.
     by exact (mult_positive (req_minus one kappa) budget hwp Hbudget).
   assert (Hinvwbp : lt zero (inv_pos (mult (req_minus one kappa) budget) Hwb))
     by exact (inv_pos_pos (mult (req_minus one kappa) budget) Hwb).
-  (* Arch 应用点：TV0·inv(w·budget) > 0（严格前件经乘法保序） *)
+  (* Archimedean premise point: TV0*inv(w*budget) > 0 (strict premises propagate
+     through the multiplicative compatibility) *)
   assert (Hx : lt zero (mult TV0
                    (inv_pos (mult (req_minus one kappa) budget) Hwb)))
     by exact (mult_positive TV0
@@ -671,7 +702,7 @@ Proof.
            (lt_le_iff zero budget (inl Hbudget)) HN).
 Defined.
 
-(* ≤ 版（同前件，结论降温 lt→le；@ums_k_select_le 同形对应） *)
+(* the <= variant (same premises, conclusion weakened from lt to le; the [@ums_k_select_le] counterpart) *)
 Lemma cmk_k_select_le :
   forall (kappa TV0 budget : R),
     lt zero kappa -> lt kappa one ->
@@ -689,10 +720,13 @@ Defined.
 
 End CmkMixSelect.
 
-(* 幂机器换形桥：cmk_r_pow == req_r_pow（两同构 Fixpoint 的 req 逐步转换；     *)
-(*   中性 k 上两种 fix 非转换可判——须归纳证明，恰为 S2/S3 两幂机器的衔接位） *)
+(* Power bridge: [cmk_r_pow] == [req_r_pow] — a stepwise req conversion between
+   two isomorphic fixpoints; at a variable [k] the two fixes are not
+   convertible, so the proof goes by induction — this is the joint between the
+   two power recursions. *)
 Section CmkRPowBridge.
-(* 字段经全局实例 RealEnhancedReal 解析——本节无抽象实例参数。 *)
+(* Fields resolve through the global instance [RealEnhancedReal]; this section
+   declares no abstract instance. *)
 Lemma cmk_r_pow_req_r_pow : forall (x : R) (k : nat),
   req (cmk_r_pow x k) (req_r_pow x k).
 Proof.
@@ -703,24 +737,28 @@ Defined.
 End CmkRPowBridge.
 
 (* ============================================================ *)
-(* Section CmkMixTime：S3 · 闭合件 req 面对应形（amt_ 系逐件）            *)
-(*   求和诚实接口六个参数位（rsq ReqBoundedSoftmax 同位，abs_sum_le_h 为       *)
-(*   plain 形冻结参数位——AT5 接口参数警告：具体层由 csm_abs_sum_le_eps 供        *)
-(*   逐 eps 形或 B1 一元 enum 平推，终装消解归 S8）。                    *)
+(* Section [CmkMixTime]: req-face counterparts of the closing statements (one lemma per [amt_] statement). *)
+(*   The six declared slots of the sum interface mirror [ReqBoundedSoftmax] of
+   the rsq chain; [abs_sum_le_h] stays an explicitly declared plain-form
+   slot — the concrete layer supplies per-eps forms through
+   [csm_abs_sum_le_eps] or pushes through a unary [enum] (resolved in the
+   concrete layer below). *)
 (* ============================================================ *)
 
 Section CmkMixTime.
 
-(* 字段经全局实例 RealEnhancedReal 解析——本节无抽象实例参数。 *)
+(* Fields resolve through the global instance [RealEnhancedReal]; this section
+   declares no abstract instance. *)
 
-(* 诚实接口：混合 lt+le 加法保序（与 S2 同位） *)
+(* Honest interface: the mixed lt+le compatibility of addition (same slot as in
+   [CmkMixSelect]). *)
 Variable lt_plus_compat_lt_le : forall a b c d : R,
   lt a b -> le c d -> lt (plus a c) (plus b d).
 
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 
-(* ---- 求和诚实接口（rsq 同位六个参数位） ---- *)
+(* ---- the sum interface (the six declared slots mirroring the rsq chain) ---- *)
 Hypothesis sum_ext :
   forall f g : S -> R, (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
 Hypothesis sum_linear :
@@ -731,11 +769,12 @@ Hypothesis sum_add :
     req (sumf (fun s : S => plus (f s) (g s))) (plus (sumf f) (sumf g)).
 Hypothesis sum_le :
   forall f g : S -> R, (forall s : S, le (f s) (g s)) -> le (sumf f) (sumf g).
-(* 求和三角：|Σ f| ≤ Σ |f|（plain 形冻结参数位；UpReqSampling abs_sum_le_h 同位） *)
+(* the sum triangle: |sum f| <= sum |f| (declared as a plain-form slot; the
+   same slot as [abs_sum_le_h] of [UpReqSampling]) *)
 Hypothesis abs_sum_le_h :
   forall f : S -> R, le (abs (sumf f)) (sumf (fun s : S => abs (f s))).
 
-(* ---- 有限世界数据（Id 面 amt 节 Variable 全集 req 对应） ---- *)
+(* ---- the finite world data (req counterparts of the Variable set of the Id-face amt section) ---- *)
 Variable enum : list S.
 Variable enum_nonempty : Not (enum = nil).
 Variable temp : R.
@@ -752,29 +791,31 @@ Variable bs_abs : forall a : R, le zero a -> req (abs a) a.
 Variable bs_lpc : forall a b c d : R, lt a b -> le c d -> lt (plus a c) (plus b d).
 Variable sum_eq_list : forall g : S -> R, req (sumf g) (rsq_bs_list_sum S g enum).
 
-(* ---- 核实例数据（rsq 混合率形：expf := rsq_exp_pos_fn，AT5 expf 供给予   *)
-(*      cmk_expf_realizable（件尾）一件全供对应） ---- *)
+(* ---- the kernel instance data (the rsq mixing-rate shape: [expf := rsq_exp_pos_fn];
+   the expf supply corresponds to the one-statement supply [cmk_expf_realizable]
+   at the end of this file) ---- *)
 Let invT := inv_pos temp temp_pos.
 Let lo := rsq_exp_pos_fn (mult invT (opp Delta)).
 Let delta_star := mult lo lo.
 Let omd := req_minus one delta_star.
 
-(* TV 算子与迭代器（rsq tv_req/k_titer 形req 自持；出节与 rsq 链可转换） *)
+(* the TV operator and its iterator ([req]-carried forms of [tv_req]/[k_titer];
+   after the section they convert to the rsq chain) *)
 Let inv_two := inv_pos (plus one one) req_two_pos.
 Let cmk_tv (mu nu : S -> R) : R :=
   mult inv_two (sumf (fun s : S => abs (req_minus (mu s) (nu s)))).
 Let cmk_titer (n : nat) (mu : S -> R) : S -> R :=
   k_titer S sumf enum enum_nonempty temp temp_pos Delta z z_lb sum_eq_list n mu.
 
-(* ================= B 档：消解件使用桥（@amt B 档对应） ================= *)
+(* ================= Direct reuse of proved library lemmas (the [amt] resolved-form counterparts) ================= *)
 
-(* δ* < 1（使用 rsq_bs_delta_star_lt_one；@amt_ds_lt_one） *)
+(* [delta_star] < 1 (from [rsq_bs_delta_star_lt_one]; the [amt_ds_lt_one] counterpart) *)
 Lemma cmk_ds_lt_one : lt delta_star one.
 Proof.
   exact (rsq_bs_delta_star_lt_one temp temp_pos Delta Delta_pos).
 Qed.
 
-(* 1 − δ* > 0（@amt_omd_pos；lpc 参数位同位传入 bs_lpc） *)
+(* 1 - [delta_star] > 0 (the [amt_omd_pos] counterpart) *)
 Lemma cmk_omd_pos : lt zero omd.
 Proof.
   exact (lt_id_l zero (plus delta_star (opp delta_star)) omd
@@ -783,9 +824,9 @@ Proof.
               (opp delta_star) cmk_ds_lt_one (le_refl (opp delta_star)))).
 Qed.
 
-(* ================= A 档：自证胶水（@amt A 档对应） ================= *)
+(* ================= Self-contained glue lemmas (the [amt] self-proved counterparts) ================= *)
 
-(* one = 1−δ*+δ* （@amt_one_eq；req 链三段）*)
+(* [one] = 1 - [delta_star] + [delta_star] (the [amt_one_eq] counterpart; a three-step req chain) *)
 Lemma cmk_one_eq : req one (plus omd delta_star).
 Proof.
   apply req_sym.
@@ -804,7 +845,7 @@ Proof.
               (plus_zero one))).
 Qed.
 
-(* 1−δ* < one：δ* > 0 退化端（@amt_omd_lt_one；bs_lpc 严格衔接 + 双侧换形） *)
+(* 1 - [delta_star] < one (the [amt_omd_lt_one] counterpart; the endpoint [delta_star] > 0 enters strictly through [bs_lpc] with two-sided reshaping) *)
 Lemma cmk_ds_omd_lt_one : lt omd one.
 Proof.
   assert (Hds : lt zero delta_star).
@@ -828,12 +869,14 @@ Proof.
   exact (req_lt_id_r_loc _ _ _ (req_sym _ _ cmk_one_eq) Hshift).
 Qed.
 
-(* ================= C 档：闭合主件（@amt C 档对应） ================= *)
+(* ================= The closing theorem (the [amt] main counterpart) ================= *)
 
-(* 闭合定理（严格版）：TV(T^k μ, T^k ν) < budget
-   TV₀ 非负诚实证书位 Htv0：req 面 abs≥0 的 plain le 形属 Or 层不可证结果（类字段
-   abs_nonneg 仅 Bishop 逐 eps 形），Id 面 tv_dist_nonneg 的无条件件在
-   req 面无同款——显式证书参数保持面诚实（AT5 接口参数警告同族申报）。 *)
+(* The closing theorem (strict form): TV(T^k mu, T^k nu) < budget. The
+   nonnegativity premise Htv0 is declared explicitly: the plain le-form of
+   [abs] >= 0 over [req] is not provable at the Or-layer (the class field
+   [abs_nonneg] is only Bishop-style per-eps), and the unconditional Id-face
+   form [tv_dist_nonneg] has no req-face counterpart — keeping the certificate
+   as an explicit premise keeps the interface honest. *)
 Theorem cmk_attention_mixing_time :
   forall mu nu : S -> R,
   req (sumf mu) one -> req (sumf nu) one ->
@@ -849,7 +892,8 @@ Proof.
               cmk_omd_pos cmk_ds_omd_lt_one Htv0 Hbudget Harch) as [k Hk].
   exists k.
   apply (le_lt_trans _ (mult (cmk_r_pow omd k) (cmk_tv mu nu))).
-  - (* req_r_pow（rsq 链幂机器）→ cmk_r_pow（S2 选择器幂机器）req 换形 *)
+  - (* the power converts from [req_r_pow] (the rsq-chain power) to [cmk_r_pow]
+       (the selector power) along [req] *)
     exact (le_id_r (cmk_tv (cmk_titer k mu) (cmk_titer k nu))
                      (mult (req_r_pow omd k) (cmk_tv mu nu))
                      (mult (cmk_r_pow omd k) (cmk_tv mu nu))
@@ -864,7 +908,7 @@ Proof.
   - exact Hk.
 Defined.
 
-(* 闭合定理（非严格版）：TV(T^k μ, T^k ν) ≤ budget *)
+(* The closing theorem (non-strict form): TV(T^k mu, T^k nu) <= budget *)
 Theorem cmk_attention_mixing_time_le :
   forall mu nu : S -> R,
   req (sumf mu) one -> req (sumf nu) one ->
@@ -880,7 +924,8 @@ Proof.
               cmk_omd_pos cmk_ds_omd_lt_one Htv0 Hbudget Harch) as [k Hk].
   exists k.
   apply (le_trans _ (mult (cmk_r_pow omd k) (cmk_tv mu nu))).
-  - (* req_r_pow（rsq 链幂机器）→ cmk_r_pow（S2 选择器幂机器）req 换形 *)
+  - (* the power converts from [req_r_pow] (the rsq-chain power) to [cmk_r_pow]
+       (the selector power) along [req] *)
     exact (le_id_r (cmk_tv (cmk_titer k mu) (cmk_titer k nu))
                      (mult (req_r_pow omd k) (cmk_tv mu nu))
                      (mult (cmk_r_pow omd k) (cmk_tv mu nu))
@@ -898,9 +943,12 @@ Defined.
 End CmkMixTime.
 
 (* ============================================================ *)
-(* 具体层锚点：expf 迷你接口 req 面一件全供（AttnDoeblin Part C 对应）     *)
-(*   real_expf_realizable 的五性质即 req 面语句（real_lt/real_eq/real_le  *)
-(*   = 实例 RealEnhancedReal 的 lt/req/le 字段值），拆件直给终装 S8。      *)
+(* Concrete-layer anchor: one-statement req-face supply of the expf mini interface *)
+(*   (the [AttnDoeblin] Part C counterpart). The five properties of
+   [real_expf_realizable] are exactly req-face statements ([real_lt]/
+   [real_eq]/[real_le] are the lt/req/le field values of the instance
+   [RealEnhancedReal]); the lemma hands the already-proved witness over
+   unchanged. *)
 (* ============================================================ *)
 
 Lemma cmk_expf_realizable :
@@ -911,7 +959,7 @@ Lemma cmk_expf_realizable :
              (forall a b : Real, le a b -> le (f a) (f b)))))).
 Proof. exact real_expf_realizable. Qed.
 
-(* ============ G4 证据：新件零外部未证假设（全 Closed，前提=显式参数） ============ *)
+(* Assumption audit: the new statements carry no external unproved premises (all Closed; premises are explicit section variables) *)
 Print Assumptions cmk_k_select.
 Print Assumptions cmk_pow_budget.
 Print Assumptions cmk_k_select_le.
@@ -920,10 +968,11 @@ Print Assumptions cmk_attention_mixing_time.
 Print Assumptions cmk_attention_mixing_time_le.
 Print Assumptions cmk_expf_realizable.
 
-(* ################ 假设消解块：基础件（req 面列表和桥） ############ *)
-(* sumd 折叠机与 rsq 列表和的逐点一致（en 上归纳；ConcMixSelFeed          *)
-(*   cms_sum_eq_list 同构证明的本件就地复演——该件 Require 本件，环路      *)
-(*   不可引，故以同名证明链自持）。                                       *)
+(* ################ Assumption-resolution block: base lemma (the req-face list-sum bridge) ################ *)
+(* Pointwise agreement of the [sumd] folder with the rsq list sum, by induction
+   on [en]; this replays the proof of [cms_sum_eq_list] of [ConcMixSelFeed] in
+   place — that module requires this one, so the shared proof chain is
+   reproduced here rather than imported. *)
 Lemma cmkr_sum_eq_list_aux : forall (S0 : Set) (en : list S0) (g : S0 -> Real),
   req (sumd_list_sum S0 g en) (rsq_bs_list_sum S0 g en).
 Proof.
@@ -935,9 +984,10 @@ Proof.
              (rsq_bs_list_sum S0 g t) (req_refl (g x)) IH).
 Defined.
 
-(* ################ 假设消解块：sumf 实现化读法 ##################### *)
-(* CmkMixTime 的求和诚实接口六参数位在 sumf := csm_sumf S enum 实现化读法下   *)
-(*   全部由 UpReqConcSoftmax csm_ 系已证件以显式实参供给。                *)
+(* ################ Assumption-resolution block: the realized reading of [sumf] ##################### *)
+(* Under the realization [sumf := csm_sumf S enum], all six sum-interface slots
+   of [CmkMixTime] are supplied from the proved [csm_] lemmas of
+   [UpReqConcSoftmax] with explicit arguments. *)
 
 Section CmkMixTimeResolved.
 
@@ -946,7 +996,7 @@ Variable enum : list S.
 
 Let sumf : (S -> Real) -> Real := csm_sumf S enum.
 
-(* sum_ext 参数位（CmkMixTime :743 同语句） *)
+(* the [sum_ext] slot (the same statement as the [sum_ext] slot of [CmkMixTime]) *)
 Theorem cmkr_sum_ext : forall f g : S -> Real,
   (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
 Proof.
@@ -954,7 +1004,7 @@ Proof.
   exact (csm_sum_ext S enum f g H).
 Qed.
 
-(* sum_linear 参数位（:745 同语句） *)
+(* the [sum_linear] slot (the same statement as in [CmkMixTime]) *)
 Theorem cmkr_sum_linear : forall (a : Real) (f : S -> Real),
   req (sumf (fun s : S => mult a (f s))) (mult a (sumf f)).
 Proof.
@@ -962,7 +1012,7 @@ Proof.
   exact (csm_sum_linear S enum a f).
 Qed.
 
-(* sum_add 参数位（:748 同语句） *)
+(* the [sum_add] slot (the same statement as in [CmkMixTime]) *)
 Theorem cmkr_sum_add : forall f g : S -> Real,
   req (sumf (fun s : S => plus (f s) (g s))) (plus (sumf f) (sumf g)).
 Proof.
@@ -970,7 +1020,7 @@ Proof.
   exact (csm_sum_add S enum f g).
 Qed.
 
-(* sum_le 参数位（:751 同语句） *)
+(* the [sum_le] slot (the same statement as in [CmkMixTime]) *)
 Theorem cmkr_sum_le : forall f g : S -> Real,
   (forall s : S, le (f s) (g s)) -> le (sumf f) (sumf g).
 Proof.
@@ -978,7 +1028,7 @@ Proof.
   exact (csm_sum_le S enum f g H).
 Qed.
 
-(* sum_eq_list 参数位（:772 同语句） *)
+(* the [sum_eq_list] slot (the same statement as in [CmkMixTime]) *)
 Theorem cmkr_sum_eq_list : forall g : S -> Real,
   req (sumf g) (rsq_bs_list_sum S g enum).
 Proof.
@@ -986,7 +1036,8 @@ Proof.
   exact (cmkr_sum_eq_list_aux S enum g).
 Qed.
 
-(* bs_swap 参数位（:767 同语句）：sum_eq_list 参数位与双重列表和交换整体导出 *)
+(* the [bs_swap] slot (the same statement as in [CmkMixTime]): derived from the
+   [sum_eq_list] slot together with the swap of the double list sum *)
 Theorem cmkr_bs_swap : forall f : S -> S -> Real,
   req (sumf (fun s : S => sumf (fun s' : S => f s s')))
       (sumf (fun s' : S => sumf (fun s : S => f s s'))).
@@ -1044,7 +1095,8 @@ Proof.
   exact (Hsw enum enum).
 Qed.
 
-(* bs_abs 参数位（:770 同语句）：abs 非负恒等（实数层已证件就地复演） *)
+(* the [bs_abs] slot (the same statement as in [CmkMixTime]): [abs] is the
+   identity on nonnegative reals (replayed from proved real-layer lemmas) *)
 Theorem cmkr_bs_abs : forall a : Real, le zero a -> req (abs a) a.
 Proof.
   intros a H.
@@ -1059,7 +1111,8 @@ Proof.
              Heq).
 Qed.
 
-(* bs_lpc 参数位（:771 同语句）：lt 与 le 混合加法严格保序（就地复演） *)
+(* the [bs_lpc] slot (the same statement as in [CmkMixTime]): strict mixed
+   lt/le compatibility of addition (replayed in place) *)
 Theorem cmkr_bs_lpc :
   forall a b c d : Real, lt a b -> le c d -> lt (plus a c) (plus b d).
 Proof.
@@ -1081,10 +1134,12 @@ Qed.
 
 End CmkMixTimeResolved.
 
-(* ################ 假设消解块：世界数据 Fin 2 实例读法 ############# *)
-(* temp/Delta/z/enum 参数位在 Fin 2 非退化实例（温度取单位元、z 取 +/-1 对称对、     *)
-(*   enum 取二元表）下的证书（cf2 依赖模块同构；该件 Require 本件，环路     *)
-(*   不可引，故以同款证明项自持）。                                       *)
+(* ################ Assumption-resolution block: the world data at the Fin 2 instance ############# *)
+(* Certificates for the [temp]/[Delta]/[z]/[enum] slots at a nondegenerate
+   two-point instance (the temperature at the unit, [z] the +1/-1 symmetric
+   pair, [enum] the two-element list); the isomorphic statements live in the
+   [cf2] dependency module, but that module requires this one, so the same
+   proof terms are reproduced here. *)
 
 Definition cmkr_temp : Real := one.
 
@@ -1118,7 +1173,8 @@ Proof.
   - exact (inl (@rsq_bs_opp_lt cmkr_Delta cmkr_Delta_pos)).
 Qed.
 
-(* enum 参数位非空性的 Set 层 sigT 见证重述（InT 载体，见证 true） *)
+(* the nonemptiness of the [enum] slot restated as a Set-layer sigT witness
+   (carrier [InT], witness [true]) *)
 Definition cmkr_enum : list bool := [true; false].
 
 Theorem cmkr_enum_nonempty : sigT (fun t : bool => InT t cmkr_enum).
@@ -1126,7 +1182,7 @@ Proof.
   exact (existT _ true (InT_here true (false :: nil))).
 Qed.
 
-(* ================= 消解件假设面核验（预期全 Closed） =============== *)
+(* ================= Assumption audit of the resolved supplies (all Closed) ================= *)
 
 Print Assumptions cmkr_sum_ext.
 Print Assumptions cmkr_sum_linear.

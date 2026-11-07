@@ -1,11 +1,33 @@
-(* ==========================================================================)
-   UpRealLeB3.v — ≤_B 序的结构律
-   使命: leb3_le_b_refl/leb3_le_b_eq_l/leb3_le_b_eq_r（自反与等式运输）、leb3_le_b_plus_nonneg_r、leb3_le_b_opp_rev/leb3_le_b_pos_scale（相反数反转与正缩放）与 leb3_abs_plus_one_pos。
-   依赖: S01–S15 系、UpRealLeB、UpRealLeB2；Stdlib QArith
-   对标: ε-一致下界序 ≤_B 的基本代数（等式运输与单调运算）。
-   构造性: 全件 Qed 闭合、零承认词面；证体不引入额外公理前提。
-   编译配方: Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""（vo 树同世界重编），COQLIB/ROCQLIB 全字面环境前缀。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — algebra of the eps-uniform lower-bound order on the reals. *)
+
+(** * UpRealLeB3: structural laws of the lower-bound order [real_le_b].
+
+    Mission.  Reflection and equation transport for the eps-uniform
+    lower-bound order: [leb3_le_b_refl], [leb3_le_b_eq_l],
+    [leb3_le_b_eq_r]; adding a nonnegative right summand
+    [leb3_le_b_plus_nonneg_r]; antitone negation [leb3_le_b_opp_rev];
+    scaling by a positive factor [leb3_le_b_pos_scale],
+    [leb3_le_b_pos_scale_l]; and the strict anchor
+    [leb3_abs_plus_one_pos].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [QArith.Qring].
+      Requires [S01_BaseRing] through [S15_TailFEPUp], [UpRealLeB],
+      [UpRealLeB2] of this development.
+
+    References.  This development, UpRealLeB3.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).  Basic algebra
+      of the eps-uniform lower-bound order: equation transport and
+      monotone operations.
+
+    Constructivity.  All named statements and fields are carried by
+      [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
+      [NatLe]); statements extract with [Obj.magic] = 0 and no
+      erasure; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpRealLeB3.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs QArith.Qring.
 Require Import S01_BaseRing.
@@ -27,16 +49,19 @@ Require Import UpRealLeB.
 Require Import UpRealLeB2.
 
 (* ============================================================ *)
-(* 一、运输四件（自反 / 左右端等式运输 / 非负右加）                      *)
+(* Section 1. Transport: reflexivity, left and right equation transport, *)
+(* nonnegative right addition.                                          *)
 (* ============================================================ *)
 
-(* 件 1：≤_B 自反（单向桥 + real_le_refl 单步） *)
+(* Item 1. Reflexivity of [real_le_b], via the one-way bridge
+   [real_le_to_le_b] applied to [real_le_refl] in one step. *)
 Lemma leb3_le_b_refl : forall x : Real, real_le_b x x.
 Proof.
   intros x. apply real_le_to_le_b. apply real_le_refl.
 Qed.
 
-(* 件 2：左端等式运输：x1≈x2 且 x1 ≤_B y 给 x2 ≤_B y *)
+(* Item 2. Left equation transport: [real_eq x1 x2] and [real_le_b x1 y]
+   give [real_le_b x2 y]. *)
 Lemma leb3_le_b_eq_l : forall x1 x2 y : Real,
   real_eq x1 x2 -> real_le_b x1 y -> real_le_b x2 y.
 Proof.
@@ -47,8 +72,9 @@ Proof.
   - exact (H eps Heps).
 Qed.
 
-(* 件 3：右端等式运输：x ≤_B y1 且 y1≈y2 给 x ≤_B y2
-   （逐 eps 加法兼容换形 y1+e == y2+e） *)
+(* Item 3. Right equation transport: [real_le_b x y1] and [real_eq y1 y2]
+   give [real_le_b x y2]; the per-eps witnesses are reshaped by additive
+   compatibility, [y1 + e == y2 + e]. *)
 Lemma leb3_le_b_eq_r : forall x y1 y2 : Real,
   real_le_b x y1 -> real_eq y1 y2 -> real_le_b x y2.
 Proof.
@@ -61,8 +87,9 @@ Proof.
   - exact (H eps Heps).
 Qed.
 
-(* 件 4：非负右加：x ≤_B y 且 0 ≤ c 给 x ≤_B y+c
-   （加法兼容组合器 + x+0==x 左端运输） *)
+(* Item 4. Adding a nonnegative right summand: [real_le_b x y] and
+   [0 <= c] give [real_le_b x (y + c)]; the combinators are order
+   compatibility of addition, plus left transport along [x + 0 == x]. *)
 Lemma leb3_le_b_plus_nonneg_r : forall x y c : Real,
   real_le_b x y -> real_le real_zero c -> real_le_b x (real_plus y c).
 Proof.
@@ -75,14 +102,18 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 二、反序件（≤_B 的负号反变）                                        *)
+(* Section 2. Antitone negation for [real_le_b].                        *)
 (* ============================================================ *)
 
-(* 件 5：反序：x ≤_B y 给 −y ≤_B −x。
-   给 d>0：H 直取 x<y+d ⟹ −(y+d)<−x（opp 严格反序基元）
-   ⟹ 换形 −y+−d<−x（opp 分配）⟹ 双侧右加 d（lt_le 混合加法保序）
-   ⟹ 左端 (−y+−d)+d == −y 恒等完成（结合 + −d+d==0 + +0）。
-   d 在两侧成对消去，免 eps/2 拆分。 *)
+(* Item 5. Antitone negation: [real_le_b x y] gives
+   [real_le_b (-y) (-x)].  Given d > 0, [H] yields x < y + d; strict
+   reversal of the order under [real_opp] turns this into
+   -(y + d) < -x; distributing [real_opp] over addition reshapes it to
+   -y + -d < -x; and adding d on the right of both sides (order
+   compatibility of addition with a weak order premise and a strict
+   conclusion) gives (-y + -d) + d < -x + d.  The left side equals -y by associativity
+   together with [-d + d == 0] and [x + 0 == x].  The d cancels in pairs
+   on the two sides, so no eps/2 splitting is needed. *)
 Lemma leb3_le_b_opp_rev : forall x y : Real,
   real_le_b x y -> real_le_b (real_opp y) (real_opp x).
 Proof.
@@ -121,12 +152,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 三、正缩放件（完成器反用）                                           *)
+(* Section 3. Scaling by a positive factor (converse use of the closure *)
+(* lemma).                                                              *)
 (* ============================================================ *)
 
-(* 件 6：正缩放：x ≤_B y 且 0<c 给 x·c ≤_B y·c。
-   完成器反用（D:=c）：给 e>0 只需 Or 形 x·c ≤ y·c+c·e——
-   x<y+e 经乘法保序 ⟹ x·c<(y+e)·c，再 (y+e)·c==y·c+c·e 换形。 *)
+(* Item 6. Scaling by a positive factor: [real_le_b x y] and [0 < c]
+   give [real_le_b (x * c) (y * c)].  Reading the closure lemma
+   [real_le_closure_b] backwards with D := c, for each e > 0 it suffices
+   to produce the left disjunct x * c <= y * c + c * e: order
+   compatibility of multiplication turns x < y + e into x * c < (y + e) * c,
+   and (y + e) * c == y * c + c * e by distributivity and commutativity. *)
 Lemma leb3_le_b_pos_scale : forall x y c : Real,
   real_le_b x y -> real_lt real_zero c ->
   real_le_b (real_mult x c) (real_mult y c).
@@ -150,7 +185,7 @@ Proof.
 Qed.
 
 (*
-   等式运输两步平移（comm 换形各一） *)
+   Two commutativity reshapes transport the equation on both sides. *)
 Lemma leb3_le_b_pos_scale_l : forall x y c : Real,
   real_le_b x y -> real_lt real_zero c ->
   real_le_b (real_mult c x) (real_mult c y).
@@ -164,12 +199,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 四、严格对照锚件（冻结 72 筛余唯一 Real 层可对照行）                  *)
+(* Section 4. A strict anchor statement at the Real layer, mirroring    *)
+(* [real_abs_plus_one_pos] with the addition commuted.                  *)
 (* ============================================================ *)
 
-(* 件 7：0 < |a|+1。依 S09 判例件 real_abs_plus_one_pos（0 < 1+|a|，逐点 born-clean：
-   QeqT 门桥投影 qeqT_imp_qeq＋Qabs 非负），经 real_plus_comm 加法交换
-   ＋ real_lt_id_r 右端等式运输一步到位（语句面与正源逐字相同）。 *)
+(* Item 7. [0 < |a| + 1].  The S09 statement [real_abs_plus_one_pos]
+   gives [0 < 1 + |a|] (pointwise: its QeqT guard projects along
+   [qeqT_imp_qeq], and [Qabs] is nonnegative); commuting the addition
+   with [real_plus_comm] and transporting the right side with
+   [real_lt_id_r] yields the permuted form in one step.  The statement
+   text is carried over verbatim from the source. *)
 Lemma leb3_abs_plus_one_pos : forall a : Real,
   real_lt real_zero (real_plus (real_abs a) real_one).
 Proof.
@@ -182,7 +221,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 五、假设审计（全件 Closed，证据在编译日志）                           *)
+(* Section 5. Assumption audit: every statement Closed; the evidence    *)
+(* is in the build log.                                                 *)
 (* ============================================================ *)
 
 Print Assumptions leb3_le_b_refl.

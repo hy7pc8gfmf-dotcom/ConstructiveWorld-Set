@@ -1,24 +1,32 @@
-(* 五字段指针｜模块：LW2SepTransport.v。
-   数学使命：柯西等价实数间点态分离的传递定理。若 X 与 Y 柯西等价（real_eq），且 X 与
-   有理点 q 具有半径 c 的点态分离（real_lt (real_const c) (real_metric X (real_const q))），
-   则 Y 与 q 具有半径 c/2 的点态分离。一般形 lw2t_sep_transport_k 显式携带退化因子 k
-   （QleT 2 k，即 k >= 2）：分离半径按 c/k 收缩，等价模量在预算 c/(2k) 处实例化；
-   k := 2 为兼容特化形；lw2t_sep_transport_sym 给出反方向传递。证明逐 eps 构造：
-   等价模量 N1 与分离模量 N2 取 max，逐点经 lic_metric_proj 两次投影归约后由
-   q_abs_abs_triangle 反三角收束；退化内核为 2*(1/k) <= 1 的 c 倍缩放。
-   依赖：S01_BaseRing（Set 层 Id/And/Or/NatLe）、S02_CauchyComplete（Real/real_eq/real_lt/
-   QltT/QleT/QleT'、real_const_proj、real_eq_sym、NatLe_lift/NatLe_drop、qeq_le、
-   QltT_to_Qlt/Qlt_to_QltT）、S03_QExp（real_metric、q_abs_abs_triangle）、
-   UpReqIrrationalCriterion（lic_metric_proj 逐点投影归约）。
-   对标：Bishop 构造分析中点态分离（逐 eps 独立性）沿柯西等价的传递性；退化因子显式化
-   使分离半径沿传递单调不增（c/k，k >= 2，零放大）。
-   构造性：语句面全 Set 层（QltT/QleT/real_lt/sigT，恒等取 S01 的 Set 层 Id），零承认、
-   零经典逻辑、Require 面不引公理模块；Q 层不等式的线性判定一律用 Lqa；QleT 在 k := 2 处
-   的见证由 inr id_refl 显式给出。
-   编译配方：rocq c -native-compiler no -q -Q "<世界根>" "" LW2SepTransport.v
-   （世界根＝五闸自验世界 /tmp/nw_wfadj33；工具链＝Live/toolchain/opam/live/bin；
-   cpu_guard v3 包裹＋ulimit -s 65532；COQLIB 与 ROCQLIB 需同值指向 Rocq 9.1 库根）。
-*)
+(* ConstructiveWorld-Set — transport of pointwise separation across Cauchy-equal reals. *)
+
+(** * LW2SepTransport: separation transport along Cauchy-equal reals.
+
+    Mission.  If [X] and [Y] are Cauchy equal ([real_eq]) and [X] is pointwise separated from the rational point
+      [q] with radius [c] ([real_lt (real_const c) (real_metric X (real_const q))]), then [Y] is separated from [q]
+      with radius [c/2].  The general form [lw2t_sep_transport_k] carries the degeneracy factor [k] explicitly
+      ([QleT 2 k], i.e. k >= 2): the separation radius shrinks to [c/k] and the equality modulus is instantiated at
+      budget [c/(2k)]; [lw2t_sep_transport] is the compatibility specialization at [k := 2]; [lw2t_sep_transport_sym]
+      transports in the reverse direction.  The witness is built per eps: the equality modulus [N1] and the separation
+      modulus [N2] are combined by [Nat.max], reduced pointwise through two [lic_metric_proj] projections, and closed
+      by the reverse triangle inequality [q_abs_abs_triangle]; the degeneracy kernel is the c-fold scaling of [2*(1/k) <= 1].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith], [Lia], [Lqa].  Requires [S01_BaseRing]
+      (Set layer [Id]/[And]/[Or]/[NatLe]), [S02_CauchyComplete] ([Real], [real_eq], [real_lt], [QltT]/[QleT]/[QleT'],
+      [real_const_proj], [real_eq_sym], [NatLe_lift]/[NatLe_drop], [qeq_le], [QltT_to_Qlt]/[Qlt_to_QltT]), [S03_QExp]
+      ([real_metric], [q_abs_abs_triangle]), and [UpReqIrrationalCriterion] ([lic_metric_proj] pointwise projection reduction)
+      of this development.
+
+    References.  This development, LW2SepTransport.v, the baseline module in ConstructiveWorld-Main whose statement
+      names are carried over here verbatim (statement-face Set-carrier completion).  Transitivity of pointwise separation
+      (per-eps independence) along Cauchy equality after the constructive analysis treatment of separation; the explicit
+      degeneracy factor keeps the separation radius monotone non-increasing under transport ([c/k] for k >= 2, no amplification).
+
+    Constructivity.  The statement face is entirely Set-layer ([QltT]/[QleT]/[real_lt]/[sigT], identity taken as the S01
+      Set layer [Id]); zero admission tokens, no classical logic, and the Require face introduces no axiom modules; linear
+      decision of Q-layer inequalities uses [Lqa] throughout; the witness of [QleT] at [k := 2] is given explicitly as [inr id_refl].
+
+    Build.  [coqc -native-compiler no -q -Q . "" LW2SepTransport.v] compiles cleanly (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs Arith.Arith.
 From Stdlib Require Import Lia Lqa.
@@ -28,7 +36,8 @@ Require Import S03_QExp.
 Require Import UpReqIrrationalCriterion.
 Opaque Qred.
 
-(* k >= 2 蕴含倒数正性：0 < 1/k（Id 分支按定义归约闭合） *)
+(* k >= 2 implies positivity of the reciprocal: 0 < 1/k (the Id branch
+   closes by definitional reduction) *)
 Lemma lw2t_qinv_pos : forall k : Q, QleT 2 k -> QltT 0 (Qinv k).
 Proof.
   intros k Hk. destruct Hk as [Hlt | Hid].
@@ -37,7 +46,8 @@ Proof.
   - destruct Hid. exact id_refl.
 Qed.
 
-(* k >= 2 蕴含 2*(1/k) <= 1：退化因子算术内核（两侧同乘正数 1/k） *)
+(* k >= 2 implies 2*(1/k) <= 1: the arithmetic kernel of the
+   degeneracy factor (both sides multiplied by the positive 1/k) *)
 Lemma lw2t_k_inv2_le : forall k : Q, QleT 2 k -> QleT' (2 * Qinv k) 1.
 Proof.
   intros k Hk. destruct Hk as [Hlt | Hid].

@@ -1,115 +1,44 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpReqAlignRestB.v *)
-(* *)
-(* 目的： 对齐族剩余段 B：求和接口与 Min-P/马尔可夫核域准备。 *)
-(* 主件： rls_ext / rls_linear / rls_nonneg 求和定律与 alb_markov_kernel、alb_minp_threshold 域构造。 *)
-(* 依赖： CW_ConstructiveWorld_219、UpReqAlgebra、UpReqPropLiftShim。 *)
-(* 备注： 求和接口为显式前提；词表非空见证与温度配分正性为显式构造。 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — req-layer rest of the alignment sampling family: list-sum machinery, Min-P/Top-k Markov kernels, entropy definitions, and KV-quant eviction bounds. *)
 
-(* UpReqAlignRestB.v — 签名迁移批 3 余量 B ：Top-k/Min-P/熵动力学/逐出四区
-   抽象层定理的 req 系（setoid 层）req 化。
-   源文件：CW_ConstructiveWorld_219（行号 = 219 基座）四区：
-     Min-P 区     Section MinPSampling      L30684-31866（Id 系抽象层）
-     Top-k 区     Section TopPSampling      L31872-32542（Id 系抽象层）
-     熵动力学区   Section EntropyDiffReal   L46821-51392（Real 层，interface-level 余件）
-     逐出区       Section RealKVQuantMain   L53932-54965（Real 层，interface-level 余件）
-   模板：UpSigMigrate2.v（形态）+ UpReqAlgebra.v（消去引擎/req_minus 直接使用）。
-   ----------------------------------------------------------------
-   [Part 0 共享机器] rls_ext/rls_linear/rls_nonneg/rls_single_le/rls_pos/rls_le
-     （基座 MinPSampling list_sum 簇 L30710-30768/31104 的 req 化——Id 系
-     rewrite/id_cong 链逐处换 req_trans + req_plus_compat 真证）
-     + req_lt_zero_le_trans（L31065）+ req_le_mult_le_one_r（L30881）。
-   [Part 1 Min-P 区] req_pick_max_minp_keep(L30954) req_minp_temp_sum_pos(L30981)
-     req_minp_markov_kernel_nonneg/keep_pos/unfold_keep(L31022/31036/31166)
-     req_minp_markov_kernel_normalized(L31050 定理) req_minp_temp_sum_le_partition
-     (L31112) req_minp_markov_kernel_keep_ge_full(L31127)
-     req_minp_markov_kernel_dropped_zero(L31147) req_minp_kernel_ratio(L31182)
-     req_minp_dropped_mass_nonneg(L31261) req_temp_factor_max_eq(L31298)
-     req_minp_scaled_sum_ge_max(L31313) req_minp_dropped_mass_le_one_minus_max
-     (L31451)——14 件。
-   [Part 2 Top-k 区] req_topp_temp_sum_pos(L32014) req_topp_markov_kernel_normalized
-     (L32084 定理) req_combined_temp_sum_pos(L32182) req_combined_markov_kernel_
-     normalized(L32262 定理) req_combined_topk_temp_sum_pos(L32406)
-     req_combined_topk_markov_kernel_normalized(L32481 定理)——6 件。
-   [Part 3 熵动力学区 interface-level 余件] req_exp_neg_ext_local(req 化引擎自足)
-     req_abs_exp_pos(L48538 对位) req_le_eps_Kone(L47809 对位)
-     req_scal_sum_ge(L47998 对位) req_M_inv_absorb(L48130 对位)
-     req_Omega_total_pos(L51349 对位) + 熵定义组 3 件
-     （req_E_B_ent/req_Omega_total_ent/req_entropy_ent）。
-   [Part 4 逐出区] req_epos + req_epos_le_mono(正指数幂 = exp_neg 逆的 req 重建)
-     req_exp_neg_diff_abs(L53790 对位) req_energy_lipschitz_scaled(L54461 对位)
-     req_boltzmann_upper(L54529 对位) req_abs_diff_prod_bound(L54604 对位)
-     req_boltzmann_diff_bound(L54636 对位) req_db_breaking_evicted_l(L54055 对位)
-     req_db_breaking_kept_final(L54304 对位) req_db_breaking_bound_eps
-     (L54841 定理对位)——8 件 + epos 定义组。
-   ----------------------------------------------------------------
-   诚实边界登记表（逐件注明，红线 3 之「非平凡真实现」核对）：
-   1. [桥假设位（T2①，假设位与基座同构）]
-      - req_le_dec：基座 DecidableOrder（DO 类 L331 ord_le_dec）的 req 对偶。
-        setoid 类无序判定字段——假设位逐位对应，Real 实例侧由 Q 层可判定序
-        消解（基座同源）。
-      - req_lt_dec：lt_dec_field_tk（L32385 三分支构造子解构）的 req 对偶，
-        中支相等判据 Id→req（签名差异：req 世界 R 上相等 = req）。
-      - pick_max_in_vocab / topk_pickmax_head：argmin/list 机器 13 件冻结给出
-        （规划书 §1.1 边界 2：nat/bool/list Id 机器不在迁移面）——基座 TopP
-        自身即以 topk_pickmax_head 为诚实前提 Variable（L32346），同款。
-      - boltzmann_diff_bridge（req_boltzmann_diff_bridge，ReqKVQuantWorld 节
-        Variable）：real_exp_neg_diff_bound（L53901）的 req 对偶。
-        其引擎 real_exp_abs_minus_one_eps 为 Real/Q 层 exp 分析（LogDiffPhase4
-        UpSigMigrate2 唯一诚实缺口 req_log_exp_neg 模式）。P1 以桥假设给出，
-        其余 B3a/B3b/B3c/结构恒等/组装各件全部真证。
-      - transition_nonneg（ReqKVQuantWorld 节 Variable，Or 分解形）：基座
-        real_transition_nonneg（real_le zero T，real_le 实为 Or(real_lt,
-        real_eq) 形）的逐位 req 对偶——setoid 接口 le 字段抽象不可分解，
-        假设位取 Or 分解形逐位同构；需接口 le zero T 处以 lt_le_iff 消解
-        （B4），需 |T|==T 处经 req_abs_nonneg_id_or 消解（B2c）。
-      - 逐出区求和面：sum_over_S 仅作 req_evicted_partition 的 opaque 载体
-        （Variable，基座 real_sum_over_S 同位）；全部 8 件不使用其 ext/linear
-        字段，正性由 req_evicted_partition_pos 单独 Variable 给出（基座同位）。
-   2. [冻结（双层并行，本件不迁，理由 = 基座自注）]
-      - mp_of_nat_pos / markov_kernel_normalized_mp / minp_max_ge_inv_vocab_size /
-        pick_best_optimal_mp（L31545-31834）：nat→R 嵌入（mp_of_nat）与 argmin
-        list 机器依赖件——UpReqAlgebra (d)1 冻结条款同款（nat 嵌入跨接口不可
-        复用）；argmin 机器为 list-Id 域（规划书 §1.1 边界 2）。
-      - EntropyDiffReal 的 RealDifferentiable 族（real_differentiable_* /
-        real_exp_differentiable / real_entropy_differentiable L51363）：
-        RealDifferentiable 为 Real 层 Record（L44447），非接口字段——实例层
-        地基（规划书 §1.1 边界 1「对岸」）；其 interface-level 代数/序余件
-        （Part 3）已迁，Q 逐点件（real_abs_le_extract/real_le_pointwise_eps 及
-        real_abs_prod_le_eps 的 Q 逐点上游）随 判例绕行条款冻结（基座 L47116
-        自注：Real 层无 0 ≤ |a|，乘积界走逐点——setoid plain 形不可导出，同
-        UpReqAlgebra (d)3 冻结条款）。
-   3. [签名变化] minp_dropped_mass 的 minus → req_minus（= plus a (opp b)，
-      UpReqAlgebra 登记表 1 同形重建）；count_kernel_heavier 中支 Id → req；
-      Part 1+2 合并单节（基座 TopP 以 12 参闭包显式形式使用 MinP 机器，
-      req 同构合并避免调用噪音，定义/语句逐件对应）。
-      Part 4 续：接口无 plain exp——e^{·} 全部以 req_epos（:= exp_neg∘opp，
-      正指数幂 = exp_neg 逆的 req 重建）陈述，boltzmann_upper/abs_diff_prod_
-      bound/boltzmann_diff_bound/bound_eps 的 e^{E_max/D}、e^{|u−v|}、e^{Ulips}
-      逐位对应（req_Emax_exp/req_eulips 缩写定义 δ 透明）；real_abs_nonneg_req
-      （基座 工具 D，le Or 分解）→ req_abs_nonneg_id_or（Or 形前提）；基座
-      real_abs_prod_le_eps（Q 逐点乘积界，依判例冻结）的 B3c 乘积段改走
-      le_mult_compat/req_le_mult_compat_r 双段单调 + req_le_zero_mult_pos_l
-      （le zero (p·x) 接口级导出：le 字段抽象不可分解下的非负积引理）——
-      全部真证，无新增冻结件。
-      中断修复 5 处（正向修复，零缩水零掉 Qed）：
-      a. req_temp_factor_max_eq：mult_assoc 方向反（外层 req_sym 后需再翻回，
-         显式 req_sym + mult_assoc）；
-      b. req_minp_scaled_sum_ge_max：assert Hk 块尾多一枚 `}`（盘故障重复写）；
-      c. topp/combined/combined_topk 三枚 markov_kernel 定义体：基座节闭名
-         req_* 名，Hpmax/HK 前提位补齐（对位基座 L32079/32354/32473 显式形）；
-      d. combined_keep_dec/combined_topk_temp_sum_pos 内 conj → pair
-         （Set 层 And = prod，非 Prop conj）；
-      e. 三处 req_topp/combined_temp_sum_pos 调用缺 (Hpmax prefix) 实参。
-      续建：Part 3（熵动力学区 Section ReqEntropyWorld：req_exp_neg_ext_local
-      + 4 对位件 + 熵定义组 3 件 + req_Omega_total_pos）与 Part 4（逐出区
-      Section ReqKVQuantWorld：epos 定义组 + 环/abs 工具 4 件 + P1 桥位 +
-   ----------------------------------------------------------------
-   纪律：纯构造性；Set 层语句（req/lt/le/req_minus 均接口 Set 值；Or/And/
-   Id(list/nat)/Not 按 UpKVEv 先例）；核心件 Qed、判定件 Defined；
-   纯 term-mode（req_trans 链 + compat 桥），零 rewrite 依赖。
-   G3 提取检验 upreqalignrestb_probe（验后删）。 *)
+(** * UpReqAlignRestB: setoid rest of the alignment sampling family.
+
+    Mission.  List-summation machinery over the setoid interface
+      ([rsum], [rls_ext], [rls_linear], [rls_nonneg], [rls_single_le],
+      [rls_pos], [rls_le], [rls_kernel_norm_gen]) and its consumers:
+      the Min-P and Top-k sampling worlds with combined keep
+      ([req_minp_markov_kernel_normalized],
+      [req_topp_markov_kernel_normalized],
+      [req_combined_topk_markov_kernel_normalized]), the entropy
+      definition group ([req_E_B_ent], [req_Omega_total_ent],
+      [req_entropy_ent], [req_Omega_total_pos]), and the KV-quant
+      eviction world ([req_epos], [req_boltzmann_diff_bound],
+      [req_db_breaking_bound_eps]).
+
+    Dependencies.  Stdlib [Datatypes], [List] with [ListNotations].
+      Requires [S01_BaseRing] through [S15_TailFEPUp], [UpReqAlgebra],
+      [UpReqPropLiftShim] of this development; imports
+      [RealInterfaceEnhancedMod].
+
+    References.  This development; the baseline module
+      CW_ConstructiveWorld_219 (sections MinPSampling, TopPSampling,
+      EntropyDiffReal, RealKVQuantMain) of ConstructiveWorld-Main, whose
+      statement names are carried over here verbatim (statement-face
+      Set-carrier completion; [minus] becomes [req_minus] and
+      [Id]-equality becomes [req]).  Fields absent from the setoid
+      interface are explicit premises: [req_le_dec], [req_lt_dec],
+      [pick_max_in_vocab], [req_boltzmann_diff_bridge],
+      [transition_nonneg].
+
+    Constructivity.  All named statements are carried by [Set] (the
+      interface carriers [req], [lt], [le], [req_minus] with
+      [Not]/[And]/[Or] and [Id] on nat/bool/list); proofs are closed
+      term-mode derivations, the decidability lemmas end in [Defined],
+      and no statement is admitted.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      ConstructiveWorld_Live/UpReqAlignRestB.v] compiles cleanly
+      (exit 0); the first eight bytes of the artifact are
+      [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -131,7 +60,7 @@ From Stdlib Require Import List.
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
 Require Import UpReqPropLiftShim.
-(* B6W 实例化（，AA13 显式假设①首批）：pls_ 升面适配引理接入。 *)
+(* [pls_] adapter lemmas lift the negation-form premises to [sigT] witness form. *)
 (* Pool-build cure (seat_abl19, M43 nw10cure per UpReqAlign3.v precedent): the
    interface class in this tree is unparameterized (S07_RealSetoidExpLog.v:8075
    zero-argument Class RealInterfaceEnhancedSetoid + global Instance
@@ -143,9 +72,10 @@ Require Import UpReqPropLiftShim.
 Notation R := Real.
 
 (* ============================================================ *)
-(* Part 0：req list-sum 机器（基座 MinPSampling L30710-30768/    *)
-(*   L31104 list_sum 簇的 req 化；rls_* 节闭合后全泛化，         *)
-(*   Min-P/Top-k 两区共享）                                      *)
+(* Section 1. req list-summation machinery (req form of the       *)
+(*   baseline MinPSampling list_sum cluster L30710-30768/         *)
+(*   L31104; generalized once the [rls_*] section closes, and     *)
+(*   shared by the Min-P and Top-k worlds).                       *)
 (* ============================================================ *)
 Section ReqListSumTool.
 Variable A : Set.
@@ -156,7 +86,7 @@ Fixpoint rsum (f : A -> R) (l : list A) : R :=
   | w :: rest => plus (f w) (rsum f rest)
   end.
 
-(* 基座 list_sum_ext L30734：逐点 req ⟹ 和 req *)
+(* baseline [list_sum_ext] L30734: pointwise [req] gives [req] of the sums. *)
 Lemma rls_ext : forall f g : A -> R,
   (forall a : A, req (f a) (g a)) -> forall l : list A, req (rsum f l) (rsum g l).
 Proof.
@@ -167,7 +97,7 @@ Proof.
     + exact IH.
 Qed.
 
-(* 基座 list_sum_linear L30710：Σ a·f == a·Σ f（req_trans + distrib 反向） *)
+(* baseline [list_sum_linear] L30710: summing [a * f] yields [a * sum f] ([req_trans] plus the reversed [distrib] step). *)
 Lemma rls_linear : forall (a : R) (f : A -> R) (l : list A),
   req (rsum (fun x => mult a (f x)) l) (mult a (rsum f l)).
 Proof.
@@ -187,7 +117,7 @@ Proof.
       apply distrib.
 Qed.
 
-(* 基座 list_sum_nonneg L30742：逐点 ≥ 0 ⟹ Σ ≥ 0 *)
+(* baseline [list_sum_nonneg] L30742: pointwise nonnegativity gives nonnegativity of the sum. *)
 Lemma rls_nonneg : forall f : A -> R,
   (forall a : A, le zero (f a)) -> forall l : list A, le zero (rsum f l).
 Proof.
@@ -201,7 +131,7 @@ Proof.
       * exact IH.
 Qed.
 
-(* 基座 list_sum_single_le_total L30753：单项 ≤ 全和（对 InT 推导归纳） *)
+(* baseline [list_sum_single_le_total] L30753: a single term is bounded by the total sum (induction on the [InT] derivation). *)
 Lemma rls_single_le : forall (f : A -> R) (x : A) (l : list A),
   InT x l -> (forall y : A, le zero (f y)) -> le (f x) (rsum f l).
 Proof.
@@ -215,7 +145,7 @@ Proof.
                      (req_le_plus_nonneg_r (rsum f l0) (f y) (Hnn y))).
 Qed.
 
-(* 基座 sum_temp_positive L30769：非空 + 逐点正 ⟹ 和正 *)
+(* baseline [sum_temp_positive] L30769: a nonempty list with pointwise positivity has a positive sum. *)
 Lemma rls_pos : forall f : A -> R,
   (forall a : A, lt zero (f a)) ->
   forall l : list A, Not (Id l nil) -> lt zero (rsum f l).
@@ -234,7 +164,7 @@ Proof.
         -- apply IH. intro Hc. inversion Hc.
 Qed.
 
-(* 基座 list_sum_le L31104：逐点 ≤ ⟹ 和 ≤ *)
+(* baseline [list_sum_le] L31104: pointwise order gives the order of the sums. *)
 Lemma rls_le : forall f g : A -> R,
   (forall a : A, le (f a) (g a)) -> forall l : list A, le (rsum f l) (rsum g l).
 Proof.
@@ -245,9 +175,11 @@ Proof.
     + exact IH.
 Qed.
 
-(* req 通用归一化核（基座四归一化定理共用代数骨架的 req 真证；
-   基座对 minp/topp/combined/combined_topk 四次重复同款 Id 证明，
-   各区 temp_sum 定义即本件 S 项的 δ 展开） *)
+(* generic req normalization kernel: the req proof of the algebraic
+   skeleton shared by the four baseline normalization theorems (the
+   baseline repeats the same Id-style proof for minp/topp/combined/
+   combined_topk, and each [temp_sum] definition here is the delta
+   expansion of this kernel's S term). *)
 Lemma rls_kernel_norm_gen :
   forall (l : list A)
          (P : A -> Set) (kd : forall w : A, Or (P w) (Not (P w)))
@@ -366,13 +298,15 @@ End ReqListSumTool.
 
 
 (* ============================================================ *)
-(* 通用小件（基座 L31065 lt_zero_le_trans / L30881 le_mult_le_one_r *)
-(* 的 req 化；全泛化，采样世界与逐出区共享）                       *)
+(* Section 2. generic small lemmas (req form of baseline           *)
+(*   [lt_zero_le_trans] L31065 / [le_mult_le_one_r] L30881; fully  *)
+(*   generalized and shared by the sampling and eviction worlds).  *)
 (* ============================================================ *)
 Section ReqOrdTools.
 
-(* 基座 lt_zero_le_trans L31065：0 < a 且 a ≤ b ⟹ 0 < b
-   （req 化差异：minus → req_minus；Id rewrite 链 → req_trans + req_minus_plus_cancel） *)
+(* baseline [lt_zero_le_trans] L31065: [0 < a] and [a <= b] give
+   [0 < b].  req-layer differences: [minus] becomes [req_minus], and
+   the Id-rewrite chain becomes [req_trans] + [req_minus_plus_cancel]. *)
 Lemma req_lt_zero_le_trans : forall a b : R,
   lt zero a -> le a b -> lt zero b.
 Proof.
@@ -391,9 +325,11 @@ Proof.
   - exact Hpos.
 Qed.
 
-(* 基座 le_mult_le_one_r L30881：0 ≤ a 且 b ≤ 1 ⟹ b·a ≤ a
-   （req 化差异：minus → req_minus；Id rewrite 收尾 → le_id_l + req_minus_plus_cancel；
-     H3 五段恒等链每段 req_trans 真证） *)
+(* baseline [le_mult_le_one_r] L30881: [0 <= a] and [b <= 1] give
+   [b * a <= a].  req-layer differences: [minus] becomes [req_minus]
+   and the Id-rewrite finish becomes [le_id_l] +
+   [req_minus_plus_cancel]; each of the five identity segments of H3
+   is proved by an explicit [req_trans]. *)
 Lemma req_le_mult_le_one_r : forall a b : R,
   le zero a -> le b one -> le (mult b a) a.
 Proof.
@@ -439,48 +375,59 @@ Qed.
 End ReqOrdTools.
 
 (* ============================================================ *)
-(* Part 1+2：采样世界（Min-P 区 L30684-31866 + Top-k 区          *)
-(*   L31872-32542）。基座 TopP 以「闭包显式参数形式」使用 MinP    *)
-(*   机器（L31914 同款 12 参显式调用）；req 合并单节同构重述，  *)
-(*   逐件定义/语句仍与基座一一对应。                              *)
-(*   top_p_keep（sort_kernel 成员形态，L31962）不迁：其排序/成员  *)
-(*   机器为 list-Id 域（规划书 §1.1 边界 2），基座定理全部使用     *)
-(*   le 形态 topp_keep（L31990）。                                *)
+(* Section 3. sampling world (Min-P region L30684-31866 and the    *)
+(*   Top-k region L31872-32542).  The baseline TopP section uses   *)
+(*   the MinP machinery in explicitly parameterized closure form   *)
+(*   (the same 12-argument explicit calls as L31914); the req      *)
+(*   layer merges both regions into one isomorphic section with    *)
+(*   every definition and statement still in bijection with the    *)
+(*   baseline.  [top_p_keep] (the sort_kernel membership form,     *)
+(*   L31962) is not carried over: its sorting/membership machinery *)
+(*   lives in the list-[Id] domain, and every baseline theorem     *)
+(*   uses the [le]-form [topp_keep] (L31990).                      *)
 (* ============================================================ *)
 Section ReqSamplingWorld.
 
-(* ---- 接口假设（MinPSampling L30693-30701 同构） ---- *)
+(* ---- interface assumptions (isomorphic to MinPSampling L30693-30701) ---- *)
 Variable Token : Set.
 Variable vocab : list Token.
 Variable vocab_nonempty : Not (Id vocab nil).
-(* B6W 实例化位（AA13 #10，）：老否定形前提经 pls_ 适配引理升 sigT 见证形—— *)
-(* 深实例化使用位：pls_vocab_ne_lift 原地升形，下游可直取走 sigT 通路。旧语句保留。 *)
+(* the negation-form premise is lifted to [sigT] witness form by the
+   [pls_] adapter lemma: [pls_vocab_ne_lift] raises it in place, so
+   downstream consumers can take the [sigT] route directly; the old
+   statement is kept. *)
 Definition alb_vocab_ne_witness_s1 : pls_vocab_ne vocab
   := pls_vocab_ne_lift vocab vocab_nonempty.
 Variable total_loss : list Token -> R.
 Variable temperature : R.
 Variable temperature_pos : lt zero temperature.
 
-(* ---- Min-P 参数（L30870-30872 同位） ---- *)
+(* ---- Min-P parameters (same positions as L30870-30872) ---- *)
 Variable min_p : R.
 Variable min_p_pos : lt zero min_p.
 Variable min_p_lt_one : lt min_p one.
 
-(* ---- 桥假设位 1：DecidableOrder 的 req 对偶（ord_le_dec L331/332 同位；
-     setoid 类无序判定字段，T2① 假设位逐位对应） ---- *)
+(* ---- interface premise 1: the req dual of the baseline
+     DecidableOrder [ord_le_dec] (same position as L331/332); the
+     setoid class has no decidable-order field, so the premise
+     sits at the pointwise-matching position ---- *)
 Hypothesis req_le_dec : forall a b : R, Or (le a b) (Not (le a b)).
 
-(* ---- 桥假设位 2：三分判定（lt_dec_field_tk L32385 的 req 对偶；
-     中支相等判据 Id→req——req 世界 R 上相等 = req） ---- *)
+(* ---- interface premise 2: the three-way decider (req dual of
+     [lt_dec_field_tk] L32385); the middle branch tests equality
+     with [req] instead of [Id], since equality on R in the req
+     world is [req] ---- *)
 Hypothesis req_lt_dec : forall a b : R, Or (lt a b) (Or (req a b) (lt b a)).
 
-(* ---- 桥假设位 3：list 机器冻结给出（argmin 13 件不迁；仅给出顶层
-     事实 pick_max ∈ vocab——UpKVEv 先例同款） ---- *)
+(* ---- interface premise 3: the list machinery is postulated
+     (the 13 argmin lemmas are not carried over); only the
+     top-level fact that [pick_max_token prefix] lies in [vocab]
+     is assumed ---- *)
 Variable pick_max_token : list Token -> Token.
 Hypothesis pick_max_in_vocab : forall prefix : list Token,
   InT (pick_max_token prefix) vocab.
 
-(* ---- 2. 基础设施（L30703-30715 同构；list_sum → rsum） ---- *)
+(* ---- basic infrastructure (isomorphic to L30703-30715; [list_sum] becomes [rsum]) ---- *)
 Definition alb_temp_factor (prefix : list Token) (w : Token) : R :=
   exp_neg (mult (inv_pos temperature temperature_pos)
                 (total_loss (prefix ++ [w]))).
@@ -488,7 +435,7 @@ Definition alb_temp_factor (prefix : list Token) (w : Token) : R :=
 Definition alb_partition_temp (prefix : list Token) : R :=
   rsum Token (alb_temp_factor prefix) vocab.
 
-(* 基座 req_partition_temp_pos L30768 *)
+(* baseline [req_partition_temp_pos] L30768. *)
 Lemma req_partition_temp_pos : forall prefix : list Token,
   lt zero (alb_partition_temp prefix).
 Proof.
@@ -502,7 +449,7 @@ Definition alb_markov_kernel (prefix : list Token) (w : Token) : R :=
   mult (alb_temp_factor prefix w)
        (inv_pos (alb_partition_temp prefix) (req_partition_temp_pos prefix)).
 
-(* 基座 markov_pos L30861 *)
+(* baseline [markov_pos] L30861. *)
 Lemma req_markov_pos : forall (prefix : list Token) (w : Token),
   lt zero (alb_markov_kernel prefix w).
 Proof.
@@ -511,7 +458,7 @@ Proof.
   - apply (inv_pos_pos (alb_partition_temp prefix) (req_partition_temp_pos prefix)).
 Qed.
 
-(* 基座 markov_kernel_unfold L31156（定义性） *)
+(* baseline [markov_kernel_unfold] L31156 (definitional). *)
 Lemma req_markov_kernel_unfold : forall (prefix : list Token) (w : Token),
   req (alb_markov_kernel prefix w)
       (mult (alb_temp_factor prefix w)
@@ -520,7 +467,7 @@ Proof.
   intros prefix w. apply req_refl.
 Qed.
 
-(* ---- 4. Min-P 阈值与判定（L30919-30945 同构） ---- *)
+(* ---- Min-P threshold and its decider (isomorphic to L30919-30945) ---- *)
 Definition alb_max_markov_prob (prefix : list Token) : R :=
   alb_markov_kernel prefix (pick_max_token prefix).
 
@@ -540,7 +487,7 @@ Definition alb_minp_temp_sum (prefix : list Token) : R :=
                        | inr _ => zero
                        end) vocab.
 
-(* 基座 pick_max_token_minp_keep L30954（使用 req_le_mult_le_one_r） *)
+(* baseline [pick_max_token_minp_keep] L30954 (uses [req_le_mult_le_one_r]). *)
 Lemma req_pick_max_minp_keep : forall prefix : list Token,
   alb_minp_keep prefix (pick_max_token prefix).
 Proof.
@@ -552,8 +499,10 @@ Proof.
   - apply (lt_le_iff min_p one). left. exact min_p_lt_one.
 Qed.
 
-(* pick_max 的 tf 单项 ≤ alb_minp_temp_sum（temp_factor_max_le_sum L31328 核心肢；
-   req_minp_temp_sum_pos 与 scaled_sum_ge_max 共用） *)
+(* the temperature factor of [pick_max] is bounded by
+   [alb_minp_temp_sum] (core arm of [temp_factor_max_le_sum] L31328;
+   shared by [req_minp_temp_sum_pos] and
+   [req_minp_scaled_sum_ge_max]). *)
 Lemma req_pick_max_tf_le_minp_sum : forall prefix : list Token,
   le (alb_temp_factor prefix (pick_max_token prefix)) (alb_minp_temp_sum prefix).
 Proof.
@@ -590,7 +539,7 @@ Proof.
       * apply le_refl.
 Qed.
 
-(* 基座 req_minp_temp_sum_pos L30981 *)
+(* baseline [req_minp_temp_sum_pos] L30981. *)
 Lemma req_minp_temp_sum_pos : forall prefix : list Token,
   lt zero (alb_minp_temp_sum prefix).
 Proof.
@@ -601,7 +550,7 @@ Proof.
   - exact (req_pick_max_tf_le_minp_sum prefix).
 Qed.
 
-(* ---- Min-P 截断核（L31009-31049 同构） ---- *)
+(* ---- the truncated Min-P kernel (isomorphic to L31009-31049) ---- *)
 Definition alb_minp_markov_kernel (prefix : list Token) (w : Token) : R :=
   match alb_minp_keep_dec prefix w with
   | inl _ =>
@@ -610,7 +559,7 @@ Definition alb_minp_markov_kernel (prefix : list Token) (w : Token) : R :=
   | inr _ => zero
   end.
 
-(* 基座 minp_markov_kernel_nonneg L31022（Or 分解形态逐位对应） *)
+(* baseline [minp_markov_kernel_nonneg] L31022 (disjunctive form, matching the baseline point by point). *)
 Lemma req_minp_markov_kernel_nonneg : forall (prefix : list Token) (w : Token),
   Or (req (alb_minp_markov_kernel prefix w) zero)
      (lt zero (alb_minp_markov_kernel prefix w)).
@@ -623,7 +572,7 @@ Proof.
   - left. apply req_refl.
 Qed.
 
-(* 基座 minp_markov_kernel_keep_pos L31036（条件式正性） *)
+(* baseline [minp_markov_kernel_keep_pos] L31036 (conditional positivity). *)
 Lemma req_minp_markov_kernel_keep_pos : forall (prefix : list Token) (w : Token),
   alb_minp_keep prefix w -> lt zero (alb_minp_markov_kernel prefix w).
 Proof.
@@ -635,7 +584,7 @@ Proof.
   - destruct (Hdrop Hkeep).
 Qed.
 
-(* 基座 minp_markov_kernel_unfold_keep L31166 *)
+(* baseline [minp_markov_kernel_unfold_keep] L31166. *)
 Lemma req_minp_markov_kernel_unfold_keep : forall (prefix : list Token) (w : Token),
   alb_minp_keep prefix w ->
   req (alb_minp_markov_kernel prefix w)
@@ -648,10 +597,12 @@ Proof.
   - destruct (Hdrop Hkeep).
 Qed.
 
-(* ===== 基座 minp_markov_kernel_normalized L31050（定理 req 化主定理） =====
-   Id 系 rewrite Hext/Hlin/Hdef 三步替换；req 系 = rls_kernel_norm_gen
-   （代数骨架一次真证）+ 本语句级实例（conversion 逐位对应：
-   alb_minp_markov_kernel/alb_minp_temp_sum 定义 δ 展开）。 *)
+(* ===== baseline [minp_markov_kernel_normalized] L31050 (the req-form
+   main theorem) ===== the Id-layer proof chains the rewrites Hext /
+   Hlin / Hdef; here the algebraic skeleton is proved once by
+   [rls_kernel_norm_gen] and this statement instantiates it, with
+   the definitions of [alb_minp_markov_kernel] and
+   [alb_minp_temp_sum] delta-expanding to the kernel's S term. *)
 Theorem req_minp_markov_kernel_normalized : forall prefix : list Token,
   req (rsum Token (fun w => alb_minp_markov_kernel prefix w) vocab) one.
 Proof.
@@ -662,7 +613,7 @@ Proof.
            (req_minp_temp_sum_pos prefix)).
 Qed.
 
-(* 基座 minp_temp_sum_le_partition L31112（rls_le 收尾） *)
+(* baseline [minp_temp_sum_le_partition] L31112 (finished by [rls_le]). *)
 Lemma req_minp_temp_sum_le_partition : forall prefix : list Token,
   le (alb_minp_temp_sum prefix) (alb_partition_temp prefix).
 Proof.
@@ -679,7 +630,7 @@ Proof.
     unfold alb_temp_factor. apply exp_neg_pos.
 Qed.
 
-(* ===== 基座 minp_markov_kernel_keep_ge_full L31127：保留者核 ≥ 完整核 ===== *)
+(* ===== baseline [minp_markov_kernel_keep_ge_full] L31127: for a kept token the truncated kernel dominates the full kernel ===== *)
 Lemma req_minp_markov_kernel_keep_ge_full : forall (prefix : list Token) (w : Token),
   alb_minp_keep prefix w ->
   le (alb_markov_kernel prefix w) (alb_minp_markov_kernel prefix w).
@@ -700,7 +651,7 @@ Proof.
   - destruct (Hd Hkeep).
 Qed.
 
-(* ===== 基座 minp_markov_kernel_dropped_zero L31147（req 形态） ===== *)
+(* ===== baseline [minp_markov_kernel_dropped_zero] L31147 (req form) ===== *)
 Lemma req_minp_markov_kernel_dropped_zero : forall (prefix : list Token) (w : Token),
   Not (alb_minp_keep prefix w) -> req (alb_minp_markov_kernel prefix w) zero.
 Proof.
@@ -710,9 +661,11 @@ Proof.
   - apply req_refl.
 Qed.
 
-(* ===== 基座 minp_kernel_ratio L31182：放大因子显式形式 =====
-   Id 系 id_cong 五段链；req 系以内层恒等 Hinner + req_mult_compat 显式给参
-   （req 化非平凡件：inv 链 5 段每段独立真证）。 *)
+(* ===== baseline [minp_kernel_ratio] L31182: explicit form of the
+   scaling factor ===== the Id layer chains five [id_cong] steps;
+   the req layer proves the inner identity Hinner and supplies
+   [req_mult_compat] with explicit arguments (each of the five
+   inverse segments is proved on its own). *)
 Lemma req_minp_kernel_ratio : forall (prefix : list Token) (w : Token),
   alb_minp_keep prefix w ->
   req (alb_minp_markov_kernel prefix w)
@@ -835,13 +788,13 @@ Proof.
                                 (alb_partition_temp prefix))))).
 Qed.
 
-(* ---- 5. 截断质量（L31257-31451；minus → req_minus 签名变化，登记表 3） ---- *)
+(* ---- the truncated mass (L31257-31451; signature change: [minus] becomes [req_minus]) ---- *)
 Definition alb_minp_dropped_mass (prefix : list Token) : R :=
   req_minus one
             (mult (inv_pos (alb_partition_temp prefix) (req_partition_temp_pos prefix))
                   (alb_minp_temp_sum prefix)).
 
-(* 基座 minp_dropped_mass_nonneg L31261（le_minus_nonneg → req_le_minus_nonneg） *)
+(* baseline [minp_dropped_mass_nonneg] L31261 ([le_minus_nonneg] becomes [req_le_minus_nonneg]). *)
 Lemma req_minp_dropped_mass_nonneg : forall prefix : list Token,
   le zero (alb_minp_dropped_mass prefix).
 Proof.
@@ -871,9 +824,11 @@ Proof.
     + exact (req_minp_temp_sum_le_partition prefix).
 Qed.
 
-(* 基座 temp_factor_max_eq L31298：tf(pick_max) == max_prob·partition
-   （max_prob 经 alb_markov_kernel 定义 δ 展开 == tf·inv_p——req 化差异：
-   该 δ 步为 conversion req_refl，assoc 步真证） *)
+(* baseline [temp_factor_max_eq] L31298: the temperature factor of
+   [pick_max] equals [max_prob * partition] (delta-expanding the
+   definition of [alb_markov_kernel], [max_prob] equals [tf * inv_p];
+   in the req layer that delta step is the conversion [req_refl]
+   while the associativity step is proved). *)
 Lemma req_temp_factor_max_eq : forall prefix : list Token,
   req (alb_temp_factor prefix (pick_max_token prefix))
       (mult (alb_max_markov_prob prefix) (alb_partition_temp prefix)).
@@ -928,8 +883,10 @@ Proof.
               (mult (inv_pos (alb_partition_temp prefix)
                              (req_partition_temp_pos prefix))
                     (alb_partition_temp prefix)))).
-      (* 盘故障中断修复（ ）：外层 req_sym 已翻转目标，
-         assoc 步实为 mult_assoc 之对称——req_sym 显式翻回（正向修复）。 *)
+      (* the outer [req_sym] has already flipped the pairing, so the
+         associativity step is the symmetric orientation of
+         [mult_assoc]; an explicit [req_sym] restores the standard
+         orientation. *)
       apply (req_sym
         (mult (alb_temp_factor prefix (pick_max_token prefix))
               (mult (inv_pos (alb_partition_temp prefix)
@@ -943,7 +900,7 @@ Proof.
     + apply req_refl.
 Qed.
 
-(* 基座 minp_scaled_sum_ge_max L31313：max_prob ≤ inv_p·minp_sum *)
+(* baseline [minp_scaled_sum_ge_max] L31313: [max_prob <= inv_p * minp_sum]. *)
 Lemma req_minp_scaled_sum_ge_max : forall prefix : list Token,
   le (alb_max_markov_prob prefix)
      (mult (inv_pos (alb_partition_temp prefix) (req_partition_temp_pos prefix))
@@ -1050,7 +1007,7 @@ Proof.
     + exact H1.
 Qed.
 
-(* 基座 minp_dropped_mass_le_one_minus_max L31451（opp 反向 + 平移） *)
+(* baseline [minp_dropped_mass_le_one_minus_max] L31451 ([opp] reversal plus the monotone shift). *)
 Lemma req_minp_dropped_mass_le_one_minus_max : forall prefix : list Token,
   le (alb_minp_dropped_mass prefix) (req_minus one (alb_max_markov_prob prefix)).
 Proof.
@@ -1066,10 +1023,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2：Top-k 区（基座 TopPSampling L31872-32542 对位）        *)
+(* Section 3 (cont.). Top-k region (counterpart of the baseline    *)
+(*   TopPSampling L31872-32542).                                   *)
 (* ============================================================ *)
 
-(* 基座 topp_keep L31990（le 形态） *)
+(* baseline [topp_keep] L31990 ([le] form). *)
 Definition alb_topp_keep (p : R) (prefix : list Token) (w : Token) : Set :=
   le p (alb_markov_kernel prefix w).
 
@@ -1083,8 +1041,10 @@ Definition alb_topp_temp_sum (p : R) (prefix : list Token) : R :=
                        | inr _ => zero
                        end) vocab.
 
-(* 基座 topp_temp_sum_pos L32014：pick_max 保留性由前提 le p max 给出
-   （alb_topp_keep p prefix pick_max ≡ le p (alb_max_markov_prob prefix) conversion） *)
+(* baseline [topp_temp_sum_pos] L32014: keep-ness of [pick_max]
+   comes from the premise [le p max] ([alb_topp_keep p prefix
+   (pick_max_token prefix)] is conversion-equal to
+   [le p (alb_max_markov_prob prefix)]). *)
 Lemma req_topp_temp_sum_pos : forall (p : R) (prefix : list Token),
   le p (alb_max_markov_prob prefix) -> lt zero (alb_topp_temp_sum p prefix).
 Proof.
@@ -1128,7 +1088,7 @@ Proof.
   - exact Hle.
 Qed.
 
-(* 基座 topp_markov_kernel L32085（Hpmax 前提位逐位对应） *)
+(* baseline [topp_markov_kernel] L32085 (the [Hpmax] premise position matches the baseline). *)
 Definition alb_topp_markov_kernel (p : R)
   (Hpmax : forall prefix : list Token, le p (alb_max_markov_prob prefix))
   (prefix : list Token) (w : Token) : R :=
@@ -1140,7 +1100,7 @@ Definition alb_topp_markov_kernel (p : R)
   | inr _ => zero
   end.
 
-(* ===== 基座 topp_markov_kernel_normalized L32084（定理 req 化主定理） ===== *)
+(* ===== baseline [topp_markov_kernel_normalized] L32084 (the req-form main theorem) ===== *)
 Theorem req_topp_markov_kernel_normalized : forall (p : R)
   (Hpmax : forall prefix : list Token, le p (alb_max_markov_prob prefix))
   (prefix : list Token),
@@ -1152,7 +1112,7 @@ Proof.
            (req_topp_temp_sum_pos p prefix (Hpmax prefix))).
 Qed.
 
-(* ---- 联合保留（Min-P ∧ Top-p，基座 L32152-32262） ---- *)
+(* ---- combined keep (Min-P and Top-p, baseline L32152-32262) ---- *)
 Definition alb_combined_keep (p : R) (prefix : list Token) (w : Token) : Set :=
   And (alb_minp_keep prefix w) (alb_topp_keep p prefix w).
 
@@ -1173,7 +1133,7 @@ Definition alb_combined_temp_sum (p : R) (prefix : list Token) : R :=
                        | inr _ => zero
                        end) vocab.
 
-(* 基座 combined_temp_sum_pos L32182：pick_max 双保留（minp 内证 + topp 前提） *)
+(* baseline [combined_temp_sum_pos] L32182: [pick_max] is kept on both counts (by the Min-P lemma and the Top-p premise). *)
 Lemma req_combined_temp_sum_pos : forall (p : R) (prefix : list Token),
   le p (alb_max_markov_prob prefix) -> lt zero (alb_combined_temp_sum p prefix).
 Proof.
@@ -1217,7 +1177,7 @@ Proof.
   - exact Hle.
 Qed.
 
-(* 基座 combined_markov_kernel L32354（Hpmax 显式前提位同基座） *)
+(* baseline [combined_markov_kernel] L32354 (explicit [Hpmax] premise, as in the baseline). *)
 Definition alb_combined_markov_kernel (p : R)
   (Hpmax : forall prefix : list Token, le p (alb_max_markov_prob prefix))
   (prefix : list Token) (w : Token) : R :=
@@ -1229,7 +1189,7 @@ Definition alb_combined_markov_kernel (p : R)
   | inr _ => zero
   end.
 
-(* ===== 基座 combined_markov_kernel_normalized L32262（定理 req 化主定理） ===== *)
+(* ===== baseline [combined_markov_kernel_normalized] L32262 (the req-form main theorem) ===== *)
 Theorem req_combined_markov_kernel_normalized : forall (p : R)
   (Hpmax : forall prefix : list Token, le p (alb_max_markov_prob prefix))
   (prefix : list Token),
@@ -1241,8 +1201,8 @@ Proof.
            (req_combined_temp_sum_pos p prefix (Hpmax prefix))).
 Qed.
 
-(* ---- Top-k 计数保留（基座 L32366-32396 同构） ---- *)
-(* nat/bool/list 侧 Id 判定原样保留（规划书 §1.1 边界 2） *)
+(* ---- Top-k count-based keep (isomorphic to baseline L32366-32396) ---- *)
+(* the [Id]-based deciders on nat/bool/list are kept verbatim *)
 Definition alb_NatLt_tk (n m : nat) : Set := Id (Nat.ltb n m) true.
 
 Lemma urb_id_false_true : forall (H : Id false true), Empty_set.
@@ -1270,11 +1230,11 @@ Definition alb_topk_keep_dec (K : nat) (prefix : list Token) (w : Token) :
   | false => inr (fun H => urb_id_false_true H)
   end.
 
-(* 诚实前提（基座 L32346 同位 Variable：排序正确性弱化 判例组绕行） *)
+(* honest interface premise (a Variable at the same position as baseline L32346): a weakened form of the sorting-correctness property. *)
 Variable topk_pickmax_head : forall (K : nat) (prefix : list Token),
   (1 <= K)%nat -> alb_topk_keep K prefix (pick_max_token prefix).
 
-(* ---- 联合保留（Min-P ∧ Top-k，基座 L32403-32481） ---- *)
+(* ---- combined keep (Min-P and Top-k, baseline L32403-32481) ---- *)
 Definition alb_combined_topk_keep (K : nat) (prefix : list Token) (w : Token) : Set :=
   And (alb_minp_keep prefix w) (alb_topk_keep K prefix w).
 
@@ -1295,7 +1255,7 @@ Definition alb_combined_topk_temp_sum (K : nat) (prefix : list Token) : R :=
                        | inr _ => zero
                        end) vocab.
 
-(* 基座 combined_topk_temp_sum_pos L32406：K ≥ 1 + 诚实前提 topk_pickmax_head *)
+(* baseline [combined_topk_temp_sum_pos] L32406: [K >= 1] together with the premise [topk_pickmax_head]. *)
 Lemma req_combined_topk_temp_sum_pos : forall (K : nat) (prefix : list Token),
   (1 <= K)%nat -> lt zero (alb_combined_topk_temp_sum K prefix).
 Proof.
@@ -1343,7 +1303,7 @@ Proof.
   - exact Hle.
 Qed.
 
-(* 基座 combined_topk_markov_kernel L32473（HK 显式前提位同基座） *)
+(* baseline [combined_topk_markov_kernel] L32473 (explicit [HK] premise, as in the baseline). *)
 Definition alb_combined_topk_markov_kernel (K : nat)
   (HK : forall prefix : list Token, (1 <= K)%nat)
   (prefix : list Token) (w : Token) : R :=
@@ -1355,7 +1315,7 @@ Definition alb_combined_topk_markov_kernel (K : nat)
   | inr _ => zero
   end.
 
-(* ===== 基座 combined_topk_markov_kernel_normalized L32481（定理 req 化主定理） ===== *)
+(* ===== baseline [combined_topk_markov_kernel_normalized] L32481 (the req-form main theorem) ===== *)
 Theorem req_combined_topk_markov_kernel_normalized :
   forall (K : nat) (HK : forall prefix : list Token, (1 <= K)%nat)
          (prefix : list Token),
@@ -1370,15 +1330,19 @@ Qed.
 End ReqSamplingWorld.
 
 (* ============================================================ *)
-(* Part 3：熵动力学区 interface-level 余件（基座 EntropyDiffReal  *)
-(*   L46821-51392 的 req 对位；RealDifferentiable 族随登记表 2 冻结， *)
-(*   本区只迁代数/序余件与熵定义组——全部接口 Set 值）            *)
+(* Section 4. entropy dynamics, interface-level remainder (req     *)
+(*   counterpart of the baseline EntropyDiffReal L46821-51392; the *)
+(*   RealDifferentiable family stays with the baseline, and this   *)
+(*   section carries only the algebra/order remainder and the      *)
+(*   entropy definition group, all interface [Set] values).        *)
 (* ============================================================ *)
 Section ReqEntropyWorld.
 
-(* ---- req 化 exp_neg 外延引擎（基座 L66223 exp_neg_req_compat_setoid 对位； *)
-(*   接口无 exp_neg_ext 字段——le_antisym + exp_neg_le_decr + lt_le_iff 自足  *)
-(*   重建，与基座同链；分级：对位直引真证）                                  *)
+(* ---- req-layer extensionality engine for [exp_neg] (counterpart of
+   the baseline L66223 [exp_neg_req_compat_setoid]); the interface
+   has no [exp_neg_ext] field, so the engine is rebuilt
+   self-contained from [le_antisym] + [exp_neg_le_decr] +
+   [lt_le_iff], the same chain as the baseline ---- *)
 Lemma req_exp_neg_ext_local : forall x y : R, req x y -> req (exp_neg x) (exp_neg y).
 Proof.
   intros x y Hxy.
@@ -1389,9 +1353,11 @@ Proof.
     apply (lt_le_iff x y). right. exact Hxy.
 Qed.
 
-(* ---- 基座 real_le_eps_Kone L47809 对位（e ≤ k·(1+e)） ----
-   链：e ≤ 1·e ≤ k·e（le_mult_compat，1 < k）⟹ e ≤ k·e + k
-   ⟹ 右端 == k·(1+e)（distrib + mult_one + comm）——分级：真证 *)
+(* ---- counterpart of the baseline [real_le_eps_Kone] L47809
+   ([e <= k * (1+e)]) ---- chain: [e <= 1 * e <= k * e] by
+   [le_mult_compat] with [1 < k], hence [e <= k * e + k], and the
+   right side equals [k * (1+e)] by [distrib], [mult_one] and
+   commutativity ---- *)
 Lemma req_le_eps_Kone : forall e k : R,
   lt zero e -> lt zero k -> lt one k -> le e (mult k (plus one e)).
 Proof.
@@ -1421,9 +1387,12 @@ Proof.
       apply (lt_le_iff zero k). left. exact Hk.
 Qed.
 
-(* ---- 基座 real_scal_sum_ge L47997 对位（s·a ≤ s·(a+b+c+d+1)） ----
-   链：左嵌和三次 plus_assoc 重排为 a·(b+(c+(d+1))) → distrib 切出 s·a
-   ⟹ s·a ≤ s·a + s·W（W > 0 逐段 plus_positive）——分级：真证 *)
+(* ---- counterpart of the baseline [real_scal_sum_ge] L47997
+   ([s * a <= s * (a+b+c+d+1)]) ---- chain: three [plus_assoc] steps
+   reassociate the nested sum into [a + (b + (c + (d + 1)))],
+   [distrib] peels off [s * a], and the positivity of
+   [W = b + (c + (d + 1))] comes segment-wise from [plus_positive]
+   ---- *)
 Lemma req_scal_sum_ge : forall (s a b c d : R),
   lt zero s -> lt zero a -> lt zero b -> lt zero c -> lt zero d ->
   le (mult s a)
@@ -1469,8 +1438,9 @@ Proof.
     left. apply (mult_positive s (plus b (plus c (plus d one))) Hs HW).
 Qed.
 
-(* ---- 基座 real_M_inv_absorb L48129 对位（M·(M⁻¹·x) == x） ----
-   链：assoc → inv_pos_correct 换形 → mult_one_l——分级：真证（幂等 δ 对偶段） *)
+(* ---- counterpart of the baseline [real_M_inv_absorb] L48129
+   ([M * (M^-1 * x) == x]) ---- chain: associativity, reshaping by
+   [inv_pos_correct], then left multiplication by one ---- *)
 Lemma req_M_inv_absorb : forall (M x : R) (HM : lt zero M),
   req (mult M (mult (inv_pos M HM) x)) x.
 Proof.
@@ -1487,9 +1457,10 @@ Proof.
     + apply (req_mult_one_l x).
 Qed.
 
-(* ---- 基座 real_abs_exp_pos L48538 对位（0 < |e^{−x}|） ----
-   接口引擎：exp_neg_pos（基座引擎 cauchy_real_exp_pos 的 req 对位，自足）
-   + abs_pos 换形——分级：真证（平凡直引段） *)
+(* ---- counterpart of the baseline [real_abs_exp_pos] L48538
+   ([0 < |e^{-x}|]) ---- interface engine: [exp_neg_pos] (the
+   self-contained req counterpart of the baseline engine
+   [cauchy_real_exp_pos]) plus reshaping by [abs_pos] ---- *)
 Lemma req_abs_exp_pos : forall x : R, lt zero (abs (exp_neg x)).
 Proof.
   intro x.
@@ -1499,7 +1470,7 @@ Proof.
   - apply exp_neg_pos.
 Qed.
 
-(* ---- 熵定义组（基座 L51341-51355 逐位 req 化） ---- *)
+(* ---- entropy definition group (point-by-point req form of baseline L51341-51355) ---- *)
 Variable Omega_A : forall (E_A : R), lt zero E_A -> R.
 Variable Omega_B : forall (E_B : R), lt zero E_B -> R.
 Variable Omega_A_pos : forall (E_A : R) (H : lt zero E_A),
@@ -1511,15 +1482,15 @@ Variable k_B : R.
 Variable E_B_pos : forall (E_A : R) (H : lt zero E_A),
   lt zero (plus E_total (opp E_A)).
 
-(* 基座 real_E_B_ent L51341（假设位逐位对应；dOmega_* / Omega_B_wd 随登记表 2 冻结） *)
+(* baseline [real_E_B_ent] L51341 (premise positions match point by point; [dOmega_*] and [Omega_B_wd] stay with the baseline). *)
 Definition req_E_B_ent (E_A : R) (H : lt zero E_A) : R :=
   plus E_total (opp E_A).
 
-(* 基座 real_Omega_total_ent L51343 *)
+(* baseline [real_Omega_total_ent] L51343. *)
 Definition req_Omega_total_ent (E_A : R) (H : lt zero E_A) : R :=
   mult (Omega_A E_A H) (Omega_B (req_E_B_ent E_A H) (E_B_pos E_A H)).
 
-(* ===== 基座 real_Omega_total_pos L51345 对位（Ω_A·Ω_B > 0） ===== *)
+(* ===== counterpart of the baseline [real_Omega_total_pos] L51345 ([Omega_A * Omega_B > 0]) ===== *)
 Lemma req_Omega_total_pos : forall (E_A : R) (H : lt zero E_A),
   lt zero (req_Omega_total_ent E_A H).
 Proof.
@@ -1530,7 +1501,7 @@ Proof.
   - exact (Omega_B_pos (req_E_B_ent E_A H) (E_B_pos E_A H)).
 Qed.
 
-(* 基座 real_entropy_ent L51357：S := k_B·log Ω_total（熵定义组第 3 件） *)
+(* baseline [real_entropy_ent] L51357: [S := k_B * log Omega_total] (third member of the entropy definition group). *)
 Definition req_entropy_ent (E_A : R) (H : lt zero E_A) : R :=
   mult k_B (log (req_Omega_total_ent E_A H) (req_Omega_total_pos E_A H)).
 
@@ -1538,23 +1509,30 @@ End ReqEntropyWorld.
 
 
 (* ============================================================ *)
-(* Part 4：逐出区 interface-level req 化（基座 RealKVQuantMain    *)
-(*   L53932-54965 对位 + epos 定义组 + P1 桥假设位）              *)
-(*   签名变化（登记表 3 续）：接口无 plain exp——e^{·} 全部以         *)
-(*   req_epos（:= exp_neg∘opp）重建；real_le 类假设位中接口 le     *)
-(*   字段抽象不可分解者取 Or 分解形（逐位同构，见登记表 1 续）        *)
+(* Section 5. eviction world, interface-level req form             *)
+(*   (counterpart of the baseline RealKVQuantMain L53932-54965,    *)
+(*   plus the [req_epos] definition group and the P1 bridge        *)
+(*   premise).  Signature changes: the interface has no plain   *)
+(*   [exp], so every exponential is rebuilt as [req_epos]          *)
+(*   ([:= exp_neg ∘ opp]); where the abstract interface [le] field *)
+(*   cannot be decomposed, the baseline [real_le]-shaped           *)
+(*   premise positions take the disjunctive [Or] form           *)
+(*   (isomorphic point by point).                                  *)
 (* ============================================================ *)
 Section ReqKVQuantWorld.
 Variable S : Type.
 
-(* ---- 逐出结构（基座 L53938-53940 同形：Set 层可判定） ---- *)
+(* ---- eviction structure (same shape as baseline L53938-53940: decidable at the [Set] layer) ---- *)
 Variable keep : S -> Set.
 Variable keep_dec : forall s : S, Or (keep s) (Not (keep s)).
 
 Variable transition : S -> S -> R.
-(* 基座 real_transition_nonneg（real_le zero T，real_le 实为 Or 形）的逐位
-   req 对偶：setoid 接口 le 字段抽象不可分解——假设位取 Or 分解形逐位同构；
-   需接口 le zero T 处以 lt_le_iff 消解（本区 B4） *)
+(* point-by-point req dual of the baseline [real_transition_nonneg]
+   ([real_le zero T], where [real_le] is really an [Or] form): the
+   abstract [le] field of the setoid interface cannot be decomposed,
+   so the premise takes the disjunctive [Or] form, isomorphic
+   point by point; where the interface form [le zero T] is needed it
+   is recovered by [lt_le_iff] (part B4 of this section). *)
 Variable transition_nonneg : forall s s' : S,
   Or (lt zero (transition s s')) (req zero (transition s s')).
 Variable transition_sym : forall s s' : S,
@@ -1568,17 +1546,19 @@ Variable L_pos : lt zero L.
 Variable E_max : R.
 Variable metric : S -> S -> R.
 Variable metric_nonneg : forall s s' : S, le zero (metric s s').
-(* 能量 Lipschitz：|e(s) − e(s')| ≤ L·metric（评审点名假设，逐位同构） *)
+(* energy Lipschitz condition: [|e(s) - e(s')| <= L * metric s s'] (an explicitly postulated interface assumption, isomorphic point by point). *)
 Variable energy_lipschitz : forall s s' : S,
   le (abs (plus (energy s) (opp (energy s'))))
      (mult L (metric s s')).
-(* 能量下界：−E_max ≤ e(s) *)
+(* energy lower bound: [-E_max <= e(s)] *)
 Variable energy_lower : forall s : S, le (opp E_max) (energy s).
 Variable sum_over_S : (S -> R) -> R.
 
-(* ---- epos 定义组：正指数幂 e^{x} := exp_neg (opp x) ----
-   （接口无 plain exp；exp_neg 逆的 req 重建，B3/B4 的 e^{E_max/D}、 *)
-(*    e^{|u−v|}、e^{Ulips} 全部以此形式陈述）                        *)
+(* ---- [req_epos] definition group: positive exponentials
+   [e^{x} := exp_neg (opp x)] ---- (the interface has no plain
+   [exp]; this is the req reconstruction as the inverse of
+   [exp_neg], and the [e^{E_max/D}], [e^{|u-v|}], [e^{Ulips}] of
+   parts B3/B4 are all stated in this form) ---- *)
 Definition req_epos (x : R) : R := exp_neg (opp x).
 
 Lemma req_epos_le_mono : forall x y : R, le x y -> le (req_epos x) (req_epos y).
@@ -1588,11 +1568,12 @@ Proof.
   apply (opp_le_compat x y). exact Hxy.
 Qed.
 
-(* ---- P1 桥假设位（诚实登记表 1 续）：基座 real_exp_neg_diff_bound L53901
-   的 req 对偶；其引擎 real_exp_abs_minus_one_eps 为 Real/Q 层 exp 分析
-   （LogDiffPhase4 域），setoid 接口无 exp 线性 eps 字段——
-   UpSigMigrate2 唯一诚实缺口 req_log_exp_neg 模式。P1 给出为桥，
-   其余 B2/B3a/B3b/B3c/B4 各件全部真证 ---- *)
+(* ---- the P1 bridge premise: the req dual of the baseline
+   [real_exp_neg_diff_bound] L53901.  Its engine
+   [real_exp_abs_minus_one_eps] is Real/Q-layer exponential
+   analysis, and the setoid interface has no exp-linear-epsilon
+   field, so P1 is postulated as a bridge; every remaining member
+   of B2/B3a/B3b/B3c/B4 is proved outright ---- *)
 Variable req_boltzmann_diff_bridge : forall (u v eps : R),
   lt zero eps ->
   le (abs (plus (exp_neg u) (opp (exp_neg v))))
@@ -1600,8 +1581,9 @@ Variable req_boltzmann_diff_bridge : forall (u v eps : R),
            (plus (mult (abs (plus u (opp v))) (req_epos (abs (plus u (opp v)))))
                  eps)).
 
-(* ---- 工具 A（基座 L54018 real_mult_minus_l 对位）：
-   a·x + −(a·y) == a·(x + −y)（distrib + req_opp_mult_l）——真证 ---- *)
+(* ---- tool A (counterpart of the baseline L54018
+   [real_mult_minus_l]): [a*x + -(a*y) == a*(x + -y)] by
+   [distrib] + [req_opp_mult_l] ---- *)
 Lemma req_mult_minus_l : forall a x y : R,
   req (plus (mult a x) (opp (mult a y))) (mult a (plus x (opp y))).
 Proof.
@@ -1616,8 +1598,9 @@ Proof.
                            (req_refl (mult a x)) (req_opp_mult_l a y)).
 Qed.
 
-(* ---- 工具 C（基座 L54037 real_mult_minus_r 对位）：
-   x·z + −(y·z) == (x + −y)·z（req_opp_mult_r + distrib_r）——真证 ---- *)
+(* ---- tool C (counterpart of the baseline L54037
+   [real_mult_minus_r]): [x*z + -(y*z) == (x + -y)*z] by
+   [req_opp_mult_r] + right distributivity ---- *)
 Lemma req_mult_minus_r : forall x y z : R,
   req (plus (mult x z) (opp (mult y z))) (mult (plus x (opp y)) z).
 Proof.
@@ -1634,9 +1617,11 @@ Proof.
     apply req_mult_plus_distr_r.
 Qed.
 
-(* ---- 工具 E'（le zero Ulips 导出件）：0 < p ⟹ 0 ≤ x ⟹ 0 ≤ p·x ----
-   le 字段抽象不可分解下 p·x ≥ 0 的接口级导出：zero·p ≤ x·p
-   （le_mult_compat，p > 0 严格位）+ 交换运输——分级：真证 ---- *)
+(* ---- tool E' (export of [le zero] under scaling): [0 < p] and
+   [0 <= x] give [0 <= p*x] ---- with the abstract [le] field
+   indecomposable, nonnegativity of [p*x] is derived at interface
+   level: [zero*p <= x*p] by [le_mult_compat] (strict positivity of
+   [p]) plus commutativity transport ---- *)
 Lemma req_le_zero_mult_pos_l : forall p x : R,
   lt zero p -> le zero x -> le zero (mult p x).
 Proof.
@@ -1652,8 +1637,9 @@ Proof.
                      (mult_comm x p) (le_refl (mult p x))).
 Qed.
 
-(* ---- 工具 D'（基座 L54054 real_abs_nonneg_req 的 Or 形对位）：
-   Or (0 < x) (0 == x) ⟹ |x| == x——分级：真证 ---- *)
+(* ---- tool D' ([Or]-form counterpart of the baseline L54054
+   [real_abs_nonneg_req]): [Or (0 < x) (0 == x)] gives
+   [|x| == x] ---- *)
 Lemma req_abs_nonneg_id_or : forall x : R,
   Or (lt zero x) (req zero x) -> req (abs x) x.
 Proof.
@@ -1666,8 +1652,9 @@ Proof.
     + exact Heq.
 Qed.
 
-(* ---- 工具 1（基座 L53731 real_exp_neg_split 对位）：
-   e^{−u} == e^{−v}·e^{−(u−v)}（req_exp_neg_ext_local + exp_neg_plus）——真证 ---- *)
+(* ---- tool 1 (counterpart of the baseline L53731
+   [real_exp_neg_split]): [e^{-u} == e^{-v} * e^{-(u-v)}] by
+   [req_exp_neg_ext_local] + [exp_neg_plus] ---- *)
 Lemma req_exp_neg_split : forall u v : R,
   req (exp_neg u) (mult (exp_neg v) (exp_neg (plus u (opp v)))).
 Proof.
@@ -1702,8 +1689,8 @@ Proof.
   - apply exp_neg_plus.
 Qed.
 
-(* ---- 工具 2b（基座 L53767 real_mult_minus_one_distr 对位）：
-   a·(c − 1) == a·c + −a——真证 ---- *)
+(* ---- tool 2b (counterpart of the baseline L53767
+   [real_mult_minus_one_distr]): [a*(c - 1) == a*c + -a] ---- *)
 Lemma req_mult_minus_one_distr : forall a c : R,
   req (mult a (plus c (opp one))) (plus (mult a c) (opp a)).
 Proof.
@@ -1720,10 +1707,12 @@ Proof.
     + apply (req_opp_compat (mult a one) a). apply mult_one.
 Qed.
 
-(* ===== 基座 L53790 real_exp_neg_diff_abs 对位（真证）：
-   |e^{−u} − e^{−v}| == e^{−v}·|e^{−(u−v)} − 1| ----
-   链：split 提因子 → mult_minus_one_distr → abs_compat → abs_mult
-   → abs_pos(e^{−v}) 换形 ---- *)
+(* ===== counterpart of the baseline L53790
+   [real_exp_neg_diff_abs]:
+   [|e^{-u} - e^{-v}| == e^{-v} * |e^{-(u-v)} - 1|] ---- chain:
+   factor with the split tool, [req_mult_minus_one_distr],
+   [req_abs_compat], [abs_mult], then reshape by
+   [abs_pos (e^{-v})] ---- *)
 Lemma req_exp_neg_diff_abs : forall u v : R,
   req (abs (plus (exp_neg u) (opp (exp_neg v))))
       (mult (exp_neg v)
@@ -1769,7 +1758,7 @@ Proof.
                                                   (opp one))))).
 Qed.
 
-(* ---- Boltzmann 因子与逐出分布（基座 L53963-53990 逐位 req 化） ---- *)
+(* ---- Boltzmann factors and the evicted distribution (point-by-point req form of baseline L53963-53990) ---- *)
 Definition req_kv_boltzmann_factor (s : S) : R :=
   exp_neg (mult (inv_pos D D_pos) (energy s)).
 
@@ -1799,13 +1788,14 @@ Definition req_evicted_boltzmann (s : S) : R :=
   | inr _ => zero
   end.
 
-(* 逐出导致的详细平衡破缺（基座 L53992 逐位 req 化） *)
+(* detailed-balance breaking induced by eviction (point-by-point req form of baseline L53992). *)
 Definition req_db_breaking (s s' : S) : R :=
   abs (plus (mult (req_evicted_boltzmann s) (req_evicted_transition s s'))
             (opp (mult (req_evicted_boltzmann s') (req_evicted_transition s' s)))).
 
-(* ===== 基座 L54055 real_db_breaking_evicted_l 对位（真证）：
-   s 被逐出 ⟹ db(s,s') == 0 ---- *)
+(* ===== counterpart of the baseline L54055
+   [real_db_breaking_evicted_l]: if [s] is evicted then
+   [db(s, s') == 0] ---- *)
 Lemma req_db_breaking_evicted_l : forall s s' : S, Not (keep s) ->
   req (req_db_breaking s s') zero.
 Proof.
@@ -1865,10 +1855,12 @@ Proof.
     + apply abs_zero.
 Qed.
 
-(* ---- B3a（基座 L54461 real_energy_lipschitz_scaled 对位，真证）：
-   |u − v| ≤ (invD·L)·metric，u := invD·e(s)、v := invD·e(s') ----
-   链：工具 A 提左因子 → abs_mult + abs_pos(invD) → 乘保序（invD > 0
-   + lipschitz）→ assoc 换形 ---- *)
+(* ---- B3a (counterpart of the baseline L54461
+   [real_energy_lipschitz_scaled]): [|u - v| <= (invD*L) * metric]
+   with [u := invD*e(s)] and [v := invD*e(s')] ---- chain: tool A
+   factors out the left multiplier, [abs_mult] + [abs_pos(invD)],
+   order preservation under multiplication ([invD > 0] plus the
+   Lipschitz premise), then reshaping by associativity ---- *)
 Lemma req_energy_lipschitz_scaled : forall s s' : S,
   le (abs (plus (mult (inv_pos D D_pos) (energy s))
                 (opp (mult (inv_pos D D_pos) (energy s')))))
@@ -1938,10 +1930,12 @@ Proof.
     + exact Hle.
 Qed.
 
-(* ---- B3b（基座 L54529 real_boltzmann_upper 对位，真证）：
-   b(s') ≤ e^{E_max/D}（= req_epos(invD·E_max)） ----
-   链：invD·(−E_max) ≤ invD·e(s')（乘保序 + 能量下界）→ exp_neg 递减
-   → −(invD·(−E_max)) == invD·E_max（req_opp_mult_l） ---- *)
+(* ---- B3b (counterpart of the baseline L54529
+   [real_boltzmann_upper]): [b(s') <= e^{E_max/D}]
+   (= [req_epos (invD*E_max)]) ---- chain:
+   [invD*(-E_max) <= invD*e(s')] by order preservation and the
+   energy lower bound, antitonicity of [exp_neg], then
+   [-(invD*(-E_max)) == invD*E_max] by [req_opp_mult_l] ---- *)
 Lemma req_boltzmann_upper : forall s' : S,
   le (req_kv_boltzmann_factor s')
      (req_epos (mult (inv_pos D D_pos) E_max)).
@@ -1969,11 +1963,14 @@ Proof.
 Qed.
 
 
-(* ---- B3c（基座 L54604 real_abs_diff_prod_bound 对位，真证）：
-   |u−v|·e^{|u−v|} ≤ Ulips·e^{Ulips} + eps'
-   （Ulips := (invD·L)·metric；le zero Ulips 由 req_le_zero_mult_pos_l
-   自 metric_nonneg 导出——基座此步走 Q 逐点 real_abs_prod_le_eps，
-   setoid 层改走 le_mult_compat/req_le_mult_compat_r 双段单调） ---- *)
+(* ---- B3c (counterpart of the baseline L54604
+   [real_abs_diff_prod_bound]):
+   [|u-v| * e^{|u-v|} <= Ulips * e^{Ulips} + eps'] with
+   [Ulips := (invD*L) * metric]; [le zero Ulips] is derived from
+   [metric_nonneg] by [req_le_zero_mult_pos_l] (the baseline handles
+   this step through the Q-pointwise [real_abs_prod_le_eps], while
+   the setoid layer goes through the two-stage monotonicity of
+   [le_mult_compat] / [req_le_mult_compat_r]) ---- *)
 Definition req_ulips (s s' : S) : R :=
   mult (mult (inv_pos D D_pos) L) (metric s s').
 
@@ -2017,11 +2014,15 @@ Proof.
       apply (lt_le_iff zero eps'). left. exact Hep'.
 Qed.
 
-(* ---- B2c（基座 L54304 real_db_breaking_kept_final 对位，真证）：
-   双保留时 db == invZ·(T·|b(s) − b(s')|) ----
-   链：T'==T（sym）→ 工具 C 右提 T → abs_mult + |T|==T（Or 工具 D'）→ comm；
-   结构恒等：unfold+δ 分支 → assoc 反向 + 工具 A 提 invZ → abs_mult +
-   abs_pos(invZ)；末段 mult_compat 传 Hinner ---- *)
+(* ---- B2c (counterpart of the baseline L54304
+   [real_db_breaking_kept_final]): with both states kept,
+   [db == invZ * (T * |b(s) - b(s')|)] ---- chain: [T' == T] by
+   symmetry, tool C factors [T] out on the right, [abs_mult] with
+   [|T| == T] (tool D'), then commutativity; the structural
+   identity goes unfold + delta branches, reversed associativity
+   with tool A factoring [invZ] out, then [abs_mult] +
+   [abs_pos(invZ)]; the final segment transports Hinner through
+   [req_mult_compat] ---- *)
 Lemma req_db_breaking_kept_final : forall s s' : S,
   keep s -> keep s' ->
   req (req_db_breaking s s')
@@ -2311,8 +2312,10 @@ Qed.
 Definition req_Emax_exp : R := req_epos (mult (inv_pos D D_pos) E_max).
 Definition req_eulips (s s' : S) : R := req_epos (req_ulips s s').
 
-(* ---- B3 最终（基座 L54636 real_boltzmann_diff_bound 对位）：
-   |b(s) − b(s')| ≤ E·(U·eU) + (E·eps + eps')——除 P1 桥外全真证 ---- *)
+(* ---- B3 final (counterpart of the baseline L54636
+   [real_boltzmann_diff_bound]):
+   [|b(s) - b(s')| <= E*(U*eU) + (E*eps + eps')] -- everything
+   except the P1 bridge is proved outright ---- *)
 Lemma req_boltzmann_diff_bound : forall (s s' : S) (eps eps' : R),
   lt zero eps -> lt zero eps' ->
   le (abs (plus (req_kv_boltzmann_factor s) (opp (req_kv_boltzmann_factor s'))))
@@ -2555,10 +2558,13 @@ Proof.
                    Hr Hsum).
 Qed.
 
-(* ---- B4 最终定理（基座 L54841 real_db_breaking_bound_eps 定理对位，真证）：
-   db(s,s') ≤ invZ·T·[E·(U·eU) + (E·eps + eps')]
-   组装：B2c 结构恒等 → B3 定量界 → 两层乘保序（T ≥ 0 的 Or 消解 +
-   invZ > 0）→ le_trans 完成 ---- *)
+(* ---- B4 final theorem (counterpart of the baseline L54841
+   [real_db_breaking_bound_eps]):
+   [db(s,s') <= invZ * T * [E*(U*eU) + (E*eps + eps')]] --
+   assembly: the B2c structural identity, the B3 quantitative
+   bound, two layers of order preservation under multiplication
+   (resolving the [Or]-form [T >= 0] and [invZ > 0]), closed by
+   [le_trans] ---- *)
 Theorem req_db_breaking_bound_eps : forall (s s' : S) (eps eps' : R),
   keep s -> keep s' -> lt zero eps -> lt zero eps' ->
   le (req_db_breaking s s')
@@ -2635,33 +2641,3 @@ Qed.
 
 End ReqKVQuantWorld.
 
-(* ============================================================ *)
-(* 文件尾清单注记（核对登记表， ）                *)
-(* ============================================================ *)
-(*
-      [Part 0] rls_ext/rls_linear/rls_nonneg/rls_single_le/rls_pos/rls_le/
-      rls_kernel_norm_gen + req_lt_zero_le_trans/req_le_mult_le_one_r —— 全建。
-      [Part 1] 14 件全建（另附 3 件辅助：req_partition_temp_pos/
-      req_markov_pos/req_markov_kernel_unfold + req_pick_max_tf_le_minp_sum）。
-      [Part 2] 6 件全建（含三枚 alb_markov_kernel 定义族 + alb_topp_keep/alb_topk_keep/
-      combined_* 判定与计数结构）。
-      [Part 3] req_exp_neg_ext_local/req_le_eps_Kone/req_scal_sum_ge/
-      req_M_inv_absorb/req_abs_exp_pos + 熵定义组 3 件 + req_Omega_total_pos
-      —— 全建（Section ReqEntropyWorld）。
-      [Part 4] epos 定义组（req_epos/req_epos_le_mono）+ 环工具
-      （req_mult_minus_l/req_mult_minus_r/req_le_zero_mult_pos_l/
-      req_abs_nonneg_id_or）+ exp 引擎（req_exp_neg_split/
-      req_exp_neg_diff_abs）+ 逐出定义族（req_kv_boltzmann_factor/
-      req_evicted_partition(+_pos)/req_evicted_transition/req_evicted_boltzmann/
-      req_db_breaking）+ B1 evicted_l + B2c kept_final + B3a
-      lipschitz_scaled + B3b boltzmann_upper + B3c abs_diff_prod_bound +
-      B3 boltzmann_diff_bound + B4 bound_eps —— 全建（Section ReqKVQuantWorld）。
-   2. 非平凡性分级（红线 5）：真证 = Parts 0/1/2 全部核心件 + Part 3 全部 +
-      Part 4 工具族/B1/B2c/B3a/B3b/B3c/B4（req 链 + 接口字段 + UpReqAlgebra
-      引擎）；组装 = B3（P1 桥 + distrib + 单调链 + req 重排）；幂等 δ 对偶 =
-      alb_markov_kernel 定义族（δ 展开 + rls_kernel_norm_gen 一击）。
-   3. 登记表 2（nat 嵌入/argmin list 机器/RealDifferentiable 族/
-      Q 逐点乘积界），续建未新增冻结件；新增诚实假设位 2 枚（bridge、
-      transition_nonneg Or 形）均已逐位核对（头注登记表 1）。
-   4. 中断事故与修复：见头注登记表 4（5 处正向修复，快照链
-*)

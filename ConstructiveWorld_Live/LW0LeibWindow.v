@@ -1,23 +1,33 @@
-(* 五字段指针｜使命：194 段判据窗口边界定理——188 裁决 δ 支（π_L 整数残差失败支约束
-   |r_n| ≤ 5b·D_n/(2n+1) 永不把整数压到 <1）升格为正形边界定理。(i) 交错余项双侧界
-   （偶支升/奇支降＋显式 gap）；(ii) 公分母整除性 q'_n := (2n+1)! 使 q'_n·S_n ∈ Z（见证
-   P_n）；(iii) 边界主件：极限 x₀（交错级数自身 cauchy 极限，恒真无 π 前提，不预设与 π
-   相等）到部分和距离 ≥ gap_n := 8/((2n+1)(2n+3))，margin q'_n·gap_n = 8·(2n)!/(2n+3)
-   无界；(iv) 逃逸认证残差律：自然窗 b·q'_n·t_n = 4b·(2n)! 无界（188 观察的定理化）＋
-   近极限 q 的逃逸窗障碍定理；(c) 族定理：Niven/阶乘族 margin ≤ 1 有界 vs Leibniz 族
-   margin 无界的分离对照。
-  依赖：Stdlib QArith/ZArith/Lia（lra 由 Lia 链加载）＋S01_BaseRing/S02_CauchyComplete
-   （Set 面承载 Id/And 与 QltT/QleT'/QeqT 判定器及双向回向桥）；判据接口
-   形状按 UpReqIrrationalCriterion.v :237/:242/:247 核对逐字重述于 §6（lic_* 定义仅形
-   重述，使用面以注释指认原件行号；本件不 Require 判据体）。
-  构造性：零公理声明／零自证收尾；正形主语句 Set 层（sigT＋Id bool 形，与
-   S02_CauchyComplete.v :48 的「Id＋bool 判定器＝true」同形）；否定面引理 Prop 型
-   （¬ 无 Set 形，脚手架级）；证内 Prop（Qlt/Qle）仅脚手架。全程零 arctan／零 π_geom
-   使用——本定理族恒真无 π 前提。
-  编译配方：rocq compile -native-compiler no -q -Q <世界根> "" LW0LeibWindow.v
-   （S01/S02 由世界根 -Q 供给；语句面洗形后全部 Set 承载）
-  命名：leiblw_ 前缀（全树 grep -w 查重零占用，2026-09 实测）。 *)
-(* 对标：UpReqIrrationalCriterion.v :237/:242/:247（形逐字重述，使用面以注释指认原件行号）。 *)
+(* ConstructiveWorld-Set -- the Leibniz-series criterion-window boundary module. *)
+(** * LW0LeibWindow: criterion-window boundary theorems for the alternating
+    Leibniz series, with a computation certifier and the Real-layer glue.
+
+    Mission.  (i) two-sided alternating-remainder bounds with the explicit
+      gap [leiblw_gap]; (ii) common-denominator integrality
+      ([leiblw_integrality], q'_n := (2n+1)!); (iii) the boundary main
+      theorem ([leiblw_dist], [leiblw_dist_set]: the series' own limit x0
+      stays at distance >= gap n from every later partial sum); (iv) the
+      natural-window residual law, unboundedness, and the escape-window
+      obstacle ([leiblw_natwin_residual], [leiblw_escape_obstacle]);
+      (c) the Niven-vs-Leibniz separation ([leiblw_family_separation]);
+      the certifier ([leiblw_cert]), the Real-layer glue
+      ([leiblw_glue_dist]), the true limit ([leiblw_x0]), and the
+      [real_lim] connection ([leiblw_S_real_lim]).
+
+    Dependencies.  Stdlib [QArith], [ZArith], [Lia], [Extraction];
+      [S01_BaseRing], [S02_CauchyComplete] of this development.
+
+    References.  UpReqIrrationalCriterion.v :237/:242/:247 (lic_* shapes
+      restated verbatim in Section 6, shape-only; no Require of the
+      criterion body); S02_CauchyComplete.v :48, :399, :468, :859.
+
+    Constructivity.  Zero axiom declarations; positive-form statements
+      Set-carried ([sigT] plus the Id + bool form of S02:48); negative-face
+      lemmas are Prop scaffolding only; no [arctan], no pi-geometry anywhere.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW0LeibWindow.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import ZArith.ZArith.
@@ -25,11 +35,12 @@ From Stdlib Require Import Lia.
 From Stdlib Require Import micromega.Lqa.
 Require Import S01_BaseRing S02_CauchyComplete.
 
-(* QArith.QArith 默认开 Q_scope——本件以 nat_scope 为默认，Q 位字面量一律 %Q 注记 *)
+(* QArith.QArith opens Q_scope by default -- this file keeps nat_scope as the
+   default and annotates every Q literal with %Q *)
 Local Open Scope nat_scope.
 
 (* ============================================================ *)
-(* §0 工具层：奇偶、Z 桥、Q 原生表示比较器、Qabs 引理                   *)
+(* Section 0. tool layer: parity, Z bridges, a native-Q representation comparator, Qabs lemmas *)
 (* ============================================================ *)
 
 Fixpoint leiblw_even (n : nat) : bool :=
@@ -39,7 +50,7 @@ Fixpoint leiblw_even (n : nat) : bool :=
   end.
 
 
-(* k = 2j 或 k = 2j+1 的构造性二分 *)
+(* the constructive dichotomy k = 2*j or k = 2*j+1 *)
 Lemma leiblw_par_decomp : forall k : nat,
   sum (sigT (fun j : nat => k = 2 * j)) (sigT (fun j : nat => k = 2 * j + 1)).
 Proof.
@@ -50,15 +61,18 @@ Proof.
     + left. exists (Datatypes.S j). rewrite Hj. lia.
 Qed.
 
-(* Set 值恒等型（S02_CauchyComplete.v :48 的 Id 形在本件自备：零库件依赖） *)
+(* the Set-valued identity type (the Id shape of S02_CauchyComplete.v :48, provided
+   locally: no library dependence) *)
 Inductive leiblw_Id {A : Type} (a : A) : A -> Set := leiblw_id_intro : leiblw_Id a a.
 
 Lemma leiblw_id_eq : forall b : bool, b = true -> leiblw_Id b true.
 Proof. intros b H. rewrite H. apply leiblw_id_intro. Qed.
 
-(* 泛 Set 等词桥（leiblw_Id 面承载，A : Type 通用）：语句面等词站正形；
-   反向（Id → eq）不设具名语句（回向桥语句面无 Set 形），使用处以
-   destruct (<Id 事实>); reflexivity 就地消去（Id 消去律 J 计算） *)
+(* the generic Set equivalence bridge (carried on the leiblw_Id face, generic in
+   A : Type): the statement face keeps the eq-to-Id positive form; the reverse
+   direction (Id -> eq) has no named statement (its face has no Set form) -- use
+   sites discharge it in place with destruct (<Id fact>); reflexivity (the J
+   computation of Id elimination) *)
 Lemma leiblw_eq_id : forall (A : Type) (x y : A), x = y -> leiblw_Id x y.
 Proof. intros A x y H. rewrite H. apply leiblw_id_intro. Qed.
 
@@ -82,7 +96,8 @@ Proof.
   rewrite H2. reflexivity.
 Qed.
 
-(* Set 值 Q 严格序判定（本环境 QArith 无 Qlt_bool——以 Q 比较自备，S02:48 同位） *)
+(* the Set-valued Q strict-order decider (this environment's QArith has no Qlt_bool
+   -- a Q comparator provided locally, the S02:48 position) *)
 Definition leiblw_Qltb (x y : Q) : bool :=
   match Qcompare x y with Lt => true | _ => false end.
 
@@ -95,7 +110,8 @@ Proof.
   - exfalso. unfold Qgt, Qlt in *. cbn [Qnum Qden] in *. nia.
 Qed.
 
-(* Z.of_nat 正性桥（本环境 lia 不自带 zify；前提 1 <= n——Z.of_nat 0 = 0 不可） *)
+(* the Z.of_nat positivity bridge (this environment's lia has no zify built in;
+   premise 1 <= n -- Z.of_nat 0 = 0 is impossible) *)
 Lemma leiblw_znat_pos : forall n : nat, (1 <= n)%nat -> leiblw_Id (Z.ltb 0 (Z.of_nat n)) true.
 Proof.
   intros n Hn. apply leiblw_eq_id. apply (proj2 (Z.ltb_lt _ _)).
@@ -103,7 +119,7 @@ Proof.
   cbn [Z.of_nat]. apply Pos2Z.is_pos.
 Qed.
 
-(* Z.pos (Pos.of_succ_nat k) = k+1 —— 把一切 Q 分母化到 lia/nia 可解面 *)
+(* Z.pos (Pos.of_succ_nat k) = k+1 -- reduces every Q denominator to a lia/nia-solvable face *)
 Lemma leiblw_pos_succ : forall k : nat, leiblw_Id (Z.pos (Pos.of_succ_nat k)) (Z.of_nat (Datatypes.S k)).
 Proof.
   intros k. apply leiblw_eq_id.
@@ -114,7 +130,8 @@ Proof.
   rewrite Heq. lia.
 Qed.
 
-(* 线性化战术：pos_succ（Id 面事实就地 destruct 取 eq）→ inj 系 *)
+(* the linearization tactics: pos_succ (destruct the Id-face fact in place for its
+   eq) then the inj family *)
 Ltac leiblw_ps k :=
   let H := fresh "Hps" in
   assert (H : Z.pos (Pos.of_succ_nat k) = Z.of_nat (Datatypes.S k))
@@ -134,7 +151,7 @@ Ltac leiblw_zpos_goal :=
 Ltac leiblw_zlin := leiblw_zpos_goal;
   rewrite ?Nat2Z.inj_succ, ?Nat2Z.inj_add, ?Nat2Z.inj_mul, ?Pos2Z.inj_mul, ?Nat2Z.inj_sub in *.
 
-(* pos_succ 直落 +1 形（绕开 zlin 链的 inj_succ 二次归约） *)
+(* the direct +1 form of pos_succ (bypassing the inj_succ re-reduction of the zlin chain) *)
 Lemma leiblw_pos_succ1 : forall k : nat, leiblw_Id (Z.pos (Pos.of_succ_nat k)) (Z.of_nat k + 1)%Z.
 Proof. intros k. apply leiblw_eq_id. leiblw_ps k. lia. Qed.
 
@@ -177,7 +194,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §1 级数本体：t_k := 4·(−1)^k/(2k+1)，S_n := Σ_{k<n} t_k            *)
+(* Section 1. the series itself: t_k := 4*(-1)^k/(2k+1), S_n := Sum_{k<n} t_k *)
 (* ============================================================ *)
 
 Definition leiblw_t (k : nat) : Q :=
@@ -244,10 +261,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §1½ Q 分数代数工作层：加和规范形／shunt／比较器                      *)
+(* Section 1.5. the Q fraction-algebra working layer: the addition normal form / shunt / comparators *)
 (* ============================================================ *)
 
-(* 加和规范形：(a#p)+(b#q) == ((a·q'+b·p')#(p·q)) *)
+(* addition normal form: (a#p)+(b#q) == ((a*q'+b*p')#(p*q)) *)
 Lemma leiblw_qplus_norm : forall (a b : Z) (p q : positive),
   QeqT ((a # p) + (b # q))%Q ((a * Z.pos q + b * Z.pos p) # (Pos.mul p q))%Q.
 Proof.
@@ -296,7 +313,7 @@ Proof.
   intros x y. apply qeq_imp_qeqT. unfold Qeq. cbn [Qnum Qden Qplus Qopp]. ring.
 Qed.
 
-(* 带负号的规范形：-((a#p)+(b#q)) == (c#r) *)
+(* the normal form with the minus sign: -((a#p)+(b#q)) == (c#r) *)
 Lemma leiblw_qneg_plus_eq : forall (a b : Z) (p q : positive) (c : Z) (r : positive),
   (((- a) * Z.pos q + (- b) * Z.pos p) * Z.pos r = c * Z.pos (Pos.mul p q))%Z ->
   QeqT (-((a # p) + (b # q)))%Q (c # r)%Q.
@@ -307,7 +324,7 @@ Proof.
   rewrite Hd. unfold Qopp. cbn [Qnum Qden]. rewrite Hq. apply Qeq_refl.
 Qed.
 
-(* shunt：((A+U)+V)−A == U+V *)
+(* shunt: ((A+U)+V)-A == U+V *)
 Lemma leiblw_qshunt : forall A U V : Q, QeqT (((A + U) + V) - A)%Q (U + V)%Q.
 Proof.
   intros A U V. apply qeq_imp_qeqT. unfold Qminus.
@@ -323,7 +340,7 @@ Qed.
 Lemma leiblw_qplus_opp_l0 : forall A X : Q, QeqT (A + (-(A + X)))%Q (- X)%Q.
 Proof. intros A X. apply qeq_imp_qeqT. lra. Qed.
 
-(* 反向 shunt：A−((A+U)+V) == −(U+V) *)
+(* the reverse shunt: A-((A+U)+V) == -(U+V) *)
 Lemma leiblw_qshunt_neg : forall A U V : Q, QeqT (A - ((A + U) + V))%Q (-(U + V))%Q.
 Proof.
   intros A U V. apply qeq_imp_qeqT.
@@ -370,7 +387,8 @@ Proof.
   leiblw_ps j. leiblw_ps k. reflexivity.
 Qed.
 
-(* Id 面事实 → Prop 面 Z 序的两步转换（goal 含 true 位时 destruct 即代换） *)
+(* the two-step conversion of an Id-face fact into a Prop-face Z order (destruct
+   substitutes immediately when the goal carries the true position) *)
 Ltac leiblw_id_inv_in Hx :=
   let T := type of Hx in
   match T with
@@ -380,7 +398,8 @@ Ltac leiblw_id_inv_in Hx :=
       clear Hx; rename He into Hx
   end.
 
-(* Id 面 Z 序事实 → Prop 面 Z 序（bool 等词先代换再 Z.leb_le/Z.ltb_lt 投影） *)
+(* an Id-face Z-order fact into a Prop-face Z order (substitute the bool equation
+   first, then project through Z.leb_le/Z.ltb_lt) *)
 Ltac leiblw_zle_of Hx H :=
   let T := type of Hx in
   match T with
@@ -409,7 +428,7 @@ Ltac leiblw_zpmul j k := let H := fresh "Hzm" in
   rewrite (H j k).
 
 (* ============================================================ *)
-(* §2 (i) 交错余项双侧界：偶支升、奇支降、交织                           *)
+(* Section 2. (i) the two-sided alternating-remainder bounds: even steps up, odd steps down, interlaced *)
 (* ============================================================ *)
 
 Lemma leiblw_step_even_pos : forall m : nat,
@@ -526,7 +545,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 显式 gap：gap n := 8/((2n+1)(2n+3))＝同侧相邻部分和步长           *)
+(* Section 3. the explicit gap: gap n := 8/((2n+1)(2n+3)), the same-side step between adjacent partial sums *)
 (* ============================================================ *)
 
 Definition leiblw_gap (n : nat) : Q :=
@@ -597,7 +616,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 (ii) 公分母整除性：q'_n := (2n+1)!，q'_n·S_n ∈ Z（见证 P_n）      *)
+(* Section 4. (ii) common-denominator integrality: q'_n := (2n+1)!, q'_n*S_n in Z (witness P_n) *)
 (* ============================================================ *)
 
 Fixpoint leiblw_zf (n : nat) : Z :=
@@ -631,7 +650,8 @@ Proof.
   nia.
 Qed.
 
-(* zf 的一步/三步原生展开（2n+k 非构造子头，需 replace+cbn） *)
+(* the one-step/three-step native unfoldings of zf (2n+k is not a constructor head,
+   so replace + cbn is needed) *)
 Lemma leiblw_zf_2n1 : forall n : nat,
   leiblw_Id (leiblw_zf (2 * n + 1)) (Z.pos (Pos.of_succ_nat (2 * n)) * leiblw_zf (2 * n))%Z.
 Proof.
@@ -640,7 +660,7 @@ Proof.
   cbn [leiblw_zf]. reflexivity.
 Qed.
 
-(* (2n+1)! 的原生三因子展开：zf(2n+3) = (2n+3)·(2n+2)·((2n+1)·zf(2n)) *)
+(* the native three-factor unfolding of (2n+1)!: zf(2n+3) = (2n+3)*(2n+2)*((2n+1)*zf(2n)) *)
 Lemma leiblw_zf_2n3 : forall n : nat,
   leiblw_Id (leiblw_zf (2 * n + 3))
             (Z.pos (Pos.of_succ_nat (Datatypes.S (Datatypes.S (2 * n)))) *
@@ -721,10 +741,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 (iii) 边界主件：距离 ≥ gap n（两支各一条）＋Set 面 eps-def 封装     *)
+(* Section 5. (iii) the boundary main theorem: distance >= gap n (one lemma per branch)
+   plus the Set-face eps-def packaging *)
 (* ============================================================ *)
 
-(* 偶侧·k 偶：j ≥ m+1 ⟹ S_{2j} − S_{2m} ≥ gap(2m) *)
+(* even side, k even: j >= m+1 gives S_{2j} - S_{2m} >= gap(2m) *)
 Lemma leiblw_lower_even_e : forall j m : nat, (m + 1 <= j)%nat ->
   QleT' (leiblw_gap (2 * m)) (leiblw_S (2 * j) - leiblw_S (2 * m))%Q.
 Proof.
@@ -736,7 +757,7 @@ Proof.
   lra.
 Qed.
 
-(* 偶侧·k 奇：j ≥ m ⟹ S_{2j+1} − S_{2m} ≥ gap(2m) *)
+(* even side, k odd: j >= m gives S_{2j+1} - S_{2m} >= gap(2m) *)
 Lemma leiblw_lower_even_o : forall j m : nat, (m <= j)%nat ->
   QleT' (leiblw_gap (2 * m)) (leiblw_S (2 * j + 1) - leiblw_S (2 * m))%Q.
 Proof.
@@ -751,7 +772,7 @@ Proof.
   lra.
 Qed.
 
-(* 奇侧·k 偶：j ≥ m+1 ⟹ S_{2m+1} − S_{2j} ≥ gap(2m+1) *)
+(* odd side, k even: j >= m+1 gives S_{2m+1} - S_{2j} >= gap(2m+1) *)
 Lemma leiblw_lower_odd_e : forall j m : nat, (m + 1 <= j)%nat ->
   QleT' (leiblw_gap (2 * m + 1)) ((leiblw_S (2 * m + 1) - leiblw_S (2 * j))%Q).
 Proof.
@@ -766,7 +787,7 @@ Proof.
   lra.
 Qed.
 
-(* 奇侧·k 奇：j ≥ m+1 ⟹ S_{2m+1} − S_{2j+1} ≥ gap(2m+1) *)
+(* odd side, k odd: j >= m+1 gives S_{2m+1} - S_{2j+1} >= gap(2m+1) *)
 Lemma leiblw_lower_odd_o : forall j m : nat, (m + 1 <= j)%nat ->
   QleT' (leiblw_gap (2 * m + 1)) (leiblw_S (2 * m + 1) - leiblw_S (2 * j + 1))%Q.
 Proof.
@@ -778,7 +799,8 @@ Proof.
   lra.
 Qed.
 
-(* 主距离定理（Q 层，两支合一）：k ≥ n+1 ⟹ gap n ≤ |S_k − S_n| *)
+(* the main distance theorem (the Q layer, both branches unified): k >= n+1 gives
+   gap n <= |S_k - S_n| *)
 Theorem leiblw_dist : forall n k : nat, (Datatypes.S n <= k)%nat ->
   QleT' (leiblw_gap n) (Qabs (leiblw_S k - leiblw_S n))%Q.
 Proof.
@@ -848,7 +870,8 @@ Proof.
               n (eq_sym Hm)).
 Qed.
 
-(* Set 值 Q 非严格序判定（≤ 的 bool 判定，Qltb 同工艺；208 增补） *)
+(* the Set-valued Q non-strict order decider (a bool decider for <=, the same
+   technique as Qltb) *)
 Definition leiblw_Qleb (x y : Q) : bool :=
   match Qcompare x y with Gt => false | _ => true end.
 
@@ -861,10 +884,13 @@ Proof.
   - exfalso. unfold Qgt, Qle in *. cbn [Qnum Qden] in *. nia.
 Qed.
 
-(* Set 面 eps-def 封装（S02:48 同形 Id＋bool 判定；208 核对：stdlib QArith 无
-   Qlt_bool（QArith_base.v 仅 Qeq_bool/Qle_bool，0930），故以 §0 自备
-   leiblw_Qleb 实装；原稿严格序 gap n < |S_k−S_n| 在 k=n+2 取等处为假，
-   依 leiblw_dist 改非严格序 gap n ≤ |S_k−S_n|——语句面修正，Set 层不变） *)
+(* the Set-face eps-def packaging (the same Id + bool decider shape as
+   S02:48; the stdlib QArith has no Qlt_bool -- QArith_base.v only provides
+   Qeq_bool/Qle_bool -- so the locally provided [leiblw_Qleb] is the
+   implementation; the draft's strict order gap n < |S_k - S_n| is false at
+   k = n+2 where equality holds, so the statement takes the non-strict order
+   gap n <= |S_k - S_n| per [leiblw_dist] -- a statement-face correction, the
+   Set layer unchanged) *)
 Theorem leiblw_dist_set : forall n : nat,
   sigT (fun N : nat => forall k : nat, (N <= k)%nat ->
     leiblw_Id (leiblw_Qleb (leiblw_gap n) (Qabs (leiblw_S k - leiblw_S n))) true).
@@ -875,18 +901,24 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §6 (iv) margin 无界定理＋逃逸窗障碍定理；lic 接口形状重述              *)
+(* Section 6. (iv) the margin-unbounded theorem + the escape-window obstacle theorem;
+   the lic interface-shape restatement *)
 (* ============================================================ *)
 
-(* margin_n := q'_n·gap_n = 8·(2n)!/(2n+3)（(ii)+(iii) 的自然见证位残差下界） *)
+(* margin_n := q'_n*gap_n = 8*(2n)!/(2n+3) (the natural witness-site residual lower
+   bound of (ii)+(iii)) *)
 Definition leiblw_margin (n : nat) : Q := (leiblw_qf (2 * n + 1) * leiblw_gap n)%Q.
 
-(* —— §6 余件（208 续装，0930）：自然认证窗 b·q'_n·|t_n| = 4b·(2n)!
-   （188 观察的定理化）：残差律恒等式、自然窗下界/单调、部分和值域 0 ≤ S_n ≤ 4、
-   (b) 近极限 q 逃逸窗障碍（窗口不可达主件）、自然窗无界（Set 面）、
-   margin 无界（Set 面）。—— *)
+(* -- the remaining Section 6 pieces: the natural certification window
+   b*q'_n*|t_n| = 4b*(2n)! (the theorematized form of the observed window
+   identity): the residual-law identity, the natural-window lower bound and
+   monotonicity, the partial-sum range 0 <= S_n <= 4, (b) the near-limit q
+   escape-window obstacle (the window-unreachability main piece), the
+   natural-window unboundedness (Set face), the margin unboundedness
+   (Set face). -- *)
 
-(* 自然认证窗：W b n := 4b·(2n)!（= b·q'_n·|t_n|，残差律见下） *)
+(* the natural certification window: W b n := 4b*(2n)! (= b*q'_n*|t_n|; the residual
+   law below) *)
 Definition leiblw_natwin (b n : nat) : Q :=
   (4 * Z.of_nat b * leiblw_zf (2 * n) # 1)%Q.
 
@@ -894,7 +926,8 @@ Lemma leiblw_qabs_make : forall q : Q,
   QeqT (Qabs q) ((Z.abs (Qnum q)) # (Qden q))%Q.
 Proof. intros [z p]. apply qeq_imp_qeqT. reflexivity. Qed.
 
-(* 残差律（定理化）：W b n == b·q'_n·|t_n| —— 188 观察的恒等式收束 *)
+(* the residual law (theorematized): W b n == b*q'_n*|t_n| -- the identity closing
+   the observed window *)
 Lemma leiblw_natwin_residual : forall b n : nat,
   QeqT (leiblw_natwin b n)%Q
        ((Z.of_nat b # 1) * (leiblw_qf (2 * n + 1) * Qabs (leiblw_t n)))%Q.
@@ -935,7 +968,8 @@ Proof.
   nia.
 Qed.
 
-(* 部分和值域：0 ≤ S_n ≤ 4（S_1 = 4 为最大部分和）——障碍定理燃料 *)
+(* the partial-sum range: 0 <= S_n <= 4 (S_1 = 4 is the largest partial sum) --
+   fuel for the obstacle theorem *)
 Lemma leiblw_S1_4 : QeqT (leiblw_S 1) (4 # 1)%Q.
 Proof. apply qeq_imp_qeqT. cbn [leiblw_S leiblw_t leiblw_even]. reflexivity. Qed.
 
@@ -980,7 +1014,7 @@ Proof.
     lra.
 Qed.
 
-(* |x| ≤ c：双侧夹逼（Qabs 逐点三情形，零经典决策） *)
+(* |x| <= c: two-sided squeezing (the three pointwise Qabs cases, no classical decision) *)
 Lemma leiblw_qabs_bound : forall x c : Q,
   Qle x c -> Qle (- x)%Q c -> QleT' (Qabs x) c.
 Proof.
@@ -989,10 +1023,13 @@ Proof.
   destruct z as [|z'|z']; [exact H1 | exact H1 | exact H2].
 Qed.
 
-(* (b) 窗口不可达主件·近极限 q 的逃逸窗障碍：q 处于第 m 围包 [S_{2m+2}, S_{2m+1}]
-   内时，|q − S_n| ≤ 4 < 8 ≤ W b n（2 ≤ b）对一切 n 成立——自然窗下逃逸不可达。
-   （Prop 脚手架面：负命题无 Set 形；Set 交付面 = leiblw_dist_set／
-   leiblw_natwin_unbounded／leiblw_margin_unbounded） *)
+(* (b) the window-unreachability main piece, the escape-window obstacle for
+   near-limit q: when q lies inside the m-th envelope [S_{2m+2}, S_{2m+1}],
+   |q - S_n| <= 4 < 8 <= W b n (2 <= b) holds for every n -- the escape is
+   unreachable under the natural window.
+   (a Prop-scaffolding face: a negative statement has no Set form; the Set
+   delivery face = [leiblw_dist_set] / [leiblw_natwin_unbounded] /
+   [leiblw_margin_unbounded]) *)
 Theorem leiblw_escape_obstacle : forall (b m : nat) (q : Q), (2 <= b)%nat ->
   Qle (leiblw_S (2 * m + 2)) q -> Qle q (leiblw_S (2 * m + 1)) ->
   forall n : nat, QleT' (Qabs ((q - leiblw_S n)%Q)) (leiblw_natwin b n).
@@ -1024,8 +1061,9 @@ Proof.
   - exact (QleT'_to_Qle _ _ Hw).
 Qed.
 
-(* (iv) 自然窗无界（Set 面）：任意 nat 界 B 被 n := S (B+B) 处自然窗超越——
-   zf(2n) ≥ 2n ≥ B+1 > B 且 4b ≥ 4 *)
+(* (iv) the natural window unbounded (Set face): any nat bound B is exceeded
+   by the natural window at n := S (B+B) -- zf(2n) >= 2n >= B+1 > B and
+   4b >= 4 *)
 Theorem leiblw_natwin_unbounded : forall b B : nat, (1 <= b)%nat ->
   sigT (fun n : nat =>
     leiblw_Id (leiblw_Qltb ((Z.of_nat B # 1)%Q) (leiblw_natwin b n)) true).
@@ -1041,8 +1079,9 @@ Proof.
   nia.
 Qed.
 
-(* (iv) margin 无界（Set 面）：q'_n·gap_n ≥ n+1（n ≥ 2），任意 nat 界被超越——
-   (ii)+(iii) 自然见证位残差下界发散（非平凡化定量面） *)
+(* (iv) the margin unbounded (Set face): q'_n*gap_n >= n+1 (n >= 2), any nat
+   bound exceeded -- the natural witness-site residual lower bound of
+   (ii)+(iii) diverges (the nontrivialized quantitative face) *)
 Theorem leiblw_margin_unbounded : forall B : nat,
   sigT (fun n : nat =>
     leiblw_Id (leiblw_Qltb ((Z.of_nat B # 1)%Q) (leiblw_margin n)) true).
@@ -1066,9 +1105,11 @@ Proof.
   nia.
 Qed.
 
-(* —— lic 接口形状重述（UpReqIrrationalCriterion.v :237/:242/:247 同形；
-   原件的 Set 序包装＋Prop 合取在本件以 sigT 嵌套＋leiblw_Id 保 Set 层，
-   语句内容逐字不变；判定器以 §0 自备 leiblw_Qltb 实装）—— *)
+(* -- the lic interface-shape restatement (same shapes as
+   UpReqIrrationalCriterion.v :237/:242/:247; the original's Set-order wrapper
+   + Prop conjunction become sigT nesting + leiblw_Id here, keeping the Set
+   layer with the statement content unchanged verbatim; the deciders use the
+   locally provided [leiblw_Qltb] of Section 0) -- *)
 
 Definition leiblw_lic_tail_bounded (x e : nat -> Q) : Set :=
   forall n k : nat, (1 <= n)%nat -> (n <= k)%nat ->
@@ -1086,15 +1127,17 @@ Definition leiblw_lic_vanish (e : nat -> Q) : Set :=
       leiblw_Id (leiblw_Qltb (e n) eps) true).
 
 (* ============================================================ *)
-(* §7 (c) 族定理非平凡化：阶乘族（Niven 型）认证窗有界 vs Leibniz 族
-   自然窗无界的分离对照（论文面新小节素材：只证不写文）                *)
+(* Section 7. (c) the family-theorem nontrivialization: the factorial family
+   (Niven-type) certification window bounded vs the Leibniz family natural
+   window unbounded -- the separation contrast *)
 (* ============================================================ *)
 
-(* 阶乘族认证窗（Niven 型）：w_niv n := 1/(2n+1)——q·δ ≤ 1/(2n+1) < 1 的
-   认证残差窗标准形（判据可达族的窗口形状） *)
+(* the factorial-family certification window (Niven type): w_niv n :=
+   1/(2n+1) -- the standard form of a certified residual window with
+   q*delta <= 1/(2n+1) < 1 (the window shape of criterion-reachable families) *)
 Definition leiblw_nivwin (n : nat) : Q := (1 # Pos.of_succ_nat (n + n + 1))%Q.
 
-(* 阶乘族窗 ≤ 1 恒成立（有界）——与 leiblw_natwin_unbounded 分离 *)
+(* the factorial-family window is always <= 1 (bounded) -- separated from leiblw_natwin_unbounded *)
 Theorem leiblw_nivwin_bounded : forall n : nat, QleT' (leiblw_nivwin n) 1%Q.
 Proof.
   intros n. apply Qle_to_QleT'. unfold leiblw_nivwin.
@@ -1102,9 +1145,11 @@ Proof.
   pose proof (Pos2Z.is_pos (Pos.of_succ_nat (n + n + 1))). nia.
 Qed.
 
-(* 分离对照主句（Set 面）：Leibniz 自然窗在 n=1 即超 1（4·(2·1)! = 8 > 1），
-   而阶乘族窗恒 ≤ 1（leiblw_nivwin_bounded）——「窗 ≤ 1」非平凡性判准对
-   Niven 族可达、对 Leibniz 族不可达 *)
+(* the separation main statement (Set face): the Leibniz natural window already
+   exceeds 1 at n = 1 (4*(2*1)! = 8 > 1), while the factorial-family window
+   stays <= 1 ([leiblw_nivwin_bounded]) -- the "window <= 1" nontriviality
+   criterion is reachable for the Niven family and unreachable for the
+   Leibniz family *)
 Theorem leiblw_family_separation :
   sigT (fun n : nat => leiblw_Id (leiblw_Qltb 1%Q (leiblw_natwin 1 n)) true).
 Proof.
@@ -1116,10 +1161,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §8 计算面抽查＋Set 交付面提取＋全局公理审计（尾 PA）                  *)
+(* Section 8. computation-face spot checks + the Set delivery-face extraction + the global axiom audit (the tail PA) *)
 (* ============================================================ *)
 
-(* 边距表 vm_compute 抽查：margin n = 8·(2n)!/(2n+3) 前四项 *)
+(* the margin table, a vm_compute spot check: the first four values of margin n = 8*(2n)!/(2n+3) *)
 Lemma leiblw_margin_tbl :
   And (QeqT (leiblw_margin 0) (8 # 3)%Q)
        (And (QeqT (leiblw_margin 1) (16 # 5)%Q)
@@ -1129,7 +1174,7 @@ Proof.
   repeat split; vm_compute; apply id_refl.
 Qed.
 
-(* 自然窗表抽查：W 1 n = 4·(2n)! 前四项（发散直观） *)
+(* the natural-window table spot check: the first four values of W 1 n = 4*(2n)! (the divergence intuition) *)
 Lemma leiblw_natwin_tbl :
   And (QeqT (leiblw_natwin 1 0) (4 # 1)%Q)
        (And (QeqT (leiblw_natwin 1 1) (8 # 1)%Q)
@@ -1139,11 +1184,12 @@ Proof.
   repeat split; vm_compute; apply id_refl.
 Qed.
 
-(* Set 交付面提取（G3 关：提取面魔数计数须为零；E887 卡：9.1 须前置 Require） *)
+(* the Set delivery-face extraction (the extraction-face magic count must be zero;
+   on Rocq 9.1 the Extraction Require must come first) *)
 From Stdlib Require Import Extraction.
 Separate Extraction leiblw_dist_set leiblw_natwin leiblw_gap leiblw_nivwin.
 
-(* 尾 Print Assumptions（G4 关：全部 Closed under the global context） *)
+(* the tail Print Assumptions (all Closed under the global context) *)
 Print Assumptions leiblw_dist.
 Print Assumptions leiblw_integrality.
 Print Assumptions leiblw_dist_set.
@@ -1157,14 +1203,19 @@ Print Assumptions leiblw_margin_tbl.
 Print Assumptions leiblw_natwin_tbl.
 
 (* ============================================================ *)
-(* §9 方案 B·计算证书器（调度段 0930 钉定；另起段不动 §0-§8 存量）   *)
-(*   核心零战术：pof/cert_core 为纯程序（Fixpoint/Definition），vm_compute    *)
-(*   收敛即证；规格语句 Set 面（forall n＋sigT＋积型合取）；见证包＝          *)
-(*   交错余项上/下界两个 Q 值＋公分母 (2n+1)! 整除见证 P_n＋边距 gap 值。    *)
+(* Section 9. plan B, the computation certifier (a separate section, leaving
+   Sections 0-8 untouched).
+   the core is tactic-free: pof/cert_core are pure programs
+   (Fixpoint/Definition) proved by vm_compute convergence; the specification
+   statements are Set-face (forall n + sigT + product-type conjunction); the
+   witness package = the two Q values of the alternating-remainder upper/lower
+   bounds + the common-denominator (2n+1)! divisibility witness P_n + the gap
+   value. *)
 (* ============================================================ *)
 
-(* P_n 公分母整除见证：零战术 Fixpoint（仿写 §4 integrality 构造步：
-   p_{k+1} = (2k+3)·(2k+2)·(p_k ± 4·zf(2k))，± 随 k 奇偶） *)
+(* the P_n common-denominator divisibility witness: a tactic-free Fixpoint
+   (mirroring the Section 4 integrality construction step:
+   p_{k+1} = (2k+3)*(2k+2)*(p_k +- 4*zf(2k)), the sign by the parity of k) *)
 Fixpoint leiblw_pof (n : nat) : Z :=
   match n with
   | 0 => 0%Z
@@ -1189,7 +1240,8 @@ Ltac leiblw_d2o m := let H := fresh "Hd2" in
         apply Nat.div2_succ_double);
   rewrite H.
 
-(* P_n 规格（Set 面语句·归纳＋Set 值 IH＋Qeq_bool 计算闭合） *)
+(* the P_n specification (a Set-face statement: induction + a Set-valued IH + Qeq_bool
+   computational closure) *)
 Lemma leiblw_pof_spec : forall n : nat,
   leiblw_Id (Qeq_bool (leiblw_qf (2 * n + 1) * leiblw_S n) (leiblw_pof n # 1)) true.
 Proof.
@@ -1233,13 +1285,15 @@ Proof.
       * rewrite IH2. ring.
 Qed.
 
-(* 证书器核心：纯数据四元组（lo 下界见证, hi 上界见证, P_n, gap 值）——零战术 *)
+(* the certifier core: a pure-data quadruple (the lo lower-bound witness, the hi
+   upper-bound witness, P_n, the gap value) -- tactic-free *)
 Definition leiblw_cert_core (n : nat) : (Q * (Q * (Z * Q)))%type :=
   (leiblw_S (2 * Nat.div2 n),
    (leiblw_S (2 * Nat.div2 n + 1),
     (leiblw_pof n, leiblw_gap n))).
 
-(* 证书器（①形：forall n＋sigT＋积型合取·Set 面；三核检全为 Id+Qeq_bool） *)
+(* the certifier (form 1: forall n + sigT + product-type conjunction, Set face;
+   all three core checks are Id + Qeq_bool) *)
 Theorem leiblw_cert : forall n : nat,
   sigT (fun lo : Q =>
     sigT (fun hi : Q =>
@@ -1273,47 +1327,56 @@ Proof.
       apply Qeq_sym. exact Hps.
 Qed.
 
-(* 可执行演示（⑦/G5）：vm_compute 收敛实录——三发 n=1,2,3 *)
+(* the executable demonstration: a vm_compute convergence record -- three shots n = 1,2,3 *)
 Eval vm_compute in (leiblw_cert_core 1).
 Eval vm_compute in (leiblw_cert_core 2).
 Eval vm_compute in (leiblw_cert_core 3).
 
-(* G3 增强：证书器本体可提取 *)
+(* extraction: the certifier core itself extracts *)
 Separate Extraction leiblw_pof leiblw_cert_core.
 
-(* 尾 Print Assumptions（§9 面：G4 关） *)
+(* the tail Print Assumptions (the Section 9 face) *)
 Print Assumptions leiblw_pof_spec.
 Print Assumptions leiblw_cert.
 
 (* ============================================================ *)
-(* §10 实层胶合段（219 段·LeibWindow 实层胶合，0930）           *)
-(*   使命：以 S02 eps-def 面直造「极限到部分和距离 ≥ 兄弟 gap」实层定理：    *)
-(*     证书器 lo/hi/g 直供 eps-def 谓词位。                              *)
-(*   依赖：本件 §9 证书器输出（leiblw_cert_core 访问器形）＋本件 §4 交错界  *)
-(*     存量（leiblw_gap_even_step/gap_odd_step/mono_even/mono_odd/       *)
-(*     interlace/qabs_bound/t_even_pos）＋库面 S01_BaseRing/S02_         *)
-(*     CauchyComplete（Real/real_eq/real_lt/real_const/QleT'/QltT/      *)
-(*     NatLe＝Nat.leb 证书面；Main vo 树，S02 全闭包 coqchk 公理段       *)
-(*     <none> 核对 0930＝_tlw219_coqchk_s02.log）。               *)
-(*   构造性：语句面全 Set（sigT/real_lt/real_eq/And/QleT'/QltT/leiblw_Id  *)
-(*     积型）；零 ==/Qeq 断言、零 lia 语句原子；nat 序＝NatLe 证书面；      *)
-(*     Qeq 移写走 bool 判定面 eq 重写（零 Prop 传输）；证内 Q 层 lra 与     *)
-(*     nat 计数 lia 脚手架按 §0-§9 存量工艺。零公理（尾 PA 增列 8）。      *)
-(*   对标：S02_CauchyComplete.v :48（QltT＝Id＋bool 判定器 eps-def 同形）、  *)
-(*     :399 real_eq、:468 real_lt、:859 real_const；本件 §9 核检①（宽度    *)
-(*     hi−lo＝t(2·div2 n)）在胶合供件形上重立。                          *)
-(*   编译：同文件头配方（S01/S02 由 Main vo 树 -Q 挂根供给，零新增配方）。  *)
+(* Section 10. the Real-layer glue segment (the LeibWindow Real-layer glue).
+   Mission: to build the Real-layer theorem "the distance from the limit to the
+     partial sums is >= the sibling gap" directly on the S02 eps-def face; the
+     certifier lo/hi/g feed the eps-def predicate sites directly.
+   Dependencies: the Section 9 certifier outputs of this file (the
+     [leiblw_cert_core] accessor shape) + the Section 4 alternating-bound stock
+     ([leiblw_gap_even_step]/[leiblw_gap_odd_step]/[leiblw_mono_even]/
+     [leiblw_mono_odd]/[leiblw_interlace]/[leiblw_qabs_bound]/
+     [leiblw_t_even_pos]) + the library face S01_BaseRing/S02_CauchyComplete
+     ([Real]/[real_eq]/[real_lt]/[real_const]/[QleT']/[QltT]/[NatLe] =
+     [Nat.leb] certificates; the S02 closure coqchk reports the axiom section
+     <none>).
+   Constructivity: the statement face is entirely Set ([sigT]/[real_lt]/
+     [real_eq]/[And]/[QleT']/[QltT]/[leiblw_Id] product types); zero ==/Qeq
+     statement atoms, zero lia statement atoms; the nat order = the [NatLe]
+     certificate face; Qeq rewriting goes through bool-decider eq rewrites (no
+     Prop transport); in-proof Q-layer lra and nat-counting lia follow the
+     Sections 0-9 stock technique. Zero axioms (the tail PA adds 8).
+   References: S02_CauchyComplete.v :48 (the QltT = Id + bool decider eps-def
+     shape), :399 [real_eq], :468 [real_lt], :859 [real_const]; the Section 9
+     core check 1 (the width hi-lo = t(2*div2 n)) is re-established on the glue
+     supply shape.
+   Build: the same recipe as the file header (S01/S02 supplied by the world
+     root -Q mapping; no new recipe). *)
 (* ============================================================ *)
 
 Require Import S01_BaseRing S02_CauchyComplete.
 Local Open Scope nat_scope.
 
-(* —— §10.0 证书器组件访问器：§9 输出的实层供件形 —— *)
+(* -- Section 10.0. the certifier-component accessors: the Real-layer supply shape
+   of the Section 9 outputs -- *)
 Definition leiblw_env_lo (n : nat) : Q := fst (leiblw_cert_core n).
 Definition leiblw_env_hi (n : nat) : Q := fst (snd (leiblw_cert_core n)).
 Definition leiblw_env_g (n : nat) : Q := snd (snd (snd (leiblw_cert_core n))).
 
-(* 端点核验（leiblw_Id＋Qeq_bool 面，§9 同形）：访问器值＝部分和端点/兄弟 gap 本值 *)
+(* endpoint verification (the leiblw_Id + Qeq_bool face, the Section 9 shape): the
+   accessor values equal the partial-sum endpoints / the sibling gap itself *)
 Lemma leiblw_env_lo_val : forall n : nat,
   leiblw_Id (Qeq_bool (leiblw_env_lo n) (leiblw_S (2 * Nat.div2 n))) true.
 Proof.
@@ -1335,7 +1398,8 @@ Proof.
   cbn [leiblw_env_g leiblw_cert_core fst snd]. apply Qeq_refl.
 Qed.
 
-(* §9 核检①（宽度 hi−lo＝t(2·div2 n)）在胶合供件形上重立——证书器使用面 *)
+(* the Section 9 core check 1 (the width hi-lo = t(2*div2 n)) re-established on the
+   glue supply shape -- the certifier use face *)
 Lemma leiblw_cert_width_check : forall n : nat,
   leiblw_Id (Qeq_bool ((leiblw_env_hi n - leiblw_env_lo n)%Q)
                        (leiblw_t (2 * Nat.div2 n))) true.
@@ -1362,8 +1426,9 @@ Proof.
     exact Hs.
 Qed.
 
-(* Qeq 同值移写（bool 判定面 eq 层重写，Set 合法零 Prop 传输；
-   Qcompare_comp＝QArith_base :537 Proper 实例，S02 real_const 同款用法） *)
+(* the Qeq same-value transport (an eq-layer rewrite on the bool-decider face,
+   Set-lawful with no Prop transport; Qcompare_comp = the Proper instance of
+   QArith_base :537, the same usage as S02 real_const) *)
 Lemma leiblw_QltT_comp_l : forall x y z : Q,
   leiblw_Id (Qeq_bool x y) true -> QltT x z -> QltT y z.
 Proof.
@@ -1400,8 +1465,8 @@ Proof.
   rewrite (Qcompare_comp x x (Qeq_refl x) y z Hyz) in H. exact H.
 Qed.
 
-(* 宽度值正性（(i) 宽度见证使用）：核检① × t_{2·div2 n} > 0 存量——
-   围包非退化性证书 *)
+(* the width-value positivity (used by the (i) width witness): core check 1 times
+   t_{2*div2 n} > 0 from stock -- the non-degeneracy certificate of the envelope *)
 Lemma leiblw_glue_width_pos : forall m : nat,
   QltT 0%Q ((leiblw_env_hi (2 * m) - leiblw_env_lo (2 * m))%Q).
 Proof.
@@ -1415,10 +1480,13 @@ Proof.
   - exact (leiblw_t_even_pos m).
 Qed.
 
-(* —— §10.1 eps-def 胶合升桥（谓词＝库 Set 面 real_lt/real_eq；S02 :48 同形） —— *)
+(* -- Section 10.1. the eps-def glue lifting bridges (the predicates = the library
+   Set faces real_lt/real_eq; the S02 :48 shape) -- *)
 
-(* 升桥·下侧：u j ≥ c 终成立 ⟹ ∀d>0，real_lt (real_const (c−d)) x
-   （「x₀ ≥ c」的 δ 收缩构造形——实层 ≥ 经严格 eps-def 面） *)
+(* the lifting bridge, lower side: u j >= c eventually gives
+   real_lt (real_const (c-d)) x for every d > 0
+   (the delta-contraction construction of "x0 >= c" -- the Real-layer >=
+   through the strict eps-def face) *)
 Lemma leiblw_lift_low : forall (x : Real) (c : Q),
   sigT (fun N : nat => forall j : nat, NatLe N j -> QleT' c (projT1 x j)) ->
   forall d : Q, QltT 0 d -> real_lt (real_const ((c - d)%Q)) x.
@@ -1438,7 +1506,7 @@ Proof.
     + lra.
 Qed.
 
-(* 升桥·上侧（仿写）：u j ≤ c 终成立 ⟹ ∀d>0，real_lt x (real_const (c+d)) *)
+(* the lifting bridge, upper side (mirrored): u j <= c eventually gives real_lt x (real_const (c+d)) *)
 Lemma leiblw_lift_high : forall (x : Real) (c : Q),
   sigT (fun N : nat => forall j : nat, NatLe N j -> QleT' (projT1 x j) c) ->
   forall d : Q, QltT 0 d -> real_lt x (real_const ((c + d)%Q)).
@@ -1458,8 +1526,9 @@ Proof.
     + lra.
 Qed.
 
-(* 升桥·等词（库 Set 面 real_eq 使用）：u j＝c 终成立（QleT' 双侧证书）
-   ⟹ real_eq x (real_const c)——S02 real_const 自证同工艺（Qeq_trans 链） *)
+(* the lifting bridge, equality (using the library Set face real_eq): u j = c
+   eventually (two-sided QleT' certificates) gives real_eq x (real_const c) --
+   the same technique as the S02 real_const self-proof (a Qeq_trans chain) *)
 Lemma leiblw_lift_eq : forall (x : Real) (c : Q),
   sigT (fun N : nat => forall j : nat, NatLe N j ->
     And (QleT' c (projT1 x j)) (QleT' (projT1 x j) c)) ->
@@ -1481,8 +1550,10 @@ Proof.
   setoid_rewrite Hz. exact Hlt0.
 Qed.
 
-(* —— §10.2 宽度见证（③）：列终入围包 ⟹ |x₀−lo| ≤ hi−lo
-   —— §4 交错界存量（leiblw_qabs_bound）支撑，宽度值即 §9 核检①载荷 —— *)
+(* -- Section 10.2. the width witness (3): the column eventually entering the
+   envelope gives |x0-lo| <= hi-lo
+   -- supported by the Section 4 alternating-bound stock ([leiblw_qabs_bound]);
+   the width value carries the Section 9 core check 1 payload -- *)
 Lemma leiblw_glue_width : forall (m : nat) (x : Real),
   sigT (fun N : nat => forall j : nat, NatLe N j ->
     And (QleT' (leiblw_env_lo (2 * m)) (projT1 x j))
@@ -1497,13 +1568,18 @@ Proof.
   apply leiblw_qabs_bound; lra.
 Qed.
 
-(* —— §10.3 主胶合定理：「极限到部分和距离 ≥ 兄弟 gap」
-   ——证书器 lo/hi/g 直供 eps-def 谓词位。
-   带归属假设＝x₀ 代表列终入内缘带 [S_{2m+2}, S_{2m+3}]（第 m/(m+1) 围包
-   内缘带，极限的界定性质形；lo+g＝S_{2m+2} 与 hi−g＝S_{2m+3} 由 §3
-   gap_even_step/gap_odd_step 存量等值，见 §10.4 带归属实例）：
-   下侧 dist(x₀, lo) ≥ env_g(2m)＝lo 的兄弟 gap（x₀ ≥ lo+gap(2m) 的 δ 收缩形）；
-   上侧 dist(x₀, hi) ≥ env_g(2m+1)＝hi 的兄弟 gap（x₀ ≤ hi−gap(2m+1) 的 δ 收缩形）。 *)
+(* -- Section 10.3. the main glue theorem: "the distance from the limit to the
+   partial sums is >= the sibling gap" -- the certifier lo/hi/g feed the eps-def
+   predicate sites directly.
+   band-membership assumption = the x0 representing column eventually enters the
+   inner band [S_{2m+2}, S_{2m+3}] (the inner band of the m/(m+1) envelope, a
+   delimiting property of the limit; lo+g = S_{2m+2} and hi-g = S_{2m+3} by the
+   Section 3 gap_even_step/gap_odd_step stock equalities, see the Section 10.4
+   band-membership instance):
+   the lower side dist(x0, lo) >= env_g(2m), the sibling gap of lo (the
+   delta-contraction form of x0 >= lo+gap(2m));
+   the upper side dist(x0, hi) >= env_g(2m+1), the sibling gap of hi (the
+   delta-contraction form of x0 <= hi-gap(2m+1)). *)
 Theorem leiblw_glue_dist : forall (m : nat) (x : Real),
   sigT (fun N : nat => forall j : nat, NatLe N j ->
     And (QleT' ((leiblw_env_lo (2 * m) + leiblw_env_g (2 * m))%Q) (projT1 x j))
@@ -1527,11 +1603,14 @@ Proof.
   - intros d Hd. exact (leiblw_lift_high x _ Hhigh d Hd).
 Qed.
 
-(* —— §10.4 带归属实例（胶合假设的非空性见证）：部分和列自身 j ≥ 2m+3
-   终入内缘带——(i) 交错界存量（mono_even/mono_odd/interlace）直供；
-   等值桥 lo+g＝S_{2m+2}、hi−g＝S_{2m+3} 由 §3 gap 步长存量承载。
-   （真极限 Real 的构造＝cauchy 见证＋t_n→0 消没，候后续段；本件交付
-   「证书器×交错界→实层面」直连。） *)
+(* -- Section 10.4. the band-membership instance (the nonemptiness witness of the
+   glue assumption): the partial-sum column itself eventually enters the inner
+   band for j >= 2m+3 -- supplied directly by the (i) alternating-bound stock
+   (mono_even/mono_odd/interlace); the equalities lo+g = S_{2m+2} and
+   hi-g = S_{2m+3} carried by the Section 3 gap-step stock.
+   (the construction of the true-limit Real = the cauchy witness + the
+   t_n -> 0 vanishing, a later segment; this file delivers the direct
+   "certifier x alternating bounds -> Real layer" connection.) *)
 Lemma leiblw_glue_band_S : forall (m j : nat), NatLe (2 * m + 3) j ->
   And (QleT' ((leiblw_env_lo (2 * m) + leiblw_env_g (2 * m))%Q) (leiblw_S j))
       (QleT' (leiblw_S j)
@@ -1584,13 +1663,14 @@ Proof.
       lra.
 Qed.
 
-(* —— §10.5 可执行演示（G5）与公理审计 —— *)
-(* 证书器访问器三件套 vm_compute 实录（与 §9 演示值对账：n=1 → (0, 4, 8#15)，
-   n=2 → (8#3, 52#15, 8#35)） *)
+(* -- Section 10.5. the executable demonstration and the axiom audit -- *)
+(* a vm_compute record of the three certifier accessors (cross-checked against
+   the Section 9 demonstration values: n=1 -> (0, 4, 8#15),
+   n=2 -> (8#3, 52#15, 8#35)) *)
 Eval vm_compute in (leiblw_env_lo 1, (leiblw_env_hi 1, leiblw_env_g 1)).
 Eval vm_compute in (leiblw_env_lo 2, (leiblw_env_hi 2, leiblw_env_g 2)).
 
-(* 尾 Print Assumptions（§10 面：G4 关，PA 只增不破——承 208 十三×Closed） *)
+(* the tail Print Assumptions (the Section 10 face; thirteen Closed) *)
 Print Assumptions leiblw_cert_width_check.
 Print Assumptions leiblw_lift_low.
 Print Assumptions leiblw_lift_high.
@@ -1600,34 +1680,44 @@ Print Assumptions leiblw_glue_width.
 Print Assumptions leiblw_glue_band_S.
 Print Assumptions leiblw_glue_dist.
 (* ============================================================ *)
-(* §11 真极限 Real 构造（232 段·LeibWindow 真极限构造，0930）    *)
-(*   使命（219 候令①）：以 S02 cauchy 机器构造 x₀＝级数自身 cauchy-real *)
-(*   极限（不认领 π/4——194 设计铁律：分离论证只需要「这个族有多慢」，  *)
-(*   不需要「它等于多少」）；|t_n|→0 消没见证＝§4 交错余项界存量直供；     *)
-(*   置入后实例化 leiblw_glue_dist＋leiblw_glue_band_S——胶合假设非空、    *)
-(*   主胶合定理对真 x₀ 成立＝边界定理线全通。                            *)
-(*   面：win_even/odd（尾部围包 QleT' 双侧——mono_even/mono_odd/          *)
-(*   interlace＋S_step＋t_even_pos 存量直供）＋win_width（Id＋Qeq_bool    *)
-(*   宽度等值＝|t_N| 本值）＋S_pair_win_even/odd＋S_pair_abs_t           *)
-(*   （|S_m−S_n| ≤ |t_N|，qabs_bound 存量使用）＋t_abs＋t_vanish          *)
-(*   （|t_n|→0 消没见证：nat 见证 N := 4·(Qden eps)+1，4/(2n+1)＜eps 的   *)
-(*   Z 面单调链）＋S_cauchy（cauchy 机器实例，Qle_lt_trans 收束）＋        *)
-(*   x0（existT 封装＝级数自身 cauchy-real 极限）＋x0_proj＋glue_x0_band  *)
-(*   （§10.4 带归属对 x₀ 实例化＝胶合假设非空）＋glue_x0（§10.3 主胶合     *)
-(*   定理对真 x₀ 实例化＝边界定理线全通）＋env_lo_2m/env_hi_2m（§10.0     *)
-(*   访问器端点 2m 特化桥）＋glue_env_x0＋glue_width_x0（§10.2 宽度见证   *)
-(*   对 x₀ 实例化＝(i) 宽度见证使用面）。                                 *)
-(*   构造性：语句面全 Set sanctioned（sigT/And/QleT'/QltT/leiblw_Id＋     *)
-(*   Qeq_bool/NatLe/cauchy/Real/real_lt）；新段语句面零 ==、零 Qeq 断言、  *)
-(*   零 lia 语句原子；证内 Q 层 lra/nia 与 nat 计数 lia＝§0-§10 存量工艺。 *)
-(*   零公理（尾 PA 增列 7——承 219 二十一×Closed 只增不破）。            *)
-(*   微检核判定（_tlw232_p1）：Z.to_nat (Z.pos p) 参型、Nat2Z.inj_le       *)
-(*   iff-apply 可行、Z2Nat.id (Z.pos p)、Qopp 双否定 cbn+lia 面、消没      *)
-(*   不等式链 nia 一发收束。                                             *)
+(* Section 11. the true-limit Real construction (the LeibWindow true-limit
+     construction).
+   Mission: with the S02 cauchy machinery, construct x0 as the cauchy-real limit
+     of the series itself (no claim of pi/4 -- the separation argument only
+     needs "how slow this family is", not "what it equals"); the |t_n| -> 0
+     vanishing witness is supplied by the Section 4 alternating-remainder bound
+     stock; once in place, instantiate [leiblw_glue_dist] + [leiblw_glue_band_S]
+     -- the glue assumption is nonempty and the main glue theorem holds for the
+     true x0 -- the boundary-theorem line fully through.
+   Faces: win_even/odd (the tail envelope two-sided QleT' -- supplied by the
+     mono_even/mono_odd/interlace + S_step + t_even_pos stock) + win_width (the
+     Id + Qeq_bool width equality = |t_N| itself) + S_pair_win_even/odd +
+     S_pair_abs_t (|S_m - S_n| <= |t_N|, using the qabs_bound stock) + t_abs +
+     t_vanish (the |t_n| -> 0 vanishing witness: the nat witness
+     N := 4*(Qden eps)+1, from 4/(2n+1) < eps through a Z-face monotone chain)
+     + S_cauchy (the cauchy machine instance, closed by Qle_lt_trans) + x0 (the
+     existT packaging = the cauchy-real limit of the series itself) + x0_proj +
+     glue_x0_band (the Section 10.4 band membership instantiated at x0 = the
+     glue assumption nonempty) + glue_x0 (the Section 10.3 main glue theorem
+     instantiated at the true x0 = the boundary-theorem line fully through) +
+     env_lo_2m/env_hi_2m (the Section 10.0 accessor-endpoint 2m specialization
+     bridges) + glue_env_x0 + glue_width_x0 (the Section 10.2 width witness
+     instantiated at x0 = the (i) width-witness use face).
+   Constructivity: the statement face is entirely Set-sanctioned
+     ([sigT]/[And]/[QleT']/[QltT]/[leiblw_Id] + [Qeq_bool]/[NatLe]/[cauchy]/
+     [Real]/[real_lt]); the new-section statement face has zero ==, zero Qeq
+     atoms, zero lia statement atoms; in-proof Q-layer lra/nia and nat-counting
+     lia follow the Sections 0-10 stock technique.
+   Zero axioms (the tail PA adds 7).
+   Micro-check verdicts: Z.to_nat (Z.pos p) as the reference shape,
+     Nat2Z.inj_le iff-apply feasibility, Z2Nat.id (Z.pos p), the Qopp double
+     negation cbn+lia face, and the vanishing inequality chain closed by one
+     nia shot. *)
 (* ============================================================ *)
 
-(* —— §11.0 尾部围包（cauchy 燃料·(i) 交错余项双侧界存量直供）：
-   N ≤ k ⟹ S_k 夹于宽度 |t_N| 的窗内——even/odd 双面 —— *)
+(* -- Section 11.0. the tail envelope (cauchy fuel, supplied directly by the (i)
+   alternating-remainder two-sided bound stock): N <= k gives S_k caught in the
+   window of width |t_N| -- the even/odd two faces -- *)
 
 Lemma leiblw_win_even : forall j k : nat, NatLe (2 * j) k ->
   And (QleT' (leiblw_S (2 * j)) (leiblw_S k))
@@ -1680,8 +1770,9 @@ Proof.
     + apply leiblw_mono_odd. lia.
 Qed.
 
-(* 围包宽度等值（Id＋Qeq_bool 面）：窗宽＝|t_N| 本值——(i) 宽度见证的
-   尾部余项形（B−A＝S_{N+1}−S_N＝t_N，奇支取负＝Qabs） *)
+(* the envelope-width equality (the Id + Qeq_bool face): the window width =
+   |t_N| itself -- the tail-remainder form of the (i) width witness
+   (B-A = S_{N+1}-S_N = t_N; the odd branch takes the negative = Qabs) *)
 Lemma leiblw_win_width_even : forall j : nat,
   leiblw_Id (Qeq_bool ((leiblw_S (2 * j + 1) - leiblw_S (2 * j))%Q)
                       (Qabs (leiblw_t (2 * j)))) true.
@@ -1716,7 +1807,8 @@ Proof.
     exact Hab.
 Qed.
 
-(* —— §11.1 cauchy 主燃料：|S_m−S_n| ≤ |t_N|（同窗双侧，零三角不等式） —— *)
+(* -- Section 11.1. the cauchy main fuel: |S_m - S_n| <= |t_N| (two-sided in the
+   same window, no triangle inequality) -- *)
 
 Lemma leiblw_S_pair_win_even : forall j m n : nat,
   NatLe (2 * j) m -> NatLe (2 * j) n ->
@@ -1728,7 +1820,8 @@ Proof.
   apply QleT'_to_Qle in A1. apply QleT'_to_Qle in B1.
   apply QleT'_to_Qle in A2. apply QleT'_to_Qle in B2.
   pose proof (leiblw_win_width_even j) as Hw.
-  (* Qabs 挡在 lra 外：先以 Qabs-free 窗宽 D 出双侧 Qle，qabs_bound 合成后 comp_r 移写 *)
+  (* Qabs blocks lra: first produce the two-sided Qle with a Qabs-free window width
+   D, compose through qabs_bound, then transport by comp_r *)
   assert (Hd1 : Qle ((leiblw_S m - leiblw_S n)%Q)
                     ((leiblw_S (2 * j + 1) - leiblw_S (2 * j))%Q)) by lra.
   assert (Hd2 : Qle ((- (leiblw_S m - leiblw_S n))%Q)
@@ -1770,9 +1863,11 @@ Proof.
   - apply leiblw_S_pair_win_odd; assumption.
 Qed.
 
-(* —— §11.2 |t_n|→0 消没见证（②）：§4 交错余项界存量直供。
-   |t_n|＝4/(2n+1)＜eps ⟸ 4·Qden eps＜Qnum eps·(2n+1)——nat 见证
-   N := 4·(Qden eps)+1：2N+1＝8·den+3＞4·den（Z 面单调链，微检核判定形） —— *)
+(* -- Section 11.2. the |t_n| -> 0 vanishing witness (2), supplied directly by the
+   Section 4 alternating-remainder bound stock.
+   |t_n| = 4/(2n+1) < eps follows from 4*Qden eps < Qnum eps*(2n+1) -- the nat
+   witness N := 4*(Qden eps)+1: 2N+1 = 8*den+3 > 4*den (a Z-face monotone chain,
+   in the micro-check verdict form) -- *)
 
 Lemma leiblw_t_abs : forall n : nat,
   leiblw_Id (Qeq_bool (Qabs (leiblw_t n)) ((4 # Pos.of_succ_nat (2 * n))%Q)) true.
@@ -1825,9 +1920,10 @@ Proof.
     leiblw_ps (2 * n). rewrite Hn2. nia.
 Qed.
 
-(* —— §11.3 cauchy 机器实例＋x₀ 封装（①）：级数自身 cauchy-real 极限。
-   不认领 π/4——x₀ 的唯一载荷＝「这个族有多慢」（|t_n|→0＋围包宽度），     *)
-(*   其值恒真无 π 前提。 —— *)
+(* -- Section 11.3. the cauchy machine instance + the x0 packaging (1): the
+   cauchy-real limit of the series itself.
+   no claim of pi/4 -- the only payload of x0 is "how slow this family is"
+   (|t_n| -> 0 + the envelope width), a value true with no pi premise. -- *)
 
 Lemma leiblw_S_cauchy : cauchy (fun n : nat => leiblw_S n).
 Proof.
@@ -1844,18 +1940,21 @@ Qed.
 Definition leiblw_x0 : Real :=
   existT (fun u : Qseq => cauchy u) (fun n : nat => leiblw_S n) leiblw_S_cauchy.
 
-(* x₀ 代表列＝部分和列本值（Id＋Qeq_bool 面，机器可核） *)
+(* the x0 representing column = the partial-sum column itself (the Id + Qeq_bool
+   face, machine-checkable) *)
 Lemma leiblw_x0_proj : forall n : nat,
   leiblw_Id (Qeq_bool (projT1 leiblw_x0 n) (leiblw_S n)) true.
 Proof.
   intros n. apply leiblw_id_eq. apply (proj2 (Qeq_bool_iff _ _)). reflexivity.
 Qed.
 
-(* —— §11.4 胶合实例化（③）：胶合假设非空＋主胶合定理对真 x₀ 成立
-   ＝边界定理线全通。 —— *)
+(* -- Section 11.4. the glue instantiation (3): the glue assumption nonempty and
+   the main glue theorem holding for the true x0 -- the boundary-theorem line
+   fully through. -- *)
 
-(* §10.4 带归属对 x₀：j ≥ 2m+3 终入内缘带（glue_band_S 存量直供——
-   projT1 x₀ j 转换即 leiblw_S j） *)
+(* the Section 10.4 band membership at x0: j >= 2m+3 eventually enters the inner
+   band (supplied directly by the glue_band_S stock -- the conversion of
+   projT1 x0 j is leiblw_S j) *)
 Lemma leiblw_glue_x0_band : forall m : nat,
   sigT (fun N : nat => forall j : nat, NatLe N j ->
     And (QleT' ((leiblw_env_lo (2 * m) + leiblw_env_g (2 * m))%Q) (projT1 leiblw_x0 j))
@@ -1866,8 +1965,9 @@ Proof.
   exact (leiblw_glue_band_S m j Hj).
 Qed.
 
-(* §10.3 主胶合定理对真 x₀：dist(x₀, lo) ≥ 兄弟 gap 与 dist(x₀, hi) ≥
-   兄弟 gap 的 eps-def 双侧成立＝「极限到部分和距离 ≥ gap」全通 *)
+(* the Section 10.3 main glue theorem at the true x0: dist(x0, lo) >= the sibling
+   gap and dist(x0, hi) >= the sibling gap, both eps-def sides holding -- "the
+   distance from the limit to the partial sums >= gap" fully through *)
 Theorem leiblw_glue_x0 : forall m : nat,
   And (forall d : Q, QltT 0 d ->
         real_lt (real_const (((leiblw_env_lo (2 * m) + leiblw_env_g (2 * m)) - d)%Q)) leiblw_x0)
@@ -1877,8 +1977,9 @@ Proof.
   intros m. exact (leiblw_glue_dist m leiblw_x0 (leiblw_glue_x0_band m)).
 Qed.
 
-(* §10.0 访问器端点 2m 特化桥：env_lo(2m)＝S_{2m}、env_hi(2m)＝S_{2m+1}
-   （env_*_val 存量＋div2_even 存量直供） *)
+(* the Section 10.0 accessor-endpoint 2m specialization bridge: env_lo(2m) =
+   S_{2m}, env_hi(2m) = S_{2m+1}
+   (supplied by the env_*_val stock + the div2_even stock) *)
 Lemma leiblw_env_lo_2m : forall m : nat,
   leiblw_Id (Qeq_bool (leiblw_env_lo (2 * m)) (leiblw_S (2 * m))) true.
 Proof.
@@ -1895,8 +1996,10 @@ Proof.
   apply leiblw_id_eq. exact H.
 Qed.
 
-(* §10.2 宽度见证对 x₀ 的围包前提：j ≥ 2m 终入围包 [env_lo(2m), env_hi(2m)]
-   （win_even 存量＋2m 特化桥＋QleT' 移写桥 §10.0½） *)
+(* the envelope premise of the Section 10.2 width witness at x0: j >= 2m
+   eventually enters the envelope [env_lo(2m), env_hi(2m)]
+   (the win_even stock + the 2m specialization bridge + the QleT' transport
+   bridge) *)
 Lemma leiblw_glue_env_x0 : forall m : nat,
   sigT (fun N : nat => forall j : nat, NatLe N j ->
     And (QleT' (leiblw_env_lo (2 * m)) (projT1 leiblw_x0 j))
@@ -1916,7 +2019,8 @@ Proof.
     + apply Qle_to_QleT'. exact B.
 Qed.
 
-(* (i) 宽度见证使用面：|x₀ 列−lo| ≤ 围包宽度（glue_width 存量直供） *)
+(* the (i) width-witness use face: |x0 column - lo| <= the envelope width (supplied
+   directly by the glue_width stock) *)
 Lemma leiblw_glue_width_x0 : forall m : nat,
   sigT (fun N0 : nat => forall j : nat, NatLe N0 j ->
     QleT' (Qabs ((projT1 leiblw_x0 j - leiblw_env_lo (2 * m))%Q))
@@ -1925,18 +2029,22 @@ Proof.
   intros m. exact (leiblw_glue_width m leiblw_x0 (leiblw_glue_env_x0 m)).
 Qed.
 
-(* —— §11.5 可执行演示（G5）＋提取＋公理审计 —— *)
-(* x₀ 代表列 vm_compute 两发（S_6/S_7＝交错部分和收敛实录）＋
-   n=20 处 |t_20|×围包宽度×Qeq_bool 自证三发（核检①数值化：宽度＝|t_{2·div2 20}|，
-   Qeq_bool 应为 true；原始 Q 运算不约分，宽度以大分母原形打印，数学值＝4/41） *)
+(* -- Section 11.5. the executable demonstration + extraction + the axiom audit -- *)
+(* a two-shot vm_compute record of the x0 representing column (S_6/S_7 = the
+   alternating partial-sum convergence record) + three self-check shots at n=20
+   of |t_20| x the envelope width x Qeq_bool (the numeric form of core check 1:
+   the width = |t_{2*div2 20}|, Qeq_bool should be true; the raw Q operations do
+   not reduce, so the width prints with its large denominator, the mathematical
+   value = 4/41) *)
 Eval vm_compute in (projT1 leiblw_x0 6, projT1 leiblw_x0 7).
 Eval vm_compute in (Qabs (leiblw_t 20), (leiblw_env_hi 20 - leiblw_env_lo 20)%Q,
                     Qeq_bool (Qabs (leiblw_t 20)) ((leiblw_env_hi 20 - leiblw_env_lo 20)%Q)).
 
-(* G3 增强：真极限本体可提取（E979 判例：Real＝(Qseq,cauchy) sigT 提取零伪影） *)
+(* extraction: the true-limit body itself extracts (the Real = (Qseq,cauchy) sigT
+   extraction with zero artifacts) *)
 Separate Extraction leiblw_x0.
 
-(* 尾 Print Assumptions（§11 面：G4 关，PA 只增不破——承 219 二十一×Closed） *)
+(* the tail Print Assumptions (the Section 11 face; twenty-one Closed) *)
 Print Assumptions leiblw_t_vanish.
 Print Assumptions leiblw_S_cauchy.
 Print Assumptions leiblw_x0.
@@ -1946,17 +2054,20 @@ Print Assumptions leiblw_glue_env_x0.
 Print Assumptions leiblw_glue_width_x0.
 
 (* ============================================================ *)
-(* §12 real_lim 对接段（232 候令④·纯胶合加装）：部分和列        *)
-(*     （Q 层 leiblw_S 经 real 嵌入 real_const）real_lim→x₀。      *)
+(* Section 12. the real_lim connection segment (a pure-glue addition): the
+   partial-sum column (the Q-layer leiblw_S embedded into Real via real_const)
+   converges real_lim to x0. *)
 (* ============================================================ *)
-(* 口径：语句面 sanctioned＝QltT／sigT／And／NatLe／Real／real_lim      *)
-(* （real_const／real_plus／real_opp 为 S02 real_lim 定义面连带件）；   *)
-(* 零 ==／零 Qeq 断言／零 lia 语句原子；lra 喂料全常数乘形（p2 检核     *)
-(* T1/T3 判定 micromega-Q 不拆 Qdiv 除法原子—— witness 取 (1#2)·eps，   *)
-(* real_lt 见证位任意 Q 合法，零除法进件）。                           *)
-(* 尾窗法：cauchy((1#2)·eps) 见证 N＋win 存量（k≥N ⟹ S_k 夹于           *)
-(* [min(S_N,S_{N+1}),max(S_N,S_{N+1})]）⟹ 双侧 margin＞eps−(1#2)·eps    *)
-(* ＝witness（严格链由 cauchy 严格界直供，零三角不等式零 t_vanish）。   *)
+(* Reading: the sanctioned statement face = QltT / sigT / And / NatLe / Real /
+   real_lim (real_const/real_plus/real_opp are the definitional companions of
+   the S02 real_lim face); zero == / zero Qeq atoms / zero lia statement atoms;
+   every lra feed is a constant-multiple shape (micromega-Q does not split Qdiv
+   division atoms -- the witness is taken as (1#2)*eps, any Q is lawful at the
+   real_lt witness site, no division enters the proof).
+   The tail-window method: the cauchy((1#2)*eps) witness N + the win stock
+   (k >= N gives S_k caught in [min(S_N,S_{N+1}),max(S_N,S_{N+1})]) give the
+   two-sided margin > eps - (1#2)*eps = the witness (the strict chain supplied
+   directly by the cauchy strict bound; no triangle inequality, no t_vanish). *)
 
 Lemma leiblw_S_tail_two_sided :
   forall eps : Q, QltT 0 eps ->
@@ -1980,7 +2091,7 @@ Proof.
       rewrite Habs in Hl. split; apply Qlt_to_QltT; lra. }
   exists Nc. intros n k Hn Hk.
   destruct (leiblw_par_decomp Nc) as [[j Hj]|[j Hj]]; subst Nc.
-  - (* Nc ＝ 2j（偶窗：S_{2j} ≤ S_k ≤ S_{2j+1}） *)
+  - (* Nc = 2j (the even window: S_{2j} <= S_k <= S_{2j+1}) *)
     assert (Hrefl : NatLe (2 * j) (2 * j)) by (apply NatLe_lift; lia).
     assert (Hle1 : NatLe (2 * j) (2 * j + 1)) by (apply NatLe_lift; lia).
     assert (Hcn : QltT (Qabs ((leiblw_S (2 * j) - leiblw_S n)%Q))
@@ -2002,7 +2113,7 @@ Proof.
     split.
     + apply Qlt_to_QltT. lra.
     + apply Qlt_to_QltT. lra.
-  - (* Nc ＝ 2j+1（奇窗：S_{2j+2} ≤ S_k ≤ S_{2j+1}） *)
+  - (* Nc = 2j+1 (the odd window: S_{2j+2} <= S_k <= S_{2j+1}) *)
     assert (Hrefl : NatLe (2 * j + 1) (2 * j + 1)) by (apply NatLe_lift; lia).
     assert (Hle1 : NatLe (2 * j + 1) (2 * j + 2)) by (apply NatLe_lift; lia).
     assert (Hcn : QltT (Qabs ((leiblw_S (2 * j + 1) - leiblw_S n)%Q))
@@ -2038,13 +2149,15 @@ Proof.
     assert (H0 : Qlt 0 eps) by (apply QltT_to_Qlt; exact Heps).
     lra. }
   split.
-  - (* 上侧：real_lt (u n) (x₀＋eps)——见证 (1#2)·eps；exact 消投影 conversion *)
+  - (* the upper side: real_lt (u n) (x0 + eps) -- the witness (1#2)*eps; exact
+   discharges the projection conversion *)
     exists ((1 # 2) * eps)%Q. split.
     + exact Hw0.
     + exists N. intros k Hk.
       destruct (HN n k Hn' Hk) as [HA HB].
       exact HA.
-  - (* 下侧：real_lt (x₀−eps) (u n)——第二分量取 real_lt 归约原形，exact 直消 *)
+  - (* the lower side: real_lt (x0 - eps) (u n) -- the second component in its real_lt
+   reduction form, discharged by exact *)
     exists ((1 # 2) * eps)%Q. split.
     + exact Hw0.
     + exists N. intros k Hk.
@@ -2052,6 +2165,6 @@ Proof.
       exact HB.
 Qed.
 
-(* 尾 Print Assumptions（§12 面：G4 关，PA 只增不破——承 232 二十八×Closed） *)
+(* the tail Print Assumptions (the Section 12 face; twenty-eight Closed) *)
 Print Assumptions leiblw_S_tail_two_sided.
 Print Assumptions leiblw_S_real_lim.

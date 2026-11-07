@@ -1,10 +1,33 @@
-(* ==========================================================================)
-   Arch_ToyR_03.v -- 命题族集注与实例化承载
-   使命：本件形式化以下命题族：sem_sum_eq_list_req_slot、sem_sum_eq_list_collapse、sem_slot1_witness_upreqsampling、sem_slot1_witness_collapse、sem_czb12_slot_attdoeblin_writeoff、sem_czb12_slot_g01_writeoff、sem_czb12_slot_s13_writeoff、sem_czb12_slot_s15_writeoff、fa56b_id_transport。
-   依赖：件内 Require 声明面所列库件。
-   构造性：全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载，零 Prop 泄露。
-   编译配方：Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""，cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set -- the toy-replacement statement-family collection with instantiation carriers. *)
+(** * Arch_ToyR_03: six statement families carried by instantiation.
+
+    Mission.  The [sem_] sum-slot instantiations ([sem_sum_eq_list_req_slot],
+      [sem_slot1_witness_upreqsampling], and the four
+      [sem_czb12_slot_*_writeoff] forwarders); the [fa56b_id_transport]
+      family (the J eliminator, [fa56b_sumd_cong],
+      [fa56b_boltzmann_stationary], [fa56b_cross_domain_scaling]); the
+      [uahl_lo_lt_one_hi] family ([uahl_delta_star_bounded],
+      [uahl_omd_bounded] with two instance forms); the
+      [emsi_energy_pin_self] family ([inst_pinned], [inst_kl_right],
+      [inst_kl_left]); the [ppa_potential] family
+      ([ppa_differentiation_attractor], [ppa_macro_loss_monotone]); and the
+      [uabp7an_qneg0] family ([uabp7an_core], [uabp7an_eps_to_uncond]).
+
+    Dependencies.  [S01_BaseRing] .. [S15_TailFEPUp]; the UpReq/fa51/fa56/
+      AttnDoeblin/IdSlotTranslate/Paper7 Require-face modules; Stdlib [List] [QArith] [Lia] [Qminmax].
+
+    References.  This development; the same-name baseline module in
+      ConstructiveWorld-Main whose statement names are carried over verbatim;
+      sources restated in the body ([sumd_sum_eq_list], LhsPair/LhsStar,
+      [EmsEntropyMonoSplit], [IdSlotTranslate]).
+
+    Constructivity.  All statements Set-carried with no Prop leakage;
+      axiom-free, every proof closed by [Qed]; a [Print Assumptions] block
+      at each family close.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      Arch_ToyR_03.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -36,65 +59,78 @@ Require Import UpAblD1S7_UpReqEntropyMaxTemp.
 Require Import fa56b_ext.
 Require Import UpReqAlgebra.
 
-(* ================= §1 sem_sum_eq_list_req_slot 族 ================= *)
+(* ================= Section 1. the sem_sum_eq_list_req_slot family ================= *)
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
 
-(* 桥出节签名留痕（编译日志打表：S/enum/g 显式，接口字段经全局实例消解） *)
+(* trace of the exported section signature (compile-log tabulation: S/enum/g explicit,
+   the interface fields resolved through the global instance) *)
 About sumd_sum_eq_list.
 
-(* ============ 实例化定理 1：桥直接代入（req 形槽 sumd 实例） ============ *)
-(* 槽语句 req (sumf g) (rsq_bs_list_sum g enum) 在 sumf := sumd_sumf、 *)
-(* 机器位 := sumd_list_sum 实例下，钥匙桥逐字输入。req 经全局实例      *)
-(* （RealEnhancedReal）定义性即 real_eq，语句面取具体载体面。          *)
+(* ============ instantiation theorem 1: the bridge substituted directly (the req-form slot, sumd instance) ============ *)
+(* the slot statement req (sumf g) (rsq_bs_list_sum g enum), under the
+   instantiation sumf := sumd_sumf with the machine site := sumd_list_sum,
+   is fed by the key bridge verbatim; req is definitionally real_eq through
+   the global instance (RealEnhancedReal), and the statement face takes the
+   concrete carrier form. *)
 Theorem sem_sum_eq_list_req_slot :
   forall (S : Set) (enum : list S) (g : S -> Real),
     real_eq (@sumd_sumf S enum g) (@sumd_list_sum S g enum).
 Proof. intros S enum g. exact (@sumd_sum_eq_list S enum g). Qed.
 
-(* ============ 实例化定理 2：零机器坍缩 ============ *)
-(* sumd_sumf g := sumd_list_sum g enum 定义性，槽实例即自反。         *)
+(* ============ instantiation theorem 2: zero-machine collapse ============ *)
+(* sumd_sumf g := sumd_list_sum g enum is definitional, so the slot instance
+   is reflexivity itself. *)
 Theorem sem_sum_eq_list_collapse :
   forall (S : Set) (enum : list S) (g : S -> Real),
     real_eq (@sumd_sumf S enum g) (@sumd_list_sum S g enum).
 Proof. intros S enum g. exact (req_refl (@sumd_list_sum S g enum)). Qed.
 
-(* ============ 实例化定理 3：槽1 宿主真机桥直接代入（主交付） ============ *)
-(* 机器位是宿主出节真机 rsq_bs_list_sum。桥的列表和肢经出节件互转        *)
-(* （同形同接口，自反级 conversion）一步输入——槽1 兑现实证，             *)
+(* ============ instantiation theorem 3: the slot-1 host real-machine bridge substituted directly (the main delivery) ============ *)
+(* the machine site is the host's out-of-section real machine
+   rsq_bs_list_sum; the list-sum limb of the bridge enters in one step via
+   the out-of-section conversion (same shape, same interface,
+   reflexivity-level conversion) -- the slot-1 fulfillment witness. *)
 Theorem sem_slot1_witness_upreqsampling :
   forall (S : Set) (enum : list S) (g : S -> Real),
     real_eq (@sumd_sumf S enum g) (@rsq_bs_list_sum S g enum).
 Proof. intros S enum g. exact (@sumd_sum_eq_list S enum g). Qed.
 
-(* ============ 实例化定理 4：槽1 宿主真机零机器坍缩 ============ *)
+(* ============ instantiation theorem 4: the slot-1 host real-machine zero-machine collapse ============ *)
 Theorem sem_slot1_witness_collapse :
   forall (S : Set) (enum : list S) (g : S -> Real),
     real_eq (@sumd_sumf S enum g) (@rsq_bs_list_sum S g enum).
 Proof. intros S enum g. exact (req_refl _). Qed.
 
-(* ============ G4 证据：四定理全 Closed ============ *)
+(* ============ Print Assumptions evidence: the four theorems all Closed ============ *)
 Print Assumptions sem_sum_eq_list_req_slot.
 Print Assumptions sem_sum_eq_list_collapse.
 Print Assumptions sem_slot1_witness_upreqsampling.
 Print Assumptions sem_slot1_witness_collapse.
 
-(* ============ 组 E-STAGING-CZB12 兑现声明段（b 尾工 C1） ============ *)
-(* 槽2-5「机器口径转换墙」遗留登记兑现。本段为纯转发声明件（全 exact       *)
-(* 转发 IdSlotTranslate 已证桥，零新机器零新数学），既有四定理零改动，      *)
-(* 参数位1 实证面不变。对照先例： / 。    *)
-(*   「结论（转换墙实测，勿虚报）：四槽宿主机器 bs_list_sum 跑在             *)
-(*   RealInterfaceEnhanced 接口（Context {RI}{SS}{SO} 载体），其             *)
-(*   zero/plus 投影常量与 sumd 之 RealInterfaceEnhancedSetoid 投影           *)
-(*   不同头，桥对真宿主直接代入需接口翻译件（RI→Setoid），超出零新               *)
-(*   机器口径——遗留未决，不在本件虚报兑现。」                                *)
-(* 二、兑现路径（遗留所索「接口翻译件」已建成，CYD7/CZB8 两棒接续）：        *)
-(*   ① 翻译件本体 = 消融50/：RI 载体列表折叠副本           *)
-(*   ② 依存位覆盖 = 消融50/ 四宿主八依存位重述 shim：         *)
-(*   槽参链在盘），覆盖判定成立。                                            *)
-(* 三、判定：槽2-5 遗留兑现（覆盖）。以下四转发件 = 四槽兑现的可提取出口，    *)
-(*   语句 = idt 四宿主兑现定理之逐字副本（槽语句 sum_over_S := idt_sumf      *)
-(*   实例化消解读法）。宿主文件零改动（AttnDoeblin/S13/G01/S15 皆未触碰）。         *)
+(* ============ fulfillment declaration segment for the slots 2-5 conversion wall ============ *)
+(* The leftover "machine-convention conversion wall" on slots 2-5 is
+   discharged by this segment of pure forwarding declarations (every proof is
+   an [exact] forwarding of a proven [IdSlotTranslate] bridge; no new
+   machine, no new mathematics); the four earlier theorems are untouched and
+   the argument-slot-1 witness face is unchanged.
+   Finding (measured on the conversion wall): the four slot host machines
+   [bs_list_sum] run on the [RealInterfaceEnhanced] interface (carried by
+   [Context {RI}{SS}{SO}]), whose zero/plus projections differ in head from
+   the [RealInterfaceEnhancedSetoid] projections of sumd, so substituting
+   the bridges at the real hosts needs an interface translator (RI to
+   Setoid) -- beyond the zero-new-machine convention; left open rather than
+   claimed discharged.
+   Fulfillment path (the requested interface translator exists, built in the
+   successor translator modules):
+   1. the translator itself: an RI-carrier list-fold copy;
+   2. dependency coverage: the four hosts' eight dependency sites restated
+      as shims (the slot chains in place), so the coverage judgment holds.
+   Verdict: slots 2-5 discharged (coverage). The four forwarders below are
+   the extractable outlets of the four slot fulfillments; their statements
+   are verbatim copies of the four idt host-fulfillment theorems (the slot
+   statements read under the sum_over_S := idt_sumf instantiation
+   collapsing). The host files are untouched (AttnDoeblin/S13/G01/S15). *)
 
 
 Section SumEqListMarkWriteoff.
@@ -125,12 +161,12 @@ Proof. intros en g. exact (idt_slot_s15 en g). Qed.
 
 End SumEqListMarkWriteoff.
 
-(* ============ G4 证据：兑现转发四件全 Closed ============ *)
+(* ============ Print Assumptions evidence: the four fulfillment forwarders all Closed ============ *)
 Print Assumptions sem_czb12_slot_attdoeblin_writeoff.
 Print Assumptions sem_czb12_slot_g01_writeoff.
 Print Assumptions sem_czb12_slot_s13_writeoff.
 Print Assumptions sem_czb12_slot_s15_writeoff.
-(* ================= §2 fa56b_id_transport 族 ================= *)
+(* ================= Section 2. the fa56b_id_transport family ================= *)
 From Stdlib Require Import Lists.List.
 Import ListNotations.
 
@@ -172,24 +208,27 @@ Let mult_zero := @S01_BaseRing.mult_zero RI.
 Let one_pos := @S01_BaseRing.one_pos RI.
 Let plus_positive := @S01_BaseRing.plus_positive RI.
 
-(* ============ 槽VI：J 消去器 + list 判别核 + 非空构造族 =========== *)
-(* Id 的依赖匹配消去（本载体首用 J 规则；fa51/fa56 只用过            *)
-(* id_sym/id_trans/id_cong 三件套）。                               *)
+(* ============ slot VI: the J eliminator + the list discriminers + the nonemptiness construction family =========== *)
+(* the dependent-match elimination of Id (the J rule used on this carrier
+   for the first time; fa51/fa56 only used the id_sym/id_trans/id_cong
+   triple). *)
 
-(* 通用传输（J 消去器）：p : Id x y 把 Q x 中的元素搬到 Q y。        *)
+(* the general transport (the J eliminator): p : Id x y moves an element of Q x into Q y. *)
 Definition fa56b_id_transport (A : Set) (Q : A -> Set) (x y : A)
                               (p : Id x y) (h : Q x) : Q y :=
   match p in Id _ a return Q a with
   | id_refl => h
   end.
 
-(* list 判别核：nil 与 cons 的 Id 分离（Set 值型别检验函数，单构造归纳族形）。 *)
+(* the list discriminator: the Id-separation of nil and cons (a Set-valued type-checking function, in single-constructor inductive-family form). *)
 Inductive fa56b_list_case (T : Set) : list T -> Set :=
 | fa56b_list_case_cons : forall (t : T) (l : list T), fa56b_list_case T (cons t l).
 
-(* 判别核引理：Id (t::l) nil 无居民（cons ≠ nil）。
-   形：id_sym H 消去取箭头动机（nil 侧判别核无居民故空函数可居，
-   消去结果落 cons 侧），以 cons 侧证人代入得 Empty_set。            *)
+(* discriminator lemma: Id (t::l) nil has no inhabitants (cons <> nil).
+   shape: id_sym H turns the elimination into the arrow motive (the nil side
+   of the discriminator has no inhabitants, so the empty function inhabits
+   it and the elimination result lands on the cons side); feeding the
+   cons-side witness yields Empty_set. *)
 Definition fa56b_cons_nil_id_contra (T : Set) (t : T) (l : list T)
                                     (H : Id (t :: l) nil) : Empty_set.
 Proof.
@@ -207,7 +246,7 @@ Proof.
   exact (fa56b_cons_nil_id_contra T t0 nil H).
 Qed.
 
-(* 非空闭包·cons：头加元素保非空。                                  *)
+(* nonemptiness closure, cons: consing an element preserves nonemptiness. *)
 Theorem fa56b_cons_nonempty :
   forall (T : Set) (t0 : T) (l : list T),
     Not (Id l nil) -> Not (Id (cons t0 l) nil).
@@ -216,7 +255,7 @@ Proof.
   exact (fa56b_cons_nil_id_contra T t0 l H).
 Qed.
 
-(* 非空闭包·append 左：左支非空则并非空。                           *)
+(* nonemptiness closure, append-left: a nonempty left part makes the concatenation nonempty. *)
 Theorem fa56b_append_nonempty_l :
   forall (T : Set) (l l' : list T),
     Not (Id l nil) -> Not (Id (l ++ l') nil).
@@ -226,7 +265,7 @@ Proof.
   - exact (fa56b_cons_nil_id_contra T t (r ++ l') H).
 Qed.
 
-(* 非空闭包·append 右：右支非空则并非空（逐支 case）。              *)
+(* nonemptiness closure, append-right: a nonempty right part makes the concatenation nonempty (case per branch). *)
 Theorem fa56b_append_nonempty_r :
   forall (T : Set) (l l' : list T),
     Not (Id l' nil) -> Not (Id (l ++ l') nil).
@@ -236,7 +275,7 @@ Proof.
   - exact (fa56b_cons_nil_id_contra T t (r ++ l') H).
 Qed.
 
-(* 伴件：严格正性的 Id 不变性（引擎前提在 Id 重整下稳定）。          *)
+(* companion: the Id-invariance of strict positivity (the engine premises are stable under Id reformation). *)
 Theorem fa56b_lt_transport :
   forall (a b : R), Id a b -> lt zero a -> lt zero b.
 Proof.
@@ -244,7 +283,7 @@ Proof.
   exact (fa56b_id_transport R (fun w => lt zero w) a b p H).
 Qed.
 
-(* 伴件：非负性的 Id 不变性。                                       *)
+(* companion: the Id-invariance of nonnegativity. *)
 Theorem fa56b_le_transport :
   forall (a b : R), Id a b -> le zero a -> le zero b.
 Proof.
@@ -252,9 +291,10 @@ Proof.
   exact (fa56b_id_transport R (fun w => le zero w) a b p H).
 Qed.
 
-(* ============ 槽VII：引擎扩展——逐点 Id ⟹ 和 Id ==================== *)
-(* S04 steady_state_boltzmann（L1921）依存的 sum_over_S_ext 之       *)
-(* fa51_sumd 列表载体副本；为槽VIII 稳态副本的关键件。               *)
+(* ============ slot VII: engine extension -- pointwise Id gives Id of the sums ==================== *)
+(* the fa51_sumd list-carrier copy of sum_over_S_ext, on which S04's
+   steady_state_boltzmann (L1921) depends; the key piece of the slot-VIII
+   stationary copy. *)
 
 Theorem fa56b_sumd_cong :
   forall (f g : S -> R) (l : list S),
@@ -266,7 +306,7 @@ Proof.
   - exact (id_cong2 (fun a b => plus a b) (Hpt x) IH).
 Qed.
 
-(* 乘积换序过和（槽VIII 逐点平衡的批量版）。                         *)
+(* the product swap through the sum (the batched form of the slot-VIII pointwise balance). *)
 Theorem fa56b_sumd_swap_mult :
   forall (f g : S -> R) (l : list S),
     Id (fa51_sumd S (fun s => mult (f s) (g s)) l)
@@ -276,10 +316,14 @@ Proof.
   exact (fa56b_sumd_cong (fun s => mult (f s) (g s))                         (fun s => mult (g s) (f s)) l                         (fun s => mult_comm (f s) (g s))).
 Qed.
 
-(* 兑现：转移取独立提议核 k(s,s') := π(s')（Boltzmann-Gibbs 稳态分布  *)
-(* 自身），平衡槽由 mult_comm 闭合；稳态件为主非平凡件（sumd_cong  *)
-(* + fa56 线性件 + 行归一 + mult_one 四段链）。π 取 fa56_markov_kernel *)
-(* 同项（正性/非负/归一化三伴件由 fa56 已证件直接继承，零重复施工）。 *)
+(* fulfillment: the transition takes the independent proposal kernel
+   k(s,s') := pi(s') (the Boltzmann-Gibbs stationary distribution itself),
+   and the balance slot closes by mult_comm; the stationary piece is the
+   main nontrivial piece (the four-stage chain sumd_cong + the fa56
+   linearity piece + row normalization + mult_one). pi is taken as the
+   fa56_markov_kernel term (its positivity/nonnegativity/normalization
+   companions are inherited directly from the proven fa56 pieces, with no
+   duplicated construction). *)
 
 Definition fa56b_boltzmann_prob (base_loss : S -> R) (D : R) (D_pos : lt zero D)
                                 (Hne : Not (Id enum nil)) (s : S) : R :=
@@ -303,7 +347,7 @@ Proof.
   exact (mult_comm (fa56b_boltzmann_prob base_loss D D_pos Hne s)                   (fa56b_boltzmann_prob base_loss D D_pos Hne s')).
 Qed.
 
-(* 逐点平衡 + 行归一 ⟹ π 是平稳分布（Σ_{s'} π(s')k(s',s) = π(s)）。  *)
+(* pointwise balance + row normalization give that pi is a stationary distribution (Sum_{s'} pi(s')*k(s',s) = pi(s)). *)
 Theorem fa56b_boltzmann_stationary :
   forall (pi : S -> R) (k : S -> S -> R),
     (forall s s' : S,
@@ -316,16 +360,18 @@ Proof.
   exact (id_trans           (fa56b_sumd_cong (fun s' => mult (pi s') (k s' s))                            (fun s' => mult (pi s) (k s s')) enum                            (fun x => Hdb s x))           (id_trans              (fa56_sumd_mult_const S (pi s) (fun s' => k s s') enum)              (id_trans                 (id_cong (fun y => mult (pi s) y) (Hnorm s))                 (mult_one (pi s))))).
 Qed.
 
-(* 槽语句：cross_domain_scaling : sigT (fun alpha : R => forall N,    *)
-(*   Id (loss_drop N) (mult (power (of_nat N) alpha) (f_N N)))。      *)
-(* 兑现：loss_drop 装法定义件（幂律形式），槽的 sigT 见证由 existT    *)
-(* 直接装配；alpha:=one、power:=mult 特化伴件走 mult_one 归一链。     *)
+(* slot statement: cross_domain_scaling : sigT (fun alpha : R => forall N,
+   Id (loss_drop N) (mult (power (of_nat N) alpha) (f_N N))).
+   fulfillment: loss_drop is assembled as a definitional piece (the
+   power-law form); the slot's sigT witness is assembled directly by
+   existT; the specialization companions alpha := one and power := mult go
+   through the mult_one normalization chain. *)
 
 Definition fa56b_loss_drop (power : R -> R -> R) (of_nat_R : nat -> R)
                            (f_N : nat -> R) (alpha : R) (N : nat) : R :=
   mult (power (of_nat_R N) alpha) (f_N N).
 
-(* 槽语句的 sigT 见证装配（存在性面一次兑现）。                       *)
+(* the sigT witness assembly of the slot statement (the existence face fulfilled in one stroke). *)
 Theorem fa56b_cross_domain_scaling :
   forall (power : R -> R -> R) (of_nat_R : nat -> R) (f_N : nat -> R)
          (alpha : R),
@@ -337,8 +383,9 @@ Proof.
   exact (existT _ alpha (fun N => @id_refl R _)).
 Qed.
 
-(* 特化伴件：alpha := one、power := mult 时幂律退化线性标度           *)
-(* （mult_one 右单位元经 id_cong 提升进乘积，非平凡归一链）。         *)
+(* specialization companion: at alpha := one and power := mult the power law
+   degenerates to linear scaling (the mult_one right unit elevated into the
+   product through id_cong -- a nontrivial normalization chain). *)
 Theorem fa56b_cross_domain_linear :
   forall (of_nat_R : nat -> R) (f_N : nat -> R) (N : nat),
     Id (fa56b_loss_drop mult of_nat_R f_N one N)
@@ -351,7 +398,7 @@ Qed.
 
 End Fa56bExt.
 
-(* ============ 假设面闭合申报 ============ *)
+(* ============ assumption-face closure declaration ============ *)
 
 Print Assumptions fa56b_id_transport.
 Print Assumptions fa56b_cons_nil_id_contra.
@@ -367,9 +414,11 @@ Print Assumptions fa56b_detailed_balance.
 Print Assumptions fa56b_boltzmann_stationary.
 Print Assumptions fa56b_cross_domain_scaling.
 Print Assumptions fa56b_cross_domain_linear.
-(* ================= §3 uahl_lo_lt_one_hi 族 ================= *)
-(* ############ 段一：合取 lo<1∧1<hi、夹逼 lo<hi、δ*∈(0,1)（无序可判定参） ## *)
-(* 节变量面与源模块  的 LhsPair 节一致（温度对＋利差对＋指数族四件）。 *)
+(* ================= Section 3. the uahl_lo_lt_one_hi family ================= *)
+(* ############ part 1: the conjunction lo<1 and 1<hi, the squeeze lo<hi, delta* in (0,1) (no decidable-order argument) ## *)
+(* the section-variable face matches the source module's LhsPair section
+   (the temperature pair, the spread pair, and the four exponential-family
+   pieces). *)
 
 Section UahlPair.
 
@@ -421,8 +470,9 @@ Let invT := inv_pos temp temp_pos.
 Let lo := expf (mult invT (opp Delta)).
 Let hi := expf (mult invT Delta).
 
-(* uahl_lo_lt_one_hi（源模块 lhs_lo_lt_one_hi 的独立重证）：左支经              *)
-(*   p7a_lo_lt_one，右支经 p7d_hi_gt_one；invT 正性由 inv_pos_pos 提供。      *)
+(* uahl_lo_lt_one_hi (an independent reproof of the source module's
+   lhs_lo_lt_one_hi): the left branch via p7a_lo_lt_one, the right branch
+   via p7d_hi_gt_one; the positivity of invT is provided by inv_pos_pos. *)
 Theorem uahl_lo_lt_one_hi : And (lt lo one) (lt one hi).
 Proof.
   split.
@@ -432,15 +482,17 @@ Proof.
              expf_zero expf_mono_lt).
 Qed.
 
-(* uahl_lo_lt_hi（源模块 lhs_lo_lt_hi 的独立重证）：lt_trans 两步，两支取自 uahl_lo_lt_one_hi 的两肢 *)
+(* uahl_lo_lt_hi (an independent reproof of the source module's lhs_lo_lt_hi): two lt_trans steps, both branches taken from the two conjuncts of uahl_lo_lt_one_hi *)
 Theorem uahl_lo_lt_hi : lt lo hi.
 Proof.
   exact (lt_trans lo one hi (fst uahl_lo_lt_one_hi) (snd uahl_lo_lt_one_hi)).
 Qed.
 
-(* uahl_delta_star_bounded（源模块 lhs_delta_star_bounded 的独立重证）：        *)
-(*   左支 p7a_delta_star_pos；右支 δ*<1 独立三步：lt_mult_compat、             *)
-(*   lt_id_l（经 mult_one）与 lt_trans。 *)
+(* uahl_delta_star_bounded (an independent reproof of the source module's
+   lhs_delta_star_bounded):
+   the left branch p7a_delta_star_pos; the right branch delta* < 1 in three
+   independent steps: lt_mult_compat, lt_id_l (through mult_one), and
+   lt_trans. *)
 Theorem uahl_delta_star_bounded :
   And (lt zero (mult lo lo)) (lt (mult lo lo) one).
 Proof.
@@ -458,9 +510,11 @@ Qed.
 
 End UahlPair.
 
-(* ############ 段二：uahl_omd_bounded —— κ:=1−δ*∈(0,1)（带可判定序参节） #### *)
-(* 节变量面与源模块  的 LhsStar 节一致；p7a_omd_pos/p7a_omd_lt_one  *)
-(* 的可判定序隐式参不可由结论反推，故以 @ 全参显式应用。                       *)
+(* ############ part 2: uahl_omd_bounded -- kappa := 1 - delta* in (0,1) (with a decidable-order section) #### *)
+(* the section-variable face matches the source module's LhsStar section;
+   the decidable-order implicit argument of p7a_omd_pos/p7a_omd_lt_one
+   cannot be recovered from the conclusions, hence the @ fully-explicit
+   application. *)
 
 Section UahlStar.
 
@@ -512,8 +566,10 @@ Variable expf_mono_lt : forall a b : R, lt a b -> lt (expf a) (expf b).
 Let invT := inv_pos temp temp_pos.
 Let lo := expf (mult invT (opp Delta)).
 
-(* uahl_omd_bounded（源模块 lhs_omd_bounded 的独立重证）：左支以 δ*<1 前提       *)
-(*   应用 @p7a_omd_pos；右支以 0<lo 应用 @p7a_omd_lt_one——全参显式。 *)
+(* uahl_omd_bounded (an independent reproof of the source module's
+   lhs_omd_bounded): the left branch applies @p7a_omd_pos with the
+   delta* < 1 premise; the right branch applies @p7a_omd_lt_one with
+   0 < lo -- fully explicit arguments. *)
 Theorem uahl_omd_bounded :
   And (lt zero (minus one (mult lo lo)))
       (lt (minus one (mult lo lo)) one).
@@ -534,9 +590,10 @@ Qed.
 
 End UahlStar.
 
-(* ########## 段三：实例形甲——uahl_omd_bounded/uahl_lo_lt_hi @ 温度:=1、利差:=1 ## *)
-(* 温度与利差均取 one（one_pos 提供两处正性位），invT:=inv_pos one one_pos；    *)
-(* 指数族保持抽象（全库无具体实数实例）。                                     *)
+(* ########## part 3: instance form A -- uahl_omd_bounded/uahl_lo_lt_hi @ temperature := 1, spread := 1 ## *)
+(* temperature and spread both take one (one_pos supplies the two positivity
+   sites), invT := inv_pos one one_pos; the exponential family stays
+   abstract (the library has no concrete real instance). *)
 
 Section UahlSbInst.
 
@@ -584,8 +641,10 @@ Variable expf_mono_lt : forall a b : R, lt a b -> lt (expf a) (expf b).
 Let invT := inv_pos one one_pos.
 Let lo := expf (mult invT (opp one)).
 
-(* uahl_omd_bounded_one（uahl_omd_bounded 于温度:=1、利差:=1 的实例形）：      *)
-(*   p7a_lo_lt_one @ one/one 供 lo<1，expf_pos 供 0<lo，δ*<1 三步内联，@ 全参显式。 *)
+(* uahl_omd_bounded_one (the instance form of uahl_omd_bounded at
+   temperature := 1, spread := 1): p7a_lo_lt_one @ one/one supplies lo < 1,
+   expf_pos supplies 0 < lo, the delta* < 1 three steps inlined, @ fully
+   explicit. *)
 Theorem uahl_omd_bounded_one :
   And (lt zero (minus one (mult lo lo)))
       (lt (minus one (mult lo lo)) one).
@@ -604,8 +663,9 @@ Proof.
   - exact (@p7a_omd_lt_one RI DO lo Hlopos).
 Qed.
 
-(* uahl_lo_lt_hi_one（uahl_lo_lt_hi 于同上实例的实例形）：p7a_lo_lt_one        *)
-(*   @ one/one 供 lo<1，p7d_hi_gt_one @ one/one 供 1<hi，lt_trans 合成。 *)
+(* uahl_lo_lt_hi_one (the instance form of uahl_lo_lt_hi under the same
+   instantiation): p7a_lo_lt_one @ one/one supplies lo < 1,
+   p7d_hi_gt_one @ one/one supplies 1 < hi, composed by lt_trans. *)
 Theorem uahl_lo_lt_hi_one :
   lt (expf (mult invT (opp one))) (expf (mult invT one)).
 Proof.
@@ -614,11 +674,14 @@ Qed.
 
 End UahlSbInst.
 
-(* ############ 段四：实例形乙——uahl_omd_bounded @ lo:=二分之一抽象形 ######## *)
-(* lo:=inv_pos (plus one one) two_pos（二分之一，two_pos/inv_pos_pos 提供正性）；*)
-(* 左支不经 δ*<1 中转，走独立链：half_twice（半＋半=1，半方＋半方=半）与       *)
-(* plus_positive（半方>0）及恒等重排，推得 0<1−1/4；                          *)
-(* 右支 @p7a_omd_lt_one。                                                     *)
+(* ########## part 4: instance form B -- uahl_omd_bounded @ lo := the abstract one-half shape ######## *)
+(* lo := inv_pos (plus one one) two_pos (one half; two_pos/inv_pos_pos
+   supply the positivity); the left branch does not pass through the
+   delta* < 1 intermediate and takes an independent chain: half_twice
+   (half + half = 1, half-squared + half-squared = half) with
+   plus_positive (half-squared > 0) and identity reorderings, yielding
+   0 < 1 - 1/4;
+   the right branch @p7a_omd_lt_one. *)
 
 Section UahlHalf.
 
@@ -661,7 +724,7 @@ Let plus_positive := @S01_BaseRing.plus_positive RI.
 Let half := inv_pos (plus one one) two_pos.
 Let half2 := mult half half.
 
-(* uahl_omd_bounded_half（实例形乙） *)
+(* uahl_omd_bounded_half (instance form B) *)
 Theorem uahl_omd_bounded_half :
   And (lt zero (minus one half2)) (lt (minus one half2) one).
 Proof.
@@ -711,7 +774,7 @@ Qed.
 
 End UahlHalf.
 
-(* ---- 收尾段：逐件 Print Assumptions 核验零承认 ---- *)
+(* ---- closing block: per-item Print Assumptions verifying the closed-assumption face ---- *)
 Print Assumptions uahl_lo_lt_one_hi.
 Print Assumptions uahl_lo_lt_hi.
 Print Assumptions uahl_delta_star_bounded.
@@ -719,10 +782,13 @@ Print Assumptions uahl_omd_bounded.
 Print Assumptions uahl_omd_bounded_one.
 Print Assumptions uahl_lo_lt_hi_one.
 Print Assumptions uahl_omd_bounded_half.
-(* ================= §4 emsi_energy_pin_self 族 ================= *)
-(* Section EntropyMonoSplitInst：接口面照源件 Section                   *)
-(*   EmsEntropyMonoSplit 同名同序（求和面 7 位 + 峰温 T_star + 能量），  *)
-(*   证书位不作假设申报（本件使命即装载证书，供位走显式前提参）。     *)
+(* ================= Section 4. the emsi_energy_pin_self family ================= *)
+(* Section EntropyMonoSplitInst: the interface face follows the source
+   Section EmsEntropyMonoSplit by the same names in the same order (the 7
+   summation-face sites + the peak temperature T_star + the energy); the
+   certificate sites are not declared as assumptions -- this file's mission
+   is to load the certificates, and the supply sites go through explicit
+   premise arguments. *)
 Section EntropyMonoSplitInst.
 
 Variable S : Type.
@@ -744,9 +810,11 @@ Variable T_star : Real.
 Variable T_star_pos : real_lt real_zero T_star.
 Variable energy : S -> Real.
 
-(* ---- 速记（照源件 Let ems_bt / ems_bt_pos / ems_kl_peak 同形换名，    *)
-(*   保证槽语句重述后逐字对位；KL 方向红线照抄源件：KL(p_u 竖排 p_{t*})  *)
-(*   p_u 占第一分布位，p_{t*} 占参考位，禁倒置。） ---- *)
+(* ---- shorthand (renamed in the same shape as the source's Let ems_bt /
+   ems_bt_pos / ems_kl_peak, keeping the restated slot statements aligned
+   verbatim; the KL direction convention is copied from the source: in
+   KL(p_u, p_{t*}) the p_u occupies the first-distribution position and
+   p_{t*} the reference position, never inverted) ---- *)
 Let emsi_bt (u : Real) (Hu : real_lt real_zero u) : S -> Real :=
   real_boltzmann_dist_temp S real_sum_over_S real_sum_pos_preserved u Hu energy.
 Let emsi_bt_pos (u : Real) (Hu : real_lt real_zero u) :
@@ -757,9 +825,12 @@ Let emsi_kl (u : Real) (Hu : real_lt real_zero u) : Real :=
                (emsi_bt u Hu) (emsi_bt_pos u Hu).
 
 (* ---------------------------------------------------------- *)
-(* 桥接引理一（接口参数1 小桥·能量钉注册面自钉形）：逐温能量期望自钉。           *)
-(*   左端 lambda 经 emsi_bt 换名后定义性合一，real_eq_refl 真装。        *)
-(*   逐字同形（T := u 任意正温）。                                       *)
+(* bridging lemma 1 (interface-argument 1 mini-bridge; the self-pinning form
+   of the energy-pin registry face): the per-temperature energy expectation
+   pins to itself.
+   the left-hand lambda unifies definitionally after the emsi_bt renaming,
+   and real_eq_refl carries it.
+   verbatim shape (T := u, any positive temperature). *)
 (* ---------------------------------------------------------- *)
 Lemma emsi_energy_pin_self :
   forall (u : Real) (Hu : real_lt real_zero u),
@@ -773,10 +844,12 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 桥接引理二（序代数·差分非负新形）：a ≤ b 给 0 ≤ b − a。                   *)
-(*   raw Real 层注册面只有反方向辅助引理 real_le_plus_nonneg_r             *)
-(*   real_le_plus_compat 双边同加 −a，再 RealSetoid.real_le_id_l         *)
-(*   经 (a + −a) ≡ 0 换左端。纯项模式真证。                              *)
+(* bridging lemma 2 (order algebra; the new difference-nonnegativity form):
+   a <= b gives 0 <= b - a.
+   the raw Real-layer registry face only has the opposite-direction
+   auxiliary lemmas real_le_plus_nonneg_r / real_le_plus_compat: add -a to
+   both sides, then RealSetoid.real_le_id_l rewrites the left end through
+   (a + -a) == 0. a genuine term-mode proof. *)
 (* ---------------------------------------------------------- *)
 Lemma emsi_le_diff_ge_zero :
   forall a b : Real,
@@ -788,9 +861,10 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 桥接引理三（eps 松弛提升形）：0 ≤ X 且 0 < eps 给 0 ≤ X + eps。           *)
-(*   副本族「0 ≤ KL+eps 形」的序代数内核：compat 双边加 eps，           *)
-(*   左端 (0+0) ≡ 0 重述。                                              *)
+(* bridging lemma 3 (the eps-relaxation lifting form): 0 <= X and 0 < eps
+   give 0 <= X + eps.
+   the order-algebra kernel of the "0 <= KL + eps" family: compat adds eps
+   to both sides, and the left end (0+0) == 0 is restated. *)
 (* ---------------------------------------------------------- *)
 Lemma emsi_le_plus_eps :
   forall X eps : Real,
@@ -803,11 +877,15 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 副本 exact 重述孪生（接口参数2/3 词料种子）：                              *)
-(*   全参显式语句面。四要素对照声明：                                    *)
-(*   · 原语义：0 ≤ KL(p 竖排 p_{t*}) + eps（归一 + 逐点正 + eps 正）；   *)
-(*   · 装载路径：全链就地重证（桥→逐点核→求和面提升→双坍缩→组装），      *)
-(*     语句面全参显式保留，温度位重述 T := t*；                          *)
+(* the restatement twin of the copied exact proof (seeding the statements of
+   interface arguments 2/3):
+   fully explicit statement face. the correspondence declaration:
+   - original semantics: 0 <= KL(p, p_{t*}) + eps (normalization + pointwise
+     positivity + eps positive);
+   - loading route: the full chain re-proven in place (bridge -> pointwise
+     core -> summation-face lift -> double collapse -> assembly), the
+     statement face kept fully explicit, the temperature site restated as
+     T := t*; *)
 (* ---------------------------------------------------------- *)
 Corollary emsi_kl_ge_zero_eps_mirror :
   forall (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)),
@@ -825,7 +903,7 @@ Proof.
                T_star T_star_pos energy).
   set (HpT := real_boltzmann_dist_temp_pos S real_sum_over_S real_sum_pos_preserved
                 T_star T_star_pos energy).
-  (* 桥：KL ≡ Σ real_kl_term *)
+  (* bridge: KL == Sum real_kl_term *)
   assert (Hbridge : real_eq
            (real_KL_temp S real_sum_over_S real_sum_pos_preserved
               T_star T_star_pos energy p Hp)
@@ -833,14 +911,14 @@ Proof.
               real_kl_term (p s) (pT s) (Hp s) (HpT s)))).
   { exact (real_KL_temp_kl_term_bridge S real_sum_over_S real_sum_pos_preserved
              real_sum_over_S_ext T_star T_star_pos energy p Hp). }
-  (* 逐点核：p − p_T ≤ real_kl_term + p·eps（real_kl_term 与核 RHS 首和项定义性一致） *)
+  (* pointwise core: p - p_T <= real_kl_term + p*eps (real_kl_term matches the first sum term of the core RHS definitionally) *)
   assert (Hpt : forall s : S,
            real_le (real_plus (p s) (real_opp (pT s)))
                    (real_plus (real_kl_term (p s) (pT s) (Hp s) (HpT s))
                               (real_mult (p s) eps))).
   { intro s.
     exact (real_gibbs_core_eps (p s) (pT s) (Hp s) (HpT s) eps Heps). }
-  (* 求和面提升（接口单调位） *)
+  (* summation-face lift (the interface monotonicity site) *)
   assert (Hsum : real_le
            (real_sum_over_S (fun s : S => real_plus (p s) (real_opp (pT s))))
            (real_sum_over_S (fun s : S =>
@@ -851,7 +929,7 @@ Proof.
              (fun s : S => real_plus (real_kl_term (p s) (pT s) (Hp s) (HpT s))
                                      (real_mult (p s) eps))
              Hpt). }
-  (* LHS 坍缩：Σ(p − p_T) ≡ Σp + −Σp_T ≡ 1 + (−1) ≡ 0 *)
+  (* LHS collapse: Sum(p - p_T) == Sum p + -(Sum p_T) == 1 + (-1) == 0 *)
   assert (HnormT : real_eq (real_sum_over_S pT) real_one).
   { exact (real_boltzmann_dist_temp_normalized S real_sum_over_S
              real_sum_pos_preserved real_sum_over_S_ext real_sum_over_S_linear
@@ -885,7 +963,7 @@ Proof.
                        (real_sum_over_S pT) real_one HnormT))).
       + exact (real_plus_opp real_one).
   }
-  (* 误差坍缩：Σ(p·eps) ≡ Σ(eps·p) ≡ eps·Σp ≡ eps·1 ≡ eps *)
+  (* error collapse: Sum(p*eps) == Sum(eps*p) == eps*Sum p == eps*1 == eps *)
   assert (HepsS : real_eq (real_sum_over_S (fun s : S => real_mult (p s) eps)) eps).
   { apply (real_eq_trans
              (real_sum_over_S (fun s : S => real_mult (p s) eps))
@@ -907,7 +985,7 @@ Proof.
                    (real_eq_refl eps) Hnp).
         * exact (real_mult_one eps).
   }
-  (* RHS 换形：Σ(kl + p·eps) ≡ Σkl + eps *)
+  (* RHS reformation: Sum(kl + p*eps) == Sum kl + eps *)
   assert (Hrhs : real_eq
            (real_sum_over_S (fun s : S =>
               real_plus (real_kl_term (p s) (pT s) (Hp s) (HpT s))
@@ -936,7 +1014,7 @@ Proof.
                   (real_sum_over_S (fun s : S => real_kl_term (p s) (pT s) (Hp s) (HpT s))))
                HepsS).
   }
-  (* 组装：le 0 Σ(kl+p·eps) → le 0 (Σkl+eps) → le 0 (KL+eps)（两跳换形） *)
+  (* assembly: le 0 (Sum (kl + p*eps)) -> le 0 (Sum kl + eps) -> le 0 (KL + eps) (two-hop reformation) *)
   exact (RealSetoid.real_le_id_r real_zero
            (real_plus
               (real_sum_over_S (fun s : S => real_kl_term (p s) (pT s) (Hp s) (HpT s)))
@@ -973,13 +1051,17 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(*   四要素对照声明：                                                    *)
-(*   · 原语义：约束片上 E(p_u) == E_{t*} 对一切正温 u（C5「约束出现」   *)
-(*     变量的定理化载体）；                                              *)
-(*   · 装载路径：GibbsAssembly 判接口面不足（req2 增强层无能量钉件 +     *)
-(*     源件层红线禁混引），改走 raw Real 层注册面小桥：emsi_energy_pin_  *)
-(*     self（自钉，定义性）经 real_eq_trans 复合片运输供位               *)
-(*     （E_u == E_{t*}，约束内容显式隔离，不藏前提）；                   *)
+(* the correspondence declaration:
+   - original semantics: E(p_u) == E_{t*} on the constraint slice, for
+     every positive temperature u (the theorified carrier of the
+     constraint-appearance variable);
+   - loading route: the GibbsAssembly interface face is insufficient (the
+     req2 enhanced layer has no energy-pin member and the source layer
+     forbids mixed references), so the load goes through the raw Real-layer
+     registry mini-bridge: emsi_energy_pin_self (self-pin, definitional)
+     composed by real_eq_trans into the slice-transport supply site
+     (E_u == E_{t*}; the constraint content kept explicit, no hidden
+     premises); *)
 (* ---------------------------------------------------------- *)
 Theorem inst_pinned :
   (forall (u : Real) (Hu : real_lt real_zero u),
@@ -999,8 +1081,10 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 装载定理一孪生（峰温点零前提封闭装载）：u := t* 时片运输供位退化      *)
-(*   为自反，槽面即自钉面——零供位真装（装载体闭合性证人）。              *)
+(* the twin of loading theorem 1 (zero-premise closed loading at the peak
+   temperature): at u := t* the slice-transport supply site degenerates to
+   reflexivity, so the slot face is the self-pin face -- a genuine load with
+   zero supply site (the closedness witness of the loading carrier). *)
 (* ---------------------------------------------------------- *)
 Theorem inst_pinned_at_peak :
   real_eq
@@ -1013,14 +1097,18 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(*   四要素对照声明：                                                    *)
-(*   · 原语义：0 ≤ KL_v − KL_u + eps（t* ≤ u ≤ v，「KL 随温增」读向，   *)
-(*     KL_v 在前 KL_u 取 real_opp，禁倒置）；                            *)
-(*   · 装载路径：供位定型 plain growth（KL-V 形右支文义 real_le KL_u     *)
-(*     KL_v）→ emsi_le_diff_ge_zero 差分重述 → emsi_le_plus_eps          *)
-(*     eps 松弛提升；词料面由副本重述孪生备案（eps 形同构）；            *)
-(*   · 定理引用：real_KL_temp_ge_zero_eps（副本孪生                      *)
-(*     emsi_kl_ge_zero_eps_mirror 依存位）+ emsi 两级重述桥。            *)
+(* the correspondence declaration:
+   - original semantics: 0 <= KL_v - KL_u + eps (t* <= u <= v; the "KL grows
+     with temperature" reading, KL_v first and KL_u under real_opp, never
+     inverted);
+   - loading route: the supply site fixed as plain growth (the KL-V-shape
+     right operand read literally as real_le KL_u KL_v) -> the
+     emsi_le_diff_ge_zero difference restatement -> the emsi_le_plus_eps
+     eps-relaxation lift; the statement material is filed by the copied
+     restatement twin (the eps form is isomorphic);
+   - theorem references: real_KL_temp_ge_zero_eps (the dependency site of
+     the copied twin emsi_kl_ge_zero_eps_mirror) + the emsi two-level
+     restatement bridges. *)
 (* ---------------------------------------------------------- *)
 Theorem inst_kl_right :
   (forall (u v : Real) (Hu : real_lt real_zero u) (Hv : real_lt real_zero v),
@@ -1038,12 +1126,14 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(*   四要素对照声明：                                                    *)
-(*   · 原语义：0 ≤ KL_u − KL_v + eps（u ≤ v ≤ t*，「KL 向峰衰减」       *)
-(*     读向，副本右支，禁倒置）；                                        *)
-(*   · 装载路径：供位定型 plain decay（real_le KL_v KL_u，序前提         *)
-(*     u ≤ v ≤ t*）→ 同一枚差分桥 + eps 松弛桥两级重述；                 *)
-(*   · 定理引用：同接口参数2（副本孪生 + emsi 重述桥）。                     *)
+(* the correspondence declaration:
+   - original semantics: 0 <= KL_u - KL_v + eps (u <= v <= t*; the "KL decays
+     toward the peak" reading, the copied right operand, never inverted);
+   - loading route: the supply site fixed as plain decay (real_le KL_v KL_u,
+     order premises u <= v <= t-star) -> the same difference bridge + the eps
+     relaxation bridge, two restatement levels;
+   - theorem references: same as interface argument 2 (the copied twin + the
+     emsi restatement bridges). *)
 (* ---------------------------------------------------------- *)
 Theorem inst_kl_left :
   (forall (u v : Real) (Hu : real_lt real_zero u) (Hv : real_lt real_zero v),
@@ -1062,7 +1152,7 @@ Qed.
 
 End EntropyMonoSplitInst.
 
-(* ---- G1 内嵌自检段（公理面自审前置：文件内显式 PA 声明） ---- *)
+(* ---- in-file self-check block (the axiom-face self-audit up front: explicit PA declarations inside the file) ---- *)
 Print Assumptions emsi_energy_pin_self.
 Print Assumptions emsi_le_diff_ge_zero.
 Print Assumptions emsi_le_plus_eps.
@@ -1071,7 +1161,7 @@ Print Assumptions inst_pinned.
 Print Assumptions inst_pinned_at_peak.
 Print Assumptions inst_kl_right.
 Print Assumptions inst_kl_left.
-(* ================= §5 ppa_potential 族 ================= *)
+(* ================= Section 5. the ppa_potential family ================= *)
 From Stdlib Require Import Lists.List.
 
 Section PpaPhysPred.
@@ -1102,11 +1192,14 @@ Let plus_zero := @S01_BaseRing.plus_zero RI.
 Let le_id_l := @S01_BaseRing.le_id_l RI.
 Let le_mult_compat_weak := @S01_BaseRing.le_mult_compat_weak RI.
 
-(* 参数位节面：Q P : Set、Hamiltonian : Q -> P -> R、potential : Q -> R、
-   force_physical : Q -> Q、inj_Q_S : Q -> S、grad : (Q -> R) -> Q -> S。
-   兑现装法：Q := R（S = R 自状态空间，inj_Q_S := 恒等）、P := unit、
-   恒力场线性势 V(q) := q、梯度装法 grad V q := V q（线性势族
-   斜率 = 函数值）、力 F(q) := -(V q) + 0（零元归位链）。 *)
+(* signature-slot section face: Q P : Set, Hamiltonian : Q -> P -> R,
+   potential : Q -> R, force_physical : Q -> Q, inj_Q_S : Q -> S,
+   grad : (Q -> R) -> Q -> S.
+   realization: Q := R (S = R the self state space, inj_Q_S := identity),
+   P := unit, constant-force linear potential V(q) := q, gradient
+   realization grad V q := V q (in the linear potential family the slope
+   equals the function value), force F(q) := -(V q) + 0 (the zero-element
+   normalization chain). *)
 
 Definition ppa_potential (q : R) : R := q.
 Definition ppa_grad_lin (V : R -> R) (q : R) : R := V q.
@@ -1119,7 +1212,7 @@ Proof.
   exact (plus_zero (opp q)).
 Qed.
 
-(* 哈密顿量装法（动能项叠加）与支配伴件：p >= 0 时 H = V + p >= V。 *)
+(* the Hamiltonian realization (kinetic term added) and the domination companion: at p >= 0, H = V + p >= V. *)
 Definition ppa_hamiltonian (q p : R) : R := plus (ppa_potential q) p.
 
 Theorem ppa_hamiltonian_dominates_potential :
@@ -1129,10 +1222,10 @@ Proof.
   exact (le_plus_nonneg_r (ppa_potential q) p Hp).
 Qed.
 
-(* 标度势能严格单调伴件（左乘严格兼容件就地重证：右乘兼容件经乘法交换换形）。 *)
+(* the scaled-potential strict-monotonicity companion (an in-place reproof of strict left-multiplication compatibility: the right-multiplication compat reformed through commutativity). *)
 Definition ppa_potential_scaled (k q : R) : R := mult k q.
 
-(* 左乘严格单调伴件：正左乘子保严格序（右乘 lt_mult_compat 换形至左乘位）。 *)
+(* the strict left-multiplication companion: a positive multiplier preserves the strict order (the right-multiplication lt_mult_compat reformed to the left-multiplication site). *)
 Lemma ppa_lt_mult_compat_l :
   forall (a b c : R), lt zero c -> lt a b -> lt (mult c a) (mult c b).
 Proof.
@@ -1151,7 +1244,7 @@ Proof.
   exact (ppa_lt_mult_compat_l q1 q2 k Hk H).
 Qed.
 
-(* 标度势能弱单调伴件（fa51 lt→le 降档件依存）。 *)
+(* the scaled-potential weak-monotonicity companion (depends on the fa51 lt-to-le weakening lemma). *)
 Theorem ppa_potential_scaled_mono :
   forall k q1 q2 : R, lt zero k -> lt q1 q2 ->
     le (ppa_potential_scaled k q1) (ppa_potential_scaled k q2).
@@ -1160,17 +1253,20 @@ Proof.
   exact (fa51_lt_le _ _ (ppa_lt_mult_compat_l q1 q2 k Hk H)).
 Qed.
 
-(* 参数位节面：Waddington_landscape : S -> R、noise : S -> S、
-   grad : (S -> R) -> S -> S、developmental_dynamics x :=
-   splus x (splus (sopp (grad W x)) (noise x))、dev_is_truth。
-   兑现装法（R 线载体）：平底景观 W := fun _ => zero、梯度装法
-   grad W x := x、噪声面 noise x := zero ——
-   dynamics x = x + ((-x) + 0) = x - x = 0（plus_zero 反向 +
-   plus_opp 两段链）：开发景观轨道一步落入零点。
-   吸引子 x_star := zero：dev_is_truth zero = le zero zero（le_refl）。
-   clim 收敛面 = 接口 lim 字段黑箱：库内 Id 形零具体实例
-   （P6A/CYD7 卡已证结论），按 fa56c 先例前提入签名——收敛前提
-   Hclim 为主定理显式参，逐槽诚实列出。 *)
+(* signature-slot section face: Waddington_landscape : S -> R, noise : S -> S,
+   grad : (S -> R) -> S -> S, developmental_dynamics x :=
+   splus x (splus (sopp (grad W x)) (noise x)), dev_is_truth.
+   realization (the R-line carrier): the flat landscape W := fun _ => zero,
+   the gradient realization grad W x := x, the noise face noise x := zero --
+   dynamics x = x + ((-x) + 0) = x - x = 0 (the plus_zero reverse plus the
+   plus_opp two-stage chain): the developmental-landscape orbit falls into
+   zero in one step.
+   attractor x_star := zero: dev_is_truth zero = le zero zero (le_refl).
+   the clim convergence face = the interface lim field as a black box: the
+   library has no concrete Id-shaped instance, so following the fa56c
+   precedent the convergence premise enters the signature -- the convergence
+   premise Hclim is an explicit argument of the main theorem, listed
+   honestly slot by slot. *)
 
 Definition ppa_waddington (x : R) : R := zero.
 Definition ppa_dev_grad (V : R -> R) (x : R) : R := x.
@@ -1178,20 +1274,22 @@ Definition ppa_dev_noise (x : R) : R := zero.
 Definition ppa_dev_dynamics (x : R) : R :=
   splus x (splus (sopp (ppa_dev_grad ppa_waddington x)) (ppa_dev_noise x)).
 
-(* 轨道装法：codomain 显式 S（clim 面同型；R = S 经 RealSelfSS
-   S 字段定义性相等，投影头处统一由本装法定型，防 clim_unique
-   裸名应用的 A 推断撞投影头）。 *)
+(* the orbit realization: the codomain explicitly S (same type as the clim
+   face; R = S through the definitional equality of the RealSelfSS S field;
+   unified at the projection heads by this realization, so the bare-name
+   application of clim_unique does not collide its A-inference with the
+   projection head). *)
 Definition ppa_dev_orbit (x : R) : nat -> S :=
   fun n : nat => iterate ppa_dev_dynamics n x.
 
-(* 轨道一步入零：dynamics x == x + (-x + 0) == x + (-x) == 0。 *)
+(* the orbit enters zero in one step: dynamics x == x + (-x + 0) == x + (-x) == 0. *)
 Theorem ppa_dev_dynamics_zero : forall x : R, Id (ppa_dev_dynamics x) zero.
 Proof.
   intro x.
   apply (id_trans (id_cong (fun w => plus x w) (plus_zero (opp x)))                  (plus_opp x)).
 Qed.
 
-(* 离散收敛见证：S n 步迭代逐项恒为零（lim 黑箱的构造性补充）。 *)
+(* the discrete convergence witness: every iterate after one step is identically zero (a constructive supplement to the lim black box). *)
 Theorem ppa_dev_iterate_step_zero :
   forall (n : nat) (x : R),
     Id (iterate ppa_dev_dynamics (Datatypes.S n) x) zero.
@@ -1202,7 +1300,7 @@ Proof.
                     (ppa_dev_dynamics_zero zero)).
 Qed.
 
-(* 槽2 主件：吸引子装配（sigT + And；收敛前提入签名）。 *)
+(* the slot-2 main piece: attractor assembly (sigT + And; the convergence premise in the signature). *)
 Theorem ppa_differentiation_attractor :
   forall x : R,
     clim (ppa_dev_orbit x) zero ->
@@ -1214,7 +1312,7 @@ Proof.
   exact (existT _ zero (pair (fun s' => le_refl zero) Hcl)).
 Qed.
 
-(* 吸引子极限唯一伴件（StateSpace 字段 clim_unique 依存）。 *)
+(* the attractor-limit uniqueness companion (depends on the StateSpace field clim_unique). *)
 Theorem ppa_attractor_lim_unique :
   forall (x l1 l2 : R),
     clim (ppa_dev_orbit x) l1 ->
@@ -1225,8 +1323,10 @@ Proof.
   exact (@clim_unique RI SSR (ppa_dev_orbit x) l1 l2 H1 H2).
 Qed.
 
-(* 吸引子起点传输伴件（fa56b J 消去器依存：Id x y 把收敛见证
-   从起点 x 搬到起点 y——Q 以起点为参直接换，无需函数外延性）。 *)
+(* the attractor-start-point transport companion (depends on the fa56b J
+   eliminator: Id x y moves the convergence witness from start x to start y
+   -- Q is instantiated at the start point directly, with no functional
+   extensionality). *)
 Theorem ppa_attractor_transport :
   forall (x y l : R),
     Id x y ->
@@ -1237,19 +1337,24 @@ Proof.
   exact (fa56b_id_transport R           (fun z => clim (ppa_dev_orbit z) l)           x y p Hcl).
 Qed.
 
-(* 参数位节面：macro_entropy : Macrostate -> R、macro_dynamics :
-   Macrostate -> Macrostate、macro_loss m := opp (macro_entropy m)。
-   兑现装法：Macrostate := R、熵读数 = 状态自读数、粗粒化动力学
-   m ↦ m + 1（宏熵每步 +1，macro_loss = -熵 沿轨道单调不增）。
-   of_nat 面：库内 RealInterface 无 nat -> R 注入（S05 Prediction1
-   节同以 Variable of_nat 承载），按槽先例以定理显式参入签名：
-   零元、步进、非负三前提逐槽诚实列出。 *)
+(* signature-slot section face: macro_entropy : Macrostate -> R,
+   macro_dynamics : Macrostate -> Macrostate, macro_loss m := opp
+   (macro_entropy m).
+   realization: Macrostate := R, the entropy reading = the state's own
+   reading, the coarse-graining dynamics m maps to m + 1 (macro entropy +1
+   per step; macro_loss = -entropy is monotonically nonincreasing along the
+   orbit).
+   the of_nat face: the library's RealInterface has no nat -> R injection
+   (the S05 Prediction1 section likewise carries it as a Variable of_nat),
+   so following the slot precedent the theorem takes it as an explicit
+   signature argument: the zero, step, and nonnegativity premises are listed
+   honestly slot by slot. *)
 
 Definition ppa_macro_entropy (m : R) : R := m.
 Definition ppa_macro_dynamics (m : R) : R := plus m one.
 Definition ppa_macro_loss (m : R) : R := opp (ppa_macro_entropy m).
 
-(* 迭代闭合引理：d^t m == m + of_nat t（t 归纳 + 结合律 + 步进前提）。 *)
+(* the iteration closure lemma: d^t m == m + of_nat t (induction on t + associativity + the step premise). *)
 Theorem ppa_iterate_macro_step :
   forall (of_nat_R : nat -> R),
     Id (of_nat_R O) zero ->
@@ -1266,8 +1371,9 @@ Proof.
                 (id_cong (fun z => plus m z) (id_sym (Hstep t))))).
 Qed.
 
-(* 参数位3 主件：宏损失沿轨道单调不增（iterate 闭合 + opp 反变 +
-   非负平移三段真链）。 *)
+(* the signature-slot-3 main piece: the macro loss is monotonically
+   nonincreasing along the orbit (the three-stage genuine chain: iterate
+   closure + the opp antitone step + nonnegative translation). *)
 Theorem ppa_macro_loss_monotone :
   forall (of_nat_R : nat -> R),
     Id (of_nat_R O) zero ->
@@ -1286,7 +1392,7 @@ Proof.
              (le_plus_nonneg_r m0 (of_nat_R t) (Hnn t))).
 Qed.
 
-(* 单步伴件：一步演化宏损失不增（one 正性供平移前提）。 *)
+(* the one-step companion: one evolution step does not increase the macro loss (the one positivity supplies the translation premise). *)
 Theorem ppa_macro_loss_one_step :
   forall m : R, le (ppa_macro_loss (ppa_macro_dynamics m)) (ppa_macro_loss m).
 Proof.
@@ -1298,8 +1404,9 @@ Proof.
              (le_plus_nonneg_r m one (fa51_lt_le zero one one_pos))).
 Qed.
 
-(* 宏熵正标度非负伴件（fa51 lt→le 降档 + Enhanced 乘法保序 +
-   零元重述两段链）。 *)
+(* the macro-entropy positive-scaling nonnegativity companion (the fa51
+   lt-to-le weakening + Enhanced multiplication order preservation + the
+   zero-element restatement, a two-stage chain). *)
 Theorem ppa_macro_entropy_scaled_nonneg :
   forall (k m : R), lt zero k -> le zero m -> le zero (mult k m).
 Proof.
@@ -1309,7 +1416,7 @@ Qed.
 
 End PpaPhysPred.
 
-(* ============ 假设面闭合申报（出节，G4 面） ============ *)
+(* ============ assumption-face closure declaration (at section exit) ============ *)
 
 Print Assumptions ppa_physical_force_is_gradient.
 Print Assumptions ppa_hamiltonian_dominates_potential.
@@ -1324,18 +1431,18 @@ Print Assumptions ppa_iterate_macro_step.
 Print Assumptions ppa_macro_loss_monotone.
 Print Assumptions ppa_macro_loss_one_step.
 Print Assumptions ppa_macro_entropy_scaled_nonneg.
-(* ================= §6 uabp7an_qneg0 族 ================= *)
+(* ================= Section 6. the uabp7an_qneg0 family ================= *)
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Lia QArith.Qminmax.
 Import RealInterfaceEnhancedMod.
 
-(* 一、Q 层辅件（半量与四分量的序关系、Qabs 下界引理；零经典逻辑）         *)
+(* part 1: Q-layer auxiliaries (the order relations of halves and quarters, the Qabs lower-bound lemmas; no classical logic) *)
 
-(* 负零恒等：(- 0)%Q == 0%Q（多处复用） *)
+(* negative-zero identity: (- 0)%Q == 0%Q (reused in several places) *)
 Lemma uabp7an_qneg0 : (- 0)%Q == 0%Q.
 Proof. ring. Qed.
 
-(* e/2 严格正（0 < e）（由 Qlt_le_dec 的可判定二分与 Qplus_le_compat） *)
+(* e/2 strictly positive (0 < e) (by the decidable dichotomy of Qlt_le_dec and Qplus_le_compat) *)
 Lemma uabp7an_qlt_half : forall e : Q, 0 < e -> 0 < e / 2.
 Proof.
   intros e He.
@@ -1351,11 +1458,11 @@ Proof.
     exact (Qlt_not_le 0 e He Hle).
 Qed.
 
-(* 半加恒等：e/2 + e/2 == e *)
+(* half-addition identity: e/2 + e/2 == e *)
 Lemma uabp7an_half_add : forall e : Q, e / 2 + e / 2 == e.
 Proof. intro e. field. Qed.
 
-(* 半小于：e/2 < e（0 < e） *)
+(* half-less-than: e/2 < e (0 < e) *)
 Lemma uabp7an_half_lt : forall e : Q, 0 < e -> e / 2 < e.
 Proof.
   intros e He.
@@ -1369,7 +1476,7 @@ Proof.
   exact H1.
 Qed.
 
-(* 半小于负零形：e/2 < e - 0（0 < e）——配合柯西表示的投影目标形 *)
+(* half-less-than, minus-zero form: e/2 < e - 0 (0 < e) -- matches the projection goal shape of the Cauchy representation *)
 Lemma uabp7an_half_lt_m0 : forall e : Q, 0 < e -> e / 2 < e - 0.
 Proof.
   intros e He.
@@ -1383,7 +1490,7 @@ Proof.
   exact H1.
 Qed.
 
-(* 半不大于：e/2 <= e（0 < e） *)
+(* half-not-greater: e/2 <= e (0 < e) *)
 Lemma uabp7an_half_le : forall e : Q, 0 < e -> e / 2 <= e.
 Proof.
   intros e He.
@@ -1397,7 +1504,7 @@ Proof.
   apply Qlt_le_weak. exact H1.
 Qed.
 
-(* 四分之一小于二分之一：e/4 < e/2（0 < e） *)
+(* quarter less than half: e/4 < e/2 (0 < e) *)
 Lemma uabp7an_q4_lt_q2 : forall e : Q, 0 < e -> e / 4 < e / 2.
 Proof.
   intros e He.
@@ -1411,7 +1518,7 @@ Proof.
   exact H1.
 Qed.
 
-(* Qabs 下界翻转：|x| < e（0 < e）⟹ -e < x（Qlt_le_dec 分段 + Qopp_lt_compat） *)
+(* Qabs lower-bound flip: |x| < e (0 < e) gives -e < x (Qlt_le_dec case split + Qopp_lt_compat) *)
 Lemma uabp7an_abs_lb : forall x e : Q, 0 < e -> Qabs x < e -> - e < x.
 Proof.
   intros x e He Hb.
@@ -1425,16 +1532,18 @@ Proof.
     exact (Qlt_le_trans (- e) 0 x H0 Hx).
 Qed.
 
-(* 逐点收尾辅件：-x < eps/2（0 < eps）⟹ QltT (Qabs (Qabs x - x)) eps。
-   证明：Qlt_le_dec 符号分段，以 Qabs_pos/Qabs_neg 定位绝对值后
-   归结为「弱非负（逐 eps 下界）到 |a|==a」的 Q 层核心步骤。 *)
+(* pointwise tail auxiliary: -x < eps/2 (0 < eps) gives
+   QltT (Qabs (Qabs x - x)) eps.
+   the proof: sign-case on Qlt_le_dec, locating the absolute value with
+   Qabs_pos/Qabs_neg, then reducing to the Q-layer core step from weak
+   nonnegativity (the eps-wise lower bound) to |a| == a. *)
 Lemma uabp7an_pt_tail : forall x eps : Q,
   0 < eps -> - x < eps / 2 -> QltT (Qabs (Qabs x - x)) eps.
 Proof.
   intros x eps Heps Hneg.
   apply Qlt_to_QltT.
   destruct (Qlt_le_dec x 0) as [Hx | Hx].
-  - (* x < 0：|x| == -x，目标 |-2x| == -2x < eps *)
+  - (* x < 0: |x| == -x, the goal |-2x| == -2x < eps *)
     assert (Hx' : x <= 0) by (apply Qlt_le_weak; exact Hx).
     rewrite (Qabs_neg x Hx').
     assert (Hsp : (- x - x)%Q == (- (2 * x))%Q) by ring.
@@ -1458,7 +1567,7 @@ Proof.
     assert (HsumE : eps / 2 + eps / 2 == eps) by field.
     rewrite HsumE in Hfin.
     exact Hfin.
-  - (* x ≥ 0：|x| == x，差归零 *)
+  - (* x >= 0: |x| == x, the difference collapses to zero *)
     rewrite (Qabs_pos x Hx).
     assert (Hzd : (x - x)%Q == 0%Q) by ring.
     rewrite Hzd.
@@ -1467,13 +1576,13 @@ Proof.
     exact Heps.
 Qed.
 
-(* 二、主件：具体层无条件 abs 非负件（除语句前提外零假设位）               *)
+(* part 2: the main piece -- the concrete-layer unconditional abs-nonnegativity lemma (zero assumption sites beyond the statement premise) *)
 
 Lemma uabp7an_core : forall a : Real,
   real_le real_zero a -> real_eq (real_abs a) a.
 Proof.
   intros a H. destruct a as [u Hu]. destruct H as [Hlt | Heq].
-  - (* 严格正支：e 见证逐点定位 Qabs_pos，差归零 *)
+  - (* strictly-positive branch: the e witness locates Qabs_pos pointwise, the difference collapses to zero *)
     destruct Hlt as [e [He [N HN]]].
     unfold real_eq. intros eps Heps. exists N. intros n Hn.
     specialize (HN n Hn).
@@ -1491,7 +1600,7 @@ Proof.
     rewrite (Qabs_neg 0 (Qle_refl 0)).
     rewrite uabp7an_qneg0.
     apply QltT_to_Qlt. exact Heps.
-  - (* 弱支 real_eq：对半 eps + Qabs_triangle 双倍放行 *)
+  - (* weak branch real_eq: halve eps and double the allowance through Qabs_triangle *)
     unfold real_eq. intros eps Heps.
     assert (Hhalf : QltT 0 (eps / 2))
       by (apply Qlt_to_QltT; apply uabp7an_qlt_half; apply QltT_to_Qlt; exact Heps).
@@ -1517,17 +1626,21 @@ Proof.
                              (Qabs (u n)) (eps / 2) HNQ HNQ).
 Qed.
 
-(* 无条件「real_le real_zero a -> real_eq (real_abs a) a」全称件——                  *)
-(* 接口字段 abs_pos 仅覆盖严格正前提 real_lt real_zero a，本件将其前提减弱为          *)
-(* 非严格面；req/le 经全局实例（RealEnhancedReal）定义性即 real_eq/real_le，          *)
-(* 语句面取具体载体面（le zero a 即 real_le real_zero a）。                          *)
+(* the unconditional universal "real_le real_zero a -> real_eq (real_abs a) a" --
+   the interface field [abs_pos] only covers the strictly-positive premise
+   [real_lt real_zero a]; this lemma weakens the premise to the non-strict
+   form; req/le resolve definitionally to real_eq/real_le through the global
+   instance (RealEnhancedReal), and the statement face takes the concrete
+   carrier form ([le zero a] is [real_le real_zero a]). *)
 Lemma uabp7an_abs_nonneg_uncond : forall a : Real,
   real_le real_zero a -> real_eq (real_abs a) a.
 Proof. intros a H. exact (uabp7an_core a H). Qed.
 
-(* 三、桥①（抽象接口层）：无条件件 ⟹ 接口 eps 形 abs_nonneg（带非严格前提）          *)
-(*   接口字段经全局实例消解；由 req_plus_le_lt_pos 与接口 lt_le_iff/le_id_r 推得，     *)
-(*   语句面取具体载体面。                                                            *)
+(* bridge 1 (abstract interface layer): the unconditional lemma gives the
+   interface eps-form abs_nonneg (with the non-strict premise) --
+   interface fields resolve through the global instance; derived from
+   [req_plus_le_lt_pos] with the interface [lt_le_iff]/[le_id_r]; the
+   statement face takes the concrete carrier form. *)
 
 Section Uabp7anUncondToEps.
 
@@ -1546,10 +1659,14 @@ Qed.
 
 End Uabp7anUncondToEps.
 
-(* 四、桥②（具体层）：Bishop 逐 eps 非负形 ⟹ 无条件件（逆向桥）                       *)
-(*   前提形状=abs_nonneg 用于 a 本身（forall eps>0, real_le real_zero (a+eps)）。      *)
-(*   路线：取四分之一常值见证，经 real_le 的 Or 两支分别提取逐点下界                     *)
-(*   （-a_n < eps/2），再由 uabp7an_pt_tail 符号分段收束；Q 层序可判定，零经典逻辑。     *)
+(* bridge 2 (concrete layer): the Bishop eps-wise nonnegativity form gives
+   the unconditional lemma (the reverse bridge).
+   premise shape = abs_nonneg applied to a itself
+   (forall eps>0, real_le real_zero (a+eps)).
+   route: take the quarter-constant witness; extract the pointwise lower
+   bound (-a_n < eps/2) branch by branch through the Or of real_le; close
+   by the sign-case [uabp7an_pt_tail]; the Q-layer order is decidable, no
+   classical logic. *)
 
 Lemma uabp7an_eps_to_uncond : forall a : Real,
   (forall eps : Real, real_lt real_zero eps ->
@@ -1569,7 +1686,7 @@ Proof.
       apply uabp7an_qlt_half. exact Hq2. }
     assert (Hq4T : QltT 0 (eps / 4)) by (apply Qlt_to_QltT; exact Hq4).
     assert (Hq42 : eps / 4 < eps / 2) by (apply uabp7an_q4_lt_q2; exact HepsQ).
-    (* 四分之一常值实数的严格正见证（real_lt 构造，取 eps/4 之半） *)
+    (* the strict positivity witness of the quarter-constant real (a real_lt construction, taking half of eps/4) *)
     assert (Hltc : real_lt real_zero (real_const (eps / 4))).
     { assert (Hltc2 : real_lt real_zero (real_const (eps / 4))).
       { unfold real_lt. exists (eps / 4 / 2)%Q. split.
@@ -1578,7 +1695,7 @@ Proof.
           apply Qlt_to_QltT. apply uabp7an_half_lt_m0. exact Hq4. }
       exact Hltc2. }
     destruct (Hbis (real_const (eps / 4)) Hltc) as [Hb | Hb].
-    - (* inl 严格支：e1 < a_n + eps/4 ⟹ -a_n < eps/2 *)
+    - (* inl strict branch: e1 < a_n + eps/4 gives -a_n < eps/2 *)
       unfold real_le in Hb. destruct Hb as [e1 [He1 [N1 HN1]]].
       exists N1. intros n Hn. specialize (HN1 n Hn).
       change (QltT (Qabs (Qabs (u n) - u n)) eps).
@@ -1604,7 +1721,7 @@ Proof.
       assert (Hneg : - u n < eps / 2)
         by exact (Qlt_trans (- u n) (eps / 4) (eps / 2) Hs Hq42).
       apply (uabp7an_pt_tail (u n) eps HepsQ Hneg).
-    - (* inr 相等支：|a_n + eps/4| < eps/4 ⟹ 下界翻转 ⟹ -a_n < eps/2 *)
+    - (* inr equality branch: |a_n + eps/4| < eps/4 gives the lower-bound flip, hence -a_n < eps/2 *)
       unfold real_eq in Hb.
       destruct (Hb (eps / 4)%Q Hq4T) as [N2 HN2].
       exists N2. intros n Hn. specialize (HN2 n Hn).
@@ -1633,7 +1750,7 @@ Proof.
   exact Hcore.
 Qed.
 
-(* 五、假设闭包核验（Print Assumptions，各件应为空）                      *)
+(* part 5: assumption-closure verification (Print Assumptions; each should be empty) *)
 
 Print Assumptions uabp7an_qneg0.
 Print Assumptions uabp7an_qlt_half.

@@ -1,33 +1,33 @@
-(* ============================================================ *)
-(* SumEqListFeed.v —— 使命：sum_eq_list 四槽使用位的「槽假设 → idt 衔接   *)
-(*   定理」重述 shim 补装件：接 IdSlotTranslate.v 交付（idt_sum_eq_list    *)
-(*   定义性桥 + idt_slot_attdoeblin/g01/s13/s15 四宿主衔接定理）。         *)
-(* 侦查结论（真源逐字核对）：                                              *)
-(* 1) 使用形两类（四宿主八使用位全定位）：                                *)
-(*    Form A｜槽证明项直接代入：AttnDoeblin:622/:629/:673 与               *)
-(*      S13:2813/:2820/:2864——槽语句 sum_eq_list g 作证明项喂              *)
-(*      le_id_r（:622/:2813，配 id_sym）/ le_id_l（:629/:2820）/            *)
-(*      id_trans 链头（:673/:2864，bs_Unif_norm）。                        *)
-(*    Form B｜槽作显式实参：G01:485/:500 与 S15:156/:171——                *)
-(*      槽语句作 forall g, Id (sum_over_S g) (bs_list_sum g enum)          *)
-(*      型实参，填装上游泛化件 bs_kernel/bs_Zrow_pos 的槽参数位            *)
-(*      （G01:362 Require Import AttnDoeblin；S15:26 Require S13）。       *)
-(* 2) shim 形状已证结论：idt_slot_* 已是「槽语句形」衔接定理               *)
-(*      （forall enum g, Id (idt_sumf enum g) (宿主机 g enum)），          *)
-(*    即 sum_over_S := idt_sumf 实例化消解读法下的槽假设本体——             *)
-(*    Form A 的重述 shim = 同骨架使用定理：原槽支路逐字换成                *)
-(*    idt_slot_*，结论侧 sum_over_S g 同步实现为 idt_sumf enum g；         *)
-(*    Form B 的重述 shim = 参数位填充件，Definition 级定义性填装。         *)
-(* 3) Form B 完整改喂（bs_kernel/softmax_temp 上游链以                    *)
-(*    sum_over_S ↦ idt_sumf enum 重述）属宿主稿改写，非 shim 件           *)
-(*    范围；本件证其参数位可填装且填装件零前提（Closed）。                 *)
-(* 交付：Form A 重述桥六件（AttnDoeblin 三使用形 + S13 三使用形） + Form B 参数位填充件两件（G01/S15）+ G4 Print Assumptions 八件。     *)
-(* 依赖：Stdlib List；CW_ConstructiveWorld_219 UpReqSumD AttnDoeblin       *)
-(*   S13_NLiveAudit IdSlotTranslate。                                     *)
-(* 构造性注记：全 Set 层（Id/le 均接口 Set 值字段）；纯构造性（语句面     *)
-(*   无承认式构造）；既有文件零改；前缀 sef_ 全库防撞已核（grep 零命中）。 *)
-(* 编译配方：coqc 9.1 直调（vo 树内 -Q . "" 平面命名空间），信任缓存前置。 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — restatement shims for the [sum_eq_list] slot use sites. *)
+(** * SumEqListFeed: slot-to-Id connection restatements for [sum_eq_list] use sites.
+
+    Mission.  Restatement shims for the four [sum_eq_list] use sites,
+      consuming IdSlotTranslate.v (the bridge [idt_sum_eq_list] and the
+      host connection theorems [idt_slot_attdoeblin]/[idt_slot_g01]/
+      [idt_slot_s13]/[idt_slot_s15]).  Form A — the slot statement
+      substituted as a proof term (six sites: AttnDoeblin :622/:629/:673
+      and S13 :2813/:2820/:2864 feeding [le_id_r]/[le_id_l]/an
+      [id_trans] chain head): the slot leg is replaced verbatim by
+      [idt_slot_*] with the conclusion sum realized as [idt_sumf].  Form
+      B — the slot statement as an explicit [forall g, Id (sum_over_S g)
+      (bs_list_sum g enum)] argument filling [bs_kernel]/[bs_Zrow_pos] (G01, S15).
+
+    Dependencies.  Stdlib [Lists.List]; requires [UpReqSumD],
+      [AttnDoeblin], [S13_NLiveAudit], [IdSlotTranslate] (with the
+      [S01_BaseRing] chain) of this development.
+
+    References.  This development, SumEqListFeed.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried over
+      here verbatim (the [idt_slot_*] theorems are the slot statement under the instantiation [sum_over_S := idt_sumf]).
+
+    Constructivity.  Entirely Set-layer ([Id]/[le] are Set-valued
+      interface fields); purely constructive with no admitted
+      statements; the section mirrors the host BoundedSoftmax section
+      ([Context {RI}{SS}{SO}] + [Existing Instance RI_base], [Let le := @le RI]).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      SumEqListFeed.v] compiles cleanly (exit 0); the artifact starts
+      with [436f7121 00015ff4]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.
@@ -50,10 +50,9 @@ Require Import AttnDoeblin.
 Require Import IdSlotTranslate.
 Import ListNotations.
 
-(* ============================================================ *)
-(* 节装配：宿主 BoundedSoftmax 节同款开场（Context {RI}{SS}{SO} +    *)
-(* Existing Instance RI_base），Let le := @le RI 同宿主句法。        *)
-(* ============================================================ *)
+(* =================== Section setup: the same opening as the host BoundedSoftmax section =================== *)
+(* Context {RI}{SS}{SO} + Existing Instance RI_base, and *)
+(* Let le := @le RI in the host syntax. *)
 Section SumEqListFeed.
 
 Context {RI : RealInterfaceEnhanced}.
@@ -63,15 +62,14 @@ Local Existing Instance RI_base.
 
 Let le := @le RI.
 
-(* ============================================================ *)
-(* §1 Form A 重述桥 · AttnDoeblin 三使用位                            *)
-(*    （机 = AttnDoeblin.bs_list_sum，改喂件 = idt_slot_attdoeblin） *)
-(* ============================================================ *)
+(* =================== Section 1. Form A restatement bridges, the three AttnDoeblin use sites =================== *)
+(* Host sum = AttnDoeblin.bs_list_sum; the connector = idt_slot_attdoeblin. *)
 
-(* —— 使用位 AttnDoeblin:622（bs_Zrow_ge 骨架）——
-   原推论形：le_id_r a (bs_list_sum g enum) (sum_over_S g)
-             (id_sym (sum_eq_list g)) : le a (bs_list_sum g enum) -> le a (sum_over_S g)
-   改装推论形：槽支路逐字换 idt_slot_attdoeblin，结论求和位实现为 idt_sumf。 *)
+(* Use site AttnDoeblin:622 (the bs_Zrow_ge shape). *)
+(* Original inference: le_id_r a (bs_list_sum g enum) (sum_over_S g) *)
+(* (id_sym (sum_eq_list g)) : le a (bs_list_sum g enum) -> le a (sum_over_S g). *)
+(* Restated inference: the slot leg replaced verbatim by idt_slot_attdoeblin, *)
+(* the conclusion sum realized as idt_sumf. *)
 Lemma sef_attn_zrow_ge : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (a : R),
   le a (AttnDoeblin.bs_list_sum g en) -> le a (idt_sumf en g).
 Proof.
@@ -79,8 +77,8 @@ Proof.
   exact (le_id_r a (AttnDoeblin.bs_list_sum g en) (idt_sumf en g)                   (id_sym (idt_slot_attdoeblin en g)) Hle).
 Qed.
 
-(* —— 使用位 AttnDoeblin:629（bs_Zrow_le 骨架）——
-   原推论形：le_id_l _ _ _ (sum_eq_list g) : le (bs_list_sum g enum) b -> le (sum_over_S g) b *)
+(* Use site AttnDoeblin:629 (the bs_Zrow_le shape). *)
+(* Original inference: le_id_l _ _ _ (sum_eq_list g) : le (bs_list_sum g enum) b -> le (sum_over_S g) b. *)
 Lemma sef_attn_zrow_le : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   le (AttnDoeblin.bs_list_sum g en) b -> le (idt_sumf en g) b.
 Proof.
@@ -88,8 +86,9 @@ Proof.
   exact (le_id_l (idt_sumf en g) (AttnDoeblin.bs_list_sum g en) b                 (idt_slot_attdoeblin en g) Hle).
 Qed.
 
-(* —— 使用位 AttnDoeblin:673（bs_Unif_norm 骨架）——
-   原推论形：id_trans (sum_eq_list Unif) 后续链：槽为 id_trans 首支路。 *)
+(* Use site AttnDoeblin:673 (the bs_Unif_norm shape). *)
+(* Original inference: id_trans (sum_eq_list Unif) heads the following chain — *)
+(* the slot as the first argument of id_trans. *)
 Lemma sef_attn_unif_norm : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   Id (AttnDoeblin.bs_list_sum g en) b -> Id (idt_sumf en g) b.
 Proof.
@@ -97,13 +96,12 @@ Proof.
   exact (id_trans (idt_slot_attdoeblin en g) Hid).
 Qed.
 
-(* ============================================================ *)
-(* §2 Form A 重述桥 · S13 三使用位                                    *)
-(*    （机 = S13_NLiveAudit.bs_list_sum，改喂件 = idt_slot_s13；      *)
-(*      骨架与 AttnDoeblin 逐字同构，仅换机与改喂件）                  *)
-(* ============================================================ *)
+(* =================== Section 2. Form A restatement bridges, the three S13 use sites =================== *)
+(* Host sum = S13_NLiveAudit.bs_list_sum; connector = idt_slot_s13; *)
+(* the shapes are literally isomorphic to the AttnDoeblin ones, only the *)
+(* host sum and connector change. *)
 
-(* —— 使用位 S13:2813（bs_Zrow_ge 骨架，le_id_r + id_sym 槽支路）—— *)
+(* Use site S13:2813 (the bs_Zrow_ge shape; the le_id_r + id_sym slot leg). *)
 Lemma sef_s13_zrow_ge : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (a : R),
   le a (S13_NLiveAudit.bs_list_sum g en) -> le a (idt_sumf en g).
 Proof.
@@ -111,7 +109,7 @@ Proof.
   exact (le_id_r a (S13_NLiveAudit.bs_list_sum g en) (idt_sumf en g)                   (id_sym (idt_slot_s13 en g)) Hle).
 Qed.
 
-(* —— 使用位 S13:2820（bs_Zrow_le 骨架，le_id_l 槽直接代入）—— *)
+(* Use site S13:2820 (the bs_Zrow_le shape; the le_id_l slot substituted directly). *)
 Lemma sef_s13_zrow_le : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   le (S13_NLiveAudit.bs_list_sum g en) b -> le (idt_sumf en g) b.
 Proof.
@@ -119,7 +117,7 @@ Proof.
   exact (le_id_l (idt_sumf en g) (S13_NLiveAudit.bs_list_sum g en) b                 (idt_slot_s13 en g) Hle).
 Qed.
 
-(* —— 使用位 S13:2864（bs_Unif_norm 骨架，id_trans 链头槽支路）—— *)
+(* Use site S13:2864 (the bs_Unif_norm shape; the slot as the head argument of id_trans). *)
 Lemma sef_s13_unif_norm : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R) (b : R),
   Id (S13_NLiveAudit.bs_list_sum g en) b -> Id (idt_sumf en g) b.
 Proof.
@@ -127,26 +125,28 @@ Proof.
   exact (id_trans (idt_slot_s13 en g) Hid).
 Qed.
 
-(* ============================================================ *)
-(* §3 Form B 参数位填充件 · G01:485/:500 与 S15:156/:171              *)
-(*    原使用形：槽语句作显式实参填装上游泛化件                         *)
-(*      bs_kernel en enum_nonempty temp temp_pos Delta z2 z_lb        *)
-(*        expf expf_pos expf_mono_le sum_eq_list s s'                 *)
-(*    改传参数形 = 原参数类型作 sum_over_S ↦ idt_sumf en 实现置换，    *)
-(*    恰为 idt_slot_g01 / idt_slot_s15 之语句型——填充件定义性构造。    *)
-(* ============================================================ *)
+(* =================== Section 3. Form B argument fillers, G01:485/:500 and S15:156/:171 =================== *)
+(* Original use shape: the slot statement passed as an explicit argument to *)
+(* the upstream generalized lemma bs_kernel en enum_nonempty temp temp_pos *)
+(* Delta z2 z_lb expf expf_pos expf_mono_le sum_eq_list s s'. *)
+(* The retyped argument = the original argument type with the realization *)
+(* sum_over_S replaced by idt_sumf en — exactly the statement type of *)
+(* idt_slot_g01 / idt_slot_s15; the fillers are definitional. *)
 
-(* —— G01:476 槽参数位重述填充件（机 = AttnDoeblin 出节件）—— *)
+(* The G01:476 slot-argument restatement filler (host sum = the AttnDoeblin *)
+(* exit-section definition). *)
 Definition sef_g01_slot_arg (en : list S01_BaseRing.S)
   : forall g : S01_BaseRing.S -> R, Id (idt_sumf en g) (AttnDoeblin.bs_list_sum g en) :=
   idt_slot_g01 en.
 
-(* —— S15:147 槽参数位重述填充件（机 = S13 出节件）—— *)
+(* The S15:147 slot-argument restatement filler (host sum = the S13 *)
+(* exit-section definition). *)
 Definition sef_s15_slot_arg (en : list S01_BaseRing.S)
   : forall g : S01_BaseRing.S -> R, Id (idt_sumf en g) (S13_NLiveAudit.bs_list_sum g en) :=
   idt_slot_s15 en.
 
-(* Form B 填充型唯一性自证：填充件与改喂定理逐点一致（eta 展开级）。 *)
+(* Self-check of the Form B filler shapes: the fillers agree pointwise with *)
+(* the connection theorems (at the eta-expansion level). *)
 Lemma sef_g01_slot_arg_pt : forall (en : list S01_BaseRing.S) (g : S01_BaseRing.S -> R),
   Id (idt_sumf en g) (AttnDoeblin.bs_list_sum g en).
 Proof.
@@ -161,9 +161,7 @@ Proof.
   exact (sef_s15_slot_arg en g).
 Qed.
 
-(* ============================================================ *)
-(* G4 证据：八件全 Closed                                            *)
-(* ============================================================ *)
+(* =================== Assumption audits: all eight statements Closed =================== *)
 Print Assumptions sef_attn_zrow_ge.
 Print Assumptions sef_attn_zrow_le.
 Print Assumptions sef_attn_unif_norm.

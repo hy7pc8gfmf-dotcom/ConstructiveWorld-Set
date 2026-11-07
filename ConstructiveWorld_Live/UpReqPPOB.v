@@ -1,22 +1,33 @@
-(* ============================================================
-   UpReqPPOB —— 使命行：本件形式化 PPO 保守性（定理 6.6 对应物结论 5）的 Bishop
-(*   完整形升格：主件 real_ppo_conservative_B_full 为                           *)
-(*   Σ π_old·min(r,clip r)·adv ≤_B Σ π_old·r·adv，缺口前提「E>0 显式证书」       *)
-(*   由节内 lebR_res_weight_pos 导出；伴件 rplb_sum_pos_discharged 与           *)
-(*   rplb_res_weight_pos_unconditional 为求和正性前提的载体实例消解形。         *)
-(*                                                                              *)
-(* 依赖清单：CW_ConstructiveWorld_219、UpRealLeB；求和前提位消解节另引           *)
-(*   UpReqConcSoftmax（csm_sumf 折叠载体）与 ConcMixSelFeed（cms_sum_ext 系      *)
-(*   供给锚）。                                                                 *)
-(*                                                                              *)
-(* 构造性注记：语句面全 Set 层（real_le_b Set 值 forall 型、real_lt sigT Set 层， *)
-(*   零 Prop 泄露）；显式参随节进入出口签名（非公理、零未闭合）；原 Prop 形      *)
-(*   词表非空位重述为 Set 层非空见证形并给出具体层供给；零承认、零经典逻辑；      *)
-(*   文尾 Print Assumptions 逐件闭合。                                          *)
-(*                                                                              *)
-(* 编译配方：Rocq 9.1 直调（COQLIB/ROCQLIB 钉 9.1 库根），
-   coqc -q -Q . "" <件名>.v，cpu_guard 分档执行。 *)
-   ============================================================*)
+(* ConstructiveWorld-Set — Bishop-complete PPO conservatism with discharged premises. *)
+(** * UpReqPPOB: the Bishop-complete form of PPO conservatism.
+
+    Mission.  The counterpart of Theorem 6.6 (conclusion 5): the main
+      theorem [real_ppo_conservative_B_full], sum pi_old * min(r, clip r) *
+      adv <=_B sum pi_old * r * adv, with the gap premise "an explicit
+      E > 0 certificate" discharged by the in-section lemma
+      [lebR_res_weight_pos]; companions [rplb_sum_pos_discharged]/
+      [rplb_res_weight_pos_unconditional] resolve the sum-positivity
+      premise on concrete carriers, and the [ppoB_*_supply] theorems fill
+      the abstract sum slots and the nonemptiness slot.
+
+    Dependencies.  Stdlib [QArith.Qring]; requires [S01_BaseRing] through
+      [S15_TailFEPUp], [UpRealLeB], [UpReqConcSoftmax] (the [csm_sumf]
+      folded carrier) and [ConcMixSelFeed] of this development.
+
+    References.  This development, UpReqPPOB.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  The statement face is entirely Set-layer ([real_le_b]
+      Set-valued forall form, [real_lt] as sigT); explicit section
+      parameters enter the exit signatures (no axioms, nothing left open);
+      the original Prop-form nonemptiness slot is restated as a Set-layer
+      witness with concrete supply; no admitted proofs, no classical logic;
+      the trailing Print Assumptions audits all close.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpReqPPOB.v] compiles cleanly (exit 0); the artifact starts with
+      [436f7121 00015ff4]. *)
 From Stdlib Require Import QArith.Qring.
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -47,11 +58,11 @@ Variable real_sum_over_S_le : forall (f g : S -> Real),
 Variable real_sum_over_S_add : forall (f g : S -> Real),
   real_eq (real_sum_over_S (fun s : S => real_plus (f s) (g s)))
           (real_plus (real_sum_over_S f) (real_sum_over_S g)).
-(* 诚实接口：标量提取（Part C 同位复刻） *)
+(* Honest interface: scalar extraction (mirrors Part C at the same slot). *)
 Variable real_sum_over_S_linear : forall (a : Real) (f : S -> Real),
   real_eq (real_sum_over_S (fun s : S => real_mult a (f s)))
            (real_mult a (real_sum_over_S f)).
-(* T2① 求和正性槽（显式参位）：逐点正 ⟹ 和正 *)
+(* Sum-positivity slot (an explicit section variable): pointwise positive gives positive sum. *)
 Hypothesis rplb_sum_pos :
   forall f : S -> Real,
     (forall s : S, real_lt real_zero (f s)) -> real_lt real_zero (real_sum_over_S f).
@@ -61,11 +72,13 @@ Variable real_pi_old_pos : forall s : S, real_lt real_zero (real_pi_old s).
 Variable real_advantage_fn : S -> Real.
 Variable real_advantage_pos : forall s : S, real_lt real_zero (real_advantage_fn s).
 Variable epsilon : Real.
-(* 残差权系数 E := Σ π_old·adv（Part C 同位定义，与出节件定义可转换） *)
+(* Residual weight E := sum of pi_old * adv (defined as in Part C; convertible *)
+(* with the exit-section definition). *)
 Definition lebR_res_weight : Real :=
   real_sum_over_S (fun s : S => real_mult (real_pi_old s) (real_advantage_fn s)).
 
-(* 内机：E>0——逐点双正（real_mult_positive 两喂）→ sum_pos 槽提升 *)
+(* The inner lemma E > 0: pointwise double positivity (two real_mult_positive *)
+(* feeds) lifted through the sum-positivity slot. *)
 Lemma lebR_res_weight_pos : real_lt real_zero lebR_res_weight.
 Proof.
   unfold lebR_res_weight.
@@ -74,7 +87,8 @@ Proof.
   exact (real_mult_positive (real_pi_old s) (real_advantage_fn s)
            (real_pi_old_pos s) (real_advantage_pos s)).
 Qed.
-(* 主件：≤_B 完整形（与 Part C 有条件件同构，E>0 证书由内机导出） *)
+(* Main theorem: the <=_B complete form (isomorphic to the conditional Part C *)
+(* statement; the E > 0 certificate is derived by the inner lemma). *)
 Theorem real_ppo_conservative_B_full :
   real_le_b
     (real_sum_over_S (fun s : S =>
@@ -107,27 +121,32 @@ Proof.
 Qed.
 End RealPPOLeBFull.
 
-(* 尾注：出口签名消解序经语句形检验登记在案；残差折叠
-   real_ppo_res_fold 7 参、eps 形源件 13 参，均全参显式提供实参。 *)
+(* Endnote: the exit-signature resolution order is checked against the *)
+(* statement shapes; the residual fold real_ppo_res_fold takes 7 arguments *)
+(* and the eps-form source statement 13 — all supplied explicitly. *)
 Print Assumptions lebR_res_weight_pos.
 Print Assumptions real_ppo_conservative_B_full.
 Print Assumptions lebR_res_weight.
 
-(* ============================================================ *)
-(* 消解节：rplb_sum_pos 前提的构造性消解件                            *)
-(*   载体勘定：RealListSumMain 节 real_list_sum（list Fixpoint， *)
-(*   X 泛型，nil 支 real_zero）。语句形态按空支路裁决：空表支 sum 实为  *)
-(*   real_zero，严格正不真——消解语句必带非空前提 Not (Id l nil)        *)
-(*   （sum_temp_positive 同款；完成器空支路判据同源）。      *)
-(*   先件=前提语句的 list 载体实例（归纳真理两支：nil 矛盾直击、cons      *)
-(*   real_plus_positive 两处提供实参）；伴件以固定非空 vocab 无条件实例化内机    *)
-(*   lebR_res_weight_pos（π_old/adv 取常 real_one，证书 real_lt_zero_one）      *)
-(*   ——节变量随节全参显式提供实参，出口零残留。                 *)
-(* ============================================================ *)
+(* =================== Resolution section: constructive discharge of the rplb_sum_pos premise =================== *)
+(* Carrier survey: real_list_sum of the RealListSumMain section (a list *)
+(* Fixpoint, generic in X, with real_zero on the nil branch). The statement *)
+(* shape is decided by the empty branch: on the empty list the sum is *)
+(* real_zero, so strict positivity is false — the discharging statement *)
+(* must carry the nonemptiness premise Not (Id l nil) (as in *)
+(* sum_temp_positive; the finisher's empty-branch criterion has the same *)
+(* source). *)
+(* The main lemma is the list-carrier instance of the premise statement *)
+(* (induction, two branches: nil contradicts the premise directly; cons *)
+(* feeds real_plus_positive twice); the companion instantiates the inner *)
+(* lemma lebR_res_weight_pos unconditionally with a fixed nonempty vocab *)
+(* (pi_old/adv constantly real_one, certificate real_lt_zero_one) — all *)
+(* section variables are supplied explicitly, nothing left open. *)
 Section RplbSumPosDischarged.
 Variable X : Set.
 
-(* 消解件：有限和逐项正 ⟹ 和正（非空表前提；rplb_sum_pos 槽的载体实例） *)
+(* Discharging lemma: pointwise positive finite sum gives positive sum *)
+(* (nonemptiness premise; the carrier instance of the rplb_sum_pos slot). *)
 Lemma rplb_sum_pos_discharged :
   forall (f : X -> Real) (l : list X),
     Not (Id l nil) ->
@@ -136,23 +155,27 @@ Lemma rplb_sum_pos_discharged :
 Proof.
   intros f l.
   induction l as [| x rest IH]; intros Hnil Hpos.
-  - (* 空表支：非空前提矛盾直击（sum 实为 real_zero，前提在案而真） *)
+  - (* Empty branch: the nonemptiness premise contradicts directly (the sum is *)
+    (* real_zero there). *)
     contradiction Hnil. apply id_refl.
   - destruct rest as [| y rest'].
-    + (* 单元素支：f x + 0 换形回 f x（real_plus_zero 经 real_lt_eq_lt） *)
+    + (* Single-element branch: reshape f x + 0 back to f x (real_plus_zero *)
+      (* via real_lt_eq_lt). *)
       exact (real_lt_eq_lt real_zero (f x)
                (real_plus (f x) (real_list_sum X f nil))
                (Hpos x)
                (real_eq_sym (real_plus (f x) (real_list_sum X f nil)) (f x)
                   (real_plus_zero (f x)))).
-    + (* 一般 cons 支：real_plus_positive 两喂——逐项正 + 尾表归纳正 *)
+    + (* General cons branch: real_plus_positive fed twice — pointwise *)
+      (* positivity plus the induction positivity of the tail. *)
       apply (real_plus_positive (f x) (real_list_sum X f (y :: rest'))).
       * apply Hpos.
       * apply IH. intro Hc. inversion Hc. apply Hpos.
 Qed.
 End RplbSumPosDischarged.
 
-(* 伴件：内机 lebR_res_weight_pos 的无条件实例化（E>0 证书零前提面） *)
+(* Companion: the unconditional instantiation of the inner lemma *)
+(* lebR_res_weight_pos (an E > 0 certificate with no premises). *)
 Section RplbResWeightPosUncond.
 Variable X : Set.
 Variable vocab : list X.
@@ -172,40 +195,39 @@ Proof.
 Qed.
 End RplbResWeightPosUncond.
 
-(* ============================================================ *)
-(* 求和四前提位与词表非空位的消解节（逐位消解）                        *)
-(*                                                                              *)
-(* 四个求和前提位（real_sum_over_S_ext/real_sum_over_S_le/                      *)
-(* real_sum_over_S_add/real_sum_over_S_linear）为抽象求和算子                   *)
-(* real_sum_over_S 的接口义务；本节在有限和载体 csm_sumf S0 enum                *)
-(* （枚举清单折叠，UpReqConcSoftmax）上逐位供给同构语句——语句与原               *)
-(* 假设位逐字同型（载体代换 real_sum_over_S := csm_sumf S0 enum），             *)
-(* 供给锚：cms_sum_ext/cms_sum_le/cms_sum_add/cms_sum_linear                    *)
-(* （ConcMixSelFeed）。原抽象假设位声明与既有定理签名零改动。                   *)
-(* ============================================================ *)
+(* =================== Resolution section for the four sum-premise slots and the vocabulary-nonemptiness slot =================== *)
+(* The four sum-premise slots (real_sum_over_S_ext / real_sum_over_S_le / *)
+(* real_sum_over_S_add / real_sum_over_S_linear) are the interface duties *)
+(* of the abstract summation operator real_sum_over_S; this section supplies *)
+(* isomorphic statements slot by slot over the finite-sum carrier *)
+(* csm_sumf S0 enum (a fold over the enumeration list, UpReqConcSoftmax) — *)
+(* each statement literally of the same shape as its slot under the carrier *)
+(* substitution real_sum_over_S := csm_sumf S0 enum. Supply anchors: *)
+(* cms_sum_ext / cms_sum_le / cms_sum_add / cms_sum_linear (ConcMixSelFeed). *)
+(* The original abstract slot declarations are unchanged. *)
 Section PpoBSumSlotsSupply.
 Variable S0 : Set.
 Variable enum : list S0.
 
-(* 位 real_sum_over_S_ext：求和外延（cms_sum_ext S0 enum 全参直引） *)
+(* Slot real_sum_over_S_ext: congruence of the sum (cms_sum_ext S0 enum, all arguments explicit). *)
 Theorem ppoB_sum_ext_supply : forall (f g : S0 -> Real),
   (forall s : S0, real_eq (f s) (g s)) ->
   real_eq (csm_sumf S0 enum f) (csm_sumf S0 enum g).
 Proof. exact (cms_sum_ext S0 enum). Qed.
 
-(* 位 real_sum_over_S_le：求和保序（cms_sum_le S0 enum 全参直引） *)
+(* Slot real_sum_over_S_le: the sum preserves order (cms_sum_le S0 enum, all arguments explicit). *)
 Theorem ppoB_sum_le_supply : forall (f g : S0 -> Real),
   (forall s : S0, real_le (f s) (g s)) ->
   real_le (csm_sumf S0 enum f) (csm_sumf S0 enum g).
 Proof. exact (cms_sum_le S0 enum). Qed.
 
-(* 位 real_sum_over_S_add：求和逐点加法分配（cms_sum_add 全参直引） *)
+(* Slot real_sum_over_S_add: the sum distributes over pointwise addition (cms_sum_add, all arguments explicit). *)
 Theorem ppoB_sum_add_supply : forall (f g : S0 -> Real),
   real_eq (csm_sumf S0 enum (fun s : S0 => real_plus (f s) (g s)))
           (real_plus (csm_sumf S0 enum f) (csm_sumf S0 enum g)).
 Proof. exact (cms_sum_add S0 enum). Qed.
 
-(* 位 real_sum_over_S_linear：标量提取（cms_sum_linear 全参直引） *)
+(* Slot real_sum_over_S_linear: scalar extraction (cms_sum_linear, all arguments explicit). *)
 Theorem ppoB_sum_linear_supply : forall (a : Real) (f : S0 -> Real),
   real_eq (csm_sumf S0 enum (fun s : S0 => real_mult a (f s)))
           (real_mult a (csm_sumf S0 enum f)).
@@ -213,14 +235,13 @@ Proof. exact (cms_sum_linear S0 enum). Qed.
 
 End PpoBSumSlotsSupply.
 
-(* ============================================================ *)
-(* 词表非空位 vocab_nonempty 的 Set 重述位与具体层供给                 *)
-(*                                                                              *)
-(* 原位为 Prop 形 Not (Id vocab nil)；重述为 Set 层非空见证形                    *)
-(* sigT (fun t : X => InT t vocab)，见证更强：可提取出具体元素。                *)
-(* 具体层供给取二点清单（bool 载体），见证由 InT_here 构造子直接给出。           *)
-(* 原 Prop 形假设位声明零改动。                                                 *)
-(* ============================================================ *)
+(* =================== The vocabulary-nonemptiness slot, restated on Set, with concrete supply =================== *)
+(* The original slot is the Prop form Not (Id vocab nil); it is restated as *)
+(* the Set-layer nonemptiness-witness form sigT (fun t : X => InT t vocab), *)
+(* a stronger witness: a concrete element is extractable. The concrete *)
+(* supply uses the two-element list (bool carrier), with the witness given *)
+(* directly by the InT_here constructor. The original Prop-form slot *)
+(* declaration is unchanged. *)
 Definition ppoB_vocab_nonempty_set (X : Set) (vocab : list X) : Set :=
   sigT (fun t : X => InT t vocab).
 

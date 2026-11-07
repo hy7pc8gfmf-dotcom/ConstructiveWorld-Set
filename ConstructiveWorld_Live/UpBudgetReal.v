@@ -1,25 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpBudgetReal.v —— 几何击穿的 Real 层显式迭代预算定理 *)
-(* *)
-(* 目的： 论文 4（梯度动力学收敛）「显式迭代预算」在具体柯西实数上的 Real 层构造： *)
-(*       Real := sigT (fun u : Qseq => cauchy u)；闭合 ConvergenceCauchy 节      *)
-(*       r_arch_pow 接口前提的缺口。幂运算此前仅有接口假设形态；本件纯 Real 层    *)
-(*       路线构造，无需 Q 层绕行。 *)
-(* *)
-(* 主件： *)
-(*   r_arch_pow_real：∀κ a eps（0<κ<1、0<a、0<eps），存在显式 nat 见证 N 使       *)
-(*   a·κ^N < eps。构造路线：令 i := 1/κ > 1，c := i − 1 > 0；Bernoulli 不等式     *)
-(*   i^N ≥ 1 + (N#1)·c 给出幂下界；预算实数 y := (a/eps)/c 经 real_arch 解出 N， *)
-(*   再经倒数反变（real_inv_pos_lt_contra）与 pow·inv 恒等式回接 a·κ^N < eps。   *)
-(*   budget_cond_sufficient：预算条件充分性（log 幂恒等式 + exp 严格单调反演）。 *)
-(*   geo_tail_budget / budget_min_tail：min 尾界形态与预算组合（纯序代数）。 *)
-(* *)
-(* 依赖：S01_BaseRing…S15_TailFEPUp（实盘 Require 面）。hlogz_strict 件内自备：   *)
-(*       根内 G01 件不在本世界，born-clean 重证（real_log_lt_mono + real_log_one）。 *)
-(* *)
-(* 纪律：纯构造性；Set 层语句（real_lt/real_le/real_eq/sigT/NatLe）；全部 Qed 闭合； *)
-(*       nat 序前提一律 Set 层 NatLe（NatLe_drop 桥按需供 lia）；用根内已证机器不重证。 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set -- the Real-layer explicit iteration budget theorem for geometric breakdown. *)
+(** * UpBudgetReal: the Real-layer construction of paper 4's (gradient
+    dynamics convergence) "explicit iteration budget" over the concrete
+    Cauchy reals, closing the gap in the ConvergenceCauchy section's
+    [r_arch_pow] interface premises.
+
+    Mission.  [r_arch_pow_real]: for κ a eps with 0<κ<1, 0<a, 0<eps, an
+      explicit nat witness N with a·κ^N < eps.  Route: i := 1/κ > 1,
+      c := i − 1 > 0; Bernoulli i^N ≥ 1 + (N#1)·c bounds the power below;
+      the budget real y := (a/eps)/c is solved for N by [real_arch]; the
+      reciprocal contravariance ([real_inv_pos_lt_contra]) and the pow·inv
+      identity return a·κ^N < eps.  [budget_cond_sufficient]: sufficiency
+      of the budget condition (log power identity + strictly monotone exp
+      inversion).  [geo_tail_budget]/[budget_min_tail]: the min tail bound
+      and its budget combination (pure order algebra).  The power operation
+      existed previously only as an interface assumption; this module is the pure Real-layer route.
+
+    Dependencies.  [S01_BaseRing] .. [S15_TailFEPUp] (the full Require face);
+      Stdlib [QArith], [Lia], [Extraction]; [hlogz_strict] self-contained
+      (the in-root G01 piece is absent here; born-clean re-proved from
+      [real_log_lt_mono] + [real_log_one]).
+
+    References.  Paper 4 Theorem 4.10 (tail bound a·κ^{min m n}); the same-name ConstructiveWorld-Main baseline.
+
+    Constructivity.  Purely constructive; Set-layer statements
+      ([real_lt]/[real_le]/[real_eq]/[sigT]/[NatLe]); Qed-closed; nat-order
+      premises uniformly Set-layer NatLe ([NatLe_drop] bridging to lia);
+      in-root proven machinery reused without re-proving.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpBudgetReal.v] (direct call, cpu_guard wrapped). *)
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Lia.
 Require Import S01_BaseRing.
@@ -40,7 +48,7 @@ Require Import S15_TailFEPUp.
 
 Local Open Scope Q_scope.
 
-(* ============ 0. 具体实数层幂（Real 层 r_pow） ============ *)
+(* ============ 0. the concrete real-layer power (the Real-layer r_pow) ============ *)
 
 Fixpoint real_pow (x : Real) (n : nat) : Real :=
   match n with
@@ -48,10 +56,11 @@ Fixpoint real_pow (x : Real) (n : nat) : Real :=
   | Datatypes.S m => real_mult x (real_pow x m)
   end.
 
-(* 与任务说明同名接口：r_pow kappa N 即 real_pow kappa N *)
+(* The same-name interface from the task specification: r_pow kappa N is
+   real_pow kappa N *)
 Notation r_pow := real_pow (only parsing).
 
-(* 幂对 real_eq 的相容性 *)
+(* Compatibility of the power with real_eq *)
 Lemma real_pow_eq_compat : forall (x y : Real) (n : nat),
   real_eq x y -> real_eq (real_pow x n) (real_pow y n).
 Proof.
@@ -63,7 +72,7 @@ Proof.
     + exact IH.
 Qed.
 
-(* 幂正性：0 < x ⟹ 0 < x^n *)
+(* Power positivity: 0 < x implies 0 < x^n *)
 Lemma bud_real_pow_pos : forall (x : Real) (n : nat),
   real_lt real_zero x -> real_lt real_zero (real_pow x n).
 Proof.
@@ -72,9 +81,9 @@ Proof.
   - cbn [real_pow]. exact (real_mult_pos_compat x (real_pow x m) Hx IH).
 Qed.
 
-(* ============ 1. 基本代数小工具（217 根内缺位的补齐） ============ *)
+(* ============ 1. basic algebra utilities (filling the gaps absent from the 217 root) ============ *)
 
-(* 0#1 == 0（nat 嵌入零点） *)
+(* 0#1 == 0 (the nat-embedded zero) *)
 Lemma real_const_zero_thm : real_eq (real_const (Z.of_nat 0 # 1)) real_zero.
 Proof.
   apply real_eq_of_zero_diff.
@@ -85,7 +94,7 @@ Proof.
   ring.
 Qed.
 
-(* 1·x == x（根内 real_mult_one 是 x·1 形态） *)
+(* 1·x == x (the in-root real_mult_one has the x·1 shape) *)
 Lemma real_mult_one_l : forall x : Real, real_eq (real_mult real_one x) x.
 Proof.
   intro x.
@@ -94,7 +103,7 @@ Proof.
   - apply real_mult_one.
 Qed.
 
-(* 0·x == 0（根内 real_mult_zero 是 x·0 形态） *)
+(* 0·x == 0 (the in-root real_mult_zero has the x·0 shape) *)
 Lemma real_mult_zero_l : forall x : Real, real_eq (real_mult real_zero x) real_zero.
 Proof.
   intro x.
@@ -103,7 +112,8 @@ Proof.
   - apply real_mult_zero.
 Qed.
 
-(* nat 嵌入乘法后继：(S n)#1·x == (n#1)·x + x *)
+(* Successor step of the nat-embedded multiplication:
+   (S n)#1·x == (n#1)·x + x *)
 Lemma real_nat_mult_succ : forall (n : nat) (x : Real),
   real_eq (real_mult (real_const (Z.of_nat (Datatypes.S n) # 1)) x)
           (real_plus (real_mult (real_const (Z.of_nat n # 1)) x) x).
@@ -124,12 +134,14 @@ Proof.
       * apply real_mult_one_l.
 Qed.
 
-(* 倒数唯一性补充：inv 1 == 1（根内 real_inv_one_local 已有，直接使用） *)
-(* （此处不重证；见 real_inv_one_local） *)
+(* A supplement on reciprocal uniqueness: inv 1 == 1 (the in-root
+   real_inv_one_local already provides it; used directly) *)
+(* (not re-proved here; see real_inv_one_local) *)
 
-(* 倒数正性专用：1 < 1/κ 的桥（real_inv_pos_lt_contra + inv 1 == 1） *)
+(* Dedicated to reciprocal positivity: the bridge to 1 < 1/κ
+   ([real_inv_pos_lt_contra] + inv 1 == 1) *)
 
-(* ============ 2. 幂·倒数恒等式（κ^N · (1/κ)^N == 1） ============ *)
+(* ============ 2. the power·reciprocal identity (κ^N · (1/κ)^N == 1) ============ *)
 
 Lemma real_pow_inv_pair : forall (k : Real) (Hk : real_lt real_zero k) (n : nat),
   real_eq (real_mult (real_pow k n) (real_pow (real_inv_pos k Hk) n)) real_one.
@@ -184,7 +196,7 @@ Proof.
               ** exact IH.
 Qed.
 
-(* ============ 3. le/lt 辅助（1 ≤ 1+x、0 ≤ (n#1)·x、y < 1+y） ============ *)
+(* ============ 3. le/lt auxiliaries (1 ≤ 1+x, 0 ≤ (n#1)·x, y < 1+y) ============ *)
 
 Lemma bud_real_le_one_plus : forall x : Real,
   real_le real_zero x -> real_le real_one (real_plus real_one x).
@@ -204,7 +216,8 @@ Proof.
   - exact (real_lt_plus_compat_lt_le real_zero real_one y y real_lt_zero_one (real_le_refl y)).
 Qed.
 
-(* (n#1)·x 非负：0 < x ⟹ 0 ≤ (n#1)·x（nat 嵌入倍数非负） *)
+(* (n#1)·x is nonnegative: 0 < x implies 0 ≤ (n#1)·x (a nat-embedded
+   multiple is nonnegative) *)
 Lemma real_nat_mult_nonneg : forall (n : nat) (x : Real),
   real_lt real_zero x -> real_le real_zero (real_mult (real_const (Z.of_nat n # 1)) x).
 Proof.
@@ -226,7 +239,7 @@ Proof.
     + apply (real_eq_sym _ _ (real_nat_mult_succ m x)).
 Qed.
 
-(* ============ 4. Bernoulli 幂下界：(1+c)^n ≥ 1 + (n#1)·c（c > 0） ============ *)
+(* ============ 4. the Bernoulli power lower bound: (1+c)^n ≥ 1 + (n#1)·c (c > 0) ============ *)
 
 Lemma bernoulli_pow : forall (c : Real) (Hc : real_lt real_zero c) (n : nat),
   real_le (real_plus real_one (real_mult (real_const (Z.of_nat n # 1)) c))
@@ -295,8 +308,9 @@ Proof.
 Qed.
 
 
-(* ============ 5. 件 2 主定理：几何击穿的 Real 层显式 nat 预算 ============ *)
-(*   N 的显式形态：real_arch 在预算实数 y := (a/eps)/(1/κ − 1) 上解出的 nat。 *)
+(* ============ 5. piece-2 main theorem: the Real-layer explicit nat budget for geometric breakdown ============ *)
+(*   The explicit shape of N: the nat solved by real_arch on the budget real
+    y := (a/eps)/(1/κ − 1). *)
 
 Theorem r_arch_pow_real :
   forall (kappa : Real) (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
@@ -320,7 +334,8 @@ Proof.
   assert (Hyc : real_lt real_zero (real_mult x (real_inv_pos c Hc)))
     by exact (real_mult_pos_compat x (real_inv_pos c Hc) Hax (real_inv_pos_pos c Hc)).
   destruct (real_arch (real_mult x (real_inv_pos c Hc))) as [N [HN2 HN]].
-  (* x < (N#1)·c：(x·(1/c))·c == x（real_mult_div 的换形），再乘 c 保序 *)
+  (* x < (N#1)·c: (x·(1/c))·c == x (the reshaping by real_mult_div), then
+   multiplying by c preserves the order *)
   assert (Hxc_lt : real_lt x (real_mult (real_const (Z.of_nat N # 1)) c)).
   { apply (real_eq_lt_lt x (real_mult (real_mult x (real_inv_pos c Hc)) c)).
     - apply (real_eq_trans _ (real_mult c (real_mult x (real_inv_pos c Hc)))).
@@ -351,7 +366,8 @@ Proof.
              ++ apply real_eq_refl.
              ++ apply real_plus_opp.
           -- apply (real_plus_zero (real_inv_pos kappa Hk1)). }
-  (* x < 1 + (N#1)·c ≤ (1+c)^N == (1/κ)^N（Bernoulli le + 前段 strict） *)
+  (* x < 1 + (N#1)·c ≤ (1+c)^N == (1/κ)^N (Bernoulli le + strict on the first
+   segment) *)
   assert (Hkey : real_lt x (real_pow (real_inv_pos kappa Hk1) N)).
   { apply (real_lt_eq_lt _ (real_pow (real_plus real_one c) N)).
     - apply (real_lt_le_trans _ (real_plus real_one (real_mult (real_const (Z.of_nat N # 1)) c))).
@@ -360,7 +376,7 @@ Proof.
         * exact (real_lt_plus_one _).
       + exact (bernoulli_pow c Hc N).
     - apply (real_pow_eq_compat _ _ N Honec). }
-  (* κ^N == 1/(1/κ)^N（pow·inv 恒等式 + 倒数唯一） *)
+  (* κ^N == 1/(1/κ)^N (the pow·inv identity + reciprocal uniqueness) *)
   assert (HposN : real_lt real_zero (real_pow (real_inv_pos kappa Hk1) N))
     by exact (bud_real_pow_pos _ N Hinvpos).
   assert (Hpowinv : real_eq (real_pow kappa N)
@@ -372,7 +388,7 @@ Proof.
       + apply real_mult_comm.
       + exact (real_pow_inv_pair kappa Hk1 N).
     - exact (real_inv_pos_correct (real_pow (real_inv_pos kappa Hk1) N) HposN). }
-  (* 1/x == eps·(1/a)（real_inv_unique 于 x·(eps·(1/a)) == 1） *)
+  (* 1/x == eps·(1/a) (real_inv_unique applied at x·(eps·(1/a)) == 1) *)
   assert (Hinva : real_eq (real_inv_pos x Hax) (real_mult eps (real_inv_pos a Ha))).
   { apply (real_inv_unique x (real_inv_pos x Hax) (real_mult eps (real_inv_pos a Ha))).
     - exact (real_inv_pos_correct x Hax).
@@ -427,8 +443,10 @@ Qed.
 
 
 
-(* log 严格负值桥：0 < κ < 1 ⟹ log κ < 0（件内自备 born-clean 形：
-   real_log_lt_mono 严格单调 + real_log_one 尾端换 0，两件皆 S07 顶层已证） *)
+(* The strict-negativity bridge for log: 0 < κ < 1 implies log κ < 0 (the
+   born-clean form prepared in-module: real_log_lt_mono strict monotonicity
+   plus real_log_one for the endpoint swap to 0; both are already proven at
+   the S07 top level) *)
 Lemma hlogz_strict :
   forall (Za : Real) (HZa : real_lt real_zero Za) (HZa1 : real_lt Za real_one),
   real_lt (real_log Za HZa) real_zero.
@@ -453,7 +471,8 @@ Proof.
   - exact (real_opp_lt_compat (real_log kappa Hk1) real_zero Hneg).
 Qed.
 
-(* log 幂恒等式：log(κ^N) == (N#1)·log κ（real_log_mult 归纳） *)
+(* The log power identity: log(κ^N) == (N#1)·log κ (induction by
+   real_log_mult) *)
 Lemma real_pow_log_form : forall (k : Real) (Hk : real_lt real_zero k) (n : nat),
   real_eq (real_log (real_pow k n) (bud_real_pow_pos k n Hk))
           (real_mult (real_const (Z.of_nat n # 1)) (real_log k Hk)).
@@ -495,8 +514,9 @@ Proof.
            ++ apply (real_eq_sym _ _ (real_nat_mult_succ m (real_log k Hk))).
 Qed.
 
-(* 件 1 主件：预算条件充分性
-   （经 log 多项式恒等 + cauchy_real_exp_mono 严格单调 + cw_log_exp_right 反演） *)
+(* Piece-1 main piece: sufficiency of the budget condition
+   (via the log polynomial identity + cauchy_real_exp_mono strict
+   monotonicity + cw_log_exp_right inversion) *)
 Theorem budget_cond_sufficient :
   forall (kappa a eps : Real)
          (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
@@ -527,8 +547,9 @@ Proof.
     - apply (RealSetoid.real_eq_mult_compat _ _ _ _ (real_eq_refl _)
                (real_eq_sym _ _ (real_opp_opp (real_log kappa Hk1)))).
     - apply real_mult_opp_l. }
-  (* 条件换形：log a < N#1·(−logκ) + log eps
-     （Hcond 两侧加 log eps：La + −Le < W ⟹ (La + −Le) + Le < W + Le） *)
+  (* Condition reshaping: log a < N#1·(−logκ) + log eps
+     (adding log eps to both sides of Hcond: La + −Le < W implies
+     (La + −Le) + Le < W + Le) *)
   assert (Hmid : real_lt (real_log a Ha)
                          (real_plus (real_mult (real_const (Z.of_nat N # 1))
                                                (real_opp (real_log kappa Hk1)))
@@ -551,7 +572,8 @@ Proof.
       + apply (real_plus_assoc (real_log a Ha) (real_opp (real_log eps Heps))
                                  (real_log eps Heps)).
     - exact (real_lt_plus_compat_lt_le _ _ _ _ Hcond (real_le_refl (real_log eps Heps))). }
-  (* 加法消去：x == La − W、La < W + Le ⟹ x < Le（件 1 专用纯加法引理） *)
+  (* Additive cancellation: x == La − W and La < W + Le imply x < Le (a pure
+   addition lemma dedicated to piece 1) *)
   assert (Hshift : forall (x La Le W : Real),
             real_eq x (real_plus La (real_opp W)) ->
             real_lt La (real_plus W Le) ->
@@ -611,9 +633,9 @@ Proof.
     + exact (cw_log_exp_right eps Heps).
 Qed.
 
-(* ============ 7. 件 3：论文 4 定理 4.10 尾界形态（纯序代数） ============ *)
+(* ============ 7. piece 3: the tail-bound shape of paper 4's Theorem 4.10 (pure order algebra) ============ *)
 
-(* 幂加法：κ^(p+j) == κ^p · κ^j *)
+(* Power addition: κ^(p+j) == κ^p · κ^j *)
 Lemma real_pow_add_thm : forall (k : Real) (p j : nat),
   real_eq (real_pow k (p + j)%nat) (real_mult (real_pow k p) (real_pow k j)).
 Proof.
@@ -656,7 +678,7 @@ Proof.
         * exact Hk2.
 Qed.
 
-(* 幂反单调：0 < κ ≤ 1、p ≤ q ⟹ κ^q ≤ κ^p *)
+(* Power antitonicity: 0 < κ ≤ 1 and p ≤ q imply κ^q ≤ κ^p *)
 Lemma real_pow_anti_mono : forall (k : Real) (Hk1 : real_lt real_zero k)
                               (Hk2 : real_le k real_one) (p q : nat),
   NatLe p q -> real_le (real_pow k q) (real_pow k p).
@@ -681,8 +703,9 @@ Proof.
   rewrite Hq. apply Hcore.
 Qed.
 
-(* 预算下降：N ≤ min m n 且 a·κ^N < eps ⟹ a·κ^{min m n} < eps
-   （论文 4 定理 4.10 尾界 a·κ^{min m n} 的预算消解，纯序代数） *)
+(* Budget descent: N ≤ min m n and a·κ^N < eps imply a·κ^{min m n} < eps
+   (the budget discharge of paper 4's Theorem 4.10 tail bound
+   a·κ^{min m n}, pure order algebra) *)
 Theorem geo_tail_budget :
   forall (kappa a eps : Real)
          (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
@@ -707,7 +730,8 @@ Proof.
   - exact Hbudget.
 Qed.
 
-(* 组合形态：给出显式预算 N，min 尾界随之消解（定理 4.10 Real 层组装） *)
+(* The combined form: given the explicit budget N, the min tail bound
+   discharges accordingly (the Real-layer assembly of Theorem 4.10) *)
 Theorem budget_min_tail :
   forall (kappa a eps : Real)
          (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
@@ -723,7 +747,7 @@ Proof.
   exact (geo_tail_budget kappa a eps Hk1 Hk2 Ha Heps p q N Hpq HN).
 Qed.
 
-(* ============ 8. 提取检验（可执行 OCaml，G3 关卡） ============ *)
+(* ============ 8. extraction check (executable OCaml, the G3 gate) ============ *)
 From Stdlib Require Import Extraction.
 Set Warnings "-extraction-opaque-accessed".
 Set Extraction Output Directory ".".

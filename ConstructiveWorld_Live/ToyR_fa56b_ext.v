@@ -1,18 +1,36 @@
-(* ==========================================================================)
-   ToyR_fa56b_ext —— singleton/cons/append 非空族（enum 非空谓词的居民性与闭包构造）、逐点 Id 到和 Id 的引擎扩展、detailed_bal；同域语句面
-   使命：本件形式化singleton/cons/append 非空族（enum 非空谓词的居民性与闭包构造）、逐点 Id 到和 Id 的引擎扩展、detailed_bal。
-   本件并载：S:=bool、reward 分档常值、beta:=1、pi_ref:=恒 1、Z_align:=1 的全显式见证；三处正性由 real_lt_zero；fa52_EDP_E_B_pos_unsat（能量全正支 ⟹ False）与 fa52_EntropyDiffReal_premises_unsat（熵。
-   依赖：S02_CauchyComplete, S07_RealSetoidExpLog, S08_RealMainlineDPO, S09_EntropyReal, S01_BaseRing, fa51_sumpos_id, fa56_id_carrier, Lists.List
-   构造性：零公理、零承认式语句；语句面 Set 层承载，Print Assumptions 全 Closed。
-   编译配方：Rocq 9.1 coqc -native-compiler no -Q . ""，cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set -- the singleton/cons/append nonempty family, the pointwise-Id-to-sum-Id engine extension, and detailed_bal. *)
+(** * ToyR_fa56b_ext: the singleton/cons/append nonempty family, the
+    pointwise-Id-to-sum-Id engine extension, and detailed_bal.
 
-(* ============================ §1 S:=bool、reward 分档常值、beta:=1、pi_ref:=恒 1、Z_align:=1 的全显式见证；三处正性由 real_lt_zero ============================ *)
+    Mission.  On the [fa56b_id_transport] (J eliminator) carrier: list
+      discrimination, the singleton/cons/append nonempty closure family,
+      the positivity transport companions, the sum engine
+      ([fa56b_sumd_cong], [fa56b_sumd_swap_mult]),
+      [fa56b_detailed_balance], [fa56b_boltzmann_stationary], and
+      cross-domain scaling ([fa56b_cross_domain_scaling],
+      [fa56b_cross_domain_linear]); plus fully explicit DPO/entropy
+      witnesses (S := bool, tiered constant reward, beta := 1, pi_ref := 1,
+      Z_align := 1) and the unsatisfiability pair ([fa52_EDP_E_B_pos_unsat],
+      [fa52_EntropyDiffReal_premises_unsat]).
+
+    Dependencies.  [S01_BaseRing], [S02_CauchyComplete],
+      [S07_RealSetoidExpLog], [S08_RealMainlineDPO], [S09_EntropyReal],
+      [fa51_sumpos_id], [fa56_id_carrier]; Stdlib [Lists.List].
+
+    References.  S04:1588-1589, S04:1905-1907, S04:1913, S05:5968-5983;
+      the same-name ConstructiveWorld-Main baseline.
+
+    Constructivity.  Zero axiom declarations, zero acknowledged statements;
+      statements Set-carried; Print Assumptions all Closed.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" ToyR_fa56b_ext.v] (direct call, cpu_guard wrapped). *)
+
+(* ===== §1 fully explicit witnesses for S := bool, tiered constant reward, beta := 1, pi_ref := const 1, Z_align := 1; the three positivities from real_lt_zero ===== *)
 Require Import S02_CauchyComplete.
 Require Import S07_RealSetoidExpLog.
 Require Import S08_RealMainlineDPO.
 
-(* ---------- 具体见证 ---------- *)
+(* ---------- concrete witnesses ---------- *)
 Definition fa52_dpo_S : Type := bool.
 Definition fa52_dpo_reward : bool -> Real :=
   fun s : bool => if s then real_plus real_one real_one else real_one.
@@ -20,7 +38,7 @@ Definition fa52_dpo_pi_ref : bool -> Real := fun _ : bool => real_one.
 Definition fa52_dpo_pi_ref_pos : forall s : bool, real_lt real_zero (fa52_dpo_pi_ref s) :=
   fun _ : bool => real_lt_zero_one.
 
-(* ---------- 1 < 2（0<1 复合 + 代数归位） ---------- *)
+(* ---------- 1 < 2 (composing 0<1 with algebraic normalization) ---------- *)
 Lemma fa52_one_two_lt : real_lt real_one (real_plus real_one real_one).
 Proof.
   assert (HL : real_eq (real_plus real_zero real_one) real_one).
@@ -42,7 +60,8 @@ Proof.
   exact fa52_one_two_lt.
 Qed.
 
-(* ---------- 主件一：DPO 损失在 π* 处 (0, ln2) 有界——见证特化闭语句 ---------- *)
+(* ---------- main piece one: the DPO loss is bounded in (0, ln2) at π* -- a
+   witness-specialized closed statement ---------- *)
 Theorem fa52_dpo_bounded_both_concrete :
   S01_BaseRing.And
     (real_lt real_zero
@@ -64,7 +83,8 @@ Proof.
   exact (real_dpo_loss_pi_star_bounded_both bool fa52_dpo_reward real_one           real_lt_zero_one fa52_dpo_pi_ref fa52_dpo_pi_ref_pos           real_one real_lt_zero_one true false fa52_dpo_reward_spread).
 Qed.
 
-(* ---------- 主件二：闭式奖励复原——见证特化（β:=1, Z:=1 分离出 log1 修正项） ---------- *)
+(* ---------- main piece two: closed-form reward recovery -- witness
+   specialization (β := 1, Z := 1 isolating the log 1 correction term) ---------- *)
 Theorem fa52_dpo_reward_recovery_concrete : forall s : bool,
   real_eq
     (real_dpo_reward_explicit bool real_one fa52_dpo_pi_ref fa52_dpo_pi_ref_pos
@@ -84,22 +104,23 @@ Qed.
 Print Assumptions fa52_dpo_bounded_both_concrete.
 Print Assumptions fa52_dpo_reward_recovery_concrete.
 
-(* ============================ §2 fa52_EDP_E_B_pos_unsat（能量全正支 ⟹ False）与 fa52_EntropyDiffReal_premises_unsat（熵 ============================ *)
+(* ===== §2 fa52_EDP_E_B_pos_unsat (the all-positive-energy component implies False) and fa52_EntropyDiffReal_premises_unsat (the entropy ===== *)
 Require Import S02_CauchyComplete.
 Require Import S07_RealSetoidExpLog.
 Require Import S08_RealMainlineDPO.
 Require Import S09_EntropyReal.
 
-(* ---------- 核心：E_B_pos 单槽不可满足 ---------- *)
+(* ---------- core: the E_B_pos single slot is unsatisfiable ---------- *)
 Theorem fa52_EDP_E_B_pos_unsat :
   forall E_total : Real,
     (forall E : Real, real_lt real_zero E ->
        real_lt real_zero (real_plus E_total (real_opp E))) -> False.
 Proof.
   intros E_total eB.
-  (* 第一步：eB 1：0 < E_total - 1 *)
+  (* Step one: eB at 1: 0 < E_total - 1 *)
   pose proof (eB real_one real_lt_zero_one) as H1.
-  (* 第二步：混合加保序 0+1 < (E_total-1)+1 *)
+  (* Step two: mixing the strict with the order-preserving addition:
+   0+1 < (E_total-1)+1 *)
   assert (Hstep : real_lt (real_plus real_zero real_one)
                           (real_plus (real_plus E_total (real_opp real_one)) real_one)).
   { exact (real_lt_plus_compat_lt_le real_zero
@@ -124,19 +145,20 @@ Proof.
           -- apply (real_plus_comm (real_opp real_one) real_one).
           -- apply (real_plus_opp real_one).
       + apply (real_plus_zero E_total). }
-  (* 得 1 < E_total，再降 0 < E_total *)
+  (* This yields 1 < E_total, then lowered to 0 < E_total *)
   assert (H1ET : real_lt real_one E_total).
   { exact (real_eq_lt_lt _ _ _ (real_eq_sym _ _ HL) (real_lt_eq_lt _ _ _ Hstep HR)). }
   assert (H2 : real_lt real_zero E_total).
   { exact (real_lt_le_trans real_zero real_one E_total real_lt_zero_one (inl H1ET)). }
-  (* 第三步：eB E_total：0 < E_total - E_total == 0，矛盾 *)
+  (* Step three: eB at E_total: 0 < E_total - E_total == 0, a contradiction *)
   pose proof (real_lt_eq_lt real_zero (real_plus E_total (real_opp E_total)) real_zero
                 (eB E_total H2) (real_plus_opp E_total)) as Hcon.
-  (* Empty_set（S01_BaseRing.Not 的结论型）无构造子，destruct 即清任意目标 *)
+  (* Empty_set (the conclusion type of S01_BaseRing.Not) has no constructors;
+   destruct clears any goal *)
   destruct (real_lt_irrefl real_zero Hcon).
 Qed.
 
-(* ---------- 包装：EntropyDiffReal 全 10 槽空虚真 ---------- *)
+(* ---------- wrapper: EntropyDiffReal with all 10 slots jointly yielding False ---------- *)
 Theorem fa52_EntropyDiffReal_premises_unsat :
   forall (Omega_A : forall E_A : Real, real_lt real_zero E_A -> Real)
          (Omega_B : forall E_B : Real, real_lt real_zero E_B -> Real)
@@ -180,35 +202,40 @@ Let mult     := @mult RI.
 Let le       := @le RI.
 Let lt       := @lt RI.
 
-(* ============ 槽VI：J 消去器 + list 判别核 + 非空构造族 =========== *)
-(* S04:1588-1589 vocab_nonempty 先例形的构造兑现。核心技术：        *)
-(* Id 的依赖匹配消去（本载体首用 J 规则；fa51/fa56 只用过            *)
-(* id_sym/id_trans/id_cong 三件套）。                               *)
+(* ============ Slot VI: the J eliminator + the list discriminator kernel + the nonempty construction family =========== *)
+(* A constructive realization of the S04:1588-1589 vocab_nonempty precedent
+   shape.  Core technique: the dependent match elimination of Id (the J rule
+   is used for the first time in this carrier; fa51/fa56 used only the
+   id_sym/id_trans/id_cong trio). *)
 
-(* 通用传输（J 消去器）：p : Id x y 把 Q x 中的元素搬到 Q y。        *)
+(* The generic transport (the J eliminator): p : Id x y moves an element of
+   Q x to Q y. *)
 Definition fa56b_id_transport (A : Set) (Q : A -> Set) (x y : A)
                               (p : Id x y) (h : Q x) : Q y :=
   match p in Id _ a return Q a with
   | id_refl => h
   end.
 
-(* list 判别核：nil 与 cons 的 Id 分离（Set 值型别检验函数）。      *)
+(* The list discriminator kernel: the Id separation of nil and cons (a
+   Set-valued type-checking function). *)
 Definition fa56b_list_case (T : Set) (l : list T) : Set :=
   match l with
   | nil => unit
   | _ => Empty_set
   end.
 
-(* 判别核引理：Id (t::l) nil 无居民（cons ≠ nil）。
-   证体以 Id 指标剪除形收束：指标 (t::l) 与 nil 无同一构造支可统一，
-   矛盾支就地封闭。 *)
+(* The discriminator lemma: Id (t::l) nil has no inhabitants (cons ≠ nil).
+   The proof body closes by the index-pruning form of Id: the indices (t::l)
+   and nil share no constructor branch to unify, and the contradictory
+   branch is closed in place. *)
 Lemma fa56b_cons_nil_id_contra : forall (T : Set) (t : T) (l : list T),
   Id (t :: l) nil -> Empty_set.
 Proof.
   intros T t l H. inversion H.
 Qed.
 
-(* 槽语句实例化：单点词表满足 vocab_nonempty（S04:1589 形）。        *)
+(* Slot-statement instantiation: the single-point vocabulary satisfies
+   vocab_nonempty (the S04:1589 shape). *)
 Theorem fa56b_singleton_nonempty :
   forall (T : Set) (t0 : T), Not (Id (cons t0 (@nil T)) (@nil T)).
 Proof.
@@ -216,7 +243,7 @@ Proof.
   exact (fa56b_cons_nil_id_contra T t0 nil H).
 Qed.
 
-(* 非空闭包·cons：头加元素保非空。                                  *)
+(* Nonempty closure, cons: prepending an element preserves nonemptiness. *)
 Theorem fa56b_cons_nonempty :
   forall (T : Set) (t0 : T) (l : list T),
     Not (Id l nil) -> Not (Id (cons t0 l) nil).
@@ -225,7 +252,8 @@ Proof.
   exact (fa56b_cons_nil_id_contra T t0 l H).
 Qed.
 
-(* 非空闭包·append 左：左支非空则并非空。                           *)
+(* Nonempty closure, append left: a nonempty left component makes the
+   concatenation nonempty. *)
 Theorem fa56b_append_nonempty_l :
   forall (T : Set) (l l' : list T),
     Not (Id l nil) -> Not (Id (l ++ l') nil).
@@ -235,7 +263,8 @@ Proof.
   - exact (fa56b_cons_nil_id_contra T t (r ++ l') H).
 Qed.
 
-(* 非空闭包·append 右：右支非空则并非空（逐支 case）。              *)
+(* Nonempty closure, append right: a nonempty right component makes the
+   concatenation nonempty (case on the left component). *)
 Theorem fa56b_append_nonempty_r :
   forall (T : Set) (l l' : list T),
     Not (Id l' nil) -> Not (Id (l ++ l') nil).
@@ -245,7 +274,8 @@ Proof.
   - exact (fa56b_cons_nil_id_contra T t (r ++ l') H).
 Qed.
 
-(* 伴件：严格正性的 Id 不变性（引擎前提在 Id 重整下稳定）。          *)
+(* Companion: the Id invariance of strict positivity (the engine premises
+   are stable under Id rewriting). *)
 Theorem fa56b_lt_transport :
   forall (a b : R), Id a b -> lt zero a -> lt zero b.
 Proof.
@@ -253,7 +283,7 @@ Proof.
   exact (fa56b_id_transport R (fun w => lt zero w) a b p H).
 Qed.
 
-(* 伴件：非负性的 Id 不变性。                                       *)
+(* Companion: the Id invariance of nonnegativity. *)
 Theorem fa56b_le_transport :
   forall (a b : R), Id a b -> le zero a -> le zero b.
 Proof.
@@ -261,9 +291,10 @@ Proof.
   exact (fa56b_id_transport R (fun w => le zero w) a b p H).
 Qed.
 
-(* ============ 槽VII：引擎扩展——逐点 Id ⟹ 和 Id ==================== *)
-(* S04 steady_state_boltzmann（L1921）依存的 sum_over_S_ext 之       *)
-(* fa51_sumd 列表载体副本；为槽VIII 稳态副本的关键件。               *)
+(* ============ Slot VII: engine extension -- pointwise Id implies sum Id ==================== *)
+(* The fa51_sumd list-carrier copy of sum_over_S_ext, on which the S04
+   steady_state_boltzmann (L1921) depends; the key piece of the Slot VIII
+   stationary copy. *)
 
 Theorem fa56b_sumd_cong :
   forall (f g : S -> R) (l : list S),
@@ -275,7 +306,8 @@ Proof.
   - exact (id_cong2 (fun a b => plus a b) (Hpt x) IH).
 Qed.
 
-(* 乘积换序过和（槽VIII 逐点平衡的批量版）。                         *)
+(* Swapping the product factors under the sum (the batch version of the
+   Slot VIII pointwise balance). *)
 Theorem fa56b_sumd_swap_mult :
   forall (f g : S -> R) (l : list S),
     Id (fa51_sumd S (fun s => mult (f s) (g s)) l)
@@ -285,12 +317,16 @@ Proof.
   exact (fa56b_sumd_cong (fun s => mult (f s) (g s))                         (fun s => mult (g s) (f s)) l                         (fun s => mult_comm (f s) (g s))).
 Qed.
 
-(* ============ 槽VIII：S04:1905-1907 detailed_balance 槽 + ========= *)
-(*              S04:1913 steady_state_boltzmann 列表载体副本 ========== *)
-(* 兑现：转移取独立提议核 k(s,s') := π(s')（Boltzmann-Gibbs 稳态分布  *)
-(* 自身），平衡槽由 mult_comm 闭合；稳态件为主非平凡件（sumd_cong  *)
-(* + fa56 线性件 + 行归一 + mult_one 四段链）。π 取 fa56_markov_kernel *)
-(* 同项（正性/非负/归一化三伴件由 fa56 已证件直接继承，零重复施工）。 *)
+(* ============ Slot VIII: the S04:1905-1907 detailed_balance slot + ========= *)
+(*              the S04:1913 steady_state_boltzmann list-carrier copy ========== *)
+(* Realization: the transition takes the independent proposal kernel
+   k(s,s') := π(s') (the Boltzmann-Gibbs stationary distribution itself),
+   and the balance slot is closed by mult_comm; the stationary piece is the
+   main nontrivial piece (a four-segment chain: sumd_cong + the fa56 linear
+   piece + row normalization + mult_one).  π takes the same term as
+   fa56_markov_kernel (the three companions -- positivity, nonnegativity,
+   normalization -- are inherited directly from the already-proven fa56
+   pieces, with no duplicated construction). *)
 
 Definition fa56b_boltzmann_prob (base_loss : S -> R) (D : R) (D_pos : lt zero D)
                                 (Hne : Not (Id enum nil)) (s : S) : R :=
@@ -302,7 +338,8 @@ Definition fa56b_independence_transition
            (Hne : Not (Id enum nil)) (s s' : S) : R :=
   fa56b_boltzmann_prob base_loss D D_pos Hne s'.
 
-(* S04:1905-1907 槽语句实例：独立提议核逐点满足详细平衡。             *)
+(* The S04:1905-1907 slot-statement instance: the independent proposal
+   kernel satisfies detailed balance pointwise. *)
 Theorem fa56b_detailed_balance :
   forall (base_loss : S -> R) (D : R) (D_pos : lt zero D)
          (Hne : Not (Id enum nil)) (s s' : S),
@@ -315,8 +352,9 @@ Proof.
   exact (mult_comm (fa56b_boltzmann_prob base_loss D D_pos Hne s)                   (fa56b_boltzmann_prob base_loss D D_pos Hne s')).
 Qed.
 
-(* S04:1913 steady_state_boltzmann 之 fa51_sumd 列表载体副本：        *)
-(* 逐点平衡 + 行归一 ⟹ π 是平稳分布（Σ_{s'} π(s')k(s',s) = π(s)）。  *)
+(* The fa51_sumd list-carrier copy of the S04:1913 steady_state_boltzmann:
+   pointwise balance + row normalization imply that π is a stationary
+   distribution (Σ_{s'} π(s')k(s',s) = π(s)). *)
 Theorem fa56b_boltzmann_stationary :
   forall (pi : S -> R) (k : S -> S -> R),
     (forall s s' : S,
@@ -329,17 +367,20 @@ Proof.
   exact (id_trans           (fa56b_sumd_cong (fun s' => mult (pi s') (k s' s))                            (fun s' => mult (pi s) (k s s')) enum                            (fun x => Hdb s x))           (id_trans              (fa56_sumd_mult_const S (pi s) (fun s' => k s s') enum)              (id_trans                 (id_cong (fun y => mult (pi s) y) (Hnorm s))                 (mult_one (pi s))))).
 Qed.
 
-(* ============ 槽IX：S05:5968-5983 跨域标度槽（sigT 形） ============ *)
-(* 槽语句：cross_domain_scaling : sigT (fun alpha : R => forall N,    *)
-(*   Id (loss_drop N) (mult (power (of_nat N) alpha) (f_N N)))。      *)
-(* 兑现：loss_drop 装法定义件（幂律形式），槽的 sigT 见证由 existT    *)
-(* 直接装配；alpha:=one、power:=mult 特化伴件走 mult_one 归一链。     *)
+(* ============ Slot IX: the S05:5968-5983 cross-domain scaling slot (sigT form) ============ *)
+(* Slot statement: cross_domain_scaling : sigT (fun alpha : R => forall N,
+   Id (loss_drop N) (mult (power (of_nat N) alpha) (f_N N))).
+   Realization: loss_drop is a definitional assembly piece (the power-law
+   form), and the slot's sigT witness is assembled directly by existT; the
+   specialization companions alpha := one and power := mult go through the
+   mult_one normalization chain. *)
 
 Definition fa56b_loss_drop (power : R -> R -> R) (of_nat_R : nat -> R)
                            (f_N : nat -> R) (alpha : R) (N : nat) : R :=
   mult (power (of_nat_R N) alpha) (f_N N).
 
-(* 槽语句的 sigT 见证装配（存在性面一次兑现）。                       *)
+(* The sigT witness assembly for the slot statement (the existence face
+   realized in one stroke). *)
 Theorem fa56b_cross_domain_scaling :
   forall (power : R -> R -> R) (of_nat_R : nat -> R) (f_N : nat -> R)
          (alpha : R),
@@ -351,8 +392,9 @@ Proof.
   exact (existT _ alpha (fun N => @id_refl R _)).
 Qed.
 
-(* 特化伴件：alpha := one、power := mult 时幂律退化线性标度           *)
-(* （mult_one 右单位元经 id_cong 提升进乘积，非平凡归一链）。         *)
+(* The specialization companion: with alpha := one and power := mult, the
+   power law degenerates to linear scaling (the mult_one right unit lifted
+   through id_cong into the product, a nontrivial normalization chain). *)
 Theorem fa56b_cross_domain_linear :
   forall (of_nat_R : nat -> R) (f_N : nat -> R) (N : nat),
     Id (fa56b_loss_drop mult of_nat_R f_N one N)
@@ -365,7 +407,7 @@ Qed.
 
 End Fa56bExt.
 
-(* ============ 假设面闭合申报 ============ *)
+(* ============ assumption-face closure declaration ============ *)
 
 Print Assumptions fa56b_id_transport.
 Print Assumptions fa56b_cons_nil_id_contra.

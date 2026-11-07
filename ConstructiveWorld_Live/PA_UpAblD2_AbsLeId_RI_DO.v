@@ -1,33 +1,33 @@
-(* ==========================================================================
-   PA_UpAblD2_AbsLeId_RI_DO.v - the two interface slots of the abstract
-   AbsLeId section, supplied at concrete and abstract carriers.
-   Mission. 使命: five theorems - uabd2_ali_abs_ge_zero_id_pair (the slot
-     statement inside the interface-context section), its explicit
-     fully-applied form uabd2_ali_abs_ge_zero_id_explicit, the concrete
-     Real-carrier forms uabd2_ri_real_abs_ge_zero_id and
-     uabd2_ri_reqface_abs_ge_zero_id, and the decidable-order field-five
-     form uabd2_do_ltle_iffdec_real.
-   Dependencies. 依赖清单: S01_BaseRing (RealInterfaceEnhanced /
-     DecidableOrder / the Set-layer Or), fa53_compat_abs
-     (fa53_abs_ge_zero_id_dec), S02_CauchyComplete, S03_QExp, AbsLeId
-     (ali_real_abs_ge_zero_id) of the -Set lineage world.
-   References. 对标: the AbsLeId abstract section's two context slots (the
-     interface bundle and the decidable-order extension). Statement names
-     carried over verbatim; adaptation = face convergence on this world's
-     own precedent: the interface-context section is verbatim (the S01
-     face is already argument-less in both trees), and the concrete
-     req-face statement carries the supply lemma's own direct faces
-     (real_le / real_eq) - in the argument-less world the projection
-     face and the direct face are the same constant chain, so the two
-     concrete forms carry one face.
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; each proof consumes one in-register
-     supply by exact (the field-five form is a transparent unfold, T-grade
-     by disclosure); no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     PA_UpAblD2_AbsLeId_RI_DO.v (cpu_guard thermal wrapper,
-     ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — the AbsLeId interface slots, concrete and abstract carriers. *)
+
+(** * PA_UpAblD2_AbsLeId_RI_DO: the AbsLeId slots at concrete and abstract carriers.
+
+    Mission.  Five theorems: [uabd2_ali_abs_ge_zero_id_pair] (the slot
+      statement inside the interface-context section), its explicit
+      fully-applied form [uabd2_ali_abs_ge_zero_id_explicit], the
+      concrete Real-carrier forms [uabd2_ri_real_abs_ge_zero_id] and
+      [uabd2_ri_reqface_abs_ge_zero_id], and the field-five decidable-order form [uabd2_do_ltle_iffdec_real].
+
+    Dependencies.  [S01_BaseRing] ([RealInterfaceEnhanced],
+      [DecidableOrder], Set-layer [Or]), [fa53_compat_abs]
+      ([fa53_abs_ge_zero_id_dec]), [S02_CauchyComplete], [S03_QExp],
+      [S07_RealSetoidExpLog], [AbsLeId] ([ali_real_abs_ge_zero_id]).
+
+    References.  This development, AbsLeId.v; statement names carried
+      over verbatim from the same-name ConstructiveWorld-Main baseline
+      module.  Adaptation: the interface-context section is verbatim
+      (the S01 face is already argument-less in both trees); the concrete
+      req-face form carries the lemma's direct faces ([real_le]/[real_eq],
+      one constant chain in this world).
+
+    Constructivity.  All statements are Set-layer; every proof is
+      [Qed]-closed with zero admitted items; each proof consumes one
+      in-scope supply item by [exact] (the field-five form is a
+      transparent unfold); no new axioms.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      PA_UpAblD2_AbsLeId_RI_DO.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import fa53_compat_abs.
@@ -52,7 +52,8 @@ Qed.
 
 End UabD2PairWorld.
 
-(* 出节形实证（FA3 纪律6：节参消失不对称 Check 实证） *)
+(* Closed form after the section: the [Check] below witnesses that the
+   section parameters [RI0]/[DO0] vanish from the exported statement. *)
 Check uabd2_ali_abs_ge_zero_id_pair.
 
 (* The explicit fully-applied form: any (RI1, DO1) pair feeds it. *)

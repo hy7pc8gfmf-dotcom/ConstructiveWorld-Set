@@ -1,31 +1,33 @@
-(* ========================================================================= *)
-(* LW3ETranscendental - M3-C1 chief seat: the final-statement assembly layer  *)
-(* for constructive transcendence of e.                                      *)
-(* 模块名：LW3ETranscendental.  数学使命：given a nonzero integer            *)
-(* coefficient polynomial p (Set-level explicit witness lw3_nz), assemble    *)
-(* the evaluation of p at the constructive constant e and the Hermite        *)
-(* integer-functional chain that carries its explicit lower-bound witness.   *)
-(* 路线裁决：consume the M2 offerings verbatim, do not re-derive any         *)
-(* Hermite identity: LW1ZPoly zpoly/eval_Z ring-hom exit, LW0QPoly Q-eval    *)
-(* hom laws, LW2Hermite lw2_lambda/lw2_hermite_identity + lw2i integrality   *)
-(* machine, LW2IntegMachine e^{-t} endpoint functional.  The M2 closing      *)
-(* reconciliation named exactly one hard gap for this seat: the zpoly ring   *)
-(* hom new file with its consistency bridge to QPoly — closed in Section 3.  *)
-(* The second gap found by direct survey: the integrality closure of         *)
-(* lw2i_intpoly under product (needed to build integer-coefficient Hermite   *)
-(* integrands from p) — closed in Section 5; the integer Hermite integrand   *)
-(* lw3_fbuild and its integer functional value lw3_K close Section 6.        *)
-(* 依赖清单：S01_BaseRing (And/NatLe Set layer), S02_CauchyComplete          *)
-(* (Real/real_lt/real_plus/real_mult/real_const/real_one), S03_QExp          *)
-(* (cauchy_real_exp), LW0QPoly, LW1ZPoly, LW2Hermite, LW2IntegMachine;      *)
-(* Stdlib QArith/Lia/Arith/ZArith.  LW0Endpoint stays outside this Require   *)
-(* closure on purpose (same recipe as LW2IntegMachine).                      *)
-(* 构造性注记：every statement is Set-sorted (sigT / Set-level And / Qeq /   *)
-(* real_lt); the nonzero witness lw3_nz is decidable-comparison data, no     *)
-(* negation anywhere; structurally recursive Fixpoints only; 编译配方：      *)
-(* env COQLIB/ROCQLIB to the Rocq 9.1 library; coqc.exe -q -Q . "".          *)
-(* 对标行：Hermite 1873 closing chapter; work order M3-C1 (2026-09).         *)
-(* ========================================================================= *)
+(* ConstructiveWorld-Set — final assembly layer for the constructive transcendence of e. *)
+
+(** * LW3ETranscendental: evaluation of an integer-coefficient polynomial
+      at the constructive constant [e], with the explicit Hermite
+      lower-bound witness.
+
+    Mission.  Given a polynomial [p] with nonzero integer coefficients
+      (Set-level witness [lw3_nz]), assembles the evaluation of [p] at
+      the constructive constant [e] with the Hermite integer-functional
+      chain carrying its explicit lower-bound witness, consuming the
+      upstream identities verbatim; built here: the [zpoly] ring
+      homomorphism with [QPoly] bridge (Section 3), the [lw2i_intpoly]
+      product-integrality closure (Section 5), and the integrand
+      [lw3_fbuild] with value [lw3_K] (Section 6).
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith.Qabs]; requires [S01_BaseRing], [S02_CauchyComplete],
+      [S03_QExp], [LW0QPoly], [LW1ZPoly], [LW2Hermite], [LW2IntegMachine],
+      [LW0FactGrowth], [LW2UpperBound], [LW2NivenInt]; [LW0Endpoint]
+      stays outside the Require closure (as in [LW2IntegMachine]).
+
+    References.  This development, the ConstructiveWorld-Main baseline
+      module of the same name; Hermite's 1873 transcendence proof.
+
+    Constructivity.  Every statement is Set-sorted ([sigT], Set-level
+      [And], [Qeq]); the witness [lw3_nz] is decidable-comparison data
+      with no negation; only structural [Fixpoint]s are used.
+
+    Build.  [coqc -native-compiler no -q -Q . "" LW3ETranscendental.v]
+      compiles cleanly (exit 0), artifact bytes [436f7121 000160bc]. *)
 
 From Stdlib Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith_base.
@@ -37,13 +39,15 @@ Require Import LW0QPoly.
 Require Import LW1ZPoly.
 Require Import LW2Hermite.
 Require Import LW2IntegMachine.
-(* 终语句四项续装复用面（模块 140）：LW0FactGrowth 供阶乘压制定量（①），  *)
-(* LW2UpperBound 供 Hermite 泛函上界系（②，模块 106 复核 PASS 正本       *)
-(* 2445e252 沙箱同源先行绿）。                                          *)
+(* Reuse face of the final-statement assembly: [LW0FactGrowth] supplies  *)
+(* the quantitative factorial suppression (item 1); [LW2UpperBound]      *)
+(* supplies the Hermite functional upper-bound family (item 2).          *)
 Require Import LW0FactGrowth.
 Require Import LW2UpperBound.
-(* 终语句四项续装复用面：LW2NivenInt 供 Niven 源头多项式的首项         *)
-(* 系数闭式（首项 =(−1)^n·b^n，b≠0 即非零），为 K≠0 见证生产件.        *)
+(* Further reuse face of the final-statement assembly: [LW2NivenInt]     *)
+(* supplies the leading-coefficient closed form of the Niven source      *)
+(* polynomial (leading term [= (-1)^n * b^n], nonzero whenever           *)
+(* [b <> 0]) — the producer of the [K <> 0] witness.                     *)
 Require Import LW2NivenInt.
 
 (* ------------------------------------------------------------------ *)
@@ -324,11 +328,11 @@ Proof.
 Qed.
 
 (* ------------------------------------------------------------------ *)
-(* Section 8.  终语句四项续装（模块 140）：the quantitative contradiction *)
-(* chain for the final statement, per the _tlw131 receipt SS5/SS6 pins.  *)
+(* Section 8.  The quantitative contradiction chain for the final       *)
+(* statement.                                                           *)
 (* ------------------------------------------------------------------ *)
 
-(* ① 阶 factorial suppression, consumed: the growth of the coefficient    *)
+(* Item 1, factorial suppression, consumed: the growth of the coefficient    *)
 (* data C is swallowed by the double factorial (2N)! as soon as C <= N —  *)
 (* the assembly-grade corollary of lw0_fact_lower_growth (div2 (2N)=N).   *)
 Lemma lw3_fact_swallows : forall C N : nat, (C <= N)%nat ->
@@ -440,12 +444,16 @@ Theorem lw3_Kinst_gate : forall (p : zpoly) (N : nat),
 Proof. intros p N Hnz Hlt. apply (lw3_gate (lw3_Kinst p N) Hnz Hlt). Qed.
 
 (* ------------------------------------------------------------------ *)
-(* Section 9.  终语句四件续装：decay 正性实例、K≠0 见证生产             *)
-(* （Niven 首项复用）、p-尺度逐节点界、apartness 出口.                  *)
+(* Section 9.  The final-statement assembly, continued: decay positivity *)
+(* instances, the [K <> 0] witness production (Niven leading-term        *)
+(* reuse), the p-scale per-node bounds, and the apartness exit.          *)
 (* ------------------------------------------------------------------ *)
 
-(* ① Q 倒数正性，make 字形逐支枚举（库面 Qinv_pos 为 make 交换恒等形，  *)
-(* 非正性律，故按枚举自建；正分母支由 positive 的 zify 正性闭合）.       *)
+(* Item 1, positivity of the Q reciprocal, by enumerating the branches   *)
+(* of the [make] shape (the library [Qinv_pos] is the make-swapped       *)
+(* identity form, not a positivity law, so it is rebuilt here by         *)
+(* enumeration; the positive-denominator branch closes through the       *)
+(* [zify] positivity of [positive]).                                     *)
 Lemma lw3_Qinv_pos : forall (a : Z) (d : positive),
   (0 < a)%Z -> QltT 0 (/ (a # d)%Q).
 Proof.
@@ -456,7 +464,9 @@ Proof.
   - lia.
 Qed.
 
-(* ① 阶乘有理像正性：1 ≤ q_fact n（lw0_q_fact_ge_one）经 <≤ 传递.       *)
+(* Item 1, positivity of the rational image of the factorial:            *)
+(* [0 < 1 <= q_fact n] — [lw0_q_fact_ge_one] transported through         *)
+(* the [Qlt]-[Qle] transitivity.                                         *)
 Lemma lw3_qfact_pos : forall n : nat, QltT 0 (q_fact n).
 Proof.
   intro n. apply Qlt_to_QltT. apply (Qlt_le_trans 0%Q 1%Q).
@@ -464,8 +474,10 @@ Proof.
   - exact (QleT'_to_Qle 1%Q (q_fact n) (lw0_q_fact_ge_one n)).
 Qed.
 
-(* ① decay 常数三形正性：Qlt（Prop 面）、QleT'（lw3_decay_kills 复用    *)
-(* 形）、QltT（Set 面严格形），常数面实例 m^m·(1/(2m)!) ≤ 1.             *)
+(* Item 1, positivity of the decay constant in three faces: [Qlt] (the   *)
+(* [Prop] face), [QleT'] (the reused [lw3_decay_kills] shape), and       *)
+(* [QltT] (the strict Set face); the constant is the instance            *)
+(* [m^m * (1/(2m)!) <= 1].                                               *)
 Lemma lw3_decay_E_pos : forall m : nat, QltT 0 (lw3_decay_E m).
 Proof.
   intro m. unfold lw3_decay_E.
@@ -496,17 +508,21 @@ Proof.
            (lw3_decay_E_nonneg m)).
 Qed.
 
-(* ② Set 级 Q 非零见证（Qeq_bool 可判定比较数据，两支均 Set 排序——     *)
-(* lw3_nz 同款枚举形在单有理数上的像）.                                  *)
+(* Item 2, a Set-level nonzero witness on [Q]: decidable comparison      *)
+(* data through [Qeq_bool], both branches Set-sorted — the image of the  *)
+(* [lw3_nz]-style enumeration shape on a single rational.                *)
 Definition lw3_qnz (q : Q) : Set :=
   match Qeq_bool q 0%Q with
   | true => Empty_set
   | false => unit
   end.
 
-(* ② K≠0 见证生产第一件：Niven 源头多项式首项系数的非零见证.            *)
-(* 复用 lw2_niven_f_lc_closed（首项 =(−1)^n·b^n 闭式）：幂非零两件      *)
-(* （(−1)^n≠0 直接判别、b^n≠0 由 b≠0 保幂）乘积非零闭合，纯 Z 判定面.   *)
+(* Item 2, the first producer of the [K <> 0] witness: a nonzero witness *)
+(* for the leading coefficient of the Niven source polynomial.  Reuses   *)
+(* [lw2_niven_f_lc_closed] (the leading term [= (-1)^n * b^n] in closed  *)
+(* form): the two nonzero power facts ([(-1)^n <> 0] by direct           *)
+(* discrimination, [b^n <> 0] since nonzero [b] is preserved under       *)
+(* powers) close the nonzero product, on the pure [Z] decision face.     *)
 (* The decidable nonzero verdict on the Niven leading coefficient, as     *)
 (* uniform Id data: the boolean comparison of the closed-form leading     *)
 (* coefficient against zero is false, which is the data content of the    *)
@@ -537,10 +553,12 @@ Theorem lw3_niven_lc_nz : forall (a b : Z) (n : nat),
   b <> 0%Z -> @Id bool false (Qeq_bool (lw0_coef (n + n) (lw2_niven_int_f a b n)) 0%Q).
 Proof. intros a b n Hb. exact (lw3_niven_lc_bool a b n Hb). Qed.
 
-(* ④ apartness 出口（M0 步6/7 同款矛盾复用工艺）：0<|K|<1 两端入闸，    *)
-(* lw3_Kinst_gate 合拢 (0=1)%Z 后经判别消除构造性导出 Set 级分离见证     *)
-(* （库内 apart 谓词以「正常数 c＋real_lt＋real_metric」模式实现，       *)
-(* 沿模块 138 对照形）.                                                  *)
+(* Item 4, the apartness exit: both ends of [0 < |K| < 1] enter the      *)
+(* gate, [lw3_Kinst_gate] collapses them into [(0 = 1)%Z], and the       *)
+(* discriminated elimination of that contradiction yields the Set-level  *)
+(* apartness witness constructively (the library [apart] predicate is    *)
+(* realized as the pattern [a positive constant c] plus [real_lt] plus   *)
+(* [real_metric]).                                                       *)
 Theorem lw3_e_trans_exit : forall (p : zpoly) (N : nat),
   lw3_Kinst p N <> 0%Z ->
   QltT (Qabs ((lw3_Kinst p N) # 1)%Q) (1 # 1)%Q ->
@@ -720,10 +738,9 @@ Print Assumptions lw3_fbuild_eval_scale.
 Print Assumptions lw3_fbuild_node_scale_prod.
 
 (* ------------------------------------------------------------------ *)
-(* Section 11.  p-scale layers k>=1 and Cp datafication (work order ③  *)
-(* second and third layers, seat 182 continuation).                    *)
+(* Section 11.  p-scale layers [k >= 1] and the datafication of [Cp].   *)
 (*                                                                     *)
-(* 传力链（第二层）：lw0_coef_iter_fall drops the k-th derivative       *)
+(* The transfer chain (second layer): lw0_coef_iter_fall drops the k-th derivative       *)
 (* coefficients onto the base coefficients with the rising factorial   *)
 (* lw2_fall j k = (j+1)(j+2)..(j+k); the identity                      *)
 (* lw2_fall j k * q_fact j == q_fact (j + k) pins the falling factor   *)
@@ -731,16 +748,17 @@ Print Assumptions lw3_fbuild_node_scale_prod.
 (* per-coefficient bounds into a node bound at EVERY derivative order  *)
 (* k (lw3_fbuild_deriv_node_scale), closing the j,k-uniform premise of *)
 (* lw3_lambda_upper_fbuild.                                            *)
-(* Cp 数据化（第三层）：the lifted node magnitude is pinned by the      *)
+(* The datafication of Cp (third layer): the lifted node magnitude is pinned by the      *)
 (* explicit coefficient sum lw3_Cp read off p through lw0_coef.        *)
-(* Q 深度红线（E-STAGING-LW3-QABSEQFACE 坑 1）：no rewrite inside      *)
+(* Q-face discipline: no rewrite inside                                 *)
 (* Qabs/QleT' anywhere; every Qeq transport goes through the           *)
 (* lw2u_qleT'_eq_l bridge with the identity supplied term-level.       *)
 (* ------------------------------------------------------------------ *)
 
 (* Qabs is a Qeq-congruence (whole-argument position only).
-   Stdlib QArith/Qabs.v:17 锚：Qabs x = let (n,d):=x in Z.abs n # d，
-   即 Qabs 就是 Z.abs —— the congruence closes on the raw Z layer through
+   Anchor in the Stdlib file QArith/Qabs.v:17:
+   Qabs x = let (n,d):=x in Z.abs n # d, i.e. Qabs is Z.abs —
+   the congruence closes on the raw Z layer through
    Z.abs_mul plus an eq-rewrite (no Qeq-rewrite anywhere). *)
 Lemma lw3_Qabs_congr : forall a b : Q, a == b -> QeqT (Qabs a) (Qabs b).
 Proof.

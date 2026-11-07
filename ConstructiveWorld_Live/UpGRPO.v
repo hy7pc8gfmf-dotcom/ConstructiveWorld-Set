@@ -1,33 +1,38 @@
-(* ============================================================
-   UpGRPO.v —— GRPO 的 NoDup 均匀化与标准化优势二阶矩（Real 层）。
-   ── 使命：B（抽象 R 层）计数机器（count_g/removeT_g，grp_eq_dec
-   驱动）＋nodup_g（Set 层无重复谓词，计数刻画）：B1 覆盖＋无重复
-   ⟹ 每元素恰计一次；B2 indicator 求和 == 1；B3 真均匀质量：组均值
-   对每个 delta_j 的质量恰为 1/G。C（Real 层）：标准化优势二阶矩——
-   real_sqrt_exists 的 Or 前提形态与「σ > 0 需证书」的构造性语义
-   衔接：sigT 封装 σ（0 < σ ∧ σ²==Var）且 Σ(A_i/σ)² == 1（Var 为
-   未归一化中心二阶矩，与论文 1 §7.2 口径一致；population 版由重新
-   缩放立得，注记说明）。
-   ── 诚实注记：NoDup 前提不可去——双副本枚举给质量 2/G（反例仅
-   注释陈述）。
-   ── 替换声明：upgrpo_sigma_sq_eq（原 L597）／real_mult_exchange
-   （原 L371）两槽证明体替换为直接构造证（定义层受控展开／显式见证
-   直取／结构性重演）；声明面与引用面零改动、零新增 Require，证明
-   结尾记号与原版逐件守恒，文尾保留原版 Print Assumptions 追印面。
-   ── 依赖：AttnDoeblin、AttnSqrt、S01_BaseRing、S02_CauchyComplete、
-   S03_QExp、S07_RealSetoidExpLog、S08_RealMainlineDPO；Stdlib
-   List、Extraction。
-   ── 构造性注记：纯构造性（零公理、零承认式声明）；Set 层语句；
-   全 Qed；可提取。
-   ── 编译配方：coqc -q -Q "D:/ComplexAnalysis/ConstructiveWorld-Main/ConstructiveWorld_vo" "" UpGRPO.v。
-   ============================================================ *)
+(* ConstructiveWorld-Set -- NoDup uniformization for GRPO and the standardized advantage second moment on the Real layer. *)
+(** * UpGRPO: NoDup uniformization and the standardized advantage moment.
+
+    Mission.  Part B (abstract layer): the counting machine
+      ([count_g]/[removeT_g] driven by [grp_eq_dec]) and [nodup_g]
+      (Set-layer no-duplicates, counting characterization): B1 coverage
+      + no duplicates give each element exactly one count; B2 the
+      indicator sums to [1]; B3 the group mean gives each [delta_j] mass
+      exactly [1/G].  Part C (Real layer): a constructive [sigma] with
+      [0 < sigma] and [sigma^2 == Var], packaged in a [sigT], and
+      [Sum (A_i/sigma)^2 == 1].  Honesty note: the [nodup_g] premise
+      cannot be dropped -- a doubly enumerated element would get mass
+      [2/G] (counterexample stated in a comment only).
+
+    Dependencies.  [AttnDoeblin], [AttnSqrt], [S01_BaseRing],
+      [S02_CauchyComplete], [S03_QExp], [S07_RealSetoidExpLog],
+      [S08_RealMainlineDPO]; Stdlib [List] [Extraction].
+
+    References.  This development; the same-name ConstructiveWorld-Main
+      baseline ([upgrpo_sigma_sq_eq]/[real_mult_exchange] statement
+      names carried verbatim).
+
+    Constructivity.  Purely constructive (zero axioms, no admission
+      statements); Set-layer statements; all [Qed]; extractable.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpGRPO.v] compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import List.
 Import ListNotations.
 Require Import AttnDoeblin AttnSqrt.
 Require Import S01_BaseRing S02_CauchyComplete S03_QExp S07_RealSetoidExpLog S08_RealMainlineDPO.
 
-(* ################ Part B：抽象层 NoDup 均匀化 ################ *)
+(* ################ Part B: NoDup uniformization at the abstract layer ################ *)
 
 Section GRPONoDup.
 Context {RI : RealInterfaceEnhanced}.
@@ -46,7 +51,7 @@ Variable group_cover : forall i : Group, InT i group_enum.
 Variable grp_eq_dec : forall i j : Group, Or (Id i j) (Not (Id i j)).
 Variable reward_group : Group -> R.
 
-(* nat → R 嵌入（自备，接口域内） *)
+(* The [nat] -> [R] embedding (self-contained, inside the interface domain) *)
 Fixpoint nat_to_R_g (k : nat) : R :=
   match k with
   | 0%nat => zero
@@ -65,7 +70,7 @@ Qed.
 Let G := nat_to_R_g (length group_enum).
 Variable G_pos : lt zero G.
 
-(* 组求和（列表 fold，抽象 Id 层） *)
+(* Group sum (a list fold, at the abstract [Id] layer) *)
 Fixpoint list_sum_g (f : Group -> R) (l : list Group) : R :=
   match l with
   | nil => zero
@@ -118,7 +123,7 @@ Proof.
     exact (IH (fun i : Group => fun Hin : InT i rest => H i (InT_next i x rest Hin))).
 Qed.
 
-(* 计数机器（grp_eq_dec 驱动，对元素类型泛型） *)
+(* The counting machine (driven by [grp_eq_dec], generic in the element type) *)
 Fixpoint count_g (j : Group) (l : list Group) : nat :=
   match l with
   | nil => O
@@ -220,7 +225,7 @@ Proof.
       * exact (IH Hin2).
 Qed.
 
-(* 恰计一次的拆分：count == 1 ⟹ Σ l f == f j + Σ (removeT_g j l) f *)
+(* Counted-exactly-once splitting: [count == 1] implies [sum l f == f j + sum (removeT_g j l) f] *)
 Lemma split_count_one_id : forall (f : Group -> R) (j : Group) (l : list Group),
   @Id nat (count_g j l) (Datatypes.S O) ->
   Id (list_sum_g f l) (plus (f j) (list_sum_g f (removeT_g j l))).
@@ -229,7 +234,7 @@ Proof.
   - inversion Hc.
   - cbn [count_g] in Hc. cbn [removeT_g].
     destruct (grp_eq_dec x j) as [Hxj | Hnxj].
-    + (* 头即 j：count rest == 0 ⟹ removeT_g rest == rest；f x == f j *)
+    + (* head is [j]: [count rest == 0] gives [removeT_g rest == rest], and [f x == f j] *)
       assert (Hc0 : @Id nat (count_g j rest) O).
       { exact (id_cong Nat.pred Hc). }
       assert (Hrid : @Id (list Group) (removeT_g j rest) rest)
@@ -238,7 +243,7 @@ Proof.
                                      (id_refl : Id (list_sum_g f rest) (list_sum_g f rest)))).
       apply (id_cong2 plus (id_refl : Id (f j) (f j))
                            (id_cong (fun l0 : list Group => list_sum_g f l0) (id_sym Hrid))).
-    + (* 头非 j：IH 组装 + 结合律重排 *)
+    + (* head is not [j]: assemble the IH and reassociate *)
       apply (id_trans (id_cong2 plus (id_refl : Id (f x) (f x)) (IH Hc))).
       apply (id_trans (plus_assoc (f x) (f j) (list_sum_g f (removeT_g j rest)))).
       apply (id_trans (id_cong2 plus (plus_comm (f x) (f j))
@@ -247,20 +252,20 @@ Proof.
       apply (id_sym (plus_assoc (f j) (f x) (list_sum_g f (removeT_g j rest)))).
 Qed.
 
-(* Set 层无重复谓词（计数刻画的等价形态；归纳族形，两支构造子） *)
+(* The Set-layer no-duplicates predicate (equivalent form of the counting characterization; an inductive family with two constructors) *)
 Inductive nodup_g : list Group -> Set :=
 | ndg_nil : nodup_g nil
 | ndg_cons : forall (x : Group) (t : list Group),
     not_InT x t -> nodup_g t -> nodup_g (x :: t).
 
-(* 列表恒等运送成员关系 *)
+(* Membership transport along a list identity *)
 Lemma InT_list_transport : forall (x : Group) (l1 l2 : list Group),
   Id l1 l2 -> InT x l1 -> InT x l2.
 Proof.
   intros x l1 l2 H Hin. destruct H. exact Hin.
 Qed.
 
-(* 头元素 ≠ j ⟹ 成员关系在尾部 *)
+(* Head different from [j] implies membership in the tail *)
 Lemma InT_tail_of_neq : forall (j a : Group) (rest : list Group),
   Not (Id a j) -> InT j (a :: rest) -> InT j rest.
 Proof.
@@ -269,25 +274,25 @@ Proof.
   - exact Hin2.
 Qed.
 
-(* ========== B1：覆盖 + 无重复 ⟹ 每元素恰计一次 ========== *)
+(* ========== B1: coverage + no duplicates imply each element counted exactly once ========== *)
 Theorem grpo_count_one : forall (l : list Group) (Hnd : nodup_g l)
     (j : Group), InT j l -> @Id nat (count_g j l) (Datatypes.S O).
 Proof.
   intros l Hnd. induction Hnd as [| x0 t0 Hnhead Hndrest IH]; intros j Hin.
-  - (* l = nil：InT j nil 无居民（inversion 剪除） *)
+  - (* [l = nil]: [InT j nil] has no inhabitants (removed by inversion) *)
     inversion Hin.
   - cbn [count_g]. destruct (grp_eq_dec x0 j) as [Haj | Hanj].
-    + (* x0 == j：头命中；j ∉ t0 由 not_InT x0 t0 + Haj 运送 *)
+    + (* [x0 == j]: hit at the head; [j not in t0] transported from [not_InT x0 t0] along [Haj] *)
       apply (id_cong (fun n : nat => Datatypes.S n)).
       apply (not_InT_count_zero j t0
                (fun Hin : InT j t0 => Hnhead (InT_transport j x0 t0 (id_sym Haj) Hin))).
-    + (* x0 ≠ j：尾命中 *)
+    + (* [x0 /= j]: hit in the tail *)
       exact (IH j (InT_tail_of_neq j x0 t0 Hanj Hin)).
 Qed.
 
 Variable Hnd_g : nodup_g group_enum.
 
-(* ========== B2：indicator 求和 == 1 ========== *)
+(* ========== B2: the indicator sum equals [1] ========== *)
 Theorem grpo_indicator_sum_one : forall (j : Group),
   InT j group_enum ->
   Id (list_sum_g (fun i : Group => match grp_eq_dec i j with
@@ -326,7 +331,7 @@ Proof.
   apply (plus_zero one).
 Qed.
 
-(* ========== B3：真均匀质量（组均值的 delta 质量恰为 1/G） ========== *)
+(* ========== B3: genuinely uniform mass (each delta gets mass exactly [1/G] under the group mean) ========== *)
 Theorem grpo_uniform_mass : forall j : Group,
   InT j group_enum ->
   Id (list_sum_g (fun i : Group =>
@@ -350,7 +355,7 @@ Qed.
 
 End GRPONoDup.
 
-(* ################ Part C：Real 层标准化优势二阶矩 ################ *)
+(* ################ Part C: the standardized advantage second moment on the Real layer ################ *)
 
 Section RealGrpoSigma.
 
@@ -366,7 +371,7 @@ Let mean : Real :=
 Let A (i : Grp) : Real := real_plus (reward_grp i) (real_opp mean).
 Let Var : Real := real_list_sum_g Grp (fun i : Grp => real_mult (A i) (A i)) grp_enum.
 
-(* 乘法四因子交换：(a·c)·(b·d) == (a·b)·(c·d) *)
+(* Four-factor multiplication exchange: [(a*c)*(b*d) == (a*b)*(c*d)] *)
 Lemma real_mult_exchange : forall a b c d : Real,
   real_eq (real_mult (real_mult a c) (real_mult b d))
           (real_mult (real_mult a b) (real_mult c d)).
@@ -378,7 +383,7 @@ Proof.
   exact (real_mult_assoc a b (real_mult c d)).
 Qed.
 
-(* sqrt 见证的正性提取：real_le 分解，inr（σ≈0）支经 σ²≈Var 与 Var>0 矛盾排除 *)
+(* Extracting positivity from the [sqrt] witness: split the [real_le]; the [inr] branch ([sigma = 0]) is excluded by the contradiction between [sigma^2 = Var] and [Var > 0] *)
 Lemma real_sqrt_pos_sq : forall (V : Real) (Hvar : real_lt real_zero V)
     (W : sigT (fun r => And (real_le real_zero r) (real_eq (real_mult r r) V))),
   sigT (fun sigma => And (real_lt real_zero sigma) (real_eq (real_mult sigma sigma) V)).
@@ -386,7 +391,7 @@ Proof.
   intros V Hvar W. destruct W as [sigma [Hle Hsq]].
   destruct Hle as [Hlt | Heq0].
   - exact (existT _ sigma (pair Hlt Hsq)).
-  - (* σ ≈ 0 ⟹ Var = σ·σ ≈ 0·0 ≈ 0，与 Var > 0 矛盾 *)
+  - (* [sigma = 0] gives [Var = sigma*sigma = 0], contradicting [Var > 0] *)
     assert (Hv0 : real_eq V real_zero).
     { apply (real_eq_trans _ (real_mult sigma sigma) _).
       - exact (real_eq_sym (real_mult sigma sigma) V Hsq).
@@ -398,15 +403,18 @@ Proof.
              (RealSetoid.real_lt_id_r _ _ _ Hv0 Hvar) with end).
 Qed.
 
-(* ========== C：标准化优势二阶矩（sigT 封装 σ、正性与单位二阶矩） ========== *)
-(* 口径：σ² == Var（未归一化中心二阶矩，论文 1 §7.2 术语说明一致），     *)
-(* Σ(A_i/σ)² == 1；population 版（σ² = Var/G）由重新缩放立得（注记）。   *)
-(* C 主定理（最终形态）：构造性 σ 与单位二阶矩。
-   实现注记：real_sqrt_exists 的 Or 前提在 inl 支携带正性证书 Hlt: 0<σ，
-   inr 支（σ≈0）与 Var>0 矛盾（经 σ²==Var 运送 + real_lt_irrefl），
-   故 sigT 封装合法。为避免在定理陈述中内联巨型 match，先用
-   real_sqrt_exists 构造中间 Module 常量（见下方 SigmaWitness）。 *)
-(* 从 real_sigma_witness 提取 σ 的投影（避免在定理陈述中内联 match） *)
+(* ========== C: the standardized advantage second moment ([sigT] packaging of [sigma], positivity, and the unit moment) ========== *)
+(* Caliber: [sigma^2 == Var] ([Var] is the unnormalized central second moment, matching the terminology of paper 1 §7.2), *)
+(* and [Sum (A_i/sigma)^2 == 1]; the population version ([sigma^2 = Var/G]) follows by rescaling. *)
+(* Part C main theorem: a constructive [sigma] and the unit moment.
+   Note on the construction: the [Or] premise of [real_sqrt_exists]
+   carries a positivity certificate [Hlt : 0 < sigma] in its [inl]
+   branch, while the [inr] branch ([sigma = 0]) contradicts [Var > 0]
+   (transported through [sigma^2 == Var] plus [real_lt_irrefl]), so the
+   [sigT] packaging is legitimate.  To avoid inlining a large [match]
+   into the theorem statement, [real_sqrt_exists] first builds an
+   intermediate section constant (see [real_sigma_witness] below). *)
+(* Projection extracting [sigma] from [real_sigma_witness] (avoiding an inlined [match] in theorem statements) *)
 Lemma real_sigma_witness : forall Hvar : real_lt real_zero Var,
   sigT (fun sigma => And (real_lt real_zero sigma)
                          (real_eq (real_mult sigma sigma) Var)).
@@ -415,7 +423,7 @@ Proof.
   destruct (real_sqrt_exists Var (inl Hvar)) as [sigma [Hle Hsq]].
   destruct Hle as [Hlt | Heq0].
   - exact (existT _ sigma (pair Hlt Hsq)).
-  - (* σ ≈ 0 ⟹ V = σ·σ ≈ 0，与 V > 0 矛盾 *)
+  - (* [sigma = 0] gives [V = sigma*sigma = 0], contradicting [V > 0] *)
     assert (Hv0 : real_eq Var real_zero).
     { apply (real_eq_trans _ (real_mult sigma sigma) _).
       - exact (real_eq_sym (real_mult sigma sigma) Var Hsq).
@@ -450,23 +458,23 @@ Qed.
 
 
 
-(* σ² == Var：由 real_sqrt_exists 的见证直接给出（proj_sigma_sq），
-   供下游除法吸收使用（inv_pos_mult_distr + real_inv_pos_correct）。 *)
+(* [sigma^2 == Var] is given directly by the [real_sqrt_exists] witness ([proj_sigma_sq]),
+   ready for downstream division absorption ([inv_pos_mult_distr] + [real_inv_pos_correct]). *)
 
-(* C 结果清单（完整）：
-   ① real_sigma_witness（σ 存在性+正性+平方恒等 sigT 三件套）
-   ② proj_sigma_pos / proj_sigma_sq（投影提取）
-   ③ real_mult_exchange（四因子交换）
-   ④ upgrpo_inv_sigma_sq_eq_inv_var（inv 吸收：invσ² == inv(Var)）
-   ⑤ real_grpo_standardized_unit_moment（主定理：Σ(A_i/σ)² == 1）       *)
+(* Part C inventory (complete):
+   1. [real_sigma_witness] ([sigT] triple: existence + positivity + square identity of [sigma])
+   2. [proj_sigma_pos] / [proj_sigma_sq] (projection extraction)
+   3. [real_mult_exchange] (four-factor exchange)
+   4. [upgrpo_inv_sigma_sq_eq_inv_var] (inv absorption: [inv sigma^2 == inv Var])
+   5. [real_grpo_standardized_unit_moment] (main theorem: [Sum (A_i/sigma)^2 == 1]) *)
 
-(* ========== C 完整单位矩精化：Σ(A_i/σ)² == 1 ========== *)
+(* ========== C, full unit-moment refinement: [Sum (A_i/sigma)^2 == 1] ========== *)
 
-(* 步骤 1 的逐项交换（已有 real_mult_exchange） *)
-(* 步骤 2 的线性提取（已有 real_list_sum_g_linear） *)
-(* 步骤 3 的 inv 吸收（inv_pos_correct） *)
+(* Step 1, the per-term exchange (via [real_mult_exchange]) *)
+(* Step 2, the linear extraction (via [real_list_sum_g_linear]) *)
+(* Step 3, the [inv] absorption (via [inv_pos_correct]) *)
 
-(* 辅助：inv_σ·σ == 1（real_inv_pos_correct 给 σ·inv_σ == 1，交换因子序） *)
+(* Auxiliary: [inv sigma * sigma == 1] ([real_inv_pos_correct] gives [sigma * inv sigma == 1]; swap the factor order) *)
 Lemma upgrpo_inv_sigma_mult_sigma_one :
   forall Hvar : real_lt real_zero Var,
   real_eq (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))
@@ -481,9 +489,9 @@ Proof.
   - apply real_inv_pos_correct.
 Qed.
 
-(* 中间引理：inv_σ·inv_σ == inv(Var)——inv 吸收：
-   invσ² == invσ²·1 == invσ²·(Var·inv Var) == (invσ²·Var)·inv Var == 1·inv Var == inv Var，
-   其中子链 invσ²·Var == invσ²·σ² == (invσ·σ)·(invσ·σ) == 1·1 == 1。 *)
+(* Intermediate lemma: [inv sigma * inv sigma == inv Var] -- the [inv] absorption:
+   [inv sigma^2 == inv sigma^2 * 1 == inv sigma^2 * (Var * inv Var) == (inv sigma^2 * Var) * inv Var == 1 * inv Var == inv Var],
+   with the subchain [inv sigma^2 * Var == inv sigma^2 * sigma^2 == (inv sigma * sigma) * (inv sigma * sigma) == 1 * 1 == 1]. *)
 Lemma upgrpo_inv_sigma_sq_eq_inv_var :
   forall Hvar : real_lt real_zero Var,
   real_eq (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))
@@ -492,7 +500,7 @@ Lemma upgrpo_inv_sigma_sq_eq_inv_var :
 Proof.
   intro Hvar.
   pose proof (proj_sigma_sq Hvar) as Hsq.
-  (* 子链：invσ²·Var == 1 *)
+  (* Subchain: [inv sigma^2 * Var == 1] *)
   assert (HinvV : real_eq
            (real_mult (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))
                                  (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar)))
@@ -531,7 +539,7 @@ Proof.
                    (upgrpo_inv_sigma_mult_sigma_one Hvar)
                    (upgrpo_inv_sigma_mult_sigma_one Hvar)).
         * apply real_mult_one. }
-  (* 主链：invσ² == invσ²·1 == invσ²·(Var·inv Var) == (invσ²·Var)·inv Var == 1·inv Var == inv Var *)
+  (* Main chain: [inv sigma^2 == inv sigma^2 * 1 == inv sigma^2 * (Var * inv Var) == (inv sigma^2 * Var) * inv Var == 1 * inv Var == inv Var] *)
   apply (real_eq_trans _
     (real_mult (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))
                           (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar)))
@@ -576,12 +584,12 @@ Proof.
         -- apply real_mult_one.
 Qed.
 
-(* 辅助：Hsig'_poseq = proj_sigma_sq 的重述（real_eq (σ·σ) Var） *)
+(* Auxiliary: [upgrpo_sigma_sq_eq] restates [proj_sigma_sq] ([real_eq (sigma*sigma) Var]) *)
 Lemma upgrpo_sigma_sq_eq : forall Hvar : real_lt real_zero Var,
   real_eq (real_mult (proj_sigma Hvar) (proj_sigma Hvar)) Var.
 Proof. intro Hvar. exact (proj_sigma_sq Hvar). Qed.
 
-(* ========== C 主定理：标准化优势单位二阶矩 Σ(A_i/σ)² == 1 ========== *)
+(* ========== Part C main theorem: the standardized advantage unit second moment [Sum (A_i/sigma)^2 == 1] ========== *)
 Theorem real_grpo_standardized_unit_moment :
   forall Hvar : real_lt real_zero Var,
   real_eq (real_list_sum_g Grp
@@ -595,7 +603,7 @@ Theorem real_grpo_standardized_unit_moment :
           real_one.
 Proof.
   intros Hvar.
-  (* 步1：逐项交换 (A·invσ)·(A·invσ) == (A·A)·(invσ·invσ) [real_mult_exchange] *)
+  (* Step 1: per-term exchange, [(A*inv s)*(A*inv s) == (A*A)*(inv s * inv s)], via [real_mult_exchange] *)
   apply (real_eq_trans _
     (real_list_sum_g Grp
       (fun i : Grp =>
@@ -605,7 +613,7 @@ Proof.
       grp_enum) _).
   - apply real_list_sum_g_ext.
     intro i. apply real_mult_exchange.
-  (* 步2：因子换序（real_mult_comm）后线性提取 invσ² [real_list_sum_g_linear] *)
+  (* Step 2: swap factors ([real_mult_comm]) then extract [inv sigma^2] linearly via [real_list_sum_g_linear] *)
   - apply (real_eq_trans _
       (real_mult (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))
                             (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar)))
@@ -620,7 +628,7 @@ Proof.
       * apply real_list_sum_g_ext.
         intro i. apply real_mult_comm.
       * apply real_list_sum_g_linear.
-    + (* 步3：invσ² == inv(Var) [inv 吸收]，inv(Var)·Var == 1 [real_inv_pos_correct] *)
+    + (* Step 3: [inv sigma^2 == inv Var] (the [inv] absorption), and [inv Var * Var == 1] via [real_inv_pos_correct] *)
       apply (real_eq_trans _ (real_mult (real_inv_pos Var Hvar) Var) _).
       * apply (RealSetoid.real_eq_mult_compat
                  (real_mult (real_inv_pos (proj_sigma Hvar) (proj_sigma_pos Hvar))

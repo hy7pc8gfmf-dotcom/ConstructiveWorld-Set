@@ -1,33 +1,33 @@
-(* ==========================================================================
-   UpReqAlign2.v - alignment core segment 2 (req2_* family) on this world's
-   argument-less interface Class.
-   Mission. 使命: the theorem/lemma statement face of this file - the
-     sum-interface cluster (req2_rel_ent_self_zero / req2_log_inv_one_inv /
-     req2_log_exp_neg, the req2_sum_* auxiliary family), the pi_star / pi_next
-     normalization and positivity cluster, and the linear sum family
-     req2_sum_E_beta / F_t_beta_form / F_t_simpl_next / F_t_rel_decomp /
-     F_t_simpl_t / F_t_simpl_next_kl; every item fully proved and Qed-closed.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlgebra, UpReqAlign
-     of this development (-Set lineage world); the interface is the
-     argument-less Class RealInterfaceEnhancedSetoid of S07_RealSetoidExpLog
-     (module RealInterfaceEnhancedMod), fields resolved through the global
-     Real instance.
-   References. 对标: statement names carried over verbatim from the source
-     piece; adaptation = pure binder removal + notation rebinding on this
-     world's own precedent (the source section Context {R : Set}
-     {RIS : RealInterfaceEnhancedSetoid R} was an alien argumented face
-     raising "Illegal application (Non-functional construction)"): R := Real
-     by notation (UpReqSumD.v L58; S10_KVQuantTrig.v L12417-12419), predicate
-     face real_eq / real_lt / real_le (UpReqSumD.v L113-114 / L304-305), law
-     fields as bare names through the global instance (UpReqSumD.v L68-72);
-     no Obj.magic, no Prop-cast, statement names unchanged.
-   Constructivity. 构造性注记: all Set-layer statements; the section premise
-     slots (sum_ext / sum_add / sum_linear / sum_pos / log_req_compat /
-     log_inv_exp_neg_req) are honest interface premises carried explicitly;
-     zero new axioms.
-   Build. 编译配方: rocq c -native-compiler no -Q . "" UpReqAlign2.v inside the
-     -Set lineage world (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — alignment core segment 2 (req2_* family). *)
+
+(** * UpReqAlign2: alignment core segment 2 on the argument-less interface.
+
+    Mission.  The theorem/lemma statement face: the sum-interface cluster
+      ([req2_rel_ent_self_zero]/[req2_log_inv_one_inv]/[req2_log_exp_neg],
+      the [req2_sum_*] auxiliary family), the [pi_star]/[pi_next]
+      normalization and positivity cluster, and the linear sum family
+      [req2_sum_E_beta]/[F_t_beta_form]/[F_t_simpl_next]/[F_t_rel_decomp]/
+      [F_t_simpl_t]/[F_t_simpl_next_kl]; every item fully proved, [Qed]-closed.
+
+    Dependencies.  [S01_BaseRing]..[S15_TailFEPUp], [UpReqAlgebra],
+      [UpReqAlign]; interface = the argument-less Class
+      [RealInterfaceEnhancedSetoid] of [S07_RealSetoidExpLog] (module
+      [RealInterfaceEnhancedMod]), fields via the global [Real] instance.
+
+    References.  This development, UpReqAlign.v; statement names carried
+      over verbatim from the same-name ConstructiveWorld-Main baseline
+      module.  Adaptation: pure binder removal + notation rebinding —
+      [R := Real] by notation ([UpReqSumD.v] L58; [S10_KVQuantTrig.v]
+      L12417-12419), predicate face [real_eq]/[real_lt]/[real_le], law
+      fields via the global instance ([UpReqSumD.v] L113-114/L304-305/L68-72).
+
+    Constructivity.  All statements are Set-layer; the section premise slots
+      ([sum_ext]/[sum_add]/[sum_linear]/[sum_pos]/[log_req_compat]/
+      [log_inv_exp_neg_req]) are honest explicit interface premises; zero new axioms.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpReqAlign2.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

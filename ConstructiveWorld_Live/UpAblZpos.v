@@ -47,14 +47,18 @@ Let lt := @lt RI.
 Let exp_neg := @exp_neg RI.
 Let sum_over_S := @sum_over_S RI SS SO.
 
-(* S05 主节 Z_align 的出节实形同构（迭代节使用同形）：                  *)
-(* Z_align := Σ_s pi_ref(s)·exp_neg(−r(s)/β)，beta_pos 为显式参。        *)
+(* The section-discharged real form of the [Z_align] of the S05 main *)
+(* section (the iterative section uses the same form): *)
+(* [Z_align := Σ_s pi_ref(s)·exp_neg(−r(s)/β)], with [beta_pos] an *)
+(* explicit argument. *)
 Definition zab_Z_align (reward : S -> R) (beta : R) (beta_pos : lt zero beta)
            (pi_ref : S -> R) : R :=
   sum_over_S (fun s => mult (pi_ref s)
                             (exp_neg (opp (mult (inv_pos beta beta_pos) (reward s))))).
 
-(* 求和项逐项正：pi_ref 逐点正 × exp_neg 恒正 ⟹ 乘积正（mult_positive 与 exp_neg_pos 合成）。 *)
+(* Each summand is positive: [pi_ref] is pointwise positive and [exp_neg] *)
+(* is everywhere positive, so the product is positive — the composition *)
+(* of [mult_positive] with [exp_neg_pos]. *)
 Lemma zab_summand_pos :
   forall (reward : S -> R) (beta : R) (beta_pos : lt zero beta)
          (pi_ref : S -> R) (pi_ref_pos : forall s : S, lt zero (pi_ref s)),
@@ -68,9 +72,11 @@ Proof.
   - apply exp_neg_pos.
 Qed.
 
-(* 主定理（条件形）：显式前提 Hsum_pos 即 S05 中 sum_over_S 正性假设的实形， *)
-(* 在此前提下消解 lt zero (Z_align …)（对应 S05 主节与迭代节同一接口假设，   *)
-(* 语句逐字同形）。                                                       *)
+(* The main theorem in conditional form: the explicit premise [Hsum_pos] *)
+(* is the real form of the [sum_over_S]-positivity assumption of the S05 *)
+(* main section; under it [lt zero (Z_align ...)] is discharged — the *)
+(* same interface assumption serves the S05 main and iterative sections, *)
+(* with statement faces matching verbatim. *)
 Theorem zab_Z_align_pos :
   forall (reward : S -> R) (beta : R) (beta_pos : lt zero beta)
          (pi_ref : S -> R) (pi_ref_pos : forall s : S, lt zero (pi_ref s))
@@ -84,9 +90,12 @@ Proof.
   exact (zab_summand_pos reward beta beta_pos pi_ref pi_ref_pos).
 Qed.
 
-(* 接口面无条件伴件（接口可证部分全量兑现）：不取求和正性前提，            *)
-(* 仅用 sum_over_S_nonneg 接口字段，逐项正经 lt_le_iff 降为非负，          *)
-(* 得整体非负——le zero (Z_align …) 无条件成立。                          *)
+(* The unconditional companion at the interface level (the provable part *)
+(* of the interface discharged in full): without the sum-positivity *)
+(* premise, using only the [sum_over_S_nonneg] interface field, each *)
+(* summand's strict positivity is weakened to non-negativity by *)
+(* [lt_le_iff], so the aggregate is non-negative — [le zero (Z_align ...)] *)
+(* holds unconditionally. *)
 Theorem zab_Z_align_nonneg :
   forall (reward : S -> R) (beta : R) (beta_pos : lt zero beta)
          (pi_ref : S -> R) (pi_ref_pos : forall s : S, lt zero (pi_ref s)),
@@ -101,7 +110,7 @@ Qed.
 
 End ZabZPos.
 
-(* ---- 假设面自检（Print Assumptions） ---- *)
+(* ---- assumption audit (Print Assumptions) ---- *)
 Print Assumptions zab_summand_pos.
 Print Assumptions zab_Z_align_pos.
 Print Assumptions zab_Z_align_nonneg.

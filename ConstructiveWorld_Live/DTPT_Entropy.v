@@ -1,27 +1,33 @@
-(* ========================================================================= *)
-(*  DTPT_Entropy.v — 多熵函数族扩展 + 多熵评估套件                           *)
-(*                                                                            *)
-(*  使命：香农熵 Q 离散版（频域计数 H_devsum／H_freq）、条件熵 H_cond         *)
-(*    （原文附录三.4「上下文依赖度」）、λ-插值混合熵 H_lam 的 Q 载体          *)
-(*    构造与非负／单调／置换面定理族；多熵评估套件（Record                    *)
-(*    MultiEntropyEval 与 me_cert 联合相干证书）；熵族拼接卷积与             *)
-(*    数值锚。                                                                *)
-(*                                                                            *)
-(*  依赖：QArith（QArith/Qabs）、List、Arith、Lia、Permutation、DTPT。       *)
-(*    与 DTPT.v 的 xq_ 工具箱簇为双副本维持（同名同构，头注互指）。          *)
-(*                                                                            *)
-(*  对标：原典 §2.3 多熵族 ℋ = {H_alg, H_Sh, H_vN, H_str, H_Rényi,          *)
-(*    H_min, H_max, H_top, H_cond} + 附录三「多熵评估套件」。                *)
-(*                                                                            *)
-(*  构造性注记：零公理、零承认、无经典逻辑，Set 层零公理面，全程 Qed；       *)
-(*    B2 补证件 H_lam_mono／H_shannon_q_nonneg 已证；                         *)
-(*    H_shannon_q_perm_inv 经核查为假（H_devsum 取后缀最小值，置换改变       *)
-(*    后缀结构），以 H_shannon_q_perm_inv_counterex 构造性反例替代           *)
-(*    （见文内注）。                                                          *)
-(*                                                                            *)
-(*  编译配方：coqc -native-compiler no -q -Q . "" DTPT_Entropy.v                 *)
-(*    （先编依赖 DTPT.v）。文件内分节 §1-§A8，各节头注为该节要点索引。       *)
-(* ========================================================================= *)
+(* ConstructiveWorld-Set — Q-carried multi-entropy family and multi-entropy evaluation suite. *)
+
+(** * DTPT_Entropy: the multi-entropy family over Q and its evaluation suite.
+
+    Mission.  Discrete Q-domain entropy variants: the frequency-count
+      Shannon entropies [H_devsum] and [H_freq], the conditional entropy
+      [H_cond], the lambda-interpolated mixed entropy [H_lam], and their
+      nonnegativity/monotonicity/permutation theorem families; the
+      evaluation suite ([MultiEntropyEval] with the certificate [me_cert]);
+      cross-phase convolutions with numerical anchors.
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [List], [Arith],
+      [Lia], [Permutation]; and [S01_BaseRing], [S02_CauchyComplete] of
+      this development.  The [xq_] toolbox is maintained in twin copies
+      with [DTPT] (same names, same statements).
+
+    References.  This development ([DTPT], the twin toolbox) and the
+      ConstructiveWorld-Main baseline modules whose statement names are
+      carried over verbatim; the multi-entropy family of the source
+      specification with its evaluation suite.
+
+    Constructivity.  Zero axioms, nothing admitted, no classical logic; all
+      statements carried by [Set] ([IffT A B] := (A -> B) * (B -> A)); every
+      proof closes with [Qed].  [H_shannon_q_perm_inv] is false ([H_devsum]
+      takes a suffix minimum, which permutations change); it is replaced by
+      the constructive counterexample [H_shannon_q_perm_inv_counterex].
+
+    Build.  [coqc -native-compiler no -q -Q . "" DTPT_Entropy.v] after
+      [S01_BaseRing]/[S02_CauchyComplete]; section banners index the
+      content. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -34,10 +40,14 @@ From Stdlib Require Import Permutation.
 Import ListNotations.
 Open Scope Q_scope.
 
-(* ========== Set 承载桥 twin（born-clean·与 DTPT.v 同名同构·头注互指） ========== *)
-(* Id/NatLe/QeqT/QleT'/QltT 及其升降桥由 S01_BaseRing/S02_CauchyComplete 供给； *)
-(* 此处补 eq→Id 桥 twin 与 IffT 承载（S01 未导出、DTPT.v:32-37 同构副本）。 *)
-(* born-clean：零 Prop 语句面、零承认；IffT A B := (A->B)*(B->A) Set 承载当且仅当。 *)
+(* ========== Set-carrier bridge twins (mirroring the [DTPT] toolbox)
+   ========== *)
+(* [Id]/[NatLe]/[QeqT]/[QleT']/[QltT] and their up/down bridges are supplied
+   by [S01_BaseRing]/[S02_CauchyComplete]; *)
+(* this section adds the eq -> Id bridge twins and the [IffT] carrier (not
+   exported by [S01]; twin copies of the [DTPT] definitions). *)
+(* zero Prop statement face and nothing admitted; [IffT A B] := (A -> B) *
+   (B -> A) is the Set-carried if and only if. *)
 
 Lemma eq_imp_id {A : Set} {x y : A} (H : x = y) : Id x y.
 Proof. destruct H. apply id_refl. Qed.
@@ -82,7 +92,10 @@ Proof.
     + apply insert_q_perm_cons.
 Qed.
 
-(* 【弃用注记】本件在 rot=firstn++skipn 恒等基础模块下为恒等推论伪装；操作语义以 DTPT_ROTC/DTPT_Cyc/DTPT_RotSpec 真化层为准。 *)
+(* Deprecation note: under the base module where [rot] satisfies the
+   identity [rot = firstn ++ skipn], this statement is a direct consequence
+   of that identity; the operational semantics are carried by [DTPT_ROTC],
+   [DTPT_Cyc] and [DTPT_RotSpec]. *)
 
 Theorem D5_Pinf_perm : forall (l : list Q) (s : nat), Permutation l (Pinf l s).
 Proof.
@@ -118,7 +131,8 @@ Fixpoint sum_adjdiff (l : list Q) : Q :=
 
 Definition H_adj (l : list Q) : Q := sum_adjdiff l.
 
-(* ========== 补证段 B2：Q 工具箱（lia 不支持 Q，全部 Z 反射直解） ========== *)
+(* ========== Q toolbox ([Lia] does not support [Q]; everything is decided
+   by Z reflection) ========== *)
 
 Lemma Qle_bool_false_le : forall x y : Q, Qle_bool x y = false -> QleT' (y) (x).
 Proof.
@@ -232,7 +246,8 @@ Proof.
   transitivity b; assumption.
 Qed.
 
-(* ========== 补证段 B2：N9_ms_perm_inv 基建（Qeq 成员 + dedup 特征） ========== *)
+(* ========== infrastructure for the [H_ms] permutation invariance lemmas
+   ([Qeq] membership and the dedup characterization) ========== *)
 
 Definition Qmem (a : Q) (l : list Q) : Set :=
   Id (existsb (fun y => Qeq_bool a y) l) true.
@@ -322,44 +337,38 @@ Definition gate_pass (threshold H : Q) : bool :=
   if Qle_bool H threshold then true else false.
 
 (* ============================================================
-   §8 归并段 M1：并入 DTPT_CGen.v —— C_gen 排序泛化族
-   源件 DTPT-U1（Top-1 热点升级单）。仅移除独立文件的
-   Require/Import/Open Scope 头（由本文件头统一承载），
-   注释与全部证明体、Qed 面、Print Assumptions 审计出口零改动。
+   The generalized sorting family for [H_adj]: the [C_gen] theorems.
    ============================================================ *)
 (* ============================================================
-   DTPT_CGen.v — 热点升级单 C-GEN（扫描 Top-1 推荐）
-   源件：DTPT-U1（新建文件，Require DTPT，不碰既有八件）
-
-   主定理（定理 C 全排列类泛化）：
-     C_gen : forall (l p : list Q), Permutation l p -> H_adj (P0 l) <= H_adj p
-   现役主定理 DTPT.C_sorted_min_adj 只证「排序 <= 恒等排列」；
-   本件把比较对象泛化到 l 的任意排列 p（全排列类）。
-
-   路线：H_adj (P0 l) 经 xq_telescope（排序伸缩）== lastq - hd，
-   首尾成员性经 D5_P0_perm + 置换传递搬到 p，再用 xq_pair_dist_le
-   （跨度下界：表内任意两元 Qabs 距离 <= H_adj）闭合。
-
-   加分项：
-     C_gen_sym_rev  —— SYM 前置件：反转不变 H_adj (rev l) == H_adj l
-     C_gen_attained —— 紧性见证：p := P0 l 直构，界在排列类内取得
-     C_gen_sorted   —— 现役主定理 C_sorted_min_adj 的泛化重推（特例核对）
-
-   纪律：零公理、零承认、零中止，全程 Qed；Q 层 lia 禁用，
-   全部不等式走 xq_ 桥 + ring（Qabs/lastq/H_adj 作原子）。
+   The [C_gen] family: minimality of the sorted sequence generalized from
+   the identity permutation to the whole permutation class.
+   Main theorem:
+     [C_gen : forall (l p : list Q), Permutation l p -> H_adj (P0 l) <= H_adj p]
+   Route: [H_adj (P0 l)] == lastq - hd by the telescoping identity
+   ([xq_telescope]); endpoint membership is transported to p by
+   [D5_P0_perm] and transitivity of Permutation; closed by
+   [xq_pair_dist_le] (the span lower bound: the Qabs distance of any two
+   elements is <= H_adj).
+   Companions:
+     [C_gen_sym_rev]  — reversal invariance: [H_adj (rev l) == H_adj l]
+     [C_gen_attained] — the bound is attained at p := P0 l
+     [C_gen_sorted]   — the sorted case re-derived (sanity specialization)
+   Q-layer [lia] is unavailable; all inequalities go through the [xq_]
+   bridges and [ring], with [Qabs]/[lastq]/[H_adj] as atoms.
    ============================================================ *)
 
-(* 原独立文件 Require/Import/Open Scope 头（From Stdlib QArith/List/Permutation、
-   Require Import DTPT、Import ListNotations、Open Scope Q_scope）已于归并时移除。 *)
 
-(* ========== §0 snoc 面小工具（SYM 前置件） ========== *)
 
-(* 表末追加一个元素后，尾元就是它（Leibniz 版） *)
+(* ========== snoc-level helpers (for the reversal invariance) ========== *)
+
+(* after appending one element at the end of the list, the tail element is
+   that element (Leibniz form) *)
 
 
 Module DTPT_Entropy.
 
-(* ========== 香农熵 Q 离散版（频域计数×对数，Shannon on Q-list） ========== *)
+(* ========== discrete Shannon entropy over Q (frequency counting; Shannon
+   on Q-lists) ========== *)
 
 Fixpoint count_val (x : Q) (l : list Q) : nat :=
   match l with
@@ -373,51 +382,56 @@ Fixpoint H_devsum (l : list Q) : Q :=
   | x :: xs => Qabs (x - hd 0 (P0 l)) + H_devsum xs
   end.
 
-(* ADJ-1 适配层：旧名兼容（only parsing），语义零漂移；改名对账见 DTPT_ADJ1_改名报告.md *)
+(* compatibility notation for the old name ([only parsing]); the semantics
+   is unchanged *)
 Notation H_shannon_q := H_devsum (only parsing).
 
 Definition H_cond (l : list Q) (ctx : list Q) : Q :=
   H_devsum l - H_devsum ctx.
 
-(* ========== λ-插值混合熵（原文 D12.3 P_mid 插值的熵版本） ========== *)
+(* ========== lambda-interpolated mixed entropy (the entropy version of the
+   P_mid interpolation) ========== *)
 Definition H_lam (l : list Q) (s : nat) (lam : Q) : Q :=
   lam * H_adj (P0 l) + (1 - lam) * H_adj (Pinf l s).
 
-(* ========== 多熵评估套件（原典附录三「可操作启发 1」的构造性化） ========== *)
+(* ========== the multi-entropy evaluation suite (a constructive rendering
+   of the operational heuristics) ========== *)
 
 Record MultiEntropyEval : Type := mkME {
-  me_carrier : list Q;        (* 评估载体 *)
-  me_Hadj    : Q;             (* 序列熵（相邻差） *)
-  me_Hms     : Q;             (* 多重集熵（相异值计数） *)
-  me_Hsh     : Q;             (* 香农熵（频域计数） *)
-  me_Hcond   : Q              (* 条件熵（上下文依赖度） *)
+  me_carrier : list Q;        (* the carrier being evaluated *)
+  me_Hadj    : Q;             (* sequential entropy (adjacent differences) *)
+  me_Hms     : Q;             (* multiset entropy (count of distinct values) *)
+  me_Hsh     : Q;             (* Shannon entropy (frequency counting) *)
+  me_Hcond   : Q              (* conditional entropy (context dependence) *)
 }.
 
 Definition mkMEval (l : list Q) (ctx : list Q) : MultiEntropyEval :=
   mkME l (H_adj l) (H_ms l) (H_devsum l) (H_cond l ctx).
 
-(* ========== 原典附录三的六条操作启发（构造性声明面） ========== *)
+(* ========== the operational heuristics, stated constructively ========== *)
 
-(* 启发1：熵相评估——判断输出在 P0/P∞/Pmid 哪一侧 *)
+(* phase evaluation: decide on which side of P0/Pinf/Pmid the output lies *)
 Definition phase_side (l : list Q) (s : nat) : nat :=
-  (* 0 = 偏 P0；1 = 偏 P∞（由序列熵与阈值比较，差值数据非 Prop） *)
+  (* 0 = closer to P0; 1 = closer to Pinf (comparing the sequential entropy
+   against a threshold; the difference is data, not a Prop) *)
   if Qle_bool (H_adj (P0 l)) (H_adj (Pinf l s)) then 0 else 1.
 
-(* 启发3：幻觉抑制——极端相位降权（余零过滤的构造性化） *)
+(* hallucination suppression: down-weight extreme phases (a constructive
+   rendering of zero-locus filtering) *)
 Definition gate_low_entropy (H : Q) (threshold : Q) : bool :=
   Qle_bool H threshold.
 
-(* 启发4：对齐策略——λ 偏向 P0 的可验证知识 *)
-(*
-   （DTPT_Rotation.v §S7 救活块四件 align_lambda_id/H_lam/
-   lam_opt_min_align/range 现役使用，签名不可变，双件共存裁决）；
-   真定义见文尾 §A7 align_lambda_opt（h0/h1 双熵输入的最优 λ
-   选择器，与 Rotation §S7 lam_opt/lam_opt_cyc 同构语义）。 *)
+(* alignment: a lambda biased toward P0, for verifiable knowledge *)
+(* the identity definition below keeps its historical name and signature;
+   the real definition is [align_lambda_opt] at the end of the file (an
+   optimal lambda chooser over the two entropies h0/h1, with the same
+   semantics as the lambda optimizers of [DTPT_Rotation]). *)
 Definition align_lambda (lam : Q) : Q := lam.
 
-(* ========== 关键定理（临时承认搭架） ========== *)
+(* ========== key theorems ========== *)
 
-(* 混合熵随 λ 单调——P_mid 插值的熵连续性 *)
+(* the mixed entropy is monotone in lambda — continuity of the P_mid
+   interpolation entropy *)
 Lemma qadd_nonneg : forall a b : Q, 0 <= a -> 0 <= b -> QleT' (0) (a + b).
 Proof.
   intros [an ad] [bn bd] H H0.
@@ -450,7 +464,7 @@ Proof.
     | apply QleT'_to_Qle; apply qmul_le_r; [exact Hlam | exact Hd] ].
 Qed.
 
-(* 香农熵非负（Q 离散版） *)
+(* nonnegativity of the Shannon entropy (discrete Q version) *)
 Theorem H_shannon_q_nonneg : forall l : list Q, QleT' (0) (H_devsum l).
 Proof.
   intro l. apply Qle_to_QleT'.
@@ -461,9 +475,9 @@ Proof.
     + exact IH.
 Qed.
 
-(*
-   H_devsum 沿列表递归取「后缀最小值」(hd 0 (P0 l))，
-   置换会改变后缀结构。以下给出构造性反例替代原命题。 *)
+(* [H_devsum] recursively takes a suffix minimum along the list
+   (hd 0 (P0 l)), so a permutation changes the suffix structure.
+   A constructive counterexample replaces the original claim below. *)
 Theorem H_shannon_q_perm_inv_counterex :
   sigT (fun l : list Q => sigT (fun p : list Q =>
     And (Permutation l p) (Not (Id (H_devsum l) (H_devsum p))))).
@@ -478,28 +492,28 @@ Proof.
 Qed.
 
 (* ============================================================
-   W9 跨相熵桥接定理件 · 补强区块（仅追加，不动上方既有内容）
-   目标：把本文件从「定义收集」升级为「定理体系」——
-     (1) P0 最小化序列熵 H_adj (P0 l) <= H_adj l
-         （配对-望远镜路线：有序表熵=max-min，任意配对距离<=序列熵；
-         与 DTPT.v 的 C_sorted_min_adj 相互独立，熵模块自足）
-     (2) 跨相下界 H_adj (P0 l) <= H_adj (Pinf l s)
-         （关键发现：rot = firstn ++ skipn 恒等，Pinf l s = l）
-     (3) λ-插值混合熵跨相夹界
-         H_adj (P0 l) <= H_lam l s lam <= H_adj (Pinf l s)，0<=lam<=1
-     (4) P0 相零化香农偏差熵 H_devsum (P0 l) == 0 及其最小化
-     (5) 频域计数置换不变 + 频谱跨相不变（对照 N9 序列熵可分）
-     (6) 条件熵：自条件零、反对称、守卫非负、可负反例（界定适用域）
-   注：规格原列「H_devsum 置换不变」「无条件 0 <= H_cond l ctx」
-   「H_adj (P0 l) <= H_adj (Pmid l s lam)」三条经核查为假（第一条的
-   反例即上方 H_shannon_q_perm_inv_counterex；另两条反例见补强报告），
-   已按可证命题重新表述，全部构造性落地。
-   本区块 xq_ 前缀引理为局部工具；全程 Qed、零公理；仅依赖 DTPT 中
-   已证的 D5_P0_perm / D5_Pinf_perm / insert_q_perm_cons / qadd_le /
-   Qle_bool_false_le。
+   Cross-phase entropy bridging theorems:
+     (1) P0 minimizes the sequential entropy: [H_adj (P0 l) <= H_adj l]
+         (pairing/telescoping route: a sorted list has entropy max - min,
+         and any pairing has distance <= the sequential entropy)
+     (2) cross-phase lower bound: [H_adj (P0 l) <= H_adj (Pinf l s)]
+         (key fact: [rot = firstn ++ skipn], so [Pinf l s] = l)
+     (3) lambda-interpolated mixed entropy sandwich:
+         [H_adj (P0 l) <= H_lam l s lam <= H_adj (Pinf l s)],
+         [0 <= lam <= 1]
+     (4) vanishing of the Shannon deviation entropy at phase P0:
+         [H_devsum (P0 l) == 0], and its minimality
+     (5) permutation invariance of the frequency counts and cross-phase
+         invariance of the spectrum (contrasting with the sequential
+         entropy family)
+     (6) conditional entropy: self-conditional zero, antisymmetry,
+         guarded nonnegativity, and a negative example delimiting scope
+   The local [xq_] lemmas of this block are auxiliary tools, depending only
+   on [D5_P0_perm] / [D5_Pinf_perm] / [insert_q_perm_cons] / [qadd_le] /
+   [Qle_bool_false_le].
    ============================================================ *)
 
-(* ---------- xq 局部工具：Q 序与绝对值 ---------- *)
+(* ---------- local [xq] tools: Q order and absolute value ---------- *)
 
 Lemma xq_Qle_bool_true : forall x y : Q, (x <= y)%Q -> Id (Qle_bool x y) (true).
 Proof.
@@ -524,7 +538,7 @@ Proof.
   unfold Qeq; simpl. lia.
 Qed.
 
-(* Rocq 9 的 Qabs 以 Z.abs 实现：Qabs (n # d) = (Z.abs n # d) *)
+(* [Qabs] in Rocq 9 is implemented via [Z.abs]: Qabs (n # d) = (Z.abs n # d) *)
 Lemma xq_abs_id : forall x : Q, (0 <= x)%Q -> QeqT (Qabs x) (x).
 Proof.
   intros [n d] Hx. apply qeq_imp_qeqT. unfold Qle in Hx; simpl in Hx.
@@ -609,7 +623,8 @@ Proof.
   exact HS2.
 Qed.
 
-(* ---------- xq 局部工具：升序谓词与 P0 规范形 ---------- *)
+(* ---------- local [xq] tools: the ascending predicate and the P0 normal
+   form ---------- *)
 
 Inductive SortedQ : list Q -> Set :=
 | sortQ_nil : SortedQ []
@@ -648,7 +663,8 @@ Proof.
   - apply xq_sortQ_insert. exact IH.
 Qed.
 
-(* xq_insert_q_head_aux：insert_q 在「插入点不小于被比元素」时直接置首 *)
+(* [xq_insert_q_head_aux]: when the insertion point is >= the compared
+   element, [insert_q] places the element at the head directly *)
 Lemma xq_insert_q_head_aux : forall (a b : Q) (bs : list Q),
   (a <= b)%Q -> Id (insert_q a (b :: bs)) (a :: b :: bs).
 Proof.
@@ -670,7 +686,8 @@ Proof.
       reflexivity.
 Qed.
 
-(* ---------- xq 局部工具：lastq 尾元与望远镜方程 ---------- *)
+(* ---------- local [xq] tools: the [lastq] tail element and the telescoping
+   equation ---------- *)
 
 Fixpoint lastq (l : list Q) : Q :=
   match l with
@@ -716,7 +733,8 @@ Proof.
       * apply QleT'_to_Qle. apply IH. exact HSr.
 Qed.
 
-(* 望远镜方程：升序表的相邻差总和 == 尾元 - 首元 *)
+(* telescoping equation: the sum of adjacent differences of an ascending
+   list equals the last element minus the first *)
 Lemma xq_telescope : forall l : list Q, SortedQ l -> QeqT (H_adj l) (lastq l - hd 0 l).
 Proof.
   induction l as [| a rest IH]; intro HS.
@@ -741,7 +759,8 @@ Proof.
       ring.
 Qed.
 
-(* 配对距离界：表中任意两元素的 Qabs 距离不超过序列熵 *)
+(* pairing distance bound: the Qabs distance of any two elements of the list
+   is at most the sequential entropy *)
 Lemma xq_pair_dist_le : forall (l : list Q) (x y : Q),
   In x l -> In y l -> QleT' (Qabs (x - y)) (H_adj l).
 Proof.
@@ -777,7 +796,8 @@ Proof.
         -- apply QleT'_to_Qle. apply xq_le_add_abs.
 Qed.
 
-(* ========== W9 主定理 1：P0 最小化序列熵（框架核心） ========== *)
+(* ========== main theorem 1: P0 minimizes the sequential entropy
+   ========== *)
 
 Theorem H_adj_P0_min : forall l : list Q, QleT' (H_adj (P0 l)) (H_adj l).
 Proof.
@@ -804,7 +824,8 @@ Proof.
     apply QleT'_to_Qle. apply xq_pair_dist_le; assumption.
 Qed.
 
-(* ========== W9 主定理 2：跨相下界（P∞ 侧） ========== *)
+(* ========== main theorem 2: cross-phase lower bound (Pinf side)
+   ========== *)
 
 Corollary Pinf_eq_l : forall (l : list Q) (s : nat), Id (Pinf l s) (l).
 Proof.
@@ -825,7 +846,8 @@ Proof.
   apply QleT'_to_Qle. apply H_adj_P0_min.
 Qed.
 
-(* ========== W9 主定理 3：λ-插值混合熵跨相夹界 ========== *)
+(* ========== main theorem 3: cross-phase sandwich for the
+   lambda-interpolated mixed entropy ========== *)
 
 Lemma xq_mul_nonneg : forall a b : Q, (0 <= a)%Q -> (0 <= b)%Q -> QleT' (0) (a * b).
 Proof.
@@ -868,7 +890,8 @@ Proof.
   - apply (snd (Qle_0_sub' _ _)). apply Qle_to_QleT'. exact Hup.
 Qed.
 
-(* ========== W9 主定理 4：P0 相零化香农偏差熵 + 最小化 ========== *)
+(* ========== main theorem 4: vanishing of the Shannon deviation entropy at
+   phase P0, and minimality ========== *)
 
 Lemma xq_H_shannon_sortQ : forall l : list Q, SortedQ l -> QeqT (H_devsum l) (0).
 Proof.
@@ -895,7 +918,9 @@ Proof.
   apply QleT'_to_Qle. apply H_shannon_q_nonneg.
 Qed.
 
-(* ========== W9 主定理 5：频域计数置换/跨相不变（对照 N9 序列熵可分） ========== *)
+(* ========== main theorem 5: permutation/cross-phase invariance of the
+   frequency counts (in contrast with the sequential entropy)
+   ========== *)
 
 Theorem count_val_perm : forall (x : Q) (l p : list Q),
   Permutation l p -> Id (count_val x l) (count_val x p).
@@ -935,7 +960,8 @@ Proof.
     rewrite <- (count_val_perm x l (Pinf l s) (D5_Pinf_perm l s)). reflexivity.
 Qed.
 
-(* ========== W9 主定理 6：条件熵四要素（守卫非负 + 反例界定） ========== *)
+(* ========== main theorem 6: the conditional entropy quartet (guarded
+   nonnegativity plus counterexamples delimiting scope) ========== *)
 
 Theorem H_cond_self : forall l : list Q, QeqT (H_cond l l) 0.
 Proof.
@@ -956,7 +982,8 @@ Proof.
   apply Qle_to_QleT'. exact H.
 Qed.
 
-(* 无条件非负为假：空表条件于高熵上下文时 H_cond = -2 < 0 *)
+(* unconditional nonnegativity is false: conditioning an empty list on a
+   high-entropy context gives H_cond = -2 < 0 *)
 Theorem H_cond_neg_counterex :
   sigT (fun l : list Q => sigT (fun ctx : list Q => QltT (H_cond l ctx) 0)).
 Proof.
@@ -965,22 +992,28 @@ Proof.
 Qed.
 
 (* ============================================================
-   DTPT-S2 分析+补强件 · 追加区块（只加末尾，不动上方任何既有行）
-   四族内容：
-   (1) 计数上界族【主定理】：count_val <= length（nat/Q 双形）
-       + H_devsum 计数上界（按定义实形适配：逐项 |x - 后缀最小|
-         走配对界 <= H_adj，逐和 <= 长度系数 × H_adj，系数经 S 化归）
-   (2) MultiEntropyEval 相干性：mkMEval 投影往返（eta 面）
-       + 多重集熵退化 H_ms == 1 ⟹ H_devsum == 0
-       （dedup 计数 → 全同值 → 排序 → 零化四步桥）
-       + 反向面为假的构造性反例（升序表零化但相异值非单一）
-   (3) H_lam 端点退化：lam = 1 / lam = 0 分别收回 P0 / Pinf 相熵
-   (4) gate_low_entropy / phase_side 行为定理（Qle_bool 双向桥）
-   全程 Qed；复用 DTPT.v 的 qmul_le_r / Qle_bool_iff /
-   Qle_bool_false_le / dedup_Qmem_r 与盘上 xq_ 工具箱；零新前提。
+   Counting bounds, coherence of the evaluation record, endpoint degeneracy
+   of [H_lam], and gating behavior:
+     (1) counting upper bounds: [count_val <= length] (nat and Q forms),
+         plus the [H_devsum] counting bound (each term |x - suffix minimum|
+         is bounded by the pairing bound <= H_adj, so the sum is bounded by
+         the length factor times H_adj, the factor reduced to S form)
+     (2) coherence of [MultiEntropyEval]: the round trip of the [mkMEval]
+         projections (eta form), and degeneracy [H_ms == 1] implies
+         [H_devsum == 0] (dedup count -> all values equal -> sorted ->
+         vanishing, a four-step bridge), with a constructive counterexample
+         for the converse
+     (3) endpoint degeneracy of [H_lam]: lam = 1 / lam = 0 recover the P0 /
+         Pinf phase entropies
+     (4) behavior of [gate_low_entropy] / [phase_side] (Qle_bool bridges in
+         both directions)
+   Reuses the toolbox proved in this file ([qmul_le_r], [Qle_bool_iff],
+   [Qle_bool_false_le], [dedup_Qmem_r] and the [xq_] tools); no new
+   premises.
    ============================================================ *)
 
-(* ---------- xq 局部工具：长度系数的 Q 桥 ---------- *)
+(* ---------- local [xq] tools: the Q bridge for the length factor
+   ---------- *)
 
 Lemma xq_Zlen_nonneg : forall n : nat, QleT' (0) ((Z.of_nat n # 1)%Q).
 Proof.
@@ -1006,7 +1039,8 @@ Proof.
   unfold Qle; simpl. lia.
 Qed.
 
-(* ---------- 主定理 1a：频域计数的长度上界（nat 形） ---------- *)
+(* ---------- main theorem 1a: the length upper bound of the frequency
+   counts (nat form) ---------- *)
 
 Lemma count_val_le_length : forall (x : Q) (l : list Q), NatLe (count_val x l) ((length l)%nat).
 Proof.
@@ -1015,7 +1049,8 @@ Proof.
   - destruct (Qeq_bool x y); lia.
 Qed.
 
-(* 主定理 1b：同上界的 Q 域形式（长度系数口径一致） *)
+(* main theorem 1b: the same upper bound in Q form (same length-factor
+   convention) *)
 Lemma count_val_Zle_length : forall (x : Q) (l : list Q),
   QleT' (Z.of_nat (count_val x l) # 1) (Z.of_nat (length l) # 1).
 Proof.
@@ -1025,10 +1060,11 @@ Proof.
   unfold Qle; simpl. lia.
 Qed.
 
-(* ---------- 主定理 1c：H_devsum 计数上界（按定义实形适配） ----------
-   H_devsum 的每项是 |x - 后缀最小值|：配对界给出
-   逐项 <= H_adj，故总和 <= 长度系数 × H_adj。非平凡点：
-   后缀单调（加头只增）+ 系数 S 化归 + 因子序统一。 ---------- *)
+(* ---------- main theorem 1c: the [H_devsum] counting bound ----------
+   Each term of [H_devsum] is |x - suffix minimum|: the pairing bound gives
+   termwise <= H_adj, hence the sum <= length factor * H_adj.  Nontrivial
+   points: suffix monotonicity (prepending only increases), reduction of
+   the factor to S form, and unifying the order of the factors. ---------- *)
 
 Lemma xq_H_adj_suffix_le : forall (a : Q) (l : list Q), QleT' (H_adj l) (H_adj (a :: l)).
 Proof.
@@ -1077,7 +1113,8 @@ Proof.
       rewrite Heq. apply Qle_refl.
 Qed.
 
-(* ---------- 相干性 2a：全同值表的 H_devsum 零化 ---------- *)
+(* ---------- coherence 2a: vanishing of [H_devsum] on an all-equal list
+   ---------- *)
 
 Lemma xq_insert_const_head : forall (a y : Q) (ys : list Q),
   y == a -> Id (insert_q a (y :: ys)) (a :: y :: ys).
@@ -1116,7 +1153,8 @@ Proof.
     rewrite (qeqT_imp_qeq _ _ (IH a Hfxs)). ring.
 Qed.
 
-(* ---------- 相干性 2b：多重集熵退化 ⟹ 香农偏差熵零化 ---------- *)
+(* ---------- coherence 2b: multiset-entropy degeneracy implies vanishing
+   of the Shannon deviation entropy ---------- *)
 
 Lemma xq_len1_el : forall m : list Q,
   length m = 1%nat -> sigT (fun a : Q => Id m (a :: nil)).
@@ -1169,7 +1207,8 @@ Proof.
   apply (xq_dedup1_all_eq l b Hbe z Hz).
 Qed.
 
-(* 反向面为假：升序表 [1;2] 香农偏差为零但多重集熵 = 2 ≠ 1 *)
+(* the converse is false: the ascending list [1;2] has zero Shannon
+   deviation but multiset entropy = 2 <> 1 *)
 Theorem Hshannon0_not_Hms1_counterex :
   And (QeqT (H_devsum [1; 2]) 0) (Not (QeqT (H_ms [1; 2]) 1)).
 Proof.
@@ -1179,7 +1218,8 @@ Proof.
     unfold H_ms in Hc. vm_compute in Hc. discriminate Hc.
 Qed.
 
-(* ---------- 相干性 2c：mkMEval 构造后投影往返（eta 面） ---------- *)
+(* ---------- coherence 2c: the projections of [mkMEval] round-trip (eta
+   form) ---------- *)
 
 Theorem mkMEval_eta : forall (l ctx : list Q),
   And (Id (me_carrier (mkMEval l ctx)) l)
@@ -1202,7 +1242,8 @@ Proof.
   unfold mkMEval. simpl. exact (qeqT_imp_qeq _ _ (H_ms1_Hshannon0 l H)).
 Qed.
 
-(* ---------- 端点 3：H_lam 的 λ=1 / λ=0 退化 ---------- *)
+(* ---------- endpoint 3: degeneracy of [H_lam] at lambda = 1 /
+   lambda = 0 ---------- *)
 
 Theorem H_lam_lam1 : forall (l : list Q) (s : nat),
   QeqT (H_lam l s 1) (H_adj (P0 l)).
@@ -1220,7 +1261,8 @@ Proof.
   ring.
 Qed.
 
-(* ---------- 门控 4：gate_low_entropy / phase_side 行为定理 ---------- *)
+(* ---------- gating 4: behavior of [gate_low_entropy] / [phase_side]
+   ---------- *)
 
 Theorem gate_low_entropy_spec : forall H threshold : Q,
   IffT (Id (gate_low_entropy H threshold) true) (QleT' H threshold).
@@ -1277,48 +1319,33 @@ Proof.
 Qed.
 
 (* ============================================================
-   §A2 归并棒 S3：并入 DTPT_Entropy2.v —— 真频率香农熵
-   H_freq 定理族（qn/freq_q/nsum/sqsum 自包含定义面 + 置换不变主定理
-   H_freq_perm + 简并双向刻画）与数据处理不等式族（M3 归并版 §7-§12
-   整体随行）。
-   仅剥去独立文件的 Require/Import 头与 Module 壳行（stdlib 与 DTPT
-   由本文件头统一承载）——并入后位于 Module DTPT_Entropy 内，其对
-   DTPT 基础（qadd_le/qopp_le/Qle_0_sub' 等）的引用改同文件直引，
-   语义零变；其中 qn_nonneg 使用的 qadd_nonneg 由 DTPT 份换绑为本
-   文件既有的同陈述件（逐字恒等，零漂移）；注释与全部证明体、Qed 面、
-   文尾 Print Assumptions 审计出口零改动逐字迁移（CRLF 归一）。
+   The true-frequency Shannon entropy ([H_freq]) theorem family and the
+   data-processing inequality family.
    ============================================================ *)
 
 (* ============================================================
-   DTPT_Entropy2.v — 真频率香农熵、置换不变定理族与数据处理不等式
-                     （M3 归并版）
-   ------------------------------------------------------------
-   【职责】
-   · 真频率香农熵（Q 域有理替代形）自包含定义面：qn（nat→Q 嵌入）、
-     freq_q（Qeq_bool 判等频数）、nsum（泛求和）、sqsum（免 dedup
-     碰撞和）、H_freq = 1 − Σ_v p_v² 及其定理族（置换不变
-     H_freq_perm / 非负 / 简并双向刻画）。背景：旧 H_devsum 实为
-     质心偏移和、置换不变性为假（反例见 DTPT_Entropy.v），本件为
-     其诚实替代——H_freq ∈ [0,1)，全同值/length≤1 取 0。
-   · 数据处理不等式族（M3 并入段 §7-§12）：粗粒化观测 map f 不增熵
-     ——计数形 freq_q_map、逐点支配 freq_q_map_ge（Qeq 形态假设
-     进场）、碰撞和单调 sqsum_map_ge、补形反号 hfreq_core_anti、
-     主定理 H_freq_dpi、端点双例与迭代不衰减链。
-   【依赖】stdlib（QArith / Qabs / List / Arith / Lia / Permutation）
-     + 基础 DTPT（qopp_le / Qeq 环境等）。无其它外部依赖。
-   【归并记录】M3：U17 件「H_freq 数据处理不等式」件
-     整体并入本文件尾（其对本文件的 Require 行随之删除，变同文件
-     直引，对 DTPT 的 Require 保留）；撞名预检 15 个并入顶层名
-     全 0 撞（dpi_ 系命名天然区分，未加前缀）；全工作区无下游
-     Require 该退役件，源已删、.retired_M3 快照留存；拓扑无新增
-     依赖。
-   【认证】文尾审计 15 件 Print Assumptions 全 "Closed under the
-     global context"（零公理）；.vo 于 M3 归并后重编全部通过。
-   【纪律】Set 层零公理、零承认、零中途放弃，全程 Qed 闭合；
-     nat 全显式 %nat；仅 Require DTPT 与 stdlib，禁 Require 外部件。
+   True-frequency Shannon entropy, permutation invariance, and the
+   data-processing inequality.
+   Content: the self-contained definition face of the true-frequency
+   Shannon entropy (a rational surrogate over Q): [qn] (nat -> Q
+   embedding), [freq_q] (frequency counting with Qeq_bool equality),
+   [nsum] (general summation), [sqsum] (collision sum without dedup), and
+   [H_freq] = 1 - sum_v p_v^2 with its theorem family (permutation
+   invariance [H_freq_perm], nonnegativity, and a two-sided degeneracy
+   characterization).  Background: [H_devsum] is a centroid-offset sum and
+   is NOT permutation invariant (see the counterexample above); [H_freq]
+   is its faithful replacement, lies in [0,1), and takes 0 on all-equal
+   lists and lists of length <= 1.
+   Data-processing inequality family: a coarse-grained observation
+   ([map f]) does not increase [H_freq] — the counting form [freq_q_map],
+   pointwise domination [freq_q_map_ge] (a Qeq-shape assumption enters
+   here), collision-sum monotonicity [sqsum_map_ge], the complement sign
+   flip [hfreq_core_anti], the main theorem [H_freq_dpi], endpoint
+   examples, and the iterated no-decay chain.
    ============================================================ *)
 
-(* ========== §1 qn：nat → Q 嵌入（自包含，免 Z.of_nat 依赖面） ========== *)
+(* ========== [qn]: the nat -> Q embedding (self-contained, no Z.of_nat
+   dependency) ========== *)
 
 Fixpoint qn (n : nat) : Q :=
   match n with
@@ -1396,7 +1423,8 @@ Proof.
       pose proof (IH b' H') as Hab. destruct (id_sym Hab). reflexivity.
 Qed.
 
-(* ========== §2 Q 除法/减号工具（Qminus 先展开再 ring；零除法前提漏洞） ========== *)
+(* ========== Q division/subtraction tools (unfold Qminus, then ring; no
+   division-premise gaps) ========== *)
 
 Lemma qlt_neq0 : forall y : Q, 0 < y -> y <> 0.
 Proof.
@@ -1410,8 +1438,9 @@ Proof.
   apply (Qeq_sym y 0). exact Heq.
 Qed.
 
-(* 本平台 9.0 stdlib 的 Qmult_inv_r 是 x * /x == 1 形而非消去形，
-   自建消去引理（field 的除法侧条件恰为 Qeq 形 ~ (B == 0)） *)
+(* on this platform the stdlib [Qmult_inv_r] has the shape x * /x == 1
+   rather than a cancellation form; a cancellation lemma is built here (the
+   field side condition is exactly the Qeq shape ~ (B == 0)) *)
 Lemma qmult_inv_cancel_r : forall A B : Q, ~ (B == 0) -> QeqT (A * / B * B) (A).
 Proof.
   intros A B HB. apply qeq_imp_qeqT. field. exact HB.
@@ -1426,7 +1455,8 @@ Proof.
   rewrite H in Ha. rewrite Qplus_0_l in Ha. exact Ha.
 Qed.
 
-(* 分子为零（含零分母的平凡情形）则商为零：0/0 == 0 亦被覆盖 *)
+(* a zero numerator (including the degenerate zero denominator) gives a
+   zero quotient: the case 0/0 == 0 is covered as well *)
 Lemma qdiv_zero_num : forall A B : Q, A == 0 -> QeqT (A / B) (0).
 Proof.
   intros A B H. apply qeq_imp_qeqT. unfold Qdiv. rewrite H. apply Qmult_0_l.
@@ -1464,7 +1494,8 @@ Proof.
   rewrite Ht in H. discriminate H.
 Qed.
 
-(* ========== §3 freq_q：自包含频数计数（Qeq_bool 判等） ========== *)
+(* ========== [freq_q]: self-contained frequency counting (decidable by
+   Qeq_bool) ========== *)
 
 Fixpoint freq_q (x : Q) (l : list Q) : nat :=
   match l with
@@ -1479,7 +1510,7 @@ Proof.
   - simpl. destruct (Qeq_bool x y); lia.
 Qed.
 
-(* 保底件：拼接频数可加 *)
+(* baseline: frequencies are additive under concatenation *)
 Theorem freq_q_app : forall (x : Q) (l p : list Q), Id (freq_q x (l ++ p)) ((freq_q x l + freq_q x p)%nat).
 Proof.
   intros x l p. apply eq_imp_id. induction l as [| a l IH].
@@ -1487,8 +1518,10 @@ Proof.
   - simpl. destruct (Qeq_bool x a); rewrite IH; lia.
 Qed.
 
-(* 主定理前置：频数置换不变（对 Permutation 构造子归纳；perm_swap
-   分支因计数同一 x0 而只需四分支字面重排，无需 Qeq_bool 对称性） *)
+(* precondition of the main theorem: frequencies are permutation invariant
+   (induction on the constructors of Permutation; in the perm_swap branch
+   both sides count the same x0, so only the four branches need literal
+   reordering, without Qeq_bool symmetry) *)
 Theorem freq_q_perm : forall (x : Q) (l p : list Q),
   Permutation l p -> Id (freq_q x l) (freq_q x p).
 Proof.
@@ -1531,7 +1564,8 @@ Proof.
       * exact Hy0.
 Qed.
 
-(* ========== §4 nsum：Q 索引 nat 泛求和 ========== *)
+(* ========== [nsum]: general nat-indexed summation with Q values
+   ========== *)
 
 Fixpoint nsum (f : Q -> nat) (l : list Q) : nat :=
   match l with
@@ -1598,7 +1632,8 @@ Proof.
       reflexivity.
 Qed.
 
-(* ========== §5 sqsum：Σ_{x∈l} freq_q x l = Σ_v c_v²（免 dedup） ========== *)
+(* ========== [sqsum]: sum_{x in l} freq_q x l = sum_v c_v^2 (dedup-free)
+   ========== *)
 
 Definition sqsum (l : list Q) : nat := nsum (fun x => freq_q x l) l.
 
@@ -1660,14 +1695,17 @@ Proof.
     + apply (Qeq_sym b x). apply qeqT_imp_qeq. apply Hall. exact Hb.
 Qed.
 
-(* ========== §6 H_freq：真频率香农熵的有理替代形与主定理定理 ========== *)
+(* ========== [H_freq]: the rational surrogate of the true-frequency Shannon
+   entropy and its main theorems ========== *)
 
-(* H_freq l = 1 − Σ_v p_v² = (n² − Σ_v c_v²)/n²（Q 域；n=0 时取 0） *)
+(* [H_freq l = 1 - sum_v p_v^2 = (n^2 - sum_v c_v^2) / n^2] (over Q; the
+   value is 0 when n = 0) *)
 Definition H_freq (l : list Q) : Q :=
   (qn (length l) * qn (length l) - qn (sqsum l))
     / (qn (length l) * qn (length l)).
 
-(* 【主定理】置换不变——旧 H_devsum 因质心偏移形而造不出的定理 *)
+(* main theorem: permutation invariance — a theorem the centroid-offset
+   shape of the old [H_devsum] could not express *)
 Theorem H_freq_perm : forall l p : list Q,
   Permutation l p -> QeqT (H_freq l) (H_freq p).
 Proof.
@@ -1677,7 +1715,9 @@ Proof.
   reflexivity.
 Qed.
 
-(* 非负（按所选形：n² ≥ Σc_v² 且除正保号；空表分子分母同零取 0） *)
+(* nonnegativity (for the chosen shape: n^2 >= sum c_v^2, and division by a
+   positive denominator preserves the sign; for the empty list numerator
+   and denominator are both zero and the value is 0) *)
 Theorem H_freq_nonneg : forall l : list Q, QleT' (0) (H_freq l).
 Proof.
   intros l. apply Qle_to_QleT'. destruct l as [| x xs].
@@ -1695,7 +1735,8 @@ Proof.
       apply QltT_to_Qlt. apply qn_pos. simpl. apply Nat.lt_0_succ.
 Qed.
 
-(* 简并刻画（正向）：全同值面 ⟹ H_freq 取 0 *)
+(* degeneracy characterization (forward): all values equal implies
+   [H_freq] takes 0 *)
 Theorem H_freq_all_same_zero : forall l : list Q,
   all_same l -> QeqT (H_freq l) (0).
 Proof.
@@ -1727,7 +1768,8 @@ Proof.
     + simpl in Hl. exfalso. lia.
 Qed.
 
-(* 简并刻画（反向）：H_freq 取 0 ⟹ 全同值面（双向闭合） *)
+(* degeneracy characterization (backward): [H_freq] takes 0 implies all
+   values equal (two-sided closure) *)
 Theorem H_freq_eq0_all_same : forall l : list Q,
   H_freq l == 0 -> all_same l.
 Proof.
@@ -1754,14 +1796,12 @@ Proof.
 Qed.
 
 (* ############################################################
-   M3 归并段【U17 件 · H_freq 数据处理不等式族】（§7-§12）
-   原独立文件整体并入：内容零改动，仅删其 Require 行（变同文件
-   直引）、节号顺延 §7-§12、审计并档文尾。
+   The data-processing inequality family for [H_freq].
    ############################################################ *)
 
-(* ========== §7 列表/求和迁移工具 ========== *)
+(* ========== list/sum transfer tools ========== *)
 
-(* map 保长（stdlib 9.0 length_map 改名风险规避，自建） *)
+(* [map] preserves length (built here, avoiding stdlib rename drift) *)
 Lemma length_map_self : forall (f : Q -> Q) (l : list Q), Id (length (map f l)) (length l).
 Proof.
   intros f l. induction l as [| a l IH]; simpl; apply eq_imp_id.
@@ -1769,7 +1809,7 @@ Proof.
   - destruct (id_sym IH). reflexivity.
 Qed.
 
-(* 泛求和逐点单调 *)
+(* pointwise monotonicity of the general sum *)
 Lemma nsum_le : forall (g h : Q -> nat) (l : list Q),
   (forall x, In x l -> (g x <= h x)%nat) -> NatLe (nsum g l) ((nsum h l)%nat).
 Proof.
@@ -1781,7 +1821,8 @@ Proof.
     pose proof (NatLe_drop _ _ H2). lia.
 Qed.
 
-(* 求和过 map = 复合求和（nsum 与 map 的交换桥） *)
+(* summing over map = summing the composition (the exchange bridge between
+   [nsum] and [map]) *)
 Lemma nsum_map : forall (g : Q -> nat) (f : Q -> Q) (l : list Q), Id (nsum g (map f l)) (nsum (fun x => g (f x)) l).
 Proof.
   intros g f l. induction l as [| a l IH]; simpl; apply eq_imp_id.
@@ -1789,10 +1830,12 @@ Proof.
   - destruct (id_sym IH). reflexivity.
 Qed.
 
-(* ========== §8 保底件：推前计数引理与逐点支配 ========== *)
+(* ========== baseline: the pushforward counting lemma and pointwise
+   domination ========== *)
 
-(* 【保底件·推前引理·计数形】map 后 y 的频数 = 原表中命中 f x == y 的票数
-*)
+(* baseline pushforward lemma, counting form: the frequency of y after
+   [map] equals the number of votes of members x with f x == y in the
+   original list *)
 Theorem freq_q_map : forall (f : Q -> Q) (y : Q) (l : list Q), Id (freq_q y (map f l)) (nsum (fun x : Q => if Qeq_bool y (f x) then 1%nat else 0%nat) l).
 Proof.
   intros f y l. induction l as [| a l IH]; simpl; apply eq_imp_id.
@@ -1800,9 +1843,12 @@ Proof.
   - destruct (Qeq_bool y (f a)); destruct (id_sym IH); reflexivity.
 Qed.
 
-(* 【Qeq 形态桥】逐点支配：x 在原表中的票数 <= f x 在像表中的票数。
-   真票（x == a）在 f 作用下仍命中（形态假设保命中），且像表可能
-   额外并票（他值同像），故只增不减——这是 DPI 的微观机理。 *)
+(* Qeq-shape bridge, pointwise domination: the votes of x in the original
+   list are <= the votes of f x in the image list.  A true vote (x == a)
+   still hits under f (the shape assumption preserves hits), and the image
+   list may merge additional votes (other values with the same image), so
+   votes only grow — the micro-mechanism of the data-processing
+   inequality. *)
 Lemma freq_q_map_ge : forall (f : Q -> Q),
   (forall x y : Q, x == y -> f x == f y) ->
   forall (x : Q) (l : list Q), NatLe (freq_q x l) ((freq_q (f x) (map f l))%nat).
@@ -1818,8 +1864,9 @@ Proof.
     + destruct (Qeq_bool (f x) (f a)); lia.
 Qed.
 
-(* 【质量合并单调】碰撞和面：sqsum (map f l) >= sqsum l。
-   求和过 map（nsum_map）+ 逐点支配（freq_q_map_ge）两步归堆。 *)
+(* mass-merging monotonicity, collision-sum form:
+   [sqsum (map f l) >= sqsum l], by summing over map ([nsum_map]) and
+   pointwise domination ([freq_q_map_ge]). *)
 Theorem sqsum_map_ge : forall (f : Q -> Q),
   (forall x y : Q, x == y -> f x == f y) ->
   forall l : list Q, NatLe (sqsum l) ((sqsum (map f l))%nat).
@@ -1829,15 +1876,18 @@ Proof.
   apply nsum_le. intros x _. apply NatLe_drop. apply freq_q_map_ge. exact Hf.
 Qed.
 
-(* ========== §9 Q 除法/减号单调工具（DPI 的补形反号机件） ========== *)
+(* ========== Q division/subtraction monotonicity tools (the complement
+   sign-flip machinery of the DPI) ========== *)
 
-(* 同分母商的减法分配（Qminus、Qdiv 先 unfold 再 ring，Qinv 为原子） *)
+(* subtraction distributes over same-denominator quotients (unfold Qminus
+   and Qdiv, then ring; [Qinv] stays atomic) *)
 Lemma qdiv_sub_distr : forall A B D : Q, QeqT (A / D - B / D) ((A - B) / D).
 Proof.
   intros A B D. apply qeq_imp_qeqT. unfold Qminus, Qdiv. ring.
 Qed.
 
-(* 减法右单调：A <= B 则 D - B <= D - A（补形单调反号的内核） *)
+(* right monotonicity of subtraction: A <= B gives D - B <= D - A (the core
+   of complement monotonicity with sign flip) *)
 Lemma qsub_mono_r : forall D A B : Q, A <= B -> QleT' (D - B) (D - A).
 Proof.
   intros D A B H. apply Qle_to_QleT'. unfold Qminus.
@@ -1846,9 +1896,10 @@ Proof.
   - apply QleT'_to_Qle. apply qopp_le. exact H.
 Qed.
 
-(* 核形：N >= 1 时碰撞和在 [0, N²] 内单调反号穿过补形商。
-   （qdiv_sub_distr 把商之差归并为单商，qdiv_nonneg 保号；
-   N = 0 时 A = B = 0 两侧字面相同。） *)
+(* core form: for N >= 1 the collision sum in [0, N^2] passes monotonically
+   through the complement quotient with a sign flip ([qdiv_sub_distr]
+   merges the quotient difference into a single quotient, [qdiv_nonneg]
+   keeps the sign; for N = 0 both sides are literally A = B = 0). *)
 Lemma hfreq_core_anti : forall (N A B : nat), (A <= B)%nat -> (B <= N * N)%nat -> QleT' ((qn N * qn N - qn B) / (qn N * qn N)) ((qn N * qn N - qn A) / (qn N * qn N)).
 Proof.
   intros N A B HAB HBN.
@@ -1875,13 +1926,17 @@ Proof.
     + exact HD.
 Qed.
 
-(* ========== §10 【主定理】数据处理不等式 DPI ========== *)
+(* ========== main theorem: the data-processing inequality (DPI) ========== *)
 
-(* 观测（粗粒化合并质量）不增 H_freq：H_freq (map f l) <= H_freq l。
-   形态假设 = 等价类合并语义的 Qeq 诚实守恒（对任意裸函数 f 该命题
-   为假——裸函数可观测 Q 的 Record 表示，如取分子；反例
-   l = [1/2; 2/4]，H_freq l = 0 而 H_freq (map (取分子) l) = 1/2。
-   故主定理带形态假设 (forall x y : Q, x == y -> f x == f y)。 *)
+(* observation (coarse-graining that merges masses) does not increase
+   [H_freq]: [H_freq (map f l) <= H_freq l].
+   The shape assumption is the Qeq-honest conservation of the
+   equivalence-class-merging semantics: for an arbitrary bare function f
+   the claim is false — a bare function can observe the Record
+   representation of Q (e.g. take the numerator); the counterexample
+   l = [1/2; 2/4] has H_freq l = 0 but H_freq (map numerator l) = 1/2.
+   Hence the main theorem carries the shape assumption
+   (forall x y : Q, x == y -> f x == f y). *)
 Theorem H_freq_dpi : forall (f : Q -> Q),
   (forall x y : Q, x == y -> f x == f y) ->
   forall l : list Q, QleT' (H_freq (map f l)) (H_freq l).
@@ -1901,10 +1956,12 @@ Proof.
       rewrite Hlen in Hs. exact (NatLe_drop _ _ Hs).
 Qed.
 
-(* ========== §11 端点双例：DPI 两端的行为钉死 ========== *)
+(* ========== two endpoint examples: pinning the behavior at both ends of
+   the DPI ========== *)
 
-(* 端点一【恒等不衰减】：恒等映射（最细观测）零损耗——列表面
-   Leibniz 相等直接桥接，无需形态假设。 *)
+(* endpoint one, identity does not decay: the identity map (the finest
+   observation) loses nothing — bridged directly by Leibniz equality of
+   lists, no shape assumption needed. *)
 Theorem H_freq_map_id : forall l : list Q, QeqT (H_freq (map (fun x : Q => x) l)) (H_freq l).
 Proof.
   intros l.
@@ -1916,7 +1973,7 @@ Proof.
   rewrite Hid. apply Qeq_refl.
 Qed.
 
-(* 常数映射的像全同值（列表面 Leibniz） *)
+(* the image of a constant map is all-equal (Leibniz on lists) *)
 Lemma in_map_const : forall (c : Q) (l : list Q) (a : Q),
   In a (map (fun _ : Q => c) l) -> QeqT (a) (c).
 Proof.
@@ -1927,8 +1984,9 @@ Proof.
     + apply qeqT_imp_qeq. apply IH. exact H.
 Qed.
 
-(* 端点二【常数全坍缩】：最粗观测（全部并成一桶）H_freq 取 0
-   （简并面；对空表亦真，空表 H_freq 本为 0）。 *)
+(* endpoint two, constant maps collapse everything: the coarsest observation
+   (merging everything into one bucket) makes [H_freq] take 0 (degenerate
+   form; true for the empty list too, whose [H_freq] is 0 anyway). *)
 Theorem H_freq_map_const : forall (c : Q) (l : list Q), QeqT (H_freq (map (fun _ : Q => c) l)) (0).
 Proof.
   intros c l. apply H_freq_all_same_zero.
@@ -1937,9 +1995,10 @@ Proof.
   - apply (Qeq_sym b c). exact (qeqT_imp_qeq _ _ (in_map_const c l b Hb)).
 Qed.
 
-(* ========== §12 加分：迭代不衰减链 ========== *)
+(* ========== bonus: the iterated no-decay chain ========== *)
 
-(* 两步复合直推：第二次观测仍不增（需 g 亦为形态） *)
+(* two-step composition, directly: the second observation still does not
+   increase (g must also respect the shape) *)
 Theorem H_freq_map_twice : forall (f g : Q -> Q),
   (forall x y : Q, x == y -> f x == f y) ->
   (forall x y : Q, x == y -> g x == g y) ->
@@ -1948,7 +2007,7 @@ Proof.
   intros f g Hf Hg l. apply (H_freq_dpi g Hg (map f l)).
 Qed.
 
-(* 链式：H_freq (map g (map f l)) <= H_freq (map f l) <= H_freq l *)
+(* chain: H_freq (map g (map f l)) <= H_freq (map f l) <= H_freq l *)
 Theorem H_freq_map_chain : forall (f g : Q -> Q),
   (forall x y : Q, x == y -> f x == f y) ->
   (forall x y : Q, x == y -> g x == g y) ->
@@ -1962,61 +2021,41 @@ Proof.
 Qed.
 
 (* ============================================================
-   §A3 归并棒 S3：并入 DTPT_EntFam2.v —— 多熵族缺位
-   三成员（collide/maxfreq/H_min_q·H_max_q）+ Rényi 阶梯序链主定理
-   H_chain + H_freq 相干桥与置换不变收尾。
-   仅剥去独立文件的 Require/Import 头与 Module 壳行；原对
-   DTPT_Entropy2 的 Require 随并入变同文件直引（§A2 先行定位，
-   引用面零改写），对 DTPT 基础引用经本文件头 Import 不变，语义
-   零变；注释与全部证明体、Qed 面、文尾 Print Assumptions 审计
-   出口零改动逐字迁移（CRLF 归一）。撞名预检：两源顶层名对宿主
-   既有面 grep 全零命中（实测为准，纯追加零 uniquify）。
+   The three missing members of the multi-entropy family ([collide] /
+   [maxfreq] / [H_min_q] and [H_max_q]) with the Renyi ladder order-chain
+   main theorem [H_chain], plus the [H_freq] coherence bridge and the
+   permutation-invariance closure.
    ============================================================ *)
 
 (* ============================================================
-   DTPT_EntFam2.v — 多熵函数族缺位成员三件套（collide / maxfreq / H_min_q·H_max_q）
-   职责：补多熵族缺位三成员的 Q 域有理代理面并证其序链——
-         collide（Rényi 阶 2 碰撞熵内积面核 Σp_v²）、maxfreq（最大
-         频率归一化，序链主定理）、H_max_q = 1 − maxfreq、H_min_q = 1 −
-         collide（规格指定形）；Rényi 阶梯 1/n≤collide≤maxfreq≤1
-         （非空 l，三成员一次入链）+ H_freq 相干桥 + 置换不变全套。
-   依赖：QArith（QArith/Qabs）、List、Arith、Lia、Permutation、
-         DTPT、DTPT_Entropy2。
-   归并记录：无（原生成模块；件 DTPT-U9 新建件，禁碰既有件）。
-   认证：零承认零公理；全树 coqchk EXIT=0。
-   纪律：纯构造性；温控协议；Set 层零公理面、全程 Qed。
-   附注：选形声明（详见 DTPT_EntFam2_升级报告_U9.md）——
-         1. collide l = qn (sqsum l) / (qn n · qn n)，复用 S6 泛求和
-            路线（sqsum 免 dedup、天然置换不变）；
-         2. maxfreq l = qn (maxcount l) / qn n，空表取 0；
-         3. 对照口径：−log max p 文献常记 H_min、−log Σp² 为 Rényi₂/
-            碰撞熵；Q 域无 log，取「熵补 1−x」有理代理，与 −log x
-            同为减函数 ⟹ 单调同向，序性质全部保真；命名遵规格，
-            语义以「补形单调同向代理」自洽；
-         4. 主定理序链 1/qn n <= collide l <= maxfreq l <= 1
-            （Σp² >= 1/n 即 Cauchy-Schwarz 离散形；Σp² <= max p · Σ p
-            经典不等式的 nat 层归纳实现，nat 侧闭合后 Q 层除法桥接）；
-         5. H_freq l == 1 − collide l（非空 l；S6 件直推——H_freq 即
-            1 − collide 的别名面）。
-         原典对照（数字全域—熵相三元论·基座）：L22 裁决表·熵行
-         「采用多熵函数族 ℋ，不强行选单一熵」；L148-152 成员清单
-         H_alg/H_Sh/H_vN/H_str + 可扩展 H_Rényi/H_min/H_max/H_top/
-         H_cond；盘面在册状态（B1 已证结论）：H_devsum（占位件）+
-         H_cond + H_freq（S6，算半个 H_Rényi₂ 面）——九成员仅 2.5 个
-         在册，本件补三成员。语义面：collide/maxfreq ∈ [1/n, 1]
-         （非空）、空表取 0；H_max_q/H_min_q ∈ [0, 1]；全同值面
-         maxfreq 取 1（熵补取 0）；置换不变全套。
+   The three missing members of the multi-entropy family:
+   [collide] (the Renyi-order-2 collision entropy core sum p_v^2),
+   [maxfreq] (normalized maximum frequency), [H_max_q] = 1 - maxfreq and
+   [H_min_q] = 1 - collide (the specified shapes).
+   Main theorem, the Renyi ladder for nonempty l, all three members in one
+   chain: [1 / qn n <= collide l <= maxfreq l <= 1]
+   (sum p^2 >= 1/n is the discrete Cauchy-Schwarz; sum p^2 <=
+   max p * sum p is proved by nat-side induction and bridged by Q
+   division).
+   Coherence: [H_freq l == 1 - collide l] for nonempty l ([H_freq] is the
+   alias of 1 - collide).
+   Convention note: Q has no logarithm, so the entropy complement 1 - x is
+   the rational surrogate; it is decreasing in x exactly like -log x, so
+   the order properties carry over faithfully.  For all-equal lists
+   [maxfreq] takes 1 (the complement takes 0); empty lists take 0; the
+   whole family is permutation invariant.
    ============================================================ *)
 
-(* ========== §1 Q 序/除法工具（stdlib 形变自建层） ========== *)
+(* ========== Q order/division tools (built where the stdlib shapes
+   differ) ========== *)
 
-(* Qeq 可直接改写进 Qle 目标（S6 已实证） *)
+(* [Qeq] can be rewritten directly into [Qle] goals *)
 Lemma qeq_le_l : forall x y : Q, x == y -> QleT' (x) (y).
 Proof.
   intros x y H. apply Qle_to_QleT'. rewrite H. apply Qle_refl.
 Qed.
 
-(* qn n >= 1（n >= 1；经 qadd_le，S6 qn_S_pos 同款配方） *)
+(* qn n >= 1 (for n >= 1; via [qadd_le]) *)
 Lemma qn_ge1 : forall n : nat, (1 <= n)%nat -> QleT' (1:Q) (qn n).
 Proof.
   intros n Hn. apply Qle_to_QleT'. destruct n as [| k].
@@ -2027,7 +2066,8 @@ Proof.
     simpl in HH. exact (QleT'_to_Qle _ _ HH).
 Qed.
 
-(* qn 乘积正性（nat 侧非负乘法 + qn 单调，绕开 stdlib 严格乘法名赌博） *)
+(* positivity of products of [qn] values (nat-side nonnegative
+   multiplication plus monotonicity of [qn]) *)
 Lemma qn_mul_pos : forall a b : nat, (0 < a)%nat -> (0 < b)%nat -> QltT (0) (qn a * qn b).
 Proof.
   intros a b Ha Hb.
@@ -2042,23 +2082,26 @@ Proof.
     apply QleT'_to_Qle. apply qn_le. exact Hab.
 Qed.
 
-(* 非空表长度正性（纯 nat 侧，simpl 只在 nat 目标上做——Q 目标 simpl
-   会把 Qlt 展成 Qnum/Qden 编码形致 apply 失配） *)
+(* length positivity of a nonempty list (pure nat side; [simpl] only on nat
+   goals — on Q goals it would unfold Qlt into Qnum/Qden encodings and
+   break the [apply]) *)
 Lemma qlen_pos : forall (x : Q) (l : list Q), NatLe 1 (length (x :: l)).
 Proof.
   intros x l. apply NatLe_lift.
   change (length (x :: l)) with (S (length l)). lia.
 Qed.
 
-(* 非空表长度嵌入的乘积正性（序链 Q 侧统一入口） *)
+(* positivity of products of embedded nonempty-list lengths (the unified Q
+   entry of the order chain) *)
 Lemma qlen_mul_pos : forall (x : Q) (l : list Q), QltT (0) (qn (length (x :: l)) * qn (length (x :: l))).
 Proof.
   intros x l. apply qn_mul_pos;
     [ apply NatLe_drop, qlen_pos | apply NatLe_drop, qlen_pos ].
 Qed.
 
-(* 同分母除法对分子单调（分母为正；Qmult_le_compat_r 带非负前提，
-   逆元正性经 Qinv_lt_0_compat——本 9.0 stdlib 无 Qmult_le_compat_l） *)
+(* same-denominator division is monotone in the numerator (positive
+   denominator; positivity of the inverse via [Qinv_lt_0_compat], since the
+   stdlib here has no left-compatible le form) *)
 Lemma qdiv_ge_num : forall A C B : Q, 0 < B -> C <= A -> QleT' (C / B) (A / B).
 Proof.
   intros A C B HB Hle. apply Qle_to_QleT'. unfold Qdiv.
@@ -2067,7 +2110,8 @@ Proof.
   - apply (Qlt_le_weak 0 (/ B)). apply (Qinv_lt_0_compat B HB).
 Qed.
 
-(* 分子不超分母则商不超 1（Qmult_inv_r 是乘出 1 的特化形，S6 卡在案） *)
+(* numerator <= denominator gives quotient <= 1 ([Qmult_inv_r] is the
+   specialized multiply-out-to-1 form) *)
 Lemma qdiv_le_1 : forall A B : Q, A <= B -> 0 < B -> QleT' (A / B) (1).
 Proof.
   intros A B Hle HB. apply Qle_to_QleT'. unfold Qdiv.
@@ -2080,13 +2124,15 @@ Proof.
   destruct (qpos_neq0 B HB (qeq_imp_qeqT _ _ Hc2)).
 Qed.
 
-(* 归一化：1/P == P/(P·P)（field 除法侧条件为 Qeq 形，由上下文假设实例化消解） *)
+(* normalization: 1 / P == P / (P * P) (the field side condition is a Qeq
+   shape, discharged from the context assumption) *)
 Lemma qdiv_norm : forall P : Q, ~ (P == 0) -> ~ (P * P == 0) -> QeqT (1 / P) (P / (P * P)).
 Proof.
   intros P HP1 HP2. apply qeq_imp_qeqT. field; assumption.
 Qed.
 
-(* 减法保序反变（z 固定；Qminus 先展开再 qadd_le，避开 apply 单化病） *)
+(* order-reversing subtraction (z fixed; unfold Qminus first, then
+   [qadd_le], avoiding apply-unification trouble) *)
 Lemma qsub_le : forall x y z : Q, x <= y -> QleT' (z - y) (z - x).
 Proof.
   intros x y z H. apply Qle_to_QleT'. unfold Qminus.
@@ -2095,7 +2141,8 @@ Proof.
   - exact (Qopp_le_compat x y H).
 Qed.
 
-(* ========== §2 nmax：Q 索引 nat 泛取大（与 S6 nsum 同构） ========== *)
+(* ========== [nmax]: general nat-indexed maximum with Q values (the dual
+   of [nsum]) ========== *)
 
 Fixpoint nmax (f : Q -> nat) (l : list Q) : nat :=
   match l with
@@ -2136,7 +2183,8 @@ Proof.
     rewrite (IH (fun x Hx => H x (or_intror Hx))). reflexivity.
 Qed.
 
-(* 泛取大置换不变（perm_swap 分支 lia 收 Nat.max 交换） *)
+(* permutation invariance of the general maximum (perm_swap branch closed
+   by commutativity of Nat.max) *)
 Lemma nmax_perm : forall (f : Q -> nat) (l p : list Q),
   Permutation l p -> Id (nmax f l) (nmax f p).
 Proof.
@@ -2149,9 +2197,10 @@ Proof.
   - rewrite IH1. exact IH2.
 Qed.
 
-(* ========== §3 频数补充件（保底件 nat 侧承重） ========== *)
+(* ========== frequency complements (the nat-side baseline) ========== *)
 
-(* 成员频率至少 1（Qeq_bool 假分支经 S6 qeqb_false_neq 矛盾闭合） *)
+(* every member has frequency >= 1 (the false branch of Qeq_bool is closed
+   by the contradiction lemma [qeqb_false_neq]) *)
 Lemma freq_q_ge1 : forall (x : Q) (l : list Q), In x l -> NatLe (1) ((freq_q x l)%nat).
 Proof.
   intros x l Hin. revert Hin.
@@ -2166,7 +2215,7 @@ Proof.
       * apply NatLe_drop. apply IH. exact Hin.
 Qed.
 
-(* 泛求和下界（nsum_bound 的对偶） *)
+(* lower bound of the general sum (the dual of [nsum_bound]) *)
 Lemma nsum_ge_const : forall (f : Q -> nat) (l : list Q) (B : nat),
   (forall x, In x l -> (B <= f x)%nat) -> NatLe (length l * B) ((nsum f l)%nat).
 Proof.
@@ -2178,7 +2227,8 @@ Proof.
     pose proof (NatLe_drop _ _ Hys). lia.
 Qed.
 
-(* 保底件 nat 侧核心：sqsum >= length（逐点 freq >= 1，Cauchy-Schwarz 下界入口） *)
+(* nat-side baseline core: [sqsum >= length] (pointwise freq >= 1; the
+   entry of the Cauchy-Schwarz lower bound) *)
 Lemma sqsum_ge_length : forall l : list Q, NatLe (length l) ((sqsum l)%nat).
 Proof.
   intros l. unfold sqsum.
@@ -2187,9 +2237,10 @@ Proof.
   rewrite Nat.mul_1_r in Hge. exact Hge.
 Qed.
 
-(* ========== §4 collide：Rényi₂/碰撞熵核 Σp² 与界定理（保底件） ========== *)
+(* ========== [collide]: the Renyi-2 / collision-entropy core sum p^2 and
+   its bounding theorems (baseline) ========== *)
 
-(* collide l = Σ_{x∈l} (freq_q x l / n)² = qn (sqsum l) / (qn n · qn n) *)
+(* collide l = sum_{x in l} (freq_q x l / n)² = qn (sqsum l) / (qn n * qn n) *)
 Definition collide (l : list Q) : Q :=
   qn (sqsum l) / (qn (length l) * qn (length l)).
 
@@ -2202,7 +2253,7 @@ Proof. apply qeq_imp_qeqT.
   unfold collide. unfold Qdiv. rewrite Hz. apply Qmult_0_l.
 Qed.
 
-(* 上界：collide <= 1（全表；sqsum <= n² 经 S6 sqsum_le） *)
+(* upper bound: [collide <= 1] (whole list; [sqsum <= n^2]) *)
 Theorem collide_upper : forall l : list Q, QleT' (collide l) (1).
 Proof.
   intros l. destruct l as [| x xs].
@@ -2218,7 +2269,8 @@ Proof.
     + apply QltT_to_Qlt. apply qlen_mul_pos.
 Qed.
 
-(* 下界：1/n <= collide（非空；1/n == n/n² 经 qdiv_norm，分子经 sqsum_ge_length） *)
+(* lower bound: [1/n <= collide] (nonempty; 1/n == n/n^2 by normalization,
+   numerator by [sqsum_ge_length]) *)
 Theorem collide_lower : forall l : list Q,
   (0 < length l)%nat -> QleT' (1 / qn (length l)) (collide l).
 Proof.
@@ -2244,7 +2296,7 @@ Proof.
     + exact Hnum.
 Qed.
 
-(* 置换不变（sqsum_perm + Permutation_length 两步，S6 同款） *)
+(* permutation invariance (by [sqsum_perm] and [Permutation_length]) *)
 Theorem collide_perm : forall l p : list Q,
   Permutation l p -> QeqT (collide l) (collide p).
 Proof.
@@ -2253,15 +2305,17 @@ Proof.
   rewrite (Permutation_length H). reflexivity.
 Qed.
 
-(* ========== §5 maxfreq：最大频率归一化与序链闭环（主定理） ========== *)
+(* ========== [maxfreq]: normalized maximum frequency, closing the order
+   chain (main theorem) ========== *)
 
 Definition maxcount (l : list Q) : nat := nmax (fun x => freq_q x l) l.
 
 Definition maxfreq (l : list Q) : Q := qn (maxcount l) / qn (length l).
 
-(* 【主定理序链】collide <= maxfreq：
-   nat 侧 sqsum <= n · maxcount（S6 nsum_bound + nmax_bound 逐点），
-   Q 侧同分母单调 + 场内归一（field 侧条件由上下文实例化消解） *)
+(* main theorem, the order chain [collide <= maxfreq]:
+   nat side [sqsum <= n * maxcount] (pointwise, from the sum bound and
+   [nmax_bound]), Q side same-denominator monotonicity plus in-context
+   normalization (the field side condition discharged from the context) *)
 Theorem collide_le_maxfreq : forall l : list Q, QleT' (collide l) (maxfreq l).
 Proof.
   intros l. destruct l as [| x xs].
@@ -2302,7 +2356,8 @@ Proof.
       (Qle_trans _ _ _ HA (QleT'_to_Qle _ _ (qeq_le_l _ _ HB)))).
 Qed.
 
-(* 下界：1/n <= maxfreq（非空；maxcount >= 1 经逐点成员频率 >= 1） *)
+(* lower bound: [1/n <= maxfreq] (nonempty; [maxcount >= 1] since every
+   member has frequency >= 1) *)
 Theorem maxfreq_lower : forall l : list Q,
   (0 < length l)%nat -> QleT' (1 / qn (length l)) (maxfreq l).
 Proof.
@@ -2324,7 +2379,8 @@ Proof.
       rewrite <- Hq1. exact (QleT'_to_Qle _ _ (qn_le 1 (maxcount (x :: xs)) Hge)).
 Qed.
 
-(* 上界：maxfreq <= 1（全表；maxcount <= length 经 nmax_le_bound 逐点） *)
+(* upper bound: [maxfreq <= 1] (whole list; [maxcount <= length] pointwise
+   from [nmax_le_bound]) *)
 Theorem maxfreq_upper : forall l : list Q, QleT' (maxfreq l) (1).
 Proof.
   intros l. destruct l as [| x xs].
@@ -2339,7 +2395,8 @@ Proof.
     + apply QltT_to_Qlt. apply qn_pos. apply NatLe_drop. apply qlen_pos.
 Qed.
 
-(* 简并面：全同值 ⟹ maxfreq 取 1（maxcount == length 双向夹） *)
+(* degenerate form: all values equal implies [maxfreq] takes 1
+   ([maxcount == length], squeezed from both sides) *)
 Theorem maxfreq_all_same_one : forall l : list Q,
   all_same l -> (0 < length l)%nat -> QeqT (maxfreq l) 1.
 Proof.
@@ -2368,7 +2425,8 @@ Proof.
     field; assumption.
 Qed.
 
-(* maxcount 置换不变（nmax_ext_in 点点相等桥 + nmax_perm，sqsum_perm 同款） *)
+(* [maxcount] is permutation invariant ([nmax_ext_in] pointwise bridge
+   plus [nmax_perm]) *)
 Theorem maxcount_perm : forall l p : list Q,
   Permutation l p -> Id (maxcount l) (maxcount p).
 Proof.
@@ -2380,7 +2438,7 @@ Proof.
   exact (nmax_perm (fun x => freq_q x p) l p H).
 Qed.
 
-(* maxfreq 置换不变 *)
+(* [maxfreq] is permutation invariant *)
 Theorem maxfreq_perm : forall l p : list Q,
   Permutation l p -> QeqT (maxfreq l) (maxfreq p).
 Proof.
@@ -2389,7 +2447,8 @@ Proof.
   rewrite (Permutation_length H). reflexivity.
 Qed.
 
-(* 【序链合读】非空 l：1/n <= collide <= maxfreq <= 1 三成员一次入链 *)
+(* order chain read together: for nonempty l,
+   [1/n <= collide <= maxfreq <= 1], all three members in one chain *)
 Theorem H_chain : forall l : list Q, (0 < length l)%nat ->
   And (QleT' (1 / qn (length l)) (collide l))
       (And (QleT' (collide l) (maxfreq l)) (QleT' (maxfreq l) 1)).
@@ -2401,13 +2460,15 @@ Proof.
     + apply maxfreq_upper.
 Qed.
 
-(* ========== §6 H_max_q / H_min_q：多熵族补形有理代理面（主件） ========== *)
+(* ========== [H_max_q] / [H_min_q]: the complement rational surrogates of
+   the entropy family ========== *)
 
 Definition H_max_q (l : list Q) : Q := 1 - maxfreq l.
 
 Definition H_min_q (l : list Q) : Q := 1 - collide l.
 
-(* 单调面：maxfreq 越大 H_max_q 越小（经 qsub_le 反变桥） *)
+(* monotonicity: the larger [maxfreq], the smaller [H_max_q] (via the
+   order-reversing [qsub_le] bridge) *)
 Theorem H_max_q_anti : forall l p : list Q,
   maxfreq l <= maxfreq p -> QleT' (H_max_q p) (H_max_q l).
 Proof.
@@ -2437,7 +2498,7 @@ Proof.
     rewrite Hz. apply Qle_refl.
 Qed.
 
-(* 与下界的耦合：H_max_q l <= 1 - 1/n（非空） *)
+(* coupling with the lower bound: [H_max_q l <= 1 - 1/n] (nonempty) *)
 Theorem H_max_q_le_inv : forall l : list Q, (0 < length l)%nat ->
   QleT' (H_max_q l) (1 - 1 / qn (length l)).
 Proof.
@@ -2466,7 +2527,9 @@ Proof.
     rewrite Hz. apply Qle_refl.
 Qed.
 
-(* 熵族内部相干桥：H_freq == 1 − collide（非空；S6 件定义直推，field 闭合） *)
+(* internal coherence bridge of the entropy family:
+   [H_freq == 1 - collide] (nonempty; direct from the definitions, closed
+   by field reasoning) *)
 Theorem H_freq_eq_bridge : forall l : list Q,
   (0 < length l)%nat -> QeqT (H_freq l) (H_min_q l).
 Proof.
@@ -2484,7 +2547,8 @@ Proof.
     field; assumption.
 Qed.
 
-(* 简并面：全同值 ⟹ H_max_q 取 0（与 S6 H_freq_all_same_zero 对偶） *)
+(* degenerate form: all values equal implies [H_max_q] takes 0 (dual of the
+   all-equal vanishing of [H_freq]) *)
 Theorem H_max_q_all_same_zero : forall l : list Q,
   all_same l -> (0 < length l)%nat -> QeqT (H_max_q l) 0.
 Proof.
@@ -2493,7 +2557,7 @@ Proof.
   rewrite H1. reflexivity.
 Qed.
 
-(* ========== §7 置换不变收尾（加分项） ========== *)
+(* ========== permutation-invariance closure (bonus) ========== *)
 
 Theorem H_min_q_perm : forall l p : list Q,
   Permutation l p -> QeqT (H_min_q l) (H_min_q p).
@@ -2511,59 +2575,51 @@ Qed.
 
 
 (* ============================================================
-   §A4 归并棒 S4：并入 DTPT_ME2.v —— MultiEntropyEval
-   相干性二波（热点 X2-6）：第 0 节局部工具（abs 三角/聚合权/dedup
-   计数）+ 第一节五字段定义方程族（复用 S2 mkMEval_eta 禁重证）+
-   第二节主定理 me_cert 九联合相干证书 + 第三节 X2-6 套件级 lifts
-   与跨字段桥 + 第四节聚合面 me_total 三件。
-   仅剥去独立文件的 Require/Import 头与 Module 壳行（stdlib 与
-   DTPT 基础由本文件头统一承载；并入后位于 Module DTPT_Entropy
-   内，对 mkMEval/H_devsum/H_cond 等本文件面的引用变同文件直引，
-   语义零变）；注释与全部证明体、Qed 面、文尾 Print Assumptions
-   审计出口零改动逐字迁移（CRLF 归一）。撞名预检：23 个并入顶层
-   名对宿主既有面整词 grep 全零命中（实测为准，纯追加零 uniquify）。
+   Coherence of the [MultiEntropyEval] record: local tools (abs triangle /
+   aggregate weights / dedup counting), the five-field definitional
+   equations, the joint coherence certificate [me_cert], suite-level lifts
+   and cross-field bridges, and the [me_total] aggregate.
    ============================================================ *)
 
 (* ============================================================
-   DTPT_ME2.v — MultiEntropyEval 相干性二波：从「数据束」升级为
-   「自证证书」（热点升级单 X2-6，扫描件 DTPT-U16）
-   原典映射：附录三「多熵评估套件」+ DTPT_Entropy.v L46-58 定义面
-   ------------------------------------------------------------
-   基础（只 Require DTPT / DTPT_Entropy / stdlib，零新前提）：
-   - DTPT_Entropy.v：mkMEval/mkMEval_eta（S2 已证五投影，复用禁重证）、
-     H_shannon_q_nonneg、xq_H_adj_nonneg、H_shannon_q_count_ub、
-     H_adj_P0_min、H_cond_nonneg_guarded、mkMEval_Hms1_Hsh0、
-     xq_Zlen_nonneg、xq_Qle_bool_le、qadd_nonneg
-   - DTPT.v：H_ms、gate_pass、Qle_dec'、abs_eq、abs_neg、
-     Qle_0_sub'、qmul_le_r、qadd_le、qsub 工具
-   - stdlib：Qle_trans、Qle_refl、ring/lia
-   ------------------------------------------------------------
-   分层交付：
-   - 保底（一档）：五字段逐一定义方程（组合复用 mkMEval_eta，零重证）
-   - 主定理（二档）：me_cert —— 载体一致 + 四熵等值 + Hadj/Hsh 非负 +
-     Hsh 计数上界 + Hcond 三角界，九联合相干合取面
-     （me_coherent 证书谓词 + mkMEval 构造见证）
-   - 主件（三档）：X2-6 六件套件级 lifts + H_ms1→Hsh0 逆否桥 +
-     |me_Hcond| 三角界/计数面证书版 + gate 双门桥
-     （H_cond_abs_bound 在 ZeroLocus 盘面，按红线禁 Require，不使用）
-   - 加分（四档）：me_total 等权聚合 + 守卫非负界 + 2 倍香农上界
-   红线自查：承认件/中断件/经典排中面等禁词全零（字面自查见
-   升级报告 G1 行），全程 Qed 闭合；nat 全显式 %nat。
+   The [MultiEntropyEval] coherence suite: from a data bundle to a
+   self-certifying record.
+   Basis (reused, no new premises): [mkMEval]/[mkMEval_eta],
+   [H_shannon_q_nonneg], [xq_H_adj_nonneg], [H_shannon_q_count_ub],
+   [H_adj_P0_min], [H_cond_nonneg_guarded], [mkMEval_Hms1_Hsh0],
+   [xq_Zlen_nonneg], [xq_Qle_bool_le], [qadd_nonneg], [H_ms], [gate_pass],
+   [Qle_dec'], [abs_eq], [abs_neg], [Qle_0_sub'], [qmul_le_r], [qadd_le],
+   [qsub], and stdlib [Qle_trans]/[Qle_refl]/[ring]/[lia].
+   Layered delivery:
+   - baseline: the five field equations, one by one (composed from
+     [mkMEval_eta], no re-proofs)
+   - main theorem: [me_cert] — carrier agreement + the four entropy
+     equalities + nonnegativity of Hadj/Hsh + the counting upper bound on
+     Hsh + the triangle bound on Hcond, a nine-way joint coherence
+     conjunction ([me_coherent], certified by the construction [mkMEval])
+   - main piece: suite-level lifts, the contrapositive bridge
+     [H_ms == 1 -> Hsh == 0], the triangle/counting certificate forms of
+     |me_Hcond|, and the two-gate bridge ([H_cond_abs_bound] is not
+     available here and is not used)
+   - bonus: the equal-weight aggregate [me_total] with guarded
+     nonnegativity and a twofold Shannon upper bound
    ============================================================ *)
 
 (* ============================================================
-   第 0 节 局部工具（abs 三角 / 聚合权 / dedup 计数）
+   Local tools (abs triangle / aggregate weights / dedup counting)
    ============================================================ *)
 
-(* 非负二元差 abs 三角：0 <= a、0 <= b -> |a - b| <= a + b
-   （Qle_dec' 两分定形 + abs_eq/abs_neg，正负两支各经 Qle_0_sub' 移项） *)
+(* abs triangle for nonnegative differences:
+   0 <= a -> 0 <= b -> |a - b| <= a + b
+   (case split by [Qle_dec'], then [abs_eq]/[abs_neg]; each branch
+   rearranged by [Qle_0_sub']) *)
 Lemma me2_abs_sub_triangle : forall a b : Q,
   (0 <= a)%Q -> (0 <= b)%Q -> QleT' (Qabs (a - b)) (a + b).
 Proof.
   intros a b Ha Hb.
   apply Qle_to_QleT'.
   destruct (Qle_dec' a b) as [Hab | Hba].
-  - (* 支一 a <= b：|a-b| = -(a-b) = b-a，经 (a+b)-(b-a) = 2a >= 0 *)
+  - (* branch a <= b: |a-b| = -(a-b) = b-a, via (a+b)-(b-a) = 2a >= 0 *)
     assert (Hneg : (a - b <= 0)%Q).
     { apply QleT'_to_Qle. apply (snd (Qle_0_sub' (a - b) 0)).
       apply Qle_to_QleT'.
@@ -2576,7 +2632,7 @@ Proof.
     apply Qle_to_QleT'.
     assert (Hr2 : ((a + b) - (b - a))%Q == a + a) by ring.
     rewrite Hr2. apply QleT'_to_Qle. apply qadd_nonneg; exact Ha.
-  - (* 支二 b <= a：|a-b| = a-b，经 (a+b)-(a-b) = 2b >= 0 *)
+  - (* branch b <= a: |a-b| = a-b, via (a+b)-(a-b) = 2b >= 0 *)
     assert (Hpos : (0 <= a - b)%Q).
     { apply QleT'_to_Qle. apply (fst (Qle_0_sub' b a)). exact Hba. }
     rewrite (qeqT_imp_qeq _ _ (abs_eq (a - b) Hpos)).
@@ -2586,14 +2642,14 @@ Proof.
     rewrite Hr3. apply QleT'_to_Qle. apply qadd_nonneg; exact Hb.
 Qed.
 
-(* 聚合权 1/4 非负（字面 Qle_bool 计算） *)
+(* the aggregate weight 1/4 is nonnegative (literal Qle_bool computation) *)
 Lemma me2_weight_nonneg : QleT' (0) ((1 # 4)%Q).
 Proof. apply Qle_to_QleT'.
   change (Z.le (0 * 4) (1 * 1))%Z.
   lia.
 Qed.
 
-(* 非空表的 dedup 计数 >= 1（nat 全显式） *)
+(* the dedup count of a nonempty list is >= 1 *)
 Lemma me2_dedup_len_ge1 : forall l : list Q,
   l <> [] -> NatLe (1) ((length (dedup l))%nat).
 Proof.
@@ -2604,7 +2660,8 @@ Proof.
 Qed.
 
 (* ============================================================
-   第一节 保底件：五字段逐一定义方程（复用 S2 mkMEval_eta，禁重证）
+   Baseline: the five field equations, one by one (reusing [mkMEval_eta],
+   no re-proofs)
    ============================================================ *)
 
 Theorem me2_carrier_eq : forall (l ctx : list Q), Id (me_carrier (mkMEval l ctx)) (l).
@@ -2634,8 +2691,10 @@ Proof.
 Qed.
 
 (* ============================================================
-   第二节 主定理：me_cert —— mkMEval 自证证书（九联合相干合取面）
-   载体一致 + 四熵等值 + Hadj/Hsh 非负 + Hsh 计数上界 + Hcond 三角界
+   Main theorem: [me_cert] — the self-certifying record of [mkMEval]
+   (nine-way joint coherence conjunction: carrier agreement + the four
+   entropy equalities + nonnegativity of Hadj/Hsh + the counting upper
+   bound on Hsh + the triangle bound on Hcond)
    ============================================================ *)
 
 Definition me_coherent (m : MultiEntropyEval) (l ctx : list Q) : Set :=
@@ -2654,9 +2713,10 @@ Theorem me_cert : forall (l ctx : list Q),
 Proof.
   intros l ctx.
   destruct (mkMEval_eta l ctx) as [Hc [Ha [Hm [Hs Hcond]]]].
-  (* repeat split 直收前五个定义性合取面（载体 eq + 四 Qeq，
-     Z.eq 为 Prop 级单构造子，投影 delta 归约后 eq_refl 可解），
-     余下四个 Qle 相干面逐条复用基础件 *)
+  (* [repeat split] closes the first five definitional conjuncts (carrier
+   equality + four Qeq; Z.eq is a Prop-level single constructor, solvable
+   by eq_refl after projection delta reduction); the remaining four Qle
+   coherence conjuncts reuse the baseline lemmas one by one *)
   unfold me_coherent, And. repeat split.
   - exact Ha.
   - exact Hm.
@@ -2678,10 +2738,11 @@ Proof.
 Qed.
 
 (* ============================================================
-   第三节 主件：X2-6 套件级 lifts + 跨字段桥（证书版）
+   Main piece: suite-level lifts and cross-field bridges (certificate
+   forms)
    ============================================================ *)
 
-(* 3.1 P0 最小性提升：H_adj (P0 载体) <= me_Hadj *)
+(* lift of P0 minimality: [H_adj (P0 carrier)] <= [me_Hadj] *)
 Theorem mkMEval_Hadj_min : forall (l ctx : list Q),
   QleT' (H_adj (P0 (me_carrier (mkMEval l ctx)))) (me_Hadj (mkMEval l ctx)).
 Proof.
@@ -2692,7 +2753,7 @@ Proof.
   exact (QleT'_to_Qle _ _ (H_adj_P0_min l)).
 Qed.
 
-(* 3.2 香农字段非负 *)
+(* nonnegativity of the Shannon field *)
 Theorem mkMEval_Hsh_nonneg : forall (l ctx : list Q),
   QleT' 0 (me_Hsh (mkMEval l ctx)).
 Proof.
@@ -2701,7 +2762,8 @@ Proof.
   exact (QleT'_to_Qle _ _ (H_shannon_q_nonneg l)).
 Qed.
 
-(* 3.3 香农字段计数上界（H_adj × 长度系数） *)
+(* counting upper bound of the Shannon field ([H_adj] times the length
+   factor) *)
 Theorem mkMEval_Hsh_ub : forall (l ctx : list Q),
   QleT' (me_Hsh (mkMEval l ctx))
         (me_Hadj (mkMEval l ctx) * (Z.of_nat (length l) # 1)).
@@ -2712,7 +2774,8 @@ Proof.
   exact (QleT'_to_Qle _ _ (H_shannon_q_count_ub l)).
 Qed.
 
-(* 3.4 多重集熵非空下界：载体非空 -> 1 <= me_Hms（Z 桥） *)
+(* nonempty lower bound of the multiset entropy: a nonempty carrier gives
+   [1 <= me_Hms] (Z bridge) *)
 Theorem mkMEval_Hms_ge1 : forall (l ctx : list Q),
   l <> [] -> QleT' 1 (me_Hms (mkMEval l ctx)).
 Proof.
@@ -2721,10 +2784,11 @@ Proof.
   assert (Hn : (1 <= length (dedup l))%nat)
     by (apply NatLe_drop; apply me2_dedup_len_ge1; exact Hl).
   assert (Hz : (1 <= Z.of_nat (length (dedup l)))%Z) by lia.
-  unfold Qle. cbn [Qnum Qden]. lia.  (* 记录字段真名小写 Qden（S2 卡坑四） *)
+  unfold Qle. cbn [Qnum Qden]. lia.  (* the record field's true name is lowercase [Qden] *)
 Qed.
 
-(* 3.5 条件熵负侧界：-H_sh ctx <= me_Hcond（H_shannon_q_nonneg 移项） *)
+(* negative-side bound of the conditional entropy:
+   [-H_sh ctx <= me_Hcond] (rearranged [H_shannon_q_nonneg]) *)
 Theorem mkMEval_Hcond_lb : forall (l ctx : list Q),
   QleT' (- H_devsum ctx) (me_Hcond (mkMEval l ctx)).
 Proof.
@@ -2738,15 +2802,16 @@ Proof.
   rewrite Hr. exact (QleT'_to_Qle _ _ (H_shannon_q_nonneg l)).
 Qed.
 
-(* 3.6 双门同一 Qle_bool：低熵门 == gate_pass（跨定义面） *)
+(* both gates use the same Qle_bool: the low-entropy gate equals
+   [gate_pass] (across the two definitions) *)
 Theorem mkMEval_gate_bridge : forall (l ctx : list Q) (t : Q), Id (gate_low_entropy (me_Hsh (mkMEval l ctx)) t) (gate_pass t (H_devsum l)).
 Proof.
   intros l ctx t. apply eq_imp_id. unfold gate_low_entropy, gate_pass, mkMEval.
   cbn [me_Hsh]. destruct (Qle_bool (H_devsum l) t); reflexivity.
 Qed.
 
-(* 3.7 跨字段桥证书版：H_ms==1 -> Hsh==0 的逆否面
-   （复用 S2 mkMEval_Hms1_Hsh0，零重证） *)
+(* cross-field bridge, certificate form: the contrapositive of
+   [H_ms == 1 -> Hsh == 0] (reusing [mkMEval_Hms1_Hsh0], no re-proof) *)
 Theorem mkMEval_notHsh0_notHms1 : forall (l ctx : list Q),
   ~ (me_Hsh (mkMEval l ctx) == 0)%Q -> Not (QeqT (me_Hms (mkMEval l ctx)) 1).
 Proof.
@@ -2755,8 +2820,10 @@ Proof.
     (H0 (qeqT_imp_qeq _ _ (mkMEval_Hms1_Hsh0 l ctx Hms1)))).
 Qed.
 
-(* 3.8 三角界证书版：|me_Hcond| <= me_Hsh + H_sh ctx（Entropy 内件组合；
-   H_cond_abs_bound 在 ZeroLocus 盘面按红线禁 Require，不使用） *)
+(* triangle bound, certificate form:
+   [|me_Hcond| <= me_Hsh + H_sh ctx] (composed from lemmas of this file;
+   the abs-bound lemma of the zero-locus suite is not available here and
+   is not used) *)
 Theorem mkMEval_Hcond_abs_ub : forall (l ctx : list Q),
   QleT' (Qabs (me_Hcond (mkMEval l ctx)))
         (me_Hsh (mkMEval l ctx) + H_devsum ctx).
@@ -2769,8 +2836,9 @@ Proof.
     | exact (QleT'_to_Qle _ _ (H_shannon_q_nonneg ctx)) ].
 Qed.
 
-(* 3.9 计数面证书版：|me_Hcond| <= me_Hadj×n_l + H_adj ctx×n_ctx
-   （3.8 三角界 × H_shannon_q_count_ub 双臂） *)
+(* counting bound, certificate form:
+   [|me_Hcond| <= me_Hadj * n_l + H_adj ctx * n_ctx]
+   (the triangle bound combined with [H_shannon_q_count_ub] on both arms) *)
 Theorem mkMEval_Hcond_count_ub : forall (l ctx : list Q), QleT' (Qabs (me_Hcond (mkMEval l ctx))) (me_Hadj (mkMEval l ctx) * (Z.of_nat (length l) # 1)
        + H_adj ctx * (Z.of_nat (length ctx) # 1)).
 Proof.
@@ -2790,13 +2858,15 @@ Proof.
 Qed.
 
 (* ============================================================
-   第四节 加分：聚合面 me_total（等权 1/4）+ 守卫非负界 + 2 倍上界
+   Bonus: the aggregate [me_total] (equal weights 1/4) with guarded
+   nonnegativity and a twofold upper bound
    ============================================================ *)
 
 Definition me_total (m : MultiEntropyEval) : Q :=
   (1 # 4)%Q * (me_Hadj m + me_Hms m + me_Hsh m + me_Hcond m)%Q.
 
-(* 聚合定义方程（mkMEval 上投影定义性） *)
+(* the aggregate's defining equations (definitional projections of
+   [mkMEval]) *)
 Theorem me_total_eq : forall (l ctx : list Q), QeqT (me_total (mkMEval l ctx)) ((1 # 4)%Q * (H_adj l + H_ms l + H_devsum l + H_cond l ctx)%Q).
 Proof.
   intros l ctx.
@@ -2811,8 +2881,9 @@ Proof.
   reflexivity.
 Qed.
 
-(* 守卫非负界：H_sh ctx <= H_sh l -> 0 <= me_total
-   （四熵在守卫下全非负，qadd_nonneg 链 + qmul_le_r） *)
+(* guarded nonnegativity: [H_sh ctx <= H_sh l -> 0 <= me_total]
+   (under the guard all four entropies are nonnegative; a chain of
+   [qadd_nonneg] and [qmul_le_r]) *)
 Theorem me_total_nonneg_guarded : forall (l ctx : list Q),
   (H_devsum ctx <= H_devsum l)%Q ->
   QleT' 0 (me_total (mkMEval l ctx)).
@@ -2834,8 +2905,9 @@ Proof.
     (QleT'_to_Qle _ _ me2_weight_nonneg) Hsum)).
 Qed.
 
-(* 聚合上界：me_total <= (1/4)×(H_adj + H_ms + 2×H_sh)
-   （负侧恰由 H_cond <= H_sh l 吃掉：-H_sh ctx <= 0） *)
+(* aggregate upper bound: [me_total <= (1/4) * (H_adj + H_ms + 2 * H_sh)]
+   (the negative side is exactly absorbed by [H_cond <= H_sh l], since
+   [-H_sh ctx <= 0]) *)
 Theorem me_total_ub : forall (l ctx : list Q), QleT' (me_total (mkMEval l ctx)) ((1 # 4)%Q * (H_adj l + H_ms l + (2 # 1)%Q * H_devsum l)%Q).
 Proof.
   intros l ctx. apply Qle_to_QleT'. rewrite (qeqT_imp_qeq _ _ (me_total_eq l ctx)).
@@ -2861,7 +2933,8 @@ Proof.
   { apply QleT'_to_Qle. apply qadd_le.
     - apply Qle_refl.
     - exact Hsub. }
-  (* qmul_le_r 为右乘子形且要求同乘子：两侧权重各 ring 换序到右 *)
+  (* [qmul_le_r] multiplies on the right and requires a common multiplier:
+   rearrange both weighted sides to the right by ring *)
   assert (Hsw1 : (1 # 4)%Q
                    * (H_adj l + H_ms l + (H_devsum l + H_cond l ctx))%Q
                == (H_adj l + H_ms l + (H_devsum l + H_cond l ctx))%Q
@@ -2876,61 +2949,44 @@ Proof.
 Qed.
 
 (* ============================================================
-   §A5 归并棒 S4：并入 DTPT_ZeroLocus.v —— 零点刻画
-   （热点 X2-2）：占位熵 H_devsum 零点集结构刻画五节——工具面
-   （xqz_ 系 abs0/sub/plus_eq0）+ 主定理 H_shannon_q_zero_iff_sorted
-   （零点 ⟺ 升序表 SortedQ）+ 主件A H_ms1_all_eq/H_ms1_iff_const
-   + 主件B H_cond_nonneg_iff/H_cond_abs_bound/H_cond_zero_iff +
-   加分 H_shannon_q_perm_inv_if_sorted/zero_locus_joint/
-   zero_locus_contrast_sorted_not_const。
-   仅剥去独立文件的 Require/Import 头与 Module 壳行（stdlib 与
-   DTPT 基础由本文件头统一承载；并入后位于 Module DTPT_Entropy
-   内，对 H_devsum/xq_H_shannon_sortQ/xq_Zlen_inj1 等 S2 面的
-   引用变同文件直引，语义零变）；ADJ-1 复合名保留件
-   （H_shannon_q_* 系）整词对照零改名；注释与全部证明体、Qed 面、
-   文尾 Print Assumptions 审计出口零改动逐字迁移（CRLF 归一）。
-   撞名预检：17 个并入顶层名对宿主既有面整词 grep 全零命中。
+   Zero-locus characterization of the placeholder Shannon deviation
+   entropy [H_devsum]: tools, the main theorem (zero locus iff ascending
+   list), the all-equal characterization of [H_ms == 1], the [H_cond]
+   family, and the restricted positive forms of the counterexamples.
    ============================================================ *)
 
 (* ============================================================
-   DTPT_ZeroLocus.v — 零点刻画件 U4（热点升级单 X2-2，X2 扫描 Top-2）
-   职责：占位「质心偏移」香农偏差熵 H_devsum（DTPT_Entropy.v，
-         逐项 |x - 后缀 P0 最小| 之和）的零点集结构刻画：
-         零点 ⟺ 升序表（SortedQ）；内容分级：
-         主定理  H_shannon_q_zero_iff_sorted（正向 = 盘上
-               xq_H_shannon_sortQ；反向本件新证：和零 + 双项非负
-               ⟹ 逐项零 ⟹ 首元 == 后缀 P0 最小 ⟹ 升序 cons，
-               配 hd 最小性新引理 xqz_sorted_hd_min）
-         主件A H_ms1_all_eq / H_ms1_iff_const（H_ms == 1 全同值
-               刻画；诚实口径：空表 H_ms [] == 0 而「全成员同值」
-               空真，故 iff 右侧带 l <> [] 守卫——对 X2-2 草式的
-               必要修正）
-         主件B H_cond_nonneg_iff / H_cond_abs_bound / H_cond_zero_iff
-               （绝对值界：|H_cond| <= H_devsum l + H_devsum ctx）
-         加分  H_shannon_q_perm_inv_if_sorted（反例①的 restricted
-               正形：双侧升序时置换不变成立）、zero_locus_joint
-               （反例③的正面孪生：双零点 ⟺ 非空常值表）、
-               zero_locus_contrast_sorted_not_const（[1;2] 对照锚）
-   依赖：QArith（QArith/Qabs）、List、Arith、Lia、Permutation、
-         DTPT（D5_P0_perm / dedup 系 / Qmem 系 / qadd_le /
-         Qle_0_sub' / Qeqb_true_of）、DTPT_Entropy（xq_H_shannon_sortQ、
-         xq_Zlen_inj1、xq_len1_el、xq_dedup1_all_eq、
-         H_shannon_q_const_zero、H_shannon_q_nonneg）。
-   归并记录：无（原生成模块）。
-   认证：零承认零公理；全树 coqchk EXIT=0。
-   纪律：纯构造性；温控协议；新名一律 xqz_ 前缀防撞名；
-         nat 全显式 %nat；Qeq 口径显式迁移（Qeq_trans/Qeq_sym
-         值参显式位）；全部声明以 Qed 闭合。
-   附注：与 S6 真频率熵的对照定位——占位熵 H_devsum 零点可含
-         相异值（[1;2] 是零点但非常值），真频率熵 H_freq 零点必为
-         常值表；对照锚 zero_locus_contrast_sorted_not_const 给出
-         可执行见证，S6 落盘后可经 Require 直接拼装双向对照引理
-         （首期不做）；本件不定义任何频率/对数对象，S5 测度面零接触。
+   Zero-locus characterization of the placeholder centroid-offset Shannon
+   deviation entropy [H_devsum] (the termwise |x - suffix P0 minimum| sum):
+   the zero locus is exactly the ascending lists ([SortedQ]).
+   Content grading:
+   main theorem [H_shannon_q_zero_iff_sorted] (forward = the existing
+     [xq_H_shannon_sortQ]; backward proved here: a vanishing sum with
+     termwise nonnegativity forces each term to zero, so the head equals
+     the suffix P0 minimum at every step — ascending cons, with the new
+     head-minimality lemma [xqz_sorted_hd_min])
+   piece A [H_ms1_all_eq] / [H_ms1_iff_const] (characterizing [H_ms == 1]
+     as all members equal; honest convention: [H_ms []] == 0 while all
+     members of the empty list are vacuously equal, so the right side of
+     the iff carries the [l <> []] guard)
+   piece B [H_cond_nonneg_iff] / [H_cond_abs_bound] / [H_cond_zero_iff]
+     (absolute-value bound: |H_cond| <= H_devsum l + H_devsum ctx)
+   bonus [H_shannon_q_perm_inv_if_sorted] (the restricted positive form of
+     the permutation counterexample: invariance holds when both sides are
+     ascending), [zero_locus_joint] (the positive twin: double zero locus
+     iff a nonempty constant list), and
+     [zero_locus_contrast_sorted_not_const] (the [1;2] contrast anchor)
+   Contrast with the true-frequency entropy: the placeholder [H_devsum] can
+   vanish on lists with distinct values ([1;2] is a zero locus but not
+   constant), while the zero locus of the true-frequency [H_freq] is
+   exactly the constant lists; new names carry the [xqz_] prefix.
    ============================================================ *)
 
-(* ========== §1 工具：绝对值零点、减法零点、非负和零分解 ========== *)
+(* ========== tools: absolute-value zero, subtraction zero, and splitting a
+   vanishing sum of nonnegative terms ========== *)
 
-(* Qabs x == 0 -> x == 0（对 Qnum 三分直解，stdlib 无 Qeq 形现成件） *)
+(* Qabs x == 0 -> x == 0 (direct case analysis on the Qnum encoding; the
+   stdlib has no ready-made Qeq form) *)
 Lemma xqz_abs0_eq : forall x : Q, Qabs x == 0 -> QeqT x 0.
 Proof.
   intros [n d] H. apply qeq_imp_qeqT. unfold Qeq. destruct n as [| p | p].
@@ -2939,7 +2995,8 @@ Proof.
   - unfold Qabs in H. simpl in H. discriminate H.
 Qed.
 
-(* x - y == 0 -> x == y（Qle_0_sub' 双向 + 反对称，零 setoid 重写） *)
+(* x - y == 0 -> x == y (both directions of [Qle_0_sub'] plus
+   antisymmetry; no setoid rewriting) *)
 Lemma xqz_sub_eq0 : forall x y : Q, (x - y == 0)%Q -> QeqT x y.
 Proof.
   intros x y H. apply qeq_imp_qeqT.
@@ -2953,7 +3010,8 @@ Proof.
     apply xq_Qeq_le. apply Qeq_sym. exact H.
 Qed.
 
-(* 非负两项和为零 ⟹ 首项为零（a <= a+b == 0 与 0 <= a 夹挤） *)
+(* a vanishing sum of two nonnegative terms forces the first term to zero
+   (squeezed between a <= a+b == 0 and 0 <= a) *)
 Lemma xqz_plus_eq0_le : forall a b : Q,
   (a + b == 0)%Q -> (0 <= a)%Q -> (0 <= b)%Q -> QeqT a 0.
 Proof.
@@ -2966,7 +3024,8 @@ Proof.
   apply qeqT_imp_qeq. exact (xq_Qle_antisym a 0 Hle' Ha).
 Qed.
 
-(* 非负两项和为零 ⟹ 两项皆零（交换后复用） *)
+(* a vanishing sum of two nonnegative terms forces both terms to zero
+   (commute and reuse) *)
 Lemma xqz_plus_eq0 : forall a b : Q,
   (a + b == 0)%Q -> (0 <= a)%Q -> (0 <= b)%Q -> And (QeqT a 0) (QeqT b 0).
 Proof.
@@ -2976,9 +3035,11 @@ Proof.
     exact (xqz_plus_eq0_le b a Hab Hb Ha).
 Qed.
 
-(* ========== §2 主定理：H_devsum 零点集 = 升序表 ========== *)
+(* ========== main theorem: the zero locus of [H_devsum] = the ascending
+   lists ========== *)
 
-(* hd 最小性：升序表的首元不超过表内任何成员 *)
+(* head minimality: the head of an ascending list does not exceed any
+   member *)
 Lemma xqz_sorted_hd_min : forall (l : list Q) (z : Q),
   SortedQ l -> In z l -> QleT' (hd 0 l) (z).
 Proof.
@@ -2995,7 +3056,8 @@ Proof.
       { apply HFa. exact Hin. }
 Qed.
 
-(* P0 规范形的首元是全表下界（经置换迁移成员性） *)
+(* the head of the P0 normal form is a lower bound of the whole list
+   (membership transported through the permutation) *)
 Lemma xqz_P0_hd_min_all : forall (l : list Q) (z : Q),
   In z l -> QleT' (hd 0 (P0 l)) (z).
 Proof.
@@ -3007,7 +3069,9 @@ Proof.
     + exact Hin.
 Qed.
 
-(* 主定理反向：占位熵零 ⟹ 升序（逐层剥 |首差| + 归纳） *)
+(* backward direction of the main theorem: a vanishing placeholder entropy
+   implies ascending (peeling the |head difference| layer by layer, with
+   induction) *)
 Theorem H_shannon_q_zero_sorted : forall l : list Q,
   H_devsum l == 0 -> SortedQ l.
 Proof.
@@ -3029,8 +3093,10 @@ Proof.
       * apply QleT'_to_Qle. apply xqz_P0_hd_min_all. simpl. right. exact Hz.
 Qed.
 
-(* 主定理：占位香农偏差熵的零点集 = 升序表
-   （正向 = 盘上 xq_H_shannon_sortQ；对照 S6 真频率熵零点 = 常值表） *)
+(* main theorem: the zero locus of the placeholder Shannon deviation
+   entropy = the ascending lists (forward = the existing
+   [xq_H_shannon_sortQ]; contrast: the zero locus of the true-frequency
+   entropy = the constant lists) *)
 Theorem H_shannon_q_zero_iff_sorted : forall l : list Q,
   And (QeqT (H_devsum l) 0 -> SortedQ l) (SortedQ l -> QeqT (H_devsum l) 0).
 Proof.
@@ -3040,8 +3106,9 @@ Proof.
   - intro Hs. apply xq_H_shannon_sortQ. exact Hs.
 Qed.
 
-(* 对照锚（可执行）：[1;2] 升序且是占位熵零点，但非常值表
-   ——「占位熵零点 ≠ 真香农零点」的构造性见证（S6 对照面） *)
+(* executable contrast anchor: [1;2] is ascending and a zero locus of the
+   placeholder entropy, yet not a constant list — a constructive witness
+   that the zero loci of the two entropies differ *)
 Theorem zero_locus_contrast_sorted_not_const :
   And (SortedQ [1; 2]) (And (QeqT (H_devsum [1; 2]) 0)
     (Not (sigT (fun a : Q => Forall (fun z => z == a) [1; 2])))).
@@ -3062,9 +3129,11 @@ Proof.
       vm_compute in H12. discriminate H12.
 Qed.
 
-(* ========== §3 主件A：H_ms == 1 的全同值刻画 ========== *)
+(* ========== piece A: the all-equal characterization of [H_ms == 1]
+   ========== *)
 
-(* dedup_aux 消元：成员全同值于 x 时收空（Qmem 口径，不经 In） *)
+(* elimination by [dedup_aux]: when every member equals x, the dedup
+   collapses to the empty list (the Qmem convention, not via [In]) *)
 Lemma xqz_dedup_aux_nil : forall (x : Q) (m : list Q),
   (forall z : Q, Qmem z m -> x == z) -> Id (dedup_aux x m) ([]).
 Proof.
@@ -3082,8 +3151,9 @@ Proof.
     destruct (IH Hall'). reflexivity.
 Qed.
 
-(* 全等刻画：H_ms l == 1 ⟹ 任意两成员 Qeq 同值
-   （dedup 长度 1 + dedup_Qmem_r 结构，零 In 依赖） *)
+(* all-equal characterization: [H_ms l == 1] implies any two members are
+   Qeq equal (structure of the dedup of length 1 and [dedup_Qmem_r]; no
+   dependency on [In]) *)
 Theorem H_ms1_all_eq : forall l : list Q,
   (H_ms l == 1)%Q -> forall a b : Q, Qmem a l -> Qmem b l -> QeqT (a) (b).
 Proof.
@@ -3115,7 +3185,8 @@ Proof.
   destruct (Qeqb_trans a c b Ea Eb'). reflexivity.
 Qed.
 
-(* 主件A：H_ms == 1 ⟺ 非空且全成员 Qeq 同值（exists-Forall 形） *)
+(* piece A: [H_ms == 1] iff the list is nonempty with all members Qeq equal
+   (exists-Forall form) *)
 Theorem H_ms1_iff_const : forall l : list Q,
   IffT (QeqT (H_ms l) 1)
        (And (l <> []) (sigT (fun a : Q => Forall (fun z => z == a) l))).
@@ -3153,11 +3224,12 @@ Proof.
     unfold H_ms. cbn [dedup length]. rewrite Hd. reflexivity.
 Qed.
 
-(* ========== §4 主件B：H_cond 面（非负 iff + 绝对值界 + 零点 iff） ========== *)
+(* ========== piece B: the [H_cond] family (nonnegativity iff + absolute
+   value bound + zero locus iff) ========== *)
 
-(* 反例②（无条件非负为假）的精确 iff 化：缺失前提恰为
-   H_devsum ctx <= H_devsum l（盘上 H_cond_nonneg_guarded 的
-   双向强化） *)
+(* the exact iff form of the failed unconditional nonnegativity: the
+   missing premise is exactly [H_devsum ctx <= H_devsum l] (a two-way
+   strengthening of the guarded version) *)
 Theorem H_cond_nonneg_iff : forall l ctx : list Q,
   IffT (QleT' 0 (H_cond l ctx)) (QleT' (H_devsum ctx) (H_devsum l)).
 Proof.
@@ -3168,8 +3240,10 @@ Proof.
     exact H.
 Qed.
 
-(* 绝对值界（Qabs_triangle）：|H_cond l ctx| <= H_devsum l + H_devsum ctx
-   （两熵皆非负，三角和即保守上界；按 H_cond 定义实形选形，无生造） *)
+(* absolute-value bound ([Qabs_triangle]):
+   |H_cond l ctx| <= H_devsum l + H_devsum ctx
+   (both entropies are nonnegative, so the triangle sum is the conservative
+   upper bound; the shape follows the actual definition of [H_cond]) *)
 Theorem H_cond_abs_bound : forall l ctx : list Q, QleT' (Qabs (H_cond l ctx)) ((H_devsum l + H_devsum ctx)%Q).
 Proof.
   intros l ctx. apply Qle_to_QleT'. unfold H_cond, Qminus.
@@ -3183,7 +3257,8 @@ Proof.
     apply Qle_refl.
 Qed.
 
-(* 条件熵零点：H_cond l ctx == 0 ⟺ 两占位熵相等 *)
+(* zero locus of the conditional entropy:
+   [H_cond l ctx == 0] iff the two placeholder entropies are equal *)
 Theorem H_cond_zero_iff : forall l ctx : list Q,
   IffT (QeqT (H_cond l ctx) 0) (QeqT (H_devsum l) (H_devsum ctx)).
 Proof.
@@ -3199,10 +3274,13 @@ Proof.
     apply (qeqT_imp_qeq _ _ (xq_minus_self (H_devsum l))).
 Qed.
 
-(* ========== §5 加分：反例正化收尾 ========== *)
+(* ========== bonus: turning the counterexamples into positive forms
+   ========== *)
 
-(* 反例①的 restricted 正形：置换不变在「双侧升序」前提恰成立
-   （反例 [3;1;2] vs [2;1;3] 的病根 = 置换破坏升序性） *)
+(* the restricted positive form of the permutation counterexample:
+   invariance holds exactly under the both-ascending premise (the failure
+   of [3;1;2] vs [2;1;3] comes from the permutation destroying the
+   ascending order) *)
 Theorem H_shannon_q_perm_inv_if_sorted : forall l p : list Q,
   Permutation l p -> SortedQ l -> SortedQ p -> QeqT (H_devsum l) (H_devsum p).
 Proof.
@@ -3213,8 +3291,9 @@ Proof.
   reflexivity.
 Qed.
 
-(* 反例③的正面孪生：双零点（占位熵零 ∧ 多重集熵 1）⟺ 非空常值表
-   （联合零点；⟸ 向组装 H_shannon_q_const_zero + H_ms1_iff_const） *)
+(* the positive twin: double zero locus (placeholder entropy zero and
+   multiset entropy 1) iff a nonempty constant list (assembled from
+   [H_shannon_q_const_zero] and [H_ms1_iff_const]) *)
 Theorem zero_locus_joint : forall l : list Q,
   IffT (And (QeqT (H_devsum l) 0) (QeqT (H_ms l) 1))
        (And (l <> []) (sigT (fun a : Q => Forall (fun z => z == a) l))).
@@ -3229,28 +3308,29 @@ Proof.
 Qed.
 
 (* ============================================================
-   §A6 果实件 F2：F6 频数拼接单调族
-   盘面现役件组合（零生造）：§3 freq_q_app（拼接频数可加）×
-   §4 nsum / §5 sqsum / nmax 面。
-   保底件两件：
-   · sqsum_app_ge_l / sqsum_app_ge_r：sqsum (l1++l2) >= sqsum l1
-     （及右）——拼接后逐点频数增大 + 支撑并集，碰撞和质量只增不减。
-   加分件：
-   · sqsum_app_eq：精确交叉项分解
-       sqsum (l1++l2) = sqsum l1 + sqsum l2
-                        + Σ_{x∈l1} freq_q x l2 + Σ_{x∈l2} freq_q x l1。
-   随行面：
-   · sqsum_app_ge_sum：质量面 sqsum l1 + sqsum l2 <= sqsum (l1++l2)；
-   · maxcount_app_ge_l / _r：频数极值面（collide/maxfreq 共享分子）。
-   诚实障碍（构造反例钉界，禁特设构造）：H_freq/collide 的拼接单调
-   「不成立」：H_freq ([0]++[1]) = 1/2 > 0 = H_freq [0]；collide [0]
-   = 1 > 1/2 = collide ([0]++[1])。根因：sqsum 单调（分子增）的同时
-   分母 n² 同步增大，归一化商无定向——任务卡条件句「H_freq
-   (l1++l2) <= H_freq l1 型若 sqsum 单调成立即随行」之前件不蕴含
-   后件，如实以 H_freq_app_mono_false / collide_app_mono_false 闭合。
+   Monotonicity of the collision mass under concatenation, composed from
+   lemmas already in this file: [freq_q_app] (additivity of frequencies
+   under concatenation) with the [nsum] / [sqsum] / [nmax] tools.
+   Baseline: [sqsum_app_ge_l] / [sqsum_app_ge_r]:
+     [sqsum (l1 ++ l2) >= sqsum l1] (and on the right) — concatenation
+     increases pointwise frequencies and enlarges the support, so the
+     collision mass only grows.
+   Bonus: [sqsum_app_eq], the exact cross-term decomposition
+     [sqsum (l1 ++ l2) = sqsum l1 + sqsum l2
+      + sum_{x in l1} freq_q x l2 + sum_{x in l2} freq_q x l1].
+   Companions: [sqsum_app_ge_sum] (mass form) and
+   [maxcount_app_ge_l] / [maxcount_app_ge_r] (frequency extremes, the
+   shared numerators of collide/maxfreq).
+   Honest obstacle, pinned by counterexamples: monotonicity FAILS for the
+   normalized quotients [H_freq]/[collide] — H_freq ([0] ++ [1]) = 1/2 > 0
+   = H_freq [0], and collide [0] = 1 > 1/2 = collide ([0] ++ [1]).  The
+   reason: while the collision sum (numerator) grows, the denominator n^2
+   grows with it, so the normalized quotient has no direction; closed
+   faithfully as [H_freq_app_mono_false] / [collide_app_mono_false].
    ============================================================ *)
 
-(* ---------- §A6.0 承重件：nsum 拼接可加 / 逐点可加 ---------- *)
+(* ---------- core: additivity of [nsum] under concatenation, and pointwise
+   additivity ---------- *)
 
 Lemma nsum_app : forall (f : Q -> nat) (l p : list Q), Id (nsum f (l ++ p)) ((nsum f l + nsum f p)%nat).
 Proof.
@@ -3266,7 +3346,8 @@ Proof.
   - simpl. rewrite IH. lia.
 Qed.
 
-(* ---------- §A6.1 保底件：sqsum 拼接单调两件 ---------- *)
+(* ---------- baseline: the two concatenation-monotonicity lemmas for
+   [sqsum] ---------- *)
 
 Theorem sqsum_app_ge_l : forall l1 l2 : list Q, NatLe (sqsum l1) ((sqsum (l1 ++ l2))%nat).
 Proof.
@@ -3288,7 +3369,8 @@ Proof.
   lia.
 Qed.
 
-(* ---------- §A6.2 加分件：sqsum 拼接精确交叉项分解 ---------- *)
+(* ---------- bonus: the exact cross-term decomposition of [sqsum] under
+   concatenation ---------- *)
 
 Theorem sqsum_app_eq : forall l1 l2 : list Q, Id (sqsum (l1 ++ l2)) ((sqsum l1 + sqsum l2
    + nsum (fun x => freq_q x l2) l1
@@ -3310,13 +3392,16 @@ Proof.
   lia.
 Qed.
 
-(* 质量面随行：两段碰撞质量之和不超拼接碰撞质量（交叉项非负） *)
+(* companion mass form: the sum of the two segment collision masses does
+   not exceed the collision mass of the concatenation (cross terms are
+   nonnegative) *)
 Corollary sqsum_app_ge_sum : forall l1 l2 : list Q, NatLe (sqsum l1 + sqsum l2) ((sqsum (l1 ++ l2))%nat).
 Proof.
   intros l1 l2. apply NatLe_lift. rewrite (sqsum_app_eq l1 l2). lia.
 Qed.
 
-(* ---------- §A6.3 随行面：maxcount 极值拼接单调（分子面） ---------- *)
+(* ---------- companions: concatenation monotonicity of the [maxcount]
+   extremes (numerator face) ---------- *)
 
 Lemma nmax_app : forall (f : Q -> nat) (l p : list Q), Id (nmax f (l ++ p)) (Nat.max (nmax f l) (nmax f p)).
 Proof.
@@ -3372,9 +3457,11 @@ Proof.
   - exact (NatLe_drop _ _ (nmax_le_app_r (fun x => freq_q x (l1 ++ l2)) l2 l1)).
 Qed.
 
-(* ---------- §A6.4 诚实障碍：归一化商面拼接无定向（反例钉界） ---------- *)
+(* ---------- honest obstacle: no direction for the normalized quotient
+   under concatenation (pinned by counterexamples) ---------- *)
 
-(* 具体值面（vm_compute 闭合，供反例改写使用） *)
+(* concrete value face (closed by [vm_compute]; used in the counterexample
+   rewrites) *)
 Lemma H_freq_01_val : QeqT (H_freq [0;1]) (1#2)%Q.
 Proof. apply qeq_imp_qeqT. unfold H_freq. vm_compute. reflexivity. Qed.
 
@@ -3387,8 +3474,9 @@ Proof. apply qeq_imp_qeqT. unfold collide. vm_compute. reflexivity. Qed.
 Lemma collide_0_val : QeqT (collide [0]) 1%Q.
 Proof. apply qeq_imp_qeqT. unfold collide. vm_compute. reflexivity. Qed.
 
-(* H_freq 拼接单调不成立：加一异值元素使熵增
-   （0 < H_freq [0;1] = 1/2 与 H : 1/2 <= 0 相撞） *)
+(* [H_freq] is not monotone under concatenation: adding one distinct
+   element increases the entropy (0 < H_freq [0;1] = 1/2 collides with the
+   assumed 1/2 <= 0) *)
 Lemma H_freq_app_mono_false :
   Not (forall l1 l2 : list Q, QleT' (H_freq (l1 ++ l2)) (H_freq l1)).
 Proof.
@@ -3401,8 +3489,9 @@ Proof.
     (Qlt_irrefl 0%Q (Qlt_le_trans 0%Q (1#2)%Q 0%Q Hgt H))).
 Qed.
 
-(* collide 拼接下有向单调不成立：全同值表加异值元素使碰撞熵减
-   （H : 1 <= 1/2 与 1/2 < 1 相撞） *)
+(* [collide] has no directed monotonicity under concatenation: adding a
+   distinct element to an all-equal list decreases the collision entropy
+   (the assumed 1 <= 1/2 collides with 1/2 < 1) *)
 Lemma collide_app_mono_false :
   Not (forall l1 l2 : list Q, QleT' (collide l1) (collide (l1 ++ l2))).
 Proof.
@@ -3415,21 +3504,19 @@ Proof.
     (Qlt_irrefl 1%Q (Qle_lt_trans 1%Q (1#2)%Q 1%Q H Hlt))).
 Qed.
 
-(* AUDIT-2 审计 A1/A2（F4）闭合：恒等占位 align_lambda（本文件 L86 区）
-   保留原名原义零改动（Rotation §S7 救活块四件现役使用，签名零波及，
-   调度件路径-steering 裁决＝双件共存）；本区新增真定义 align_lambda_opt
-   —— h0/h1 双熵输入的最优 λ 选择器（if Qle_bool h0 h1 then 1 else 0）。
-   跨文件对账注记（加分面）：与 DTPT_Rotation.v §S7 的 lam_opt（定义
-   逐字同构）/§M3 归并段 lam_opt_cyc（lam_opt 的周期族别名，L1929：
-   lam_opt_cyc h0 hk := lam_opt h0 hk）同构语义。Entropy 先于 Rotation
-   编译（Rotation Require 本文件），不可反向 Require 复用 lam_opt，
-   故本区独立给出同语义本体；定理面与 Rotation 侧 lam_opt_values /
-   lam_opt_range / lam_opt_min（H_lam 使用形＝H_lam_lam_opt_min）逐条
-   同型，陈述以盘面现役形为准。 *)
+(* the identity [align_lambda] keeps its name and meaning unchanged; the
+   real definition [align_lambda_opt] — the optimal lambda chooser over
+   the two entropies h0/h1 (if Qle_bool h0 h1 then 1 else 0) — is added in
+   this section.  Cross-file note: it has the same semantics as [lam_opt]
+   of [DTPT_Rotation] (and its periodic alias [lam_opt_cyc]); this file
+   cannot require that one back (the dependency runs the other way), so
+   the same-semantics object is given here independently, with statements
+   matching the shapes in use there. *)
 
 Definition align_lambda_opt (h0 h1 : Q) : Q := if Qle_bool h0 h1 then 1 else 0.
 
-(* 两分支取值面：端点选择器恒取 λ 值 1 或 0（两分支各一构造）。 *)
+(* values of the two branches: the endpoint chooser always takes the lambda
+   value 1 or 0 (one constructor per branch). *)
 Theorem align_lambda_opt_values : forall h0 h1 : Q,
   Or (Id (align_lambda_opt h0 h1) 1%Q) (Id (align_lambda_opt h0 h1) 0%Q).
 Proof.
@@ -3439,7 +3526,8 @@ Proof.
   - right. apply eq_imp_id. reflexivity.
 Qed.
 
-(* 值域 {0,1} 面：选择器像含于 [0,1]（经 values 面 + 字面 Qle 装配）。 *)
+(* range {0,1}: the chooser's image lies in [0,1] (from the values plus
+   literal Qle assembly). *)
 Theorem align_lambda_opt_range : forall h0 h1 : Q,
   And (QleT' 0 (align_lambda_opt h0 h1)) (QleT' (align_lambda_opt h0 h1) 1).
 Proof.
@@ -3452,18 +3540,18 @@ Proof.
     + exact (xq_Qle_bool_le 0 1 eq_refl).
 Qed.
 
-(* 最优性（H_lam 使用形·主件）：端点选择器的混合熵不超过 [0,1] 内
-   任意 λ 的混合熵。两分支各化归一次乘法非负装配（仿射差分路线，
-   与 Rotation §S7 lam_opt_min 同型）：
-   h0 <= h1 分支取 λ* = 1，差 = (1-lam)·(h1-h0)；
-   否则取 λ* = 0，差 = lam·(h0-h1)。 *)
+(* optimality (main piece): the mixed entropy at the endpoint chooser does
+   not exceed the mixed entropy at any lambda in [0,1].  Each branch
+   reduces to one assembly of nonnegative multiplication (affine difference
+   route): for h0 <= h1 the choice lambda* = 1 gives the difference
+   (1-lam) * (h1-h0); otherwise lambda* = 0 gives lam * (h0-h1). *)
 Theorem align_lambda_opt_min : forall (l : list Q) (s : nat) (lam : Q),
   (0 <= lam <= 1)%Q -> QleT' (H_lam l s (align_lambda_opt (H_adj (P0 l)) (H_adj (Pinf l s)))) (H_lam l s lam).
 Proof.
   intros l s lam H01. apply Qle_to_QleT'. destruct H01 as [Hlam0 Hlam1].
   unfold H_lam, align_lambda_opt.
   destruct (Qle_bool (H_adj (P0 l)) (H_adj (Pinf l s))) eqn:E.
-  - (* h0 <= h1：λ* = 1，最优值 = h0 *)
+  - (* h0 <= h1: lambda* = 1, optimal value = h0 *)
     assert (Hd : (0 <= lam * H_adj (P0 l) + (1 - lam) * H_adj (Pinf l s)
                        - (1 * H_adj (P0 l) + (1 - 1) * H_adj (Pinf l s)))%Q).
     { assert (Er : lam * H_adj (P0 l) + (1 - lam) * H_adj (Pinf l s)
@@ -3475,7 +3563,7 @@ Proof.
       + apply QleT'_to_Qle. apply (fst (Qle_0_sub' _ _)).
         apply xq_Qle_bool_le. exact E. }
     apply QleT'_to_Qle. apply (snd (Qle_0_sub' _ _)). apply Qle_to_QleT'. exact Hd.
-  - (* h0 > h1：λ* = 0，最优值 = h1 *)
+  - (* h0 > h1: lambda* = 0, optimal value = h1 *)
     assert (Hge : (H_adj (Pinf l s) <= H_adj (P0 l))%Q)
       by (apply QleT'_to_Qle; apply Qle_bool_false_le; exact E).
     assert (Hd : (0 <= lam * H_adj (P0 l) + (1 - lam) * H_adj (Pinf l s)
@@ -3490,8 +3578,9 @@ Proof.
     apply QleT'_to_Qle. apply (snd (Qle_0_sub' _ _)). apply Qle_to_QleT'. exact Hd.
 Qed.
 
-(* 端点求值桥（随行加分）：选择器的混合熵取值恒为某一端的相熵
-   （使用「端点 3」H_lam_lam1 / H_lam_lam0）。 *)
+(* endpoint evaluation bridge (companion bonus): the mixed entropy at the
+   chooser always takes the phase entropy of one of the endpoints (using
+   the endpoint lemmas for lambda = 1 / lambda = 0). *)
 Theorem align_lambda_opt_endpoint : forall (l : list Q) (s : nat),
   Or (QeqT (H_lam l s (align_lambda_opt (H_adj (P0 l)) (H_adj (Pinf l s))))
            (H_adj (P0 l)))
@@ -3506,22 +3595,25 @@ Proof.
 Qed.
 
 (* ============================================================
-   §A8 果实件 F5：F6 深化——拼接精确卷积式
-   熵族拼接卷积的完整恒等式（论文 α §4 熵族节闭合定理位）。
-   使用（零生造）：§3 freq_q_app / §4 nsum 面 / §A6 sqsum_app_eq
-   （交叉项精确分解，对账使用）× §6 collide / H_freq 定义 +
-   H_freq_eq_bridge（H_freq == 1 − collide 桥面，field 路线先例）。
-   全件先 vm_compute 数值检验验真值再落笔（FRUIT-2 假命题教训），
-   检验以 *_val 件永久在册（§A8.4）。
-   诚实边界：collide/H_freq 卷积式取 n1、n2 双非空卫哨——field
-   路线需全部商分母非零；n1=0/n2=0 退化面中 w=0 商恒零使恒等式
-   仍真，但归一化拼接无定向已由 §A6 H_freq_app_mono_false /
-   collide_app_mono_false 反例钉界，本件不扩张卫哨外陈述。
+   The exact convolution identity of the entropy family under
+   concatenation.
+   Uses only lemmas already in this file: [freq_q_app], the [nsum] tools,
+   [sqsum_app_eq] (the exact cross-term decomposition), the definitions of
+   [collide] / [H_freq], and the bridge [H_freq_eq_bridge]
+   ([H_freq == 1 - collide]).
+   Every statement was first checked numerically by [vm_compute] before
+   being committed; the check instances are kept permanently below.
+   Honest boundary: the convolution identities carry the guard that n1, n2
+   are both nonempty — the field route needs every quotient denominator
+   nonzero.  In the degenerate n1 = 0 / n2 = 0 cases the quotient w = 0
+   makes the identities still true, but normalization under concatenation
+   has no direction (pinned by the counterexamples above); no statements
+   beyond the guard are claimed here.
    ============================================================ *)
 
-(* ---------- §A8.0 卷积代数小件 ---------- *)
+(* ---------- convolution algebra helpers ---------- *)
 
-(* Q 无零因子面（field 侧条件供件）：非零 × 非零 ≠ 0 *)
+(* Q has no zero divisors (the field side condition): nonzero * nonzero <> 0 *)
 Lemma qmul_neq0 : forall x y : Q,
   ~ (x == 0) -> ~ (y == 0) -> Not (QeqT (x * y) 0).
 Proof.
@@ -3536,7 +3628,8 @@ Proof.
   exfalso. destruct Hxy as [E | E]; [exact (Hxn E) | exact (Hyn E)].
 Qed.
 
-(* 指示器求和 = 频数（nsum 与 freq_q 的换基桥） *)
+(* summing the indicator = the frequency (the base-change bridge between
+   [nsum] and [freq_q]) *)
 Lemma nsum_freq_q_ind : forall (a : Q) (l : list Q), Id (nsum (fun x => if Qeq_bool x a then 1%nat else 0%nat) l) (freq_q a l).
 Proof.
   intros a l. apply eq_imp_id. induction l as [| y ys IH].
@@ -3555,18 +3648,20 @@ Proof.
       rewrite C in E1. discriminate.
 Qed.
 
-(* ---------- §A8.1 保底件：交叉项显式形 + 对称双和 ---------- *)
+(* ---------- baseline: the explicit cross-term form and the symmetric
+   double sum ---------- *)
 
-(* 对账件：与 §A6 sqsum_app_eq 同形（freq_q_app 双侧展开 + nsum
-   分配的精确交叉项分解），依调度令以 sqsum_app_cross 之名在册
-   （保底名位），本体使用 §A6 主定理零重证。 *)
+(* companion of [sqsum_app_eq] (the same shape, by expanding [freq_q_app]
+   on both sides plus distribution of [nsum]); the body reuses that main
+   theorem, no re-proof. *)
 Theorem sqsum_app_cross : forall l1 l2 : list Q, Id (sqsum (l1 ++ l2)) ((sqsum l1 + sqsum l2
    + nsum (fun x => freq_q x l2) l1
    + nsum (fun x => freq_q x l1) l2)%nat).
 Proof. intros l1 l2. apply eq_imp_id. destruct (sqsum_app_eq l1 l2). reflexivity. Qed.
 
-(* 对称双和：两交叉项相等（同计配对集 {(p,q)∈l1×l2 : p==q}）——
-   审计 F6 预告件，卷积式标准化 2X 形的承重面。 *)
+(* symmetric double sum: the two cross terms are equal (the same counted
+   pairing set {(p,q) in l1 x l2 : p == q}) — the load-bearing face of the
+   normalized 2X form of the convolution identity. *)
 Theorem sqsum_cross_sym : forall l1 l2 : list Q, Id (nsum (fun x => freq_q x l2) l1) ((nsum (fun x => freq_q x l1) l2)%nat).
 Proof.
   intros l1. induction l1 as [| a t IH]; intros l2; apply eq_imp_id.
@@ -3586,18 +3681,22 @@ Proof.
     rewrite IH. lia.
 Qed.
 
-(* 标准化 2X 形：交叉项以对称双和归并（sqsum_app_cross + cross_sym） *)
+(* normalized 2X form: the cross terms merge into the symmetric double sum
+   ([sqsum_app_cross] and [cross_sym]) *)
 Theorem sqsum_app_eq2 : forall l1 l2 : list Q, Id (sqsum (l1 ++ l2)) ((sqsum l1 + sqsum l2 + 2 * nsum (fun x => freq_q x l2) l1)%nat).
 Proof.
   intros l1 l2. apply eq_imp_id. rewrite (sqsum_app_cross l1 l2).
   rewrite (sqsum_cross_sym l1 l2). lia.
 Qed.
 
-(* ---------- §A8.2 主定理件：collide 拼接卷积（加权精确式） ---------- *)
+(* ---------- main theorem: the collision convolution under concatenation
+   (weighted exact form) ---------- *)
 
-(* collide (l1++l2) = (n1/(n1+n2))²·collide l1 + (n2/(n1+n2))²·collide l2
-   + (Σ_{x∈l1} freq_q x l2 + Σ_{x∈l2} freq_q x l1)/(n1+n2)²。
-   权重平方型加权组合 + 交叉修正项；非空卫哨 n1,n2（field 路线）。 *)
+(* collide (l1 ++ l2) = (n1/(n1+n2))^2 * collide l1
+   + (n2/(n1+n2))^2 * collide l2
+   + (sum_{x in l1} freq_q x l2 + sum_{x in l2} freq_q x l1) / (n1+n2)^2.
+   A squared-weight combination plus a cross-correction term; nonempty
+   guards n1, n2 (field route). *)
 Theorem collide_app_eq : forall l1 l2 : list Q,
   (0 < length l1)%nat -> (0 < length l2)%nat -> QeqT (collide (l1 ++ l2)) ((qn (length l1) / qn (length l1 + length l2)%nat)
       * (qn (length l1) / qn (length l1 + length l2)%nat) * collide l1
@@ -3646,13 +3745,16 @@ Proof.
   field; repeat split; assumption.
 Qed.
 
-(* ---------- §A8.3 主件：H_freq 拼接卷积（加权 + 2w1w2 交叉修正） ---------- *)
+(* ---------- main piece: the [H_freq] convolution under concatenation
+   (weighted, with the 2 w1 w2 cross-correction) ---------- *)
 
-(* H_freq (l1++l2) = w1²·H_freq l1 + w2²·H_freq l2 + 2·w1·w2
-                     − (Σ_{x∈l1} freq_q x l2 + Σ_{x∈l2} freq_q x l1)/(n1+n2)²。
-   使用 collide_app_eq + H_freq_eq_bridge（== 1 − collide）；
-   交叉修正项 2·w1·w2 − X/(n1+n2)² 非负有界（2(n1n2−X)/(n1+n2)² ≥ 0，
-   X ≤ n1·n2 经 freq_q_le_length 逐点），熵族拼接卷积完整恒等式。 *)
+(* H_freq (l1 ++ l2) = w1^2 * H_freq l1 + w2^2 * H_freq l2 + 2 * w1 * w2
+   - (sum_{x in l1} freq_q x l2 + sum_{x in l2} freq_q x l1) / (n1+n2)^2.
+   From [collide_app_eq] and [H_freq_eq_bridge] (== 1 - collide); the
+   cross-correction 2 * w1 * w2 - X / (n1+n2)^2 is nonnegative and bounded
+   (2 * (n1*n2 - X) / (n1+n2)^2 >= 0, with X <= n1 * n2 pointwise by
+   [freq_q_le_length]) — the full convolution identity of the entropy
+   family. *)
 Theorem H_freq_app_eq : forall l1 l2 : list Q,
   (0 < length l1)%nat -> (0 < length l2)%nat -> QeqT (H_freq (l1 ++ l2)) ((qn (length l1) / qn (length l1 + length l2)%nat)
       * (qn (length l1) / qn (length l1 + length l2)%nat) * H_freq l1
@@ -3693,10 +3795,13 @@ Proof.
   field; repeat split; assumption.
 Qed.
 
-(* ---------- §A8.4 加分件：三段拼接结合律卷积一致性（值面） ---------- *)
+(* ---------- bonus: associativity consistency of the convolution for
+   three-way concatenation (value face) ---------- *)
 
-(* (l1++l2)++l3 与 l1++(l2++l3) 同表（app_assoc 定义性），故三个
-   卷积量在两种分组下逐点重合——卷积式对三段拼接的一致性闭合面。 *)
+(* (l1 ++ l2) ++ l3 and l1 ++ (l2 ++ l3) are the same list (definitionally,
+   by [app_assoc]), so the three convolution quantities coincide pointwise
+   under both groupings — the consistency closure of the convolution
+   identity for three-way concatenation. *)
 Theorem sqsum_app_assoc : forall (l1 l2 l3 : list Q), Id (sqsum ((l1 ++ l2) ++ l3)) (sqsum (l1 ++ (l2 ++ l3))).
 Proof. intros l1 l2 l3. apply eq_imp_id. rewrite <- app_assoc. reflexivity. Qed.
 
@@ -3710,11 +3815,13 @@ Theorem H_freq_app_assoc : forall (l1 l2 l3 : list Q),
 Proof. intros l1 l2 l3. apply qeq_imp_qeqT.
   rewrite <- app_assoc. reflexivity. Qed.
 
-(* ---------- §A8.5 数值锚（vm_compute 检验件；G3 对账表用） ---------- *)
+(* ---------- numerical anchors ([vm_compute] check instances) ---------- *)
 
-(* 检验实例：l1 = [0;1]，l2 = [1;1]（含非平凡交叉项 X1 = X2 = 2）。
-   实测：sqsum (l1++l2) = 10，collide = 5/8，H_freq = 3/8；
-   两主定理 RHS 加权式逐一求值同值——陈述形先验为真再落笔的记录件。 *)
+(* check instance: l1 = [0;1], l2 = [1;1] (with nontrivial cross terms
+   X1 = X2 = 2).  Measured: sqsum (l1++l2) = 10, collide = 5/8,
+   H_freq = 3/8; the weighted right-hand sides of both main theorems
+   evaluate to the same values — the statements were verified to be true
+   before being committed. *)
 Lemma sqsum_app_cross_val : Id (sqsum ([0;1] ++ [1;1])) (10%nat).
 Proof. apply eq_imp_id.
   change (sqsum [0; 1; 1; 1] = 10%nat).
@@ -3767,7 +3874,7 @@ End DTPT_Entropy.
 
 Import DTPT_Entropy.
 
-(* ========== 审计：零公理实证（M3 归并后 15 件并档） ========== *)
+(* ========== zero-axiom attestation of the merged sections ========== *)
 
 Print Assumptions freq_q_app.
 Print Assumptions freq_q_perm.
@@ -3785,7 +3892,7 @@ Print Assumptions H_freq_map_const.
 Print Assumptions H_freq_map_twice.
 Print Assumptions H_freq_map_chain.
 
-(* ========== 审计：零公理面实证 ========== *)
+(* ========== zero-axiom attestation ========== *)
 
 Print Assumptions collide_lower.
 Print Assumptions collide_upper.
@@ -3800,7 +3907,8 @@ Print Assumptions collide_perm.
 Print Assumptions H_max_q_perm.
 Print Assumptions H_min_q_perm.
 
-(* ========== 审计：S4 并入件零公理实证（ME2 4 件 + ZeroLocus 4 件） ========== *)
+(* ========== zero-axiom attestation of the coherence / zero-locus sections
+   ========== *)
 
 Print Assumptions me_cert.
 Print Assumptions mkMEval_gate_bridge.
@@ -3845,24 +3953,9 @@ Print Assumptions collide_app_eq_rhs_val.
 Print Assumptions H_freq_app_eq_val.
 Print Assumptions H_freq_app_eq_rhs_val.
 
-(* ============================================================
-   归并棒 S3退役记录：DTPT_EntFam2.v
-   —— 并入本文件 §A3 后退役；实测全工作区零使用者（对全部活体
-   .v grep Require/Import 零命中），源件五件产物以 .retired_S3
-   前缀快照留存。
-   同棒并入源 DTPT_Entropy2.v 保留不退役：下游 DTPT_RotSpec.v
-   的 Require/Import 在册（任务卡预警的 DTPT_Cyc.v 经实测无
-   Entropy2 Require，Entropy2 下游仅 RotSpec 一件，如实说明），
-   随棒 5/6 并入 DTPT_Rotation 时自然消化，届时再退役。
-   ============================================================ *)
 
-(* ============================================================
-   归并棒 S4退役记录：DTPT_ME2.v 与 DTPT_ZeroLocus.v
-   —— 分别并入本文件 §A4/§A5 后退役；实测全工作区对两源
-   Require/Import 零使用者（对全部活体 .v grep 零命中，ME2/
-   ZeroLocus 处依赖叶），两源五件产物以 .retired_S4 前缀快照
-   留存。
-   ============================================================ *)
+
+
 
 Print Assumptions DTPT_Entropy.DTPT_Entropy.xq_Qle_bool_true.
 Print Assumptions DTPT_Entropy.DTPT_Entropy.xq_Qle_bool_le.

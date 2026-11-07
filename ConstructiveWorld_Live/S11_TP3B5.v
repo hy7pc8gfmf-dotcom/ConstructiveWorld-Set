@@ -1,18 +1,33 @@
-(* ============================================================ *)
-(* S11_TP3B5.v —— 论文3 B5 模块：arctan 级数与 sin/cos 在单位域    *)
-(*   的逐点连续性链（Q 层 + Real 层，构造性 Set 层）。              *)
-(* ── 使命：arctan 在单位域内逐点连续；sin/cos 连续；               *)
-(*   4·arctan(1) == π_L 值桥；同名非平凡替换件（消除逐句转发，       *)
-(*   展开至定义层显式装配，替换定理 b3_one_minus_q_pos、             *)
-(*   atan_odd_nonneg、atan_odd_neq、b3_abs_sq、b3_one_plus_sq_neq、  *)
-(*   b3_inv_sq_r 语句与声明序不变）。                                *)
-(* ── 依赖：S01–S10；Stdlib（QArith、Qabs、Qround、List、Bool、     *)
-(*   Arith、Setoid、Morphisms、Lia、Qminmax、Lqa）。                 *)
-(* ── 构造性注记：纯构造性；零承认语句；替换证明以真证明 Qed 闭合；   *)
-(*   文件尾附假设面打印锚。                                          *)
-(* ── 编译配方：全字面 COQLIB/ROCQLIB 双 export 后 coqc -Q           *)
-(*   ../../Live_X "" -Q . "" S11_TP3B5.v。                           *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — paper-3 B5 module: the arctan series and the pointwise continuity chain for sin/cos on the unit domain ([Q] layer + [Real] layer, constructive [Set] layer). *)
+(**
+ * S11_TP3B5: the arctan series and the pointwise continuity of [sin]/[cos]
+ *   on the unit domain (constructive [Set] layer).
+ *
+ * Mission.  [arctan] pointwise continuous on the unit domain; [sin]/[cos]
+ *   continuous; the value bridge [4·arctan(1) == π_L]; same-name non-trivial
+ *   replacement file: the statement-by-statement forwards of the same-name
+ *   baseline are replaced by proofs expanded to definition level with explicit
+ *   assembly, with the replaced statements [b3_one_minus_q_pos],
+ *   [atan_odd_nonneg], [atan_odd_neq], [b3_abs_sq], [b3_one_plus_sq_neq],
+ *   [b3_inv_sq_r] keeping their statements and declaration order unchanged.
+ *
+ * Dependencies.  [S01_BaseRing] through [S10_KVQuantTrig]; Stdlib [QArith],
+ *   [Qabs], [Qround], [List], [Bool], [Arith], [Setoid], [Morphisms], [Lia],
+ *   [Qminmax], [Lqa].
+ *
+ * References.  In-development dependency modules [S01_BaseRing] through
+ *   [S10_KVQuantTrig]; the same-name baseline [S11_TP3B5.v] of
+ *   ConstructiveWorld-Main (a [CW_ConstructiveWorld_219] split module in
+ *   statement-forwarding form).
+ *
+ * Constructivity.  Entirely constructive; zero admitted statements; every
+ *   replacement proof closes with a genuine [Qed]; a [Print Assumptions]
+ *   anchor block closes the file.
+ *
+ * Build.  After exporting [COQLIB]/[ROCQLIB] literally, [coqc
+ *   -native-compiler no -q -Q ConstructiveWorld_Live "" S11_TP3B5.v]
+ *   compiles cleanly (exit 0).
+ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -33,34 +48,35 @@ Opaque Qred.
 
 
 (* ============================================================ *)
-(* SC-2 批（并入 203）：N9a arctan 级数（T-pi3 A1/B3-1）      *)
-(* arctan_term/partial + 模量 + cauchy_real_arctan + x=1 桥   *)
+(* N9a arctan series (T-pi3 A1/B3-1):                                       *)
+(* [arctan_term]/[arctan_partial] + modulus + [cauchy_real_arctan] + the x=1 bridge *)
 (* ============================================================ *)
 
 (* ================================================================== *)
-(*  sT1_arctan / p_n9a_q1.v  N9a Q 层（一）：定义与基础恒等             *)
-(*  基态：ConstructiveWorld.vo（迭代 200）                           *)
-(*  内容：arctan_term/arctan_partial/atan_mag 定义；奇数分母正性；       *)
-(*        平方-绝对值恒等；项模长非负；|arctan_term k x|==atan_mag      *)
+(*  sT1_arctan / p_n9a_q1.v  N9a [Q] layer (1): definitions and basic identities    *)
+(*  baseline: ConstructiveWorld.vo                                                  *)
+(*  contents: definitions of [arctan_term]/[arctan_partial]/[atan_mag]; positivity  *)
+(*        of odd denominators; square-absolute-value identity; term modulus nonneg; *)
+(*        |[arctan_term k x]| == [atan_mag]                                         *)
 (* ================================================================== *)
 
-(* ---- 定义 ---- *)
+(* ---- definitions ---- *)
 (* arctan_term k x := (−1)^k · x^{2k+1} / (2k+1) *)
 Definition arctan_term (k : nat) (x : Q) : Q :=
   q_pow (-1) k * (q_pow x (2 * k + 1) / (Z.of_nat (2 * k + 1) # 1)).
 
-(* 部分和 arctan_partial n x = Σ_{k=0}^{n} arctan_term k x *)
+(* partial sums [arctan_partial n x] = Σ_{k=0}^{n} [arctan_term k x] *)
 Fixpoint arctan_partial (n : nat) (x : Q) : Q :=
   match n with
   | 0%nat => arctan_term 0 x
   | Datatypes.S m => arctan_partial m x + arctan_term (Datatypes.S m) x
   end.
 
-(* 项模长 atan_mag k x := |x|^{2k+1}/(2k+1)（|arctan_term k x| 的闭式） *)
+(* term modulus [atan_mag k x] := |x|^{2k+1}/(2k+1) (closed form of |[arctan_term k x]|) *)
 Definition atan_mag (k : nat) (x : Q) : Q :=
   q_pow (Qabs x) (2 * k + 1) / (Z.of_nat (2 * k + 1) # 1).
 
-(* ---- 奇数分母 (2k+1) 的正性 ---- *)
+(* ---- positivity of the odd denominator (2k+1) ---- *)
 Lemma atan_odd_pos : forall k : nat, QltT 0 (Z.of_nat (2 * k + 1) # 1).
 Proof.
   intro k. apply Qlt_to_QltT.
@@ -71,9 +87,11 @@ Qed.
 Lemma atan_odd_nonneg : forall k : nat, QleT' 0 (Z.of_nat (2 * k + 1) # 1).
 Proof.
   intro k. apply Qle_to_QleT'.
-  (* 三级提升链：nat 层非负见证（算术面）→ 整数域内嵌自然反映面提升 →
-     Q 序定义体落实（展开＋显式换算落 Z 乘法面）——不经弱序桥单跳，
-     不取用姊妹件（奇数分母严格正件保持独立）。 *)
+  (* three-stage lifting chain: a [nat]-level nonnegativity witness (arithmetic) is
+     lifted by the canonical embedding of naturals into integers, then grounded in the
+     definition body of the [Q] order (unfold plus an explicit conversion onto the [Z]
+     multiplication face) — no single-hop weak-order bridge, and the sibling lemma is
+     not consumed (the strict positivity of the odd denominator stays independent). *)
   assert (Hn : (0 <= 2 * k + 1)%nat) by lia.
   assert (Hz : (0 <= Z.of_nat (2 * k + 1))%Z) by lia.
   unfold Qle.
@@ -85,13 +103,15 @@ Qed.
 Lemma atan_odd_neq : forall k : nat, Not (QeqT (Z.of_nat (2 * k + 1) # 1) 0).
 Proof.
   intros k Heq. apply qeqT_imp_qeq in Heq.
-  (* 提升链反向坍缩（与 atan_odd_nonneg 提升链同构）：商等式落定义体（分子/分母
-     投影归约至整数层），自然层线性算术构造性排除——不经非等换形桥、
-     不取用姊妹正性件。 *)
+  (* the lifting chain collapses in the opposite direction (isomorphic to the lifting
+     chain of [atan_odd_nonneg]): the quotient equality is grounded in its definition
+     body (numerator and denominator projections reduce to the integer layer), and
+     linear arithmetic over the natural layer rules it out constructively — no
+     nonequality-reformulation bridge, and the sibling positivity lemma is not consumed. *)
   unfold Qeq in Heq. simpl in Heq. lia.
 Qed.
 
-(* ---- x·x == |x|·|x|（Qcompare 三分，纯构造） ---- *)
+(* ---- [x·x == |x|·|x|] (trichotomy of [Qcompare], purely constructive) ---- *)
 Lemma atan_sq_abs : forall x : Q, QeqT (x * x) (Qabs x * Qabs x).
 Proof.
   intro x. apply qeq_imp_qeqT.
@@ -111,7 +131,7 @@ Proof.
     setoid_rewrite Habs. reflexivity.
 Qed.
 
-(* ---- 项模长非负 ---- *)
+(* ---- the term modulus is nonnegative ---- *)
 Lemma atan_mag_nonneg : forall (k : nat) (x : Q), QleT' 0 (atan_mag k x).
 Proof.
   intros k x. apply Qle_to_QleT'.
@@ -128,7 +148,7 @@ Proof.
     apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. apply Qabs_nonneg.
 Qed.
 
-(* ---- q_pow 加法：x^{a+b} == x^a · x^b ---- *)
+(* ---- [q_pow] addition: [x^{a+b} == x^a · x^b] ---- *)
 Lemma atan_q_pow_add : forall (x : Q) (a b : nat),
   QeqT (q_pow x (a + b)) (q_pow x a * q_pow x b).
 Proof.
@@ -141,7 +161,7 @@ Proof.
     setoid_rewrite IH. ring.
 Qed.
 
-(* x^{2k+3} == x^2 · x^{2k+1}（奇次幂一步） *)
+(* [x^{2k+3} == x^2 · x^{2k+1}] (one step for odd exponents) *)
 Lemma atan_q_pow_odd3 : forall (x : Q) (k : nat),
   QeqT (q_pow x (2 * k + 3)) ((x * x) * q_pow x (2 * k + 1)).
 Proof.
@@ -150,7 +170,7 @@ Proof.
   setoid_rewrite (qeqT_imp_qeq _ _ (atan_q_pow_add x (2 * k + 1) 2)). simpl. ring.
 Qed.
 
-(* c 序列一步：atan_mag (S k) x == |x|²·|x|^{2k+1}/(2k+3) *)
+(* one step of the [c] sequence: [atan_mag (S k) x == |x|²·|x|^{2k+1}/(2k+3)] *)
 Lemma atan_mag_succ_geom : forall (x : Q) (k : nat),
   QeqT (atan_mag (Datatypes.S k) x) ((Qabs x * Qabs x) * q_pow (Qabs x) (2 * k + 1) / (Z.of_nat (2 * k + 3) # 1)).
 Proof.
@@ -179,13 +199,14 @@ Proof.
   ring.
 Qed.
 (* ================================================================== *)
-(*  sT1_arctan / p_n9a_q2.v  N9a Q 层（二）：交错级数尾界               *)
-(*  依赖：p_n9a_q1（定义/基础恒等）+ CW.ConstructiveWorld                *)
-(*  内容：|x|≤1 ⟹ 成对项 |t_j+t_{j+1}|==c_j−c_{j+1}（c:=atan_mag）；    *)
-(*        c 递减；Leibniz 余项界 |S_n−S_m| ≤ c_{m+1}（lt_wf 强归纳）     *)
+(*  sT1_arctan / p_n9a_q2.v  N9a [Q] layer (2): tail bounds of the alternating series  *)
+(*  dependencies: p_n9a_q1 (definitions / basic identities) + CW.ConstructiveWorld     *)
+(*  contents: |x| ≤ 1 ⟹ paired terms |t_j+t_{j+1}| == c_j−c_{j+1} (c := [atan_mag]);   *)
+(*        c decreasing; Leibniz remainder bound |S_n−S_m| ≤ c_{m+1} (strong induction  *)
+(*        via [lt_wf])                                                                 *)
 (* ================================================================== *)
 
-(* 括号因子：br j x := /(2j+1) − x²·/(2j+3)（成对项因子；|x|≤1 时 ≥ 0） *)
+(* bracket factor: [br j x := /(2j+1) − x²·/(2j+3)] (paired-term factor; ≥ 0 when |x| ≤ 1) *)
 Definition atan_br (j : nat) (x : Q) : Q :=
   Qinv (Z.of_nat (2 * j + 1) # 1) -
   (x * x) * Qinv (Z.of_nat (2 * Datatypes.S j + 1) # 1).
@@ -204,7 +225,7 @@ Proof.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ---- br j x ≥ 0（|x| ≤ 1） ---- *)
+(* ---- br j x ≥ 0 (|x| ≤ 1) ---- *)
 Lemma atan_br_nonneg : forall (j : nat) (x : Q), QleT' (Qabs x) 1 -> QleT' 0 (atan_br j x).
 Proof.
   intros j x Hx. apply Qle_to_QleT'.
@@ -222,7 +243,7 @@ Proof.
         -- apply (Qlt_le_weak 0 (Qinv (Z.of_nat (2 * Datatypes.S j + 1) # 1))).
            apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply atan_odd_pos.
       * apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-  - (* /d2 ≤ /d1（d1 < d2 ⟹ /d2 < /d1） *)
+  - (* /d2 ≤ /d1 (d1 < d2 ⟹ /d2 < /d1) *)
     apply (Qle_trans _ (Qinv (Z.of_nat (2 * Datatypes.S j + 1) # 1)) _).
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
     + apply Qlt_le_weak.
@@ -232,7 +253,7 @@ Proof.
       unfold Qlt; simpl. lia.
 Qed.
 
-(* ---- 代数分解：t_j + t_{S j} == (−1)^j · x^{2j+1}·(br j x) ---- *)
+(* ---- algebraic factorization: [t_j + t_{S j} == (−1)^j · x^{2j+1}·(br j x)] ---- *)
 Lemma atan_pair_factor : forall (j : nat) (x : Q),
   QeqT (arctan_term j x + arctan_term (Datatypes.S j) x) (q_pow (-1) j * (q_pow x (2 * j + 1) * atan_br j x)).
 Proof.
@@ -248,7 +269,7 @@ Proof.
   ring.
 Qed.
 
-(* ---- 成对项界：|t_j + t_{S j}| == c_j − c_{S j}（|x| ≤ 1） ---- *)
+(* ---- paired-term bound: [|t_j + t_{S j}| == c_j − c_{S j}] (|x| ≤ 1) ---- *)
 Lemma atan_pair_abs : forall (j : nat) (x : Q), QleT' (Qabs x) 1 ->
   QeqT (Qabs (arctan_term j x + arctan_term (Datatypes.S j) x)) (atan_mag j x - atan_mag (Datatypes.S j) x).
 Proof.
@@ -284,7 +305,7 @@ Proof.
   - apply Qeq_sym. exact Hrhs.
 Qed.
 
-(* ---- c 递减：|x| ≤ 1 ⟹ c_{S j} ≤ c_j ---- *)
+(* ---- [c] decreasing: |x| ≤ 1 ⟹ [c_{S j} ≤ c_j] ---- *)
 Lemma atan_mag_decr : forall (j : nat) (x : Q), QleT' (Qabs x) 1 ->
   QleT' (atan_mag (Datatypes.S j) x) (atan_mag j x).
 Proof.
@@ -295,7 +316,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply atan_pair_abs. exact Hx.
 Qed.
 
-(* ---- 尾界（Leibniz 余项）：m ≤ n ⟹ |S_n − S_m| ≤ c_{S m} ---- *)
+(* ---- tail bound (Leibniz remainder): m ≤ n ⟹ [|S_n − S_m| ≤ c_{S m}] ---- *)
 Lemma atan_tail_bound : forall (x : Q) (m n : nat), QleT' (Qabs x) 1 -> (m <= n)%nat ->
   QleT' (Qabs (arctan_partial n x - arctan_partial m x)) (atan_mag (Datatypes.S m) x).
 Proof.
@@ -305,7 +326,7 @@ Proof.
   { induction d as [d IH] using lt_wf_ind.
     intros m n Hx Hmn Hd.
     destruct (Nat.leb (Datatypes.S (Datatypes.S m)) n) eqn:E2.
-    - (* m + 2 ≤ n：配对 (t_{S m} + t_{S(S m)}) + IH（下界 m+2） *)
+    - (* m + 2 ≤ n: pair (t_{S m} + t_{S(S m)}) plus the induction premise anchored at m+2 *)
       apply Nat.leb_le in E2.
       apply (Qle_trans _ (Qabs (arctan_partial n x - arctan_partial (Datatypes.S (Datatypes.S m)) x) +
                            Qabs (arctan_partial (Datatypes.S (Datatypes.S m)) x - arctan_partial m x)) _).
@@ -346,11 +367,11 @@ Proof.
              ++ exact Hdecr.
              ++ apply Qle_refl.
           -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
-    - (* n ≤ S m：n = m 或 n = S m *)
+    - (* n ≤ S m: either n = m or n = S m *)
       apply Nat.leb_gt in E2.
       assert (HnSm : (n <= Datatypes.S m)%nat) by lia.
       destruct (Nat.eq_dec m n) as [Heq | Hne].
-      + (* n = m：差 0 *)
+      + (* n = m: the difference is 0 *)
         subst n.
         assert (Hz : arctan_partial m x - arctan_partial m x == 0) by ring.
         apply (Qle_trans _ 0 _).
@@ -358,7 +379,7 @@ Proof.
         apply qeq_imp_qeqT.
           apply (Qabs_wd (arctan_partial m x - arctan_partial m x) 0). exact Hz.
         * apply QleT'_to_Qle. apply atan_mag_nonneg.
-      + (* n = S m：差 == t_{S m} *)
+      + (* n = S m: the difference is [t_{S m}] *)
         assert (Hn : n = Datatypes.S m) by lia.
         subst n.
         apply QleT'_to_Qle. apply qeq_le.
@@ -375,10 +396,11 @@ Proof.
   apply (Hgen (n - m)%nat m n Hx Hmn). reflexivity.
 Qed.
 (* ================================================================== *)
-(*  sT1_arctan / p_n9a_q3.v  N9a Q 层（三）：均匀尾界 + 柯西模量        *)
-(*  依赖：p_n9a_q2 + CW.ConstructiveWorld                                *)
-(*  内容：|x|≤1 ⟹ |S_n−S_m| ≤ 1/(2m+3)（m≤n 均匀化）；                  *)
-(*        arctan_partial 的柯西模量（QltT/sigT 形，与 cauchy 谓词一致）  *)
+(*  sT1_arctan / p_n9a_q3.v  N9a [Q] layer (3): uniform tail bound + Cauchy modulus  *)
+(*  dependencies: p_n9a_q2 + CW.ConstructiveWorld                                    *)
+(*  contents: |x| ≤ 1 ⟹ |S_n−S_m| ≤ 1/(2m+3) (uniform in m ≤ n);                     *)
+(*        the Cauchy modulus of [arctan_partial] ([QltT]/[sigT] form, agreeing with  *)
+(*        the [cauchy] predicate)                                                    *)
 (* ================================================================== *)
 
 (* ---- 0 ≤ y ≤ 1 ⟹ y^p ≤ 1 ---- *)
@@ -393,7 +415,7 @@ Proof.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ---- |x| ≤ 1 ⟹ c_{S m} ≤ 1/(2m+3)（均匀化：|x|^{2m+3} ≤ 1） ---- *)
+(* ---- |x| ≤ 1 ⟹ [c_{S m} ≤ 1/(2m+3)] (uniformization: |x|^{2m+3} ≤ 1) ---- *)
 Lemma atan_mag_le_denom : forall (x : Q) (m : nat), QleT' (Qabs x) 1 ->
   QleT' (atan_mag (Datatypes.S m) x) (1 / (Z.of_nat (2 * m + 3) # 1)).
 Proof.
@@ -413,7 +435,7 @@ Proof.
     + unfold Qle; simpl; lia.
 Qed.
 
-(* ---- 均匀尾界：m ≤ n ⟹ |S_n − S_m| ≤ 1/(2m+3) ---- *)
+(* ---- uniform tail bound: m ≤ n ⟹ [|S_n − S_m| ≤ 1/(2m+3)] ---- *)
 Lemma atan_tail_bound_le : forall (x : Q) (m n : nat), QleT' (Qabs x) 1 -> (m <= n)%nat ->
   QleT' (Qabs (arctan_partial n x - arctan_partial m x)) (1 / (Z.of_nat (2 * m + 3) # 1)).
 Proof.
@@ -423,7 +445,7 @@ Proof.
   - apply QleT'_to_Qle. apply atan_mag_le_denom. exact Hx.
 Qed.
 
-(* ---- 1/(2m+3) ≤ 1/(N+2)（m ≥ N：分母更大 ⟹ 值更小） ---- *)
+(* ---- 1/(2m+3) ≤ 1/(N+2) (m ≥ N: larger denominator ⟹ smaller value) ---- *)
 Lemma atan_inv_chain : forall (N m : nat), (N <= m)%nat ->
   QleT' (1 / (Z.of_nat (2 * m + 3) # 1)) (1 / (Z.of_nat (N + 2) # 1)).
 Proof.
@@ -439,7 +461,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qdiv. ring.
 Qed.
 
-(* ---- 柯西模量：|x| ≤ 1 ⟹ ∀eps ∃N ∀m n ≥ N，|S_m − S_n| < eps ---- *)
+(* ---- Cauchy modulus: |x| ≤ 1 ⟹ ∀eps ∃N ∀m n ≥ N, |S_m − S_n| < eps ---- *)
 Lemma arctan_partial_cauchy : forall (x : Q), QleT' (Qabs x) 1 -> forall (eps : Q), QltT 0 eps ->
   sigT (fun N : nat => forall (m n : nat), NatLe N m -> NatLe N n ->
     QltT (Qabs (arctan_partial m x - arctan_partial n x)) eps).
@@ -463,7 +485,7 @@ Proof.
     apply Nat.leb_gt in E.
     apply Qlt_to_QltT.
     apply (Qle_lt_trans _ (1 / (Z.of_nat (2 * n + 3) # 1)) _).
-    + (* |S_m − S_n| ≤ |S_n − S_m| == |S_m − S_n| ≤ 1/(2n+3)（n < m） *)
+    + (* |S_m − S_n| ≤ |S_n − S_m| == |S_m − S_n| ≤ 1/(2n+3) (n < m) *)
       apply (Qle_trans _ (Qabs (arctan_partial n x - arctan_partial m x)) _).
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite Qabs_Qminus. reflexivity.
       * apply (Qle_trans _ (Qabs (arctan_partial m x - arctan_partial n x)) _).
@@ -474,14 +496,15 @@ Proof.
       * apply QltT_to_Qlt. exact HN.
 Qed.
 (* ================================================================== *)
-(*  sT1_arctan / p_n9a_q4.v  N9a Q 层（四）：x=1 桥接 lp_odd + sanity   *)
-(*  依赖：p_n9a_q2/q3 + CW.ConstructiveWorld                             *)
-(*  内容：符号引理 (−1)^{2k}==1/(−1)^{2k+1}==−1；arctan_term k 1        *)
-(*        == (−1)^k·lp_a k；奇数指标部分和 == lp_odd m（B3-3 锚）；     *)
-(*        偶数指标版本；数值 sanity（76/105 等，纯计算核验方向）。       *)
+(*  sT1_arctan / p_n9a_q4.v  N9a [Q] layer (4): the x=1 bridge to [lp_odd] + sanity  *)
+(*  dependencies: p_n9a_q2/q3 + CW.ConstructiveWorld                                 *)
+(*  contents: sign lemmas (−1)^{2k}==1 / (−1)^{2k+1}==−1; [arctan_term k 1]          *)
+(*        == (−1)^k·[lp_a k]; odd-index partial sums == [lp_odd m] (B3-3 anchor);    *)
+(*        the even-index counterpart; numerical sanity (76/105 etc., purely          *)
+(*        computational verification)                                                *)
 (* ================================================================== *)
 
-(* ---- 符号：(−1)^{2k} == 1；(−1)^{2k+1} == −1 ---- *)
+(* ---- signs: (−1)^{2k} == 1; (−1)^{2k+1} == −1 ---- *)
 Lemma atan_sign_even : forall k : nat, QeqT (q_pow (-1) (2 * k)) (1).
 Proof.
   intros.
@@ -509,12 +532,12 @@ Proof.
   ring.
 Qed.
 
-(* ---- 部分和两步步进：S_{S(S n)} == S_n + t_{S n} + t_{S(S n)} ---- *)
+(* ---- two-step partial-sum advance: [S_{S(S n)} == S_n + t_{S n} + t_{S(S n)}] ---- *)
 Lemma arctan_partial_step2 : forall (n : nat) (x : Q),
   QeqT (arctan_partial (Datatypes.S (Datatypes.S n)) x) (arctan_partial n x + arctan_term (Datatypes.S n) x + arctan_term (Datatypes.S (Datatypes.S n)) x).
 Proof. intros n x.  apply qeq_imp_qeqT. simpl. ring. Qed.
 
-(* ---- x=1 差分（奇指标 +2）：S_{2(S m)+1} − S_{2m+1} == t_{2m+2}+t_{2m+3} ---- *)
+(* ---- x=1 difference (odd index +2): [S_{2(S m)+1} − S_{2m+1} == t_{2m+2}+t_{2m+3}] ---- *)
 Lemma arctan_partial_diff22_one : forall (m : nat),
   QeqT (arctan_partial (2 * Datatypes.S m + 1) 1 - arctan_partial (2 * m + 1) 1) (arctan_term (2 * m + 2) 1 + arctan_term (2 * m + 3) 1).
 Proof.
@@ -526,7 +549,7 @@ Proof.
   ring.
 Qed.
 
-(* ---- t_{2m+2} + t_{2m+3}（x=1）== lp_pair (S m) ---- *)
+(* ---- [t_{2m+2} + t_{2m+3} (x=1) == lp_pair (S m)] ---- *)
 Lemma arctan_pair_step_one : forall (m : nat),
   QeqT (arctan_term (2 * m + 2) 1 + arctan_term (2 * m + 3) 1) (lp_pair (Datatypes.S m)).
 Proof.
@@ -543,17 +566,17 @@ Proof.
   ring.
 Qed.
 
-(* ---- 奇数指标桥：S_{2m+1}(1) == lp_odd m（B3-3 锚点） ---- *)
+(* ---- odd-index bridge: [S_{2m+1}(1) == lp_odd m] (B3-3 anchor) ---- *)
 Lemma arctan_partial_odd_one : forall (m : nat),
   QeqT (arctan_partial (2 * m + 1) 1) (lp_odd m).
 Proof.
   intros.
   apply qeq_imp_qeqT.
   induction m as [| m IH].
-  - (* m = 0：S_1 == lp_odd 0 —— 纯计算（构造性，零公理） *)
+  - (* m = 0: [S_1 == lp_odd 0] — purely computational (constructive, axiom-free) *)
     change (arctan_term 0 1 + arctan_term 1 1 == lp_odd 0).
     vm_compute. reflexivity.
-  - (* m → S m：A_{2(S m)+1} − A_{2m+1} == lp_pair (S m)，加回 A_{2m+1} *)
+  - (* m → S m: [A_{2(S m)+1} − A_{2m+1} == lp_pair (S m)], adding [A_{2m+1}] back *)
     assert (Hd : arctan_partial (2 * Datatypes.S m + 1) 1 - arctan_partial (2 * m + 1) 1 ==
                  lp_pair (Datatypes.S m)).
     { rewrite (qeqT_imp_qeq _ _ (arctan_partial_diff22_one m)). apply qeqT_imp_qeq. apply arctan_pair_step_one. }
@@ -565,7 +588,7 @@ Proof.
     + rewrite IH. simpl lp_odd. reflexivity.
 Qed.
 
-(* ---- 偶数指标桥：S_{2m}(1) == lp_odd m + lp_a (2m+1) ---- *)
+(* ---- even-index bridge: [S_{2m}(1) == lp_odd m + lp_a (2m+1)] ---- *)
 Lemma arctan_partial_even_one : forall (m : nat),
   QeqT (arctan_partial (2 * m) 1) (lp_odd m + lp_a (2 * m + 1)).
 Proof.
@@ -573,7 +596,7 @@ Proof.
   (* t_{2m+1}(1) == −lp_a(2m+1) *)
   assert (Ht : arctan_term (2 * m + 1) 1 == - lp_a (2 * m + 1)).
   { setoid_rewrite (qeqT_imp_qeq _ _ (arctan_term_one (2 * m + 1))). setoid_rewrite (qeqT_imp_qeq _ _ (atan_sign_odd m)). ring. }
-  (* S_{2m+1} == S_{2m} + t_{2m+1}（定义展开；不经 simpl 以免展开 ==） *)
+  (* [S_{2m+1} == S_{2m} + t_{2m+1}] (definitional unfolding; [simpl] is avoided so that == is not unfolded) *)
   assert (Hdef : arctan_partial (2 * m + 1) 1 ==
                  arctan_partial (2 * m) 1 + arctan_term (2 * m + 1) 1).
   { replace (2 * m + 1)%nat with (Datatypes.S (2 * m)) by lia.
@@ -591,20 +614,20 @@ Proof.
   ring.
 Qed.
 
-(* ==================== 数值 sanity（纯计算，构造性核验方向） ==================== *)
-(* S_3(1) = 1 − 1/3 + 1/5 − 1/7 == 76/105（π/4 截断的下侧逼近 ≈ 0.724） *)
+(* ==================== numerical sanity (pure computation, constructive verification direction) ==================== *)
+(* [S_3(1) = 1 − 1/3 + 1/5 − 1/7 == 76/105] (lower approximation of the π/4 truncation ≈ 0.724) *)
 Example arctan_partial3_one_val : QeqT (arctan_partial 3 1) (76 / 105).
 Proof.  apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
 
-(* S_4(1) = S_3 + 1/9 == 263/315（上侧 ≈ 0.835）；故 |S_4 − S_3| = 1/9 *)
+(* [S_4(1) = S_3 + 1/9 == 263/315] (upper side ≈ 0.835); hence [|S_4 − S_3| = 1/9] *)
 Example arctan_partial4_one_val : QeqT (arctan_partial 4 1) (263 / 315).
 Proof.  apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
 
-(* 尾界实例（x=1，m=0，n=3）：|S_3 − S_0| ≤ 1/3（纯计算核验） *)
+(* tail-bound instance (x=1, m=0, n=3): [|S_3 − S_0| ≤ 1/3] (verified by pure computation) *)
 Example atan_tail_inst1 : QleT' (Qabs (arctan_partial 3 1 - arctan_partial 0 1)) (1 / 3).
 Proof.  apply Qle_to_QleT'. vm_compute. congruence. Qed.
 
-(* odd 桥实例：S_7(1) == lp_odd 3（1−1/3+1/5−1/7+1/9−1/11+1/13−1/15） *)
+(* odd-bridge instance: [S_7(1) == lp_odd 3] (1−1/3+1/5−1/7+1/9−1/11+1/13−1/15) *)
 Example atan_odd_bridge_inst : QeqT (arctan_partial 7 1) (lp_odd 3).
 Proof.
   intros.
@@ -613,7 +636,7 @@ Proof.
   apply qeqT_imp_qeq. apply arctan_partial_odd_one.
 Qed.
 
-(* 偶数桥实例：S_4(1) == lp_odd 2 + lp_a 5 *)
+(* even-bridge instance: [S_4(1) == lp_odd 2 + lp_a 5] *)
 Example atan_even_bridge_inst : QeqT (arctan_partial 4 1) (lp_odd 2 + lp_a 5).
 Proof.
   intros.
@@ -622,17 +645,18 @@ Proof.
   apply qeqT_imp_qeq. apply arctan_partial_even_one.
 Qed.
 (* ================================================================== *)
-(*  sT1_arctan / p_n9a_real.v  N9a Real 层：cauchy_real_arctan          *)
-(*  依赖：p_n9a_q1..q4 + CW.ConstructiveWorld                            *)
-(*  内容：                                                              *)
-(*    - 三项三角 |a−c| ≤ |a−b|+|b−c|                                    *)
-(*    - 幂差界 |a^{S k} − b^{S k}| ≤ (S k)·|a−b|（|a|,|b|≤1）            *)
-(*    - 单项 + 固定索引 Lipschitz |ap_N a − ap_N b| ≤ (N+1)·|a−b|         *)
-(*    - cauchy_real_arctan（点界 |x|≤1 前提；N0 固定索引 + eps/3）        *)
-(*    - 投影恒等 arctan_real_proj                                        *)
+(*  sT1_arctan / p_n9a_real.v  N9a [Real] layer: [cauchy_real_arctan]        *)
+(*  dependencies: p_n9a_q1..q4 + CW.ConstructiveWorld                        *)
+(*  contents:                                                                *)
+(*    - three-term triangle inequality |a−c| ≤ |a−b|+|b−c|                   *)
+(*    - power-difference bound |a^{S k} − b^{S k}| ≤ (S k)·|a−b| (|a|,|b|≤1) *)
+(*    - single-term and fixed-index Lipschitz |ap_N a − ap_N b| ≤ (N+1)·|a−b| *)
+(*    - [cauchy_real_arctan] (pointwise bound |x|≤1 premise; fixed index N0  *)
+(*      plus eps/3)                                                          *)
+(*    - projection identity [arctan_real_proj]                               *)
 (* ================================================================== *)
 
-(* ---- 三项三角：|a − c| ≤ |a − b| + |b − c| ---- *)
+(* ---- three-term triangle: |a − c| ≤ |a − b| + |b − c| ---- *)
 Lemma atan_triangle3 : forall (a b c : Q),
   QleT' (Qabs (a - c)) (Qabs (a - b) + Qabs (b - c)).
 Proof.
@@ -650,14 +674,14 @@ Proof.
   intro k.  apply qeq_imp_qeqT. unfold Qeq. simpl. lia.
 Qed.
 
-(* ---- |a^{S k} − b^{S k}| ≤ (S k)·|a−b|（|a|,|b| ≤ 1） ---- *)
+(* ---- |a^{S k} − b^{S k}| ≤ (S k)·|a−b| (|a|,|b| ≤ 1) ---- *)
 Lemma atan_pow_diff : forall (a b : Q) (k : nat),
   QleT' (Qabs a) 1 -> QleT' (Qabs b) 1 ->
   QleT' (Qabs (q_pow a (Datatypes.S k) - q_pow b (Datatypes.S k)))
       ((Z.of_nat (Datatypes.S k) # 1) * Qabs (a - b)).
 Proof.
   intros a b k Ha Hb.  apply Qle_to_QleT'. induction k as [| k IH].
-  - (* k = 0：|a − b| ≤ 1·|a−b| *)
+  - (* k = 0: |a − b| ≤ 1·|a−b| *)
     assert (Hpa : q_pow a 1 == a) by (change (a * q_pow a 0 == a); change (a * 1 == a); ring).
     assert (Hpb : q_pow b 1 == b) by (change (b * q_pow b 0 == b); change (b * 1 == b); ring).
     apply (Qle_trans _ (Qabs (a - b)) _).
@@ -697,7 +721,7 @@ Proof.
                      ---- exact IH.
                      ---- apply QleT'_to_Qle. exact Qle_0_1.
               ** apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-        -- (* |(a−b)·B| ≤ |a−b|（|B| ≤ 1） *)
+        -- (* |(a−b)·B| ≤ |a−b| (|B| ≤ 1) *)
            apply (Qle_trans _ (Qabs (a - b) * Qabs (q_pow b (Datatypes.S k))) _).
            ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_Qmult.
            ++ apply (Qle_trans _ (Qabs (a - b) * 1) _).
@@ -714,7 +738,7 @@ Proof.
         { apply qeqT_imp_qeq. apply qn_succ. }
         rewrite Hsucc. ring.
 Qed.
-(* ---- 单项 Lipschitz：|t_k a − t_k b| ≤ |a − b|（|a|,|b| ≤ 1） ---- *)
+(* ---- single-term Lipschitz: |t_k a − t_k b| ≤ |a − b| (|a|,|b| ≤ 1) ---- *)
 Lemma atan_term_lipschitz : forall (k : nat) (a b : Q),
   QleT' (Qabs a) 1 -> QleT' (Qabs b) 1 ->
   QleT' (Qabs (arctan_term k a - arctan_term k b)) (Qabs (a - b)).
@@ -729,7 +753,7 @@ Proof.
   apply (Qle_trans _ (Qabs (q_pow (-1) k * ((q_pow a (2 * k + 1) - q_pow b (2 * k + 1)) *
                                             Qinv (Z.of_nat (2 * k + 1) # 1)))) _).
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_wd _ _). exact Hal.
-  - (* |s·X| == |X| ≤ |Δ|（|s| == 1） *)
+  - (* |s·X| == |X| ≤ |Δ| (|s| == 1) *)
     apply (Qle_trans _ (Qabs ((q_pow a (2 * k + 1) - q_pow b (2 * k + 1)) *
                               Qinv (Z.of_nat (2 * k + 1) # 1))) _).
     + apply QleT'_to_Qle. apply qeq_imp_qle.
@@ -748,7 +772,7 @@ Proof.
         -- apply (Qmult_le_compat_r (Qabs (q_pow a (2 * k + 1) - q_pow b (2 * k + 1)))
                                    ((Z.of_nat (2 * k + 1) # 1) * Qabs (a - b))
                                    (Qabs (Qinv (Z.of_nat (2 * k + 1) # 1)))).
-           ++ (* |A−B| ≤ (2k+1)#1·|Δ|（Hpd 索引形变） *)
+           ++ (* |A−B| ≤ (2k+1)#1·|Δ| (the index-shifted form of Hpd) *)
               apply (Qle_trans _ (Qabs (q_pow a (Datatypes.S (2 * k)) - q_pow b (Datatypes.S (2 * k)))) _).
               ** apply QleT'_to_Qle. apply qeq_imp_qle.
               apply qeq_imp_qeqT.
@@ -775,7 +799,7 @@ Proof.
            ++ rewrite Hinv. ring.
 Qed.
 
-(* ---- 固定索引 Lipschitz：|ap_N a − ap_N b| ≤ (N+1)·|a−b| ---- *)
+(* ---- fixed-index Lipschitz: |ap_N a − ap_N b| ≤ (N+1)·|a−b| ---- *)
 Lemma arctan_partial_lipschitz : forall (N : nat) (a b : Q),
   QleT' (Qabs a) 1 -> QleT' (Qabs b) 1 ->
   QleT' (Qabs (arctan_partial N a - arctan_partial N b))
@@ -819,13 +843,13 @@ Proof.
         rewrite Hsucc. ring.
 Qed.
 
-(* ---- eps/3 拆分恒等 ---- *)
+(* ---- the eps/3 splitting identity ---- *)
 Lemma atan_third_sum : forall eps : Q, QeqT (eps / 3 + (eps / 3 + eps / 3)) (eps).
 Proof.
   intro eps.  apply qeq_imp_qeqT. unfold Qdiv. field.
 Qed.
 
-(* ---- cauchy_real_arctan：|x| ≤ 1（逐点）上的 arctan 级数柯西实值 ---- *)
+(* ---- [cauchy_real_arctan]: the Cauchy real value of the arctan series over the pointwise domain |x| ≤ 1 ---- *)
 Definition cauchy_real_arctan (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) : Real.
 Proof.
@@ -834,11 +858,11 @@ Proof.
   assert (Hxu : forall n : nat, QleT' (Qabs (u n)) 1) by (intro n; unfold u; apply Hx).
   exists (fun n : nat => arctan_partial n (u n)).
   intros eps Heps.
-  (* 1. 尾阈值 N0：1/(N0+2) < eps/3 *)
+  (* 1. tail threshold N0: 1/(N0+2) < eps/3 *)
   assert (Heps3 : QltT 0 (eps / 3)).
   { apply (qltT_div_pos eps 3 Heps qltT_0_3). }
   destruct (q_arch_inv (eps / 3) Heps3) as [N0 HN0].
-  (* 2. 参数模阈值：Hu at eps/(3·(N0+1)) *)
+  (* 2. modulus threshold for the sequence: [Hu] at eps/(3·(N0+1)) *)
   set (L := Z.of_nat (Datatypes.S N0) # 1).
   assert (HLpos : Qlt 0 L).
   { unfold L. unfold Qlt. simpl. lia. }
@@ -854,20 +878,20 @@ Proof.
   apply Qlt_to_QltT.
   assert (Hm0 : (N0 <= m)%nat) by (apply NatLe_drop in Hm; lia).
   assert (Hn0 : (N0 <= n)%nat) by (apply NatLe_drop in Hn; lia).
-  (* 3. 主链：|S_m(um) − S_n(un)| ≤ t1 + (mid + t2)；t1,t2 尾 ≤ B1；mid ≤ B2 *)
+  (* 3. main chain: |S_m(um) − S_n(un)| ≤ t1 + (mid + t2); the tails t1,t2 ≤ B1; mid ≤ B2 *)
   set (B1 := 1 / (Z.of_nat (2 * N0 + 3) # 1)).
   apply (Qle_lt_trans _ (B1 + (L * Qabs (u m - u n) + B1)) _).
-  - (* 三角 + 分块界 *)
+  - (* triangle inequality plus blockwise bounds *)
     set (A := arctan_partial m (u m)).
     set (B := arctan_partial N0 (u m)).
     set (C := arctan_partial N0 (u n)).
     set (D := arctan_partial n (u n)).
     apply (Qle_trans _ (Qabs (A - B) + (Qabs (B - C) + Qabs (C - D))) _).
-    + (* 两次三角 *)
+    + (* two applications of the triangle inequality *)
       apply (Qle_trans _ (Qabs (A - B) + Qabs (B - D)) _).
       * apply (QleT'_to_Qle _ _ (atan_triangle3 A B D)).
       * apply Qplus_le_compat; [apply Qle_refl | apply (QleT'_to_Qle _ _ (atan_triangle3 B C D))].
-    + (* 分块界：t1 ≤ B1；mid ≤ L·|Δu|；t2 ≤ B1 *)
+    + (* blockwise bounds: t1 ≤ B1; mid ≤ L·|Δu|; t2 ≤ B1 *)
       apply Qplus_le_compat.
       * unfold A, B, B1.
         apply QleT'_to_Qle. apply atan_tail_bound_le. exact (Hxu m). exact Hm0.
@@ -878,7 +902,7 @@ Proof.
            apply (Qle_trans _ (Qabs (arctan_partial n (u n) - arctan_partial N0 (u n))) _).
            ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite Qabs_Qminus. reflexivity.
            ++ apply QleT'_to_Qle. apply atan_tail_bound_le. exact (Hxu n). exact Hn0.
-  - (* B1 + (L|Δ| + B1) < eps：每块 < eps/3 *)
+  - (* B1 + (L|Δ| + B1) < eps: each block < eps/3 *)
     assert (Ht1 : Qlt B1 (eps / 3)).
     { unfold B1.
       apply (Qle_lt_trans _ (1 / (Z.of_nat (N0 + 2) # 1)) _).
@@ -887,18 +911,18 @@ Proof.
     assert (Ht2 : Qlt (L * Qabs (u m - u n)) (eps / 3)).
     { (* L·|Δ| == |Δ|·L < (eps/(3L))·L ≤ == eps/3 *)
       apply (Qlt_le_trans _ ((eps / (3 * L)) * L) _).
-      - (* |Δ|·L < (eps/(3L))·L：L·|Δ| ≤ |Δ|·L（==），再 ×L 严格 *)
+      - (* |Δ|·L < (eps/(3L))·L: L·|Δ| == |Δ|·L, then strictness by multiplying by L *)
         apply (Qle_lt_trans _ (Qabs (u m - u n) * L) _).
-        + (* L·|Δ| ≤ |Δ|·L：== *)
+        + (* L·|Δ| ≤ |Δ|·L: equality *)
           apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-        + (* |Δ|·L < (eps/(3L))·L：HN1 乘 L *)
+        + (* |Δ|·L < (eps/(3L))·L: HN1 multiplied by L *)
           apply (Qmult_lt_compat_r (Qabs (u m - u n)) (eps / (3 * L)) L).
           * exact HLpos.
           * apply QltT_to_Qlt.
             apply (HN1 m n).
             -- apply NatLe_lift. apply (Nat.le_trans _ (Nat.max N0 N1) _); [lia | apply NatLe_drop in Hm; lia].
             -- apply NatLe_lift. apply (Nat.le_trans _ (Nat.max N0 N1) _); [lia | apply NatLe_drop in Hn; lia].
-      - (* (eps/(3L))·L ≤ eps/3：== 恒等 *)
+      - (* (eps/(3L))·L ≤ eps/3: identity by == *)
         apply QleT'_to_Qle. apply qeq_imp_qle.
         apply qeq_imp_qeqT.
         unfold Qdiv. field.
@@ -910,7 +934,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply atan_third_sum.
 Defined.
 
-(* ---- 投影恒等 ---- *)
+(* ---- projection identity ---- *)
 Lemma arctan_real_proj : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) (n : nat),
   QeqT (projT1 (cauchy_real_arctan x Hx) n) (arctan_partial n (projT1 x n)).
@@ -919,27 +943,28 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* SC-2 批（并入 204）：T-pi3 A2/B3-2 tan-arctan 完结链（sT2）  *)
-(* real_tan + arctan(1) 域正性 + tan==1<->sin==cos 桥 + 倍角    *)
-(* + N10->F1 完结装配（H4/Hsc 两解析输入 Section 化）            *)
+(* T-pi3 A2/B3-2 tan-arctan completion chain (sT2):                            *)
+(* [real_tan] + domain positivity of arctan(1) + the tan==1 <-> sin==cos bridge *)
+(* + the double-angle route + the N10->F1 final assembly (the two analytic      *)
+(* inputs H4/Hsc lifted into Section variables)                                 *)
 (* ============================================================ *)
 
 (* ================================================================== *)
-(*  sT2_tan / p_tan_def.v   N9b 核心一：Real 层 tan 定义 + 代数桥     *)
-(*  依赖：CW.ConstructiveWorld（迭代 203：N9a 已并入，rs_add_cos 在） *)
-(*  内容：                                                             *)
-(*    - real_tan w Hw := sin w · inv_pos(cos w) Hw（cos w > 0 域）     *)
-(*    - tan w · cos w == sin w                                        *)
-(*    - tan w == 1 ⟺ sin w == cos w（同一 cos w > 0 域内的双向桥）      *)
-(*    - 倍角：sin X == cos X ⟹ cos(X+X) == 0（rs_add_cos 实例化）      *)
+(*  sT2_tan / p_tan_def.v   N9b core 1: the [Real]-layer [tan] definition + algebraic bridges *)
+(*  dependencies: CW.ConstructiveWorld (N9a merged in; [rs_add_cos] available)                *)
+(*  contents:                                                                                 *)
+(*    - [real_tan w Hw := sin w · inv_pos(cos w) Hw] (domain cos w > 0)                       *)
+(*    - [tan w · cos w == sin w]                                                              *)
+(*    - [tan w == 1 ⟺ sin w == cos w] (two-way bridge within the same cos w > 0 domain)       *)
+(*    - double angle: [sin X == cos X ⟹ cos(X+X) == 0] (instance of [rs_add_cos])             *)
 (* ================================================================== *)
 
 
-(* ---- tan 定义：sin w · inv(cos w)，域 cos w > 0 ---- *)
+(* ---- tan definition: [sin w · inv(cos w)], domain cos w > 0 ---- *)
 Definition real_tan (w : Real) (Hw : real_lt real_zero (cauchy_real_cos w)) : Real :=
   real_mult (cauchy_real_sin w) (real_inv_pos (cauchy_real_cos w) Hw).
 
-(* ---- 引理 A：tan w · cos w == sin w ---- *)
+(* ---- Lemma A: [tan w · cos w == sin w] ---- *)
 Lemma real_tan_mult_cos : forall (w : Real) (Hw : real_lt real_zero (cauchy_real_cos w)),
   real_eq (real_mult (real_tan w Hw) (cauchy_real_cos w)) (cauchy_real_sin w).
 Proof.
@@ -955,14 +980,14 @@ Proof.
                (real_mult (real_inv_pos (cauchy_real_cos w) Hw) (cauchy_real_cos w))
                (cauchy_real_sin w) real_one).
       * apply real_eq_refl.
-      * (* inv c · c == 1：inv c · c == c · inv c == 1（comm + inv_correct） *)
+      * (* [inv c · c == 1]: inv c · c == c · inv c == 1 (comm + inv_correct) *)
         apply (real_eq_trans _ (real_mult (cauchy_real_cos w) (real_inv_pos (cauchy_real_cos w) Hw)) _).
         -- apply real_mult_comm.
         -- exact (real_inv_pos_correct (cauchy_real_cos w) Hw).
     + exact (real_mult_one (cauchy_real_sin w)).
 Qed.
 
-(* ---- 引理 B1：tan w == 1 ⟹ sin w == cos w ---- *)
+(* ---- Lemma B1: [tan w == 1 ⟹ sin w == cos w] ---- *)
 Lemma real_tan_eq_one_sin_eq_cos : forall (w : Real) (Hw : real_lt real_zero (cauchy_real_cos w)),
   real_eq (real_tan w Hw) real_one ->
   real_eq (cauchy_real_sin w) (cauchy_real_cos w).
@@ -982,7 +1007,7 @@ Proof.
       * exact (real_mult_one (cauchy_real_cos w)).
 Qed.
 
-(* ---- 引理 B2：sin w == cos w ⟹ tan w == 1（cos w > 0 域） ---- *)
+(* ---- Lemma B2: [sin w == cos w ⟹ tan w == 1] (domain cos w > 0) ---- *)
 Lemma real_sin_eq_cos_tan_eq_one : forall (w : Real) (Hw : real_lt real_zero (cauchy_real_cos w)),
   real_eq (cauchy_real_sin w) (cauchy_real_cos w) ->
   real_eq (real_tan w Hw) real_one.
@@ -997,11 +1022,12 @@ Proof.
   - exact (real_inv_pos_correct (cauchy_real_cos w) Hw).
 Qed.
 
-(* ---- 倍角通道：sin X == cos X ⟹ cos(X+X) == 0（rs_add_cos 实例化） ---- *)
-(* 路线：rs_add_cos X X：cos(X+X) == cosX·cosX − sinX·sinX；
-   sinX==cosX ⟹ sin²X == cos²X（real_eq compat）⟹ cos² − sin² == 0（real_plus_opp）。 *)
+(* ---- double-angle route: [sin X == cos X ⟹ cos(X+X) == 0] (instance of [rs_add_cos]) ---- *)
+(* route: [rs_add_cos X X] gives [cos(X+X) == cosX·cosX − sinX·sinX];
+   [sinX==cosX] implies [sin²X == cos²X] ([real_eq] compatibility), hence
+   [cos² − sin² == 0] ([real_plus_opp]). *)
 
-(* ---- 引理 C 辅助：A == B ⟹ A + (−B) == 0（real_eq 层，eps 语义） ---- *)
+(* ---- Lemma C auxiliary: [A == B ⟹ A + (−B) == 0] ([real_eq] layer, eps semantics) ---- *)
 Lemma real_sq_eq_sq_diff_zero : forall (A B : Real),
   real_eq A B -> real_eq (real_plus A (real_opp B)) real_zero.
 Proof.
@@ -1013,7 +1039,7 @@ Proof.
   - exact (real_plus_opp B).
 Qed.
 
-(* ---- 引理 C（最终形式）：sin X == cos X ⟹ cos(X+X) == 0 ---- *)
+(* ---- Lemma C (final form): [sin X == cos X ⟹ cos(X+X) == 0] ---- *)
 Lemma real_sin_eq_cos_cos_double_zero : forall (X : Real),
   real_eq (cauchy_real_sin X) (cauchy_real_cos X) ->
   real_eq (cauchy_real_cos (real_plus X X)) real_zero.
@@ -1028,7 +1054,7 @@ Proof.
   assert (Hdiff : real_eq (real_plus (real_mult (cauchy_real_cos X) (cauchy_real_cos X))
                                      (real_opp (real_mult (cauchy_real_sin X) (cauchy_real_sin X))))
                           real_zero).
-  { (* cos² − sin² == 0：cos² − sin² == (sin² + (−sin²)) 代入 Hsq → 0 *)
+  { (* cos² − sin² == 0: substitute Hsq, rewriting cos² − sin² as sin² + (−sin²), which is 0 *)
     apply (real_eq_trans _ (real_plus (real_mult (cauchy_real_sin X) (cauchy_real_sin X))
                                       (real_opp (real_mult (cauchy_real_sin X) (cauchy_real_sin X)))) _).
     - apply (RealSetoid.real_eq_plus_compat
@@ -1046,7 +1072,7 @@ Proof.
   - exact Hdiff.
 Qed.
 
-(* ---- 2·X == X + X（Real 层 ring 桥，供 2·arctan(1) == w_leibniz 侧用） ---- *)
+(* ---- [2·X == X + X] ([Real]-layer ring bridge, used on the 2·arctan(1) == w_leibniz side) ---- *)
 Lemma real_two_mult_plus : forall (X : Real),
   real_eq (real_mult (real_const 2) X) (real_plus X X).
 Proof.
@@ -1060,7 +1086,7 @@ Proof.
   ring.
 Qed.
 
-(* ---- 倍角通道（2X 形态）：sin X == cos X ⟹ cos(2·X) == 0 ---- *)
+(* ---- double-angle route (2X form): [sin X == cos X ⟹ cos(2·X) == 0] ---- *)
 Lemma real_sin_eq_cos_cos_two_zero : forall (X : Real),
   real_eq (cauchy_real_sin X) (cauchy_real_cos X) ->
   real_eq (cauchy_real_cos (real_mult (real_const 2) X)) real_zero.
@@ -1072,19 +1098,20 @@ Proof.
   - exact (real_sin_eq_cos_cos_double_zero X Hsc).
 Qed.
 (* ================================================================== *)
-(*  sT2_tan / p_atan1_bounds.v   N9b 核心二：arctan(1) 域正性         *)
-(*  依赖：CW.ConstructiveWorld（迭代 203）+ 先行件 p_tan_def.v           *)
-(*  内容：                                                             *)
-(*    - θ := cauchy_real_arctan (real_const 1) Hone（x=1 处的 arctan） *)
-(*    - 点态界 |S_n(1) − S_0(1)| ≤ 1/3（atan_tail_bound m=0）          *)
-(*    - Real 层括号：0 < θ 且 θ < 3/2（cos/sin 正性引理的前提）        *)
-(*    - cos(θ) > 0（经 cos 在 (0,3/2) 上沿 real_cos_strict_decr）       *)
-(*    - sin(θ) > 0（real_sin_pos_lt_two，0 < θ < 2）                   *)
-(*  即 N9b 需要的「cos w > 0 域」在 w := arctan(1) 处成立。            *)
+(*  sT2_tan / p_atan1_bounds.v   N9b core 2: the domain positivity of arctan(1)         *)
+(*  dependencies: CW.ConstructiveWorld + the preceding p_tan_def.v                      *)
+(*  contents:                                                                           *)
+(*    - θ := [cauchy_real_arctan (real_const 1) Hone] (the arctan at x=1)               *)
+(*    - pointwise bound |S_n(1) − S_0(1)| ≤ 1/3 ([atan_tail_bound] at m=0)              *)
+(*    - [Real]-layer brackets: 0 < θ and θ < 3/2 (premises of the cos/sin positivity    *)
+(*      lemmas)                                                                         *)
+(*    - cos(θ) > 0 (via [real_cos_strict_decr] on (0,3/2))                              *)
+(*    - sin(θ) > 0 ([real_sin_pos_lt_two], 0 < θ < 2)                                   *)
+(*  i.e. the cos w > 0 domain required by N9b holds at w := arctan(1).                  *)
 (* ================================================================== *)
 
 
-(* 逐点 |1| ≤ 1：cauchy_real_arctan (real_const 1) 的前提 *)
+(* pointwise |1| ≤ 1: the premise of [cauchy_real_arctan (real_const 1)] *)
 Lemma atan1_pt_bound : forall n : nat, QleT' (Qabs (projT1 (real_const 1) n)) 1.
 Proof.
   intro n.
@@ -1100,21 +1127,21 @@ Proof.
     unfold Qabs. reflexivity.
 Qed.
 
-(* θ := arctan(1)（x=1 处的 arctan 级数实值） *)
+(* θ := arctan(1) (the real value of the arctan series at x=1) *)
 Definition arctan_one_real : Real := cauchy_real_arctan (real_const 1) atan1_pt_bound.
 
-(* 投影：projT1 θ n == arctan_partial n 1 *)
+(* projection: [projT1 θ n == arctan_partial n 1] *)
 Lemma arctan_one_proj : forall n : nat, QeqT (projT1 arctan_one_real n) (arctan_partial n 1).
 Proof.
   intro n. apply qeq_imp_qeqT.
   unfold arctan_one_real.
   rewrite (qeqT_imp_qeq _ _ (arctan_real_proj (real_const 1) atan1_pt_bound n)).
-  (* projT1 (real_const 1) n 定义为 1（逐点常序列） *)
+  (* [projT1 (real_const 1) n] is definitionally 1 (the pointwise constant sequence) *)
   cbn [projT1].
   reflexivity.
 Qed.
 
-(* ---- 点态界：|S_n(1) − S_0(1)| ≤ 1/3（atan_tail_bound @ x=1, m=0） ---- *)
+(* ---- pointwise bound: |S_n(1) − S_0(1)| ≤ 1/3 ([atan_tail_bound] at x=1, m=0) ---- *)
 Lemma q_abs_one_le_one : QleT' (Qabs 1) 1.
 Proof.
   apply Qle_to_QleT'.
@@ -1144,7 +1171,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* 直接形态：|S_n(1) − 1| ≤ 1/3（S_0(1) == 1 代入） *)
+(* direct form: |S_n(1) − 1| ≤ 1/3 (substituting [S_0(1) == 1]) *)
 Lemma atan1_pt_abs_minus_one_le_third : forall n : nat,
   QleT' (Qabs (arctan_partial n 1 - 1)) (1 / 3).
 Proof.
@@ -1159,7 +1186,7 @@ Proof.
   - exact (QleT'_to_Qle _ _ (atan1_pt_diff_le_third n)).
 Qed.
 
-(* 点态上界：S_n(1) ≤ 4/3 < 3/2 *)
+(* pointwise upper bound: S_n(1) ≤ 4/3 < 3/2 *)
 Lemma atan1_pt_le_four_thirds : forall n : nat, QleT' (arctan_partial n 1) (4 / 3).
 Proof.
   intro n. apply Qle_to_QleT'.
@@ -1172,7 +1199,7 @@ Proof.
       * change (Qle (1 / 3 + 1) (4 / 3)). unfold Qle; simpl. lia.
 Qed.
 
-(* 点态下界：S_n(1) ≥ 2/3（|S_n−1| ≤ 1/3 ⟹ −1/3 ≤ S_n−1 ⟹ 1−1/3 ≤ 1+(S_n−1) == S_n） *)
+(* pointwise lower bound: S_n(1) ≥ 2/3 (|S_n−1| ≤ 1/3 ⟹ −1/3 ≤ S_n−1 ⟹ 1−1/3 ≤ 1+(S_n−1) == S_n) *)
 Lemma atan1_pt_ge_two_thirds : forall n : nat, QleT' (2 / 3) (arctan_partial n 1).
 Proof.
   intro n. apply Qle_to_QleT'.
@@ -1180,14 +1207,14 @@ Proof.
                  (QleT'_to_Qle _ _ (atan1_pt_abs_minus_one_le_third n))) as [Hlo Hhi].
   (* 2/3 ≤ 1 + (S_n − 1) == S_n *)
   apply (Qle_trans _ (1 + (arctan_partial n 1 - 1)) _).
-  - (* 2/3 ≤ 1 + (S_n − 1)：2/3 == 1 + (−1/3) ≤ 1 + (S_n − 1) *)
+  - (* 2/3 ≤ 1 + (S_n − 1): 2/3 == 1 + (−1/3) ≤ 1 + (S_n − 1) *)
     apply (Qle_trans _ (1 + - (1 / 3)) _).
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. field.
     + apply Qplus_le_compat; [apply Qle_refl | exact Hlo].
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ============ Real 层括号 1：0 < θ ============ *)
+(* ============ [Real]-layer bracket 1: 0 < θ ============ *)
 Lemma real_lt_zero_arctan_one : real_lt real_zero arctan_one_real.
 Proof.
   unfold real_lt.
@@ -1197,7 +1224,7 @@ Proof.
   - exists 0%nat.
     intros n Hn.
     apply Qlt_to_QltT.
-    (* projT1 arctan_one_real n − 0 == arctan_partial n 1（投影代入 + ring） *)
+    (* [projT1 arctan_one_real n − 0 == arctan_partial n 1] (projection substitution + ring) *)
     assert (Hproj : projT1 arctan_one_real n - 0 == arctan_partial n 1).
     { rewrite (qeqT_imp_qeq _ _ (arctan_one_proj n)). ring. }
     rewrite Hproj.
@@ -1206,7 +1233,7 @@ Proof.
     + exact (QleT'_to_Qle _ _ (atan1_pt_ge_two_thirds n)).
 Qed.
 
-(* ============ Real 层括号 2：θ < 3/2 ============ *)
+(* ============ [Real]-layer bracket 2: θ < 3/2 ============ *)
 Lemma real_lt_arctan_one_three_halves : real_lt arctan_one_real (real_const (3 / 2)).
 Proof.
   unfold real_lt.
@@ -1216,14 +1243,14 @@ Proof.
   - exists 0%nat.
     intros n Hn.
     apply Qlt_to_QltT.
-    (* 目标 Qlt (1/12) (3/2 − projT1 arctan_one_real n)；投影代入 *)
+    (* goal [Qlt (1/12) (3/2 − projT1 arctan_one_real n)]; projection substitution *)
     assert (Hproj : projT1 (real_const (3 / 2)) n - projT1 arctan_one_real n ==
                     3 / 2 - arctan_partial n 1).
     { rewrite ((qeqT_imp_qeq _ _ (real_const_proj (3 / 2) n))). rewrite (qeqT_imp_qeq _ _ (arctan_one_proj n)). ring. }
     rewrite Hproj.
     apply (Qlt_le_trans (1 / 12) (1 / 6) (3 / 2 - arctan_partial n 1)).
     + change (Qlt (1 / 12) (1 / 6)). compute. reflexivity.
-    + (* 1/6 ≤ 3/2 − S_n ⟺ 0 ≤ (3/2−S_n) − 1/6 == 4/3 − S_n（S_n ≤ 4/3） *)
+    + (* 1/6 ≤ 3/2 − S_n ⟺ 0 ≤ (3/2−S_n) − 1/6 == 4/3 − S_n (S_n ≤ 4/3) *)
       apply (proj2 (Qle_minus_iff (1 / 6) (3 / 2 - arctan_partial n 1))).
       assert (Hc : (3 / 2 - arctan_partial n 1) - 1 / 6 == 4 / 3 - arctan_partial n 1) by field.
       rewrite Hc.
@@ -1231,7 +1258,7 @@ Proof.
       exact (QleT'_to_Qle _ _ (atan1_pt_le_four_thirds n)).
 Qed.
 
-(* θ < 2（real_sin_pos_lt_two 前提：θ < 3/2 < 2） *)
+(* θ < 2 (the premise of [real_sin_pos_lt_two]: θ < 3/2 < 2) *)
 Lemma real_lt_arctan_one_two : real_lt arctan_one_real (real_const 2).
 Proof.
   apply (real_lt_trans _ (real_const (3 / 2)) _).
@@ -1240,14 +1267,14 @@ Proof.
 Qed.
 
 (* ============ cos(θ) > 0 ============ *)
-(* 路线：0 < θ < 3/2 < 2 且 cos 在 (0,2) 严格递减 ⟹ cos(3/2) < cos(θ)；
-   cos(3/2) > 0（real_cos_three_halves_pos）⟹ 0 < cos(3/2) < cos(θ)。 *)
+(* route: 0 < θ < 3/2 < 2 and cos strictly decreasing on (0,2) ⟹ cos(3/2) < cos(θ);
+   cos(3/2) > 0 ([real_cos_three_halves_pos]) ⟹ 0 < cos(3/2) < cos(θ). *)
 Lemma real_cos_arctan_one_pos : real_lt real_zero (cauchy_real_cos arctan_one_real).
 Proof.
   apply (real_lt_trans _ (cauchy_real_cos (real_const (3 / 2))) _).
   - (* 0 < cos(3/2) *)
     exact real_cos_three_halves_pos.
-  - (* cos(3/2) < cos(θ)：real_cos_strict_decr X:=θ Y:=3/2（0<θ<3/2<2） *)
+  - (* cos(3/2) < cos(θ): [real_cos_strict_decr] with X:=θ, Y:=3/2 (0<θ<3/2<2) *)
     apply (real_cos_strict_decr arctan_one_real (real_const (3 / 2))).
     + exact real_lt_zero_arctan_one.
     + exact real_lt_arctan_one_three_halves.
@@ -1262,13 +1289,13 @@ Proof.
   - exact real_lt_arctan_one_two.
 Qed.
 
-(* ============ 顺带：θ 本身（arctan 值）在 (0, 3/2) —— 数值 sanity 用 ============ *)
-(* 0 < θ 且 θ < 3/2 已证。另给 2/3 下括号的 Real 版本（可选，不强制）。 *)
+(* ============ aside: θ itself (the arctan value) lies in (0, 3/2) — for numerical sanity use ============ *)
+(* 0 < θ and θ < 3/2 are proved. A [Real]-layer version of the 2/3 lower bracket is also given (optional, not required). *)
 
-(* ============ tan(arctan(1)) 良定义（域 cos θ > 0） ============ *)
+(* ============ tan(arctan(1)) is well-defined (domain cos θ > 0) ============ *)
 Definition arctan_one_tan : Real := real_tan arctan_one_real real_cos_arctan_one_pos.
 
-(* 检查：sin(θ)·inv(cos θ) 形态 == real_tan θ Hcos（unfold 即恒等） *)
+(* check: the form sin(θ)·inv(cos θ) == [real_tan θ Hcos] (an identity after [unfold]) *)
 Lemma arctan_one_tan_unfold :
   real_eq arctan_one_tan
           (real_mult (cauchy_real_sin arctan_one_real)
@@ -1277,24 +1304,27 @@ Proof.
   unfold arctan_one_tan, real_tan. apply real_eq_refl.
 Qed.
 (* ================================================================== *)
-(*  sT2_tan / p_n10_channel.v   N9b 完结通道：B4（N10）装配骨架        *)
-(*  依赖：p_tan_def.v + p_atan1_bounds.v + CW.ConstructiveWorld        *)
-(*  内容：证明 B4/N10（cos(w_leibniz)==0 ⟹ F1）的每一步 glue 都是真证， *)
-(*  仅保留两个解析输入为 Section 变量（合法：零公理面）：              *)
-(*    - H4 : 4·arctan(1) == π_L（B3-3 值桥；A3 批纯级数可证）          *)
-(*    - Hsc : sin(arctan(1)) == cos(arctan(1))                        *)
-(*        （= tan(arctan(1)) == 1 经 real_tan B1/B2 桥；               *)
-(*          需 arctan'(x)==1/(1+x²) 级数微商塔 —— 后补/多轮块）        *)
-(*  = 一旦 Hsc 落地（cos(arctan1)>0 已证，域就绪），B4 即可照此装配。  *)
+(*  sT2_tan / p_n10_channel.v   N9b completion channel: the B4 (N10) assembly skeleton  *)
+(*  dependencies: p_tan_def.v + p_atan1_bounds.v + CW.ConstructiveWorld                 *)
+(*  contents: every glue step of B4/N10 (cos(w_leibniz)==0 ⟹ F1) is a genuine proof;    *)
+(*  only the two analytic inputs stay as Section variables (legitimate: axiom-free      *)
+(*  face):                                                                              *)
+(*    - H4 : 4·arctan(1) == π_L (the B3-3 value bridge; provable from the pure series   *)
+(*      of the A3 segment)                                                              *)
+(*    - Hsc : sin(arctan(1)) == cos(arctan(1))                                          *)
+(*        (= tan(arctan(1)) == 1 via the real_tan B1/B2 bridges;                        *)
+(*          needs the arctan'(x)==1/(1+x²) series-derivative tower — supplied later)    *)
+(*  = once Hsc is available (cos(arctan1)>0 is proved, so the domain is ready), B4 can  *)
+(*  be assembled exactly as here.                                                       *)
 (* ================================================================== *)
 
 
-(* 记号：θ := arctan(1)、w := π_L·(1/2)（w_leibniz） *)
+(* notation: θ := arctan(1) and w := π_L·(1/2) (w_leibniz) *)
 Notation theta1 := arctan_one_real.
 Notation w_leib := (real_mult cauchy_real_pi_leibniz (real_const (1 / 2))).
 
-(* ============ A. 纯环 glue（真证）：4θ == π_L ⟹ 2θ == π_L·(1/2) ============ *)
-(* 步骤 1：(1/2)·(4·θ) == 2·θ（real_const 环，逐点 field） *)
+(* ============ A. pure ring glue (genuine proof): 4θ == π_L ⟹ 2θ == π_L·(1/2) ============ *)
+(* step 1: (1/2)·(4·θ) == 2·θ (the [real_const] ring, pointwise [field]) *)
 Lemma real_const_half_four : real_eq (real_mult (real_const (1 / 2)) (real_const 4))
                                      (real_const 2).
 Proof.
@@ -1306,7 +1336,7 @@ Proof.
   rewrite ((qeqT_imp_qeq _ _ (real_const_proj 2 n))). field.
 Qed.
 
-(* (1/2)·(4·X) == 2·X（对任意 X：assoc + const 桥） *)
+(* (1/2)·(4·X) == 2·X (for any X: associativity + the constant bridge) *)
 Lemma real_half_four_mult : forall (X : Real),
   real_eq (real_mult (real_const (1 / 2)) (real_mult (real_const 4) X))
           (real_mult (real_const 2) X).
@@ -1321,32 +1351,32 @@ Proof.
     + apply real_eq_refl.
 Qed.
 
-(* 2·θ == θ + θ（p_tan_def 已有 real_two_mult_plus，方向 2X==X+X；
-   此处用反向）。 *)
+(* 2·θ == θ + θ (p_tan_def already provides [real_two_mult_plus] in the direction 2X==X+X;
+   the symmetric direction is used here). *)
 Lemma real_theta_double_eq_two : real_eq (real_plus theta1 theta1)
                                          (real_mult (real_const 2) theta1).
 Proof.
   exact (real_eq_sym (real_mult (real_const 2) theta1) (real_plus theta1 theta1) (real_two_mult_plus theta1)).
 Qed.
 
-(* ============ B. N5：由 H4（B3-3 值桥）+ Hsc ⟹ cos(w_leibniz) == 0 ============ *)
+(* ============ B. N5: from H4 (the B3-3 value bridge) + Hsc ⟹ cos(w_leibniz) == 0 ============ *)
 Section N10Channel.
 
-(* 输入 1（B3-3 值桥）：4·arctan(1) == π_L *)
+(* input 1 (the B3-3 value bridge): 4·arctan(1) == π_L *)
 Hypothesis H4 : real_eq (real_mult (real_const 4) theta1) cauchy_real_pi_leibniz.
 
-(* 输入 2（N9b 核心，本件精确定义为唯一解析输入）：
-   sin(arctan(1)) == cos(arctan(1))（等价 tan(arctan(1)) == 1） *)
+(* input 2 (the N9b core; this file states it precisely as the only analytic input):
+   sin(arctan(1)) == cos(arctan(1)) (equivalent to tan(arctan(1)) == 1) *)
 Hypothesis Hsc : real_eq (cauchy_real_sin theta1) (cauchy_real_cos theta1).
 
-(* ---- B1. cos(2·arctan(1)) == 0（倍角 + Hsc；p_tan_def 通道） ---- *)
+(* ---- B1. cos(2·arctan(1)) == 0 (double angle + Hsc; the p_tan_def channel) ---- *)
 Lemma channel_cos_double_zero :
   real_eq (cauchy_real_cos (real_mult (real_const 2) theta1)) real_zero.
 Proof.
   exact (real_sin_eq_cos_cos_two_zero theta1 Hsc).
 Qed.
 
-(* ---- B2. w_leibniz == 2·θ（从 H4：乘 (1/2) 两侧） ---- *)
+(* ---- B2. w_leibniz == 2·θ (from H4: multiply both sides by (1/2)) ---- *)
 Lemma channel_w_eq_two_theta :
   real_eq w_leib (real_mult (real_const 2) theta1).
 Proof.
@@ -1363,23 +1393,23 @@ Proof.
     + exact (real_half_four_mult theta1).
 Qed.
 
-(* ---- B3. N5：cos(w_leibniz) == 0 ---- *)
+(* ---- B3. N5: cos(w_leibniz) == 0 ---- *)
 Lemma channel_n5 : real_eq (cauchy_real_cos w_leib) real_zero.
 Proof.
-  (* cos w == cos(2θ) == 0：real_cos_eq_compat（w == 2θ）+ B1 *)
+  (* cos w == cos(2θ) == 0: [real_cos_eq_compat] (w == 2θ) + B1 *)
   apply (real_eq_trans _ (cauchy_real_cos (real_mult (real_const 2) theta1)) _).
   - apply real_cos_eq_compat. exact channel_w_eq_two_theta.
   - exact channel_cos_double_zero.
 Qed.
 
-(* ============ C. F1：由 N5 + 唯一零桥 + 乘 2 回代（sD p1 装配，全真证） ============ *)
-(* 前置：3/2 < w_leibniz（N1–N4 已在主库） *)
+(* ============ C. F1: from N5 + the unique-zero bridge + multiplying back by 2 (sD p1 assembly, all genuine proofs) ============ *)
+(* premise: 3/2 < w_leibniz (N1–N4 already in the main-library baseline) *)
 Lemma channel_w_lower : real_lt (real_const (3 / 2)) w_leib.
 Proof.
   exact real_pi_leibniz_half_lower.
 Qed.
 
-(* w_leibniz < 5/3 < 2（N1–N4 上界 + 常数） *)
+(* w_leibniz < 5/3 < 2 (the N1–N4 upper bound + the constant) *)
 Lemma channel_w_upper_two : real_lt w_leib (real_const 2).
 Proof.
   apply (real_lt_trans _ (real_const (5 / 3)) _).
@@ -1387,7 +1417,7 @@ Proof.
   - apply real_const_lt. change (QltT (5 / 3) 2). compute. reflexivity.
 Qed.
 
-(* 唯一零桥：w ∈ (3/2,2) ∧ cos w == 0 ⟹ w == cos_pi_half *)
+(* unique-zero bridge: w ∈ (3/2,2) with cos w == 0 ⟹ w == cos_pi_half *)
 Lemma channel_w_eq_cos_pi_half : real_eq w_leib cos_pi_half.
 Proof.
   apply (cos_pi_half_unique_widened w_leib).
@@ -1396,7 +1426,7 @@ Proof.
   - exact channel_n5.
 Qed.
 
-(* 乘 2：2·w == π_L（real_double_half_cancel：2·(x·(1/2)) == x） *)
+(* multiply by 2: 2·w == π_L ([real_double_half_cancel]: 2·(x·(1/2)) == x) *)
 Lemma channel_two_w_eq_pi : real_eq (real_mult (real_const 2) w_leib)
                                     cauchy_real_pi_leibniz.
 Proof.
@@ -1404,7 +1434,7 @@ Proof.
   exact (real_double_half_cancel cauchy_real_pi_leibniz).
 Qed.
 
-(* F1：π_geom == 2·cos_pi_half == 2·w == π_L *)
+(* F1: π_geom == 2·cos_pi_half == 2·w == π_L *)
 Lemma channel_f1 : real_eq real_pi_geom cauchy_real_pi_leibniz.
 Proof.
   unfold real_pi_geom.
@@ -1418,8 +1448,8 @@ Qed.
 
 End N10Channel.
 
-(* ============ D. 装配层引理（Section 变量以外全部闭包形式） ============ *)
-(* 把 Section 封成可实例化的引理形态：两个解析输入 ⟹ F1。 *)
+(* ============ D. assembly-layer lemmas (everything outside the Section variables in closed form) ============ *)
+(* the Section is packaged into instantiable lemma form: the two analytic inputs ⟹ F1. *)
 Lemma n10_closure_f1 :
   (real_eq (real_mult (real_const 4) theta1) cauchy_real_pi_leibniz) ->
   (real_eq (cauchy_real_sin theta1) (cauchy_real_cos theta1)) ->
@@ -1438,8 +1468,8 @@ Proof.
   exact (channel_n5 H4 Hsc).
 Qed.
 
-(* ============ E. tan(arctan(1)) == 1 ⟺ sin == cos（真证桥，域已备） ============ *)
-(* 顺向：tan θ == 1 ⟹ sin θ == cos θ *)
+(* ============ E. tan(arctan(1)) == 1 ⟺ sin == cos (genuine-proof bridge, the domain is in place) ============ *)
+(* forward direction: tan θ == 1 ⟹ sin θ == cos θ *)
 Lemma arctan_one_tan_eq_one_to_sc :
   real_eq arctan_one_tan real_one ->
   real_eq (cauchy_real_sin theta1) (cauchy_real_cos theta1).
@@ -1448,7 +1478,7 @@ Proof.
   exact (real_tan_eq_one_sin_eq_cos theta1 real_cos_arctan_one_pos Ht).
 Qed.
 
-(* 反向：sin θ == cos θ ⟹ tan θ == 1 *)
+(* reverse direction: sin θ == cos θ ⟹ tan θ == 1 *)
 Lemma arctan_one_sc_to_tan_eq_one :
   real_eq (cauchy_real_sin theta1) (cauchy_real_cos theta1) ->
   real_eq arctan_one_tan real_one.
@@ -1457,7 +1487,7 @@ Proof.
   exact (real_sin_eq_cos_tan_eq_one theta1 real_cos_arctan_one_pos Hsc).
 Qed.
 
-(* 复合完结引理（供 B4 直接引用）：tan(arctan(1)) == 1 + B3-3 ⟹ F1 *)
+(* composed completion lemma (for direct citation by B4): tan(arctan(1)) == 1 + B3-3 ⟹ F1 *)
 Lemma n10_closure_f1_tan :
   (real_eq (real_mult (real_const 4) theta1) cauchy_real_pi_leibniz) ->
   (real_eq arctan_one_tan real_one) ->
@@ -1467,18 +1497,19 @@ Proof.
   apply (n10_closure_f1 H4).
   exact (arctan_one_tan_eq_one_to_sc Ht).
 Qed.
-(* ============ 0. 记号 ============ *)
-(* θ := arctan(1)（主库 L66941）；π_L := cauchy_real_pi_leibniz（L56355）
-   注：theta1/w_leib 记号主库已声明（theta1 := arctan_one_real），此处不重复。 *)
+(* ============ 0. notation ============ *)
+(* θ := arctan(1) (main-library baseline L66941); π_L := cauchy_real_pi_leibniz (L56355)
+   note: the theta1/w_leib notations are already declared in the main-library baseline
+   (theta1 := arctan_one_real) and are not redeclared here. *)
 
-(* ============ 1. 纯 Q 小工具 ============ *)
+(* ============ 1. pure [Q] utilities ============ *)
 
 (* 0 ≤ y ≤ x ⟹ |x − y| ≤ x *)
 Lemma sc_qabs_le_x_minus_y : forall x y : Q, Qle 0 y -> Qle y x -> QleT' (Qabs (x - y)) x.
 Proof.
   intros x y Hy0 Hyx. apply Qle_to_QleT'.
   apply (Qle_trans _ (x - y) _).
-  - (* |x−y| == x−y（0 ≤ x−y） ≤ x−y *)
+  - (* |x−y| == x−y (0 ≤ x−y) ≤ x−y *)
     apply QleT'_to_Qle. apply qeq_imp_qle.
     apply qeq_imp_qeqT.
     apply (Qabs_pos (x - y)).
@@ -1489,7 +1520,7 @@ Proof.
     exact Hy0.
 Qed.
 
-(* 任意 n 的奇偶二分（Set 层）：n = 2m 或 n = 2m+1 *)
+(* parity dichotomy for any n (at the [Set] layer): n = 2m or n = 2m+1 *)
 Lemma sc_nat_parity : forall n : nat, {m : nat | n = (2 * m)%nat} + {m : nat | n = (2 * m + 1)%nat}.
 Proof.
   induction n as [| n IH].
@@ -1499,7 +1530,7 @@ Proof.
     + left. exists (Datatypes.S m). lia.
 Qed.
 
-(* 4 == lp_four（常数桥；lp_four := 1+1+1+1） *)
+(* 4 == lp_four (constant bridge; [lp_four := 1+1+1+1]) *)
 Lemma a3_four_eq_lp : QeqT (4) (lp_four).
 Proof.
   intros.
@@ -1507,8 +1538,8 @@ Proof.
   unfold lp_four. ring.
 Qed.
 
-(* ============ 2. 偶指标桥界（sharp 1/(2·(2m)+3) == 1/(4m+3)） ============ *)
-(* S_{2m}(1) == lp_odd m + lp_a(2m+1)（even 桥）；
+(* ============ 2. even-index bridge bound (sharp 1/(2·(2m)+3) == 1/(4m+3)) ============ *)
+(* S_{2m}(1) == lp_odd m + lp_a(2m+1) (the even bridge);
    |S_{2m} − lp_odd(2m)| == lp_a(2m+1) − (lp_odd(2m) − lp_odd m) ≤ lp_a(2m+1) *)
 Lemma a3_even_bound : forall m : nat,
   QleT' (Qabs (arctan_partial (2 * m) 1 - lp_odd (2 * m)))
@@ -1520,15 +1551,15 @@ Proof.
                 lp_a (2 * m + 1) - (lp_odd (2 * m) - lp_odd m)) by ring.
   setoid_rewrite Hb.
   apply (Qle_trans _ (lp_a (2 * m + 1)) _).
-  - (* |x − y| ≤ x（x := lp_a(2m+1)，y := lp_odd(2m) − lp_odd m；0 ≤ y ≤ x） *)
+  - (* |x − y| ≤ x (x := lp_a(2m+1), y := lp_odd(2m) − lp_odd m; 0 ≤ y ≤ x) *)
     apply QleT'_to_Qle. apply (sc_qabs_le_x_minus_y (lp_a (2 * m + 1)) (lp_odd (2 * m) - lp_odd m)).
-    + (* 0 ≤ y：差分非负（m ≤ 2m） *)
+    + (* 0 ≤ y: the difference is nonnegative (m ≤ 2m) *)
       apply QleT'_to_Qle. apply sc_lp_odd_diff_nonneg. lia.
-    + (* y ≤ x：y ≤ lp_a(2m+2)（sc_lp_odd_diff_bound m 2m）≤ lp_a(2m+1)（decr） *)
+    + (* y ≤ x: y ≤ lp_a(2m+2) ([sc_lp_odd_diff_bound m 2m]) ≤ lp_a(2m+1) (decreasing) *)
       apply (Qle_trans _ (lp_a (2 * m + 2)) _).
       * apply QleT'_to_Qle. apply sc_lp_odd_diff_bound. lia.
       * apply QleT'_to_Qle. apply sc_lpa_decr_le. lia.
-  - (* lp_a(2m+1) == 1/(Z.of_nat (2·(2m)+3)#1)（2·(2m+1)+1 == 2·(2m)+3） *)
+  - (* [lp_a(2m+1) == 1/(Z.of_nat (2·(2m)+3)#1)] (2·(2m+1)+1 == 2·(2m)+3) *)
     apply QleT'_to_Qle. apply qeq_imp_qle.
     apply qeq_imp_qeqT.
     unfold lp_a.
@@ -1536,8 +1567,8 @@ Proof.
     reflexivity.
 Qed.
 
-(* ============ 3. 奇指标桥界（sharp 1/(2·(2m+1)+3) == 1/(4m+5)） ============ *)
-(* S_{2m+1}(1) == lp_odd m（odd 桥）；|S − lp_odd(2m+1)| == lp_odd(2m+1) − lp_odd m *)
+(* ============ 3. odd-index bridge bound (sharp 1/(2·(2m+1)+3) == 1/(4m+5)) ============ *)
+(* S_{2m+1}(1) == lp_odd m (the odd bridge); |S − lp_odd(2m+1)| == lp_odd(2m+1) − lp_odd m *)
 Lemma a3_odd_bound : forall m : nat,
   QleT' (Qabs (arctan_partial (2 * m + 1) 1 - lp_odd (2 * m + 1)))
       (1 / (Z.of_nat (2 * (2 * m + 1) + 3) # 1)).
@@ -1550,14 +1581,14 @@ Proof.
     + (* |a − b| == |b − a| ⟹ ≤ *)
       apply QleT'_to_Qle. apply qeq_imp_qle.
       apply (sc_lp_abs_sym (lp_odd m) (lp_odd (2 * m + 1))).
-    + (* |lp_odd(2m+1) − lp_odd m| == lp_odd(2m+1) − lp_odd m（单调 m ≤ 2m+1） ≤ 尾界 *)
+    + (* |lp_odd(2m+1) − lp_odd m| == lp_odd(2m+1) − lp_odd m (monotone, m ≤ 2m+1), then ≤ the tail bound *)
       assert (Hmo : Qle (lp_odd m) (lp_odd (2 * m + 1)))
         by (apply QleT'_to_Qle; apply sc_lp_odd_chain; lia).
       assert (Hpos : Qle 0 (lp_odd (2 * m + 1) - lp_odd m)).
       { apply (proj1 (Qle_minus_iff (lp_odd m) (lp_odd (2 * m + 1)))). exact Hmo. }
       rewrite (Qabs_pos (lp_odd (2 * m + 1) - lp_odd m) Hpos).
       apply QleT'_to_Qle. apply sc_lp_odd_diff_bound. lia.
-  - (* lp_a(2m+2) == 1/(Z.of_nat (2·(2m+1)+3)#1)（2·(2m+2)+1 == 2·(2m+1)+3） *)
+  - (* [lp_a(2m+2) == 1/(Z.of_nat (2·(2m+1)+3)#1)] (2·(2m+2)+1 == 2·(2m+1)+3) *)
     apply QleT'_to_Qle. apply qeq_imp_qle.
     apply qeq_imp_qeqT.
     unfold lp_a.
@@ -1565,7 +1596,7 @@ Proof.
     reflexivity.
 Qed.
 
-(* ============ 4. 统一（对角）界：|S_n(1) − lp_odd n| ≤ 1/(2n+3) ============ *)
+(* ============ 4. unified (diagonal) bound: |S_n(1) − lp_odd n| ≤ 1/(2n+3) ============ *)
 Lemma a3_ptw_bound : forall n : nat,
   QleT' (Qabs (arctan_partial n 1 - lp_odd n)) (1 / (Z.of_nat (2 * n + 3) # 1)).
 Proof.
@@ -1575,7 +1606,7 @@ Proof.
   - exact (QleT'_to_Qle _ _ (a3_odd_bound m)).
 Qed.
 
-(* ============ 5. 对角差恒等：|projT1 (4·θ) n − projT1 π_L n| == lp_four·|S_n − lp_odd n| ============ *)
+(* ============ 5. diagonal difference identity: |projT1 (4·θ) n − projT1 π_L n| == lp_four·|S_n − lp_odd n| ============ *)
 Lemma a3_diag_abs : forall n : nat,
   QeqT (Qabs (projT1 (real_mult (real_const 4) arctan_one_real) n - projT1 cauchy_real_pi_leibniz n)) (lp_four * Qabs (arctan_partial n 1 - lp_odd n)).
 Proof.
@@ -1584,7 +1615,7 @@ Proof.
   rewrite ((qeqT_imp_qeq _ _ (real_const_proj 4 n))).
   rewrite (qeqT_imp_qeq _ _ (arctan_one_proj n)).
   rewrite (qeqT_imp_qeq _ _ (real_pi_leibniz_proj n)).
-  (* 4 → lp_four（常数桥） *)
+  (* 4 → lp_four (constant bridge) *)
   setoid_rewrite (qeqT_imp_qeq _ _ a3_four_eq_lp).
   (* |lp_four·S − lp_four·lp| == |lp_four·(S − lp)| == lp_four·|S − lp| *)
   apply (Qeq_trans _ (Qabs (lp_four * (arctan_partial n 1 - lp_odd n))) _).
@@ -1596,10 +1627,10 @@ Proof.
     rewrite Hlp. reflexivity.
 Qed.
 
-(* ============ 6. 主定理 H4（A3/B3-3 值桥，闭式，零假设） ============ *)
-(* real_eq 对角 eps：∀eps ∃N ∀n ≥ N：|projT1 (4·θ) n − projT1 π_L n| < eps
-   链：|u n − v n| == lp_four·|S_n − lp_odd n| ≤ lp_four·(1/(2n+3))
-       ≤ lp_four·(1/(N+2)) < eps（N 由 q_arch_inv (eps/lp_four) 给出） *)
+(* ============ 6. main statement H4 (the A3/B3-3 value bridge, closed form, zero assumptions) ============ *)
+(* [real_eq] diagonal eps: ∀eps ∃N ∀n ≥ N, |projT1 (4·θ) n − projT1 π_L n| < eps
+   chain: |u n − v n| == lp_four·|S_n − lp_odd n| ≤ lp_four·(1/(2n+3))
+       ≤ lp_four·(1/(N+2)) < eps (N given by [q_arch_inv (eps/lp_four)]) *)
 Lemma a3_h4_value_bridge :
   real_eq (real_mult (real_const 4) arctan_one_real) cauchy_real_pi_leibniz.
 Proof.
@@ -1622,23 +1653,25 @@ Proof.
                            (1 / (Z.of_nat (2 * n + 3) # 1)) lp_four).
       * exact (QleT'_to_Qle _ _ (a3_ptw_bound n)).
       * exact (QleT'_to_Qle _ _ sc_lp_four_nonneg).
-    + (* lp_four·(1/(2n+3)) ≤ lp_four·(1/(N+2))（n ≥ N ⟹ 2n+3 ≥ N+2） *)
+    + (* lp_four·(1/(2n+3)) ≤ lp_four·(1/(N+2)) (n ≥ N ⟹ 2n+3 ≥ N+2) *)
       apply QleT'_to_Qle. apply (sc_qmult_le_l (1 / (Z.of_nat (2 * n + 3) # 1))
                            (1 / (Z.of_nat (N + 2) # 1)) lp_four).
       * apply QleT'_to_Qle. apply (atan_inv_chain N n). apply NatLe_drop in Hn. lia.
       * exact (QleT'_to_Qle _ _ sc_lp_four_nonneg).
-  - (* lp_four·(1/(N+2)) < eps（HN : 1/(N+2) < eps/lp_four） *)
+  - (* lp_four·(1/(N+2)) < eps (HN : 1/(N+2) < eps/lp_four) *)
     apply QltT_to_Qlt. apply (sc_lp_four_arch_lt eps N).
     + apply (QltT_to_Qlt 0 eps Heps).
     + apply QltT_to_Qlt. exact HN.
 Qed.
 
-(* ============ 7. 可选加分：H4（本件闭证）+ Section 变量 Hsc ⟹ F1 ============ *)
-(* F1（real_pi_geom == π_L）本体等 N9b 批的 Hsc；Hsc 作 Section 变量不实例化。
-   n10_closure_f1（主库 L67256）已备好同一 glue：此处仅把 H4 从假设换成真证。 *)
+(* ============ 7. optional add-on: H4 (proved in this file) + the Section variable Hsc ⟹ F1 ============ *)
+(* the statement F1 ([real_pi_geom == π_L]) reduces to the same Hsc as in the N9b segment;
+   Hsc is kept as a Section variable and left uninstantiated.
+   [n10_closure_f1] (main-library baseline L67256) already provides the same glue: this
+   spot only replaces the assumption H4 by a proved statement. *)
 Section A3HscToF1.
 
-  (* 唯一解析输入（N9b 核，留给其批）：sin(arctan(1)) == cos(arctan(1)) *)
+  (* the only analytic input (the N9b core, left to its own segment): sin(arctan(1)) == cos(arctan(1)) *)
   Hypothesis HscA3 : real_eq (cauchy_real_sin arctan_one_real) (cauchy_real_cos arctan_one_real).
 
   Lemma a3_section_f1 : real_eq real_pi_geom cauchy_real_pi_leibniz.
@@ -1653,7 +1686,7 @@ Section A3HscToF1.
 
 End A3HscToF1.
 
-(* 闭包形态（H4 已闭证 ⟹ 只剩 Hsc 一个输入；N9b 批实例化即完结） *)
+(* closed form (H4 already proved ⟹ only the single input Hsc remains; instantiating it in the N9b segment completes the chain) *)
 Lemma a3_closure_f1 :
   (real_eq (cauchy_real_sin arctan_one_real) (cauchy_real_cos arctan_one_real)) ->
   real_eq real_pi_geom cauchy_real_pi_leibniz.
@@ -1669,14 +1702,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* T-π3 Hsc Phase A 并入（迭代 207）：B1+B2 sin/cos 可微          *)
-(* 来源：sc2_f1_sincos（19+15 Qed）；零公理面。                    *)
+(* T-π3 Hsc Phase A: B1+B2 differentiability of sin/cos          *)
+(* source: sc2_f1_sincos (19 + 15 [Qed]); axiom-free face.       *)
 (* ============================================================ *)
 
 Open Scope Q_scope.
 
-(* ---- Qeq setoid 形态注册（根文件在 L8372-8375 手动注册、不随模块导出；
-       沙箱内补注册，恢复上下文内 Qeq 重写） ---- *)
+(* ---- registration of the [Qeq] setoid forms (the root file registers them manually
+       at L8372-8375 and the registration does not travel with the module; they are
+       re-registered here to restore [Qeq] rewriting in context) ---- *)
 #[global] Instance Qeq_rewrite_rel : RewriteRelation Qeq := {}.
 
 #[global] Instance Qplus_morph : Proper (Qeq ==> Qeq ==> Qeq) Qplus.
@@ -1691,15 +1725,15 @@ Proof. intros x y Hxy z w Hzw. exact (Qminus_comp x y Hxy z w Hzw). Qed.
 #[global] Instance Qmult_morph : Proper (Qeq ==> Qeq ==> Qeq) Qmult.
 Proof. intros x y Hxy z w Hzw. exact (Qmult_comp x y Hxy z w Hzw). Qed.
 
-(* ============ 批 B1 第 1 部分：Q 层闭式线性化界 ============ *)
-(* 原料（205 实测行号）：sc_sin_partial_upper_x L57150、        *)
-(*   sc_sin_partial_lower_c1 L57162（x−x³/6 ≤ sin ≤ x）、       *)
-(*   sc_cos_partial_upper_one L57184、sc_cos_partial_lower_c1   *)
-(*   L57196（1−x²/2 ≤ cos ≤ 1）、sc_sin_alt1_cube L57558、      *)
-(*   sc_cos_alt1_half L57877、sc_sin_partial_neg L55563、       *)
-(*   sc_cos_partial_neg L55571。全部按名 Require。              *)
+(* ============ B1 part 1: closed-form linearization bounds on the [Q] layer ============ *)
+(* source statements (main-library baselines): [sc_sin_partial_upper_x] L57150,          *)
+(*   [sc_sin_partial_lower_c1] L57162 (x−x³/6 ≤ sin ≤ x),                                *)
+(*   [sc_cos_partial_upper_one] L57184, [sc_cos_partial_lower_c1] L57196                 *)
+(*   (1−x²/2 ≤ cos ≤ 1), [sc_sin_alt1_cube] L57558,                                      *)
+(*   [sc_cos_alt1_half] L57877, [sc_sin_partial_neg] L55563,                             *)
+(*   [sc_cos_partial_neg] L55571; all consumed by name via [Require].                    *)
 
-(* ---- 整式奇偶桥：sin_partial n (−t) − (−t) == −(sin_partial n t − t) ---- *)
+(* ---- whole-expression parity bridge: [sin_partial n (−t) − (−t) == −(sin_partial n t − t)] ---- *)
 Lemma sc_sin_lin_odd : forall (n : nat) (t : Q),
   QeqT (sin_partial n (- t) - (- t)) (- (sin_partial n t - t)).
 Proof.
@@ -1708,7 +1742,7 @@ Proof.
   ring.
 Qed.
 
-(* ---- 整式偶性桥：cos_partial n (−t) − 1 == cos_partial n t − 1 ---- *)
+(* ---- whole-expression parity bridge: [cos_partial n (−t) − 1 == cos_partial n t − 1] ---- *)
 Lemma sc_cos_lin_even : forall (n : nat) (t : Q),
   QeqT (cos_partial n (- t) - 1) (cos_partial n t - 1).
 Proof.
@@ -1717,7 +1751,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* ---- sin：0 ≤ x ≤ 1 ⟹ |sin_partial n x − x| ≤ x³/6 ---- *)
+(* ---- sin: 0 ≤ x ≤ 1 ⟹ |sin_partial n x − x| ≤ x³/6 ---- *)
 Lemma sc_sin_cube_bound_pos : forall (n : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
   QleT' (Qabs (sin_partial n x - x)) (q_pow x 3 / 6).
@@ -1727,7 +1761,7 @@ Proof.
   { apply QleT'_to_Qle. apply sc_sin_partial_upper_x. exact Hx0. exact Hx1. }
   assert (Hl : Qle (x - sc_sin_alt 1 x) (sin_partial n x)).
   { apply QleT'_to_Qle. apply sc_sin_partial_lower_c1. exact Hx0. exact Hx1. }
-  (* x − sin_partial ≤ sc_sin_alt 1 x（由 Hl 移项） *)
+  (* [x − sin_partial ≤ sc_sin_alt 1 x] (rearranged from Hl) *)
   assert (Hsub : Qle (x - sin_partial n x) (sc_sin_alt 1 x)).
   { apply (proj2 (Qle_minus_iff (x - sin_partial n x) (sc_sin_alt 1 x))).
     assert (Heq : sc_sin_alt 1 x - (x - sin_partial n x) ==
@@ -1735,7 +1769,7 @@ Proof.
     rewrite Heq.
     apply (proj1 (Qle_minus_iff (x - sc_sin_alt 1 x) (sin_partial n x))).
     exact Hl. }
-  (* 0 ≤ x − sin_partial（由 Hu） *)
+  (* [0 ≤ x − sin_partial] (from Hu) *)
   assert (Hnonneg : Qle 0 (x - sin_partial n x)).
   { apply (proj1 (Qle_minus_iff (sin_partial n x) x)). exact Hu. }
   apply (Qle_trans _ (x - sin_partial n x) _).
@@ -1752,14 +1786,14 @@ Proof.
     + rewrite (qeqT_imp_qeq _ _ (sc_sin_alt1_cube x)). apply Qle_refl.
 Qed.
 
-(* ---- sin：|x| ≤ 1 ⟹ |sin_partial n x − x| ≤ |x|³/6（奇偶桥归约） ---- *)
+(* ---- sin: |x| ≤ 1 ⟹ [|sin_partial n x − x| ≤ |x|³/6] (reduction via the parity bridge) ---- *)
 Lemma sc_sin_cube_bound : forall (n : nat) (x : Q),
   Qle (Qabs x) 1 ->
   QleT' (Qabs (sin_partial n x - x)) (q_pow (Qabs x) 3 / 6).
 Proof.
   intros n x Hxabs. apply Qle_to_QleT'.
   destruct (Qlt_le_dec x 0) as [Hxneg | Hxnn].
-  - (* x < 0：整式奇偶桥到 −x ≥ 0，再桥 q_pow 底 *)
+  - (* x < 0: the whole-expression parity bridge moves to −x ≥ 0, then the [q_pow] base is bridged *)
     assert (Habsx : Qabs x == - x).
     { apply Qabs_neg. apply (Qlt_le_weak x 0). exact Hxneg. }
     assert (Ht0 : Qle 0 (- x)).
@@ -1773,7 +1807,7 @@ Proof.
       - exact Hxabs. }
     assert (Hpos : Qle (Qabs (sin_partial n (- x) - (- x))) (q_pow (- x) 3 / 6)).
     { apply QleT'_to_Qle. apply (sc_sin_cube_bound_pos n (- x) Ht0 Ht1). }
-    (* 目标：|f(x)| ≤ q_pow (Qabs x) 3/6 *)
+    (* goal: |f(x)| ≤ [q_pow (Qabs x) 3/6] *)
     assert (Hbr : Qabs (sin_partial n x - x) ==
                   Qabs (sin_partial n (- x) - (- x))).
     { apply Qeq_sym.
@@ -1788,7 +1822,7 @@ Proof.
       * exact Hpos.
       * rewrite (qeqT_imp_qeq _ _ (q_pow_wd (- x) (Qabs x) 3 (qeq_imp_qeqT _ _ (Qeq_sym (Qabs x) (- x) Habsx)))).
         apply Qle_refl.
-  - (* x ≥ 0：Qabs x == x *)
+  - (* x ≥ 0: Qabs x == x *)
     assert (Habsx : Qabs x == x).
     { apply Qabs_pos. exact Hxnn. }
     assert (Hx1 : Qle x 1) by (rewrite <- Habsx; exact Hxabs).
@@ -1796,7 +1830,7 @@ Proof.
     apply QleT'_to_Qle. apply (sc_sin_cube_bound_pos n x Hxnn Hx1).
 Qed.
 
-(* ---- cos：0 ≤ x ≤ 1 ⟹ |cos_partial n x − 1| ≤ x²/2 ---- *)
+(* ---- cos: 0 ≤ x ≤ 1 ⟹ |cos_partial n x − 1| ≤ x²/2 ---- *)
 Lemma sc_cos_sq_bound_pos : forall (n : nat) (x : Q),
   Qle 0 x -> Qle x 1 ->
   QleT' (Qabs (cos_partial n x - 1)) (q_pow x 2 / 2).
@@ -1831,14 +1865,14 @@ Proof.
     + rewrite (qeqT_imp_qeq _ _ (sc_cos_alt1_half x)). apply Qle_refl.
 Qed.
 
-(* ---- cos：|x| ≤ 1 ⟹ |cos_partial n x − 1| ≤ |x|²/2（偶性桥归约） ---- *)
+(* ---- cos: |x| ≤ 1 ⟹ [|cos_partial n x − 1| ≤ |x|²/2] (reduction via the parity bridge) ---- *)
 Lemma sc_cos_sq_bound : forall (n : nat) (x : Q),
   Qle (Qabs x) 1 ->
   QleT' (Qabs (cos_partial n x - 1)) (q_pow (Qabs x) 2 / 2).
 Proof.
   intros n x Hxabs. apply Qle_to_QleT'.
   destruct (Qlt_le_dec x 0) as [Hxneg | Hxnn].
-  - (* x < 0：整式偶性桥到 −x ≥ 0 *)
+  - (* x < 0: the whole-expression parity bridge moves to −x ≥ 0 *)
     assert (Habsx : Qabs x == - x).
     { apply Qabs_neg. apply (Qlt_le_weak x 0). exact Hxneg. }
     assert (Ht0 : Qle 0 (- x)).
@@ -1863,7 +1897,7 @@ Proof.
       * exact Hpos.
       * rewrite (qeqT_imp_qeq _ _ (q_pow_wd (- x) (Qabs x) 2 (qeq_imp_qeqT _ _ (Qeq_sym (Qabs x) (- x) Habsx)))).
         apply Qle_refl.
-  - (* x ≥ 0：Qabs x == x *)
+  - (* x ≥ 0: Qabs x == x *)
     assert (Habsx : Qabs x == x).
     { apply Qabs_pos. exact Hxnn. }
     assert (Hx1 : Qle x 1) by (rewrite <- Habsx; exact Hxabs).
@@ -1871,9 +1905,9 @@ Proof.
     apply QleT'_to_Qle. apply (sc_cos_sq_bound_pos n x Hxnn Hx1).
 Qed.
 
-(* ============ 批 B1 第 2 部分：Q 层粗化与点值吸收链 ============ *)
+(* ============ B1 part 2: coarsening and point-value absorption chains on the [Q] layer ============ *)
 
-(* 左乘子单调：0 ≤ a、b ≤ c ⟹ a·b ≤ a·c（Stdlib 只给右乘子版） *)
+(* left-multiplier monotonicity: 0 ≤ a, b ≤ c ⟹ a·b ≤ a·c (Stdlib only provides the right-multiplier version) *)
 Lemma sc_qmult_le_l_f1 : forall (a b c : Q),
   Qle 0 a -> Qle b c -> QleT' (Qmult a b) (Qmult a c).
 Proof.
@@ -1885,7 +1919,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 粗化：x ≥ 0 ⟹ x³/6 ≤ x³ *)
+(* coarsening: x ≥ 0 ⟹ x³/6 ≤ x³ *)
 Lemma sc_qpow3_div6_le : forall x : Q, Qle 0 x ->
   QleT' (q_pow x 3 / 6) (q_pow x 3).
 Proof.
@@ -1898,7 +1932,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 粗化：x ≥ 0 ⟹ x²/2 ≤ x² *)
+(* coarsening: x ≥ 0 ⟹ x²/2 ≤ x² *)
 Lemma sc_qpow2_div2_le : forall x : Q, Qle 0 x ->
   QleT' (q_pow x 2 / 2) (q_pow x 2).
 Proof.
@@ -1911,7 +1945,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* |x| ≤ 1 ⟹ |sin_partial n x − x| ≤ |x|³（C = 1 粗版） *)
+(* |x| ≤ 1 ⟹ |sin_partial n x − x| ≤ |x|³ (coarse version with C = 1) *)
 Lemma sc_sin_cube_bound_c1 : forall (n : nat) (x : Q),
   Qle (Qabs x) 1 ->
   QleT' (Qabs (sin_partial n x - x)) (q_pow (Qabs x) 3).
@@ -1922,7 +1956,7 @@ Proof.
   - apply QleT'_to_Qle. apply (sc_qpow3_div6_le (Qabs x)). apply Qabs_nonneg.
 Qed.
 
-(* |x| ≤ 1 ⟹ |cos_partial n x − 1| ≤ |x|²（C = 1 粗版） *)
+(* |x| ≤ 1 ⟹ |cos_partial n x − 1| ≤ |x|² (coarse version with C = 1) *)
 Lemma sc_cos_sq_bound_c1 : forall (n : nat) (x : Q),
   Qle (Qabs x) 1 ->
   QleT' (Qabs (cos_partial n x - 1)) (q_pow (Qabs x) 2).
@@ -1933,7 +1967,7 @@ Proof.
   - apply QleT'_to_Qle. apply (sc_qpow2_div2_le (Qabs x)). apply Qabs_nonneg.
 Qed.
 
-(* q_pow 底形式 *)
+(* [q_pow] base forms *)
 Lemma sc_qpow3_form : forall x : Q, QeqT (q_pow x 3) (x * x * x).
 Proof. intro x.  apply qeq_imp_qeqT. cbn [q_pow]. ring. Qed.
 
@@ -1969,7 +2003,7 @@ Proof.
   apply QleT'_to_Qle. apply (sc_qmult_le_l_f1 x x a Hx0). exact Hxa.
 Qed.
 
-(* 点值主链 sin：x ≥ 0、x ≤ 1/2、x ≤ en/2、en ≥ 0 ⟹ x³ ≤ en·x *)
+(* pointwise main chain for sin: x ≥ 0, x ≤ 1/2, x ≤ en/2, en ≥ 0 ⟹ x³ ≤ en·x *)
 Lemma sc_sin_main_le : forall (x en : Q),
   Qle 0 x -> Qle x (Qinv 2) -> Qle x (Qmult en (Qinv 2)) -> Qle 0 en ->
   QleT' (q_pow x 3) (Qmult en x).
@@ -1986,7 +2020,7 @@ Proof.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 点值主链 cos：x ≥ 0、x ≤ en/2、en ≥ 0 ⟹ x² ≤ en·x *)
+(* pointwise main chain for cos: x ≥ 0, x ≤ en/2, en ≥ 0 ⟹ x² ≤ en·x *)
 Lemma sc_cos_main_le : forall (x en : Q),
   Qle 0 x -> Qle x (Qmult en (Qinv 2)) -> Qle 0 en ->
   QleT' (q_pow x 2) (Qmult en x).
@@ -2003,14 +2037,16 @@ Proof.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ============ 批 B1 第 3 部分：Real 层 sin/cos 在 0 的逐 eps 线性化 ============ *)
-(* 语句同构 exp_minus_one_linear（L47823，205 实测）。设计 §2-D1 的 B1 产物：
-   "|sin h − h| ≤ C|h|³、|cos h − 1| ≤ C|h|²（|h| ≤ 1）" 的 Real 层逐 eps 形态
-   （real_le 闭式非严格形式受库 real_le := Or real_lt real_eq 定义限制不可构造，
-   见根文件 L13513 注释；逐 eps 形态为库 idiom，且为 B2 直接所需）。
-   C 常数信息保留在 Q 层：sc_sin_cube_bound（C=1/6）、sc_cos_sq_bound（C=1/2）。 *)
+(* ============ B1 part 3: per-eps linearization of sin/cos at 0 on the [Real] layer ============ *)
+(* the statement is isomorphic to [exp_minus_one_linear] (root file L47823). The B1 product of
+   design §2-D1: the per-eps [Real]-layer form of "|sin h − h| ≤ C|h|³, |cos h − 1| ≤ C|h|²
+   (|h| ≤ 1)" (a closed non-strict [real_le] form is not constructible under the library
+   definition [real_le := Or real_lt real_eq], see the root-file note at L13513; the per-eps
+   form is the library idiom and is needed directly by B2).
+   the constant information C stays on the [Q] layer: [sc_sin_cube_bound] (C=1/6),
+   [sc_cos_sq_bound] (C=1/2). *)
 
-(* ---- |sin h − h| ≤ eps·|h| + eps'（|h| < delta；delta := min(1/2, eps/2)） ---- *)
+(* ---- |sin h − h| ≤ eps·|h| + eps' (|h| < delta; delta := min(1/2, eps/2)) ---- *)
 Lemma real_sin_zero_linear_bound : forall (eps : Real), real_lt real_zero eps ->
   sigT (fun delta : Real =>
     And (real_lt real_zero delta)
@@ -2036,7 +2072,7 @@ Proof.
       by (unfold delta in Hh; apply (real_min_lt_l h two_inv (real_mult eps two_inv)); exact Hh).
     assert (Hh_eps2 : real_lt (real_abs h) (real_mult eps two_inv))
       by (unfold delta in Hh; apply (real_min_lt_r h two_inv (real_mult eps two_inv)); exact Hh).
-    (* real_le 左分支：real_lt 构造（见证 eps1'） *)
+    (* left branch of [real_le]: a [real_lt] construction (witnessed by eps1') *)
     left.
     destruct Heps as [eps1 [Heps1 [N1 HN1]]].
     destruct Heps' as [eps1' [Heps1' [N1' HN1']]].
@@ -2050,7 +2086,7 @@ Proof.
       intros n Hn.
       apply NatLe_drop in Hn.
       set (en := projT1 eps n). set (en' := projT1 eps' n). set (hn := projT1 h n).
-      (* 逐点展开 A、B *)
+      (* pointwise expansion of A and B *)
       assert (HA : projT1 (real_abs (real_plus (cauchy_real_sin h) (real_opp h))) n ==
                     Qabs (sin_partial n hn - hn)).
       { unfold hn.
@@ -2066,7 +2102,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [projT1]. ring. }
-      (* 逐点界 1：|hn| < 1/2 *)
+      (* pointwise bound 1: |hn| < 1/2 *)
       assert (Hn2 : (N2 <= n)%nat) by lia.
       assert (Hni : (Ni <= n)%nat) by lia.
       assert (Hn3 : (N3 <= n)%nat) by lia.
@@ -2093,7 +2129,7 @@ Proof.
             * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
             * apply (Qplus_le_compat (Qminus (Qinv 2) eps2) (Qminus (Qinv 2) eps2) 0 eps2 (Qle_refl _) Heps2q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 逐点界 2：|hn| < en/2 *)
+      (* pointwise bound 2: |hn| < en/2 *)
       assert (HN3q : Qlt eps3 (Qminus (Qmult en (Qinv 2)) (Qabs hn))).
       { apply (Qlt_le_trans eps3 (Qminus (projT1 (real_mult eps two_inv) n) (projT1 (real_abs h) n))
                                 (Qminus (Qmult en (Qinv 2)) (Qabs hn))).
@@ -2122,7 +2158,7 @@ Proof.
             * apply (Qplus_le_compat (Qminus (Qmult en (Qinv 2)) eps3)
                                      (Qminus (Qmult en (Qinv 2)) eps3) 0 eps3 (Qle_refl _) Heps3q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 主链：A_n ≤ en·|hn|（立方界 + 吸收） *)
+      (* main chain: A_n ≤ en·|hn| (cubic bound + absorption) *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -2179,7 +2215,7 @@ Proof.
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. exact Hrepl. }
 Qed.
 
-(* ---- |cos h − 1| ≤ eps·|h| + eps'（|h| < delta；delta := min(1/2, eps/2)） ---- *)
+(* ---- |cos h − 1| ≤ eps·|h| + eps' (|h| < delta; delta := min(1/2, eps/2)) ---- *)
 Lemma real_cos_zero_linear_bound : forall (eps : Real), real_lt real_zero eps ->
   sigT (fun delta : Real =>
     And (real_lt real_zero delta)
@@ -2218,7 +2254,7 @@ Proof.
       intros n Hn.
       apply NatLe_drop in Hn.
       set (en := projT1 eps n). set (en' := projT1 eps' n). set (hn := projT1 h n).
-      (* 逐点展开 A、B *)
+      (* pointwise expansion of A and B *)
       assert (HA : projT1 (real_abs (real_plus (cauchy_real_cos h) (real_opp real_one))) n ==
                     Qabs (cos_partial n hn - 1)).
       { unfold hn.
@@ -2234,7 +2270,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [projT1]. ring. }
-      (* 逐点界 1：|hn| < 1/2 *)
+      (* pointwise bound 1: |hn| < 1/2 *)
       assert (Hn2 : (N2 <= n)%nat) by lia.
       assert (Hni : (Ni <= n)%nat) by lia.
       assert (Hn3 : (N3 <= n)%nat) by lia.
@@ -2261,7 +2297,7 @@ Proof.
             * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
             * apply (Qplus_le_compat (Qminus (Qinv 2) eps2) (Qminus (Qinv 2) eps2) 0 eps2 (Qle_refl _) Heps2q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 逐点界 2：|hn| < en/2 *)
+      (* pointwise bound 2: |hn| < en/2 *)
       assert (HN3q : Qlt eps3 (Qminus (Qmult en (Qinv 2)) (Qabs hn))).
       { apply (Qlt_le_trans eps3 (Qminus (projT1 (real_mult eps two_inv) n) (projT1 (real_abs h) n))
                                 (Qminus (Qmult en (Qinv 2)) (Qabs hn))).
@@ -2290,7 +2326,7 @@ Proof.
             * apply (Qplus_le_compat (Qminus (Qmult en (Qinv 2)) eps3)
                                      (Qminus (Qmult en (Qinv 2)) eps3) 0 eps3 (Qle_refl _) Heps3q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 主链：A_n ≤ en·|hn|（平方界 + 吸收） *)
+      (* main chain: A_n ≤ en·|hn| (square bound + absorption) *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -2347,9 +2383,9 @@ Qed.
 
 Open Scope Q_scope.
 
-(* Qeq 形态实例随上游 sc2_f1_sincos_b1 的 Require 导入（#[global]）。 *)
+(* the [Qeq]-form instances arrive with the [Require] of the upstream sc2_f1_sincos_b1 (#[global]). *)
 
-(* ---- sin_partial / cos_partial 的 Qeq 全等（重写进参数所需） ---- *)
+(* ---- [Qeq] congruence of [sin_partial] / [cos_partial] (needed to rewrite into the arguments) ---- *)
 Lemma sc_sin_term_wd : forall (j : nat) (x y : Q), x == y -> QeqT (sin_term j x) (sin_term j y).
 Proof.
   intros j x y Hxy. apply qeq_imp_qeqT.
@@ -2400,9 +2436,9 @@ Proof. intros x y Hxy. apply (qeqT_imp_qeq _ _ (sc_sin_partial_wd n x y Hxy)). Q
 #[global] Instance sc_cos_partial_morph (n : nat) : Proper (Qeq ==> Qeq) (cos_partial n).
 Proof. intros x y Hxy. apply (qeqT_imp_qeq _ _ (sc_cos_partial_wd n x y Hxy)). Qed.
 
-(* ============ 批 B2 第 0 部分：Q 层共享点值链 ============ *)
+(* ============ B2 part 0: the shared point-value chain on the [Q] layer ============ *)
 
-(* |sn·An + cn·Bn| ≤ |sn||An| + |cn||Bn| 的三角+绝对值拆解 *)
+(* triangle + absolute-value decomposition of [|sn·An + cn·Bn| ≤ |sn||An| + |cn||Bn|] *)
 Lemma sc_pair_sum_abs_le : forall (sn cn An Bn : Q),
   QleT' (Qabs (Qplus (Qmult sn An) (Qmult cn Bn)))
       (Qplus (Qmult (Qabs sn) (Qabs An)) (Qmult (Qabs cn) (Qabs Bn))).
@@ -2418,7 +2454,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. rewrite (Qabs_Qmult cn Bn). reflexivity.
 Qed.
 
-(* |a+b+c| ≤ |a|+|b|+|c|（右结合形式） *)
+(* |a+b+c| ≤ |a|+|b|+|c| (right-associated form) *)
 Lemma sc_abs_plus3_le : forall (a b c : Q),
   QleT' (Qabs (Qplus a (Qplus b c))) (Qplus (Qabs a) (Qplus (Qabs b) (Qabs c))).
 Proof.
@@ -2432,7 +2468,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 乘积绝对值拆：|P| ≤ Ms、|A| ≤ X ⟹ |P·A| ≤ Ms·X *)
+(* product absolute-value split: |P| ≤ Ms, |A| ≤ X ⟹ |P·A| ≤ Ms·X *)
 Lemma sc_abs_prod_le : forall (P A Ms X : Q),
   Qle (Qabs P) Ms -> Qle (Qabs A) X ->
   QleT' (Qabs (Qmult P A)) (Qmult Ms X).
@@ -2446,7 +2482,7 @@ Proof.
     + exact HA.
 Qed.
 
-(* |h| ≤ en·k 且 |h| ≤ 1 ⟹ |h|² ≤ (en·k)·1 的引理参数化 *)
+(* parameterized lemma for |h| ≤ en·k and |h| ≤ 1 ⟹ |h|² ≤ (en·k)·1 *)
 Lemma sc_abs_sq_le_hk : forall (h en k : Q),
   Qle (Qabs h) (Qmult en k) -> Qle (Qabs h) 1 -> Qle 0 (Qmult en k) ->
   QleT' (q_pow (Qabs h) 2) (Qmult (Qmult en k) (Qabs h)).
@@ -2458,14 +2494,14 @@ Proof.
   - apply Qle_refl.
 Qed.
 
-(* |h| ≤ en·k 且 |h| ≤ 1 且 en·k ≥ 0 ⟹ |h|³ ≤ (en·k)·|h| *)
+(* |h| ≤ en·k, |h| ≤ 1 and en·k ≥ 0 ⟹ |h|³ ≤ (en·k)·|h| *)
 Lemma sc_abs_cube_le_hk : forall (h en k : Q),
   Qle (Qabs h) (Qmult en k) -> Qle (Qabs h) 1 -> Qle 0 (Qmult en k) ->
   QleT' (q_pow (Qabs h) 3) (Qmult (Qmult en k) (Qabs h)).
 Proof.
   intros h en k HhE Hh1 Hk0. apply Qle_to_QleT'.
   rewrite (qeqT_imp_qeq _ _ (sc_qpow3_form (Qabs h))).
-  (* |h|·(|h|·|h|)：|h|·|h| ≤ (en·k)·1，再乘 |h| *)
+  (* |h|·(|h|·|h|): |h|·|h| ≤ (en·k)·1, then multiply by |h| *)
   assert (Hs : Qle (Qmult (Qabs h) (Qabs h)) (Qmult (Qmult en k) 1)).
   { apply (Qle_trans (Qmult (Qabs h) (Qabs h)) (Qmult (Qmult en k) (Qabs h))
                      (Qmult (Qmult en k) 1)).
@@ -2479,7 +2515,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* Ms·(x·(en·k)) == (en·x)·(Ms·k) 组装目标（点值两项合计 ≤ (en·|h|)·(1#4)） *)
+(* assembly target [Ms·(x·(en·k)) == (en·x)·(Ms·k)] (the two pointwise terms together ≤ (en·|h|)·(1#4)) *)
 Lemma sc_pair_abs_le : forall (sn cn An Bn G en hn Ms Mc k : Q),
   Qle (Qabs sn) Ms -> Qle (Qabs cn) Mc ->
   Qle (Qabs An) (q_pow (Qabs hn) 2) ->
@@ -2494,7 +2530,7 @@ Proof.
   intros sn cn An Bn G en hn Ms Mc k
          Hsn Hcn HAn HBn HG Hh1 HhE Hen0 Hk0 HMsK HMcK.
   apply Qle_to_QleT'.
-  (* 三角拆解 *)
+  (* triangle decomposition *)
   apply (Qle_trans _ (Qplus (Qabs G) (Qabs (Qplus (Qmult sn An) (Qmult cn Bn)))) _).
   - exact (Qabs_triangle G (Qplus (Qmult sn An) (Qmult cn Bn))).
   - apply (Qle_trans _ (Qplus (Qabs G)
@@ -2502,7 +2538,7 @@ Proof.
     + apply Qplus_le_compat.
       * apply Qle_refl.
       * exact (QleT'_to_Qle _ _ (sc_pair_sum_abs_le sn cn An Bn)).
-    + (* 两项各自收进 en·|h| 预算：1/8 + 1/8 = 1/4 *)
+    + (* each term absorbed into the en·|h| budget: 1/8 + 1/8 = 1/4 *)
       apply (Qle_trans _ (Qplus (Qabs G)
                      (Qplus (Qmult (Qmult en (Qabs hn)) (1 # 8))
                             (Qmult (Qmult en (Qabs hn)) (1 # 8)))) _).
@@ -2548,13 +2584,14 @@ Proof.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ============ 批 B2 第 1 部分：Real 层 sin 可微 ============ *)
-(* 语句同构 real_exp_deriv_eq_self（根 L63005，205 实测），sin/cos 全域定义故          *)
-(* 无 x>0 前提（设计 §4-R3）。证明：rs_add_sin（根 L64560）分解 D = G + sin x·A +     *)
-(* cos x·B（A := cos h − 1、B := sin h − h），逐点 |P_n| ≤ M_s、|C_n| ≤ M_c 用       *)
-(* real_norm_bounded，δ := min(1, eps·(1/(8(M_s+M_c+1))))，real_lt 见证 eps1'/2。   *)
+(* ============ B2 part 1: differentiability of sin on the [Real] layer ============ *)
+(* the statement is isomorphic to [real_exp_deriv_eq_self] (root file L63005); sin/cos are    *)
+(* defined on the whole domain, so no x>0 premise is needed (design §4-R3). Proof:            *)
+(* [rs_add_sin] (root file L64560) decomposes D = G + sin x·A + cos x·B with A := cos h − 1,   *)
+(* B := sin h − h; the pointwise bounds |P_n| ≤ M_s and |C_n| ≤ M_c use [real_norm_bounded];   *)
+(* δ := min(1, eps·(1/(8(M_s+M_c+1)))); the [real_lt] witness is eps1'/2.                      *)
 
-(* 辅助：0 < c ⟹ 0 < real_const c *)
+(* auxiliary: 0 < c ⟹ 0 < [real_const c] *)
 Lemma real_const_pos_f1 : forall c : Q, Qlt 0 c -> real_lt real_zero (real_const c).
 Proof.
   intros c Hc.
@@ -2573,7 +2610,7 @@ Proof.
     apply QltT_to_Qlt. apply (q_half_lt c (Qlt_to_QltT _ _ Hc)).
 Qed.
 
-(* k 不等式：Ms·inv(8(Ms+Mc+1)) ≤ 1/8 *)
+(* k inequality: [Ms·inv(8(Ms+Mc+1)) ≤ 1/8] *)
 Lemma sc_k_ineq_s : forall (Ms Mc : Q), Qlt 0 Ms -> Qlt 0 Mc ->
   QleT' (Qmult Ms (Qinv (8 * (Ms + Mc + 1)))) (1 # 8).
 Proof.
@@ -2629,7 +2666,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. field.
 Qed.
 
-(* k 不等式：Mc·inv(8(Ms+Mc+1)) ≤ 1/8（对称） *)
+(* k inequality: [Mc·inv(8(Ms+Mc+1)) ≤ 1/8] (symmetric) *)
 Lemma sc_k_ineq_c : forall (Ms Mc : Q), Qlt 0 Ms -> Qlt 0 Mc ->
   QleT' (Qmult Mc (Qinv (8 * (Ms + Mc + 1)))) (1 # 8).
 Proof.
@@ -2684,7 +2721,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. unfold Qdiv. field.
 Qed.
 
-(* ---- 主定理：sin 可微（Bishop 显式，导数 = cos x） ---- *)
+(* ---- main statement: sin is differentiable (Bishop-explicit, derivative = cos x) ---- *)
 Lemma real_sin_deriv_linear : forall (x : Real), forall (eps : Real),
   real_lt real_zero eps ->
   sigT (fun delta : Real =>
@@ -2743,7 +2780,7 @@ Proof.
       by (unfold delta in Hh; unfold rk in Hh; apply (real_min_lt_l h (real_const 1) (real_mult eps (real_const k))); exact Hh).
     assert (Hh_k : real_lt (real_abs h) (real_mult eps rk))
       by (unfold delta in Hh; unfold rk in Hh; apply (real_min_lt_r h (real_const 1) (real_mult eps (real_const k))); exact Hh).
-    (* real_le 左分支：见证 eps1'/2 *)
+    (* left branch of [real_le]: witnessed by eps1'/2 *)
     left.
     destruct Heps as [eps1 [Heps1 [N1 HN1]]].
     destruct Heps' as [eps1' [Heps1' [N1' HN1']]].
@@ -2756,7 +2793,7 @@ Proof.
       apply (Qmult_lt_0_compat eps1' (Qinv 2)).
       - apply QltT_to_Qlt. exact Heps1'.
       - apply Qinv_lt_0_compat. unfold Qlt. simpl. lia. }
-    (* rs_add_sin 逐点误差 |G_n| < eps1'/2 *)
+    (* pointwise error of [rs_add_sin]: |G_n| < eps1'/2 *)
     assert (HepsG_pos : QltT 0 (Qmult eps1' (Qinv 2))).
     { apply Qlt_to_QltT.
       apply (Qmult_lt_0_compat eps1' (Qinv 2)).
@@ -2778,7 +2815,7 @@ Proof.
       set (R := projT1 (real_plus (real_mult (cauchy_real_sin x) (cauchy_real_cos h))
                                   (real_mult (cauchy_real_cos x) (cauchy_real_sin h))) n).
       set (G := L - R).
-      (* 逐点主分解恒等式：D_n == G + sn·An + cn·Bn *)
+      (* pointwise main decomposition identity: [D_n == G + sn·An + cn·Bn] *)
       assert (Hrepl : projT1 (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                   (real_opp (real_plus (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h))))) n ==
                       Qabs (Qplus G (Qplus (Qmult sn An) (Qmult cn Bn)))).
@@ -2790,7 +2827,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_opp_proj (real_plus (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h)) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_cos x) h n))).
-        (* rs_add_sin 右侧 R 的 plus 与两个乘积的外层投影 *)
+        (* outer projections of the plus in the right side R of [rs_add_sin] and of the two products *)
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (real_mult (cauchy_real_sin x) (cauchy_real_cos h))
                                        (real_mult (cauchy_real_cos x) (cauchy_real_sin h)) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_sin x) (cauchy_real_cos h) n))).
@@ -2812,7 +2849,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [projT1]. ring. }
-      (* 逐点界 1：|hn| ≤ 1（Hh_one 见证） *)
+      (* pointwise bound 1: |hn| ≤ 1 (witnessed by Hh_one) *)
       assert (Hn1 : (N1 <= n)%nat) by lia.
       assert (Hn1' : (N1' <= n)%nat) by lia.
       assert (Hn2 : (N2 <= n)%nat) by lia.
@@ -2837,7 +2874,7 @@ Proof.
             * apply (Qplus_le_compat (Qminus 1 eps2) (Qminus 1 eps2) 0 eps2 (Qle_refl _) Heps2q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
       assert (Hhn_le1 : Qle (Qabs hn) 1) by (apply Qlt_le_weak; exact Hhn_one).
-      (* 逐点界 2：|hn| ≤ en·k（Hh_k 见证 + rk 投影） *)
+      (* pointwise bound 2: |hn| ≤ en·k (witnessed by Hh_k plus the rk projection) *)
       assert (HN3q : Qlt eps3 (Qminus (Qmult en k) (Qabs hn))).
       { apply (Qlt_le_trans eps3 (Qminus (projT1 (real_mult eps rk) n) (projT1 (real_abs h) n))
                                 (Qminus (Qmult en k) (Qabs hn))).
@@ -2865,7 +2902,7 @@ Proof.
                                      (Qminus (Qmult en k) eps3) 0 eps3 (Qle_refl _) Heps3q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
       assert (Hhn_leE : Qle (Qabs hn) (Qmult en k)) by (apply Qlt_le_weak; exact Hhn_k).
-      (* 正性：en > 0、en' > eps1' *)
+      (* positivity: en > 0 and en' > eps1' *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -2885,7 +2922,7 @@ Proof.
       { unfold G.
         apply QltT_to_Qlt.
         apply (HG n (NatLe_lift _ _ HnG)). }
-      (* |sn| ≤ Ms、|cn| ≤ Mc（全 n） *)
+      (* |sn| ≤ Ms and |cn| ≤ Mc (for all n) *)
       assert (Hsn_le : Qle (Qabs sn) Ms).
       { unfold sn.
         apply (Qle_trans (Qabs (sin_partial n (projT1 x n)))
@@ -2902,14 +2939,14 @@ Proof.
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_wd. apply Qeq_sym. exact (qeqT_imp_qeq _ _ (real_cos_proj x n)).
         - apply (QleT'_to_Qle (Qabs (projT1 (cauchy_real_cos x) n)) Mc).
           exact (HMc n). }
-      (* |An| ≤ |hn|²、|Bn| ≤ |hn|³ *)
+      (* |An| ≤ |hn|² and |Bn| ≤ |hn|³ *)
       assert (HAn_le : Qle (Qabs An) (q_pow (Qabs hn) 2)).
       { unfold An.
         apply QleT'_to_Qle. apply (sc_cos_sq_bound_c1 n hn Hhn_le1). }
       assert (HBn_le : Qle (Qabs Bn) (q_pow (Qabs hn) 3)).
       { unfold Bn.
         apply QleT'_to_Qle. apply (sc_sin_cube_bound_c1 n hn Hhn_le1). }
-      (* 主点值界：|D_n| ≤ |G_n| + (en·|hn|)/4 *)
+      (* main pointwise bound: |D_n| ≤ |G_n| + (en·|hn|)/4 *)
       assert (Hmain : Qle (Qabs (Qplus G (Qplus (Qmult sn An) (Qmult cn Bn))))
                           (Qplus (Qabs G) (Qmult (Qmult en (Qabs hn)) (1 # 4)))).
       { apply QleT'_to_Qle. apply (sc_pair_abs_le sn cn An Bn G en hn Ms Mc k).
@@ -2924,7 +2961,7 @@ Proof.
         - apply Qlt_le_weak. exact Hk_pos.
         - exact HMsK.
         - exact HMcK. }
-      (* 组装：eta < B_n − A_n（eta := eps1'/2；|G| < eps1'/2、en' > eps1'） *)
+      (* assembly: eta < B_n − A_n (eta := eps1'/2; |G| < eps1'/2 and en' > eps1') *)
       assert (Hq4 : Qle (Qmult (Qmult en (Qabs hn)) (1 # 4)) (Qmult en (Qabs hn))).
       { apply (Qle_trans _ (Qmult (Qmult en (Qabs hn)) 1) _).
         - apply QleT'_to_Qle. apply (sc_qmult_le_l_f1 (Qmult en (Qabs hn)) (1 # 4) 1%Q).
@@ -2946,7 +2983,7 @@ Proof.
               -- apply Qle_refl.
               -- exact Hq4.
             * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 与 real_abs 目标衔接 *)
+      (* connection to the [real_abs] goal *)
       assert (Hrepl2 : Qeq (Qminus (projT1 (real_plus (real_mult eps (real_abs h)) eps') n)
                                    (projT1 (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                                  (real_opp (real_plus (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h))))) n))
@@ -2956,7 +2993,7 @@ Proof.
                            (projT1 (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                                  (real_opp (real_plus (cauchy_real_sin x) (real_mult (cauchy_real_cos x) h))))) n)
                            (Qabs (Qplus G (Qplus (Qmult sn An) (Qmult cn Bn)))) Hrepl). }
-      (* eta < en' − eta（en' > eps1' == 2·eta）——Hfin 内嵌 *)
+      (* eta < en' − eta (en' > eps1' == 2·eta) — embedded in Hfin *)
       assert (Hfin : Qlt (Qmult eps1' (Qinv 2))
                          (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs (Qplus G (Qplus (Qmult sn An) (Qmult cn Bn)))))).
       { apply (Qlt_le_trans (Qmult eps1' (Qinv 2))
@@ -2993,7 +3030,7 @@ Proof.
       { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qeq_sym. exact Hrepl2. }
 Qed.
 
-(* ---- 主定理：cos 可微（Bishop 显式，导数 = −sin x） ---- *)
+(* ---- main statement: cos is differentiable (Bishop-explicit, derivative = −sin x) ---- *)
 Lemma real_cos_deriv_linear : forall (x : Real), forall (eps : Real),
   real_lt real_zero eps ->
   sigT (fun delta : Real =>
@@ -3052,7 +3089,7 @@ Proof.
       by (unfold delta in Hh; unfold rk in Hh; apply (real_min_lt_l h (real_const 1) (real_mult eps (real_const k))); exact Hh).
     assert (Hh_k : real_lt (real_abs h) (real_mult eps rk))
       by (unfold delta in Hh; unfold rk in Hh; apply (real_min_lt_r h (real_const 1) (real_mult eps (real_const k))); exact Hh).
-    (* real_le 左分支：见证 eps1'/2 *)
+    (* left branch of [real_le]: witnessed by eps1'/2 *)
     left.
     destruct Heps as [eps1 [Heps1 [N1 HN1]]].
     destruct Heps' as [eps1' [Heps1' [N1' HN1']]].
@@ -3065,7 +3102,7 @@ Proof.
       apply (Qmult_lt_0_compat eps1' (Qinv 2)).
       - apply QltT_to_Qlt. exact Heps1'.
       - apply Qinv_lt_0_compat. unfold Qlt. simpl. lia. }
-    (* rs_add_sin 逐点误差 |G_n| < eps1'/2 *)
+    (* pointwise error of [rs_add_sin]: |G_n| < eps1'/2 *)
     assert (HepsG_pos : QltT 0 (Qmult eps1' (Qinv 2))).
     { apply Qlt_to_QltT.
       apply (Qmult_lt_0_compat eps1' (Qinv 2)).
@@ -3087,7 +3124,7 @@ Proof.
   set (R := projT1 (real_plus (real_mult (cauchy_real_cos x) (cauchy_real_cos h))
                                   (real_opp (real_mult (cauchy_real_sin x) (cauchy_real_sin h)))) n).
       set (G := L - R).
-      (* 逐点主分解恒等式：D_n == G + sn·An + cn·Bn *)
+      (* pointwise main decomposition identity: [D_n == G + sn·An + cn·Bn] *)
       assert (Hrepl : projT1 (real_abs (real_plus (cauchy_real_cos (real_plus x h))
                   (real_opp (real_plus (cauchy_real_cos x) (real_opp (real_mult (cauchy_real_sin x) h)))))) n ==
                       Qabs (Qplus G (Qplus (Qmult cn An) (Qmult (- sn) Bn)))).
@@ -3100,7 +3137,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (cauchy_real_cos x) (real_opp (real_mult (cauchy_real_sin x) h)) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_opp_proj (real_mult (cauchy_real_sin x) h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj (cauchy_real_sin x) h n))).
-        (* rs_add_sin 右侧 R 的 plus 与两个乘积的外层投影 *)
+        (* outer projections of the plus in the right side R of [rs_add_sin] and of the two products *)
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (real_mult (cauchy_real_cos x) (cauchy_real_cos h))
                                        (real_opp (real_mult (cauchy_real_sin x) (cauchy_real_sin h))) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_opp_proj (real_mult (cauchy_real_sin x) (cauchy_real_sin h)) n))).
@@ -3123,7 +3160,7 @@ Proof.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [projT1]. ring. }
-      (* 逐点界 1：|hn| ≤ 1（Hh_one 见证） *)
+      (* pointwise bound 1: |hn| ≤ 1 (witnessed by Hh_one) *)
       assert (Hn1 : (N1 <= n)%nat) by lia.
       assert (Hn1' : (N1' <= n)%nat) by lia.
       assert (Hn2 : (N2 <= n)%nat) by lia.
@@ -3148,7 +3185,7 @@ Proof.
             * apply (Qplus_le_compat (Qminus 1 eps2) (Qminus 1 eps2) 0 eps2 (Qle_refl _) Heps2q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
       assert (Hhn_le1 : Qle (Qabs hn) 1) by (apply Qlt_le_weak; exact Hhn_one).
-      (* 逐点界 2：|hn| ≤ en·k（Hh_k 见证 + rk 投影） *)
+      (* pointwise bound 2: |hn| ≤ en·k (witnessed by Hh_k plus the rk projection) *)
       assert (HN3q : Qlt eps3 (Qminus (Qmult en k) (Qabs hn))).
       { apply (Qlt_le_trans eps3 (Qminus (projT1 (real_mult eps rk) n) (projT1 (real_abs h) n))
                                 (Qminus (Qmult en k) (Qabs hn))).
@@ -3176,7 +3213,7 @@ Proof.
                                      (Qminus (Qmult en k) eps3) 0 eps3 (Qle_refl _) Heps3q).
           + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
       assert (Hhn_leE : Qle (Qabs hn) (Qmult en k)) by (apply Qlt_le_weak; exact Hhn_k).
-      (* 正性：en > 0、en' > eps1' *)
+      (* positivity: en > 0 and en' > eps1' *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -3196,7 +3233,7 @@ Proof.
       { unfold G.
         apply QltT_to_Qlt.
         apply (HG n (NatLe_lift _ _ HnG)). }
-      (* |sn| ≤ Ms、|cn| ≤ Mc（全 n） *)
+      (* |sn| ≤ Ms and |cn| ≤ Mc (for all n) *)
       assert (Hsn_le : Qle (Qabs sn) Ms).
       { unfold sn.
         apply (Qle_trans (Qabs (sin_partial n (projT1 x n)))
@@ -3217,14 +3254,14 @@ Proof.
       { apply (Qle_trans (Qabs (- sn)) (Qabs sn) Ms).
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply Qabs_opp.
         - exact Hsn_le. }
-      (* |An| ≤ |hn|²、|Bn| ≤ |hn|³ *)
+      (* |An| ≤ |hn|² and |Bn| ≤ |hn|³ *)
       assert (HAn_le : Qle (Qabs An) (q_pow (Qabs hn) 2)).
       { unfold An.
         apply QleT'_to_Qle. apply (sc_cos_sq_bound_c1 n hn Hhn_le1). }
       assert (HBn_le : Qle (Qabs Bn) (q_pow (Qabs hn) 3)).
       { unfold Bn.
         apply QleT'_to_Qle. apply (sc_sin_cube_bound_c1 n hn Hhn_le1). }
-      (* 主点值界：|D_n| ≤ |G_n| + (en·|hn|)/4 *)
+      (* main pointwise bound: |D_n| ≤ |G_n| + (en·|hn|)/4 *)
       assert (Hmain : Qle (Qabs (Qplus G (Qplus (Qmult cn An) (Qmult (- sn) Bn))))
                           (Qplus (Qabs G) (Qmult (Qmult en (Qabs hn)) (1 # 4)))).
       { apply QleT'_to_Qle. apply (sc_pair_abs_le cn (- sn) An Bn G en hn Mc Ms k).
@@ -3239,7 +3276,7 @@ Proof.
         - apply Qlt_le_weak. exact Hk_pos.
         - exact HMcK.
         - exact HMsK. }
-      (* 组装：eta < B_n − A_n（eta := eps1'/2；|G| < eps1'/2、en' > eps1'） *)
+      (* assembly: eta < B_n − A_n (eta := eps1'/2; |G| < eps1'/2 and en' > eps1') *)
       assert (Hq4 : Qle (Qmult (Qmult en (Qabs hn)) (1 # 4)) (Qmult en (Qabs hn))).
       { apply (Qle_trans _ (Qmult (Qmult en (Qabs hn)) 1) _).
         - apply QleT'_to_Qle. apply (sc_qmult_le_l_f1 (Qmult en (Qabs hn)) (1 # 4) 1%Q).
@@ -3261,7 +3298,7 @@ Proof.
               -- apply Qle_refl.
               -- exact Hq4.
             * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* 与 real_abs 目标衔接 *)
+      (* connection to the [real_abs] goal *)
       assert (Hrepl2 : Qeq (Qminus (projT1 (real_plus (real_mult eps (real_abs h)) eps') n)
                                    (projT1 (real_abs (real_plus (cauchy_real_cos (real_plus x h))
                                  (real_opp (real_plus (cauchy_real_cos x) (real_opp (real_mult (cauchy_real_sin x) h)))))) n))
@@ -3271,7 +3308,7 @@ Proof.
                            (projT1 (real_abs (real_plus (cauchy_real_cos (real_plus x h))
                                  (real_opp (real_plus (cauchy_real_cos x) (real_opp (real_mult (cauchy_real_sin x) h)))))) n)
                            (Qabs (Qplus G (Qplus (Qmult cn An) (Qmult (- sn) Bn)))) Hrepl). }
-      (* eta < en' − eta（en' > eps1' == 2·eta）——Hfin 内嵌 *)
+      (* eta < en' − eta (en' > eps1' == 2·eta) — embedded in Hfin *)
       assert (Hfin : Qlt (Qmult eps1' (Qinv 2))
                          (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs (Qplus G (Qplus (Qmult cn An) (Qmult (- sn) Bn)))))).
       { apply (Qlt_le_trans (Qmult eps1' (Qinv 2))
@@ -3309,16 +3346,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* T-pi3 B3a 阶段并入（迭代 208）：arctan 导数 Q 层引擎        *)
-(* 来源：sc2_b3_arctanp（20 Qed）；零公理面。                     *)
+(* T-pi3 B3a phase: the [Q]-layer engine for the arctan derivative *)
+(* source: sc2_b3_arctanp (20 [Qed]); axiom-free face.             *)
 (* ============================================================ *)
 
 Open Scope Q_scope.
 
 
 (* ============================================================ *)
-(* Q 层第 1 部分：几何部分和（−(x·x) 的幂）定义 + 幂恒等          *)
-(* b3_dsum n x == Σ_{k=0}^{n} (−1)^k x^{2k} == Σ (−(x·x))^k       *)
+(* [Q] layer part 1: the geometric partial sum (powers of −(x·x)) definition + power identities *)
+(* [b3_dsum n x == Σ_{k=0}^{n} (−1)^k x^{2k} == Σ (−(x·x))^k]                                   *)
 (* ============================================================ *)
 Fixpoint b3_dsum (n : nat) (x : Q) : Q :=
   match n with
@@ -3326,12 +3363,12 @@ Fixpoint b3_dsum (n : nat) (x : Q) : Q :=
   | Datatypes.S m => b3_dsum m x + q_pow (- (x * x)) (Datatypes.S m)
   end.
 
-(* 递归展开件（与 Fixpoint 定义同构，便于 rewrite） *)
+(* recursive unfolding lemma (isomorphic to the [Fixpoint] definition, convenient for [rewrite]) *)
 Lemma b3_dsum_succ : forall (n : nat) (x : Q),
   QeqT (b3_dsum (Datatypes.S n) x) (b3_dsum n x + q_pow (- (x * x)) (Datatypes.S n)).
 Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
-(* (−1)^{2k} == 1 / (−1)^{2k+1} == −1（根 q_pow_neg1_even/odd 复用） *)
+(* (−1)^{2k} == 1 / (−1)^{2k+1} == −1 (reusing the root-file [q_pow_neg1_even]/[q_pow_neg1_odd]) *)
 Lemma b3_sign_even : forall (k : nat), QeqT (q_pow (-1) (2 * k)) (1).
 Proof. intros. exact (q_pow_neg1_even k). Qed.
 
@@ -3363,18 +3400,21 @@ Proof.
     rewrite H2. ring.
 Qed.
 
-(* x^{2p} == (x·x)^p（b3_pow_sq 反向） *)
+(* [x^{2p} == (x·x)^p] (converse direction of [b3_pow_sq]) *)
 Lemma b3_even_pow : forall (x : Q) (p : nat),
   QeqT (q_pow x (2 * p)) (q_pow (x * x) p).
 Proof. intros x p.  apply qeq_imp_qeqT. apply Qeq_sym. apply qeqT_imp_qeq. apply b3_pow_sq. Qed.
 
-(* |x·x| == x·x（平方非负 Qsquare_nonneg + Qabs_pos） *)
+(* |x·x| == x·x (squares are nonnegative: [Qsquare_nonneg] + [Qabs_pos]) *)
 Lemma b3_abs_sq : forall (x : Q), QeqT (Qabs (x * x)) (x * x).
 Proof.
   intros x. apply qeq_imp_qeqT.
-  (* 绝对值定义体直落（分子绝对整面）：商展开、平方项投影归约至整数层，
-     分子绝对值等式以线性算术非负见证装配，环等式闭合——不经绝对值
-     正性桥单跳、不取用平方非负姊妹件。 *)
+  (* lands directly in the definition body of the absolute value (the integer face of the
+     numerator's absolute value): the quotient is expanded, the projections of the squared
+     term reduce to the integer layer, the absolute-value equality of the numerator is
+     assembled from a linear-arithmetic nonnegativity witness and closed by ring equalities
+     — no single-hop absolute-value positivity bridge, and the sibling square-nonnegativity
+     lemma is not consumed. *)
   unfold Qabs.
   destruct x as [n d].
   simpl.
@@ -3384,17 +3424,17 @@ Proof.
   rewrite Habs. ring.
 Qed.
 
-(* |(−(x·x))^p| == |x|^{2p}（(a) 余项引擎核心：幂模 + 负号消去） *)
+(* |(−(x·x))^p| == |x|^{2p} (core of the (a) remainder engine: power modulus + sign elimination) *)
 Lemma b3_abs_pow_neg_sq : forall (x : Q) (p : nat),
   QeqT (Qabs (q_pow (- (x * x)) p)) (q_pow (Qabs x) (2 * p)).
 Proof.
   intros x p. apply qeq_imp_qeqT.
   rewrite (qeqT_imp_qeq _ _ (q_pow_abs (- (x * x)) p)).
-  (* |(−(x·x))| == x·x：Qabs_opp + |x·x| == x·x *)
+  (* |(−(x·x))| == x·x: [Qabs_opp] plus |x·x| == x·x *)
   assert (Hba : Qabs (- (x * x)) == x * x).
   { rewrite (Qabs_opp (x * x)). apply (qeqT_imp_qeq _ _ (b3_abs_sq x)). }
   rewrite (qeqT_imp_qeq _ _ (q_pow_wd (Qabs (- (x * x))) (x * x) p (qeq_imp_qeqT _ _ Hba))).
-  (* x·x == |x|·|x|（atan_sq_abs 方向为 x·x == |x|·|x|），再 b3_pow_sq at |x| *)
+  (* [x·x == |x|·|x|] ([atan_sq_abs] has exactly the direction x·x == |x|·|x|), then [b3_pow_sq] at |x| *)
   assert (Hsq : x * x == Qabs x * Qabs x).
   { exact (qeqT_imp_qeq _ _ (atan_sq_abs x)). }
   rewrite (qeqT_imp_qeq _ _ (q_pow_wd (x * x) (Qabs x * Qabs x) p (qeq_imp_qeqT _ _ Hsq))).
@@ -3403,13 +3443,13 @@ Qed.
 
 
 (* ============================================================ *)
-(* Q 层第 2 部分：b3_dsum 几何闭式 + 余项 (a)                    *)
-(* 闭式：(1+x²)·b3_dsum n x == 1 − (−x²)^{n+1}                  *)
-(* 余项：|b3_dsum n x − Qinv(1+x²)| == |x|^{2n+2}·Qinv(1+x²)     *)
-(*        ≤ |x|^{2n+2}（|x|≤1/2 时 ≤ (1/2)^{2n+2} = 4^{-(n+1)}） *)
+(* [Q] layer part 2: the geometric closed form of [b3_dsum] + the remainder (a)  *)
+(* closed form: (1+x²)·b3_dsum n x == 1 − (−x²)^{n+1}                            *)
+(* remainder: |b3_dsum n x − Qinv(1+x²)| == |x|^{2n+2}·Qinv(1+x²)                *)
+(*        ≤ |x|^{2n+2} (for |x| ≤ 1/2 this is ≤ (1/2)^{2n+2} = 4^{-(n+1)})       *)
 (* ============================================================ *)
 
-(* 辅助：0 < 1（用 Qle_0_1 + Qlt_le_weak 构造） *)
+(* auxiliary: 0 < 1 (assembled from [Qle_0_1] + [Qlt_le_weak]) *)
 Lemma b3_lt_0_1 : QltT 0 1.
 Proof.
   intros.
@@ -3419,7 +3459,7 @@ Proof.
   - unfold Qle; simpl; lia.
 Qed.
 
-(* 0 < 1 + x·x（1+x² ≥ 1 > 0） *)
+(* 0 < 1 + x·x (1+x² ≥ 1 > 0) *)
 Lemma b3_one_plus_sq_pos : forall x : Q, QltT 0 (1 + x * x).
 Proof.
   intros x. apply Qlt_to_QltT.
@@ -3436,9 +3476,11 @@ Qed.
 Lemma b3_one_plus_sq_neq : forall x : Q, Not (QeqT (1 + x * x) 0).
 Proof.
   intros x Heq. apply qeqT_imp_qeq in Heq.
-  (* 结构性推导（平方非负面相遇）：由零等式环换算出平方为负一的显式
-     中立见证，与平方非负面在序定义体（整数层）相遇相抵——不经非等
-     换形桥、不取用姊妹正性件。 *)
+  (* structural derivation (meeting the square-nonnegativity face): the zero equality is
+     ring-converted into an explicit neutral witness putting the square at −1, which
+     contradicts the square-nonnegativity face inside the order definition body (integer
+     layer) — no nonequality-reformulation bridge, and the sibling positivity lemma is not
+     consumed. *)
   assert (Hs : x * x == (1 + x * x) - 1) by ring.
   rewrite Heq in Hs.
   assert (Hsn : x * x == - 1) by (rewrite Hs; ring).
@@ -3448,12 +3490,14 @@ Proof.
   unfold Qle in Hle. simpl in Hle. lia.
 Qed.
 
-(* Qinv·denom == 1 / denom·Qinv == 1（分母正，非零） *)
+(* [Qinv·denom == 1] / [denom·Qinv == 1] (denominator positive, hence nonzero) *)
 Lemma b3_inv_sq_r : forall x : Q, QeqT ((1 + x * x) * Qinv (1 + x * x)) (1).
 Proof.
   intros x. apply qeq_imp_qeqT.
-  (* 独立非零装配：平方非负面＋环换算就地构造非零见证，再入逆元
-     反映面闭合——不取用姊妹非零件（其证明独立于本件成立）。 *)
+  (* independent nonzero assembly: the square-nonnegativity face plus ring conversion
+     construct a nonzero witness in place, and the inverse-reflecting face closes the goal
+     — the sibling nonzeroness lemma is not consumed (its proof stands independently of
+     this file). *)
   assert (Hnz : ~ (1 + x * x == 0)).
   { intro Heq.
     assert (Hs : x * x == (1 + x * x) - 1) by ring.
@@ -3473,17 +3517,17 @@ Proof.
   - exact (qeqT_imp_qeq _ _ (b3_inv_sq_r x)).
 Qed.
 
-(* 主闭式（几何和，对 n 归纳）：
+(* main closed form (geometric sum, by induction on n):
    (1+x²)·b3_dsum n x == 1 − (−x²)^{S n} *)
 Lemma b3_dsum_geom : forall (n : nat) (x : Q),
   QeqT ((1 + x * x) * b3_dsum n x) (1 - q_pow (- (x * x)) (Datatypes.S n)).
 Proof.
   intros n x.  apply qeq_imp_qeqT. induction n as [| n IH]; simpl.
-  - (* n = 0：b3_dsum 0 x == 1；(−x²)^1 == −x² *)
+  - (* n = 0: [b3_dsum 0 x == 1] and [(−x²)^1 == −x²] *)
     transitivity ((1 + x * x) * 1).
     + apply Qmult_comp; [apply Qeq_refl | reflexivity].
     + simpl. ring.
-  - (* n = S n：拆 b3_dsum 一步，先 ring 分布 *)
+  - (* n = S n: unfold one step of [b3_dsum], distributing by [ring] first *)
     rewrite (qeqT_imp_qeq _ _ (b3_dsum_succ n x)).
     transitivity ((1 + x * x) * b3_dsum n x +
                   (1 + x * x) * q_pow (- (x * x)) (Datatypes.S n)).
@@ -3493,21 +3537,21 @@ Proof.
     ring.
 Qed.
 
-(* (a)-余项（绝对等式）：
+(* the (a) remainder (absolute-value equality):
    |b3_dsum n x − Qinv(1+x²)| == Qinv(1+x²)·|x|^{2n+2} *)
 Lemma b3_dsum_rem_abs : forall (n : nat) (x : Q),
   QeqT (Qabs (b3_dsum n x - Qinv (1 + x * x))) (Qinv (1 + x * x) * q_pow (Qabs x) (2 * Datatypes.S n)).
 Proof.
   intros n x. apply qeq_imp_qeqT.
-  (* 由 b3_dsum_geom 乘 Qinv(1+x²)：
-     b3_dsum n x == Qinv(1+x²)·(1 − (−x²)^{S n}) *)
+  (* from [b3_dsum_geom] multiplied by Qinv(1+x²):
+     [b3_dsum n x == Qinv(1+x²)·(1 − (−x²)^{S n})] *)
   assert (Hc : b3_dsum n x == Qinv (1 + x * x) * (1 - q_pow (- (x * x)) (Datatypes.S n))).
-  { (* 链：b3_dsum == (Qinv·(1+x²))·b3_dsum == Qinv·((1+x²)·b3_dsum) == Qinv·(1−r) *)
+  { (* chain: [b3_dsum == (Qinv·(1+x²))·b3_dsum == Qinv·((1+x²)·b3_dsum) == Qinv·(1−r)] *)
     transitivity ((Qinv (1 + x * x) * (1 + x * x)) * b3_dsum n x).
     - rewrite (qeqT_imp_qeq _ _ (b3_inv_sq_l x)). ring.
     - transitivity (Qinv (1 + x * x) * ((1 + x * x) * b3_dsum n x)).
       + apply Qeq_sym. apply (Qmult_assoc (Qinv (1 + x * x)) (1 + x * x) (b3_dsum n x)).
-      + (* Qmult_comp 是 Proper 形态：apply 后两子目标 *)
+      + (* [Qmult_comp] is the [Proper] form: two subgoals after [apply] *)
         apply Qmult_comp.
         * apply Qeq_refl.
         * exact (qeqT_imp_qeq _ _ (b3_dsum_geom n x)). }
@@ -3520,7 +3564,7 @@ Proof.
   rewrite Hdiff.
   rewrite (Qabs_opp (Qinv (1 + x * x) * q_pow (- (x * x)) (Datatypes.S n))).
   rewrite (Qabs_Qmult (Qinv (1 + x * x)) (q_pow (- (x * x)) (Datatypes.S n))).
-  (* |Qinv(1+x²)| == Qinv(1+x²)（正性） *)
+  (* |Qinv(1+x²)| == Qinv(1+x²) (positivity) *)
   assert (Hinvabs : Qabs (Qinv (1 + x * x)) == Qinv (1 + x * x)).
   { apply (Qabs_pos (Qinv (1 + x * x))).
     apply (Qlt_le_weak 0 (Qinv (1 + x * x))).
@@ -3532,46 +3576,46 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Q 层第 3 部分：(b) 引擎 — 加权几何和有界（Σ_{j<n}(j+1)q^j）  *)
-(* 目标：0 ≤ q < 1 ⟹ Σ_{j=0}^{n-1} (j+1) q^j ≤ 1/(1−q)²           *)
-(* 路径：闭式 Σ_{j=0}^{n-1}(j+1)q^j == (1−(n+1)q^n + n q^{n+1})/(1−q)² *)
-(*       ≤ 1/(1−q)²（分子 ≤ 1：q ≤ 1 时 n·q^{n+1} ≤ (n+1)q^n）     *)
+(* [Q] layer part 3: the (b) engine — weighted geometric sums are bounded (Σ_{j<n}(j+1)q^j) *)
+(* goal: 0 ≤ q < 1 ⟹ Σ_{j=0}^{n-1} (j+1) q^j ≤ 1/(1−q)²                                     *)
+(* route: closed form Σ_{j=0}^{n-1}(j+1)q^j == (1−(n+1)q^n + n q^{n+1})/(1−q)²              *)
+(*       ≤ 1/(1−q)² (numerator ≤ 1: for q ≤ 1, n·q^{n+1} ≤ (n+1)q^n)                        *)
 (* ============================================================ *)
 
-(* 加权和（自己定义，避免纠缠 sum_upto 索引约定）：
-   b3_wsum q n == Σ_{j=0}^{n-1} (j+1)·q^j，其中系数 j+1 用 (S j)#1 *)
+(* weighted sum (defined here directly, to stay clear of the [sum_upto] index conventions):
+   [b3_wsum q n == Σ_{j=0}^{n-1} (j+1)·q^j], with the coefficient j+1 written (S j)#1 *)
 Fixpoint b3_wsum (n : nat) (q : Q) : Q :=
   match n with
   | 0%nat => 0
   | Datatypes.S m => b3_wsum m q + (Z.of_nat (Datatypes.S m) # 1) * q_pow q m
   end.
 
-(* 单步展开件 *)
+(* one-step unfolding lemma *)
 Lemma b3_wsum_succ : forall (n : nat) (q : Q),
   QeqT (b3_wsum (Datatypes.S n) q) (b3_wsum n q + (Z.of_nat (Datatypes.S n) # 1) * q_pow q n).
 Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
-(* 桥：nat 后继 → Q：qn_succ (S n)#1 == n#1 + 1（根 L66555 区件） *)
+(* bridge from the [nat] successor to [Q]: [qn_succ (S n)#1 == n#1 + 1] (root-file section lemma L66555) *)
 Lemma b3_qn_succ : forall (n : nat),
   QeqT (Z.of_nat (Datatypes.S n) # 1) ((Z.of_nat n # 1) + 1).
 Proof. intros n.  apply qeq_imp_qeqT. exact (qeqT_imp_qeq _ _ (qn_succ n)). Qed.
 
-(* 加权几何和闭式（归纳）：
+(* closed form of the weighted geometric sum (by induction):
    (1−q)²·b3_wsum n q == 1 − (n+1)·q^n + n·q^{n+1} *)
 Lemma b3_wsum_closed : forall (n : nat) (q : Q),
   QeqT ((1 - q) * (1 - q) * b3_wsum n q) (1 - (Z.of_nat (Datatypes.S n) # 1) * q_pow q n + (Z.of_nat n # 1) * q_pow q (Datatypes.S n)).
 Proof.
   intros n q.  apply qeq_imp_qeqT. induction n as [| n IH].
-  - (* n = 0：b3_wsum 0 q == 0；1 − 1·q^0 + 0 == 0 *)
+  - (* n = 0: [b3_wsum 0 q == 0] and [1 − 1·q^0 + 0 == 0] *)
     simpl. ring.
-  - (* n → S n：b3_wsum (S n) == b3_wsum n + (S n)#1·q^n *)
+  - (* n → S n: [b3_wsum (S n) == b3_wsum n + (S n)#1·q^n] *)
     rewrite (qeqT_imp_qeq _ _ (b3_wsum_succ n q)).
-    (* 分布左乘 *)
+    (* distribute the left multiplication *)
     transitivity ((1 - q) * (1 - q) * b3_wsum n q +
                   (1 - q) * (1 - q) * ((Z.of_nat (Datatypes.S n) # 1) * q_pow q n)).
     { ring. }
     rewrite IH.
-    (* RHS 换形：把 (S(S n))#1、q^{S n}、q^{S(S n)} 展开 *)
+    (* RHS reformulation: expand (S(S n))#1, q^{S n} and q^{S(S n)} *)
     setoid_replace (q_pow q (Datatypes.S (Datatypes.S n))) with (q * q * q_pow q n) by (rewrite (qeqT_imp_qeq _ _ (q_pow_succ q (Datatypes.S n))); rewrite (qeqT_imp_qeq _ _ (q_pow_succ q n)); ring).
     setoid_replace (q_pow q (Datatypes.S n)) with (q * q_pow q n) by (rewrite (qeqT_imp_qeq _ _ (q_pow_succ q n)); ring).
     rewrite (qeqT_imp_qeq _ _ (b3_qn_succ (Datatypes.S n))).
@@ -3579,12 +3623,12 @@ Proof.
     ring.
 Qed.
 
-(* 闭式分子 ≤ 1：n·q^{n+1} ≤ (n+1)·q^n（q ≤ 1，q^n ≥ 0） *)
-(* 闭式分子 ≤ 1：n·q^{n+1} ≤ (n+1)·q^n（q ≤ 1，q^n ≥ 0）
-   简化证：q^{S n} ≤ q^n（q^{S n}==q·q^n ≤ 1·q^n）再乘 n ≤ S n *)
-(* 闭式分子 ≤ 1：n·q^{n+1} ≤ (n+1)·q^n（q ≤ 1，q^n ≥ 0）
-   简化证：q^{S n} == q·q^n ≤ 1·q^n（q ≤ 1 且 q^n ≥ 0）
-           再 n·(q·q^n) ≤ (n+1)·q^n 由 比较因子（n ≤ S n 且 q^n ≥ 0 与 q·q^n ≥ 0） *)
+(* the closed-form numerator is ≤ 1: n·q^{n+1} ≤ (n+1)·q^n (q ≤ 1, q^n ≥ 0) *)
+(* the closed-form numerator is ≤ 1: n·q^{n+1} ≤ (n+1)·q^n (q ≤ 1, q^n ≥ 0)
+   short proof: q^{S n} ≤ q^n (q^{S n} == q·q^n ≤ 1·q^n), then multiply by n ≤ S n *)
+(* the closed-form numerator is ≤ 1: n·q^{n+1} ≤ (n+1)·q^n (q ≤ 1, q^n ≥ 0)
+   short proof: q^{S n} == q·q^n ≤ 1·q^n (q ≤ 1 and q^n ≥ 0), then
+           n·(q·q^n) ≤ (n+1)·q^n by comparing factors (n ≤ S n, and q^n ≥ 0 with q·q^n ≥ 0) *)
 Lemma b3_q_pow_dec1 : forall (q : Q) (n : nat),
   Qle 0 q -> Qle q 1 -> QleT' (q_pow q (Datatypes.S n)) (q_pow q n).
 Proof.
@@ -3597,7 +3641,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 传乘：0 ≤ c ⟹ a ≤ b ⟹ c·a ≤ c·b（先交换到右乘再 Qmult_le_compat_r） *)
+(* transporting multiplication: 0 ≤ c ⟹ a ≤ b ⟹ c·a ≤ c·b (commute to the right-multiplier form, then [Qmult_le_compat_r]) *)
 Lemma b3_qmult_le_l : forall (a b c : Q), Qle 0 c -> Qle a b -> QleT' (c * a) (c * b).
 Proof.
   intros a b c Hc Hab. apply Qle_to_QleT'.
@@ -3614,14 +3658,14 @@ Lemma b3_wsum_num_le : forall (n : nat) (q : Q),
       ((Z.of_nat (Datatypes.S n) # 1) * q_pow q n).
 Proof.
   intros n q Hq0 Hq1. apply Qle_to_QleT'.
-  (* 左 = n·(q^{S n}) ≤ n·q^n（q^{S n} ≤ q^n 乘 n ≥ 0） *)
+  (* left side: n·(q^{S n}) ≤ n·q^n (q^{S n} ≤ q^n multiplied by n ≥ 0) *)
   assert (Hn0 : Qle 0 (Z.of_nat n # 1)) by (unfold Qle; simpl; lia).
   assert (Hstep1 : Qle ((Z.of_nat n # 1) * q_pow q (Datatypes.S n))
                       ((Z.of_nat n # 1) * q_pow q n)).
   { apply QleT'_to_Qle. apply (b3_qmult_le_l (q_pow q (Datatypes.S n)) (q_pow q n) (Z.of_nat n # 1)).
     - exact Hn0.
     - apply QleT'_to_Qle. apply (b3_q_pow_dec1 q n Hq0 Hq1). }
-  (* 再 n·q^n ≤ (n+1)·q^n（n ≤ S n 且 q^n ≥ 0） *)
+  (* then n·q^n ≤ (n+1)·q^n (n ≤ S n and q^n ≥ 0) *)
   assert (Hstep2 : Qle ((Z.of_nat n # 1) * q_pow q n)
                       ((Z.of_nat (Datatypes.S n) # 1) * q_pow q n)).
   { apply (Qmult_le_compat_r (Z.of_nat n # 1) (Z.of_nat (Datatypes.S n) # 1) (q_pow q n)).
@@ -3632,13 +3676,15 @@ Proof.
   - exact Hstep2.
 Qed.
 
-(* 0 < 1 − q（q < 1） *)
+(* 0 < 1 − q (q < 1) *)
 Lemma b3_one_minus_q_pos : forall (q : Q), Qlt q 1 -> QltT 0 (1 - q).
 Proof.
   intros q Hq1. apply Qlt_to_QltT.
-  (* 展开至定义层：两侧同加减元（加法保序反映面第二投影装配），
-     左端经环等式坍缩为零元，右端差式定义性即加负元形，转换闭合
-     ——不经单跳换形引理转发。 *)
+  (* expansion to the definition layer: the same element is added on both sides (assembled
+     from the second projection of the order-preserving addition face), the left side
+     collapses to the zero element by a ring equality, and the right side is definitionally
+     the add-the-negative form, closing by conversion — no single-hop reformulation-lemma
+     forwarding. *)
   assert (Hs : Qlt (q + -q) (1 + -q)).
   { apply (proj2 (Qplus_lt_l q 1 (-q))). exact Hq1. }
   assert (Hz : q + -q == 0) by ring.
@@ -3654,7 +3700,7 @@ Proof.
   - apply QltT_to_Qlt. apply (b3_one_minus_q_pos q Hq1).
 Qed.
 
-(* 主界：0 ≤ q < 1 ⟹ b3_wsum n q ≤ 1/(1−q)² *)
+(* main bound: 0 ≤ q < 1 ⟹ [b3_wsum n q ≤ 1/(1−q)²] *)
 Lemma b3_wsum_bound : forall (n : nat) (q : Q),
   Qle 0 q -> Qlt q 1 ->
   QleT' (b3_wsum n q) (Qinv ((1 - q) * (1 - q))).
@@ -3664,7 +3710,7 @@ Proof.
   assert (Hd0 : Qlt 0 d) by (unfold d; apply (QltT_to_Qlt _ _ (b3_den_pos q Hq1))).
   assert (Hdnz : ~ d == 0) by (intro Hz; exact (Qlt_not_eq 0 (d) Hd0 (Qeq_sym (d) 0 Hz))).
   assert (Hinv0 : Qle 0 (Qinv d)) by (apply Qlt_le_weak; apply Qinv_lt_0_compat; exact Hd0).
-  (* 第一步：b3_wsum·d ≤ 1（= 闭式分子 ≤ 1） *)
+  (* first step: [b3_wsum·d ≤ 1] (== the closed-form numerator is ≤ 1) *)
   assert (Hle1 : Qle (b3_wsum n q * d) 1).
   { assert (Hc : b3_wsum n q * d ==
                  1 - (Z.of_nat (Datatypes.S n) # 1) * q_pow q n +
@@ -3672,26 +3718,26 @@ Proof.
     { unfold d. apply (Qeq_trans _ ((1 - q) * (1 - q) * b3_wsum n q) _).
       - apply Qmult_comm.
       - exact (qeqT_imp_qeq _ _ (b3_wsum_closed n q)). }
-    (* b3_wsum·d == 分子 ≤ 1 *)
+    (* [b3_wsum·d == numerator] ≤ 1 *)
     apply (Qle_trans _ (1 - (Z.of_nat (Datatypes.S n) # 1) * q_pow q n +
                         (Z.of_nat n # 1) * q_pow q (Datatypes.S n)) _).
     - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hc.
-    - (* 分子 ≤ 1：由 n·q^{S n} ≤ (S n)·q^n *)
+    - (* numerator ≤ 1: from [n·q^{S n} ≤ (S n)·q^n] *)
       apply (Qle_trans _ (1 - (Z.of_nat (Datatypes.S n) # 1) * q_pow q n +
                           (Z.of_nat (Datatypes.S n) # 1) * q_pow q n) _).
       + apply Qplus_le_compat.
         * apply Qle_refl.
         * exact (QleT'_to_Qle _ _ (b3_wsum_num_le n q Hq0 (Qlt_le_weak _ _ Hq1))).
       + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-  (* 目标：b3_wsum ≤ Qinv d。用 b3_wsum == (b3_wsum·d)·Qinv d ≤ 1·Qinv d *)
+  (* goal: [b3_wsum ≤ Qinv d]. Use [b3_wsum == (b3_wsum·d)·Qinv d ≤ 1·Qinv d] *)
   apply (Qle_trans _ ((b3_wsum n q * d) * Qinv d) _).
-  - (* b3_wsum == (b3_wsum·d)·Qinv d：先乘 1（d·/d）再结合 *)
+  - (* [b3_wsum == (b3_wsum·d)·Qinv d]: first multiply by 1 (d·/d), then reassociate *)
     apply QleT'_to_Qle. apply qeq_le.
     apply qeq_imp_qeqT.
     apply (Qeq_trans _ (b3_wsum n q * (d * Qinv d)) _).
     + rewrite (Qmult_inv_r d Hdnz). ring.
     + apply (Qmult_assoc (b3_wsum n q) d (Qinv d)).
-  - (* (b3_wsum·d)·Qinv d ≤ 1·Qinv d（Hle1 乘 Qinv d ≥ 0） *)
+  - (* [(b3_wsum·d)·Qinv d ≤ 1·Qinv d] (Hle1 multiplied by Qinv d ≥ 0) *)
     apply (Qle_trans _ (1 * Qinv d) _).
     + apply (Qmult_le_compat_r (b3_wsum n q * d) 1 (Qinv d)).
       * exact Hle1.
@@ -3700,13 +3746,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Q 层第 4 部分：(b) 引擎 — 单项二阶差界（复用 q_pow_diff_bound） *)
-(* 目标：|y|,|x| ≤ M ⟹ |y^{S k} − x^{S k} − (S k)·x^{2k}·(y−x)|     *)
-(*       ≤ (S k)²·M^{2k}·(y−x)²·...（本文件取更粗 C=2·(2k+1)² M^{2k}） *)
-(* 实际路线：由一阶界 |u^p−v^p| ≤ p·B^{p−1}|u−v| 迭代两次 *) 
+(* [Q] layer part 4: the (b) engine — single-term second-difference bounds (reusing [q_pow_diff_bound]) *)
+(* goal: |y|,|x| ≤ M ⟹ |y^{S k} − x^{S k} − (S k)·x^{2k}·(y−x)|      *)
+(*       ≤ (S k)²·M^{2k}·(y−x)²·... (this file takes the coarser C = 2·(2k+1)² M^{2k}) *)
+(* actual route: iterate the first-order bound |u^p−v^p| ≤ p·B^{p−1}|u−v| twice *)
 (* ============================================================ *)
 
-(* 一阶幂差再界：|x^{S n} − y^{S n}| ≤ (S n)#1·B^n·|x−y|（根 q_pow_diff_bound 包装 Qle 形） *)
+(* first-order power-difference bound restated: |x^{S n} − y^{S n}| ≤ (S n)#1·B^n·|x−y| (the [Qle] form wrapped from the root-file [q_pow_diff_bound]) *)
 Lemma b3_pow_diff1 : forall (x y B : Q) (n : nat),
   Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
   QleT' (Qabs (q_pow x (Datatypes.S n) - q_pow y (Datatypes.S n)))
@@ -3718,20 +3764,20 @@ Qed.
 
 
 (* ============================================================ *)
-(* Q 层第 5 部分：(a) 余项上界（|x| ≤ r < 1 的闭式估计）          *)
-(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2S n}·1 ≤ r^{2S n}          *)
-(* 以及 r=1/2 常数版 ≤ 4^{-(S n)}                                 *)
+(* [Q] layer part 5: the (a) remainder upper bound (closed estimate for |x| ≤ r < 1)   *)
+(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2S n}·1 ≤ r^{2S n}                                *)
+(* and the r=1/2 constant version ≤ 4^{-(S n)}                                         *)
 (* ============================================================ *)
 
-(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2(S n)}（Qinv(1+x²) ≤ 1） *)
-(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2(S n)}（Qinv(1+x²) ≤ 1） *)
+(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2(S n)} (Qinv(1+x²) ≤ 1) *)
+(* |b3_dsum n x − Qinv(1+x²)| ≤ |x|^{2(S n)} (Qinv(1+x²) ≤ 1) *)
 Lemma b3_dsum_rem_le : forall (n : nat) (x : Q),
   QleT' (Qabs (b3_dsum n x - Qinv (1 + x * x)))
       (q_pow (Qabs x) (2 * Datatypes.S n)).
 Proof.
   intros n x. apply Qle_to_QleT'.
   rewrite (qeqT_imp_qeq _ _ (b3_dsum_rem_abs n x)).
-  (* Qinv(1+x²)·|x|^{2(S n)} ≤ |x|^{2(S n)}：Qinv(1+x²) ≤ 1 且 |x|^{2(S n)} ≥ 0 *)
+  (* Qinv(1+x²)·|x|^{2(S n)} ≤ |x|^{2(S n)}: Qinv(1+x²) ≤ 1 and |x|^{2(S n)} ≥ 0 *)
   assert (Hinv0 : Qle 0 (Qinv (1 + x * x))).
   { apply (Qlt_le_weak 0 (Qinv (1 + x * x))).
     apply Qinv_lt_0_compat. exact (QltT_to_Qlt _ _ (b3_one_plus_sq_pos x)). }
@@ -3740,7 +3786,7 @@ Proof.
     - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply Qplus_le_compat. apply Qle_refl. apply QleT'_to_Qle. apply (Qsquare_nonneg x). }
   assert (Hinv_le : Qle (Qinv (1 + x * x)) 1).
-  { (* Qinv ≤ (1+x²)·Qinv == 1：右乘 1 ≤ 1+x²（因子 ≥0），再 b3_inv_sq_r *)
+  { (* Qinv ≤ (1+x²)·Qinv == 1: right-multiply by 1 ≤ 1+x² (factor ≥ 0), then [b3_inv_sq_r] *)
     apply (Qle_trans _ (1 * Qinv (1 + x * x)) _).
     - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     - apply (Qle_trans _ ((1 + x * x) * Qinv (1 + x * x)) _).
@@ -3751,7 +3797,7 @@ Proof.
   assert (Hpow0 : Qle 0 (q_pow (Qabs x) (2 * Datatypes.S n))) by (apply QleT'_to_Qle; apply q_pow_nonneg; apply Qle_to_QleT'; apply Qabs_nonneg).
   apply (Qle_trans _ (Qinv (1 + x * x) * q_pow (Qabs x) (2 * Datatypes.S n)) _).
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. reflexivity.
-  - (* ≤ 1·pow（Hinv_le 乘 pow ≥ 0：b3_qmult_le_l，c := pow，再交换） *)
+  - (* ≤ 1·pow (Hinv_le multiplied by pow ≥ 0: [b3_qmult_le_l] with c := pow, then commuted) *)
     apply (Qle_trans _ (q_pow (Qabs x) (2 * Datatypes.S n) * Qinv (1 + x * x)) _).
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
     + apply (Qle_trans _ (q_pow (Qabs x) (2 * Datatypes.S n) * 1) _).
@@ -3762,14 +3808,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B3a Real 层 arctan 导数      *)
-(* （|x| ≤ 1/2 逐 eps 可微，主定理 real_arctan_deriv_linear）；   *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b3_arctanp/sc2_b3_real.v *)
-(* 30 Qed；零公理面、零承认件。                                   *)
+(* B3a [Real]-layer arctan derivative                                    *)
+(* (per-eps differentiability for |x| ≤ 1/2, main statement [real_arctan_deriv_linear]); *)
+(* source: sc2_b3_real.v (sc2_b3_arctanp)                                *)
+(* 30 [Qed]; axiom-free face, zero admitted statements.                  *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* Part 0：有限和 b3r_psum（Σ_{i=0}^{n-1} f i）+ 基础引理        *)
+(* Part 0: the finite sum [b3r_psum] (Σ_{i=0}^{n-1} f i) + basic lemmas        *)
 (* ============================================================ *)
 Fixpoint b3r_psum (n : nat) (f : nat -> Q) : Q :=
   match n with
@@ -3781,7 +3827,7 @@ Lemma b3r_psum_succ : forall (n : nat) (f : nat -> Q),
   QeqT (b3r_psum (Datatypes.S n) f) (b3r_psum n f + f n).
 Proof. intros. apply qeq_imp_qeqT. reflexivity. Qed.
 
-(* 范围逐点 Qeq ⟹ 和 Qeq（j < n） *)
+(* pointwise [Qeq] on the range ⟹ [Qeq] of the sums (j < n) *)
 Lemma b3r_psum_range_ext : forall (n : nat) (f g : nat -> Q),
   (forall j : nat, (j < n)%nat -> f j == g j) -> QeqT (b3r_psum n f) (b3r_psum n g).
 Proof.
@@ -3793,7 +3839,7 @@ Proof.
     + apply H. lia.
 Qed.
 
-(* 范围逐点 Qle ⟹ 和 Qle *)
+(* pointwise [Qle] on the range ⟹ [Qle] of the sums *)
 Lemma b3r_psum_le : forall (n : nat) (f g : nat -> Q),
   (forall j : nat, (j < n)%nat -> Qle (f j) (g j)) -> QleT' (b3r_psum n f) (b3r_psum n g).
 Proof.
@@ -3818,7 +3864,7 @@ Proof.
     + apply Qplus_le_compat. exact (QleT'_to_Qle _ _ (IH f)). apply Qle_refl.
 Qed.
 
-(* 常值求和闭式：psum n (const c) == n#1 · c *)
+(* closed form for constant sums: [psum n (const c) == n#1 · c] *)
 Lemma b3r_psum_const : forall (n : nat) (c : Q),
   QeqT (b3r_psum n (fun _ : nat => c)) ((Z.of_nat n # 1) * c).
 Proof.
@@ -3830,7 +3876,7 @@ Proof.
     ring.
 Qed.
 
-(* 线性：psum(f) − psum(g) == psum(f − g) *)
+(* linearity: [psum(f) − psum(g) == psum(f − g)] *)
 Lemma b3r_psum_minus : forall (n : nat) (f g : nat -> Q),
   QeqT (b3r_psum n f - b3r_psum n g) (b3r_psum n (fun j => f j - g j)).
 Proof.
@@ -3843,7 +3889,7 @@ Proof.
     + rewrite (qeqT_imp_qeq _ _ (IH f g)). reflexivity.
 Qed.
 
-(* 常数左乘可提出：psum (fun j => c·f j) == c·psum f *)
+(* left constant factor extraction: [psum (fun j => c·f j) == c·psum f] *)
 Lemma b3r_psum_mul_const_l : forall (n : nat) (c : Q) (f : nat -> Q),
   QeqT (b3r_psum n (fun j => c * f j)) (c * b3r_psum n f).
 Proof.
@@ -3854,7 +3900,7 @@ Proof.
     rewrite (qeqT_imp_qeq _ _ (IH c f)). ring.
 Qed.
 
-(* 常数右乘可提出：psum (fun j => f j·c) == (psum f)·c *)
+(* right constant factor extraction: [psum (fun j => f j·c) == (psum f)·c] *)
 Lemma b3r_psum_mul_const_r : forall (n : nat) (f : nat -> Q) (c : Q),
   QeqT (b3r_psum n (fun j => f j * c)) (b3r_psum n f * c).
 Proof.
@@ -3866,8 +3912,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 1：幂一阶差（任意指数 p，p=0 平凡，指数 (p−1) 截断无害） *)
-(* |y^p − x^p| ≤ p#1 · B^{p−1} · |y−x|（0 ≤ B，|x|,|y| ≤ B）    *)
+(* Part 1: first-order power difference (any exponent p; the case p = 0 is immediate, and the (p−1) exponent truncation is harmless) *)
+(* |y^p − x^p| ≤ p#1 · B^{p−1} · |y−x| (0 ≤ B, |x|,|y| ≤ B)            *)
 (* ============================================================ *)
 Lemma b3r_pow_diff : forall (x y B : Q) (p : nat),
   Qle 0 B -> Qle (Qabs x) B -> Qle (Qabs y) B ->
@@ -3876,11 +3922,11 @@ Lemma b3r_pow_diff : forall (x y B : Q) (p : nat),
 Proof.
   intros x y B p HB Hx Hy. apply Qle_to_QleT'.
   destruct p as [| n].
-  - (* p = 0：|1 − 1| == 0 ≤ 0·… *)
+  - (* p = 0: |1 − 1| == 0 ≤ 0·… *)
     apply (Qle_trans _ 0 _).
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply q_abs_self_zero.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-  - (* p = S n：q_pow_diff_bound 包装（y 为先序） *)
+  - (* p = S n: the [q_pow_diff_bound] wrapper (with y as the first argument) *)
     apply (Qle_trans _ (Qmult (Qabs (y - x)) (Qmult (Z.of_nat (Datatypes.S n) # 1) (q_pow B n))) _).
     + apply QleT'_to_Qle. apply (q_pow_diff_bound y x B n (Qle_to_QleT' _ _ HB) (Qle_to_QleT' _ _ Hy) (Qle_to_QleT' _ _ Hx)).
     + apply QleT'_to_Qle. apply qeq_imp_qle.
@@ -3902,13 +3948,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2：幂差因子化：y^{p+1} − x^{p+1} == (y−x)·Σ_{j=0}^{p} y^{p−j} x^j *)
+(* Part 2: power-difference factorization: [y^{p+1} − x^{p+1} == (y−x)·Σ_{j=0}^{p} y^{p−j} x^j] *)
 (* ============================================================ *)
 Lemma b3r_pow_factor : forall (p : nat) (x y : Q),
   QeqT (q_pow y (Datatypes.S p) - q_pow x (Datatypes.S p)) ((y - x) * b3r_psum (Datatypes.S p) (fun j : nat => q_pow y (p - j) * q_pow x j)).
 Proof.
   induction p as [| p IH]; intros x y; apply qeq_imp_qeqT.
-  - (* p = 0：y − x == (y−x)·(y^{0−0}·x^0) *)
+  - (* p = 0: y − x == (y−x)·(y^{0−0}·x^0) *)
     simpl. ring.
   - (* p → S p *)
     rewrite (qeqT_imp_qeq _ _ (b3r_psum_succ (Datatypes.S p) (fun j : nat => q_pow y (Datatypes.S p - j) * q_pow x j))).
@@ -3938,15 +3984,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 3：单项二阶差界（(b) 引擎核心）                          *)
-(* |y^{2k+1}−x^{2k+1}−(2k+1)x^{2k}(y−x)|                         *)
-(*   ≤ (2k)(2k+1)·M^{2k−1}·|y−x|²（|x|,|y| ≤ M，0 ≤ M）          *)
-(* 路线：因子化 y^{2k+1}−x^{2k+1} == (y−x)·Σ_{j≤2k} y^{2k−j}x^j， *)
-(*   D_k == (y−x)·Σ_j x^j(y^{2k−j}−x^{2k−j})，逐 j 一阶界，      *)
-(*   Σ_j(2k−j) ≤ (2k+1)(2k) 度向和。                             *)
+(* Part 3: single-term second-difference bound (core of the (b) engine)          *)
+(* |y^{2k+1}−x^{2k+1}−(2k+1)x^{2k}(y−x)|                                         *)
+(*   ≤ (2k)(2k+1)·M^{2k−1}·|y−x|² (|x|,|y| ≤ M, 0 ≤ M)                           *)
+(* route: factorize [y^{2k+1}−x^{2k+1} == (y−x)·Σ_{j≤2k} y^{2k−j}x^j],           *)
+(*   D_k == (y−x)·Σ_j x^j(y^{2k−j}−x^{2k−j}), first-order bounds term by term,   *)
+(*   and the degree sum Σ_j(2k−j) ≤ (2k+1)(2k).                                  *)
 (* ============================================================ *)
 
-(* 度向组合件：coeff·(M^j·M^{(2k−j)−1}) ≤ coeff·M^{2k−1}（j ≤ 2k；j=2k 时两边 0） *)
+(* degree-wise assembled piece: [coeff·(M^j·M^{(2k−j)−1}) ≤ coeff·M^{2k−1}] (j ≤ 2k; both sides are 0 for j=2k) *)
 Lemma b3r_pow2diff_deg : forall (M : Q) (k j : nat),
   Qle 0 M -> (j <= 2 * k)%nat ->
   QleT' (Qmult (Z.of_nat (2 * k - j) # 1)
@@ -3955,9 +4001,9 @@ Lemma b3r_pow2diff_deg : forall (M : Q) (k j : nat),
 Proof.
   intros M k j HM Hjk. apply Qle_to_QleT'.
   destruct ((2 * k - j)%nat) as [| t] eqn:E.
-  - (* 2k−j == 0：destruct 已代入，coeff == 0，两边 == 0 *)
+  - (* 2k−j == 0: [destruct] already substituted, coeff == 0, both sides are 0 *)
     apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-  - (* 2k−j == S t（destruct 已代入，指数 (S t)−1 ⟹ t）：M^j·M^t == M^{j+t} == M^{2k−1} *)
+  - (* 2k−j == S t ([destruct] already substituted, so the exponent (S t)−1 ⟹ t): [M^j·M^t == M^{j+t} == M^{2k−1}] *)
     apply QleT'_to_Qle. apply qeq_imp_qle.
     apply qeq_imp_qeqT.
     apply Qmult_comp.
@@ -3971,7 +4017,7 @@ Proof.
       reflexivity.
 Qed.
 
-(* 逐 j 项界：|x|^j·|y^{2k−j} − x^{2k−j}| ≤ (2k−j)#1·M^{2k−1}·|y−x| *)
+(* termwise bound for each j: |x|^j·|y^{2k−j} − x^{2k−j}| ≤ (2k−j)#1·M^{2k−1}·|y−x| *)
 Lemma b3r_pow2diff_term : forall (x y M : Q) (k j : nat),
   Qle 0 M -> Qle (Qabs x) M -> Qle (Qabs y) M -> (j <= 2 * k)%nat ->
   QleT' (Qmult (q_pow (Qabs x) j) (Qabs (q_pow y (2 * k - j) - q_pow x (2 * k - j))))
@@ -3999,7 +4045,7 @@ Proof.
   assert (Hmid0 : Qle 0 (Qmult Coeff AY)).
   { apply (Qmult_le_0_compat Coeff AY). exact Hc0. exact HAY0. }
   apply (Qle_trans _ (Qmult Axj (Qmult AY (Qmult Coeff Mp1))) _).
-  - (* LHS ≤ Axj·内层界（乘 |x|^j ≥ 0，左乘） *)
+  - (* LHS ≤ Axj·inner bound (multiplying by |x|^j ≥ 0 on the left) *)
     apply QleT'_to_Qle. apply (b3_qmult_le_l (Qabs (q_pow y (2 * k - j) - q_pow x (2 * k - j)))
                          (Qmult AY (Qmult Coeff Mp1)) Axj).
     + exact Hj0.
@@ -4022,7 +4068,7 @@ Proof.
         -- apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Coeff, AY. ring.
 Qed.
 
-(* 度向和 ≤ (2k)(2k+1)：Σ_{j=0}^{2k} (2k−j) ≤ (2k+1)·(2k)（每项 ≤ 2k） *)
+(* degree sum ≤ (2k)(2k+1): Σ_{j=0}^{2k} (2k−j) ≤ (2k+1)·(2k) (each term ≤ 2k) *)
 Lemma b3r_pow2diff_coeffsum : forall (k : nat),
   QleT' (b3r_psum (2 * k + 1) (fun j : nat => Z.of_nat (2 * k - j) # 1))
       (Qmult (Z.of_nat (2 * k + 1) # 1) (Z.of_nat (2 * k) # 1)).
@@ -4034,7 +4080,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply (b3r_psum_const (2 * k + 1) (Z.of_nat (2 * k) # 1)).
 Qed.
 
-(* 主：单项二阶差界 *)
+(* main: the single-term second-difference bound *)
 Lemma b3r_pow2diff : forall (x y M : Q) (k : nat),
   Qle 0 M -> Qle (Qabs x) M -> Qle (Qabs y) M ->
   QleT' (Qabs (q_pow y (2 * k + 1) - q_pow x (2 * k + 1) -
@@ -4160,12 +4206,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 4：(b) 部分和变差 |S_n(y) − S_n(x) − (y−x)·b3_dsum n x| *)
-(*   ≤ 2·M·b3_wsum n (M²)·|y−x|²（|x|,|y| ≤ M，0 ≤ M）           *)
-(* 归纳步增量 |B_k| ≤ (2k)#1·M^{2k−1}·|y−x|²（k = S m）         *)
+(* Part 4: the (b) partial-sum variation |S_n(y) − S_n(x) − (y−x)·b3_dsum n x|  *)
+(*   ≤ 2·M·b3_wsum n (M²)·|y−x|² (|x|,|y| ≤ M, 0 ≤ M)                            *)
+(* induction-step increment |B_k| ≤ (2k)#1·M^{2k−1}·|y−x|² (k = S m)             *)
 (* ============================================================ *)
 
-(* 系数恒等：(2k)#1 == 2·(k#1) *)
+(* coefficient identity: (2k)#1 == 2·(k#1) *)
 Lemma b3r_coef2 : forall (k : nat), QeqT ((Z.of_nat (2 * k) # 1)) (2 * (Z.of_nat k # 1)).
 Proof.
   intros k. apply qeq_imp_qeqT.
@@ -4174,7 +4220,7 @@ Proof.
   rewrite Hz. reflexivity.
 Qed.
 
-(* 指数恒等：M^{2(Sm)−1} == M·(M²)^m *)
+(* exponent identity: [M^{2(Sm)−1} == M·(M²)^m] *)
 Lemma b3r_Mpow : forall (M : Q) (m : nat),
   QeqT (q_pow M (2 * Datatypes.S m - 1)) (M * q_pow (M * M) m).
 Proof.
@@ -4188,7 +4234,7 @@ Proof.
   ring.
 Qed.
 
-(* 增量界：|arctan_term (S m) y − arctan_term (S m) x − (y−x)(−(x·x))^{S m}|
+(* increment bound: |arctan_term (S m) y − arctan_term (S m) x − (y−x)(−(x·x))^{S m}|
    ≤ (2·(S m))#1·M^{2(Sm)−1}·|y−x|² *)
 Lemma b3r_inc : forall (x y M : Q) (m : nat),
   Qle 0 M -> Qle (Qabs x) M -> Qle (Qabs y) M ->
@@ -4279,7 +4325,7 @@ Proof.
   simpl. ring.
 Qed.
 
-(* 主：(b) 部分和变差 *)
+(* main: the (b) partial-sum variation *)
 Lemma b3r_partial_var : forall (n : nat) (x y M : Q),
   Qle 0 M -> Qle (Qabs x) M -> Qle (Qabs y) M ->
   QleT' (Qabs (arctan_partial n y - arctan_partial n x - (y - x) * b3_dsum n x))
@@ -4287,7 +4333,7 @@ Lemma b3r_partial_var : forall (n : nat) (x y M : Q),
              (Qmult (Qabs (y - x)) (Qabs (y - x)))).
 Proof.
   induction n as [| m IH]; intros x y M HM Hx Hy; apply Qle_to_QleT'.
-  - (* n = 0：LHS == 0、RHS == 0 *)
+  - (* n = 0: LHS == 0 and RHS == 0 *)
     apply QleT'_to_Qle. apply qeq_imp_qle.
     apply qeq_imp_qeqT.
     transitivity 0.
@@ -4347,7 +4393,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 5：Cb 常量 + (b)-界实例化（M := 3/4）+ 域证书 + 衰减     *)
+(* Part 5: the Cb constant + instantiation of the (b) bound (M := 3/4) + domain certificates + decay *)
 (* ============================================================ *)
 
 Definition b3r_Cb : Q :=
@@ -4372,7 +4418,7 @@ Proof.
       * compute. reflexivity.
 Qed.
 
-(* (b)-界实例（|x|,|y| ≤ 3/4）：≤ Cb·|y−x|² *)
+(* (b)-bound instance (|x|,|y| ≤ 3/4): ≤ Cb·|y−x|² *)
 Lemma b3r_var34 : forall (n : nat) (x y : Q),
   Qle (Qabs x) (3 # 4) -> Qle (Qabs y) (3 # 4) ->
   QleT' (Qabs (arctan_partial n y - arctan_partial n x - (y - x) * b3_dsum n x))
@@ -4424,7 +4470,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold b3r_Cb. unfold q. ring.
 Qed.
 
-(* 域证书：|x| ≤ 1/2（逐点 QleT'）⟹ |x| ≤ 1 *)
+(* domain certificate: |x| ≤ 1/2 (pointwise [QleT']) ⟹ |x| ≤ 1 *)
 Lemma b3r_half_dom : forall (x : Real),
   (forall n : nat, QleT' (Qabs (projT1 x n)) (Qinv 2)) ->
   forall n : nat, QleT' (Qabs (projT1 x n)) 1.
@@ -4436,15 +4482,15 @@ Proof.
     unfold Qle. simpl. lia.
 Qed.
 
-(* 投影：projT1 real_one n == 1 *)
+(* projection: [projT1 real_one n == 1] *)
 Lemma b3r_one_proj : forall (n : nat), QeqT (projT1 real_one n) (1).
 Proof. intros n.  apply qeq_imp_qeqT. cbn [projT1]. reflexivity. Qed.
 
-(* 投影：projT1 real_zero n == 0 *)
+(* projection: [projT1 real_zero n == 0] *)
 Lemma b3r_zero_proj : forall (n : nat), QeqT (projT1 real_zero n) (0).
 Proof. intros n.  apply qeq_imp_qeqT. cbn [projT1]. reflexivity. Qed.
 
-(* 正性件：0 < 1 + x·x（Real 见证 eps := 1/2，N := 0） *)
+(* positivity piece: 0 < 1 + x·x ([Real] witness with eps := 1/2, N := 0) *)
 Lemma b3r_one_sq_real_pos : forall (x : Real),
   real_lt real_zero (real_plus real_one (real_mult x x)).
 Proof.
@@ -4468,9 +4514,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 6：几何衰减                                            *)
+(* Part 6: geometric decay                                                    *)
 (* ============================================================ *)
-(* (1/2)^d ≤ 1（0 ≤ 1/2 ≤ 1） *)
+(* (1/2)^d ≤ 1 (0 ≤ 1/2 ≤ 1) *)
 Lemma b3r_half_pow_le1 : forall (d : nat), QleT' (q_pow (1 # 2) d) 1.
 Proof.
   intros d. apply Qle_to_QleT'.
@@ -4481,7 +4527,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply qeqT_imp_qeq. apply q_pow_one.
 Qed.
 
-(* 衰减：(1/2)^m ≤ e（e > 0，m ≥ N）：经 q_pow_arch *)
+(* decay: (1/2)^m ≤ e (e > 0, m ≥ N): via [q_pow_arch] *)
 Lemma b3r_geom_decay : forall (e : Q), Qlt 0 e ->
   sigT (fun N : nat => forall m : nat, NatLe N m -> QleT' (q_pow (1 # 2) m) e).
 Proof.
@@ -4506,7 +4552,7 @@ Proof.
       exact Ht.
 Qed.
 
-(* k 小性：Cb·Qinv(4(Cb+1)) ≤ 1/4 *)
+(* k-smallness: [Cb·Qinv(4(Cb+1)) ≤ 1/4] *)
 Lemma b3r_CbK : QleT' (b3r_Cb * Qinv (4 * (b3r_Cb + 1))) (1 # 4).
 Proof.
   intros.
@@ -4547,8 +4593,8 @@ Proof.
     + rewrite Hdd. ring.
 Qed.
 
-(* 逐点核心界：|S_n(u+h) − S_n(u) − h·Qinv(1+u²)|
-   ≤ Cb·|h|² + |h|·(1/2)^{2(Sn)}（|u| ≤ 1/2，|h| ≤ 1/4） *)
+(* pointwise core bound: |S_n(u+h) − S_n(u) − h·Qinv(1+u²)|
+   ≤ Cb·|h|² + |h|·(1/2)^{2(Sn)} (|u| ≤ 1/2, |h| ≤ 1/4) *)
 Lemma b3r_core : forall (n : nat) (u h : Q),
   Qle (Qabs u) (1 # 2) -> Qle (Qabs h) (1 # 4) ->
   QleT' (Qabs (arctan_partial n (u + h) - arctan_partial n u - h * Qinv (1 + u * u)))
@@ -4614,9 +4660,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 7：arctan_partial 对 Qeq 的形态（投影链在 partial 内重写）*)
+(* Part 7: the [Qeq] forms of [arctan_partial] (projection chains rewrite inside partial) *)
 (* ============================================================ *)
-(* arctan_term/arctan_partial 对 Qeq 的形态（供投影链在 arctan_partial 内重写） *)
+(* the [Qeq] forms of [arctan_term]/[arctan_partial] (for projection chains to rewrite inside [arctan_partial]) *)
 Lemma b3r_ap_term_wd : forall (k : nat) (x y : Q), x == y -> QeqT (arctan_term k x) (arctan_term k y).
 Proof. intros k x y H.  apply qeq_imp_qeqT. unfold arctan_term. rewrite H. reflexivity. Qed.
 Lemma b3r_ap_wd : forall (n : nat) (x y : Q), x == y -> QeqT (arctan_partial n x) (arctan_partial n y).
@@ -4633,7 +4679,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 8：Real 层主定理 real_arctan_deriv_linear（|x| ≤ 1/2）   *)
+(* Part 8: the [Real]-layer main statement [real_arctan_deriv_linear] (|x| ≤ 1/2)   *)
 (* ============================================================ *)
 Lemma real_arctan_deriv_linear :
   forall (x : Real),
@@ -4710,7 +4756,7 @@ Proof.
       set (yn := un + hn).
       set (Dform := arctan_partial n yn - arctan_partial n un - hn * Qinv (1 + un * un)).
       set (wreal := real_inv_pos (real_plus real_one (real_mult x x)) (b3r_one_sq_real_pos x)).
-      (* 正性：en ≥ 0、en' > eps1' *)
+      (* positivity: en ≥ 0 and en' > eps1' *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -4725,7 +4771,7 @@ Proof.
         apply (Qlt_le_trans eps1' (Qminus (projT1 eps' n) (projT1 real_zero n)) en').
         - apply QltT_to_Qlt. exact (HN1' n (NatLe_lift _ _ Hn1')).
         - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. cbn [real_zero real_const projT1]. unfold en'. ring. }
-      (* 见证→点界：|hn| ≤ 1/4、|hn| ≤ en·k *)
+      (* from witnesses to pointwise bounds: |hn| ≤ 1/4 and |hn| ≤ en·k *)
       assert (Hq2 : Qlt e2 (Qminus (1 # 4) (Qabs hn))).
       { apply (Qlt_le_trans e2 (Qminus (projT1 (real_const (1 # 4)) n) (projT1 (real_abs h) n))
                              (Qminus (1 # 4) (Qabs hn))).
@@ -4770,13 +4816,13 @@ Proof.
                      (Qle_refl _) He30).
           + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
       assert (Hhn_kle : Qle (Qabs hn) (Qmult en k)) by (apply Qlt_le_weak; exact Hhn_k).
-      (* 域：|un| ≤ 1/2 *)
+      (* domain: |un| ≤ 1/2 *)
       assert (Hun12 : Qle (Qabs un) (1 # 2)).
       { apply (QleT'_to_Qle (Qabs un) (Qinv 2)). apply Hxb. }
       assert (Hhvn0 : Qle 0 (Qabs hn)) by apply Qabs_nonneg.
       assert (Henhn0 : Qle 0 (Qmult en (Qabs hn))).
       { apply (Qmult_le_0_compat en (Qabs hn)). exact Hen0. exact Hhvn0. }
-      (* 投影恒等（A 侧） *)
+      (* projection identity (side A) *)
       assert (Hrepl : projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus x h) Hxh)
                   (real_opp (real_plus (cauchy_real_arctan x (b3r_half_dom x Hxb))
                               (real_mult h wreal))))) n ==
@@ -4806,18 +4852,18 @@ Proof.
         rewrite ((qeqT_imp_qeq _ _ (real_mult_proj x x n))).
         rewrite (qeqT_imp_qeq _ _ (b3r_one_proj n)).
         apply Qabs_wd. ring. }
-      (* B 侧投影 *)
+      (* side-B projection *)
       assert (HB : projT1 (real_plus (real_mult eps (real_abs h)) eps') n == en * Qabs hn + en').
       { unfold en, en', hn.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (real_mult eps (real_abs h)) eps' n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [real_zero real_const projT1]. ring. }
-      (* 点主界 1：Cb·|hn|² ≤ en·|hn|·(1/4) *)
+      (* pointwise main bound 1: [Cb·|hn|² ≤ en·|hn|·(1/4)] *)
       assert (Hcbn : Qle (Qmult b3r_Cb (Qmult (Qabs hn) (Qabs hn)))
                          (Qmult (Qmult en (Qabs hn)) (1 # 4))).
       { apply (Qle_trans _ (Qmult b3r_Cb (Qmult (Qmult en k) (Qabs hn))) _).
-        - (* |hn|·|hn| ≤ (en·k)·|hn|（右乘 |hn| ≥ 0），再左乘 Cb ≥ 0 *)
+        - (* |hn|·|hn| ≤ (en·k)·|hn| (right multiplication by |hn| ≥ 0), then left multiplication by Cb ≥ 0 *)
           apply QleT'_to_Qle. apply (b3_qmult_le_l (Qmult (Qabs hn) (Qabs hn))
                                (Qmult (Qmult en k) (Qabs hn)) b3r_Cb).
           + exact HCb0.
@@ -4830,7 +4876,7 @@ Proof.
           + apply QleT'_to_Qle. apply (b3_qmult_le_l (Qmult b3r_Cb k) (1 # 4) (Qmult en (Qabs hn))).
             * exact Henhn0.
             * exact HCbK. }
-      (* 点主界 2：(1/2)^{2(Sn)} ≤ eta（n ≥ Ng ⟹ 2(Sn) ≥ Ng） *)
+      (* pointwise main bound 2: (1/2)^{2(Sn)} ≤ eta (n ≥ Ng ⟹ 2(Sn) ≥ Ng) *)
       assert (Hdec2 : Qle (q_pow (1 # 2) (2 * Datatypes.S n)) eta).
       { apply QleT'_to_Qle. apply (HNg ((2 * Datatypes.S n)%nat)). apply NatLe_lift. lia. }
       assert (Hpow14 : Qle (Qmult (Qabs hn) (q_pow (1 # 2) (2 * Datatypes.S n)))
@@ -4840,7 +4886,7 @@ Proof.
           + exact Hhn1.
           + apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. unfold Qle. simpl. lia.
         - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
-      (* 主点界：|D_n| ≤ en·|hn| + eta *)
+      (* main pointwise bound: |D_n| ≤ en·|hn| + eta *)
       assert (Hm1 : Qle
         (Qabs (arctan_partial n yn - arctan_partial n un - hn * Qinv (1 + un * un)))
         (Qplus (Qmult b3r_Cb (Qmult (Qabs hn) (Qabs hn)))
@@ -4888,14 +4934,14 @@ Proof.
             * apply (Qle_trans _ (Qplus (Qmult (Qmult en (Qabs hn)) (1 # 4)) eta) _).
               -- exact Hm4.
               -- exact Hm6. }
-      (* Hfin：eta < (en·|hn| + en') − |D_n| *)
+      (* Hfin: eta < (en·|hn| + en') − |D_n| *)
       assert (Hfin : Qlt eta
           (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs Dform))).
       { apply (Qlt_le_trans eta
           (Qminus (Qplus (Qmult en (Qabs hn)) en')
                   (Qplus (Qmult en (Qabs hn)) eta))
           (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs Dform))).
-        - (* eta < (en|hn|+en') − (en|hn|+eta) == en' − 2eta，由 en' > eps1' == 2eta *)
+        - (* eta < (en|hn|+en') − (en|hn|+eta) == en' − 2eta, since en' > eps1' == 2eta *)
           apply (proj2 (Qlt_minus_iff eta
               (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qplus (Qmult en (Qabs hn)) eta)))).
           assert (Heq : Qminus (Qminus (Qplus (Qmult en (Qabs hn)) en')
@@ -4915,7 +4961,7 @@ Proof.
           rewrite Heq2.
           apply (proj1 (Qle_minus_iff (Qabs Dform) (Qplus (Qmult en (Qabs hn)) eta))).
           exact Hmain. }
-      (* 投影桥（RHS − LHS）==（B − |D|） *)
+      (* projection bridge: (RHS − LHS) == (B − |D|) *)
       assert (Hrepl2 : Qeq
           (Qminus (projT1 (real_plus (real_mult eps (real_abs h)) eps') n)
                   (projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus x h) Hxh)
@@ -4947,16 +4993,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B3a Real 层 r 参数化主定理    *)
-(* （|x| ≤ r < 1；b3rr_real_arctan_deriv_linear 收尾）；          *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b3_arctanp/sc2_b3_real_r.v *)
-(* 20 Qed；零公理面、零承认件。                                 *)
+(* B3a [Real]-layer r-parameterized main statement                       *)
+(* (|x| ≤ r < 1; concluded by [b3rr_real_arctan_deriv_linear]);          *)
+(* source: sc2_b3_real_r.v (sc2_b3_arctanp)                              *)
+(* 20 [Qed]; axiom-free face, zero admitted statements.                  *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* Part A：通用几何衰减：0 ≤ q < 1 ⟹ ∃N，m ≥ N ⟹ q^m ≤ e        *)
-(* 路线：q^m·(1 + m(1−q)) ≤ 1（几何和 1−q^m ≥ m(1−q)q^{m−1}），  *)
-(*   q^m ≤ 1/(1+m(1−q)) ≤ e（阿基米德取 m）。                     *)
+(* Part A: general geometric decay: 0 ≤ q < 1 ⟹ ∃N, m ≥ N ⟹ q^m ≤ e     *)
+(* route: [q^m·(1 + m(1−q)) ≤ 1] (the geometric sum gives 1−q^m ≥ m(1−q)q^{m−1}), *)
+(*   so q^m ≤ 1/(1+m(1−q)) ≤ e (take m by the Archimedean property).     *)
 (* ============================================================ *)
 
 (* (1−q)·Σ_{j=0}^{m−1} q^j == 1 − q^m *)
@@ -4973,7 +5019,7 @@ Proof.
     + rewrite IH. ring.
 Qed.
 
-(* 0 ≤ q ≤ 1、j ≤ m ⟹ q^{m} ≤ q^{j}（幂对指数递减） *)
+(* 0 ≤ q ≤ 1, j ≤ m ⟹ [q^{m} ≤ q^{j}] (powers decrease in the exponent) *)
 Lemma b3rr_pow_decr : forall (q : Q) (j m : nat),
   Qle 0 q -> Qle q 1 -> (j <= m)%nat ->
   QleT' (q_pow q m) (q_pow q j).
@@ -4992,7 +5038,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 0 ≤ q ≤ 1 ⟹ m·q^{m−1} ≤ Σ_{j<m} q^j（每项 ≥ q^{m−1}） *)
+(* 0 ≤ q ≤ 1 ⟹ [m·q^{m−1} ≤ Σ_{j<m} q^j] (each term ≥ q^{m−1}) *)
 Lemma b3rr_psum_low : forall (q : Q) (m : nat),
   Qle 0 q -> Qle q 1 ->
   QleT' (Qmult (Z.of_nat m # 1) (q_pow q (m - 1)))
@@ -5002,7 +5048,7 @@ Proof.
   destruct m as [| m].
   - simpl. apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
   - apply (Qle_trans _ (b3r_psum (Datatypes.S m) (fun _ : nat => q_pow q m)) _).
-    + (* (S m)#1·q^{(S m)−1} ≤ psum(S m)(const q^m)：指数 (S m)−1 == m，psum-const 闭式 *)
+    + (* (S m)#1·q^{(S m)−1} ≤ psum(S m)(const q^m): the exponent (S m)−1 == m, by the psum-const closed form *)
       apply QleT'_to_Qle. apply qeq_imp_qle.
       apply qeq_imp_qeqT.
       assert (Hsm : (Datatypes.S m - 1)%nat = m) by lia.
@@ -5034,8 +5080,8 @@ Proof.
   destruct m as [| m].
   - (* m = 0 *)
     simpl. apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-  - (* m = S m；A := q^{S m}，g := (S m)#1
-       链：A(1+g(1−q)) == A + (1−q)gA ≤ A + (1−q)g·q^m ≤ A + (1−q)psum
+  - (* m = S m with A := q^{S m}, g := (S m)#1
+       chain: A(1+g(1−q)) == A + (1−q)gA ≤ A + (1−q)g·q^m ≤ A + (1−q)psum
            == A + 1 − A == 1 *)
     set (g := Z.of_nat (Datatypes.S m) # 1).
     set (A := q_pow q (Datatypes.S m)).
@@ -5072,7 +5118,7 @@ Proof.
            ++ apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold A. ring.
 Qed.
 
-(* 通用几何衰减：0 ≤ q < 1 ⟹ ∃N，m ≥ N ⟹ q^m ≤ e *)
+(* general geometric decay: 0 ≤ q < 1 ⟹ ∃N, m ≥ N ⟹ q^m ≤ e *)
 Lemma b3rr_qdecay : forall (q e : Q), Qle 0 q -> Qlt q 1 -> Qlt 0 e ->
   sigT (fun N : nat => forall m : nat, NatLe N m -> QleT' (q_pow q m) e).
 Proof.
@@ -5098,7 +5144,7 @@ Proof.
   assert (Hbig : Qle (Qinv e) (1 + (Z.of_nat m # 1) * (1 - q))).
   { apply (Qle_trans _ (Qmult (Z.of_nat m # 1) (1 - q)) _).
     - apply (Qle_trans _ (Qmult (Z.pos p # 1) (1 - q)) _).
-      + (* (p#1)(1−q) > Qinv e：Hp 乘 (1−q)（Qinv 分解 + 消去） *)
+      + (* (p#1)(1−q) > Qinv e: Hp multiplied by (1−q) ([Qinv] decomposition + cancellation) *)
         apply Qlt_le_weak.
         apply (Qle_lt_trans _ (Qmult (Qinv (Qmult e (1 - q))) (1 - q)) _).
         * apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. field.
@@ -5142,7 +5188,7 @@ Proof.
         -- exact (QleT'_to_Qle _ _ Hlin).
         -- exact Hinv0.
       * apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
-  - (* Qinv(1+m(1−q)) ≤ e：contravar + Qinv 对合 *)
+  - (* Qinv(1+m(1−q)) ≤ e: contravariance + the [Qinv] involution *)
     apply (Qle_trans _ (Qinv (Qinv e)) _).
     + apply QleT'_to_Qle. apply (q_inv_le_contravar (1 + (Z.of_nat m # 1) * (1 - q)) (Qinv e)).
       * apply Qlt_to_QltT. exact Hden0.
@@ -5158,10 +5204,10 @@ Qed.
 
 
 (* ============================================================ *)
-(* Part B：域证书 + 通用 M 变差界 + r 逐点核心界                 *)
+(* Part B: domain certificates + the general M variation bound + the r pointwise core bound     *)
 (* ============================================================ *)
 
-(* 域证书：|x| ≤ r（逐点 QleT'）且 r ≤ 1 ⟹ |x| ≤ 1 *)
+(* domain certificate: |x| ≤ r (pointwise [QleT']) with r ≤ 1 ⟹ |x| ≤ 1 *)
 Lemma b3rr_dom_lt1 : forall (x : Real) (r : Q),
   (forall n : nat, QleT' (Qabs (projT1 x n)) r) ->
   QleT' r 1 ->
@@ -5173,12 +5219,12 @@ Proof.
   - exact Hr1.
 Qed.
 
-(* 通用变差常量 C2(M) := 2·M·Qinv((1−M²)²) *)
+(* general variation constant [C2(M) := 2·M·Qinv((1−M²)²)] *)
 Definition b3rr_C2 (M : Q) : Q :=
   Qmult (Z.of_nat 2 # 1) (Qmult M
     (Qinv ((1 - M * M) * (1 - M * M)))).
 
-(* 0 ≤ M、M² < 1 ⟹ |S_n(y) − S_n(x) − (y−x)·b3_dsum n x| ≤ C2(M)·|y−x|² *)
+(* 0 ≤ M, M² < 1 ⟹ |S_n(y) − S_n(x) − (y−x)·b3_dsum n x| ≤ C2(M)·|y−x|² *)
 Lemma b3rr_varM : forall (n : nat) (x y M : Q),
   Qle 0 M -> Qlt M 1 -> Qle (Qabs x) M -> Qle (Qabs y) M ->
   QleT' (Qabs (arctan_partial n y - arctan_partial n x - (y - x) * b3_dsum n x))
@@ -5234,7 +5280,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold b3rr_C2. unfold q. ring.
 Qed.
 (* ============================================================ *)
-(* Part C1：(1/2) 算术 + C2 正性 + 通用 k 小性                   *)
+(* Part C1: (1/2) arithmetic + positivity of C2 + general k-smallness                   *)
 (* ============================================================ *)
 
 Lemma b3rr_half2_l : QeqT ((1 # 2) * (Z.of_nat 2 # 1)) (1).
@@ -5268,7 +5314,7 @@ Proof.
   apply (Qle_trans _ (Qmult (1 # 2) ((Z.of_nat 2 # 1) * r)) _).
   - (* r == (1#2)(2r) *)
     apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply Qeq_sym. apply qeqT_imp_qeq. apply (b3rr_half_double r).
-  - (* (1#2)(2r) ≤ (1#2)(1+r)：2r ≤ 1+r（r ≤ 1） *)
+  - (* (1#2)(2r) ≤ (1#2)(1+r): 2r ≤ 1+r (r ≤ 1) *)
     apply QleT'_to_Qle. apply (b3_qmult_le_l ((Z.of_nat 2 # 1) * r) (1 + r) (1 # 2)).
     + unfold Qle. simpl. lia.
     + assert (H2 : (Z.of_nat 2 # 1) == 1 + 1) by (unfold Qeq; simpl; lia).
@@ -5294,7 +5340,7 @@ Proof.
       reflexivity.
 Qed.
 
-(* 0 ≤ M、M < 1 ⟹ 0 ≤ C2(M) *)
+(* 0 ≤ M, M < 1 ⟹ 0 ≤ C2(M) *)
 Lemma b3rr_C2_0 : forall (M : Q), Qle 0 M -> Qlt M 1 -> QleT' 0 (b3rr_C2 M).
 Proof.
   intros M HM0 HM1. apply Qle_to_QleT'.
@@ -5306,7 +5352,7 @@ Proof.
     + exact HM0.
     + apply (Qlt_le_weak 0 (Qinv ((1 - M * M) * (1 - M * M)))).
       apply Qinv_lt_0_compat.
-      (* 0 < (1−M²)²：0 < 1 − M²（M < 1、M ≥ 0） *)
+      (* 0 < (1−M²)²: 0 < 1 − M² (M < 1 and M ≥ 0) *)
       apply (Qmult_lt_0_compat (1 - M * M) (1 - M * M)).
       * apply (proj1 (Qlt_minus_iff (M * M) 1)).
         apply (Qle_lt_trans _ (M * 1) _).
@@ -5326,7 +5372,7 @@ Proof.
            ++ exact HM1.
 Qed.
 
-(* 通用 k 小性：0 ≤ C ⟹ C·Qinv(4(C+1)) ≤ 1/4 *)
+(* general k-smallness: 0 ≤ C ⟹ [C·Qinv(4(C+1)) ≤ 1/4] *)
 Lemma b3rr_CK : forall (C : Q), Qle 0 C ->
   QleT' (C * Qinv (4 * (C + 1))) (1 # 4).
 Proof.
@@ -5367,10 +5413,10 @@ Proof.
     + rewrite Hdd. ring.
 Qed.
 (* ============================================================ *)
-(* Part C2：r 参数化逐点核心界                                  *)
-(* 0 ≤ r < 1、|u| ≤ r、|h| ≤ (1−r)/2 ⟹                          *)
-(*   |S_n(u+h) − S_n(u) − h·Qinv(1+u²)|                          *)
-(*   ≤ C2(M)·|h|² + |h|·r^{2(Sn)}，M := (1+r)/2                  *)
+(* Part C2: the r-parameterized pointwise core bound                            *)
+(* 0 ≤ r < 1, |u| ≤ r, |h| ≤ (1−r)/2 ⟹                                          *)
+(*   |S_n(u+h) − S_n(u) − h·Qinv(1+u²)|                                          *)
+(*   ≤ C2(M)·|h|² + |h|·r^{2(Sn)}, with M := (1+r)/2                            *)
 (* ============================================================ *)
 Lemma b3rr_core_r : forall (n : nat) (u h r : Q),
   Qle 0 r -> Qlt r 1 -> Qle (Qabs u) r ->
@@ -5413,7 +5459,7 @@ Proof.
     apply (Qlt_irrefl r).
     apply (Qlt_le_trans r 1 r).
     - exact Hr1.
-    - (* 1 ≤ r：r == 1（H2z：1+r == 1+1 两侧加 −1） *)
+    - (* 1 ≤ r: r == 1 (H2z: adding −1 to both sides of 1+r == 1+1) *)
       assert (Hr1q : r == 1).
       { transitivity ((1 + r) + -1).
         - ring.
@@ -5425,7 +5471,7 @@ Proof.
   { destruct (Qle_lt_or_eq M 1 HM1le) as [Hlt | Heq].
     - exact Hlt.
     - exfalso. apply HM1ne. exact Heq. }
-  (* |u| ≤ r ≤ M、|u+h| ≤ M *)
+  (* |u| ≤ r ≤ M and |u+h| ≤ M *)
   assert (HuM : Qle (Qabs u) M).
   { apply (Qle_trans _ r _).
     - exact Hu.
@@ -5438,7 +5484,7 @@ Proof.
     - apply (Qle_trans _ (r + (1 # 2) * (1 - r)) _).
       + apply Qplus_le_compat. exact Hu. exact Hh.
       + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. rewrite (qeqT_imp_qeq _ _ (b3rr_rc_half r)). unfold M. reflexivity. }
-  (* 插项分解 *)
+  (* insertion decomposition *)
   assert (Hdec : arctan_partial n (u + h) - arctan_partial n u - h * Qinv (1 + u * u) ==
         (arctan_partial n (u + h) - arctan_partial n u - h * b3_dsum n u) +
         h * (b3_dsum n u - Qinv (1 + u * u))).
@@ -5484,8 +5530,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part C3：r 参数化主定理辅助件（M := (1+r)/2 界、r≤1 证书、  *)
-(*   (1−r)/2 ≤ 1）                                               *)
+(* Part C3: auxiliary pieces for the r-parameterized main statement (the M := (1+r)/2 bound, *)
+(*   the r ≤ 1 certificate, and (1−r)/2 ≤ 1)                                                  *)
 (* ============================================================ *)
 
 (* 0 ≤ r ⟹ 0 ≤ M := (1+r)/2 *)
@@ -5541,7 +5587,7 @@ Proof.
   - exfalso. apply HM1ne. exact Heq.
 Qed.
 
-(* |x_n| ≤ r、r < 1 ⟹ |x_n| ≤ 1（arctan x 域证书） *)
+(* |x_n| ≤ r with r < 1 ⟹ |x_n| ≤ 1 (the domain certificate for arctan x) *)
 Lemma b3rr_dom_r1 : forall (x : Real) (r : Q),
   (forall n : nat, QleT' (Qabs (projT1 x n)) r) ->
   Qlt r 1 ->
@@ -5570,11 +5616,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part D：r 参数化主定理 b3rr_real_arctan_deriv_linear          *)
-(* 域 |x| ≤ r（0 ≤ r < 1，逐点 QleT' 前提）；δ := min((1−r)/2,  *)
-(*   eps·k)（k := Qinv(4(Cr+1))，Cr := b3rr_C2((1+r)/2)）。       *)
-(* 蓝图同构于 sc2_b3_real.v Part 8 real_arctan_deriv_linear 的     *)
-(* 点值链（上游只读参考；(1/2)-底换 r，Cb 换 Cr）。              *)
+(* Part D: the r-parameterized main statement [b3rr_real_arctan_deriv_linear]   *)
+(* domain |x| ≤ r (0 ≤ r < 1, pointwise [QleT'] premise); δ := min((1−r)/2,     *)
+(*   eps·k) with k := Qinv(4(Cr+1)) and Cr := b3rr_C2((1+r)/2).                 *)
+(* the blueprint is isomorphic to the pointwise chain of Part 8 of sc2_b3_real.v's *)
+(* [real_arctan_deriv_linear] (read-only upstream reference; the (1/2) base becomes r, *)
+(* and Cb becomes Cr).                                                          *)
 (* ============================================================ *)
 Lemma b3rr_real_arctan_deriv_linear :
   forall (r : Q) (Hr0 : Qle 0 r) (Hr1 : Qlt r 1),
@@ -5659,7 +5706,7 @@ Proof.
       set (yn := un + hn).
       set (Dform := arctan_partial n yn - arctan_partial n un - hn * Qinv (1 + un * un)).
       set (wreal := real_inv_pos (real_plus real_one (real_mult x x)) (b3r_one_sq_real_pos x)).
-      (* 正性：en ≥ 0、en' > eps1' *)
+      (* positivity: en ≥ 0 and en' > eps1' *)
       assert (HN1e : QltT eps1 en).
       { apply Qlt_to_QltT.
         apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -5674,7 +5721,7 @@ Proof.
         apply (Qlt_le_trans eps1' (Qminus (projT1 eps' n) (projT1 real_zero n)) en').
         - apply QltT_to_Qlt. exact (HN1' n (NatLe_lift _ _ Hn1')).
         - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. cbn [real_zero real_const projT1]. unfold en'. ring. }
-      (* 见证→点界：|hn| ≤ (1−r)/2、|hn| ≤ en·k *)
+      (* from witnesses to pointwise bounds: |hn| ≤ (1−r)/2 and |hn| ≤ en·k *)
       assert (Hq2 : Qlt e2 (Qminus ((1 # 2) * (1 - r)) (Qabs hn))).
       { apply (Qlt_le_trans e2 (Qminus (projT1 (real_const ((1 # 2) * (1 - r))) n) (projT1 (real_abs h) n))
                              (Qminus ((1 # 2) * (1 - r)) (Qabs hn))).
@@ -5725,13 +5772,13 @@ Proof.
                      (Qle_refl _) He30).
           + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
       assert (Hhn_kle : Qle (Qabs hn) (Qmult en k)) by (apply Qlt_le_weak; exact Hhn_k).
-      (* 域：|un| ≤ r *)
+      (* domain: |un| ≤ r *)
       assert (Hun_r : Qle (Qabs un) r).
       { apply (QleT'_to_Qle (Qabs un) r). apply Hxb. }
       assert (Hhvn0 : Qle 0 (Qabs hn)) by apply Qabs_nonneg.
       assert (Henhn0 : Qle 0 (Qmult en (Qabs hn))).
       { apply (Qmult_le_0_compat en (Qabs hn)). exact Hen0. exact Hhvn0. }
-      (* 投影恒等（A 侧） *)
+      (* projection identity (side A) *)
       assert (Hrepl : projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus x h) Hxh)
                   (real_opp (real_plus (cauchy_real_arctan x (b3rr_dom_r1 x r Hxb Hr1))
                               (real_mult h wreal))))) n ==
@@ -5761,18 +5808,18 @@ Proof.
         rewrite ((qeqT_imp_qeq _ _ (real_mult_proj x x n))).
         rewrite (qeqT_imp_qeq _ _ (b3r_one_proj n)).
         apply Qabs_wd. ring. }
-      (* B 侧投影 *)
+      (* side-B projection *)
       assert (HB : projT1 (real_plus (real_mult eps (real_abs h)) eps') n == en * Qabs hn + en').
       { unfold en, en', hn.
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (real_mult eps (real_abs h)) eps' n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n))).
         setoid_rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
         cbn [real_zero real_const projT1]. ring. }
-      (* 点主界 1：Cr·|hn|² ≤ en·|hn|·(1/4) *)
+      (* pointwise main bound 1: [Cr·|hn|² ≤ en·|hn|·(1/4)] *)
       assert (Hcbn : Qle (Qmult Cr (Qmult (Qabs hn) (Qabs hn)))
                          (Qmult (Qmult en (Qabs hn)) (1 # 4))).
       { apply (Qle_trans _ (Qmult Cr (Qmult (Qmult en k) (Qabs hn))) _).
-        - (* |hn|·|hn| ≤ (en·k)·|hn|（右乘 |hn| ≥ 0），再左乘 Cr ≥ 0 *)
+        - (* |hn|·|hn| ≤ (en·k)·|hn| (right multiplication by |hn| ≥ 0), then left multiplication by Cr ≥ 0 *)
           apply QleT'_to_Qle. apply (b3_qmult_le_l (Qmult (Qabs hn) (Qabs hn))
                                (Qmult (Qmult en k) (Qabs hn)) Cr).
           + exact HCr0.
@@ -5785,7 +5832,7 @@ Proof.
           + apply QleT'_to_Qle. apply (b3_qmult_le_l (Qmult Cr k) (1 # 4) (Qmult en (Qabs hn))).
             * exact Henhn0.
             * exact HCrK. }
-      (* 点主界 2：r^{2(Sn)} ≤ eta（n ≥ Ng ⟹ 2(Sn) ≥ Ng） *)
+      (* pointwise main bound 2: r^{2(Sn)} ≤ eta (n ≥ Ng ⟹ 2(Sn) ≥ Ng) *)
       assert (Hdec2 : Qle (q_pow r (2 * Datatypes.S n)) eta).
       { apply QleT'_to_Qle. apply (HNg ((2 * Datatypes.S n)%nat)). apply NatLe_lift. lia. }
       assert (Hpow14 : Qle (Qmult (Qabs hn) (q_pow r (2 * Datatypes.S n)))
@@ -5795,7 +5842,7 @@ Proof.
           + exact Hhn1.
           + apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hr0.
         - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
-      (* 主点界：|D_n| ≤ en·|hn| + eta *)
+      (* main pointwise bound: |D_n| ≤ en·|hn| + eta *)
       assert (Hm1 : Qle
         (Qabs (arctan_partial n yn - arctan_partial n un - hn * Qinv (1 + un * un)))
         (Qplus (Qmult Cr (Qmult (Qabs hn) (Qabs hn)))
@@ -5843,14 +5890,14 @@ Proof.
             * apply (Qle_trans _ (Qplus (Qmult (Qmult en (Qabs hn)) (1 # 4)) eta) _).
               -- exact Hm4.
               -- exact Hm6. }
-      (* Hfin：eta < (en·|hn| + en') − |D_n| *)
+      (* Hfin: eta < (en·|hn| + en') − |D_n| *)
       assert (Hfin : Qlt eta
           (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs Dform))).
       { apply (Qlt_le_trans eta
           (Qminus (Qplus (Qmult en (Qabs hn)) en')
                   (Qplus (Qmult en (Qabs hn)) eta))
           (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs Dform))).
-        - (* eta < (en|hn|+en') − (en|hn|+eta) == en' − 2eta，由 en' > eps1' == 2eta *)
+        - (* eta < (en|hn|+en') − (en|hn|+eta) == en' − 2eta, since en' > eps1' == 2eta *)
           apply (proj2 (Qlt_minus_iff eta
               (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qplus (Qmult en (Qabs hn)) eta)))).
           assert (Heq : Qminus (Qminus (Qplus (Qmult en (Qabs hn)) en')
@@ -5870,7 +5917,7 @@ Proof.
           rewrite Heq2.
           apply (proj1 (Qle_minus_iff (Qabs Dform) (Qplus (Qmult en (Qabs hn)) eta))).
           exact Hmain. }
-      (* 投影桥（RHS − LHS）==（B − |D|） *)
+      (* projection bridge: (RHS − LHS) == (B − |D|) *)
       assert (Hrepl2 : Qeq
           (Qminus (projT1 (real_plus (real_mult eps (real_abs h)) eps') n)
                   (projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus x h) Hxh)
@@ -5902,16 +5949,18 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B4 链式 infra（p2 完整 + p3 前件）+ B5-B E/Hsc 桥 *)
-(* b4_chain_lipschitz 未纳入（排除项）；零公理面。                    *)
+(* B4 chained infrastructure (p2 complete + the p3 premise) + the B5-B E/Hsc bridge *)
+(* [b4_chain_lipschitz] is not included (excluded item); axiom-free face.           *)
 (* ============================================================ *)
 
 
-(* ================= 实层 Q-eq 自动化（无 inv/abs 的环恒等） =================
-   real_plus/mult/opp/const 逐点：projT1 引理穿透任意实参数（变量或
-   不透明实原子），real_zero/real_one 直接 cbn，simpl 后 Q ring/field。
-   不 destruct 上下文 Real 变量（避免误伤 let/alias）。勿用于含
-   inv/abs 的目标（inv 逐点不成立；abs 的 projT1 保持为原子）。 *)
+(* ================= [Real]-layer Q-eq automation (ring identities without inv/abs) =================
+   [real_plus]/[real_mult]/[real_opp]/[real_const] pointwise: the [projT1] lemmas pierce any real
+   argument (variables or opaque real atoms); [real_zero]/[real_one] reduce directly by [cbn],
+   then [Q] [ring]/[field] after [simpl].
+   do not destruct [Real] variables from the context (to avoid clobbering [let]/aliases). not
+   for goals involving [inv]/[abs] ([inv] does not hold pointwise; the [projT1] of [abs] stays
+   atomic). *)
 Ltac b4_qring :=
   apply real_eq_of_zero_diff; intro n; apply qeq_imp_qeqT;
   repeat (first [ rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _))
@@ -5921,7 +5970,7 @@ Ltac b4_qring :=
   cbn [projT1 real_zero real_one];
   simpl; try ring; try field.
 
-(* ================= 烟测：tactic 有效性与 Q field ================= *)
+(* ================= smoke tests: tactic validity and [Q] [field] ================= *)
 Lemma p2_smoke_qfield : forall a b c : Q, QeqT (a * (b + c)) (a * b + a * c).
 Proof.  intros. apply qeq_imp_qeqT. field. Qed.
 
@@ -5934,16 +5983,16 @@ Lemma p2_smoke2 : forall (c d : Q),
   real_eq (real_plus (real_const c) (real_const d)) (real_const (c + d)).
 Proof. intros. b4_qring. Qed.
 
-(* ================= lift 序列代数 ================= *)
-(* real_one 逐点 == 1（烟测） *)
+(* ================= lift-sequence algebra ================= *)
+(* [real_one] pointwise == 1 (smoke test) *)
 Lemma p2_one_proj : forall n : nat, QeqT (projT1 real_one n) (1).
 Proof.
   intro n. apply qeq_imp_qeqT.
-  (* real_one（L5353）定义为常量 1 序列：cbn 直接归约 *)
+  (* [real_one] (L5353) is defined as the constant-1 sequence: [cbn] reduces directly *)
   cbn [projT1 real_one]. reflexivity.
 Qed.
 
-(* real_const 层 Qeq 提升：c == d ⟹ real_const c == real_const d *)
+(* lifting [Qeq] at the [real_const] layer: [c == d ⟹ real_const c == real_const d] *)
 Lemma b4_const_eq : forall (c d : Q), c == d ->
   real_eq (real_const c) (real_const d).
 Proof.
@@ -5962,7 +6011,7 @@ Proof.
   exact Heps.
 Qed.
 
-(* real_plus (real_const c) real_one == real_const (c + 1)（逐点） *)
+(* [real_plus (real_const c) real_one == real_const (c + 1)] (pointwise) *)
 Lemma b4_const_plus_one : forall (c : Q),
   real_eq (real_plus (real_const c) real_one) (real_const (c + 1)).
 Proof.
@@ -5973,7 +6022,7 @@ Proof.
   ring.
 Qed.
 
-(* lift 后继： (S k)#1 == k#1 + 1 *)
+(* successor lifting: [(S k)#1 == k#1 + 1] *)
 Lemma b4_lift_succ : forall (k : nat),
   real_eq (real_const (Z.of_nat (Datatypes.S k) # 1))
           (real_plus (real_const (Z.of_nat k # 1)) real_one).
@@ -5985,7 +6034,7 @@ Proof.
   - apply (real_eq_sym _ _ (b4_const_plus_one (Z.of_nat k # 1))).
 Qed.
 
-(* lift 正性：n ≥ 1 ⟹ 0 < n#1 *)
+(* positivity lifting: n ≥ 1 ⟹ 0 < n#1 *)
 Lemma b4_lift_pos : forall (n : nat), (1 <= n)%nat ->
   real_lt real_zero (real_const (Z.of_nat n # 1)).
 Proof.
@@ -5996,14 +6045,14 @@ Proof.
   lia.
 Qed.
 
-(* ================= 常数列表和：Σ_{l}(c) == length(l)#1 · c ================= *)
+(* ================= constant list sums: Σ_{l}(c) == length(l)#1 · c ================= *)
 Lemma b4_sum_const : forall (X : Type) (c : Real) (l : list X),
   real_eq (real_list_sum X (fun _ : X => c) l)
           (real_mult (real_const (Z.of_nat (length l) # 1)) c).
 Proof.
   intros X c l.
   induction l as [| w rest IH]; simpl.
-  - (* 空和 == 0 == 0#1·c *)
+  - (* the empty sum == 0 == 0#1·c *)
     destruct c as [uc Hc].
     apply real_eq_of_zero_diff. intro n.
     simpl.
@@ -6017,7 +6066,7 @@ Proof.
                (real_mult (real_const (Z.of_nat (length rest) # 1)) c)).
       * apply real_eq_refl.
       * exact IH.
-    + (* c + lift·c == (lift + 1)·c（ring）再 == (S(length rest))#1·c（lift_succ） *)
+    + (* [c + lift·c == (lift + 1)·c] (ring), then [== (S(length rest))#1·c] ([lift_succ]) *)
       apply (real_eq_trans _ (real_mult (real_plus (real_const (Z.of_nat (length rest) # 1)) real_one) c) _).
       * b4_qring.
       * apply (RealSetoid.real_eq_mult_compat
@@ -6027,8 +6076,8 @@ Proof.
         -- apply real_eq_refl.
 Qed.
 
-(* ================= 三角不等式（list 层，逐 eps 预算） =================
-   |Σg| ≤ Σ|g| + Σe（e w > 0 逐点，real_abs_triangle_le_eps 步进） *)
+(* ================= triangle inequality (at the [list] layer, per-eps budget) =================
+   |Σg| ≤ Σ|g| + Σe (e w > 0 pointwise; stepping via [real_abs_triangle_le_eps]) *)
 Lemma b4_tri_sum : forall (X : Type) (g : X -> Real) (e : X -> Real) (l : list X),
   (forall w : X, real_lt real_zero (e w)) ->
   real_le (real_abs (real_list_sum X g l))
@@ -6050,7 +6099,7 @@ Proof.
                                       (e w))).
     { apply (real_abs_triangle_le_eps (g w) (real_list_sum X g rest) (e w)).
       exact (He w). }
-    (* IH 加法兼容：(|h| + |T|) ≤ (|h| + (Σ|g|rest + Σe rest)) *)
+    (* IH addition compatibility: (|h| + |T|) ≤ (|h| + (Σ|g|rest + Σe rest)) *)
     assert (Hih : real_le (real_plus (real_abs (g w)) (real_abs (real_list_sum X g rest)))
                           (real_plus (real_abs (g w))
                                      (real_plus (real_list_sum X (fun w0 => real_abs (g w0)) rest)
@@ -6095,7 +6144,7 @@ Proof.
                           (e w))).
       * exact Htri.
       * exact Hih2.
-    + (* middle == goal RHS（ring 换形） *)
+    + (* middle == goal RHS (ring reformulation) *)
       apply (RealSetoid.real_le_id_r
                (real_plus (real_plus (real_abs (g w))
                                      (real_plus (real_list_sum X (fun w0 => real_abs (g w0)) rest)
@@ -6112,7 +6161,7 @@ Proof.
       * apply real_le_refl.
 Qed.
 
-(* ================= 端点差序：a < b ⟹ 0 < b − a ================= *)
+(* ================= endpoint difference order: a < b ⟹ 0 < b − a ================= *)
 Lemma b4_pos_diff : forall a b : Real, real_lt a b ->
   real_lt real_zero (real_plus b (real_opp a)).
 Proof.
@@ -6133,7 +6182,7 @@ Proof.
     apply QltT_to_Qlt. exact (HN n Hn).
 Qed.
 
-(* ================= 反向绝对差（对称） =================
+(* ================= reverse absolute difference (symmetry) =================
    |x − y| == |y − x| *)
 Lemma b4_abs_minus_sym : forall x y : Real,
   real_eq (real_abs (real_plus x (real_opp y)))
@@ -6150,8 +6199,8 @@ Proof.
   ring.
 Qed.
 
-(* ================= 可延展性下的点值识别 =================
-   f 保持 real_eq ⟹ f x − f y == 0 当 x == y（用于端点衔接） *)
+(* ================= pointwise recognition under extensibility =================
+   f preserves [real_eq] ⟹ f x − f y == 0 when x == y (used for endpoint gluing) *)
 Lemma b4_f_eq_zero : forall (f : Real -> Real) (x y : Real),
   (forall u v : Real, real_eq u v -> real_eq (f u) (f v)) ->
   real_eq x y ->
@@ -6165,7 +6214,7 @@ Proof.
   - apply real_plus_opp.
 Qed.
 
-(* f 可延展 + x==y ⟹ |f x − f y| == 0 *)
+(* f extensible and x==y ⟹ |f x − f y| == 0 *)
 Lemma b4_f_abs_eq_zero : forall (f : Real -> Real) (x y : Real),
   (forall u v : Real, real_eq u v -> real_eq (f u) (f v)) ->
   real_eq x y ->
@@ -6177,9 +6226,9 @@ Proof.
   - apply real_abs_zero_req.
 Qed.
 
-(* ================= 均匀模假设下的单步"点值≈0"桥 =================
-   （Tier1 末尾：|f b − f a| == |f g_N − f a| 由 f b == f g_N） *)
-(* ================= eps 预算：lift·(c·inv(lift)) == c ================= *)
+(* ================= the one-step "pointwise ≈ 0" bridge under the uniform-modulus premise =================
+   (end of Tier1: |f b − f a| == |f g_N − f a| follows from f b == f g_N) *)
+(* ================= eps budget: [lift·(c·inv(lift)) == c] ================= *)
 Lemma b4_lift_inv_cancel : forall (N : nat) (HN : real_lt real_zero (real_const (Z.of_nat N # 1)))
   (c : Real),
   real_eq (real_mult (real_const (Z.of_nat N # 1))
@@ -6200,7 +6249,7 @@ Proof.
     + apply real_mult_one.
 Qed.
 
-(* 逐点 eps > 0：0 < (1/4)·eps（eps>0） *)
+(* pointwise eps > 0: 0 < (1/4)·eps (eps > 0) *)
 Lemma b4_quarter_pos : forall (eps : Real), real_lt real_zero eps ->
   real_lt real_zero (real_mult (real_const (1 / 4)) eps).
 Proof.
@@ -6212,15 +6261,15 @@ Proof.
   - exact Heps.
 Qed.
 
-(* ================= nat 递归大和（链式论证用，避开 seq/app 组合） =================
-   b4_nsum d N := Σ_{k<N} d k *)
+(* ================= nat-recursive large sums (for chained arguments, avoiding seq/app compositions) =================
+   [b4_nsum d N := Σ_{k<N} d k] *)
 Fixpoint b4_nsum (d : nat -> Real) (N : nat) : Real :=
   match N with
   | O => real_zero
   | Datatypes.S m => real_plus (b4_nsum d m) (d m)
   end.
 
-(* Σ 常数 == N#1 · c *)
+(* Σ of a constant == N#1 · c *)
 Lemma b4_nsum_const : forall (c : Real) (N : nat),
   real_eq (b4_nsum (fun _ : nat => c) N)
           (real_mult (real_const (Z.of_nat N # 1)) c).
@@ -6248,7 +6297,7 @@ Proof.
         -- apply real_eq_refl.
 Qed.
 
-(* Σ(逐点 ≤) ≤：b4_nsum 版 *)
+(* Σ of pointwise ≤ is ≤: the [b4_nsum] version *)
 Lemma b4_nsum_le : forall (d e : nat -> Real) (N : nat),
   (forall k : nat, (k < N)%nat -> real_le (d k) (e k)) ->
   real_le (b4_nsum d N) (b4_nsum e N).
@@ -6262,7 +6311,7 @@ Proof.
     + apply Hle. lia.
 Qed.
 
-(* |Σg| ≤ Σ|g| + Σe（逐 eps 预算，nat 版；e k > 0） *)
+(* |Σg| ≤ Σ|g| + Σe (per-eps budget, [nat] version; e k > 0) *)
 Lemma b4_nsum_tri : forall (g e : nat -> Real) (N : nat),
   (forall k : nat, (k < N)%nat -> real_lt real_zero (e k)) ->
   real_le (real_abs (b4_nsum g N))
@@ -6276,7 +6325,7 @@ Proof.
     + apply real_abs_zero_req.
     + apply (RealSetoid.real_eq_le real_zero (real_plus real_zero real_zero)).
       apply (real_eq_sym _ _ (real_plus_zero real_zero)).
-  - (* |T + g N| ≤ ((Σ|g|N + ΣeN) + |g N|) + e N，再 ring 到目标 *)
+  - (* |T + g N| ≤ ((Σ|g|N + ΣeN) + |g N|) + e N, then [ring] to the goal *)
     assert (Htri : real_le (real_abs (real_plus (b4_nsum g N) (g N)))
                            (real_plus (real_plus (real_abs (b4_nsum g N))
                                                  (real_abs (g N)))
@@ -6294,7 +6343,7 @@ Proof.
       - apply IH.
         intros k Hk. apply He. lia.
       - apply real_le_refl. }
-    (* 目标（simpl 后）：|T+gN| ≤ (Σ|g|N + |gN|) + (ΣeN + eN) *)
+    (* goal (after [simpl]): |T+gN| ≤ (Σ|g|N + |gN|) + (ΣeN + eN) *)
     apply (real_le_trans
              (real_abs (real_plus (b4_nsum g N) (g N)))
              (real_plus (real_plus (real_abs (b4_nsum g N)) (real_abs (g N))) (e N))
@@ -6302,7 +6351,7 @@ Proof.
                                    (real_abs (g N)))
                         (real_plus (b4_nsum e N) (e N)))).
     + exact Htri.
-    + (* ((|T|+|gN|)+eN) ≤ 目标：先经 ((Σ|g|+Σe)+|gN|)+eN *)
+    + (* ((|T|+|gN|)+eN) ≤ goal: first pass through ((Σ|g|+Σe)+|gN|)+eN *)
       apply (real_le_trans
                (real_plus (real_plus (real_abs (b4_nsum g N)) (real_abs (g N))) (e N))
                (real_plus (real_plus (real_plus (b4_nsum (fun k => real_abs (g k)) N)
@@ -6336,7 +6385,7 @@ Proof.
         -- apply real_le_refl.
 Qed.
 
-(* 望远镜：Σ_{k<N} (f(g(S k)) − f(g k)) == f(g N) − f(g 0) *)
+(* telescope: Σ_{k<N} (f(g(S k)) − f(g k)) == f(g N) − f(g 0) *)
 Lemma b4_nsum_telescope : forall (f : Real -> Real) (g : nat -> Real) (N : nat),
   real_eq (b4_nsum (fun k => real_plus (f (g (Datatypes.S k))) (real_opp (f (g k)))) N)
           (real_plus (f (g N)) (real_opp (f (g 0%nat)))).
@@ -6358,14 +6407,14 @@ Proof.
     + b4_qring.
 Qed.
 
-(* ================= 网格 ================= *)
+(* ================= the grid ================= *)
 Fixpoint b4_grid (a η : Real) (k : nat) : Real :=
   match k with
   | O => a
   | Datatypes.S m => real_plus (b4_grid a η m) η
   end.
 
-(* 右分配： (A+B)·x == A·x + B·x *)
+(* right distributivity: (A+B)·x == A·x + B·x *)
 Lemma b4_mult_plus_r : forall (A B x : Real),
   real_eq (real_mult (real_plus A B) x)
           (real_plus (real_mult A x) (real_mult B x)).
@@ -6386,7 +6435,7 @@ Proof.
   ring.
 Qed.
 
-(* 网格点展开：b4_grid a η k == a + k#1·η *)
+(* grid-point expansion: [b4_grid a η k == a + k#1·η] *)
 Lemma b4_grid_sum : forall (a η : Real) (k : nat),
   real_eq (b4_grid a η k)
           (real_plus a (real_mult (real_const (Z.of_nat k # 1)) η)).
@@ -6439,24 +6488,24 @@ Proof.
            ++ apply real_eq_refl.
 Qed.
 
-(* ================= lift 层序（k ≤ N ⟹ k#1 ≤ N#1；0 ≤ k#1） ================= *)
+(* ================= lift order (k ≤ N ⟹ k#1 ≤ N#1; 0 ≤ k#1) ================= *)
 Lemma b4_lift_le : forall (k N : nat), (k <= N)%nat ->
   real_le (real_const (Z.of_nat k # 1)) (real_const (Z.of_nat N # 1)).
 Proof.
   intros k N Hkn.
   destruct (Nat.compare k N) eqn:E.
-  - (* Eq：k == N *)
+  - (* Eq: k == N *)
     apply (proj1 (Nat.compare_eq_iff k N)) in E.
     subst N.
     apply real_le_refl.
-  - (* Lt：k < N *)
+  - (* Lt: k < N *)
     apply (RealSetoid.real_lt_le_iff_req
              (real_const (Z.of_nat k # 1)) (real_const (Z.of_nat N # 1))).
     left.
     apply real_const_lt.
     assert (Hklt : (k < N)%nat) by (apply (proj1 (Nat.compare_lt_iff k N)); exact E).
     exact (Qlt_of_nat_lt k N Hklt).
-  - (* Gt：k > N 与 k ≤ N 矛盾 *)
+  - (* Gt: k > N contradicts k ≤ N *)
     exfalso.
     apply (proj1 (Nat.compare_gt_iff k N)) in E.
     lia.
@@ -6473,7 +6522,7 @@ Proof.
     left. apply b4_lift_pos. lia.
 Qed.
 
-(* ================= 网格点区间含于 [a,b] ================= *)
+(* ================= grid points lie in [a,b] ================= *)
 Lemma b4_grid_ge_a : forall (a η : Real) (k : nat),
   real_le real_zero η ->
   real_le a (b4_grid a η k).
@@ -6531,7 +6580,7 @@ Proof.
       exact HNb.
 Qed.
 
-(* ================= inv 代数件 ================= *)
+(* ================= inv algebra pieces ================= *)
 Lemma b4_inv_cancel : forall (x d : Real) (Hx : real_lt real_zero x),
   real_eq (real_mult x (real_mult d (real_inv_pos x Hx))) d.
 Proof.
@@ -6563,8 +6612,8 @@ Proof.
   - apply real_mult_one.
 Qed.
 
-(* ================= arch 步长 =================
-   d > 0、δ > 0 ⟹ ∃N≥1: η := d·inv(N#1) 满足 0<η、|η| < δ、N#1·η == d *)
+(* ================= the Archimedean step size =================
+   d > 0, δ > 0 ⟹ ∃N≥1: η := d·inv(N#1) satisfies 0<η, |η| < δ, N#1·η == d *)
 Lemma b4_arch_step :
   forall (d delta : Real),
   real_lt real_zero d -> real_lt real_zero delta ->
@@ -6643,7 +6692,7 @@ Proof.
       exact (b4_inv_cancel (real_const (Z.of_nat N # 1)) d HNpos).
 Qed.
 
-(* ================= (1/2)·eps < eps（eps > 0） ================= *)
+(* ================= (1/2)·eps < eps (eps > 0) ================= *)
 Lemma b4_half_eps_lt : forall (eps : Real), real_lt real_zero eps ->
   real_lt (real_mult (real_const (1 / 2)) eps) eps.
 Proof.
@@ -6663,20 +6712,20 @@ Proof.
     + exact Hm.
 Qed.
 
-(* ================= Tier1 主引理：均匀模链式 ================= *)
+(* ================= Tier1 main lemma: uniform modulus, chained ================= *)
 
 Definition cw_unit (x : Real) : Set :=
   forall n : nat, QleT' (Qabs (projT1 x n)) 1.
 
-(* ---- E(x) := sin(arctan x) − x·cos(arctan x)（x ∈ cw_unit） ---- *)
+(* ---- [E(x) := sin(arctan x) − x·cos(arctan x)] (x ∈ [cw_unit]) ---- *)
 Definition real_E (x : Real) (Hx : cw_unit x) : Real :=
   real_plus (cauchy_real_sin (cauchy_real_arctan x Hx))
             (real_opp (real_mult x (cauchy_real_cos (cauchy_real_arctan x Hx)))).
 
-(* ---- E(1)（θ := arctan(1)，域证书 atan1_pt_bound 现成） ---- *)
+(* ---- E(1) (θ := arctan(1); the domain certificate [atan1_pt_bound] is ready) ---- *)
 Definition real_E_one : Real := real_E (real_const 1) atan1_pt_bound.
 
-(* ---- E(1) 的定义性展开：E(1) ≡ sin θ − (1·cos θ)（θ := arctan_one_real） ---- *)
+(* ---- definitional unfolding of E(1): [E(1) ≡ sin θ − (1·cos θ)] (θ := arctan_one_real) ---- *)
 Lemma real_E_one_unfold :
   real_eq real_E_one
           (real_plus (cauchy_real_sin arctan_one_real)
@@ -6686,7 +6735,7 @@ Proof.
   apply real_eq_refl.
 Qed.
 
-(* ---- 差为零桥：real_eq (a + (−b)) 0 ⟹ real_eq a b ---- *)
+(* ---- difference-is-zero bridge: [real_eq (a + (−b)) 0 ⟹ real_eq a b] ---- *)
 Lemma real_eq_minus_zero : forall (a b : Real),
   real_eq (real_plus a (real_opp b)) real_zero -> real_eq a b.
 Proof.
@@ -6706,7 +6755,7 @@ Proof.
   - exact HN.
 Qed.
 
-(* ---- 1·x == x（real_const 1 作乘数；real_mult_one 是 x·real_one 版） ---- *)
+(* ---- [1·x == x] ([real_const 1] as the multiplier; [real_mult_one] is the x·real_one version) ---- *)
 Lemma b5b_const_one_mult : forall (x : Real), real_eq (real_mult (real_const 1) x) x.
 Proof.
   intros x. destruct x as [u Hu].
@@ -6714,12 +6763,12 @@ Proof.
   intro n. simpl. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ---- b5b_hsc_main（task 4）：E(1) == 0 ⟹ sin θ == cos θ ---- *)
+(* ---- [b5b_hsc_main] (task 4): E(1) == 0 ⟹ sin θ == cos θ ---- *)
 Lemma b5b_hsc_main : real_eq real_E_one real_zero ->
   real_eq (cauchy_real_sin arctan_one_real) (cauchy_real_cos arctan_one_real).
 Proof.
   intros HE1.
-  (* E(1) == sin θ − (1·cos θ)；E(1) == 0 ⟹ sin θ == 1·cos θ *)
+  (* E(1) == sin θ − (1·cos θ); E(1) == 0 ⟹ sin θ == 1·cos θ *)
   assert (Hsincos1 : real_eq (cauchy_real_sin arctan_one_real)
                              (real_mult (real_const 1) (cauchy_real_cos arctan_one_real))).
   { apply real_eq_minus_zero.
@@ -6733,8 +6782,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 迭代 210：B4 Tier1 链式主引理 b4_chain_lipschitz                *)
-(* 来源：sc2_b4_chain p3；前置件已在上游根模块；零公理面            *)
+(* B4 Tier1 chained main lemma [b4_chain_lipschitz]                                  *)
+(* source: sc2_b4_chain p3; the premise pieces are in the upstream root module; axiom-free face *)
 (* ============================================================ *)
 
 Lemma b4_chain_lipschitz :
@@ -6761,7 +6810,7 @@ Proof.
   pose (eta := real_mult d invN).
   assert (Heta0 : real_le real_zero eta).
   { apply (RealSetoid.real_lt_le_iff_req real_zero eta). left. exact Heta_pos. }
-  (* N#1·η == d（HNeq）；a + N#1·η == b *)
+  (* [N#1·η == d] (HNeq); a + N#1·η == b *)
   assert (HNb : real_eq (real_plus a (real_mult (real_const (Z.of_nat N # 1)) eta)) b).
   { apply (real_eq_trans _ (real_plus a d) _).
     - apply (RealSetoid.real_eq_plus_compat a
@@ -6769,7 +6818,7 @@ Proof.
       + apply real_eq_refl.
       + exact HNeq.
     - unfold d. b4_qring. }
-  (* 预算：epsA := c·invN，c := (1/4)·eps；Σ_k epsA == c *)
+  (* budget: epsA := c·invN with c := (1/4)·eps; Σ_k epsA == c *)
   pose (c := real_mult (real_const (1 / 4)) eps).
   pose (epsA := real_mult c invN).
   assert (Hc_pos : real_lt real_zero c).
@@ -6781,7 +6830,7 @@ Proof.
   assert (HsumE : real_eq (real_mult (real_const (Z.of_nat N # 1)) epsA) c).
   { unfold epsA.
     exact (b4_lift_inv_cancel N HNpos c). }
-  (* 逐点步进界 *)
+  (* pointwise step bound *)
   assert (Hstep : forall k : nat, (k < N)%nat ->
     real_le (real_abs (real_plus (f (b4_grid a eta (Datatypes.S k)))
                                  (real_opp (f (b4_grid a eta k)))))
@@ -6795,7 +6844,7 @@ Proof.
                  (b4_grid_ge_a a eta (Datatypes.S k) Heta0)
                  (b4_grid_le_b a b eta N (Datatypes.S k) Heta0 HNb Hk1)
                  epsA HepsA_pos). }
-  (* 望远镜与和式界 *)
+  (* telescope and sum bounds *)
   pose (gincr := fun k : nat => real_plus (f (b4_grid a eta (Datatypes.S k))) (real_opp (f (b4_grid a eta k)))).
   pose (econst := fun k : nat => real_plus (real_mult M (real_abs eta)) epsA).
   assert (Htel : real_eq (b4_nsum gincr N)
@@ -6874,7 +6923,7 @@ Proof.
           -- apply (real_eq_trans _ (real_mult (real_const (Z.of_nat N # 1)) epsA) _).
              ++ exact (b4_nsum_const epsA N).
              ++ exact HsumE. }
-  (* |f b − f a| == |f(g_N) − f a|（Hext：g_N == b） *)
+  (* |f b − f a| == |f(g_N) − f a| (Hext: g_N == b) *)
   assert (HgridN_b : real_eq (b4_grid a eta N) b).
   { apply (real_eq_trans _ (real_plus a (real_mult (real_const (Z.of_nat N # 1)) eta)) _).
     - apply (b4_grid_sum a eta N).
@@ -6888,7 +6937,7 @@ Proof.
     - apply (RealSetoid.real_eq_opp_compat (f a) (f (b4_grid a eta 0%nat))).
       apply (Hext a (b4_grid a eta 0%nat)).
       simpl. apply real_eq_refl. }
-  (* 汇合：≤ (M·d + c) + c == M·d + (1/2)eps ≤ M·d + eps，再 |b−a| == d *)
+  (* confluence: ≤ (M·d + c) + c == M·d + (1/2)eps ≤ M·d + eps, then |b−a| == d *)
   assert (Hcc : real_eq (real_plus (real_plus (real_mult M d) c) c)
                         (real_plus (real_mult M d) (real_mult (real_const (1 / 2)) eps))).
   { unfold c. b4_qring. }
@@ -6934,8 +6983,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 迭代 210：B5-B 端点批 01-04（atan 连续/E 端点，19 Qed）          *)
-(* 来源：sc2_b5b_endpoint；00_core 已在 209 根                       *)
+(* B5-B endpoint segments 01-04 (atan continuity / E endpoints, 19 [Qed])            *)
+(* source: sc2_b5b_endpoint; [00_core] is already provided by the upstream root module *)
 (* ============================================================ *)
 
 Lemma b5b_ap_tail0 : forall (a : Q) (n : nat), QleT' (Qabs a) 1 ->
@@ -6950,7 +6999,7 @@ Proof.
     unfold Qdiv. field.
 Qed.
 
-(* ---- 2. |S_n a| ≤ 2（|a| ≤ 1，∀n）：三角 + 尾 1/3 + |a| ≤ 1 ---- *)
+(* ---- 2. |S_n a| ≤ 2 (|a| ≤ 1, ∀n): triangle + tail 1/3 + |a| ≤ 1 ---- *)
 Lemma b5b_ap_abs_le2 : forall (a : Q) (n : nat), QleT' (Qabs a) 1 ->
   QleT' (Qabs (arctan_partial n a)) 2.
 Proof.
@@ -6992,8 +7041,8 @@ Proof.
     unfold Qlt. compute. reflexivity.
 Qed.
 
-(* ---- 3. 固定指标分裂：n ≥ M ⟹ |S_n a − S_n b| ≤ T + (M+1)|a−b| + T，
-          T := 1/(2M+3)（|a|,|b| ≤ 1） ---- *)
+(* ---- 3. fixed-index splitting: n ≥ M ⟹ |S_n a − S_n b| ≤ T + (M+1)|a−b| + T,
+          T := 1/(2M+3) (|a|,|b| ≤ 1) ---- *)
 Lemma b5b_ap_split : forall (M n : nat) (a b : Q), NatLe M n ->
   QleT' (Qabs a) 1 -> QleT' (Qabs b) 1 ->
   QleT' (Qabs (arctan_partial n a - arctan_partial n b))
@@ -7003,7 +7052,7 @@ Lemma b5b_ap_split : forall (M n : nat) (a b : Q), NatLe M n ->
 Proof.
   intros M n a b HMn Ha Hb. apply Qle_to_QleT'.
   assert (Hmn : (M <= n)%nat) by (exact (NatLe_drop M n HMn)).
-  (* 两次三角：|S_n a − S_n b| ≤ |S_n a − S_M a| + |S_M a − S_M b| + |S_M b − S_n b| *)
+  (* two triangle steps: |S_n a − S_n b| ≤ |S_n a − S_M a| + |S_M a − S_M b| + |S_M b − S_n b| *)
   apply (Qle_trans _ (Qplus (Qabs (arctan_partial n a - arctan_partial M a))
                             (Qabs (arctan_partial M a - arctan_partial n b))) _).
   - apply (Qle_trans _ (Qabs ((arctan_partial n a - arctan_partial M a) +
@@ -7033,12 +7082,12 @@ Proof.
                                 (Qplus (Qmult (Z.of_nat (Datatypes.S M) # 1) (Qabs (a - b)))
                                        (1 / (Z.of_nat (2 * M + 3) # 1)))) _).
       * apply Qplus_le_compat.
-        -- (* 尾 1：|S_n a − S_M a| ≤ T *)
+        -- (* tail 1: |S_n a − S_M a| ≤ T *)
            apply QleT'_to_Qle. apply atan_tail_bound_le; [exact Ha | exact Hmn].
         -- apply Qplus_le_compat.
-           ++ (* 中段：|S_M a − S_M b| ≤ (M+1)|a−b| *)
+           ++ (* middle: |S_M a − S_M b| ≤ (M+1)|a−b| *)
               apply QleT'_to_Qle. apply arctan_partial_lipschitz; [exact Ha | exact Hb].
-           ++ (* 尾 2：|S_M b − S_n b| ≤ T（先换绝对值方向再尾界） *)
+           ++ (* tail 2: |S_M b − S_n b| ≤ T (flip the absolute-value direction first, then the tail bound) *)
               apply (Qle_trans _ (Qabs (arctan_partial n b - arctan_partial M b)) _).
               ** apply QleT'_to_Qle. apply qeq_le.
               apply qeq_imp_qeqT.
@@ -7070,7 +7119,7 @@ Proof.
         -- exact (QleT'_to_Qle (exp_series (2 * n)%nat B) C (HC (2 * n)%nat)).
 Qed.
 
-(* ---- ①' cos 部分和族均匀 Lipschitz（n = 0 分支 + S 形） ---- *)
+(* ---- ①' the cos partial-sum family is uniformly Lipschitz (the n = 0 branch + the S shape) ---- *)
 Lemma b5b_cos_family_lip : forall (a b B C : Q) (n : nat),
   QleT' 0 B -> QleT' (Qabs a) B -> QleT' (Qabs b) B ->
   Qle 0 C ->
@@ -7080,7 +7129,7 @@ Lemma b5b_cos_family_lip : forall (a b B C : Q) (n : nat),
 Proof.
   intros a b B C n HBT Ha Hb HC0 HC. apply Qle_to_QleT'.
   destruct n as [| m].
-  - (* n = 0：两侧 == 1，差 0 ≤ |a−b|·C *)
+  - (* n = 0: both sides are == 1, so the difference is 0 ≤ |a−b|·C *)
     apply (Qle_trans _ 0 _).
     + apply QleT'_to_Qle. apply qeq_le.
     apply qeq_imp_qeqT.
@@ -7102,7 +7151,7 @@ Proof.
            ++ exact (QleT'_to_Qle (exp_series (Datatypes.S (2 * m)) B) C (HC (Datatypes.S (2 * m)))).
 Qed.
 
-(* ---- ② arch 界（B := 2）：C₂ ≥ 1、∀j exp_series j 2 ≤ C₂ ---- *)
+(* ---- ② the Archimedean bound (B := 2): C₂ ≥ 1 and ∀j exp_series j 2 ≤ C₂ ---- *)
 Lemma b5b_arch2 : sigT (fun C : Q => And (QleT' 1 C)
                                           (forall j : nat, QleT' (exp_series j 2) C)).
 Proof.
@@ -7110,7 +7159,7 @@ Proof.
   apply Qle_to_QleT'. change (Qle 0 2). unfold Qle. simpl. lia.
 Qed.
 
-(* ---- ③ arctan 一致收敛核心：∃M d0, n ≥ M ∧ |a−b| ≤ d0 ⟹ |S_n a − S_n b| < eps ---- *)
+(* ---- ③ the arctan uniform-convergence core: ∃M d0, n ≥ M ∧ |a−b| ≤ d0 ⟹ |S_n a − S_n b| < eps ---- *)
 Lemma b5b_ap_uniform : forall (eps : Q), Qlt 0 eps ->
   sigT (fun M : nat => sigT (fun d0 : Q => And (QltT 0 d0)
     (forall (n : nat) (a b : Q), NatLe M n -> QleT' (Qabs a) 1 -> QleT' (Qabs b) 1 ->
@@ -7118,14 +7167,14 @@ Lemma b5b_ap_uniform : forall (eps : Q), Qlt 0 eps ->
        QltT (Qabs (arctan_partial n a - arctan_partial n b)) eps))).
 Proof.
   intros eps Heps.
-  (* T := 1/(2M+3) < eps/8：q_arch_inv (eps/8)，取 M := N *)
+  (* T := 1/(2M+3) < eps/8: [q_arch_inv (eps/8)], taking M := N *)
   assert (H8 : QltT 0 (eps / 8)).
   { unfold Qdiv. apply Qlt_to_QltT. apply (Qmult_lt_0_compat eps (Qinv 8)).
     - exact Heps.
     - apply Qinv_lt_0_compat. unfold Qlt. simpl. lia. }
   destruct (q_arch_inv (eps / 8) H8) as [N HN].
   set (M := N).
-  (* d0 := (eps/4)/(M+1)（field 友好：分母独立） *)
+  (* d0 := (eps/4)/(M+1) ([field]-friendly: independent denominator) *)
   set (d0 := (eps / 4) / (Z.of_nat (Datatypes.S M) # 1)).
   exists M. exists d0.
   split.
@@ -7147,7 +7196,7 @@ Proof.
     assert (Hsplit : Qle (Qabs (arctan_partial n a - arctan_partial n b))
                          (Qplus (Qplus T mid) T)).
     { unfold T, mid. apply QleT'_to_Qle. apply b5b_ap_split. exact HMn. exact Ha. exact Hb. }
-    (* 2T < eps/4：T < eps/8 经 atan_inv_chain + HN *)
+    (* 2T < eps/4: T < eps/8 via [atan_inv_chain] + HN *)
     assert (H1 : Qlt T (eps / 8)).
     { unfold T. apply (Qle_lt_trans _ (1 / (Z.of_nat (N + 2) # 1)) _).
       - unfold M. apply QleT'_to_Qle. apply atan_inv_chain. lia.
@@ -7157,7 +7206,7 @@ Proof.
       - apply Qplus_lt_compat; exact H1.
       - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. field.
         all: try (intro Hz; unfold Qeq in Hz; simpl in Hz; lia). }
-    (* 消去：d0 := (eps/4)/(M+1) ⟹ (M+1)·d0 == eps/4 *)
+    (* cancellation: d0 := (eps/4)/(M+1) ⟹ (M+1)·d0 == eps/4 *)
     assert (Hcancel : Qmult (Z.of_nat (Datatypes.S M) # 1) d0 == eps / 4).
     { unfold d0. unfold Qdiv. field.
       all: try (intro Hz; unfold Qeq in Hz; simpl in Hz; lia). }
@@ -7174,7 +7223,7 @@ Proof.
             -- unfold Qle. simpl. lia.
           * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
       - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. exact Hcancel. }
-    (* 链：≤ (T+mid)+T == (T+T)+mid ≤ eps/4 + eps/4 < eps *)
+    (* chain: ≤ (T+mid)+T == (T+T)+mid ≤ eps/4 + eps/4 < eps *)
     apply (Qle_lt_trans _ (Qplus (Qplus T T) mid) _).
     + apply (Qle_trans _ (Qplus (Qplus T mid) T) _).
       * exact Hsplit.
@@ -7183,7 +7232,7 @@ Proof.
       * apply (Qplus_lt_le_compat (Qplus T T) (eps / 4) mid (eps / 4)).
         -- exact H2T.
         -- exact Hmid.
-      * (* eps/4 + eps/4 ≤ eps：差 == eps/2 ≥ 0（Qle_minus_iff 移项） *)
+      * (* eps/4 + eps/4 ≤ eps: the difference == eps/2 ≥ 0 (rearranged via [Qle_minus_iff]) *)
         apply (proj2 (Qle_minus_iff (Qplus (Qdiv eps 4) (Qdiv eps 4)) eps)).
         apply (Qle_trans _ (Qdiv eps 2) _).
         -- apply (Qlt_le_weak 0 (Qdiv eps 2)). apply QltT_to_Qlt. apply (q_half_pos eps (Qlt_to_QltT _ _ Heps)).
@@ -7206,7 +7255,7 @@ Proof.
     apply (QltT_to_Qlt (d0 / 2) d0 (q_half_lt_self d0 (Qlt_to_QltT _ _ Hd0))). }
 Qed.
 
-(* ---- 主引理：arctan 在单位域内逐点连续 ---- *)
+(* ---- main lemma: arctan is pointwise continuous on the unit domain ---- *)
 Lemma b5b_arctan_cont_unit : forall (x : Real) (Hx : cw_unit x) (epsQ : Q),
   QltT 0 epsQ ->
   sigT (fun delta : Real => And (real_lt real_zero delta)
@@ -7234,7 +7283,7 @@ Proof.
       apply NatLe_drop in Hn.
       assert (HnM : (M <= n)%nat) by lia.
       assert (HnN2 : (N2 <= n)%nat) by lia.
-      (* ① RHS 逐点化：proj (const epsQ) n == epsQ；real_abs/plus/opp/arctan proj 展开 *)
+      (* ① pointwise reduction of the RHS: [proj (const epsQ) n == epsQ]; the real_abs/plus/opp/arctan projections unfold *)
       apply (qltT_eq_compat_r
                (projT1 (real_const epsQ) n -
                 projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus x h) Hxh)
@@ -7251,7 +7300,7 @@ Proof.
         rewrite (qeqT_imp_qeq _ _ (arctan_real_proj (real_plus x h) Hxh n)).
         rewrite (qeqT_imp_qeq _ _ (arctan_real_proj x Hx n)).
         reflexivity. }
-      (* ② |proj h n| ≤ d0：HN2（eps2 < d0 − |h_n|）⟹ |h_n| < d0 *)
+      (* ② |proj h n| ≤ d0: HN2 (eps2 < d0 − |h_n|) ⟹ |h_n| < d0 *)
       assert (Hhn : Qle (Qabs (projT1 h n)) d0).
       { apply Qlt_le_weak.
         apply (Qlt_le_trans _ (Qminus d0 eps2) _).
@@ -7270,7 +7319,7 @@ Proof.
           apply (Qle_trans _ eps2 _).
           { apply (Qlt_le_weak 0 eps2). apply QltT_to_Qlt. exact Heps2. }
           { apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. } } }
-      (* ③ 核心界（n ≥ M、域、|Δ| ≤ d0）施于原始 proj 项 *)
+      (* ③ the core bound (n ≥ M, domain, |Δ| ≤ d0) applied to the raw proj terms *)
       assert (Hcore_n : Qlt (Qabs (arctan_partial n (projT1 (real_plus x h) n) -
                                   arctan_partial n (projT1 x n))) (epsQ / 2)).
       { apply QltT_to_Qlt.
@@ -7284,7 +7333,7 @@ Proof.
           rewrite ((qeqT_imp_qeq _ _ (real_plus_proj x h n))).
           ring. }
         { exact Hhn. } }
-      (* ④ 结论：epsQ/2 < epsQ − Dn ⟺ Dn < epsQ/2（q_lt_minus_shift） *)
+      (* ④ conclusion: epsQ/2 < epsQ − Dn ⟺ Dn < epsQ/2 ([q_lt_minus_shift]) *)
       apply Qlt_to_QltT.
       apply QltT_to_Qlt. apply (q_lt_minus_shift (Qabs (arctan_partial n (projT1 (real_plus x h) n) -
                                   arctan_partial n (projT1 x n))) epsQ (epsQ / 2)).
@@ -7303,7 +7352,7 @@ Proof.
   apply QleT'_to_Qle. apply b5b_ap_abs_le2. exact Ha.
 Qed.
 
-(* sin 族 Lipschitz（B := 2，常数 c，|a|,|b| ≤ 2） *)
+(* sin-family Lipschitz (B := 2, constant c, |a|,|b| ≤ 2) *)
 Lemma b5b_sin_lip2 : forall (n : nat) (a b c : Q),
   (forall j : nat, QleT' (exp_series j 2) c) ->
   QleT' (Qabs a) 2 -> QleT' (Qabs b) 2 ->
@@ -7317,7 +7366,7 @@ Proof.
   - exact HC.
 Qed.
 
-(* cos 族 Lipschitz（B := 2，常数 c，|a|,|b| ≤ 2） *)
+(* cos-family Lipschitz (B := 2, constant c, |a|,|b| ≤ 2) *)
 Lemma b5b_cos_lip2 : forall (n : nat) (a b c : Q),
   (forall j : nat, QleT' (exp_series j 2) c) ->
   Qle 0 c ->
@@ -7333,7 +7382,7 @@ Proof.
   - exact HC.
 Qed.
 
-(* |cos_partial n a| ≤ 2c + 1（|a| ≤ 2；|cos_partial n 0| == 1 经 sc_cos_partial_one） *)
+(* |cos_partial n a| ≤ 2c + 1 (|a| ≤ 2; |cos_partial n 0| == 1 via [sc_cos_partial_one]) *)
 Lemma b5b_cos_val2 : forall (n : nat) (a c : Q),
   (forall j : nat, QleT' (exp_series j 2) c) ->
   Qle 0 c ->
@@ -7370,7 +7419,7 @@ Proof.
       * change (Qle 1 1). apply Qle_refl.
 Qed.
 
-(* |1−g| ≤ 1 的 QleT' 形态（0 ≤ g ≤ 1） *)
+(* the [QleT'] form of |1−g| ≤ 1 (0 ≤ g ≤ 1) *)
 Lemma b5b_unitQ : forall (g : Q), Qle 0 g -> Qle g 1 ->
   QleT' (Qabs (1 - g)) 1.
 Proof.
@@ -7387,7 +7436,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 单位常数域证书：0 ≤ g ≤ 1 ⟹ cw_unit (real_const (1 − g)) *)
+(* unit-constant domain certificate: 0 ≤ g ≤ 1 ⟹ [cw_unit (real_const (1 − g))] *)
 Lemma b5b_unit_const : forall (g : Q), Qle 0 g -> Qle g 1 ->
   cw_unit (real_const (1 - g)).
 Proof.
@@ -7405,7 +7454,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* |(1−g)−1| ≤ g（0 ≤ g） *)
+(* |(1−g)−1| ≤ g (0 ≤ g) *)
 Lemma b5b_abs_oneminusg : forall (g : Q), Qle 0 g ->
   QleT' (Qabs ((1 - g) - 1)) g.
 Proof.
@@ -7419,7 +7468,7 @@ Proof.
     + apply (Qabs_pos g Hg0).
 Qed.
 
-(* |g·x| == g·|x|（0 ≤ g） *)
+(* |g·x| == g·|x| (0 ≤ g) *)
 Lemma b5b_abs_gmult : forall (g x : Q), Qle 0 g -> QeqT (Qabs (g * x)) (g * Qabs x).
 Proof.
   intros g x Hg0. apply qeq_imp_qeqT.
@@ -7428,7 +7477,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* ============ B：E_n 点态与主 gap ============ *)
+(* ============ B: E_n pointwise and the main gap ============ *)
 
 (* E_n(t) := sin_partial n (S_n t) − t·cos_partial n (S_n t) *)
 Definition b5b_En (n : nat) (t : Q) : Q :=
@@ -7451,7 +7500,7 @@ Proof.
 Qed.
 
 
-(* 纯 ring 恒等（顶层无 set-abbrev，ring 可靠） *)
+(* pure [ring] identities (no set-abbrevs at the top level, so [ring] is reliable) *)
 Lemma b5b_ring_assoc_q : forall (a b c : Q), QeqT (Qplus (Qplus a b) c) (Qplus a (Qplus b c)).
 Proof.  intros. apply qeq_imp_qeqT. ring. Qed.
 
@@ -7464,7 +7513,7 @@ Lemma b5b_ring_close : forall (c g T G W : Q),
   QeqT (Qplus (Qmult c (Qplus T (Qplus (Qmult G g) T))) (Qplus (Qmult c (Qplus T (Qplus (Qmult G g) T))) (Qmult g W))) (Qplus (Qmult (Qmult 4 c) T) (Qmult g (Qplus (Qmult (Qmult 2 c) G) W))).
 Proof.  intros. apply qeq_imp_qeqT. ring. Qed.
 
-(* ---- 主 gap：|E_n(1−g) − E_n(1)| ≤ 4c·T + g·(2c(S M) + 2c + 1)，T := 1/(2M+3) ---- *)
+(* ---- main gap: |E_n(1−g) − E_n(1)| ≤ 4c·T + g·(2c(S M) + 2c + 1), T := 1/(2M+3) ---- *)
 Lemma b5b_E_gap : forall (n M : nat) (g c : Q),
   Qle 0 c ->
   (forall j : nat, QleT' (exp_series j 2) c) ->
@@ -7490,7 +7539,7 @@ Proof.
   { unfold A. apply (b5b_apT2 (1 - g) n). exact Hdom. }
   assert (HBn : QleT' (Qabs B) 2).
   { unfold B. apply (b5b_apT2 1 n). exact Hdom1. }
-  (* 分裂界：Ab := |A−B| ≤ T + G·|Δ| + T *)
+  (* splitting bound: Ab := |A−B| ≤ T + G·|Δ| + T *)
   assert (Hsplit : Qle (Qabs (A - B))
                        (Qplus T (Qplus (Qmult G (Qabs ((1 - g) - 1))) T))).
   { apply (Qle_trans _ (Qplus (Qplus T (Qmult G (Qabs ((1 - g) - 1)))) T) _).
@@ -7509,7 +7558,7 @@ Proof.
       + apply Qplus_le_compat.
         * exact Hgl.
         * apply Qle_refl. }
-  (* 三角 1：|En diff| ≤ |sinA−sinB| + (|cosA−cosB| + g·|cosA|) *)
+  (* triangle 1: |En diff| ≤ |sinA−sinB| + (|cosA−cosB| + g·|cosA|) *)
   assert (Htri1 : Qle (Qabs (b5b_En n (1 - g) - b5b_En n 1))
                       (Qplus (Qabs (sin_partial n A - sin_partial n B))
                              (Qplus (Qabs (cos_partial n B - cos_partial n A))
@@ -7537,7 +7586,7 @@ Proof.
           -- apply Qplus_le_compat.
              ++ apply Qle_refl.
              ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (qeqT_imp_qeq _ _ (b5b_abs_gmult g (cos_partial n A) Hg0)). }
-  (* 片界 *)
+  (* piecewise bounds *)
   assert (Hs : Qle (Qabs (sin_partial n A - sin_partial n B)) (Qmult (Qabs (A - B)) c)).
   { apply QleT'_to_Qle. apply (b5b_sin_lip2 n A B c HC HAn HBn). }
   assert (Hco : Qle (Qabs (cos_partial n A - cos_partial n B)) (Qmult (Qabs (A - B)) c)).
@@ -7548,12 +7597,12 @@ Proof.
   { unfold W. apply QleT'_to_Qle. apply (sc_qmult_le_l (Qabs (cos_partial n A)) (Qplus (Qmult 2 c) 1) g).
     - exact Hval.
     - exact Hg0. }
-  (* |cosB−cosA| ≤ |A−B|·c（换向桥） *)
+  (* |cosB−cosA| ≤ |A−B|·c (direction-flip bridge) *)
   assert (Hco2 : Qle (Qabs (cos_partial n B - cos_partial n A)) (Qmult (Qabs (A - B)) c)).
   { apply (Qle_trans _ (Qabs (cos_partial n A - cos_partial n B)) _).
     - apply QleT'_to_Qle. apply qeq_le. apply (q_abs_minus_sym (cos_partial n B) (cos_partial n A)).
     - exact Hco. }
-  (* 汇总 S1 *)
+  (* assembling S1 *)
   assert (HS1 : Qle (Qabs (b5b_En n (1 - g) - b5b_En n 1))
                     (Qplus (Qmult (Qabs (A - B)) c)
                            (Qplus (Qmult (Qabs (A - B)) c) (Qmult g W)))).
@@ -7585,7 +7634,7 @@ Proof.
       + apply Qplus_le_compat.
         * exact HcAb.
         * apply Qle_refl. }
-  (* 结论：cU + (cU + gW) ≤ Tgt *)
+  (* conclusion: cU + (cU + gW) ≤ Tgt *)
   apply (Qle_trans _ (Qplus cU (Qplus cU (Qmult g W))) _).
   - exact HS2.
   - apply QleT'_to_Qle. apply qeq_le.
@@ -7595,15 +7644,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-A 微分代数基座            *)
-(* （E/S 构造、Q 层基础、sin/cos 复合误差分解代数；11 Qed）；     *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b5a_ode/sc2_b5a_ode.v；  *)
-(* 注：沙箱内 Qeq setoid Instance 重复块（ode.v L20-33）与根     *)
-(* L67509-67520 同名，按拼接规格剥除，由根实例供能 setoid 重写。 *)
+(* B5-A differential-algebra foundation                              *)
+(* (the E/S constructions, [Q]-layer basics, and the sin/cos composition error        *)
+(* decomposition algebra; 11 [Qed]);                                                  *)
+(* source: sc2_b5a_ode.v (sc2_b5a_ode)                                                *)
+(* note: the duplicate [Qeq] setoid [Instance] block of ode.v (L20-33) carries the    *)
+(* same names as the root-file block at L67509-67520; it is stripped here per the     *)
+(* stitching specification, and setoid rewriting is powered by the root instances.    *)
 (* ============================================================ *)
 
-(* ---- QltT 在第二参数 Qeq 上的传输（QltT 不透明不可 setoid 重写；
-       用 b4_const_eq 同款 Qcompare_comp 模式） ---- *)
+(* ---- transport of [QltT] across [Qeq] in its second argument ([QltT] is opaque and cannot
+       be rewritten by setoid; the [Qcompare_comp] pattern is used, as in [b4_const_eq]) ---- *)
 Lemma b5a_QltT_eq_r : forall (a x y : Q), x == y -> QltT a y -> QltT a x.
 Proof.
   intros a x y Hxy Hy.
@@ -7614,7 +7665,7 @@ Proof.
   exact Hy.
 Qed.
 
-(* Q 层：1/2 < 1 + u²（∀u；Qsquare_nonneg 正性 + 数值比较） *)
+(* [Q] layer: 1/2 < 1 + u² (∀u; [Qsquare_nonneg] positivity + numerical comparison) *)
 Lemma b5a_q_half_lt_one_plus_sq : forall (u : Q), QltT (1 / 2) (1 + u * u).
 Proof.
   intro u. apply Qlt_to_QltT.
@@ -7627,12 +7678,12 @@ Proof.
       * apply QleT'_to_Qle. apply (Qsquare_nonneg u).
 Qed.
 
-(* Q 层 QltT 形态 *)
+(* the [Q]-layer [QltT] form *)
 Lemma b5a_q_half_lt_one_plus_sq_T : forall (u : Q), QltT (1 / 2) (1 + u * u).
 Proof. intro u. apply Qlt_to_QltT. apply QltT_to_Qlt. apply b5a_q_half_lt_one_plus_sq. Qed.
 
-(* 0 < 1 + x·x（margin 1/2，∀n 点态：1/2 < 1 ≤ 1 + x_n²）——
-   arctan' 导数项 inv_pos(1+x²) 的正性见证（无前提，闭项） *)
+(* 0 < 1 + x·x (margin 1/2, pointwise for all n: 1/2 < 1 ≤ 1 + x_n²) —
+   the positivity witness for the arctan' derivative term [inv_pos(1+x²)] (assumption-free, closed term) *)
 Lemma b5a_one_plus_sq_pos : forall (x : Real),
   real_lt real_zero (real_plus real_one (real_mult x x)).
 Proof.
@@ -7645,7 +7696,7 @@ Proof.
     unfold Qlt. simpl. lia.
   - exists 0%nat.
     intros n Hn.
-    (* 目标：QltT (1/2) ((real_plus real_one (real_mult x x))_n − real_zero_n) *)
+    (* goal: [QltT (1/2) ((real_plus real_one (real_mult x x))_n − real_zero_n)] *)
     assert (Hq : projT1 (real_plus real_one (real_mult x x)) n - projT1 real_zero n ==
                  1 + (projT1 x n * projT1 x n)).
     { setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj real_one (real_mult x x) n))).
@@ -7659,14 +7710,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 批 1：未落地件 Section Variable 类型声明（B3 / B4 的规格）    *)
-(* 全部引理将置于此 Section 内；End 时自动泛化为 forall 参数。    *)
+(* segment 1: Section-Variable type declarations (the specifications of the B3 / B4 inputs) *)
+(* all lemmas will live inside this Section; at [End] they generalize automatically into [forall]-quantified arguments. *)
 (* ============================================================ *)
 Section B5A_Ode.
 
-(* ---- arctan'（B3 形态；扰动点证书由调用方提供 ——
-        exp/log 模板：|x|<1 前提以逐点 |x_n| ≤ 1 见证承载；
-        域 [0,1) 覆盖由 B3 保证。导数项 = h·inv_pos(1+x²)。） ---- *)
+(* ---- arctan' (the B3 form; the perturbation-point certificates are supplied by the caller —
+        in the exp/log template the |x|<1 premise is carried by pointwise |x_n| ≤ 1 witnesses;
+        coverage of the domain [0,1) is guaranteed by B3. the derivative term = h·inv_pos(1+x²).) ---- *)
 Variable real_arctan_deriv :
   forall (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   forall (eps : Real), real_lt real_zero eps ->
@@ -7681,7 +7732,7 @@ Variable real_arctan_deriv :
                                                         (b5a_one_plus_sq_pos x)) h)))))
                   (real_plus (real_mult eps (real_abs h)) eps'))).
 
-(* ---- B4 主链式件：均匀模（δ₀ 与 x 无关）⟹ Lipschitz 界 ---- *)
+(* ---- the B4 main chained piece: a uniform modulus (δ₀ independent of x) ⟹ a Lipschitz bound ---- *)
 Variable real_deriv_bound_lipschitz :
   forall (f : Real -> Real) (a b : Real) (M : Real),
   (forall (x : Real), real_le a x -> real_le x b ->
@@ -7695,7 +7746,7 @@ Variable real_deriv_bound_lipschitz :
   real_le (real_abs (real_plus (f b) (real_opp (f a))))
           (real_plus (real_mult M (real_abs (real_plus b (real_opp a)))) eps_final).
 
-(* ---- B4 M→0 情形：均匀零模 ⟹ f a == f b ---- *)
+(* ---- the B4 M→0 case: a uniform zero modulus ⟹ f a == f b ---- *)
 Variable real_deriv_zero_const :
   forall (f : Real -> Real) (a b : Real),
   (forall (x : Real), real_le a x -> real_le x b ->
@@ -7707,39 +7758,39 @@ Variable real_deriv_zero_const :
   real_eq (f a) (f b).
 
 (* ============================================================ *)
-(* 批 1：E / S / J 构造（Real 层函数组合起点）                   *)
-(* E 含 arctan ⟹ 需逐点 |x_n| ≤ 1 证书：E(x,Hx)。                *)
-(* S := exp((1/2)·log(1+x²)) == (1+x²)^{1/2}（exp∘log，全域，   *)
-(*     正性见证 b5a_one_plus_sq_pos 闭项给出）→ 无输入证书。      *)
+(* segment 1: the E / S / J constructions (the starting point of [Real]-layer function composition) *)
+(* E involves arctan ⟹ a pointwise |x_n| ≤ 1 certificate is needed: [E(x,Hx)].                       *)
+(* S := exp((1/2)·log(1+x²)) == (1+x²)^{1/2} (exp∘log, whole domain;                                 *)
+(*     the positivity witness is given by the closed term [b5a_one_plus_sq_pos]) → no input certificate. *)
 (* ============================================================ *)
 
-(* E(x) := sin(arctan x) − x·cos(arctan x)（certified） *)
+(* [E(x) := sin(arctan x) − x·cos(arctan x)] (certified) *)
 Definition b5a_E (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) : Real :=
   real_plus (cauchy_real_sin (cauchy_real_arctan x Hx))
             (real_opp (real_mult x (cauchy_real_cos (cauchy_real_arctan x Hx)))).
 
-(* S(x) := exp((1/2)·log(1+x²))（全域总函数） *)
+(* [S(x) := exp((1/2)·log(1+x²))] (a total function on the whole domain) *)
 Definition b5a_S (x : Real) : Real :=
   cauchy_real_exp (real_mult (real_const (1 / 2))
                              (real_log (real_plus real_one (real_mult x x))
                                        (b5a_one_plus_sq_pos x))).
 
-(* 引理骨架：E 在 [0,1) 有理点 == 0 的声明目标（批 4 证）：
+(* lemma skeleton: the declared goal that E vanishes at the rational points of [0,1) (proved in segment 4):
 Lemma b5a_closure_E_zero_on_unit : ... *)
 
 End B5A_Ode.
 
 (* ============================================================ *)
-(* 批 2：item-1 sin∘arctan 复合可微 —— 误差分解（real_eq 代数锚）*)
-(* D := sin(arctan(x+h)) − sinA − cosA·d·h                       *)
-(*    == sinA·(cos v − 1) + cosA·(sin v − v) + cosA·(v − d·h)    *)
-(* 其中 A := arctan x、v := arctan(x+h) − arctan x、              *)
-(*      d := inv(1+x²)、sinA := sin A、cosA := cos A。            *)
-(* 后续批 3 的 eps-delta 界：三件套 cos v−1（0 点线性化）≈ −v²/2、 *)
-(* sin v−v ≈ v³/6、v−dh（arctan' 误差）各 ≤ eps 份额。            *)
+(* segment 2: differentiability of the item-1 sin∘arctan composition — the error decomposition (a [real_eq] algebra anchor) *)
+(* D := sin(arctan(x+h)) − sinA − cosA·d·h                                       *)
+(*    == sinA·(cos v − 1) + cosA·(sin v − v) + cosA·(v − d·h)                    *)
+(* where A := arctan x, v := arctan(x+h) − arctan x,                             *)
+(*      d := inv(1+x²), sinA := sin A, cosA := cos A.                            *)
+(* the eps-delta bounds of the later segment 3: the trio cos v−1 (linearization at 0) ≈ −v²/2,  *)
+(* sin v−v ≈ v³/6, and v−dh (the arctan' error) each absorb an eps share.                       *)
 (* ============================================================ *)
 
-(* ---- Q 层 sin/cos 部分和参数 Qeq 全等（B2 沙箱件未并入根，自建） ---- *)
+(* ---- the [Qeq] congruence of the [Q]-layer sin/cos partial sums in their arguments (built here, since the B2 piece was not merged into the root module) ---- *)
 Lemma b5a_sin_term_wd : forall (j : nat) (x y : Q), x == y -> QeqT (sin_term j x) (sin_term j y).
 Proof.
   intros j x y Hxy. apply qeq_imp_qeqT.
@@ -7784,8 +7835,8 @@ Proof.
     + apply (qeqT_imp_qeq _ _ (b5a_cos_term_wd (Datatypes.S n) x y Hxy)).
 Qed.
 
-(* sin/cos 在"逐点精确相等"参数上的外延（real_eq 参数 ⟹ real_eq 值）——
-   eps-delta 复合代数第一步：sin(arctan(x+h)) == sin(A+v) 类换形 *)
+(* extensionality of sin/cos on "pointwise exactly equal" arguments ([real_eq] arguments ⟹ [real_eq] values) —
+   the first step of the eps-delta composition algebra: the sin(arctan(x+h)) == sin(A+v) kind of reformulation *)
 Lemma b5a_sin_wd_exact : forall (u v : Real),
   (forall n : nat, projT1 u n == projT1 v n) ->
   real_eq (cauchy_real_sin u) (cauchy_real_sin v).
@@ -7812,7 +7863,7 @@ Proof.
   rewrite H. ring.
 Qed.
 
-(* ---- 复合件命名（item-1 对象） ---- *)
+(* ---- naming of the composition pieces (the item-1 objects) ---- *)
 Definition b5a_atan_d (x : Real) : Real :=
   real_inv_pos (real_plus real_one (real_mult x x)) (b5a_one_plus_sq_pos x).
 
@@ -7850,7 +7901,7 @@ Proof.
   set (A := cauchy_real_arctan x Hx).
   set (Ah := cauchy_real_arctan (real_plus x h) Hxh).
   set (v := real_plus Ah (real_opp A)).
-  (* 1) sin(Ah) == sin(A+v)：逐点精确（A_n + (Ah_n − A_n) == Ah_n） *)
+  (* 1) sin(Ah) == sin(A+v): exact pointwise (A_n + (Ah_n − A_n) == Ah_n) *)
   assert (Hw : real_eq (cauchy_real_sin Ah) (cauchy_real_sin (real_plus A v))).
   { apply b5a_sin_wd_exact. intro n.
     unfold v.
@@ -7858,12 +7909,12 @@ Proof.
     rewrite ((qeqT_imp_qeq _ _ (real_plus_proj Ah (real_opp A) n))).
     rewrite ((qeqT_imp_qeq _ _ (real_opp_proj A n))).
     ring. }
-  (* 2) 目标改写链：D == [sin(A+v) + opp(...)] == [sinA·cosv + cosA·sinv + opp(...)] == T *)
+  (* 2) the goal rewriting chain: D == [sin(A+v) + opp(...)] == [sinA·cosv + cosA·sinv + opp(...)] == T *)
   apply (real_eq_trans (b5a_comp_err_sin x Hx h Hxh)
          (real_plus (cauchy_real_sin (real_plus A v))
                     (real_opp (real_plus (cauchy_real_sin A)
                                          (real_mult (cauchy_real_cos A) (real_mult (b5a_atan_d x) h)))))).
-  - (* D == sin(A+v)+opp(...)：unfold + plus-compat（sin Ah == sin(A+v)） *)
+  - (* D == sin(A+v)+opp(...): [unfold] + plus-compat (sin Ah == sin(A+v)) *)
     unfold b5a_comp_err_sin.
     apply (RealSetoid.real_eq_plus_compat
              (cauchy_real_sin (cauchy_real_arctan (real_plus x h) Hxh))
@@ -7894,7 +7945,7 @@ Proof.
                  (real_mult (b5a_atan_d x) h)).
         -- unfold A. apply real_eq_refl.
         -- apply real_eq_refl.
-  - (* sin(A+v)+opp(...) == T：rs_add_sin 展开 + ring *)
+  - (* sin(A+v)+opp(...) == T: the [rs_add_sin] expansion + [ring] *)
     apply (real_eq_trans
       (real_plus (cauchy_real_sin (real_plus A v))
                  (real_opp (real_plus (cauchy_real_sin A)
@@ -7921,7 +7972,7 @@ Proof.
                                     (real_mult (cauchy_real_cos A) (real_mult (b5a_atan_d x) h))))).
       * apply (rs_add_sin A v).
       * apply real_eq_refl.
-    + (* ring 证毕：逐点 Q-ring（sinA/cosA/cosv/sinv/v/d·h 为原子） *)
+    + (* [ring] completes it: pointwise Q-ring (sinA/cosA/cosv/sinv/v/d·h are atoms) *)
       apply real_eq_of_zero_diff. intro n. apply qeq_imp_qeqT.
       repeat (first [ rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _)) | rewrite (qeqT_imp_qeq _ _ (real_opp_proj _ _))
                     | rewrite (qeqT_imp_qeq _ _ (real_mult_proj _ _ _)) | rewrite (qeqT_imp_qeq _ _ (real_const_proj _ _)) ]).
@@ -7929,7 +7980,7 @@ Proof.
       ring.
 Qed.
 
-(* ---- cos∘arctan 复合误差（G := cos∘arctan，G' = −sinA·d）---- *)
+(* ---- the cos∘arctan composition error (G := cos∘arctan, G' = −sinA·d) ---- *)
 Definition b5a_comp_err_cos (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1) : Real :=
   real_plus (cauchy_real_cos (cauchy_real_arctan (real_plus x h) Hxh))
@@ -8052,19 +8103,19 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-A 续做                    *)
-(* （单位域证书/提升件/S 正性/E(0)==0/item-2 代数核心；26 Qed）； *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b5a_ode/sc2_b5a_cont.v  *)
+(* B5-A continued                                                                  *)
+(* (unit-domain certificates / lifting pieces / S positivity / E(0)==0 / the item-2 algebra core; 26 [Qed]); *)
+(* source: sc2_b5a_cont.v (sc2_b5a_ode)                                            *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* Part 0：Q 层小工具 + 常值正性见证                             *)
+(* Part 0: [Q]-layer utilities + constant positivity witnesses                             *)
 (* ============================================================ *)
 
 Lemma b5c_half_pos : QltT 0 (1 / 2).
 Proof. intros. apply Qlt_to_QltT. unfold Qlt. simpl. lia. Qed.
 
-(* real_const (1/2) > 0 的 Real 见证（reusable） *)
+(* the [Real] witness for [real_const (1/2) > 0] (reusable) *)
 Definition b5c_half_rpos : real_lt real_zero (real_const (1 / 2)) :=
   real_const_pos (1 / 2) b5c_half_pos.
 
@@ -8072,10 +8123,10 @@ Lemma b5c_quarter_pos : QltT 0 (1 / 4).
 Proof. intros. apply Qlt_to_QltT. unfold Qlt. simpl. lia. Qed.
 
 (* ============================================================ *)
-(* Part A：单位域证书（有理点 [0,1] 的 cw_unit 证书）             *)
+(* Part A: unit-domain certificates ([cw_unit] certificates for the rational points of [0,1])             *)
 (* ============================================================ *)
 
-(* Q 层：0 ≤ q ≤ 1 ⟹ |q| ≤ 1（QleT'） *)
+(* [Q] layer: 0 ≤ q ≤ 1 ⟹ |q| ≤ 1 ([QleT']) *)
 Lemma b5c_qleT_unit : forall (q : Q), Qle 0 q -> Qle q 1 ->
   QleT' (Qabs q) 1.
 Proof.
@@ -8098,16 +8149,16 @@ Proof.
   - exact Hq1.
 Qed.
 
-(* 常数证书：real_const 0 的单位证书（E(0)/J(0) 用） *)
+(* constant certificate: the unit certificate of [real_const 0] (used by E(0)/J(0)) *)
 Definition b5c_unit_zero : forall n : nat,
   QleT' (Qabs (projT1 (real_const 0) n)) 1 :=
   b5c_const_unit 0 (Qle_refl 0) (QleT'_to_Qle _ _ Qle_0_1).
 
 (* ============================================================ *)
-(* Part B：d(x) := inv_pos(1+x²) 的 Real 层界                    *)
+(* Part B: the [Real]-layer bounds for [d(x) := inv_pos(1+x²)]                    *)
 (* ============================================================ *)
 
-(* 1/2 < 1 + x²（Real 层；见证 1/4，∀x 闭项——inv 反单调输入） *)
+(* 1/2 < 1 + x² ([Real] layer; witness 1/4, a closed term in x — the contravariance input of inv) *)
 Lemma b5c_one_sq_half_lt : forall (x : Real),
   real_lt (real_const (1 / 2)) (real_plus real_one (real_mult x x)).
 Proof.
@@ -8146,7 +8197,7 @@ Proof.
   apply real_inv_pos_pos.
 Qed.
 
-(* inv(1/2) == real_const 2（real_inv_proj：∃N 全 n≥N 逐点 Qinv(1/2) == 2） *)
+(* [inv(1/2) == real_const 2] ([real_inv_proj]: ∃N such that for all n ≥ N pointwise Qinv(1/2) == 2) *)
 Lemma b5c_inv_half_two :
   real_eq (real_inv_pos (real_const (1 / 2)) b5c_half_rpos) (real_const 2).
 Proof.
@@ -8171,7 +8222,7 @@ Proof.
   - apply Qle_refl.
 Qed.
 
-(* d(x) < 2：inv 反单调（1/2 < 1+x² ⟹ inv(1+x²) < inv(1/2) == 2） *)
+(* d(x) < 2: inv is antitone (1/2 < 1+x² ⟹ inv(1+x²) < inv(1/2) == 2) *)
 Lemma b5c_d_lt_two : forall (x : Real),
   real_lt (b5a_atan_d x) (real_const 2).
 Proof.
@@ -8187,7 +8238,7 @@ Proof.
     exact (b5c_one_sq_half_lt x).
 Qed.
 
-(* |d(x)| == d(x)（0 < d） *)
+(* |d(x)| == d(x) (0 < d) *)
 Lemma b5c_d_abs : forall (x : Real),
   real_eq (real_abs (b5a_atan_d x)) (b5a_atan_d x).
 Proof.
@@ -8197,9 +8248,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part C：逐点界提升件（§5.1 提升件清单）                       *)
-(*  |a·w| ≤ M·|w| + sh（输入：逐点 ∀n QleT' |a_n| ≤ M，M > 0）   *)
-(*  证明：real_lt 见证（sh 的分离 sh0 作 eps0，逐点差值 ≥ sh_n > sh0）*)
+(* Part C: pointwise-bound lifting pieces (the §5.1 lifting-piece checklist)                     *)
+(*  |a·w| ≤ M·|w| + sh (input: pointwise ∀n QleT' |a_n| ≤ M with M > 0)                           *)
+(*  proof: a [real_lt] witness (the separation sh0 of sh serves as eps0, the pointwise difference ≥ sh_n > sh0) *)
 (* ============================================================ *)
 
 Lemma b5c_abs_mult_le : forall (a w : Real) (M : Q),
@@ -8234,12 +8285,12 @@ Proof.
       reflexivity. }
     set (Yn := M * Qabs (projT1 w n) + projT1 sh n).
     set (Xn := Qabs (projT1 a n * projT1 w n)).
-    (* 目标（投影改写后）：QltT sh0 (Yn − Xn) *)
+    (* goal (after projection rewriting): [QltT sh0 (Yn − Xn)] *)
     apply (qltT_eq_compat_r (projT1 (real_plus (real_mult (real_const M) (real_abs w)) sh) n
                               - projT1 (real_abs (real_mult a w)) n)
                             (Yn - Xn) sh0).
     { apply qeq_imp_qeqT. setoid_rewrite HY. setoid_rewrite HX. reflexivity. }
-    (* 现在：QltT sh0 (Yn − Xn)；改证 Qlt sh0 (Yn − Xn) *)
+    (* now: [QltT sh0 (Yn − Xn)]; prove [Qlt sh0 (Yn − Xn)] instead *)
     apply Qlt_to_QltT.
     assert (Hz : projT1 real_zero n == 0) by (cbn [projT1]; reflexivity).
     (* |a_n·w_n| ≤ M·|w_n| *)
@@ -8276,7 +8327,7 @@ Proof.
     + exact Hle2.
 Qed.
 
-(* |w| ≤ W̄（real_le）⟹ |a·w| ≤ M·W̄ + sh（M > 0，逐点 |a_n| ≤ M） *)
+(* |w| ≤ W̄ ([real_le]) ⟹ |a·w| ≤ M·W̄ + sh (M > 0, pointwise |a_n| ≤ M) *)
 Lemma b5c_abs_mult_le_wbar : forall (a w Wbar : Real) (M : Q),
   QltT 0 M ->
   (forall n : nat, QleT' (Qabs (projT1 a n)) M) ->
@@ -8308,10 +8359,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part D：S 正性 / J 构造 / E(0) == 0 / J(0) == 0               *)
+(* Part D: S positivity / the J construction / E(0) == 0 / J(0) == 0             *)
 (* ============================================================ *)
 
-(* S(x) := exp((1/2)·log(1+x²)) > 0（exp 全域正性） *)
+(* [S(x) := exp((1/2)·log(1+x²))] > 0 (exp is positive on the whole domain) *)
 Lemma b5c_S_pos : forall (x : Real),
   real_lt real_zero (b5a_S x).
 Proof.
@@ -8346,7 +8397,7 @@ Proof.
     exact (qeqT_imp_qeq _ _ (b5c_arctan_term_zero (Datatypes.S m))).
 Qed.
 
-(* 逐点：proj (arctan (real_const 0)) n == 0 *)
+(* pointwise: [proj (arctan (real_const 0)) n == 0] *)
 Lemma b5c_arctan_term_wd : forall (k : nat) (x y : Q), x == y ->
   QeqT (arctan_term k x) (arctan_term k y).
 Proof.
@@ -8396,7 +8447,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* sin(real_zero) == real_zero（逐点 sin_partial n 0 == 0，根 sc_sin_partial_zero） *)
+(* [sin(real_zero) == real_zero] (pointwise sin_partial n 0 == 0, root-file [sc_sin_partial_zero]) *)
 Lemma b5c_sin_zero : real_eq (cauchy_real_sin real_zero) real_zero.
 Proof.
   apply real_eq_of_zero_diff.
@@ -8410,7 +8461,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* cos(real_zero) == real_one（逐点 cos_partial n 0 == 1，根 sc_cos_partial_one） *)
+(* [cos(real_zero) == real_one] (pointwise cos_partial n 0 == 1, root-file [sc_cos_partial_one]) *)
 Lemma b5c_cos_one : real_eq (cauchy_real_cos real_zero) real_one.
 Proof.
   apply real_eq_of_zero_diff.
@@ -8424,7 +8475,7 @@ Proof.
   reflexivity.
 Qed.
 
-(* E(real_const 0) == real_zero（sin(arctan 0) − 0·cos(arctan 0) == 0 − 0） *)
+(* [E(real_const 0) == real_zero] (sin(arctan 0) − 0·cos(arctan 0) == 0 − 0) *)
 Lemma b5c_E_zero_at_zero : forall (H0 : forall n : nat, QleT' (Qabs (projT1 (real_const 0) n)) 1),
   real_eq (b5a_E (real_const 0) H0) real_zero.
 Proof.
@@ -8476,7 +8527,7 @@ Proof.
     + apply real_eq_refl.
 Qed.
 
-(* J(real_const 0) == 0（E(0) == 0 ⟹ E(0)·S(0)^{-1} == 0） *)
+(* [J(real_const 0) == 0] (E(0) == 0 ⟹ E(0)·S(0)^{-1} == 0) *)
 Lemma b5c_J_zero_at_zero : forall (H0 : forall n : nat, QleT' (Qabs (projT1 (real_const 0) n)) 1),
   real_eq (b5c_J (real_const 0) H0) real_zero.
 Proof.
@@ -8501,23 +8552,23 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part E：item-2 代数核心恒等（无 Variable，纯 real_eq 代数）    *)
-(*   E := sA − x·cA（sA := sin A，cA := cos A，A := arctan x）    *)
-(*   E'(x) 组装式 := cA·d − cA + x·sA·d  ==  x·E·d  (d := inv(1+x²)) *)
-(*   差 == cA·(d·(1+x²) − 1) == cA·0 == 0（real_inv_pos_correct）  *)
+(* Part E: the item-2 algebra-core identity (no Variables, pure [real_eq] algebra) *)
+(*   E := sA − x·cA (sA := sin A, cA := cos A, A := arctan x)                      *)
+(*   the assembled form of E'(x) := cA·d − cA + x·sA·d == x·E·d (d := inv(1+x²))   *)
+(*   the difference == cA·(d·(1+x²) − 1) == cA·0 == 0 ([real_inv_pos_correct])     *)
 (* ============================================================ *)
 
-(* E'(x) 的组装式（item-2 的"导数项形态"） *)
+(* the assembled form of E'(x) (the "derivative-term shape" of item-2) *)
 Definition b5c_E_form (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) : Real :=
   real_plus (real_plus (real_mult (cauchy_real_cos (cauchy_real_arctan x Hx)) (b5a_atan_d x))
                        (real_opp (cauchy_real_cos (cauchy_real_arctan x Hx))))
             (real_mult (real_mult x (cauchy_real_sin (cauchy_real_arctan x Hx))) (b5a_atan_d x)).
 
-(* x·E(x)·d（item-2 目标线性项的内部系数） *)
+(* x·E(x)·d (the inner coefficient of the item-2 goal's linear term) *)
 Definition b5c_E_lin (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) : Real :=
   real_mult (real_mult x (b5a_E x Hx)) (b5a_atan_d x).
 
-(* W := d·(1+x²) − 1（== 0，inv_pos_correct） *)
+(* [W := d·(1+x²) − 1] (== 0, by [inv_pos_correct]) *)
 Definition b5c_W (x : Real) : Real :=
   real_plus (real_mult (b5a_atan_d x) (real_plus real_one (real_mult x x)))
             (real_opp real_one).
@@ -8525,7 +8576,7 @@ Definition b5c_W (x : Real) : Real :=
 Definition b5c_cA (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) : Real :=
   cauchy_real_cos (cauchy_real_arctan x Hx).
 
-(* W == 0：d·(1+x²) == (1+x²)·d == 1（real_inv_pos_correct + 交换律） *)
+(* W == 0: [d·(1+x²) == (1+x²)·d == 1] ([real_inv_pos_correct] + commutativity) *)
 Lemma b5c_W_zero : forall (x : Real), real_eq (b5c_W x) real_zero.
 Proof.
   intro x.
@@ -8556,7 +8607,7 @@ Proof.
   - apply real_plus_opp.
 Qed.
 
-(* 差为零：E'-form − xEd − cA·W == 0（逐点 Q ring，原子 sA/cA/d/x） *)
+(* the difference is zero: E'-form − xEd − cA·W == 0 (pointwise Q ring; the atoms sA/cA/d/x) *)
 Lemma b5c_E_deriv_diff_zero : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   real_eq (real_plus (real_plus (b5c_E_form x Hx) (real_opp (b5c_E_lin x Hx)))
@@ -8572,7 +8623,7 @@ Proof.
   simpl. ring.
 Qed.
 
-(* 主件：E'(x) == x·E(x)·d（item-2 代数核心；E' 组装式 == 目标线性项系数） *)
+(* main piece: [E'(x) == x·E(x)·d] (the item-2 algebra core; the assembled form of E' equals the coefficient of the goal's linear term) *)
 Lemma b5c_E_deriv_core : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   real_eq (b5c_E_form x Hx) (b5c_E_lin x Hx).
@@ -8598,10 +8649,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part F：item-1 逐点 Q 路线的预备件（route (i) 需要）          *)
+(* Part F: preliminaries for the item-1 pointwise-[Q] route (needed by route (i)) *)
 (* ============================================================ *)
 
-(* 1 + x_n² ≥ 1（逐点，∀x） *)
+(* 1 + x_n² ≥ 1 (pointwise, for all x) *)
 Lemma b5c_one_sq_proj_ge_one : forall (x : Real) (n : nat),
   QleT' 1 (projT1 (real_plus real_one (real_mult x x)) n).
 Proof.
@@ -8620,7 +8671,7 @@ Proof.
     + apply QleT'_to_Qle. apply (Qsquare_nonneg (projT1 x n)).
 Qed.
 
-(* Q 层：0 < y、1 ≤ y ⟹ Qinv y ≤ 1（1 − Qinv y == (y−1)·Qinv y ≥ 0） *)
+(* [Q] layer: 0 < y, 1 ≤ y ⟹ Qinv y ≤ 1 (1 − Qinv y == (y−1)·Qinv y ≥ 0) *)
 Lemma b5c_qinv_le_one : forall (y : Q), Qlt 0 y -> Qle 1 y -> QleT' (Qinv y) 1.
 Proof.
   intros y Hy0 Hy1. apply Qle_to_QleT'.
@@ -8638,8 +8689,8 @@ Proof.
     + exact Hinv0.
 Qed.
 
-(* 逐点（eventual）：|proj d n| == d_n ≤ 1（real_inv_proj：n ≥ N 时   *)
-(* d_n == Qinv(1+x_n²)，0 < 1+x_n² 且 1 ≤ 1+x_n² ⟹ Qinv ≤ 1）        *)
+(* pointwise (eventually): |proj d n| == d_n ≤ 1 ([real_inv_proj]: for n ≥ N,      *)
+(* d_n == Qinv(1+x_n²) with 0 < 1+x_n² and 1 ≤ 1+x_n², hence Qinv ≤ 1)             *)
 Lemma b5c_d_proj_le_one : forall (x : Real),
   sigT (fun N : nat => forall n : nat, NatLe N n ->
     QleT' (Qabs (projT1 (b5a_atan_d x) n)) 1).
@@ -8662,7 +8713,7 @@ Proof.
   { apply (Qlt_le_trans 0 1 (projT1 (real_plus real_one (real_mult x x)) n)).
     - unfold Qlt. simpl. lia.
     - exact Hge1. }
-  (* |Qinv y| == Qinv y（0 < Qinv y）≤ 1 *)
+  (* |Qinv y| == Qinv y (0 < Qinv y) ≤ 1 *)
   apply (Qle_trans (Qabs (Qinv (projT1 (real_plus real_one (real_mult x x)) n)))
                    (Qinv (projT1 (real_plus real_one (real_mult x x)) n))
                    1).
@@ -8677,14 +8728,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-A item-1 逐点 Q 层全证    *)
-(* （I1-I6 + J1-J3 装配套，40 Qed；主引理 b5a_sin/cos_atan_diff  *)
-(* 未入文件，外层装配留后续批）；来源：                          *)
-(* 演变/.ablation/sc2_parallel/sc2_b5a_ode/sc2_b5a_item1.v       *)
+(* B5-A item-1, fully proved at the pointwise-[Q] layer   *)
+(* (the I1-I6 + J1-J3 assembly set, 40 [Qed]; the main lemmas [b5a_sin_atan_diff]/[b5a_cos_atan_diff] *)
+(* are not in this file — the outer assembly is left to a later segment); source:                     *)
+(* sc2_b5a_item1.v (sc2_b5a_ode)                        *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* Part I0：item-1 目标语句（§4.1 精确形态；续批抄用）           *)
+(* Part I0: the item-1 goal statements (the exact §4.1 form; for later segments to copy) *)
 (*   Lemma b5a_sin_atan_diff : forall (x : Real)                *)
 (*     (Hx : forall n, QleT' (Qabs (projT1 x n)) 1),            *)
 (*     forall (eps : Real), real_lt real_zero eps ->            *)
@@ -8694,12 +8745,12 @@ Qed.
 (*         forall (eps' : Real), real_lt real_zero eps' ->      *)
 (*         real_le (real_abs (b5a_comp_err_sin x Hx h Hxh))     *)
 (*                 (real_plus (real_mult eps (real_abs h)) eps')))). *)
-(*   b5a_cos_atan_diff 同构于 b5a_comp_err_cos。                *)
+(*   [b5a_cos_atan_diff] is isomorphic to [b5a_comp_err_cos].                   *)
 (* ============================================================ *)
 
 Section B5A_Item1.
 
-(* ---- arctan'（B3 形态；sc2_b5a_ode.v §B5A_Ode 同款规格）---- *)
+(* ---- arctan' (the B3 form; the same specification as §B5A_Ode of sc2_b5a_ode.v) ---- *)
 Variable real_arctan_deriv :
   forall (x : Real) (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   forall (eps : Real), real_lt real_zero eps ->
@@ -8715,10 +8766,10 @@ Variable real_arctan_deriv :
                   (real_plus (real_mult eps (real_abs h)) eps'))).
 
 (* ============================================================ *)
-(* Part I1：逐点投影代数（纯 x/Hx/h/Hxh，无 Variable 依赖）     *)
+(* Part I1: pointwise projection algebra (pure x/Hx/h/Hxh, no Variable dependencies)     *)
 (* ============================================================ *)
 
-(* 逐点：proj (b5a_comp_err_sin x Hx h Hxh) n 的完全展开 *)
+(* pointwise: the full expansion of [proj (b5a_comp_err_sin x Hx h Hxh) n] *)
 Lemma b5i_sin_err_proj : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -8727,7 +8778,7 @@ Lemma b5i_sin_err_proj : forall (x : Real)
 Proof.
   intros x Hx h Hxh n. apply qeq_imp_qeqT.
   unfold b5a_comp_err_sin.
-  (* 外层：real_plus (sin(arctan(x+h))) (opp (...)) *)
+  (* outer layer: real_plus (sin(arctan(x+h))) (opp (...)) *)
   setoid_rewrite ((qeqT_imp_qeq _ _ (real_plus_proj (cauchy_real_sin (cauchy_real_arctan (real_plus x h) Hxh))
                                  (real_opp (real_plus (cauchy_real_sin (cauchy_real_arctan x Hx))
                                                       (real_mult (cauchy_real_cos (cauchy_real_arctan x Hx))
@@ -8749,7 +8800,7 @@ Proof.
   ring.
 Qed.
 
-(* cos 版投影展开 *)
+(* the cos version of the projection expansion *)
 Lemma b5i_cos_err_proj : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -8781,8 +8832,8 @@ Proof.
   ring.
 Qed.
 
-(* 逐点精确 S1/S2 分裂：D_n == [Δsin − cA·v] + cA·(v − d·h) *)
-(* v_n := arctan_partial n (x_n+h_n) − arctan_partial n x_n       *)
+(* the exact pointwise S1/S2 split: D_n == [Δsin − cA·v] + cA·(v − d·h)      *)
+(* v_n := arctan_partial n (x_n+h_n) − arctan_partial n x_n                  *)
 Lemma b5i_sin_err_split : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -8794,7 +8845,7 @@ Proof.
   ring.
 Qed.
 
-(* |arctan_partial n (x_n)| ≤ 2（|x_n| ≤ 1） *)
+(* |arctan_partial n (x_n)| ≤ 2 (|x_n| ≤ 1) *)
 Lemma b5i_A_norm_le2 : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1) (n : nat),
   QleT' (Qabs (arctan_partial n (projT1 x n))) 2.
@@ -8804,7 +8855,7 @@ Proof.
   exact (Hx n).
 Qed.
 
-(* |arctan_partial n ((x+h)_n)| ≤ 2（|(x+h)_n| ≤ 1） *)
+(* |arctan_partial n ((x+h)_n)| ≤ 2 (|(x+h)_n| ≤ 1) *)
 Lemma b5i_Ah_norm_le2 : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -8816,7 +8867,7 @@ Proof.
   exact (Hxh n).
 Qed.
 
-(* |v_n| ≤ 4（v_n := Ah_n − A_n） *)
+(* |v_n| ≤ 4 (v_n := Ah_n − A_n) *)
 Lemma b5i_v_norm_le4 : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -8839,10 +8890,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part I2：逐点 cos/sin 部分和范数界（cos/sin A 的 norm bound） *)
+(* Part I2: pointwise norm bounds of the cos/sin partial sums (norm bounds for cos/sin A) *)
 (* ============================================================ *)
 
-(* |sin_partial n (A_n)| ≤ Ms 逐点（Ms 由 real_norm_bounded (sin A)） *)
+(* |sin_partial n (A_n)| ≤ Ms pointwise (Ms from [real_norm_bounded (sin A)]) *)
 Lemma b5i_sinA_bounded : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   sigT (fun Ms : Q => And (QltT 0 Ms)
@@ -8867,7 +8918,7 @@ Proof.
     + apply QleT'_to_Qle. exact (Hpt n).
 Qed.
 
-(* |cos_partial n (A_n)| ≤ Mc 逐点 *)
+(* |cos_partial n (A_n)| ≤ Mc pointwise *)
 Lemma b5i_cosA_bounded : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1),
   sigT (fun Mc : Q => And (QltT 0 Mc)
@@ -8892,7 +8943,7 @@ Proof.
     + apply QleT'_to_Qle. exact (Hpt n).
 Qed.
 
-(* |cos_partial n (v_n)| ≤ Mcv 逐点（cos v 的 norm bound） *)
+(* |cos_partial n (v_n)| ≤ Mcv pointwise (the norm bound for cos v) *)
 Lemma b5i_cosv_bounded : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1),
@@ -8936,7 +8987,7 @@ Proof.
     + apply QleT'_to_Qle. exact (Hpt n).
 Qed.
 
-(* |sin_partial n (v_n)| ≤ Msv 逐点（sin v 的 norm bound） *)
+(* |sin_partial n (v_n)| ≤ Msv pointwise (the norm bound for sin v) *)
 Lemma b5i_sinv_bounded : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1),
@@ -8981,10 +9032,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part I4：逐点表达式定义（主装配用，压缩语句）                *)
+(* Part I4: pointwise expression definitions (for the main assembly; shortens the statements)                *)
 (* ============================================================ *)
 
-(* A_n / Ah_n / v_n / d_n（逐点） *)
+(* A_n / Ah_n / v_n / d_n (pointwise) *)
 Definition b5i_An (x : Real) (n : nat) : Q :=
   arctan_partial n (projT1 x n).
 Definition b5i_Ahn (x h : Real) (n : nat) : Q :=
@@ -8994,15 +9045,15 @@ Definition b5i_vn (x h : Real) (n : nat) : Q :=
 Definition b5i_dn (x : Real) (n : nat) : Q :=
   projT1 (b5a_atan_d x) n.
 
-(* rs_add_sin 的逐点误差列（sin_partial n (A+v) vs sA·cv + cA·sv；
-   A_n + v_n == Ah_n 逐点 ⟹ 用 Ah_n 表示） *)
+(* the pointwise error column of [rs_add_sin] (sin_partial n (A+v) vs sA·cv + cA·sv;
+   A_n + v_n == Ah_n pointwise, so the column is written in terms of Ah_n) *)
 Definition b5i_addcol_sin (x h : Real) (Hxh : forall n : nat,
   QleT' (Qabs (projT1 (real_plus x h) n)) 1) (n : nat) : Q :=
   Qabs (sin_partial n (b5i_Ahn x h n)
         - (sin_partial n (b5i_An x n) * cos_partial n (b5i_vn x h n)
            + cos_partial n (b5i_An x n) * sin_partial n (b5i_vn x h n))).
 
-(* S1_n / S2_n（D_n 的逐点两件） *)
+(* S1_n / S2_n (the two pointwise pieces of D_n) *)
 Definition b5i_S1n (x h : Real) (n : nat) : Q :=
   sin_partial n (b5i_Ahn x h n) - sin_partial n (b5i_An x n)
   - cos_partial n (b5i_An x n) * b5i_vn x h n.
@@ -9012,10 +9063,10 @@ Definition b5i_S2n (x h : Real) (n : nat) : Q :=
 
 (* ============================================================ *)
 (* ============================================================ *)
-(* Part I5：S1 二次界 / S1 全局界 / S2 界（主装配内件，已 Qed）*)
+(* Part I5: the S1 quadratic bound / the S1 global bound / the S2 bound (inner pieces of the main assembly, already Qed) *)
 (* ============================================================ *)
 
-(* S1 二次界（|v_n| ≤ 1；c := rs_add 列误差上界） *)
+(* the S1 quadratic bound (|v_n| ≤ 1; c := the rs_add column-error upper bound) *)
 Lemma b5i_S1_quad : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -9130,7 +9181,7 @@ Proof.
       * exact HC.
 Qed.
 
-(* S1 全局界（无需 |v| ≤ 1）：|S1| ≤ |addcol| + Ms(Mcv+1) + Mc(Msv+|v|) *)
+(* the S1 global bound (no |v| ≤ 1 needed): |S1| ≤ |addcol| + Ms(Mcv+1) + Mc(Msv+|v|) *)
 Lemma b5i_S1_crude : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -9271,7 +9322,7 @@ Proof.
       * exact HC.
 Qed.
 
-(* S2 界：|cA·(v−dh)| ≤ Mc·wb（|v−dh|_n ≤ wb） *)
+(* the S2 bound: |cA·(v−dh)| ≤ Mc·wb (|v−dh|_n ≤ wb) *)
 Lemma b5i_S2_le : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -9318,10 +9369,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part I6：E1 通用 exp 界（|sin/cos_partial m a| ≤ C(|a| ≤ 4)）*)
+(* Part I6: the E1 general exp bound (|sin/cos_partial m a| ≤ C for |a| ≤ 4) *)
 (* ============================================================ *)
 
-(* 0 ≤ |a| ≤ 4 ⟹ |cos_partial m a| ≤ 4·C + 1（C := ∀j exp_series j 4 ≤ C） *)
+(* 0 ≤ |a| ≤ 4 ⟹ |cos_partial m a| ≤ 4·C + 1 (C := ∀j exp_series j 4 ≤ C) *)
 Lemma b5i_cos_partial_le4 : forall (C : Q),
   (forall j : nat, QleT' (exp_series j 4) C) ->
   Qle 0 C ->
@@ -9364,7 +9415,7 @@ Proof.
       * apply Qle_refl.
 Qed.
 
-(* 0 ≤ |a| ≤ 4 ⟹ |sin_partial m a| ≤ 4·C（C := ∀j exp_series j 4 ≤ C） *)
+(* 0 ≤ |a| ≤ 4 ⟹ |sin_partial m a| ≤ 4·C (C := ∀j exp_series j 4 ≤ C) *)
 Lemma b5i_sin_partial_le4 : forall (C : Q),
   (forall j : nat, QleT' (exp_series j 4) C) ->
   Qle 0 C ->
@@ -9418,7 +9469,7 @@ Proof.
         -- apply Qle_refl.
 Qed.
 
-(* 通用界实例化：∃C4 ≥ 1：∀j exp_series j 4 ≤ C4（exp_series_arch 直接） *)
+(* general-bound instantiation: ∃C4 ≥ 1 with ∀j exp_series j 4 ≤ C4 (directly from [exp_series_arch]) *)
 Lemma b5i_exp_arch4 : sigT (fun C : Q => And (QleT' 1 C)
   (forall j : nat, QleT' (exp_series j 4) C)).
 Proof.
@@ -9426,7 +9477,7 @@ Proof.
   apply Qle_to_QleT'. unfold Qle. simpl. lia.
 Qed.
 
-(* S1 x-无关全局界：|S1| ≤ |addcol| + Ms(4C+2) + Mc(4C+4)（|v| ≤ 4、C 通用 exp 界） *)
+(* the x-independent global bound for S1: |S1| ≤ |addcol| + Ms(4C+2) + Mc(4C+4) (|v| ≤ 4 and C the general exp bound) *)
 Lemma b5i_S1_crude_x : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -9484,10 +9535,10 @@ Qed.
 
 (* ============================================================ *)
 (* ============================================================ *)
-(* Part I7：逐点提取（E4 模板；主装配可独立引用）               *)
+(* Part I7: pointwise extraction (the E4 template; independently citable by the main assembly)               *)
 (* ============================================================ *)
 
-(* |h| < eps·k（Real 积，k > 0）⟹ ∃N ∀n≥N：|h_n| ≤ en·k        *)
+(* |h| < eps·k (a [Real] product, k > 0) ⟹ ∃N ∀n≥N: |h_n| ≤ en·k        *)
 Lemma b5i_h_le_enk : forall (h : Real) (eps : Real) (k : Q),
   real_lt (real_abs h) (real_mult eps (real_const k)) ->
   QltT 0 k ->
@@ -9520,7 +9571,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* |h| < real-const c ⟹ ∃N ∀n≥N：|h_n| ≤ c（c > 0） *)
+(* |h| < real-const c ⟹ ∃N ∀n≥N: |h_n| ≤ c (c > 0) *)
 Lemma b5i_h_le_const : forall (h : Real) (c : Q),
   real_lt (real_abs h) (real_const c) ->
   QltT 0 c ->
@@ -9553,10 +9604,10 @@ Qed.
 
 (* ============================================================ *)
 (* ============================================================ *)
-(* Part I8：real_le → 逐点桥（主装配 |v−dh| 提取的 lt/eq 双分支）*)
+(* Part I8: the [real_le] → pointwise bridge (the lt/eq branches for extracting |v−dh| in the main assembly) *)
 (* ============================================================ *)
 
-(* real_le (real_abs A) B ⟹ ∃N ∀n≥N：|A_n| ≤ B_n + sh_n（sh > 0 松弛） *)
+(* [real_le (real_abs A) B] ⟹ ∃N ∀n≥N: |A_n| ≤ B_n + sh_n (the sh > 0 slack) *)
 Lemma b5i_abs_le_pointwise : forall (A B : Real),
   real_le (real_abs A) B ->
   forall (sh : Real), real_lt real_zero sh ->
@@ -9566,7 +9617,7 @@ Proof.
   intros A B Hle sh Hsh.
   destruct Hsh as [sh0 [Hsh0 [Nsh HNsh]]].
   destruct Hle as [Hlt | Heq].
-  - (* lt 分支 *)
+  - (* the lt branch *)
     destruct Hlt as [eps0w [Heps0w [Nw HNw]]].
     exists (Nat.max Nw Nsh).
     intros n Hn.
@@ -9598,7 +9649,7 @@ Proof.
                                 sh0).
         -- apply qeq_imp_qeqT. cbn [projT1 real_zero]. ring.
         -- exact (HNsh n (NatLe_lift _ _ (Nat.le_trans _ _ _ (Nat.le_max_r Nw Nsh) Hn))).
-  - (* eq 分支：在 sh0/2 处 destruct ⟹ |A_n| ≤ B_n + sh0/2 ≤ B_n + sh_n *)
+  - (* the eq branch: destruct at sh0/2 ⟹ |A_n| ≤ B_n + sh0/2 ≤ B_n + sh_n *)
     set (e := Qmult sh0 (Qinv 2)).
     assert (He : QltT 0 e).
     { unfold e. apply Qlt_to_QltT.
@@ -9647,7 +9698,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part I9：|v−dh| 逐点界（段②：投影恒等 + 提取包装）          *)
+(* Part I9: the pointwise bound for |v−dh| (segment ②: projection identity + extraction wrapper)          *)
 (* ============================================================ *)
 
 (* proj ((arctan(x+h) − arctan x) − d·h) n == (Ah_n − A_n) − d_n·h_n *)
@@ -9672,7 +9723,7 @@ Proof.
   ring.
 Qed.
 
-(* |proj ((v − dh)) n| ≤ wb ⟹ |(v_n − d_n h_n)| ≤ wb（b5i 形态） *)
+(* |proj ((v − dh)) n| ≤ wb ⟹ |(v_n − d_n h_n)| ≤ wb (the [b5i] form) *)
 Lemma b5i_vdh_abs : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -9695,12 +9746,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part J1：主装配 Q 系数工具 + Real 提取件（增量 1，纯 Q/Real） *)
-(* （预算符号化：kδ/k2/k2' 的数值界统一由 b5i_kbig 单一件给出；  *)
-(*   常数一律用规范 Qmake 形态（1#4）等，避免 Qdiv 的 ring 陷阱） *)
+(* Part J1: main-assembly [Q]-coefficient tools + [Real] extraction pieces (increment 1, pure [Q]/[Real]) *)
+(* (symbolized budgets: the numerical bounds of kδ/k2/k2' are all given by the single piece [b5i_kbig];   *)
+(*   constants always use the canonical Qmake forms (1#4) etc., avoiding the [Qdiv] ring pitfalls) *)
 (* ============================================================ *)
 
-(* ≤/≥ 可判定二分（|v_n| ≤ 1 双分支的 case-split 用） *)
+(* decidable ≤/≥ dichotomy (for the case split of the two |v_n| ≤ 1 branches) *)
 Lemma b5i_qle_dec : forall (x y : Q), {Qle x y} + {Qlt y x}.
 Proof.
   intros x y.
@@ -9717,7 +9768,7 @@ Proof.
   intros a b.  apply qeq_imp_qle. apply qeq_imp_qeqT. exact (Qabs_Qmult a b).
 Qed.
 
-(* |d| ≤ 1 ⟹ |d·h| ≤ |h|（逐点 dh 吸收） *)
+(* |d| ≤ 1 ⟹ |d·h| ≤ |h| (pointwise dh absorption) *)
 Lemma b5i_dh_abs_le_h : forall (d h : Q), Qle (Qabs d) 1 ->
   QleT' (Qabs (Qmult d h)) (Qabs h).
 Proof.
@@ -9729,7 +9780,7 @@ Proof.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* (a+b)² ≤ 2a² + 2b²（纯代数，无需非负假设） *)
+(* (a+b)² ≤ 2a² + 2b² (pure algebra, no nonnegativity assumptions needed) *)
 Lemma b5i_sq_sum2 : forall (a b : Q),
   QleT' (q_pow (Qplus a b) 2)
       (Qplus (Qmult 2 (q_pow a 2)) (Qmult 2 (q_pow b 2))).
@@ -9770,7 +9821,7 @@ Proof.
   - apply QleT'_to_Qle. apply (b5i_sq_sum2 (Qabs w) (Qabs h)).
 Qed.
 
-(* 0 ≤ u ≤ a 且 u ≤ b ⟹ u² ≤ a·b（B1·B2 乘积技巧） *)
+(* 0 ≤ u ≤ a and u ≤ b ⟹ u² ≤ a·b (the B1·B2 product trick) *)
 Lemma b5i_sq_le_prod : forall (u a b : Q), Qle 0 u -> Qle u a -> Qle u b ->
   QleT' (q_pow u 2) (Qmult a b).
 Proof.
@@ -9781,7 +9832,7 @@ Proof.
   - split; [exact Hu0 | exact Hub].
 Qed.
 
-(* |x| ≤ 1 ⟹ |x|³ ≤ |x|²（二次界内 |v|³ 吸收） *)
+(* |x| ≤ 1 ⟹ |x|³ ≤ |x|² (absorbing |v|³ inside the quadratic bound) *)
 Lemma b5i_cube_le_sq : forall (x : Q), Qle (Qabs x) 1 ->
   QleT' (q_pow (Qabs x) 3) (q_pow (Qabs x) 2).
 Proof.
@@ -9797,7 +9848,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* |h| ≤ 1/2 ⟹ (1 + |h|) ≤ 3/2（B2 上界件） *)
+(* |h| ≤ 1/2 ⟹ (1 + |h|) ≤ 3/2 (the B2 upper-bound piece) *)
 Lemma b5i_one_plus_abs_le32 : forall (h : Q), Qle (Qabs h) (1 # 2) ->
   QleT' (Qplus 1 (Qabs h)) (3 # 2).
 Proof.
@@ -9809,8 +9860,8 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* 预算数值件：a·inv(c·(b+1)·(a+1)) ≤ 1/c
-   （a > 0、c > 0、b ≥ 0；kδ/k2/k2' 所有系数界的单一来源） *)
+(* budget numerical piece: [a·inv(c·(b+1)·(a+1)) ≤ 1/c]
+   (a > 0, c > 0, b ≥ 0; the single source of all coefficient bounds for kδ/k2/k2') *)
 Lemma b5i_kbig : forall (a b c : Q), Qlt 0 a -> Qlt 0 c -> Qle 0 b ->
   QleT' (Qmult a (Qinv (Qmult c (Qmult (Qplus b 1) (Qplus a 1))))) (Qinv c).
 Proof.
@@ -9841,7 +9892,7 @@ Proof.
                      **** apply (Qlt_le_weak 0 a). exact Ha.
                      **** apply Qle_refl.
       * exact (Qlt_to_QltT 0 c Hc).
-      * (* a·c ≤ 1·(c(b+1)(a+1))：a ≤ (b+1)(a+1) 后乘 c *)
+      * (* a·c ≤ 1·(c(b+1)(a+1)): a ≤ (b+1)(a+1), then multiply by c *)
         assert (Hsub : Qle (Qmult a c) (Qmult c (Qmult (Qplus b 1) (Qplus a 1)))).
         { apply (Qle_trans (Qmult a c) (Qmult (Qmult (Qplus b 1) (Qplus a 1)) c)
                            (Qmult c (Qmult (Qplus b 1) (Qplus a 1)))).
@@ -9876,10 +9927,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Real 层提取件（主装配 δ 组装用）                              *)
+(* [Real]-layer extraction pieces (for assembling δ in the main assembly)                              *)
 (* ============================================================ *)
 
-(* 1 + eps·const k2 > 0（k2 > 0；δ 的 inv-pos 部分正性见证） *)
+(* 1 + eps·const k2 > 0 (k2 > 0; the positivity witness for the inv-pos part of δ) *)
 Lemma b5i_one_plus_eps2_pos : forall (eps : Real) (k2 : Q),
   real_lt real_zero eps -> QltT 0 k2 ->
   real_lt real_zero (real_plus real_one (real_mult eps (real_const k2))).
@@ -9922,8 +9973,8 @@ Proof.
         ring.
 Qed.
 
-(* |h| < (1/4)·inv_pos(1+eps2) ⟹ ∃N ∀n≥N：(1+eps2_n)·|h_n| ≤ 1/4
-   （δ 组装第 (d) 部分；real_inv_proj 尾表示 + q_lt_minus_shift） *)
+(* |h| < (1/4)·inv_pos(1+eps2) ⟹ ∃N ∀n≥N: (1+eps2_n)·|h_n| ≤ 1/4
+   (part (d) of the δ assembly; the eventual representation via [real_inv_proj] + [q_lt_minus_shift]) *)
 Lemma b5i_h_inv_quarter : forall (h eps2 : Real)
   (Hp : real_lt real_zero (real_plus real_one eps2)),
   real_lt (real_abs h)
@@ -9944,7 +9995,7 @@ Proof.
   assert (HnNp : NatLe Np n) by (apply NatLe_lift; lia).
   set (yn := projT1 (real_plus real_one eps2) n).
   set (invs := projT1 (real_inv_pos (real_plus real_one eps2) Hp) n).
-  (* 1) 逐点：e < (1/4)·invs − |h_n|（HNe 经投影恒等改写） *)
+  (* 1) pointwise: e < (1/4)·invs − |h_n| (HNe rewritten via the projection identity) *)
   assert (Hew : Qlt e (Qminus (Qmult (1 # 4) invs) (Qabs (projT1 h n)))).
   { apply QltT_to_Qlt.
     apply (qltT_eq_compat_r (Qminus (Qmult (1 # 4) invs) (Qabs (projT1 h n)))
@@ -9961,24 +10012,24 @@ Proof.
       + rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))). reflexivity.
     - exact (HNe n HnNe).
   }
-  (* 2) |h_n| < (1/4)·invs − e（q_lt_minus_shift） *)
+  (* 2) |h_n| < (1/4)·invs − e ([q_lt_minus_shift]) *)
   assert (Hshift : Qlt (Qabs (projT1 h n)) (Qminus (Qmult (1 # 4) invs) e)).
   { apply QltT_to_Qlt. apply (q_lt_minus_shift e (Qmult (1 # 4) invs) (Qabs (projT1 h n))). apply Qlt_to_QltT. exact Hew. }
-  (* 3) yn > 0（Hp 见证 p） *)
+  (* 3) yn > 0 (Hp witnesses p) *)
   assert (Hyn : Qlt 0 yn).
   { apply (Qlt_le_trans 0 p yn).
     - apply QltT_to_Qlt. exact Hp0.
     - apply (Qle_trans p (Qminus (projT1 (real_plus real_one eps2) n) (projT1 real_zero n)) yn).
       + apply Qlt_le_weak. apply QltT_to_Qlt. exact (HNp n HnNp).
       + unfold yn. apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. cbn [projT1 real_zero]. ring. }
-  (* 4) |h_n|·yn < ((1/4)·invs − e)·yn（Qmult_lt_compat_r；无 _l 变体） *)
+  (* 4) |h_n|·yn < ((1/4)·invs − e)·yn ([Qmult_lt_compat_r]; there is no _l variant) *)
   assert (Hmul : Qlt (Qmult (Qabs (projT1 h n)) yn)
                      (Qmult (Qminus (Qmult (1 # 4) invs) e) yn)).
   { apply (Qmult_lt_compat_r (Qabs (projT1 h n))
                              (Qminus (Qmult (1 # 4) invs) e) yn).
     - exact Hyn.
     - exact Hshift. }
-  (* 5) ((1/4)·invs − e)·yn ≤ 1/4（invs == Qinv yn ⟹ (1/4)·(yn·invs) == 1/4） *)
+  (* 5) ((1/4)·invs − e)·yn ≤ 1/4 (invs == Qinv yn ⟹ (1/4)·(yn·invs) == 1/4) *)
   assert (Hinv : invs == Qinv yn).
   { unfold invs, yn. exact (qeqT_imp_qeq _ _ (HNi n HnNi)). }
   assert (Hle1 : Qle (Qmult (Qminus (Qmult (1 # 4) invs) e) yn) (1 # 4)).
@@ -10004,7 +10055,7 @@ Proof.
         + apply (Qlt_le_weak 0 yn). exact Hyn.
         + apply (Qlt_le_weak 0 e). apply QltT_to_Qlt. exact He. }
       exact Hle2. }
-  (* 6) 组装：yn·|h_n| == |h_n|·yn < ... ≤ 1/4 ⟹ Qle *)
+  (* 6) assembly: yn·|h_n| == |h_n|·yn < ... ≤ 1/4 ⟹ Qle *)
   apply Qle_to_QleT'.
   apply (Qle_trans (Qmult yn (Qabs (projT1 h n)))
                    (Qmult (Qabs (projT1 h n)) yn)
@@ -10019,10 +10070,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part J2：逐点 glue（增量 2a：D_n 分裂 / rs_add 列 / vdh 桥）  *)
+(* Part J2: pointwise glue (increment 2a: the D_n split / the rs_add column / the vdh bridge)  *)
 (* ============================================================ *)
 
-(* D_n == S1n + S2n（b5i_sin_err_split + 定义展开） *)
+(* D_n == S1n + S2n ([b5i_sin_err_split] + definitional unfolding) *)
 Lemma b5i_dn_split : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -10035,8 +10086,8 @@ Proof.
   reflexivity.
 Qed.
 
-(* rs_add_sin (A:=arctan x, v:=arctan(x+h)−arctan x) 的逐点列误差 →
-   列误差 ≤ b5i_addcol_sin 界（∃N ∀n≥N QltT (b5i_addcol_sin ...) eps） *)
+(* the pointwise column error of rs_add_sin (A:=arctan x, v:=arctan(x+h)−arctan x) →
+   the column error is ≤ the [b5i_addcol_sin] bound (∃N ∀n≥N QltT (b5i_addcol_sin ...) eps) *)
 Lemma b5i_rs_addcol : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -10129,7 +10180,7 @@ Proof.
   - exact (HN n Hn).
 Qed.
 
-(* proj V n == (Ah_n − A_n) − d_n·h_n（V := arctan(x+h) − (arctan x + d·h)） *)
+(* proj V n == (Ah_n − A_n) − d_n·h_n (V := arctan(x+h) − (arctan x + d·h)) *)
 Lemma b5i_vdhV_proj : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -10151,7 +10202,7 @@ Proof.
   ring.
 Qed.
 
-(* Qle (Qabs (proj V n)) wb ⟹ Qle (Qabs (v_n − d_n·h_n)) wb（vdh 桥） *)
+(* Qle (Qabs (proj V n)) wb ⟹ Qle (Qabs (v_n − d_n·h_n)) wb (the vdh bridge) *)
 Lemma b5i_vdh_absV : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
   (h : Real) (Hxh : forall n : nat, QleT' (Qabs (projT1 (real_plus x h) n)) 1)
@@ -10175,10 +10226,10 @@ Qed.
 
 
 (* ============================================================ *)
-(* Part J3：per-n 双分支核心界（增量 2b）                        *)
+(* Part J3: the per-n two-branch core bound (increment 2b)                        *)
 (* ============================================================ *)
 
-(* 分支 A（|v_n| ≤ 1）：二次界吸收 ⟹
+(* branch A (|v_n| ≤ 1): absorbed by the quadratic bound ⟹
    |D_n| ≤ colQ + (2S·kδ + (3S+Mc)·k2)·en·|hn| + (3S+Mc)·E2 *)
 Lemma b5i_pern_quad : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
@@ -10239,7 +10290,7 @@ Proof.
       + exact HE20. }
   assert (Hw0 : Qle 0 (Qabs w)).
   { exact (Qabs_nonneg w). }
-  (* |v|²、|v|³ 非负 *)
+  (* |v|² and |v|³ are nonnegative *)
   assert (Hv2n : Qle 0 (q_pow (Qabs v) 2)).
   { rewrite (qeqT_imp_qeq _ _ (sc_qpow2_form (Qabs v))).
     apply (Qmult_le_0_compat (Qabs v) (Qabs v) (Qabs_nonneg v) (Qabs_nonneg v)). }
@@ -10275,7 +10326,7 @@ Proof.
   { apply QleT'_to_Qle. apply (b5i_S2_le x Hx h Hxh n Mc (Qplus (Qmult (Qmult en k2) (Qabs (projT1 h n))) E2)).
     - exact HMc.
     - exact Hw. }
-  (* 三角：|v| ≤ |w| + |(projT1 h n)| *)
+  (* triangle: |v| ≤ |w| + |(projT1 h n)| *)
   assert (Htri : Qle (Qabs v) (Qplus (Qabs w) (Qabs (projT1 h n)))).
   { unfold v, w.
     apply (Qle_trans (Qabs (b5i_vn x h n))
@@ -10297,7 +10348,7 @@ Proof.
   assert (Hvsq : Qle (q_pow (Qabs v) 2)
                      (Qplus (Qmult 2 (q_pow (Qabs w) 2)) (Qmult 2 (q_pow (Qabs (projT1 h n)) 2)))).
   { apply QleT'_to_Qle. apply (b5i_vsq_bound v w (projT1 h n) Htri). }
-  (* B2：|w| ≤ 1 + |(projT1 h n)|（|v| ≤ 1、|d| ≤ 1） *)
+  (* B2: |w| ≤ 1 + |(projT1 h n)| (|v| ≤ 1 and |d| ≤ 1) *)
   assert (Hw2 : Qle (Qabs w) (Qplus 1 (Qabs (projT1 h n)))).
   { unfold v, w.
     apply (Qle_trans (Qabs (Qminus (b5i_vn x h n) (Qmult (b5i_dn x n) (projT1 h n))))
@@ -10313,7 +10364,7 @@ Proof.
     - apply Qplus_le_compat.
       + exact Hv1.
       + apply QleT'_to_Qle. apply (b5i_dh_abs_le_h (b5i_dn x n) (projT1 h n) Hd1). }
-  (* |w|² ≤ B1·B2（B1·B2 乘积；B2 := 1+|(projT1 h n)|） *)
+  (* |w|² ≤ B1·B2 (the B1·B2 product; B2 := 1+|(projT1 h n)|) *)
   assert (Hwsq : Qle (q_pow (Qabs w) 2)
                      (Qmult (Qplus (Qmult (Qmult en k2) (Qabs (projT1 h n))) E2)
                             (Qplus 1 (Qabs (projT1 h n))))).
@@ -10328,7 +10379,7 @@ Proof.
   assert (Hhsq : Qle (q_pow (Qabs (projT1 h n)) 2) (Qmult (Qmult en kδ) (Qabs (projT1 h n)))).
   { rewrite (qeqT_imp_qeq _ _ (sc_qpow2_form (Qabs (projT1 h n)))).
     apply (Qmult_le_compat_r (Qabs (projT1 h n)) (Qmult en kδ) (Qabs (projT1 h n)) Hhδ (Qabs_nonneg (projT1 h n))). }
-  (* |(projT1 h n)|²、|w|² 非负 *)
+  (* |(projT1 h n)|² and |w|² are nonnegative *)
   assert (Hh2n : Qle 0 (q_pow (Qabs (projT1 h n)) 2)).
   { rewrite (qeqT_imp_qeq _ _ (sc_qpow2_form (Qabs (projT1 h n)))).
     apply (Qmult_le_0_compat (Qabs (projT1 h n)) (Qabs (projT1 h n))
@@ -10349,7 +10400,7 @@ Proof.
         * exact Hh2n.
         * exact Hhsq.
     - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-  (* 2S·B1·B2 ≤ 3S·B1（B2 ≤ 3/2） *)
+  (* 2S·B1·B2 ≤ 3S·B1 (B2 ≤ 3/2) *)
   assert (H32 : Qle (Qplus 1 (Qabs (projT1 h n))) (3 # 2)).
   { apply QleT'_to_Qle. apply (b5i_one_plus_abs_le32 (projT1 h n) Hh12). }
   assert (Ha2 : Qle (Qmult (Qmult 2 S)
@@ -10437,7 +10488,7 @@ Proof.
   { apply Qplus_le_compat.
     - exact HS1.
     - exact HS2. }
-  (* 最终装配 *)
+  (* final assembly *)
   apply (Qle_trans (Qabs (projT1 (b5a_comp_err_sin x Hx h Hxh) n))
                    (Qplus (Qplus colQ (Qmult S (q_pow (Qabs v) 2)))
                           (Qmult Mc (Qplus (Qmult (Qmult en k2) (Qabs (projT1 h n))) E2)))
@@ -10470,7 +10521,7 @@ Proof.
       * apply Qle_refl.
     + apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
-(* 分支 B（|v_n| > 1）：crude 全局界 ⟹
+(* branch B (|v_n| > 1): the crude global bound ⟹
    |D_n| ≤ colQ + Ms(4C+2)+Mc(4C+4) + Mc·(en·k2·|h_n| + E2) *)
 Lemma b5i_pern_crude : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
@@ -10495,7 +10546,7 @@ Proof.
   assert (Hv4 : Qle (Qabs (b5i_vn x h n)) 4).
   { unfold b5i_vn, b5i_Ahn, b5i_An.
     exact (QleT'_to_Qle _ _ (b5i_v_norm_le4 x Hx h Hxh n)). }
-  (* |S1| ≤ |addcol| + Ms(4C+2) + Mc(4C+4)（b5i_S1_crude_x） *)
+  (* |S1| ≤ |addcol| + Ms(4C+2) + Mc(4C+4) ([b5i_S1_crude_x]) *)
   assert (HS1c : Qle (Qabs (b5i_S1n x h n))
                      (Qplus (Qabs (sin_partial n (b5i_Ahn x h n)
                                    - (Qplus (Qmult (sin_partial n (b5i_An x n))
@@ -10552,7 +10603,7 @@ Proof.
                      (Qplus (Qabs (b5i_S1n x h n)) (Qabs (b5i_S2n x h n)))).
     - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. apply Qabs_wd. exact (qeqT_imp_qeq _ _ (b5i_dn_split x Hx h Hxh n)).
     - apply Qabs_triangle. }
-  (* 装配 *)
+  (* assembly *)
   apply (Qle_trans (Qabs (projT1 (b5a_comp_err_sin x Hx h Hxh) n))
                    (Qplus (Qabs (b5i_S1n x h n)) (Qabs (b5i_S2n x h n)))
                    (Qplus colQ
@@ -10577,13 +10628,13 @@ Qed.
 End B5A_Item1.
 
 (* ============================================================ *)
-(* B4 Tier2 完结                  *)
-(* （导数界 ⟹ 函数界：eps 桥 + eps0 端点界 + 区间常值；10 Qed）；  *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b4_chain/p5_tier2_fin.v； *)
-(* 零公理面、零承认件、零参数声明。                              *)
+(* B4 Tier2 completion                      *)
+(* (derivative bounds ⟹ function bounds: the eps bridge + the eps0 endpoint bound + interval constancy; 10 [Qed]); *)
+(* source: p5_tier2_fin.v (sc2_b4_chain);                                            *)
+(* axiom-free face, zero admitted statements, zero section-variable declarations.    *)
 (* ============================================================ *)
 
-(* ================= ① 逐点换形件 =================
+(* ================= ① the pointwise reformulation piece =================
    projT1 (real_abs (real_plus x (real_opp y))) n == Qabs (projT1 x n - projT1 y n) *)
 Lemma b4_abs_minus_proj_eq : forall (x y : Real) (n : nat),
   QeqT (projT1 (real_abs (real_plus x (real_opp y))) n) (Qabs (projT1 x n - projT1 y n)).
@@ -10595,10 +10646,10 @@ Proof.
   apply Qabs_wd. ring.
 Qed.
 
-(* ================= ② 严格 eps 桥 =================
-   ∀e>0(Real): real_lt |x−y| e ⟹ real_eq x y。
-   p4 检验第 52/58 行 setoid_rewrite 于 Qlt(Prop) 上下文的卡点修复：
-   改以 Qlt_minus_iff 双向 + Qlt_le_trans/qeq_le ring 桥（无 Proper 依赖）。 *)
+(* ================= ② the strict eps bridge =================
+   ∀e>0(Real): real_lt |x−y| e ⟹ real_eq x y.
+   the p4 check stalled at lines 52/58 where [setoid_rewrite] ran in a [Qlt] ([Prop]) context;
+   the fix uses the two-way [Qlt_minus_iff] plus a [Qlt_le_trans]/[qeq_le] [ring] bridge (no [Proper] dependency). *)
 Lemma b4_abs_lt_forall_eps_eq : forall (x y : Real),
   (forall (e : Real), real_lt real_zero e ->
     real_lt (real_abs (real_plus x (real_opp y))) e) ->
@@ -10611,15 +10662,15 @@ Proof.
   exists N.
   intros n Hn.
   specialize (HN n Hn).
-  (* 目标：QltT (Qabs (x_n − y_n)) eps0 —— 经 b4_abs_minus_proj_eq 换形 *)
+  (* goal: [QltT (Qabs (x_n − y_n)) eps0] — reformulated via [b4_abs_minus_proj_eq] *)
   apply (qltT_eq_compat_l (projT1 (real_abs (real_plus x (real_opp y))) n)
                           (Qabs (projT1 x n - projT1 y n)) eps0).
   - exact (b4_abs_minus_proj_eq x y n).
   - apply Qlt_to_QltT.
-    (* Prop 层链：Xn < eps0 − sep < eps0 *)
+    (* the [Prop]-layer chain: Xn < eps0 − sep < eps0 *)
     apply (Qlt_trans (projT1 (real_abs (real_plus x (real_opp y))) n)
                      (eps0 - sep) eps0).
-    + (* Xn < eps0 − sep：HN : sep < eps0 − Xn *)
+    + (* Xn < eps0 − sep: HN : sep < eps0 − Xn *)
       apply (proj2 (Qlt_minus_iff (projT1 (real_abs (real_plus x (real_opp y))) n)
                                   (eps0 - sep))).
       apply (Qlt_le_trans 0
@@ -10629,20 +10680,20 @@ Proof.
                         (eps0 - projT1 (real_abs (real_plus x (real_opp y))) n))).
         apply QltT_to_Qlt. exact HN.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
-    + (* eps0 − sep < eps0（0 < sep） *)
+    + (* eps0 − sep < eps0 (0 < sep) *)
       apply (proj2 (Qlt_minus_iff (eps0 - sep) eps0)).
       apply (Qlt_le_trans 0 sep (eps0 + - (eps0 - sep))).
       * apply QltT_to_Qlt. exact Hsep.
       * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ================= ③ 纯 Q 余量件（eps0/3 口径） ================= *)
+(* ================= ③ pure-[Q] remainder pieces (the eps0/3 caliber) ================= *)
 Lemma b4_q_three_pos : QltT 0 3.
 Proof.
   apply Qlt_to_QltT. unfold Qlt. simpl. lia.
 Qed.
 
-(* 0 <T a ⟹ a/3 < a（Prop Qlt；可判定，非经典） *)
+(* 0 <T a ⟹ a/3 < a ([Prop] [Qlt]; decidable, not classical) *)
 Lemma b4_q_lt_half : forall a : Q, QltT 0 a -> QltT (Qdiv a 3) a.
 Proof.
   intros a Ha. apply Qlt_to_QltT.
@@ -10656,7 +10707,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. field.
 Qed.
 
-(* 0 <T a ⟹ 2·(a/3) < a（Prop Qlt） *)
+(* 0 <T a ⟹ 2·(a/3) < a ([Prop] [Qlt]) *)
 Lemma b4_q_lt_two_thirds : forall a : Q, QltT 0 a -> QltT (Qmult 2 (Qdiv a 3)) a.
 Proof.
   intros a Ha. apply Qlt_to_QltT.
@@ -10668,11 +10719,11 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. field.
 Qed.
 
-(* ================= ④ eps0-对角端点界 =================
-   逐 e（Real）界：由 Tier1（M:=eps0、ε:=e/2）+ d ≤ 1+|d| 缩放 +
-   eps0·C == e/2 代入 ⟹ real_le (|f b − f a|) e。
-   （p4_tier2.v ② 同款移植；依赖根内 b4_chain_lipschitz/b4_inv_cancel/
-    b4_pos_diff/b4_qring/real_abs_plus_one_pos，按名引用。零 setoid_rewrite。） *)
+(* ================= ④ the eps0-diagonal endpoint bound =================
+   a bound for each e ([Real]): from Tier1 (M:=eps0, ε:=e/2) + the scaling d ≤ 1+|d| +
+   substituting eps0·C == e/2 ⟹ real_le (|f b − f a|) e.
+   (ported in the style of ② of p4_tier2.v; depends on the in-root [b4_chain_lipschitz]/[b4_inv_cancel]/
+    [b4_pos_diff]/[b4_qring]/[real_abs_plus_one_pos], cited by name. zero [setoid_rewrite].) *)
 Lemma b4_chain_bound_eps0 :
   forall (f : Real -> Real) (a b e : Real)
     (Hab : real_lt a b) (He : real_lt real_zero e)
@@ -10725,7 +10776,7 @@ Proof.
       * exact Hmodd. }
   assert (HdC : real_le d C).
   { unfold C.
-    (* d ≤ 1+|d|：d ≤ 1+d（real_le_trans 链）再经 d==|d|（real_abs_pos_req）抬到 1+|d| *)
+    (* d ≤ 1+|d|: the [real_le_trans] chain d ≤ 1+d, then lifted to 1+|d| via d==|d| ([real_abs_pos_req]) *)
     apply (RealSetoid.real_le_id_r d (real_plus real_one d) (real_plus real_one (real_abs d))).
     - apply (RealSetoid.real_eq_plus_compat real_one d real_one (real_abs d)).
       + apply real_eq_refl.
@@ -10746,8 +10797,8 @@ Proof.
     - apply (b4_inv_cancel C (real_mult (real_const (1 / 2)) e) HC). }
   assert (Heps0d : real_le (real_mult eps0 d) e2).
   { apply (real_le_trans (real_mult eps0 d) (real_mult eps0 C) e2).
-    - (* (eps0·d) ≤ (eps0·C)：eps0·d == d·eps0（id_l）→ d·eps0 ≤ C·eps0
-         （mult_compat_weak：0≤eps0、d≤C）→ C·eps0 == eps0·C（id_r） *)
+    - (* (eps0·d) ≤ (eps0·C): eps0·d == d·eps0 (id_l) → d·eps0 ≤ C·eps0
+         (mult_compat_weak: 0≤eps0, d≤C) → C·eps0 == eps0·C (id_r) *)
       apply (real_le_trans (real_mult eps0 d) (real_mult d eps0) (real_mult eps0 C)).
       + apply (RealSetoid.real_le_id_l (real_mult eps0 d) (real_mult d eps0)
                                        (real_mult d eps0)).
@@ -10773,16 +10824,16 @@ Proof.
       unfold e2. b4_qring.
 Qed.
 
-(* ================= ⑤ real_le 版 eps 桥 =================
-   ∀e>0(Real): real_le |x−y| e ⟹ real_eq x y。
-   real_le = Or real_lt real_eq（根 3521）：对每 Q eps0 > 0 用
-   e := real_const (eps0/3) 实例化前提：
-    - inl（real_lt X (eps0/3)）：同 ② unpack（sep 见证），链
-      Xn < eps0/3 − sep < eps0/3 < eps0（经 b4_q_lt_half）；
-    - inr（real_eq X (real_const (eps0/3))）：X ≈ eps0/3，取 δ := eps0/3：
-      |X_n − eps0/3| < eps0/3 ⟹ X_n < 2·(eps0/3) < eps0（q_abs_lt_lower
-      上支 + b4_q_lt_two_thirds 证毕）。
-   零 setoid_rewrite：全程 Qlt_minus_iff + qeq_le + q_abs_lt_lower。 *)
+(* ================= ⑤ the [real_le] version of the eps bridge =================
+   ∀e>0(Real): real_le |x−y| e ⟹ real_eq x y.
+   [real_le = Or real_lt real_eq] (root file 3521): for every [Q] eps0 > 0 instantiate the
+   premise with e := real_const (eps0/3):
+    - inl (real_lt X (eps0/3)): unpack as in ② (the sep witness); the chain
+      Xn < eps0/3 − sep < eps0/3 < eps0 (via [b4_q_lt_half]);
+    - inr (real_eq X (real_const (eps0/3))): X ≈ eps0/3; take δ := eps0/3:
+      |X_n − eps0/3| < eps0/3 ⟹ X_n < 2·(eps0/3) < eps0 (the upper branch of [q_abs_lt_lower]
+      + concluded by [b4_q_lt_two_thirds]).
+   zero [setoid_rewrite]: throughout [Qlt_minus_iff] + [qeq_le] + [q_abs_lt_lower]. *)
 Lemma b4_abs_le_forall_eps_eq : forall (x y : Real),
   (forall (e : Real), real_lt real_zero e ->
     real_le (real_abs (real_plus x (real_opp y))) e) ->
@@ -10791,7 +10842,7 @@ Proof.
   intros x y H.
   unfold real_eq.
   intros eps0 Heps0.
-  (* eps0/3 > 0（可判定纯 Q；0 < 3 与 0 < eps0 双向乘回） *)
+  (* eps0/3 > 0 (decidable pure [Q]; 0 < 3 and 0 < eps0 multiplied back in both directions) *)
   assert (Ht : QltT 0 (Qdiv eps0 3)).
   { apply Qlt_to_QltT.
     apply (Qlt_shift_div_l 0 eps0 3).
@@ -10799,7 +10850,7 @@ Proof.
     - assert (Hz : 0 * 3 == 0) by ring. rewrite Hz. apply QltT_to_Qlt. exact Heps0. }
   destruct (H (real_const (Qdiv eps0 3)) (real_const_pos (Qdiv eps0 3) Ht))
     as [Hlt | Heq].
-  - (* inl：real_lt X (real_const (eps0/3))：unpack sep 见证（同 ②） *)
+  - (* inl: real_lt X (real_const (eps0/3)): unpack the sep witness (as in ②) *)
     destruct Hlt as [sep [Hsep [N HN]]].
     exists N.
     intros n Hn.
@@ -10810,7 +10861,7 @@ Proof.
     + apply Qlt_to_QltT.
       apply (Qlt_trans (projT1 (real_abs (real_plus x (real_opp y))) n)
                        ((Qdiv eps0 3) - sep) eps0).
-      * (* Xn < (eps0/3) − sep：HN : sep < (eps0/3) − Xn *)
+      * (* Xn < (eps0/3) − sep: HN : sep < (eps0/3) − Xn *)
         apply (proj2 (Qlt_minus_iff (projT1 (real_abs (real_plus x (real_opp y))) n)
                                     ((Qdiv eps0 3) - sep))).
         apply (Qlt_le_trans 0
@@ -10820,14 +10871,14 @@ Proof.
                            ((Qdiv eps0 3) - projT1 (real_abs (real_plus x (real_opp y))) n))).
            apply QltT_to_Qlt. exact HN.
         -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
-      * (* (eps0/3 − sep) < eps0：经 eps0/3 中转（0 < sep、b4_q_lt_half） *)
+      * (* (eps0/3 − sep) < eps0: relay through eps0/3 (0 < sep, [b4_q_lt_half]) *)
         apply (Qlt_trans ((Qdiv eps0 3) - sep) (Qdiv eps0 3) eps0).
         -- apply (proj2 (Qlt_minus_iff ((Qdiv eps0 3) - sep) (Qdiv eps0 3))).
            apply (Qlt_le_trans 0 sep ((Qdiv eps0 3) + - ((Qdiv eps0 3) - sep))).
            ++ apply QltT_to_Qlt. exact Hsep.
            ++ apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
         -- apply QltT_to_Qlt. apply b4_q_lt_half. exact Heps0.
-  - (* inr：real_eq X (real_const (eps0/3))：X ≈ eps0/3 ⟹ |X_n| < eps0 *)
+  - (* inr: real_eq X (real_const (eps0/3)): X ≈ eps0/3 ⟹ |X_n| < eps0 *)
     destruct (Heq (Qdiv eps0 3) Ht) as [M HM].
     exists M.
     intros n Hn.
@@ -10838,7 +10889,7 @@ Proof.
     + apply Qlt_to_QltT.
       apply (Qlt_trans (projT1 (real_abs (real_plus x (real_opp y))) n)
                        (Qmult 2 (Qdiv eps0 3)) eps0).
-      * (* X_n < 2·(eps0/3)：|X_n − eps0/3| < eps0/3 ⟹ X_n < eps0/3 + eps0/3（q_abs_lt_lower 上支） *)
+      * (* X_n < 2·(eps0/3): |X_n − eps0/3| < eps0/3 ⟹ X_n < eps0/3 + eps0/3 (the upper branch of [q_abs_lt_lower]) *)
         apply (Qlt_le_trans (projT1 (real_abs (real_plus x (real_opp y))) n)
                             (Qplus (Qdiv eps0 3) (Qdiv eps0 3))
                             (Qmult 2 (Qdiv eps0 3))).
@@ -10856,10 +10907,11 @@ Proof.
         apply QltT_to_Qlt. apply b4_q_lt_two_thirds. exact Heps0.
 Qed.
 
-(* ================= ⑥ 终引理 =================
-   均匀模(eps0)（M:=eps0 对角）⟹ f b == f a。
-   管线：real_le 版 eps 桥（⑤）套 |f b − f a|；每 Real e>0 界由
-   ④ b4_chain_bound_eps0 直接给出（无需 eps0/3 手工拆——拆留于 ⑤ 内）。 *)
+(* ================= ⑥ the final lemma =================
+   a uniform modulus (eps0) (with M := eps0 on the diagonal) ⟹ f b == f a.
+   pipeline: the [real_le] version of the eps bridge (⑤) applied to |f b − f a|; the bound for
+   each [Real] e > 0 is given directly by ④ [b4_chain_bound_eps0] (no manual eps0/3 split —
+   the split stays inside ⑤). *)
 Lemma b4_deriv_zero_eq_endpoints :
   forall (f : Real -> Real) (a b : Real) (Hab : real_lt a b)
     (Hext : forall x y : Real, real_eq x y -> real_eq (f x) (f y)),
@@ -10879,11 +10931,11 @@ Proof.
   exact (b4_chain_bound_eps0 f a b e Hab He Hext Hmod).
 Qed.
 
-(* ================= ⑦ 区间内常值包装 =================
-   ∀x ∈ [a,b]：f x == f a。destruct real_le a x：
-    - inl（a < x）：子区间 [a,x] 上重建均匀模（由 [a,b] 模量 +
-      real_le_trans 把 x'≤x / (x'+h)≤x 抬到 ≤b）后套 ⑥ 端点引理；
-    - inr（a == x）：Hext 直接给 f a == f x，对称。 *)
+(* ================= ⑦ the constancy-on-interval wrapper =================
+   ∀x ∈ [a,b]: f x == f a. destruct [real_le a x]:
+    - inl (a < x): rebuild the uniform modulus on the subinterval [a,x] (lifting x'≤x and
+      (x'+h)≤x to ≤b via the [a,b] modulus + [real_le_trans]), then apply the ⑥ endpoint lemma;
+    - inr (a == x): [Hext] directly gives f a == f x, symmetric. *)
 Lemma b4_const_on_interval :
   forall (f : Real -> Real) (a b : Real) (Hab : real_lt a b)
     (Hext : forall x y : Real, real_eq x y -> real_eq (f x) (f y)),
@@ -10899,7 +10951,7 @@ Lemma b4_const_on_interval :
 Proof.
   intros f a b Hab Hext Hmod x Hax Hxb.
   destruct Hax as [Haxlt | Haxeq].
-  - (* inl：a < x ⟹ 子区间 [a,x] 套 ⑥ *)
+  - (* inl: a < x ⟹ apply ⑥ on the subinterval [a,x] *)
     assert (Hmod_x : forall (eps0 : Real), real_lt real_zero eps0 ->
       sigT (fun delta : Real => And (real_lt real_zero delta)
         (forall (y : Real), real_le a y -> real_le y x ->
@@ -10916,12 +10968,12 @@ Proof.
         apply (Hinner y Hay (real_le_trans y x b Hyx Hxb) h Hh Hyl
                (real_le_trans (real_plus y h) x b Hyr Hxb) eps1 Heps1). }
     exact (b4_deriv_zero_eq_endpoints f a x Haxlt Hext Hmod_x).
-  - (* inr：a == x ⟹ f x == f a（Hext + 对称） *)
+  - (* inr: a == x ⟹ f x == f a ([Hext] + symmetry) *)
     apply real_eq_sym.
     apply Hext. exact Haxeq.
 Qed.
 
-(* ∀x y ∈ [a,b]：f x == f y（两次 ⑦ 首件经 f a 中转） *)
+(* ∀x y ∈ [a,b]: f x == f y (two instances of ⑦ relayed through f a) *)
 Lemma b4_const_on_interval_pair :
   forall (f : Real -> Real) (a b : Real) (Hab : real_lt a b)
     (Hext : forall x y : Real, real_eq x y -> real_eq (f x) (f y)),
@@ -10944,15 +10996,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-B task3 Q 层端点闭合件        *)
-(* （b5b_E_close_q 主件 + 10 个 b5b_ecl_* 纯 Q 辅助；11 Qed）；      *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b5b_endpoint/              *)
-(*   sc2_b5b_05_eclose.v；依赖根 b5b_En/b5b_E_gap/b5b_arch2。       *)
+(* B5-B task3 [Q]-layer endpoint closure pieces       *)
+(* (the main piece [b5b_E_close_q] + 10 pure-[Q] [b5b_ecl_*] auxiliaries; 11 [Qed]);      *)
+(* source: sc2_b5b_05_eclose.v (sc2_b5b_endpoint); depends on the in-root                 *)
+(* [b5b_En]/[b5b_E_gap]/[b5b_arch2].                                                      *)
 (* ============================================================ *)
 
-(* ============ 纯 Q 辅助（顶层，field 安全） ============ *)
+(* ============ pure-[Q] auxiliaries (top level, [field]-safe) ============ *)
 
-(* ---- 正数除以正数仍正：0<a、0<b ⟹ 0<a/b ---- *)
+(* ---- a positive divided by a positive stays positive: 0<a, 0<b ⟹ 0<a/b ---- *)
 Lemma b5b_ecl_div_pos : forall (a b : Q), Qlt 0 a -> Qlt 0 b -> QltT 0 (a / b).
 Proof.
   intros a b Ha Hb. apply Qlt_to_QltT.
@@ -10971,7 +11023,7 @@ Proof.
   - exact Hc.
 Qed.
 
-(* ---- arch 输入正性：0<c、0<eps ⟹ 0<eps/(12c) ---- *)
+(* ---- the Archimedean input positivity: 0<c, 0<eps ⟹ 0<eps/(12c) ---- *)
 Lemma b5b_ecl_arch_in : forall (c eps : Q), Qlt 0 c -> Qlt 0 eps ->
   QltT 0 (eps / (12 * c)).
 Proof.
@@ -10981,7 +11033,7 @@ Proof.
   - apply QltT_to_Qlt. apply (b5b_ecl_12c_pos c). exact Hc.
 Qed.
 
-(* ---- field 恒等（顶层）：(4c)·(eps/(12c)) == eps/3（c≠0、3≠0） ---- *)
+(* ---- [field] identity (top level): (4c)·(eps/(12c)) == eps/3 (c≠0, 3≠0) ---- *)
 Lemma b5b_ecl_arch_cancel : forall (c eps : Q), Qlt 0 c -> Qlt 0 eps ->
   QeqT ((4 * c) * (eps / (12 * c))) (eps / 3).
 Proof.
@@ -10995,7 +11047,7 @@ Proof.
             apply (q_neq_of_lt 3 qltT_0_3) in Hz; destruct Hz).
 Qed.
 
-(* ---- field 恒等（顶层）：eps/3 + 2·(eps/3) == eps（3≠0） ---- *)
+(* ---- [field] identity (top level): eps/3 + 2·(eps/3) == eps (3≠0) ---- *)
 Lemma b5b_ecl_third_sum : forall (eps : Q), Qlt 0 eps ->
   QeqT ((eps / 3) + 2 * (eps / 3)) (eps).
 Proof.
@@ -11015,7 +11067,7 @@ Proof.
   - apply (Qinv_lt_0_compat 3). change (Qlt 0 3). unfold Qlt. simpl. lia.
 Qed.
 
-(* ---- 左乘严格保序：0<c、a<b ⟹ c·a < c·b（经 comm 桥） ---- *)
+(* ---- strict order preservation by left multiplication: 0<c, a<b ⟹ c·a < c·b (via the comm bridge) ---- *)
 Lemma b5b_ecl_mult_lt_l : forall (a b c : Q), Qlt 0 c -> Qlt a b ->
   QltT (c * a) (c * b).
 Proof.
@@ -11027,7 +11079,7 @@ Proof.
   exact H1.
 Qed.
 
-(* ---- K := 2c(S M)#1 + 2c + 1 ≥ 1（c ≥ 1，2 因子非负） ---- *)
+(* ---- [K := 2c(S M)#1 + 2c + 1 ≥ 1] (c ≥ 1 and the factor 2 nonnegative) ---- *)
 Lemma b5b_ecl_K_ge1 : forall (M : nat) (c : Q), Qle 1 c ->
   QleT' 1 (2 * c * (Z.of_nat (Datatypes.S M) # 1) + (2 * c + 1)).
 Proof.
@@ -11051,7 +11103,7 @@ Proof.
   - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* ---- field 恒等（顶层）：X := (2·(eps/3))/K ⟹ X·K == 2·(eps/3)（K≠0、3≠0） ---- *)
+(* ---- [field] identity (top level): X := (2·(eps/3))/K ⟹ X·K == 2·(eps/3) (K≠0, 3≠0) ---- *)
 Lemma b5b_ecl_XK_cancel : forall (eps K : Q), ~ (K == 0) ->
   QeqT (((2 * (eps / 3)) / K) * K) (2 * (eps / 3)).
 Proof.
@@ -11062,7 +11114,7 @@ Proof.
             apply (q_neq_of_lt 3 qltT_0_3) in Hz; destruct Hz).
 Qed.
 
-(* ---- min 正性：0<a、0<b ⟹ 0 < min a b ---- *)
+(* ---- min positivity: 0<a, 0<b ⟹ 0 < min a b ---- *)
 Lemma b5b_ecl_min_pos : forall (a b : Q), Qlt 0 a -> Qlt 0 b -> QltT 0 (Qmin a b).
 Proof.
   intros a b Ha Hb. apply Qlt_to_QltT.
@@ -11072,7 +11124,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主件：b5b_E_close_q                                           *)
+(* main piece: [b5b_E_close_q]                                                   *)
 (* ============================================================ *)
 Lemma b5b_E_close_q : forall (eps : Q), Qlt 0 eps ->
   sigT (fun N : nat => sigT (fun g0 : Q => And (QltT 0 g0)
@@ -11080,24 +11132,24 @@ Lemma b5b_E_close_q : forall (eps : Q), Qlt 0 eps ->
       QltT (Qabs (b5b_En n (1 - g) - b5b_En n 1)) eps))).
 Proof.
   intros eps Heps.
-  (* c := b5b_arch2（c ≥ 1；HC := ∀j exp_series j 2 ≤T c） *)
+  (* c := b5b_arch2 (c ≥ 1; HC := ∀j exp_series j 2 ≤T c) *)
   destruct b5b_arch2 as [c [Hc1T HC]].
   assert (Hc1 : Qle 1 c) by (exact (QleT'_to_Qle 1 c Hc1T)).
   assert (Hcpos : Qlt 0 c).
   { apply (Qlt_le_trans 0 1 c); [unfold Qlt; simpl; lia | exact Hc1]. }
   assert (Hc0 : Qle 0 c).
   { apply (Qle_trans _ 1 _); [unfold Qle; simpl; lia | exact Hc1]. }
-  (* arch 输入正性，q_arch_inv 取 M：1/(M+2) < eps/(12c) *)
+  (* the Archimedean input positivity, [q_arch_inv] gives M: 1/(M+2) < eps/(12c) *)
   assert (Harchpos : QltT 0 (eps / (12 * c))) by
     (apply (b5b_ecl_arch_in c eps Hcpos Heps)).
   destruct (q_arch_inv (eps / (12 * c)) Harchpos) as [M HM].
-  (* 记 T := 1/(2M+3)、K := 2c(S M)#1 + 2c + 1（与 b5b_E_gap RHS 逐字一致） *)
+  (* notation: T := 1/(2M+3) and K := 2c(S M)#1 + 2c + 1 (literally the RHS of [b5b_E_gap]) *)
   set (T := 1 / (Z.of_nat (2 * M + 3) # 1)).
   set (K := 2 * c * (Z.of_nat (Datatypes.S M) # 1) + (2 * c + 1)).
-  (* X := (2·(eps/3))/K；g0 := min(1, X) *)
+  (* [X := (2·(eps/3))/K]; g0 := min(1, X) *)
   set (X := (2 * (eps / 3)) / K).
   set (g0 := Qmin 1 X).
-  (* 事实：K ≥ 1、K > 0、K ≠ 0；X > 0；X·K == 2·(eps/3)；0<eps/3 *)
+  (* facts: K ≥ 1, K > 0, K ≠ 0; X > 0; X·K == 2·(eps/3); 0 < eps/3 *)
   assert (He3 : Qlt 0 (eps / 3)) by (apply QltT_to_Qlt; apply (b5b_ecl_third_pos eps); exact Heps).
   assert (Hk1 : Qle 1 K).
   { unfold K. apply QleT'_to_Qle. apply (b5b_ecl_K_ge1 M c). exact Hc1. }
@@ -11112,26 +11164,26 @@ Proof.
   { unfold X. apply QltT_to_Qlt. apply (b5b_ecl_div_pos (2 * (eps / 3)) K); [exact H2e3 | exact Hkpos]. }
   assert (HXK : X * K == 2 * (eps / 3)).
   { unfold X. apply (qeqT_imp_qeq _ _ (b5b_ecl_XK_cancel eps K Hkneq)). }
-  (* g0 事实：0<g0、g0≤1、g0≤X *)
+  (* g0 facts: 0<g0, g0≤1, g0≤X *)
   assert (Hg0pos : Qlt 0 g0).
   { unfold g0. apply QltT_to_Qlt. apply (b5b_ecl_min_pos 1 X); [unfold Qlt; simpl; lia | exact HXpos]. }
   assert (Hg0le1 : Qle g0 1).
   { unfold g0. exact (Q.le_min_l 1 X). }
   assert (Hg0leX : Qle g0 X).
   { unfold g0. exact (Q.le_min_r 1 X). }
-  (* 返回 N := M、g0 *)
+  (* returning N := M and g0 *)
   exists M. exists g0. split.
   - exact (Qlt_to_QltT 0 g0 Hg0pos).
   - intros n g Hn Hgpos Hgg0.
-    (* 域：0≤g≤1（g≤g0≤1）；g≤X（g≤g0≤X） *)
+    (* domain: 0≤g≤1 (g≤g0≤1) and g≤X (g≤g0≤X) *)
     assert (Hg0le : Qle 0 g) by (apply (Qlt_le_weak 0 g); apply QltT_to_Qlt; exact Hgpos).
     assert (Hg1 : Qle g 1) by (apply (Qle_trans _ g0 _); [exact (QleT'_to_Qle _ _ Hgg0) | exact Hg0le1]).
     assert (HgX : Qle g X) by (apply (Qle_trans _ g0 _); [exact (QleT'_to_Qle _ _ Hgg0) | exact Hg0leX]).
-    (* b5b_E_gap：|Δ| ≤ 4cT + gK *)
+    (* [b5b_E_gap]: |Δ| ≤ 4cT + gK *)
     assert (Hgap : Qle (Qabs (b5b_En n (1 - g) - b5b_En n 1))
                      ((4 * c) * T + g * K)).
     { apply QleT'_to_Qle. apply (b5b_E_gap n M g c Hc0 HC Hg0le Hg1 Hn). }
-    (* 第 1 项：4cT < eps/3（T ≤ 1/(M+2) < eps/(12c)，乘 4c>0，field 收） *)
+    (* term 1: 4cT < eps/3 (T ≤ 1/(M+2) < eps/(12c), multiplied by 4c > 0, closed by [field]) *)
     assert (Ht_le : Qle T (1 / (Z.of_nat (M + 2) # 1))).
     { unfold T. apply QleT'_to_Qle. apply (atan_inv_chain M M). lia. }
     assert (Ht_arch : Qlt T (eps / (12 * c))).
@@ -11144,20 +11196,20 @@ Proof.
     assert (Ht1 : Qlt ((4 * c) * T) (eps / 3)).
     { apply (Qlt_le_trans ((4 * c) * T) ((4 * c) * (eps / (12 * c))) (eps / 3));
         [exact Ht1m | apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; apply (qeqT_imp_qeq _ _ (b5b_ecl_arch_cancel c eps Hcpos Heps))]. }
-    (* 第 2 项：gK ≤ XK == 2·(eps/3)（K≥0 乘 g≤X） *)
+    (* term 2: gK ≤ XK == 2·(eps/3) (K ≥ 0 multiplied by g ≤ X) *)
     assert (HgK : Qle (g * K) (X * K)).
     { apply (Qmult_le_compat_r g X K); [exact HgX | exact Hk0]. }
     assert (Ht2 : Qle (g * K) (2 * (eps / 3))).
     { apply (Qle_trans (g * K) (X * K) (2 * (eps / 3)));
         [exact HgK | apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; exact HXK]. }
-    (* 总和：4cT + gK < eps/3 + 2·(eps/3) == eps *)
+    (* total: 4cT + gK < eps/3 + 2·(eps/3) == eps *)
     assert (Hsum : Qlt ((4 * c) * T + g * K) (eps / 3 + 2 * (eps / 3))).
     { apply (Qplus_lt_le_compat ((4 * c) * T) (eps / 3) (g * K) (2 * (eps / 3)));
         [exact Ht1 | exact Ht2]. }
     assert (Hsum2 : Qlt ((4 * c) * T + g * K) eps).
     { apply (Qlt_le_trans ((4 * c) * T + g * K) (eps / 3 + 2 * (eps / 3)) eps);
         [exact Hsum | apply QleT'_to_Qle; apply qeq_le; apply qeq_imp_qeqT; apply (qeqT_imp_qeq _ _ (b5b_ecl_third_sum eps Heps))]. }
-    (* 结论：|Δ| ≤ 4cT + gK < eps *)
+    (* conclusion: |Δ| ≤ 4cT + gK < eps *)
     apply Qlt_to_QltT.
     apply (Qle_lt_trans (Qabs (b5b_En n (1 - g) - b5b_En n 1))
                          ((4 * c) * T + g * K) eps);
@@ -11165,13 +11217,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-B task2 + task5 收尾          *)
-(* （b5b_sin_cont / b5b_cos_cont 全域逐 eps 连续；b6_f1_template 与 *)
-(* Section B5bEndpointBridge 桥接引理 b5b_f1_closure；6 Qed）；来源：    *)
-(*   演变/.ablation/sc2_parallel/sc2_b5b_endpoint/sc2_b5b_07_cont.v *)
+(* B5-B task2 + task5 conclusion       *)
+(* (whole-domain per-eps continuity via [b5b_sin_cont]/[b5b_cos_cont]; the bridge lemma [b5b_f1_closure] *)
+(* between [b6_f1_template] and [Section B5bEndpointBridge]; 6 [Qed]); source:            *)
+(*   sc2_b5b_07_cont.v (sc2_b5b_endpoint) *)
 (* ============================================================ *)
 
-(* ---- Q 层：正分数（1/4、1/8）与整除正性 ---- *)
+(* ---- [Q] layer: positivity of the fractions (1/4, 1/8) and of exact divisions ---- *)
 Lemma b5b_qpos4 : forall (q : Q), Qlt 0 q -> QltT 0 (q / 4).
 Proof.
   intros q Hq. apply Qlt_to_QltT.
@@ -11191,13 +11243,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B6 模板与闭包（零公理面；b5b_hsc_theorem 未在上游根件        *)
-(*  Qed——A 线（05_eclose/06_endpoint）产出——本文件以 Section    *)
-(*  Hypothesis 声明其语句证明 b5b_f1_closure，A 线并入 *)
-(*  后再组装（b5b_f1_closure hsc 消去第一参数）。）               *)
+(* B6 template and closure (axiom-free face; [b5b_hsc_theorem] is not Qed in the upstream       *)
+(*  root file — it is produced by the A line (05_eclose/06_endpoint) — so this file declares its *)
+(*  statement as a Section [Hypothesis], proves [b5b_f1_closure], and the final assembly happens *)
+(*  once the A line lands ([b5b_f1_closure hsc] then cancels the first argument).)               *)
 (* ============================================================ *)
 
-(* ---- B6 模板：Hsc（sin(arctan 1) == cos(arctan 1)）⟹ F1 ---- *)
+(* ---- the B6 template: Hsc (sin(arctan 1) == cos(arctan 1)) ⟹ F1 ---- *)
 Lemma b6_f1_template :
   (real_eq (cauchy_real_sin arctan_one_real) (cauchy_real_cos arctan_one_real)) ->
   real_eq real_pi_geom cauchy_real_pi_leibniz.
@@ -11206,7 +11258,7 @@ Proof.
   exact (a3_closure_f1 Hsc).
 Qed.
 
-(* ---- Section 桥：b5a_E_zero_on_unit ⟹ Hsc（Hypothesis 版） ---- *)
+(* ---- the Section bridge: [b5a_E_zero_on_unit ⟹ Hsc] (the Hypothesis version) ---- *)
 Section B5bEndpointBridge.
 Hypothesis b5b_hsc_theorem : forall (x : Real) (Hx : cw_unit x),
   real_lt real_zero x -> real_lt x (real_const 1) ->
@@ -11228,16 +11280,16 @@ Qed.
 End B5bEndpointBridge.
 
 (* ============================================================ *)
-(* task 2：sin/cos 全域逐 eps 连续                              *)
-(*  实路线：real_sin_deriv_linear（eps := eps' := const(epsQ/4)）*)
-(*  给出 |sin(x+h)−(sin x+cos x·h)| ≤ (epsQ/4)|h| + epsQ/4；     *)
-(*  |cos x·h| ≤ Mc·|h|（real_norm_bounded 逐点）；               *)
-(*  δ := real_min δ' (const c)，c := epsQ/(2·(epsQ/4+Mc))：     *)
-(*  |h| < c−e1 ⟹ 总 ≤ epsQ/4 + eps1 + (epsQ/4+Mc)|h| < 7epsQ/8， *)
-(*  再经 q_lt_minus_shift 证毕（仿 03 逐点样式）。                 *)
+(* task 2: whole-domain per-eps continuity of sin/cos                             *)
+(*  actual route: [real_sin_deriv_linear] (eps := eps' := const(epsQ/4))           *)
+(*  gives |sin(x+h)−(sin x+cos x·h)| ≤ (epsQ/4)|h| + epsQ/4;                       *)
+(*  |cos x·h| ≤ Mc·|h| ([real_norm_bounded] pointwise);                            *)
+(*  δ := real_min δ' (const c) with c := epsQ/(2·(epsQ/4+Mc)):                     *)
+(*  |h| < c−e1 ⟹ the total ≤ epsQ/4 + eps1 + (epsQ/4+Mc)|h| < 7epsQ/8,             *)
+(*  then concluded via [q_lt_minus_shift] (in the pointwise style of 03).          *)
 (* ============================================================ *)
 
-(* ---- sin 连续（1/2） ---- *)
+(* ---- sin continuity (1/2) ---- *)
 Lemma b5b_sin_cont : forall (x : Real) (epsQ : Q), QltT 0 epsQ ->
   sigT (fun delta : Real => And (real_lt real_zero delta)
     (forall h : Real, real_lt (real_abs h) delta ->
@@ -11282,7 +11334,7 @@ Proof.
       by (apply (real_min_lt_l h d0 (real_const c)); exact Hh).
     assert (Hh_c : real_lt (real_abs h) (real_const c))
       by (apply (real_min_lt_r h d0 (real_const c)); exact Hh).
-    (* 线性化界：real_sin_deriv_linear 实例化 eps := eps' := const(epsQ/4) *)
+    (* the linearization bound: [real_sin_deriv_linear] instantiated at eps := eps' := const(epsQ/4) *)
     assert (Hlin : real_le
         (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                    (real_opp (real_plus (cauchy_real_sin x)
@@ -11290,7 +11342,7 @@ Proof.
         (real_plus (real_mult (real_const (epsQ / 4)) (real_abs h))
                    (real_const (epsQ / 4)))).
     { apply (Hcore h Hh_d0 (real_const (epsQ / 4)) HepsR). }
-    (* 逐 eps 化：|D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1（n ≥ N2） *)
+    (* per-eps reduction: |D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1 (n ≥ N2) *)
     destruct (real_le_pointwise_eps
         (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                    (real_opp (real_plus (cauchy_real_sin x)
@@ -11298,7 +11350,7 @@ Proof.
         (real_plus (real_mult (real_const (epsQ / 4)) (real_abs h))
                    (real_const (epsQ / 4)))
         eps1 Hlin Heps1T) as [N2 HN2].
-    (* |h| < const c 的分离见证 e1：|h_n| < c − e1（n ≥ N1） *)
+    (* the separation witness e1 of |h| < const c: |h_n| < c − e1 (n ≥ N1) *)
     destruct Hh_c as [e1 [He1T [N1 HN1]]].
     assert (He1 : Qlt 0 e1) by (apply QltT_to_Qlt; exact He1T).
     exists (epsQ / 8).
@@ -11309,7 +11361,7 @@ Proof.
       apply NatLe_drop in Hn.
       assert (HnN2 : (N2 <= n)%nat) by lia.
       assert (HnN1 : (N1 <= n)%nat) by lia.
-      (* 点态缩写 *)
+      (* pointwise abbreviations *)
       set (sn1 := projT1 (cauchy_real_sin (real_plus x h)) n).
       set (snx := projT1 (cauchy_real_sin x) n).
       set (cnx := projT1 (cauchy_real_cos x) n).
@@ -11323,7 +11375,7 @@ Proof.
         - apply qeq_imp_qeqT. rewrite ((qeqT_imp_qeq _ _ (real_const_proj c n))). rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
           unfold hn. ring.
         - exact (HN1 n (NatLe_lift _ _ HnN1)). }
-      (* ② 线性化点态界：|D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1 *)
+      (* ② the pointwise linearization bound: |D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1 *)
       assert (Hdev : Qle
           (Qabs (sn1 - (snx + cnx * hn)))
           (Qplus (Qplus (Qmult (Qdiv epsQ 4) (Qabs hn)) (Qdiv epsQ 4)) eps1)).
@@ -11364,14 +11416,14 @@ Proof.
           rewrite ((qeqT_imp_qeq _ _ (real_const_proj (epsQ / 4) n))).
           rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
           unfold eps1, hn. ring. }
-      (* ③ |cos x·h| 逐点：|cnx·hn| ≤ Mc·|hn| *)
+      (* ③ |cos x·h| pointwise: |cnx·hn| ≤ Mc·|hn| *)
       assert (Hnorm : Qle (Qabs (cnx * hn)) (Qmult Mc (Qabs hn))).
       { apply (Qle_trans _ (Qmult (Qabs cnx) (Qabs hn)) _).
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_Qmult cnx hn).
         - apply (Qmult_le_compat_r (Qabs cnx) Mc (Qabs hn)).
           + apply QleT'_to_Qle. apply (HMc n).
           + apply Qabs_nonneg. }
-      (* ④ 三角：|An| ≤ |Dn| + |cnx·hn| *)
+      (* ④ triangle: |An| ≤ |Dn| + |cnx·hn| *)
       assert (Htri : Qle (Qabs (sn1 - snx))
                          (Qplus (Qabs (sn1 - (snx + cnx * hn)))
                                 (Qabs (cnx * hn)))).
@@ -11381,7 +11433,7 @@ Proof.
           apply (Qabs_wd (sn1 - snx) ((sn1 - (snx + cnx * hn)) + cnx * hn)).
           ring.
         - apply Qabs_triangle. }
-      (* ⑤ 汇总：|An| ≤ (epsQ/4+Mc)|h_n| + epsQ/4 + eps1 *)
+      (* ⑤ assembly: |An| ≤ (epsQ/4+Mc)|h_n| + epsQ/4 + eps1 *)
       assert (Htot : Qle (Qabs (sn1 - snx))
           (Qplus (Qplus (Qplus (Qmult (Qdiv epsQ 4) (Qabs hn)) (Qdiv epsQ 4)) eps1)
                  (Qmult Mc (Qabs hn)))).
@@ -11391,7 +11443,7 @@ Proof.
         - apply Qplus_le_compat.
           + exact Hdev.
           + exact Hnorm. }
-      (* ⑥ ring 重组：|An| ≤ (epsQ/4 + eps1) + (epsQ/4 + Mc)·|h_n| *)
+      (* ⑥ ring regrouping: |An| ≤ (epsQ/4 + eps1) + (epsQ/4 + Mc)·|h_n| *)
       assert (Htot2 : Qle (Qabs (sn1 - snx))
           (Qplus (Qplus (Qdiv epsQ 4) eps1)
                  (Qmult (Qplus (Qdiv epsQ 4) Mc) (Qabs hn)))).
@@ -11400,7 +11452,7 @@ Proof.
                                   (Qmult Mc (Qabs hn))) _).
         - exact Htot.
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* ⑦ 因子正性 F := epsQ/4 + Mc > 0 *)
+      (* ⑦ factor positivity: F := epsQ/4 + Mc > 0 *)
       assert (HF0 : Qlt 0 (Qplus (Qdiv epsQ 4) Mc)).
       { apply (Qlt_le_trans 0 (epsQ / 4) (Qplus (Qdiv epsQ 4) Mc)).
         - exact Hq4.
@@ -11408,7 +11460,7 @@ Proof.
           apply Qlt_le_weak. exact HMc0. }
       assert (HFnn : Qle 0 (Qplus (Qdiv epsQ 4) Mc))
         by (apply Qlt_le_weak; exact HF0).
-      (* ⑧ 严格链：F·|h_n| < F·(c−e1) < F·c *)
+      (* ⑧ the strict chain: F·|h_n| < F·(c−e1) < F·c *)
       assert (Hm_lt : Qlt (Qmult (Qplus (Qdiv epsQ 4) Mc) (Qabs hn))
                           (Qmult (Qplus (Qdiv epsQ 4) Mc) (c - e1))).
       { apply (proj2 (Qmult_lt_l (Qabs hn) (c - e1)
@@ -11459,14 +11511,14 @@ Proof.
           + exact Htot2.
           + exact Hmid_lt.
         - exact Hmid_lt2. }
-      (* ⑩ 结论：An < epsQ − epsQ/8（(epsQ/4+Mc)·c == epsQ/2） *)
+      (* ⑩ conclusion: An < epsQ − epsQ/8 ((epsQ/4+Mc)·c == epsQ/2) *)
       apply (qltT_eq_compat_r
                (projT1 (real_const epsQ) n
                 - projT1 (real_abs (real_plus (cauchy_real_sin (real_plus x h))
                                               (real_opp (cauchy_real_sin x)))) n)
                (Qminus epsQ (Qabs (sn1 - snx)))
                (Qdiv epsQ 8)).
-      - (* Qeq：RAW == epsQ − |An| *)
+      - (* Qeq: RAW == epsQ − |An| *)
         apply qeq_imp_qeqT.
         rewrite ((qeqT_imp_qeq _ _ (real_const_proj epsQ n))).
         rewrite ((qeqT_imp_qeq _ _ (real_abs_proj (real_plus (cauchy_real_sin (real_plus x h))
@@ -11499,7 +11551,7 @@ Proof.
                apply (q_neq_of_lt (epsQ + Mc * 4) HposQ) in Hz; destruct Hz. } }
 Qed.
 
-(* ---- cos 连续（2/2） ---- *)
+(* ---- cos continuity (2/2) ---- *)
 Lemma b5b_cos_cont : forall (x : Real) (epsQ : Q), QltT 0 epsQ ->
   sigT (fun delta : Real => And (real_lt real_zero delta)
     (forall h : Real, real_lt (real_abs h) delta ->
@@ -11543,7 +11595,7 @@ Proof.
       by (apply (real_min_lt_l h d0 (real_const c)); exact Hh).
     assert (Hh_c : real_lt (real_abs h) (real_const c))
       by (apply (real_min_lt_r h d0 (real_const c)); exact Hh).
-    (* 线性化界：real_cos_deriv_linear 实例化 eps := eps' := const(epsQ/4) *)
+    (* the linearization bound: [real_cos_deriv_linear] instantiated at eps := eps' := const(epsQ/4) *)
     assert (Hlin : real_le
         (real_abs (real_plus (cauchy_real_cos (real_plus x h))
                    (real_opp (real_plus (cauchy_real_cos x)
@@ -11581,7 +11633,7 @@ Proof.
         - apply qeq_imp_qeqT. rewrite ((qeqT_imp_qeq _ _ (real_const_proj c n))). rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
           unfold hn. ring.
         - exact (HN1 n (NatLe_lift _ _ HnN1)). }
-      (* ② 线性化点态界：|D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1，D := c1−cx+sx·hn *)
+      (* ② the pointwise linearization bound: |D_n| ≤ (epsQ/4)|h_n| + epsQ/4 + eps1, with D := c1−cx+sx·hn *)
       assert (Hdev : Qle
           (Qabs (cn1 - cx + sx * hn))
           (Qplus (Qplus (Qmult (Qdiv epsQ 4) (Qabs hn)) (Qdiv epsQ 4)) eps1)).
@@ -11623,14 +11675,14 @@ Proof.
           rewrite ((qeqT_imp_qeq _ _ (real_const_proj (epsQ / 4) n))).
           rewrite ((qeqT_imp_qeq _ _ (real_abs_proj h n))).
           unfold eps1, hn. ring. }
-      (* ③ |sin x·h| 逐点：|sx·hn| ≤ Ms·|hn| *)
+      (* ③ |sin x·h| pointwise: |sx·hn| ≤ Ms·|hn| *)
       assert (Hnorm : Qle (Qabs (sx * hn)) (Qmult Ms (Qabs hn))).
       { apply (Qle_trans _ (Qmult (Qabs sx) (Qabs hn)) _).
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_Qmult sx hn).
         - apply (Qmult_le_compat_r (Qabs sx) Ms (Qabs hn)).
           + apply QleT'_to_Qle. apply (HMs n).
           + apply Qabs_nonneg. }
-      (* ④ 三角：|An| ≤ |Dn| + |sx·hn|（c1−cx == (D 项) − sx·hn） *)
+      (* ④ triangle: |An| ≤ |Dn| + |sx·hn| (c1−cx == the D term − sx·hn) *)
       assert (Htri : Qle (Qabs (cn1 - cx))
                          (Qplus (Qabs (cn1 - cx + sx * hn))
                                 (Qabs (sx * hn)))).
@@ -11645,7 +11697,7 @@ Proof.
           + apply Qplus_le_compat.
             * apply Qle_refl.
             * apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. apply (Qabs_opp (sx * hn)). }
-      (* ⑤ 汇总 *)
+      (* ⑤ assembly *)
       assert (Htot : Qle (Qabs (cn1 - cx))
           (Qplus (Qplus (Qplus (Qmult (Qdiv epsQ 4) (Qabs hn)) (Qdiv epsQ 4)) eps1)
                  (Qmult Ms (Qabs hn)))).
@@ -11655,7 +11707,7 @@ Proof.
         - apply Qplus_le_compat.
           + exact Hdev.
           + exact Hnorm. }
-      (* ⑥ ring 重组 *)
+      (* ⑥ ring regrouping *)
       assert (Htot2 : Qle (Qabs (cn1 - cx))
           (Qplus (Qplus (Qdiv epsQ 4) eps1)
                  (Qmult (Qplus (Qdiv epsQ 4) Ms) (Qabs hn)))).
@@ -11664,13 +11716,13 @@ Proof.
                                   (Qmult Ms (Qabs hn))) _).
         - exact Htot.
         - apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring. }
-      (* ⑦ 因子正性 F := epsQ/4 + Ms > 0 *)
+      (* ⑦ factor positivity: F := epsQ/4 + Ms > 0 *)
       assert (HF0 : Qlt 0 (Qplus (Qdiv epsQ 4) Ms)).
       { apply (Qlt_le_trans 0 (epsQ / 4) (Qplus (Qdiv epsQ 4) Ms)).
         - exact Hq4.
         - apply (Qle_plus_nonneg_r (Qdiv epsQ 4) Ms).
           apply Qlt_le_weak. exact HMs0. }
-      (* ⑧ 严格链：F·|h_n| < F·(c−e1) < F·c *)
+      (* ⑧ the strict chain: F·|h_n| < F·(c−e1) < F·c *)
       assert (Hm_lt : Qlt (Qmult (Qplus (Qdiv epsQ 4) Ms) (Qabs hn))
                           (Qmult (Qplus (Qdiv epsQ 4) Ms) (c - e1))).
       { apply (proj2 (Qmult_lt_l (Qabs hn) (c - e1)
@@ -11721,7 +11773,7 @@ Proof.
           + exact Htot2.
           + exact Hmid_lt.
         - exact Hmid_lt2. }
-      (* ⑩ 证毕 *)
+      (* ⑩ concluded *)
       apply (qltT_eq_compat_r
                (projT1 (real_const epsQ) n
                 - projT1 (real_abs (real_plus (cauchy_real_cos (real_plus x h))
@@ -11761,16 +11813,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-B task3 端点装配件            *)
-(* （Section B5B_Endpoint：b5b_endpoint / b5b_hsc_theorem，End 泛化 *)
-(* 为参数；闭式装配套 b5b_f1_closure（依赖 05/07 块）；9 Qed）；     *)
-(* 来源：演变/.ablation/sc2_parallel/sc2_b5b_endpoint/              *)
-(*   sc2_b5b_06_endpoint.v（上游双 Require 按规格剥除，块内联）。   *)
+(* B5-B task3 endpoint assembly      *)
+(* ([Section B5B_Endpoint]: [b5b_endpoint]/[b5b_hsc_theorem], generalized at [End]      *)
+(* into universally quantified arguments; the closed assembly set [b5b_f1_closure] (dependent on the 05/07 blocks); 9 [Qed]); *)
+(* source: sc2_b5b_06_endpoint.v (sc2_b5b_endpoint; the upstream double [Require] stripped per the *)
+(* specification, the block inlined).   *)
 (* ============================================================ *)
 
-(* ============ 顶层 Q / Real 辅助（field/ring 安全） ============ *)
+(* ============ top-level [Q] / [Real] auxiliaries ([field]/[ring]-safe) ============ *)
 
-(* ---- field 恒等（顶层）：eps/2 + eps/2 == eps（2 ≠ 0） ---- *)
+(* ---- [field] identity (top level): eps/2 + eps/2 == eps (2 ≠ 0) ---- *)
 Lemma b5b_ep_half_sum : forall (eps : Q), QeqT ((eps / 2) + (eps / 2)) (eps).
 Proof.
   intro eps. apply qeq_imp_qeqT.
@@ -11786,11 +11838,11 @@ Proof.
   apply QltT_to_Qlt. apply (b5b_ecl_div_pos 1 2); unfold Qlt; simpl; lia.
 Qed.
 
-(* ---- 1/2 ≤ 1（g ≤ 1/2 ⟹ g ≤ 1 的传递终点） ---- *)
+(* ---- 1/2 ≤ 1 (the transitivity endpoint of g ≤ 1/2 ⟹ g ≤ 1) ---- *)
 Lemma b5b_ep_half_le_one : QleT' (1 / 2) 1.
 Proof.  apply Qle_to_QleT'. unfold Qle. simpl. lia. Qed.
 
-(* ---- g ≤ 1/2 ⟹ 1/2 ≤ 1 − g（差 == 1/2 − g ≥ 0，Qle_minus_iff） ---- *)
+(* ---- g ≤ 1/2 ⟹ 1/2 ≤ 1 − g (the difference == 1/2 − g ≥ 0, via [Qle_minus_iff]) ---- *)
 Lemma b5b_ep_half_le_1mg : forall (g : Q), Qle g (1 / 2) -> QleT' (1 / 2) (1 - g).
 Proof.
   intros g Hg. apply Qle_to_QleT'.
@@ -11801,7 +11853,7 @@ Proof.
   exact (proj1 (Qle_minus_iff g (1 / 2)) Hg).
 Qed.
 
-(* ---- xg := real_const (1−g)：real_lt 0 xg（g ≤ 1/2 ⟹ 0 < 1−g） ---- *)
+(* ---- xg := real_const (1−g): real_lt 0 xg (g ≤ 1/2 ⟹ 0 < 1−g) ---- *)
 Lemma b5b_ep_xg_pos : forall (g : Q), Qle g (1 / 2) ->
   real_lt real_zero (real_const (1 - g)).
 Proof.
@@ -11812,7 +11864,7 @@ Proof.
   - apply QleT'_to_Qle. apply (b5b_ep_half_le_1mg g). exact Hg12.
 Qed.
 
-(* ---- xg := real_const (1−g)：real_lt xg (real_const 1)（0 < g） ---- *)
+(* ---- xg := real_const (1−g): real_lt xg (real_const 1) (0 < g) ---- *)
 Lemma b5b_ep_xg_lt_one : forall (g : Q), Qlt 0 g ->
   real_lt (real_const (1 - g)) (real_const 1).
 Proof.
@@ -11825,9 +11877,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Section B5B_Endpoint：b5a_E_zero_on_unit（b5a 型）内证毕      *)
-(* End 后导出：b5b_endpoint : b5a 型 → E(1)==0；                *)
-(*             b5b_hsc_theorem : b5a 型 → Hsc。                 *)
+(* [Section B5B_Endpoint]: [b5a_E_zero_on_unit] (the b5a shape) is proved inside; *)
+(* exported after [End]: [b5b_endpoint : b5a shape → E(1)==0];                    *)
+(*                       [b5b_hsc_theorem : b5a shape → Hsc].                     *)
 (* ============================================================ *)
 Section B5B_Endpoint.
 
@@ -11841,9 +11893,9 @@ Proof.
   assert (HepsQ : Qlt 0 epsQ) by (apply QltT_to_Qlt; exact HepsQT).
   assert (HhalfQ : Qlt 0 (epsQ / 2)) by (apply QltT_to_Qlt; apply q_half_pos; exact HepsQT).
   assert (HhalfT : QltT 0 (epsQ / 2)) by (apply Qlt_to_QltT; exact HhalfQ).
-  (* b5b_E_close_q (epsQ/2)：∃N0 g0>0：n≥N0、0<g≤g0 ⟹ |E_n(1−g)−E_n(1)| < epsQ/2 *)
+  (* [b5b_E_close_q (epsQ/2)]: ∃N0 g0>0 such that n≥N0 and 0<g≤g0 ⟹ |E_n(1−g)−E_n(1)| < epsQ/2 *)
   destruct (b5b_E_close_q (epsQ / 2) HhalfQ) as [N0 [g0 [Hg0pos Hclose]]].
-  (* q_arch_inv g0 取 K：a := 1/(K+2) < g0；g := Qmin (1/2) a *)
+  (* [q_arch_inv] on g0 gives K: a := 1/(K+2) < g0; g := Qmin (1/2) a *)
   destruct (q_arch_inv g0 Hg0pos) as [K HK].
   set (a := 1 / (Z.of_nat (K + 2) # 1)).
   set (g := Qmin (1 / 2) a).
@@ -11862,7 +11914,7 @@ Proof.
   { apply (Qle_trans _ a _); [exact Hg_le_a | exact Ha_g0]. }
   assert (Hg1 : Qle g 1).
   { apply (Qle_trans _ (1 / 2) _); [exact Hg_le_half | exact (QleT'_to_Qle _ _ b5b_ep_half_le_one)]. }
-  (* xg := real_const (1−g)；域证书 Hxg；开区间序 Hxg0/Hxg1 *)
+  (* xg := real_const (1−g); the domain certificate Hxg; the open-interval order Hxg0/Hxg1 *)
   set (xg := real_const (1 - g)).
   assert (Hxg : cw_unit xg).
   { unfold xg. apply (b5b_unit_const g Hg0le Hg1). }
@@ -11870,26 +11922,26 @@ Proof.
   { unfold xg. apply (b5b_ep_xg_pos g Hg_le_half). }
   assert (Hxg1 : real_lt xg (real_const 1)).
   { unfold xg. apply (b5b_ep_xg_lt_one g Hg0). }
-  (* b5a 假设实例化：Hz0 := real_eq (real_E xg Hxg) real_zero；取 Nz *)
+  (* instantiating the b5a premise: Hz0 := real_eq (real_E xg Hxg) real_zero; taking Nz *)
   assert (Hz0 : real_eq (real_E xg Hxg) real_zero).
   { exact (b5a_E_zero_on_unit xg Hxg Hxg0 Hxg1). }
   destruct (Hz0 (epsQ / 2) HhalfT) as [Nz HNz].
-  (* 模：N := max(N0, Nz) *)
+  (* modulus: N := max(N0, Nz) *)
   exists (Nat.max N0 Nz).
   intros n Hn.
   apply NatLe_drop in Hn.
   assert (HnN0 : (N0 <= n)%nat) by lia.
   assert (HnNz : (Nz <= n)%nat) by lia.
-  (* ① |E1_n − Eg_n| < epsQ/2：b5b_En_proj 桥 + b5b_E_close_q *)
+  (* ① |E1_n − Eg_n| < epsQ/2: the [b5b_En_proj] bridge + [b5b_E_close_q] *)
   assert (Hq1eq : (projT1 real_E_one n - projT1 (real_E xg Hxg) n) ==
                   (b5b_En n 1 - b5b_En n (1 - g))).
   { unfold real_E_one.
     rewrite (qeqT_imp_qeq _ _ (b5b_En_proj (real_const 1) atan1_pt_bound n)).
     rewrite (qeqT_imp_qeq _ _ (b5b_En_proj xg Hxg n)).
     unfold xg.
-    (* projT1 (real_const c) k 与 c 定义性相等（real_const_proj 由
-       reflexivity 证明），此处不可在 b5b_En 参数内 setoid 重写
-       （b5b_En 无 Qeq Proper 实例），靠 kernel 转换 reflexivity 收。 *)
+    (* projT1 (real_const c) k is definitionally equal to c ([real_const_proj] proved by
+       [reflexivity]); [setoid_rewrite] inside the arguments of [b5b_En] is not available here
+       ([b5b_En] has no [Qeq] [Proper] instance), so the goal is closed by kernel conversion via [reflexivity]. *)
     reflexivity. }
   assert (Hq1abs : Qabs (projT1 real_E_one n - projT1 (real_E xg Hxg) n) ==
                    Qabs (b5b_En n (1 - g) - b5b_En n 1)).
@@ -11908,14 +11960,14 @@ Proof.
   assert (Hterm1 : Qlt (Qabs (projT1 real_E_one n - projT1 (real_E xg Hxg) n))
                        (epsQ / 2))
     by (apply QltT_to_Qlt; exact Hterm1T).
-  (* ② |Eg_n − 0_n| < epsQ/2：Hz（real_eq (E xg) 0）逐点 *)
+  (* ② |Eg_n − 0_n| < epsQ/2: Hz (real_eq (E xg) 0) pointwise *)
   assert (Hterm2T : QltT (Qabs (projT1 (real_E xg Hxg) n - projT1 real_zero n))
                          (epsQ / 2)).
   { exact (HNz n (NatLe_lift _ _ HnNz)). }
   assert (Hterm2 : Qlt (Qabs (projT1 (real_E xg Hxg) n - projT1 real_zero n))
                        (epsQ / 2))
     by (apply QltT_to_Qlt; exact Hterm2T).
-  (* 三角：|E1_n − 0_n| ≤ |E1_n − Eg_n| + |Eg_n − 0_n| *)
+  (* triangle: |E1_n − 0_n| ≤ |E1_n − Eg_n| + |Eg_n − 0_n| *)
   assert (Htri : Qle (Qabs (projT1 real_E_one n - projT1 real_zero n))
                      (Qplus (Qabs (projT1 real_E_one n - projT1 (real_E xg Hxg) n))
                             (Qabs (projT1 (real_E xg Hxg) n - projT1 real_zero n)))).
@@ -11929,7 +11981,7 @@ Proof.
                       (projT1 (real_E xg Hxg) n - projT1 real_zero n))).
       ring.
     - apply Qabs_triangle. }
-  (* 两项和 < epsQ/2 + epsQ/2 == epsQ *)
+  (* the sum of the two terms < epsQ/2 + epsQ/2 == epsQ *)
   assert (Hsum : Qlt (Qplus (Qabs (projT1 real_E_one n - projT1 (real_E xg Hxg) n))
                             (Qabs (projT1 (real_E xg Hxg) n - projT1 real_zero n)))
                      (Qplus (epsQ / 2) (epsQ / 2))).
@@ -11973,17 +12025,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* B5-A item1b 主装配（对应 Section *)
-(* B5A_Item1B：Variable real_arctan_deriv，End 泛化为参数；24 件，  *)
-(* 16 整行 Qed，含 b5a_sin_atan_diff；BAD 0）。来源：                *)
-(* 演变/.ablation/sc2_parallel/sc2_b5a_ode/sc2_b5a_item1b.v；        *)
-(* 注：本块用 Q 域 nra——由 Lqa 供给（AA6 裁定 Psatz→Lqa）。    *)
-(* 中段 Require 先例见根 L3069。                                    *)
+(* B5-A item1b main assembly (the corresponding *)
+(* [Section B5A_Item1B]: [Variable real_arctan_deriv], generalized at [End] into a universally quantified argument; 24 pieces,      *)
+(* 16 full-line [Qed], including [b5a_sin_atan_diff]; BAD 0). Source:                                         *)
+(* sc2_b5a_item1b.v (sc2_b5a_ode);                                                                            *)
+(* note: this segment uses the [Q]-domain [nra] — supplied by [Lqa] (chosen over [Psatz] to keep the axiom-free face). *)
+(* the mid-file [Require] precedent is at the root file L3069.                                                *)
 (* ============================================================ *)
 
 From Stdlib Require Import Lqa.
 (* ============================================================ *)
-(* U2 对应 Section：arctan' 条件件（B3 形态；上游根件同款规格）  *)
+(* the U2 corresponding [Section]: the arctan' conditional piece (the B3 form; the same specification as the upstream root file)  *)
 (* ============================================================ *)
 Section B5A_Item1B.
 
@@ -12002,20 +12054,20 @@ Variable real_arctan_deriv :
                   (real_plus (real_mult eps (real_abs h)) eps'))).
 
 (* ============================================================ *)
-(* Part A：Q 预算件（纯 Q；nra 禁跨乘；q_le_div_le 证毕）        *)
-(* 约定：S > 0、Mc ≥ 0、K1 ≥ 0；                               *)
-(*   kδ := Qinv(512(S+1))                                      *)
-(*   k2 := Qinv(512(S+1)(3S+Mc+1))                             *)
-(*   k2p := Qinv(1024(K1+1)(3S+Mc+1))                          *)
-(* 需要界（目标均为规范 (1#N)）：                               *)
-(*   B1 2S·kδ ≤ (1#2)   B2 (3S+Mc)k2 ≤ (1#2)                   *)
-(*   B3 Mc·k2 ≤ (1#2)   B4 (3S+Mc)·2k2p ≤ (1#32)               *)
-(*   B5 Mc·2k2p ≤ (1#32)                                        *)
-(*   B6 4k2p·K1 ≤ (1#256)（crude 强制用）                       *)
-(*   B7 消去、B8 半化                                       *)
+(* Part A: [Q]-budget pieces (pure [Q]; [nra] used without cross-multiplication; discharged via [q_le_div_le]) *)
+(* conventions: S > 0, Mc ≥ 0, K1 ≥ 0;                                                                        *)
+(*   kδ := Qinv(512(S+1))                                                                                     *)
+(*   k2 := Qinv(512(S+1)(3S+Mc+1))                                                                            *)
+(*   k2p := Qinv(1024(K1+1)(3S+Mc+1))                                                                         *)
+(* needed bounds (all goals in the canonical (1#N) form):                                                     *)
+(*   B1 2S·kδ ≤ (1#2)   B2 (3S+Mc)k2 ≤ (1#2)                                                                  *)
+(*   B3 Mc·k2 ≤ (1#2)   B4 (3S+Mc)·2k2p ≤ (1#32)                                                              *)
+(*   B5 Mc·2k2p ≤ (1#32)                                                                                      *)
+(*   B6 4k2p·K1 ≤ (1#256) (used by the crude forcing)                                                         *)
+(*   B7 cancellation, B8 halving                                                                              *)
 (* ============================================================ *)
 
-(* 跨乘：x·c ≤ D（D,c>0）⟹ x·Qinv D ≤ Qinv c *)
+(* cross-multiplication: [x·c ≤ D] (D,c>0) ⟹ [x·Qinv D ≤ Qinv c] *)
 Lemma b5n_xinv_le : forall (x D c : Q),
   Qlt 0 D -> Qlt 0 c -> Qle (Qmult x c) D ->
   QleT' (Qmult x (Qinv D)) (Qinv c).
@@ -12034,7 +12086,7 @@ Proof.
     { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qdiv. ring. } }
 Qed.
 
-(* B1：2S·kδ ≤ (1#2)；kδ := Qinv(512(S+1)) *)
+(* B1: 2S·kδ ≤ (1#2); kδ := Qinv(512(S+1)) *)
 Lemma b5n_2S_kδ_le : forall (S : Q), Qlt 0 S ->
   QleT' (Qmult (Qmult 2 S) (Qinv (Qmult 512 (Qplus S 1)))) (1 # 2).
 Proof.
@@ -12049,7 +12101,7 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B2：(3S+Mc)·k2 ≤ (1#2)；k2 := Qinv(512(S+1)(3S+Mc+1)) *)
+(* B2: (3S+Mc)·k2 ≤ (1#2); k2 := Qinv(512(S+1)(3S+Mc+1)) *)
 Lemma b5n_3S_Mc_k2_le : forall (S Mc : Q), Qlt 0 S -> Qle 0 Mc ->
   QleT' (Qmult (Qplus (Qmult 3 S) Mc)
              (Qinv (Qmult (Qmult 512 (Qplus S 1))
@@ -12073,7 +12125,7 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B3：Mc·k2 ≤ (1#2) *)
+(* B3: Mc·k2 ≤ (1#2) *)
 Lemma b5n_Mc_k2_le : forall (S Mc : Q), Qlt 0 S -> Qle 0 Mc ->
   QleT' (Qmult Mc
              (Qinv (Qmult (Qmult 512 (Qplus S 1))
@@ -12096,7 +12148,7 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B4：(3S+Mc)·2k2p ≤ (1#32)；k2p := Qinv(1024(K1+1)(3S+Mc+1)) *)
+(* B4: (3S+Mc)·2k2p ≤ (1#32); k2p := Qinv(1024(K1+1)(3S+Mc+1)) *)
 Lemma b5n_3S_Mc_2k2p_le : forall (S Mc K1 : Q), Qlt 0 S -> Qle 0 Mc -> Qle 0 K1 ->
   QleT' (Qmult (Qplus (Qmult 3 S) Mc)
              (Qmult 2 (Qinv (Qmult (Qmult 1024 (Qplus K1 1))
@@ -12119,7 +12171,7 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B5：Mc·2k2p ≤ (1#32) *)
+(* B5: Mc·2k2p ≤ (1#32) *)
 Lemma b5n_Mc_2k2p_le : forall (S Mc K1 : Q), Qlt 0 S -> Qle 0 Mc -> Qle 0 K1 ->
   QleT' (Qmult Mc
              (Qmult 2 (Qinv (Qmult (Qmult 1024 (Qplus K1 1))
@@ -12142,7 +12194,7 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B6：4k2p·K1 ≤ (1#256)（crude 强制 K1 ≤ en'/2 用） *)
+(* B6: 4k2p·K1 ≤ (1#256) (used by the crude forcing of K1 ≤ en'/2) *)
 Lemma b5n_4k2p_K1_le : forall (S Mc K1 : Q), Qlt 0 S -> Qle 0 Mc -> Qle 0 K1 ->
   QleT' (Qmult (Qmult 4 (Qinv (Qmult (Qmult 1024 (Qplus K1 1))
                                    (Qplus (Qplus (Qmult 3 S) Mc) 1))))
@@ -12165,16 +12217,16 @@ Proof.
   { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. reflexivity. }
 Qed.
 
-(* B7：正因子消去：c>0、a·c ≤ b·c ⟹ a ≤ b *)
+(* B7: positive-factor cancellation: c>0, a·c ≤ b·c ⟹ a ≤ b *)
 Lemma b5n_qle_mult_cancel : forall (a b c : Q), Qlt 0 c ->
   Qle (Qmult a c) (Qmult b c) -> QleT' a b.
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* B8：2a ≤ b ⟹ a ≤ b·(1#2) *)
+(* B8: 2a ≤ b ⟹ a ≤ b·(1#2) *)
 Lemma b5n_half_le : forall (a b : Q), Qle (Qmult 2 a) b -> QleT' a (Qmult (1 # 2) b).
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* B6b：8k2p·K1 ≤ 1（crude 强制 K1 ≤ en'/2 的替代界） *)
+(* B6b: 8k2p·K1 ≤ 1 (an alternative bound for the crude forcing of K1 ≤ en'/2) *)
 Lemma b5n_8k2p_K1_le : forall (S Mc K1 : Q), Qlt 0 S -> Qle 0 Mc -> Qle 0 K1 ->
   QleT' (Qmult (Qmult 8 (Qinv (Qmult (Qmult 1024 (Qplus K1 1))
                                    (Qplus (Qplus (Qmult 3 S) Mc) 1))))
@@ -12201,7 +12253,7 @@ Proof.
     { apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. unfold Qinv. simpl. reflexivity. } }
 Qed.
 
-(* crude 强制：E2 = 2k2p·en' ≥ 1/2 且 8k2p·K1 ≤ 1、4k2p·en' > 1
+(* crude forcing: E2 = 2k2p·en' ≥ 1/2 with 8k2p·K1 ≤ 1 and 4k2p·en' > 1
    ⟹ K1 ≤ (1#2)·en' *)
 Lemma b5n_force_half : forall (K1 k2p en' : Q),
   Qlt 0 k2p ->
@@ -12215,7 +12267,7 @@ Proof.
   { apply (Qle_trans (Qmult (Qmult 8 k2p) K1) 1 (Qmult (Qmult 4 k2p) en')).
     { exact Hbud. }
     { apply Qlt_le_weak. exact Hbig. } }
-  (* (2K1)·(4k2p) == 8k2p·K1；cancel 4k2p *)
+  (* (2K1)·(4k2p) == 8k2p·K1; cancel 4k2p *)
   assert (Hc2 : Qle (Qmult (Qmult 4 k2p) (Qmult 2 K1))
                     (Qmult (Qmult 4 k2p) en')).
   { apply (Qle_trans (Qmult (Qmult 4 k2p) (Qmult 2 K1))
@@ -12243,7 +12295,7 @@ Proof.
   exact H2K1.
 Qed.
 
-(* 逐点三角：|v| ≤ |v−dh| + |dh|（dh 任意 Q 原子） *)
+(* pointwise triangle: |v| ≤ |v−dh| + |dh| (dh an arbitrary [Q] atom) *)
 Lemma b5n_abs_sub_add : forall (v dh : Q),
   QleT' (Qabs v) (Qplus (Qabs (Qminus v dh)) (Qabs dh)).
 Proof.
@@ -12256,7 +12308,7 @@ Proof.
 Qed.
 
 
-(* crude E2 强制：|v|>1、|v|≤|w|+|h|、|h|≤1/4、|w|≤enk2h+E2、enk2h≤1/4
+(* crude E2 forcing: |v|>1, |v|≤|w|+|h|, |h|≤1/4, |w|≤enk2h+E2, enk2h≤1/4
    ⟹ E2 ≥ 1/2 *)
 Lemma b5n_forceE2 : forall (av aw ah enk2ah E2 : Q),
   Qlt 1 av -> Qle av (Qplus aw ah) ->
@@ -12266,14 +12318,14 @@ Lemma b5n_forceE2 : forall (av aw ah enk2ah E2 : Q),
   QleT' (1 # 2) E2.
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* E2 = 2k2p·en' 且 E2 ≥ 1/2 ⟹ 4k2p·en' ≥ 1 *)
+(* E2 = 2k2p·en' with E2 ≥ 1/2 ⟹ 4k2p·en' ≥ 1 *)
 Lemma b5n_forceE2en : forall (E2 k2p en' : Q),
   Qle (1 # 2) E2 ->
   E2 == Qmult (Qmult 2 k2p) en' ->
   QleT' 1 (Qmult (Qmult 4 k2p) en').
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* 8k2p·K1 ≤ 1、4k2p·en' ≥ 1 ⟹ 2K1 ≤ en' ⟹ K1 ≤ en'/2 *)
+(* 8k2p·K1 ≤ 1 and 4k2p·en' ≥ 1 ⟹ 2K1 ≤ en' ⟹ K1 ≤ en'/2 *)
 Lemma b5n_forceK1 : forall (K1 k2p en' : Q),
   Qlt 0 k2p ->
   Qle (Qmult (Qmult 8 k2p) K1) 1 ->
@@ -12305,7 +12357,7 @@ Proof.
   exact H2K1.
 Qed.
 
-(* 吸收（quad）：coef·X ≤ X 且 colQ ≤ en'/8、cE·E2 ≤ en'/32
+(* absorption (quad): coef·X ≤ X with colQ ≤ en'/8 and cE·E2 ≤ en'/32
    ⟹ colQ + coef·X + cE·E2 ≤ X + (5/32)en' ≤ X + (3/4)en' *)
 Lemma b5n_absorbQ : forall (colQ coef X cE E2 en' : Q),
   Qle 0 X -> Qle 0 en' -> Qle coef 1 ->
@@ -12315,8 +12367,8 @@ Lemma b5n_absorbQ : forall (colQ coef X cE E2 en' : Q),
       (Qplus X (Qmult (3 # 4) en')).
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* 吸收（crude）：Mc·k2·X ≤ X（k2·Mc ≤ 1）且 colQ ≤ en'/8、
-   K1 ≤ en'/2、Mc·E2 ≤ en'/32 ⟹ 全式 ≤ X + (3/4)en' *)
+(* absorption (crude): Mc·k2·X ≤ X (k2·Mc ≤ 1) with colQ ≤ en'/8,
+   K1 ≤ en'/2, Mc·E2 ≤ en'/32 ⟹ the whole expression ≤ X + (3/4)en' *)
 Lemma b5n_absorbC : forall (colQ K1 Mc E2 X en' : Q) (k2 : Q),
   Qle 0 X -> Qle 0 en' -> Qle (Qmult Mc k2) 1 ->
   Qle colQ (Qmult (1 # 8) en') ->
@@ -12326,24 +12378,24 @@ Lemma b5n_absorbC : forall (colQ K1 Mc E2 X en' : Q) (k2 : Q),
       (Qplus X (Qmult (3 # 4) en')).
 Proof.  intros. apply Qle_to_QleT'. nra. Qed.
 
-(* margin：D ≤ A + (3/4)e' 且 eta < (1/4)e' ⟹ eta < (A+e') − D *)
+(* margin: D ≤ A + (3/4)e' and eta < (1/4)e' ⟹ eta < (A+e') − D *)
 Lemma b5n_close : forall (D hn en en' eta : Q),
   Qle D (Qplus (Qmult en hn) (Qmult (3 # 4) en')) ->
   Qlt eta (Qmult (1 # 4) en') ->
   QltT eta (Qminus (Qplus (Qmult en hn) en') D).
 Proof.  intros. apply Qlt_to_QltT. nra. Qed.
 
-(* eps1' > 0、en' > eps1' ⟹ (1/8)eps1' < (1/4)en' *)
+(* eps1' > 0 and en' > eps1' ⟹ (1/8)eps1' < (1/4)en' *)
 Lemma b5n_quarter_gt : forall (e1 e : Q),
   Qlt 0 e1 -> Qlt e1 e -> QltT (Qmult (1 # 8) e1) (Qmult (1 # 4) e).
 Proof.  intros. apply Qlt_to_QltT. nra. Qed.
 
-(* |h_n| 的 |dh| 界与 |v−dh| 界给出 av ≤ aw+ah 的副产品（供 crude）不另需 *)
+(* the by-product that the |dh| and |v−dh| bounds of |h_n| give av ≤ aw+ah (for the crude branch) needs no separate treatment *)
 (* ============================================================ *)
-(* Part B：逐点提取 X：给定 |h| < eps·rkδ、|h| < const(1#2)、    *)
-(*   |h| < (1#4)·inv_pos(1+eps2)（eps2 := eps·rk2），           *)
-(*   ⟹ ∃N ∀n≥N：|h_n| ≤ en·kδ ∧ |h_n| ≤ 1/2 ∧                  *)
-(*              (1+en·k2)·|h_n| ≤ 1/4                          *)
+(* Part B: pointwise extraction X: given |h| < eps·rkδ, |h| < const(1#2),      *)
+(*   |h| < (1#4)·inv_pos(1+eps2) (eps2 := eps·rk2),                            *)
+(*   ⟹ ∃N ∀n≥N: |h_n| ≤ en·kδ ∧ |h_n| ≤ 1/2 ∧                                 *)
+(*              (1+en·k2)·|h_n| ≤ 1/4                                          *)
 (* ============================================================ *)
 Lemma b5n_h_pts : forall (h eps : Real) (kδ k2 : Q)
   (Heps : real_lt real_zero eps),
@@ -12392,11 +12444,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part C：逐点提取 Y：arctan'-Var 于 eps2 := eps·rk2、          *)
-(*   eps2' := eps'·rk2p 实例化 ⟹ ∃δa 0<δa：                    *)
-(*   ∀h |h|<δa → ∀Hxh ∀eps' 0<eps'：∃N ∀n≥N：                   *)
-(*   |v_n − d_n·h_n| ≤ (en·k2)·|h_n| + 2·k2p·en'                 *)
-(*   （b5i_abs_le_pointwise + b5i_vdh_absV + 投影 ring）          *)
+(* Part C: pointwise extraction Y: instantiating the arctan'-Variable at eps2 := eps·rk2 and    *)
+(*   eps2' := eps'·rk2p ⟹ ∃δa with 0<δa:                                                       *)
+(*   ∀h |h|<δa → ∀Hxh ∀eps' 0<eps': ∃N ∀n≥N:                                                   *)
+(*   |v_n − d_n·h_n| ≤ (en·k2)·|h_n| + 2·k2p·en'                                               *)
+(*   ([b5i_abs_le_pointwise] + [b5i_vdh_absV] + pointwise [ring])                               *)
 (* ============================================================ *)
 Lemma b5n_vdh_pts : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
@@ -12464,7 +12516,7 @@ Proof.
         cbn [projT1].
         unfold en, en', hn.
         ring. }
-    (* V 的 proj 与 b5i_vdh_absV 的 proj 定义性同（b5a_atan_d 展开） *)
+    (* the proj of V and the proj of [b5i_vdh_absV] are definitionally equal (the [b5a_atan_d] unfolding) *)
     apply (b5i_vdh_absV x Hx h Hxh n
              (Qplus (Qmult (Qmult en k2) (Qabs hn))
                     (Qmult (Qmult 2 k2p) en'))).
@@ -12475,9 +12527,9 @@ Qed.
 
 
 (* ============================================================ *)
-(* Part D：per-n 双分支主界（Z）                                 *)
-(*   外层谓词输入：每 n 的逐点事实与预算（由 W 用 X/Y/根件填入）  *)
-(*   结论：|D_n| ≤ en·|h_n| + (3/4)·en'                         *)
+(* Part D: the per-n two-branch main bound (Z)                                    *)
+(*   outer predicate input: the pointwise facts and budgets of each n (filled in by W from X/Y and the root pieces) *)
+(*   conclusion: |D_n| ≤ en·|h_n| + (3/4)·en'                                    *)
 (* ============================================================ *)
 Lemma b5n_pern_main : forall (x : Real)
   (Hx : forall n : nat, QleT' (Qabs (projT1 x n)) 1)
@@ -12558,7 +12610,7 @@ Proof.
       { exact HcoefQ. }
       { exact HcolQ8. }
       { unfold X, S, E2. exact HaddQ32. } } }
-  { (* 分支 B：|v_n| > 1 → crude（强制 K1 ≤ en'/2） *)
+  { (* branch B: |v_n| > 1 → crude (forcing K1 ≤ en'/2) *)
     set (av := Qabs (b5i_vn x h n)).
     set (aw := Qabs (Qminus (b5i_vn x h n) (Qmult (b5i_dn x n) (projT1 h n)))).
     set (ah := Qabs (projT1 h n)).
@@ -12648,12 +12700,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part E：b5a_sin_atan_diff 主装配（W）                         *)
-(*   δ := min(min(min δa (1/2)) (eps·kδ)) (1/4 · inv(1+eps·k2)) *)
-(*   预算：colQ = eta = (1#8)·e1'；en/en' 逐点非负；margin 证毕  *)
+(* Part E: the [b5a_sin_atan_diff] main assembly (W)                             *)
+(*   δ := min(min(min δa (1/2)) (eps·kδ)) (1/4 · inv(1+eps·k2))                  *)
+(*   budgets: colQ = eta = (1#8)·e1'; en/en' pointwise nonnegative; the margin discharged *)
 (* ============================================================ *)
 
-(* eps 见证的逐点提取：0 < e 且 ∀ n ≥ N：e < projT1 eps n *)
+(* pointwise extraction of the eps witness: 0 < e and ∀ n ≥ N: e < projT1 eps n *)
 Lemma b5n_eps_proj_lt : forall (eps : Real), real_lt real_zero eps ->
   sigT (fun e : Q => And (QltT 0 e) (sigT (fun N : nat =>
     forall n : nat, NatLe N n -> QltT e (projT1 eps n)))).
@@ -12714,7 +12766,7 @@ Proof.
   { unfold k2p. apply Qlt_to_QltT. apply Qinv_lt_0_compat. nra. }
   assert (Hk2Q : Qle 0 k2). { apply Qlt_le_weak. apply QltT_to_Qlt. exact Hk2T. }
   assert (Hk2pQ : Qlt 0 k2p). { apply QltT_to_Qlt. exact Hk2pT. }
-  (* 全局预算：coef（quad）、coefC（crude）、8k2p·K1（crude 强制） *)
+  (* global budgets: coef (quad), coefC (crude), 8k2p·K1 (the crude forcing) *)
   assert (HcoefQ : Qle (Qplus (Qmult (Qmult 2 (Qplus Ms Mc)) kδ)
                                (Qmult (Qplus (Qmult 3 (Qplus Ms Mc)) Mc) k2)) 1).
   { apply (Qle_trans (Qplus (Qmult (Qmult 2 (Qplus Ms Mc)) kδ)
@@ -12733,7 +12785,7 @@ Proof.
                               (Qplus (Qmult Ms (Qplus (Qmult 4 C4) 2))
                                      (Qmult Mc (Qplus (Qmult 4 C4) 4)))) 1).
   { apply QleT'_to_Qle. apply (b5n_8k2p_K1_le S Mc K1e HSlt HMc0 HK1_0). }
-  (* δ 组装：0 < 各分量 *)
+  (* the δ assembly: each component > 0 *)
   assert (H12T : QltT 0 (1 # 2)) by (apply Qlt_to_QltT; unfold Qlt; simpl; lia).
   assert (H14T : QltT 0 (1 # 4)) by (apply Qlt_to_QltT; unfold Qlt; simpl; lia).
   destruct (b5n_vdh_pts x Hx eps Heps k2 k2p Hk2T Hk2pT) as [δa [Hδa0 Hδa]].
@@ -12776,7 +12828,7 @@ Proof.
       apply (Qmult_lt_0_compat (1 # 8) e1).
       { unfold Qlt. simpl. lia. }
       { apply QltT_to_Qlt. exact He1T. } }
-    (* h 相对 δ 的四层 min 提取 *)
+    (* the four-layer min extraction of h relative to δ *)
     assert (HhA : real_lt (real_abs h)
              (real_min (real_min δa (real_const (1 # 2))) (real_mult eps (real_const kδ)))).
     { apply (real_min_lt_l h
@@ -12807,13 +12859,13 @@ Proof.
     { apply (real_min_lt_l h δa (real_const (1 # 2))). exact HhAA. }
     assert (Hh12 : real_lt (real_abs h) (real_const (1 # 2))).
     { apply (real_min_lt_r h δa (real_const (1 # 2))). exact HhAA. }
-    (* X：b5n_h_pts *)
+    (* X: [b5n_h_pts] *)
     destruct (b5n_h_pts h eps kδ k2 Heps HkδT Hk2T Hhlr Hh12 HhE) as [Nh HNh].
-    (* Y：arctan' 于 eps2 := eps·k2 / eps2' := eps'·k2p *)
+    (* Y: arctan' at eps2 := eps·k2 and eps2' := eps'·k2p *)
     destruct (Hδa h Hhda Hxh eps' Heps') as [Nw HNw].
-    (* 列误差列 *)
+    (* the column-error column *)
     destruct (b5i_rs_addcol x Hx h Hxh eta HetaT) as [Nc HNc].
-    (* 逐点预算（对 eps' 见证） *)
+    (* pointwise budgets (against the eps' witness) *)
     assert (Hen'g : forall n : nat, NatLe Ne1 n -> Qle 0 (projT1 eps' n)).
     { intros n Hn.
       apply (Qle_trans 0 e1 (projT1 eps' n)).
@@ -12856,7 +12908,7 @@ Proof.
                                  (projT1 eps' n)).
         { apply QleT'_to_Qle. apply (b5n_Mc_2k2p_le S Mc K1e HSlt HMc0 HK1_0). }
         { exact (Hen'g n Hn). } } }
-    (* 主装配：real_le → real_lt（左支），见证 eta *)
+    (* main assembly: [real_le] → [real_lt] (the left branch), witnessing eta *)
     set (Nmax := Nat.max (Nat.max Ne0 Ne1) (Nat.max (Nat.max Nh Nw) (Nat.max Nc Nd))).
     left.
     exists eta.
@@ -12882,7 +12934,7 @@ Proof.
       assert (Hen'0 : Qle 0 en').
       { unfold en'. exact (Hen'g n HnNe1). }
       destruct (HNh n HnNh) as [Hhδn [Hh12n Hhqn]].
-      (* Z：per-n 主界 *)
+      (* Z: the per-n main bound *)
       assert (Hmain : Qle (Qabs (projT1 (b5a_comp_err_sin x Hx h Hxh) n))
                           (Qplus (Qmult en (Qabs (projT1 h n))) (Qmult (3 # 4) en'))).
       { apply QleT'_to_Qle. apply (b5n_pern_main x Hx h Hxh n Ms Mc C4 eta kδ k2 k2p en en').
@@ -12906,7 +12958,7 @@ Proof.
         { exact (HaddQ_all n HnNe1). }
         { exact (HaddC_all n HnNe1). }
         { exact Hk2pK1. } }
-      (* margin：eta < (1/4)en'；Hfin：eta < (en·hn + en') − Dn *)
+      (* margin: eta < (1/4)en'; Hfin: eta < (en·hn + en') − Dn *)
       assert (Hq4e : Qlt eta (Qmult (1 # 4) en')).
       { unfold eta, en'. apply QltT_to_Qlt. apply (b5n_quarter_gt e1 (projT1 eps' n)).
         { apply QltT_to_Qlt. exact He1T. }
@@ -12935,7 +12987,7 @@ Qed.
 
 End B5A_Item1B.
 
-(* ToyR 系替换定理假设面打印（零新增依赖验证锚） *)
+(* assumption-face printing of the replacement statements of the ToyR family (a zero-new-dependency verification anchor) *)
 Print Assumptions b3_one_minus_q_pos.
 
 Print Assumptions atan_odd_nonneg.

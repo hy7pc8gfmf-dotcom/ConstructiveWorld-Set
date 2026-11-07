@@ -1,21 +1,33 @@
-(* ==========================================================================)
-   AlignIdUnclosed.v — 后向 KL 递推精确恒等式的无条件化组装件
-   使命: 以已证桥 req2_backward_kl_step（UpReqAlign3）与 gap 基件 w_subgap_base
-   （UpAlignIdReq）组装出 aiu_backward_kl_exact_uncond——除接口参数外零假设位的
-   后向 KL 逐步递推推论；五段 β 缩放机器逐段复用；原件语句面 KL 参序倒置的判读
-   如实注记。
-   依赖: CW_ConstructiveWorld_219、UpReqAlgebra、UpReqDist、UpReqAlign、
-   UpReqAlign2、UpReqAlign3、UpAlignIdReq（Import RealInterfaceEnhancedMod）。
-   接口注记: 本树 RealInterfaceEnhancedSetoid 为零参 Class（S07_RealSetoidExpLog
-   定义，全局实例 RealEnhancedReal）；承载集 R 由文件顶 Notation 绑定为全局
-   Real，接口字段经该全局实例消解（与 UpReqAlign3/UpAlignIdReq 先例同式）；
-   正源的有参节绑定已移除，语句面与证明体除删去绑定实参外逐字不变。
-   对标: 策略梯度的后向 KL 递推恒等式（trust-region 恒等式的形式化）。
-   构造性: 全件 Qed 真证；term-mode 显式组装（req_trans/compat 族链，无
-   destruct）；语句全 Set 层；节内 15 位接口参数为真前提，如实保留为接口义务。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树原地重
-   编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — assumption-free assembly of the exact backward-KL recursion identity. *)
+
+(** * AlignIdUnclosed: the exact backward-KL step-recursion identity,
+      assembled unconditionally from proven upstream bridges.
+
+    Mission.  Assembles [aiu_backward_kl_exact_uncond] — the backward-KL
+      step-recursion corollary with no premises beyond the Section
+      interface — from the bridge [req2_backward_kl_step] in
+      [UpReqAlign3] and the gap base [w_subgap_base] in [UpAlignIdReq],
+      reusing the five-stage [beta]-scaling machine stage by stage; the
+      KL argument order is inverted relative to the source face.
+
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqDist], [UpReqAlign], [UpReqAlign2],
+      [UpReqAlign3], [UpAlignIdReq]; imports [RealInterfaceEnhancedMod].
+      [R] is the global [Real]; fields resolve through the global
+      [RealEnhancedReal] instance; the source Section binding was
+      removed, statements verbatim.
+
+    References.  This development, the ConstructiveWorld-Main baseline
+      module of the same name; statement names carried over verbatim.
+
+    Constructivity.  Every statement closes with [Qed] by a real proof
+      through term-mode [req_trans]/compat chains with no [destruct];
+      all statements live on the [Set] layer; the fifteen Section
+      interface slots are genuine premises kept as obligations.
+
+    Build.  [coqc -native-compiler no -q -Q . "" AlignIdUnclosed.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact
+      are [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -39,15 +51,19 @@ Require Import UpReqAlign2.
 Require Import UpReqAlign3.
 Require Import UpAlignIdReq.
 Import RealInterfaceEnhancedMod.
-(* 无参形适配：正源节绑定
-   Context {R : Set} {RIS : RealInterfaceEnhancedSetoid R}. 已移除；承载集 R
-   由下行 Notation 绑定为全局 Real，接口字段经全局实例 RealEnhancedReal 消解
-   （与 UpReqAlign3.v / UpAlignIdReq.v 先例同式）。零 magic 值、零 Prop 强转；
-   语句面与证明体除删去绑定实参外逐字不变。 *)
+(* Argument-free adaptation: the source Section binding
+   [Context {R : Set} {RIS : RealInterfaceEnhancedSetoid R}] is removed;
+   the carrier set [R] is bound by the [Notation] below to the global
+   [Real], and interface fields resolve through the global instance
+   [RealEnhancedReal] (the same pattern as the [UpReqAlign3.v] /
+   [UpAlignIdReq.v] precedents).  No [Obj.magic] values and no [Prop]
+   casts; the statement face and proof bodies are verbatim unchanged
+   apart from dropping the binding arguments. *)
 Notation R := Real.
 
 (* ============================================================ *)
-(* AiuBackwardKL：件 6 组装链无条件化节                                 *)
+(* Section [AiuBackwardKL]: the backward-KL step-recursion       *)
+(*   assembly chain in unconditional form.                       *)
 (* ============================================================ *)
 Section AiuBackwardKL.
 
@@ -77,8 +93,9 @@ Variable pi_ref : S -> R.
 Variable pi_ref_pos : forall s : S, lt zero (pi_ref s).
 Variable eta : R.
 
-(* ---- 局部别名（上游 req2 定义的 δ 透明薄包装，与 UpReqAlign3/        *)
-(*      UpAlignIdReq 同式） ---- *)
+(* ---- Local aliases: definitionally transparent thin wrappers over    *)
+(*      the upstream [req2] definitions (the same pattern as            *)
+(*      [UpReqAlign3]/[UpAlignIdReq]). ---- *)
 Definition pos3 (p : S -> R) : Set := @req2_pos_dist S p.
 Definition nrm (p : S -> R) : Set := @req2_norm_one S sumf p.
 Definition KLE (p q : S -> R) (Hp : pos3 p) (Hq : pos3 q) : R :=
@@ -99,8 +116,10 @@ Definition PSTR (s : S) : R :=
 Definition PSTR_pos : pos3 PSTR :=
   @req2_pi_star_pos S sumf reward beta beta_pos pi_ref pi_ref_pos ZAL_pos.
 
-(* ---- 输入件 1：gap 代换位（UpAlignIdReq.w_subgap_base @ 全参依存）    *)
-(*   req_minus (J(pi★) − J(p)) == β·KL(p‖pi★)——件 6 组装链的 Hgap 位。   *)
+(* ---- Input lemma 1: the gap substitution slot (fully applied         *)
+(*      [UpAlignIdReq.w_subgap_base]):                                  *)
+(*      [req_minus (J(pi_star) - J(p)) == beta * KL(p || pi_star)] —    *)
+(*      the [Hgap] position of the assembly chain.                      *)
 Lemma aiu_subgap_base : forall (p : S -> R) (Hp : pos3 p) (Hn : nrm p),
   req (req_minus (JJ PSTR PSTR_pos) (JJ p Hp))
       (mult beta (KLE p PSTR Hp PSTR_pos)).
@@ -112,8 +131,10 @@ Proof.
                                      ZAL_pos p Hp Hn).
 Qed.
 
-(* ---- 输入件 2：三 KL 精确恒等桥位（UpReqAlign3.req2_backward_kl_step  *)
-(*   @ 全参依存）——件 6 原显式前提位的已证定理供给（PSTR-先序）。        *)
+(* ---- Input lemma 2: the three-KL exact-identity bridge (fully        *)
+(*      applied [UpReqAlign3.req2_backward_kl_step]) — a proven         *)
+(*      theorem supplied at the position where the source chain         *)
+(*      carried an explicit premise ([PSTR]-first argument order).      *)
 Lemma aiu_bridge_backward_kl_step :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
     req (KLE PSTR (NPX pi_t Hpi_t) PSTR_pos (npx_pos pi_t Hpi_t))
@@ -130,9 +151,13 @@ Proof.
                                 ZAL_pos pi_t Hpi_t Hn).
 Qed.
 
-(* ---- 主件：件 6 组装链无条件化（已证桥输入版；PSTR-先序）             *)
-(*   β·KL(pi*‖pi_{t+1}) == (1−η)·β·KL(pi*‖pi_t) − η·gap(pi_t) + β·K2     *)
-(*   组装链 = 件 6 五段 β 缩放机器逐段同位复用；零假设位。               *)
+(* ---- Main statement: the assembly chain in unconditional form        *)
+(*      (proven-bridge input version, [PSTR]-first argument order):     *)
+(*      [beta * KL(pi* || pi_{t+1}) ==                                  *)
+(*       (1 - eta) * beta * KL(pi* || pi_t)                             *)
+(*         - eta * gap(pi_t) + beta * K2].                              *)
+(*      The assembly reuses the five-stage [beta]-scaling machine       *)
+(*      stage by stage at the same positions; no premise slots.         *)
 Theorem aiu_backward_kl_exact_uncond :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
     req (mult beta
@@ -150,7 +175,7 @@ Proof.
   assert (Hgap : req (req_minus (JJ PSTR PSTR_pos) (JJ pi_t Hpi_t))
                      (mult beta (KLE pi_t PSTR Hpi_t PSTR_pos)))
     by exact (aiu_subgap_base pi_t Hpi_t Hn).
-  (* β 缩放核 1：β·(I·KSP) == I·(β·KSP)，I := 1−η *)
+  (* beta-scaling core 1: beta * (I * KSP) == I * (beta * KSP), where I := 1 - eta. *)
   assert (Hscale1 : req (mult beta (mult (req_minus one eta)
                                          (KLE PSTR pi_t PSTR_pos Hpi_t)))
                         (mult (req_minus one eta)
@@ -183,7 +208,7 @@ Proof.
                              (KLE PSTR pi_t PSTR_pos Hpi_t))
                        (mult_assoc (req_minus one eta) beta
                                    (KLE PSTR pi_t PSTR_pos Hpi_t))). }
-  (* β 缩放核 2：β·(η·KTS) == η·(β·KTS) *)
+  (* beta-scaling core 2: beta * (eta * KTS) == eta * (beta * KTS). *)
   assert (Hswap2 : req (mult beta (mult eta (KLE pi_t PSTR Hpi_t PSTR_pos)))
                        (mult eta (mult beta (KLE pi_t PSTR Hpi_t PSTR_pos)))).
   { apply (req_trans
@@ -203,7 +228,7 @@ Proof.
       + exact (req_sym (mult eta (mult beta (KLE pi_t PSTR Hpi_t PSTR_pos)))
                        (mult (mult eta beta) (KLE pi_t PSTR Hpi_t PSTR_pos))
                        (mult_assoc eta beta (KLE pi_t PSTR Hpi_t PSTR_pos))). }
-  (* β·(opp (η·KTS)) == opp (η·gap(pi_t))：req_opp_mult_l + 核 2 + Hgap 代换 *)
+  (* beta * (opp (eta * KTS)) == opp (eta * gap(pi_t)): [req_opp_mult_l], then core 2, then the [Hgap] substitution. *)
   assert (Hscale2 : req (mult beta (opp (mult eta (KLE pi_t PSTR Hpi_t PSTR_pos))))
                         (opp (mult eta
                                    (req_minus (JJ PSTR PSTR_pos)
@@ -228,7 +253,7 @@ Proof.
                    (req_sym (req_minus (JJ PSTR PSTR_pos) (JJ pi_t Hpi_t))
                             (mult beta (KLE pi_t PSTR Hpi_t PSTR_pos))
                             Hgap))). }
-  (* β 分配到后半树：β·(B + C) == β·B + β·C，B 项换形 *)
+  (* distributing beta over the second half of the tree: beta * (B + C) == beta * B + beta * C, with the [B] summand rewritten. *)
   assert (Hscale3 : req (mult beta (plus (opp (mult eta (KLE pi_t PSTR Hpi_t PSTR_pos)))
                                          (KLE pi_t (NPX pi_t Hpi_t)
                                               Hpi_t (npx_pos pi_t Hpi_t))))
@@ -262,7 +287,7 @@ Proof.
                                  Hpi_t (npx_pos pi_t Hpi_t)))
                 Hscale2 (req_refl (mult beta (KLE pi_t (NPX pi_t Hpi_t)
                                               Hpi_t (npx_pos pi_t Hpi_t))))). }
-  (* 全树 β 分配组装 *)
+  (* distributing beta over the whole tree. *)
   assert (Hscale : req
               (mult beta (plus (mult (req_minus one eta)
                                      (KLE PSTR pi_t PSTR_pos Hpi_t))
@@ -317,7 +342,7 @@ Proof.
                       (mult beta (KLE pi_t (NPX pi_t Hpi_t)
                                            Hpi_t (npx_pos pi_t Hpi_t))))
                 Hscale1 Hscale3). }
-  (* 闭合：桥位 β 缩放（req_mult_compat + 已证桥 Hbridge）+ 全树分配 Hscale *)
+  (* closing: the beta-scaling of the bridge ([req_mult_compat] with the proven bridge [Hbridge]), then the whole-tree distribution [Hscale]. *)
   exact (req_trans
           (mult beta
                 (KLE PSTR (NPX pi_t Hpi_t) PSTR_pos (npx_pos pi_t Hpi_t)))
@@ -346,7 +371,9 @@ Qed.
 End AiuBackwardKL.
 
 (* ============================================================ *)
-(* 公理面自审（文末三条 Print Assumptions；End 之后）                    *)
+(* Assumption audit: three Print Assumptions commands at the     *)
+(*   end of the file, after the Section close; each reports      *)
+(*   Closed.                                                     *)
 (* ============================================================ *)
 Print Assumptions aiu_subgap_base.
 Print Assumptions aiu_bridge_backward_kl_step.

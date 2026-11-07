@@ -1,32 +1,33 @@
-(* ==========================================================================
-   PA_TempMonoW2Mark.v - the two temperature-monotonicity assumption slots
-   of the firewall requirement section, discharged at the interface-union
-   witness context.
-   Mission. 使命: the tmw_ family - two conditional forms (carrying the
-     explicit extra premise beta1 > beta2) and two full-strength forms,
-     plus the minimal demonstration item tmw_le_minus_nonneg_fw_et; the
-     strength difference is disclosed as-is (each discharge theorem carries
-     one premise the requirement slot does not have).
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlgebra,
-     UpReqDist, UpReqTempEntropy (req_energy_exp_temp_mono /
-     req_energy_exp_temp_strict_mono / req_inv_pos_lt_contra),
-     UpFirewallReq (fw_et / fw_bt / fw_bt_pos) of the -Set lineage world;
-     the interface is the argument-less Class RealInterfaceEnhancedSetoid
-     (module RealInterfaceEnhancedMod).
-   References. 对标: energy monotonicity of the temperature-scaled Gibbs
-     family (statistical-mechanics formalization). Statement names carried
-     over verbatim from the source piece; adaptation = pure binder removal
-     + notation rebinding on this world's own precedent: R := Real by
-     notation, predicate faces real_lt / real_eq / real_le, fw_et / fw_bt /
-     fw_bt_pos applied at the world's argument-less face, the proof bodies
-     discharge by direct consumption of the in-register supply theorems.
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; pure term assembly (zero rewrite
-     tactics); the tail Print Assumptions probes report the closure face;
-     no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     PA_TempMonoW2Mark.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — the firewall requirement section's two
+   temperature-monotonicity assumption slots at the interface-union context. *)
+(** * PA_TempMonoW2Mark: the [tmw_] temperature-monotonicity family.
+
+    Mission.  The [tmw_] family — two conditional forms (carrying the
+      explicit extra premise beta1 > beta2) and two full-strength forms, plus
+      the minimal demonstration item [tmw_le_minus_nonneg_fw_et]; the
+      strength difference is disclosed as-is (each discharge theorem carries
+      one premise the requirement slot does not have).
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqDist], [UpReqTempEntropy]
+      ([req_energy_exp_temp_mono], [req_energy_exp_temp_strict_mono],
+      [req_inv_pos_lt_contra]), [UpFirewallReq] ([fw_et], [fw_bt],
+      [fw_bt_pos]) of this development; the argument-less [Class]
+      [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
+    References.  This development and the ConstructiveWorld-Main baseline
+      module of the same name: energy monotonicity of the temperature-scaled
+      Gibbs family (statistical-mechanics formalization); statement names
+      carried over verbatim from the source piece; adaptation = pure binder
+      removal + notation rebinding on this development's own precedent:
+      [R := Real] by notation, predicate faces [real_lt]/[real_eq]/[real_le],
+      [fw_et]/[fw_bt]/[fw_bt_pos] at the argument-less face, proof bodies
+      discharged by direct consumption of the in-register supply theorems.
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; pure term assembly (zero
+      rewrite tactics); the tail [Print Assumptions] lines report the
+      closure face; no new axioms.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      PA_TempMonoW2Mark.v] compiles cleanly (exit 0) under the [cpu_guard]
+      thermal wrapper with [ulimit -s 65532]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

@@ -1,18 +1,18 @@
 (* ==========================================================================
    Arch_UpAbl_03.v - statement-family collection and instance carrying.
-   Mission. 使命: nine theorems in six sections - uabT2a_fw_dist_log_inv_one_inv,
+   Mission.  nine theorems in six sections - uabT2a_fw_dist_log_inv_one_inv,
      uabT9_g09_rss_inst_real, uabT9_g09_pct_truth_real, uabT9_fep_ctx_Zf_pos,
      uabT9_row_ctx_Zrow_pos, uabT9_lz_ctx_Zf_pos,
      uabd1s3_secondlawquantified_sumpos,
      uabd1s3_upreqentropymaxtemp_real_sum_pos_preserved,
      uabd1s3_upreqentropyuniqueneg_real_sum_pos_preserved (the three
      sumf-carrying definitions feed the extraction gate by name).
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, G05_LogSmall
+   Dependencies.  S01_BaseRing..S15_TailFEPUp, G05_LogSmall
      (logd_log_inv_one_inv_real), G09_MiscSmall (reqRealSelfSS /
      reqRealSelfSS_inst / reqPCT_is_truth / req_pct_truth_is_global_min),
      UpReqFEPAttn (Zf_pos / req_Zrow_pos / lz_Zf_pos), UpReqSumD
      (sumd_sumf / sumd_sum_pos) of the -Set lineage world.
-   References. 对标: the firewall log identity, the self-setoid instance
+   References.  the firewall log identity, the self-setoid instance
      and PCT truth slots, the partition-function positivity slots, and the
      enumerated-sum positivity family. Statement names carried over
      verbatim; adaptation = argument-less-face rebinding: the argument-less
@@ -20,10 +20,10 @@
      drop the carrier/instance leading pair, predicate faces carry
      real_lt / real_eq, and req_Zrow is applied at the world's definition
      face (S sumf temp temp_pos z2 s).
-   Constructivity. 构造性注记: all Set-layer statements; every station
+   Constructivity.  all Set-layer statements; every station
      Qed-closed, zero admitted items; each proof consumes one in-register
      supply lemma by exact; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
+   Build.  rocq c -native-compiler no -q -Q <world> ""
      Arch_UpAbl_03.v (cpu_guard thermal wrapper, ulimit -s 65532).
    ========================================================================== *)
 
@@ -49,7 +49,7 @@ Require Import UpReqSumD.
 From Stdlib Require Import List.
 From Stdlib Require Import Extraction.
 
-(* ================= §1 uabT2a_fw_dist_log_inv_one_i 族 ================= *)
+(* ================= Section 1. The uabT2a_fw_dist_log_inv_one_inv family ================= *)
 Import RealInterfaceEnhancedMod.
 
 (* ---- the firewall log identity, forwarded from G05_LogSmall;
@@ -69,7 +69,7 @@ Qed.
 
 (* ---- assumption audit ---- *)
 Print Assumptions uabT2a_fw_dist_log_inv_one_inv.
-(* ================= §2 uabT9_g09_rss_inst_real 族 ================= *)
+(* ================= Section 2. The uabT9_g09_rss_inst_real family ================= *)
 Import RealInterfaceEnhancedMod.
 
 Theorem uabT9_g09_rss_inst_real : reqRealSelfSS.
@@ -90,7 +90,7 @@ Qed.
 (* ---- assumption audit ---- *)
 Print Assumptions uabT9_g09_rss_inst_real.
 Print Assumptions uabT9_g09_pct_truth_real.
-(* ================= §3 uabT9_fep_ctx_Zf_pos 族 ================= *)
+(* ================= Section 3. The uabT9_fep_ctx_Zf_pos family ================= *)
 Import RealInterfaceEnhancedMod.
 
 Theorem uabT9_fep_ctx_Zf_pos :
@@ -132,7 +132,7 @@ Qed.
 Print Assumptions uabT9_fep_ctx_Zf_pos.
 Print Assumptions uabT9_row_ctx_Zrow_pos.
 Print Assumptions uabT9_lz_ctx_Zf_pos.
-(* ================= §4 uabd1s3_secondlawquantified_ 族 ================= *)
+(* ================= Section 4. The uabd1s3_secondlawquantified_sumpos family ================= *)
 Import RealInterfaceEnhancedMod.
 
 Definition uabd1s3_secondlawquantified_sumf (S0 : Set) (enum0 : list S0) (f : S0 -> Real) : Real :=
@@ -148,7 +148,7 @@ Proof.
 Qed.
 
 Print Assumptions uabd1s3_secondlawquantified_sumpos.
-(* ================= §5 uabd1s3_upreqentropymaxtemp_ 族 ================= *)
+(* ================= Section 5. The uabd1s3_upreqentropymaxtemp_real_sum_pos_preserved family ================= *)
 Import RealInterfaceEnhancedMod.
 
 Definition uabd1s3_upreqentropymaxtemp_sumf (S0 : Set) (enum0 : list S0) (f : S0 -> Real) : Real :=
@@ -164,7 +164,7 @@ Proof.
 Qed.
 
 Print Assumptions uabd1s3_upreqentropymaxtemp_real_sum_pos_preserved.
-(* ================= §6 uabd1s3_upreqentropyuniquene 族 ================= *)
+(* ================= Section 6. The uabd1s3_upreqentropyuniqueneg_real_sum_pos_preserved family ================= *)
 Import RealInterfaceEnhancedMod.
 
 Definition uabd1s3_upreqentropyuniqueneg_sumf (S0 : Set) (enum0 : list S0) (f : S0 -> Real) : Real :=

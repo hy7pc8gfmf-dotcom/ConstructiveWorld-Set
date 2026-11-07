@@ -1,16 +1,33 @@
-(* LW3FamScale.v                                                       *)
-(* 使命：M3 家族面变体的缩放定义面与逐节点压制对偶面——带阶乘倒数缩放的     *)
-(*       fbuild 变体定义、标量算子在系数面与一阶导数求值面的线性对偶件、    *)
-(*       锚例两尺度上节点泛函真值与其两级细界及加权和在变体家族上的反转     *)
-(*       数值判定件，以及逐节点界族承载形的变体重posed面。                  *)
-(* 依赖：LW3ETranscendental（只读正本）及其 Require 闭包 S02/S03/LW0/       *)
-(*       LW1/LW2 系；标量算子取 LW0QPoly 在档 qpoly_scalar 及其求值线性件。 *)
-(* 对标：E-STAGING-LW3-PROBEPIN；E-STAGING-LW3-KNZWALL（纯 Set 值钉形      *)
-(*       与透明归约工艺）。                                                 *)
-(* 构造性：语句面全 Set（QltT 严格形、Qeq 等式形与 match 值钉形），语句与  *)
-(*       前提位零 Prop；提取并集仅数据名；禁引六族零命中。                  *)
-(* 编译配方：coqc 全路径 -q -Q . "" -Q ConstructiveWorld-Main/             *)
-(*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。   *)
+(* ConstructiveWorld-Set — the scaled family face of the anchor polynomial. *)
+
+(** * LW3FamScale: scaling of the built family and the per-node bound face at two scales.
+
+    Mission.  The built integrand under the factorial-reciprocal scalar
+      ([lw381_fbuild_scaled], the scalar acting cons-to-cons), the
+      scalar linearity duals ([lw381_coef_scalar],
+      [lw381_eval_deriv1_scalar]), the floors and weighted total of the
+      scaled family at scales one and zero with their machine-pinned
+      reversal values, and the reposed premises [lw381_pnode_fam] and
+      [lw381_joint_target].
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith_base], [QArith.Qabs]; requires [S01_BaseRing],
+      [S02_CauchyComplete], [S03_QExp], the LW0/LW1/LW2 modules (scalar
+      via [LW0QPoly.qpoly_scalar]) and [LW3ETranscendental] (read-only).
+
+    References.  This development, [LW3ETranscendental].v; the baseline
+      module of the same name in ConstructiveWorld-Main, whose statement
+      names are carried over here verbatim.
+
+    Constructivity.  All named statements are carried by [Set]
+      ([QltT]/[QeqT] forms and [match] value pins over [Qeq_bool]);
+      zero admission words; no classical axioms; no [Prop] forms in
+      statement or premise positions; extraction names data only
+      ([p381], [m381], [n1_381], [n0_381]).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW3FamScale.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import QArith_base.

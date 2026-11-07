@@ -1,18 +1,33 @@
-(* LW3JointFill.v                                                           *)
-(* 使命：lw381_joint_target 锚例两尺度 sigT 填装——以在件逐节点全和界族      *)
-(*       Ef1_381／Ef0_381 为见证，经「单点绝对值≤逐节点全和」一般小引理      *)
-(*       闭合 pnode_fam 前提半边，wsum 严格端复用在件反转件，两尺度联合     *)
-(*       目标全量闭合。                                                     *)
-(* 依赖：LW3ETranscendental（只读正本）及其 Require 闭包 S02/S03/LW0/       *)
-(*       LW1/LW2 系；基面自 _tlw381_famscale（md5 c74d6b6b，vo 1f0dd529）   *)
-(*       逐字承袭，未覆写任何在件面。                                       *)
-(* 对标：E-STAGING-LW3-PROBEPIN；E-STAGING-LW3-KNZWALL（纯 Set 值钉形      *)
-(*       与透明归约工艺）；374 grid nat 前提位处方（一般引理吸收分支制）。  *)
-(* 构造性：语句面全 Set（QltT 严格形、Qeq 等式形、QleT' 界形与 match 值钉  *)
-(*       形），语句与前提位零新增 Prop 形；提取并集仅数据名；禁引六族零     *)
-(*       命中。                                                             *)
-(* 编译配方：coqc 全路径 -q -Q . "" -Q ConstructiveWorld-Main/             *)
-(*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。   *)
+(* ConstructiveWorld-Set — joint two-scale fillings of the anchor target family. *)
+
+(** * LW3JointFill: joint fillings of the anchor target [lw381_joint_target] at two scales.
+
+    Mission.  The anchor polynomial [p381] (one plus t) is scaled by the
+      factorial-reciprocal constant [lw381_scale_const] at scales one and
+      zero ([N1_381]/[N0_381]); [Ef1_381]/[Ef0_381] witness
+      [lw381_pnode_fam] via the general lemma [lw384_pt_le_nodewsum], the
+      strict weighted-total endpoints reuse [lw381_rev_wsum1]/
+      [lw381_rev_wsum0], and [lw384_joint_fill1]/[lw384_joint_fill0]
+      fill [lw381_joint_target] at both scales.
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith_base], [QArith.Qabs]; requires [S01_BaseRing],
+      [S02_CauchyComplete], [S03_QExp], the LW0/LW1/LW2 modules and
+      [LW3ETranscendental] (read-only) of this development.
+
+    References.  This development, [LW3ETranscendental].v; the baseline
+      module of the same name in ConstructiveWorld-Main, whose statement
+      names are carried over here verbatim.
+
+    Constructivity.  All named statements are carried by [Set]
+      ([QltT]/[QeqT]/[QleT'] forms and [match] value pins over
+      [Qeq_bool]); zero admission words; no classical axioms; no new
+      [Prop] forms in statement or premise positions; extraction names
+      data only ([p381], [m381], [n1_381], [n0_381]).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW3JointFill.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import QArith_base.

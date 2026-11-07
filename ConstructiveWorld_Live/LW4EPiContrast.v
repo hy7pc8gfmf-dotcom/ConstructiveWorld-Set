@@ -1,41 +1,64 @@
-(* 五字段指针｜使命：D4-S1「e-π 模量对照·对照主语句＋双侧 witness 换形」——对照
-   主语句 lw4c_contrast_face（Set 面并置）＋双侧 witness 换形（lic 形→sigT 嵌套
-   Set 面纯机械拆装，零数学新内容）。依赖：S01/S02/S03 基础层与判据面。             
-   PiEnvelope、SumInvFactEscape 等。材料源：UpReqIrrationalCriterion        
-   (lic_witness_e :723【M】)、LW0MLicBridge (lw0m_e :16/lw0m_xL :20)、LW0LeibWindow
-   (:941 认证同形)、PiEnvelope (S2 后续预留)。构造性：零承认式语句；语句面全 Set 层
-   （sigT 嵌套＝:941 认证同形；And＝S01 :46 A×B Set 值）；π 侧供件只立名不构造，
-   (b) 依赖收拢于 lw4c_pi_lic_face 供件缺位，候 585 β 定理 S5/S6（零伪造）。纪律：
-   禁Lra/Reals；提取＋PA 验 Obj.magic=0。编译配方：9.1直调。   *)
+(* ConstructiveWorld-Set — e-π escape-window contrast: modulus pair, window-width comparisons, contrast main statement. *)
+(** * LW4EPiContrast: the e-side and π-side irrationality escape-window contrast over [Q].
+
+    Mission.  Pairs the e-side window [lw4c_e_win] = 1/n! (factorial decay) with the
+      π-side window [lw4c_pi_win] = 5/(2n+1) (harmonic decay);
+      [lw4c_contrast_face] conjoins the two escape statements ([Set] face) via
+      [lw4c_contrast_param]; witness reshaping ([lic]-form to nested [sigT]) is
+      purely mechanical.  Comparisons [lw4c_e_win_le_pi_win], [lw4c_e_win_lt_pi_win],
+      [lw4c_pi_win_gt_powwin], [lw4c_e_win_le_expwin]; shape separation
+      [lw4c_shape_separation]; closed-term table [lw4c_win_tbl].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [ZArith.ZArith],
+      [Extraction], [Lia]; requires [S01_BaseRing], [S02_CauchyComplete],
+      [S03_QExp], [SumInvFactEscape], [LW0LeibWindow], [PiEnvelope],
+      [LW0MLicBridge], [UpReqIrrationalCriterion] of this development.
+
+    References.  [UpReqIrrationalCriterion] ([lic_witness_e] L723,
+      [lic_escape_window] L242); [LW0MLicBridge] ([lw0m_e] L16,
+      [lw0m_xL] L20); [LW0LeibWindow] (certified same-shape at L941);
+      [PiEnvelope] ([pie_mag], no name consumed by this face).
+
+    Constructivity.  Nothing admitted; the statement face is entirely
+      [Set]-layer (nested [sigT] in the certified L941 shape; [And] the
+      [Set]-valued A×B form of [S01_BaseRing]; orders via [QltT]/[QleT']);
+      the π-side supply stands as the premise [lw4c_pi_lic_face]; no [Lra]/[Reals];
+      extraction and [Print Assumptions] audit [Obj.magic] = 0 and closure.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" LW4EPiContrast.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 From Stdlib Require Import QArith.QArith QArith.Qabs ZArith.ZArith.
 From Stdlib Require Import Extraction.
-Require Import S01_BaseRing.        (* Set 层逻辑件：And :46【M】(A×B 面)/NatLe :88【M】 *)
-Require Import S02_CauchyComplete.  (* QltT :48【M】/Real/real_metric *)
-Require Import S03_QExp.            (* q_fact :43【T】/exp_series :788【T】 *)
-Require Import SumInvFactEscape.    (* sif 逃逸机件（lic_witness_e 证明体依赖随件） *)
-Require Import LW0LeibWindow.       (* leiblw_Id/Qltb 砖/形态分离族——S2 预留＋备案 B 面 *)
-Require Import PiEnvelope.          (* pie_mag 系——S2 后续预留；S1 面零消费名 *)
-Require Import LW0MLicBridge.       (* lw0m_e :16/lw0m_xL :20 *)
-Require Import UpReqIrrationalCriterion.  (* lic_witness_e :723【M】/lic_escape_window :242【M】 *)
+Require Import S01_BaseRing.        (* Set-layer logic pieces: [And] (L46, the A×B form) / [NatLe] (L88) *)
+Require Import S02_CauchyComplete.  (* [QltT] (L48) / [Real] / [real_metric] *)
+Require Import S03_QExp.            (* [q_fact] (L43) / [exp_series] (L788) *)
+Require Import SumInvFactEscape.    (* sif escape machinery (used inside the proof body of [lic_witness_e]) *)
+Require Import LW0LeibWindow.       (* [leiblw_Id] / [Qltb] bricks / the shape-separation family *)
+Require Import PiEnvelope.          (* the [pie_mag] family (no name consumed by this file's contrast face) *)
+Require Import LW0MLicBridge.       (* [lw0m_e] (L16) / [lw0m_xL] (L20) *)
+Require Import UpReqIrrationalCriterion.  (* [lic_witness_e] (L723) / [lic_escape_window] (L242) *)
 
 (* ============================================================ *)
-(* §1 模量记录（对照对象面）                                      *)
+(* §1. Modulus records (the contrasted objects)                  *)
 (* ============================================================ *)
-(* e 侧窗＝1/n!（阶乘衰减）。逐 token 同 lic_witness_e 第二参 lambda
-   （:723-724【M】）——exact 使用零转换缺口（594 细化：581 稿 (1#1) 形
-   改 1%Q 形，语义同分、转换风险归零） *)
+(* The e-side window = 1/n! (factorial decay).  Token-identical to the
+   second-argument lambda of [lic_witness_e] (L723-724), so [exact]
+   applies with no conversion gap; written in [1%Q] form for the same
+   semantics without notation conversion. *)
 Definition lw4c_e_win (n : nat) : Q := 1%Q / q_fact n.
 
-(* π 侧窗＝5·pie_mag n＝5/(2n+1)（调和衰减）。lw0m_e 不透明直代 *)
+(* The π-side window = 5·pie_mag n = 5/(2n+1) (harmonic decay), substituted opaquely as [lw0m_e] *)
 Definition lw4c_pi_win (n : nat) : Q := lw0m_e n.
 
-(* 模量并置记录：A×B 逐字（红线②）；prod 双参 (nat->Q):Set，零 Prop 位 *)
+(* Juxtaposition record for the two moduli: the A×B pair verbatim; both [prod] arguments have type [nat -> Q] in [Set], with no [Prop] position *)
 Definition lw4c_modulus_pair : prod (nat -> Q) (nat -> Q) :=
   pair lw4c_e_win lw4c_pi_win.
 
 (* ============================================================ *)
-(* §2 e 侧支（lic_witness_e 换形随件）——语句面＝LW0LeibWindow :941
-   认证同形：sigT 嵌套＋Prop 守卫位＋Set 值序判定（QltT＝S02 :48【M】） *)
+(* §2. The e-side branch (reshaped from [lic_witness_e]) — the   *)
+(*   statement face matches the certified same-shape form at     *)
+(*   LW0LeibWindow L941: sigT nesting with a guard position and  *)
+(*   a Set-valued order decision ([QltT], S02 L48).              *)
 (* ============================================================ *)
 Definition lw4c_e_escape (q : Q) : Set :=
   sigT (fun n : nat =>
@@ -48,21 +71,22 @@ Proof.
   destruct (lic_witness_e q) as [n [Hn1 Hlt]].
   exists n. exists Hn1. exact Hlt.
 Qed.
-(* 换形逐 token 对照＝§五.二处方表；exact 若因转换停摆，插入
-   `unfold lw4c_e_win.` 于 exact 前一行（预案，禁其他改动）。 *)
+(* The reshaping is token-for-token the target form; should [exact] stall on a conversion, insert [unfold lw4c_e_win.] on the line before [exact]. *)
 
 (* ============================================================ *)
-(* §2' e 侧 lic 形直承面（换形第 0 步：定义性零证直代）
-   ——检验①⑤放行前提；如环境拒承：删本段两件、以 §2 面为准，
-   备案 B 切换零级联（§2 面不依赖 §2'）                            *)
+(* §2'. The e-side lic-form direct-carrier face (stage 0 of the  *)
+(*   reshaping: definitional, proof-free substitution); the §2   *)
+(*   face does not depend on §2'.                                *)
 (* ============================================================ *)
 Definition lw4c_e_lic_face : Set :=
   lic_escape_window (fun n => exp_series n 1) lw4c_e_win.
 Definition lw4c_e_lic_supply : lw4c_e_lic_face := lic_witness_e.
 
 (* ============================================================ *)
-(* §3 π 侧支（LIC 窗形，与 e 侧同构；供件＝(b) 随件，本切片零构造
-   ——占位件规格与零伪造护栏＝§六）                                *)
+(* §3. The π-side branch (LIC window shape, isomorphic to the    *)
+(*   e-side branch; the supply is external and stands here as    *)
+(*   the premise [lw4c_pi_lic_face] — nothing is constructed in  *)
+(*   this section; see the reserved names in §6).                *)
 (* ============================================================ *)
 Definition lw4c_pi_escape (q : Q) : Set :=
   sigT (fun n : nat =>
@@ -79,19 +103,20 @@ Proof.
   destruct (Hlic q) as [n [Hn1 Hlt]].
   exists n. exists Hn1. exact Hlt.
 Qed.
-(* 纯 destruct 拆装引理：非 (b) 依赖（供件位假设化），本切片可闭合；
-   此处源面与目标面 token 逐字同一（lic_escape_window lw0m_xL lw4c_pi_win
-   展开体≡lw4c_pi_escape 体），exact 零转换。 *)
+(* A pure destruct disassembly/reassembly lemma: independent of the external π-side supply (carried at the premise position), so this section closes on its own; the source face and the target face are token-for-token identical here — unfolding [lic_escape_window lw0m_xL lw4c_pi_win] gives exactly the body of [lw4c_pi_escape] — so [exact] applies with no conversion. *)
 
 (* ============================================================ *)
-(* §4 对照主语句＋参数化闭合                                      *)
+(* §4. The contrast main statement and its parameterized closure *)
 (* ============================================================ *)
-(* And＝S01 :46【M】Set 值 And（A×B 逐字，红线②）；两参各为
-   `forall q : Q, …escape q`——Q:Set 上 Set 值全称，落 Set ✓。
-   备案 B（检验⑤若判 And 位不可承 Type 级支）：改嵌套 sigT 面
-   sigT (fun He : forall q, lw4c_e_escape q => forall q, lw4c_pi_escape q)
-   （:941 同构先例零 And），证体改 intro Hlic. exists lw4c_e_escape_supply.
-   exact (lw4c_pi_escape_of_lic Hlic). 零级联。 *)
+(* [And] is the Set-valued And of S01 L46 (the A×B form verbatim); both
+   arguments are [forall q : Q, ... escape q] — a Set-valued universal
+   over [Q : Set], so the conjunction lands in [Set].  Alternative form
+   (should the And position be unable to carry a Type-level branch): the
+   nested sigT face
+   [sigT (fun He : forall q, lw4c_e_escape q => forall q, lw4c_pi_escape q)]
+   — the same-shape precedent at L941 uses no And — with the proof body
+   [intro Hlic. exists lw4c_e_escape_supply.
+   exact (lw4c_pi_escape_of_lic Hlic).] *)
 Definition lw4c_contrast_face : Set :=
   And (forall q : Q, lw4c_e_escape q)
       (forall q : Q, lw4c_pi_escape q).
@@ -102,45 +127,52 @@ Proof.
   - exact lw4c_e_escape_supply.
   - exact (lw4c_pi_escape_of_lic Hlic).
 Qed.
-(* 左支在库直代（lic_witness_e 换形）；右支假设位承载——585 β 定理
-   S5/S6 出闸后以闭式供件消去假设位，升格 lw4c_contrast（§6 注记区）。 *)
+(* The left branch substitutes directly from the library (reshaped from [lic_witness_e]); the right branch is carried at the premise position.  Once the closed-form π-side supply lands, the premise is discharged and [lw4c_contrast] follows (reserved-name region §6). *)
 
 (* ============================================================ *)
-(* §5 对照数值随件（在库承引，不重铸；vm_compute 判例落 S2）        *)
+(* §5. Numeric counterparts of the contrast (checked from the    *)
+(*   library rather than re-cast)                                *)
 (* ============================================================ *)
 Check leiblw_margin_tbl.
 Check leiblw_natwin_tbl.
 
 (* ============================================================ *)
-(* §6 注记区（S2/(b) 后预留名——本切片零落，禁进编译面）            *)
-(*   lw4c_shape_separation   ：S2 形态定理（引件 leiblw_family_separation
-     :971、leiblw_nivwin_bounded :962、leiblw_natwin_unbounded :894；
-     对照语义限「窗族形态」，581 §四.四/§五全款承引）
-   lw4c_pi_lic_supply        ：(b) 供件（585 β 定理出闸随件，闭式 c(a,b)）
-   lw4c_contrast             ：无条件升格
+(* §6. Reserved-name region (names enabled after the closed-form *)
+(*   π-side supply; not part of this file's compiled face)       *)
+(*   lw4c_shape_separation   : the shape theorem (drawing on
+     [leiblw_family_separation] L971, [leiblw_nivwin_bounded] L962,
+     [leiblw_natwin_unbounded] L894; the contrast semantics cover the
+     window-family shapes)
+   lw4c_pi_lic_supply        : the closed-form supply c(a,b) for the
+     π-side premise
+   lw4c_contrast             : the unconditional counterpart
      := pair lw4c_e_escape_supply (lw4c_pi_escape_of_lic lw4c_pi_lic_supply)
-   lw4c_pi_escape_of_b    ：(b) 定格接口换形引理（待 (b) 闭合出已证结论）   *)
+   lw4c_pi_escape_of_b    : the reshaping lemma at the closed-form
+     interface (to be proved once the closed-form supply lands)    *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* §7 提取＋PA（关面；红线④）                                     *)
+(* §7. Extraction + Print Assumptions (the closing audit)        *)
 (* ============================================================ *)
 Separate Extraction lw4c_modulus_pair lw4c_e_win lw4c_pi_win
   lw4c_e_escape lw4c_e_escape_supply lw4c_pi_escape
   lw4c_pi_escape_of_lic lw4c_contrast_face lw4c_contrast_param.
 Print Assumptions lw4c_e_escape_supply.
 Print Assumptions lw4c_contrast_param.
-(* 目标：提取零 Obj.magic；PA 双发均 Closed under the global context。
-   π 侧供件不存在（占位），不进提取值域、不进 PA 面。 *)
+(* Targets: extraction with zero [Obj.magic]; both [Print Assumptions]
+   outputs Closed under the global context.  The π-side supply does not
+   exist yet (it stands at the premise position), so it enters neither
+   the extraction value domain nor the audit face. *)
 
 
-From Stdlib Require Import Lia.  (* nat/Z 域辅助算术；Q 域走显式链 *)
+From Stdlib Require Import Lia.  (* auxiliary arithmetic for the nat/Z domain; the Q domain goes through explicit chains *)
 
 (* ============================================================ *)
-(* §8 窗宽对照（S2；全 Set 层；零 (b)）                            *)
+(* §8. Window-width contrast (entirely Set-layer; independent of *)
+(*   the π-side supply)                                          *)
 (* ============================================================ *)
 
-(* A1a 阶乘恒 ≥ 1（归纳基座） *)
+(* A1a: the factorial is always >= 1 (the inductive base) *)
 Lemma lw4c_qfact_ge_1 : forall n : nat, QleT' 1%Q (q_fact n).
 Proof.
   intro n. apply Qle_to_QleT'. induction n as [| m IH]; simpl.
@@ -152,7 +184,7 @@ Proof.
       * apply (Qlt_le_weak 0%Q (q_fact m)). apply QltT_to_Qlt. apply q_fact_pos.
 Qed.
 
-(* A1b 阶乘不小于序号：n ≥ 1 蕴含 n ≤ n!（A2/A3 的公共链砖） *)
+(* A1b: the factorial is at least its index — n >= 1 implies n <= n! (the common chain brick for A2/A3) *)
 Lemma lw4c_qfact_ge_nat : forall n : nat, (1 <= n)%nat ->
   QleT' ((Z.of_nat n) # 1)%Q (q_fact n).
 Proof.
@@ -167,7 +199,7 @@ Proof.
       * apply QleT'_to_Qle. apply (Qle_of_nat 0 (Datatypes.S m)). lia.
 Qed.
 
-(* A2 逐点非严对照：n ≥ 1 蕴含 1/n! ≤ 5/(2n+1) *)
+(* A2: the pointwise non-strict contrast — n >= 1 implies 1/n! <= 5/(2n+1) *)
 Lemma lw4c_e_win_le_pi_win : forall n : nat, (1 <= n)%nat ->
   QleT' (lw4c_e_win n) (lw4c_pi_win n).
 Proof.
@@ -189,8 +221,10 @@ Proof.
         -- apply QleT'_to_Qle. apply qeq_le. apply qeq_imp_qeqT. ring.
 Qed.
 
-(* A3 逐点严对照：n ≥ 2 蕴含 1/n! < 5/(2n+1)（阶乘压制强于调和率的逐点形）
-   ——箭头位 Prop 前提＝leiblw_natwin_unbounded 认证先例形 *)
+(* A3: the pointwise strict contrast — n >= 2 implies 1/n! < 5/(2n+1)
+   (the pointwise form of factorial decay dominating the harmonic rate);
+   the premise in arrow position matches the certified shape of
+   [leiblw_natwin_unbounded] *)
 Lemma lw4c_e_win_lt_pi_win : forall n : nat, (2 <= n)%nat ->
   QltT (lw4c_e_win n) (lw4c_pi_win n).
 Proof.
@@ -219,8 +253,9 @@ Proof.
     + apply QltT_to_Qlt. apply (Qlt_of_nat_lt 4 5). lia.
 Qed.
 
-(* A4 π 窗高于一切固定幂率窗：k ≥ 1, n ≥ 1 蕴含 1/(n+1)^k < 5/(2n+1)
-   ——「π 窗幂率级压制」的构造性逐点反驳 *)
+(* A4: the π window dominates every fixed power-rate window — k >= 1,
+   n >= 1 imply 1/(n+1)^k < 5/(2n+1); the constructive pointwise
+   refutation of any power-rate bound on the π window *)
 Definition lw4c_powwin (k n : nat) : Q :=
   1%Q / q_pow ((Z.of_nat (Datatypes.S n)) # 1)%Q k.
 Lemma lw4c_pi_win_gt_powwin : forall k n : nat, (1 <= k)%nat -> (1 <= n)%nat ->
@@ -285,7 +320,8 @@ Proof.
     + apply QltT_to_Qlt. apply (Qlt_of_nat_lt 4 5). lia.
 Qed.
 
-(* A5 阶乘窗不超指数率窗：∀m, 1/(S m)! ≤ 2^{-m}（nat 减法零出现形） *)
+(* A5: the factorial window is bounded by the exponential-rate window —
+   for all m, 1/(S m)! <= 2^{-m} (stated without nat subtraction) *)
 Lemma lw4c_e_win_le_expwin : forall m : nat,
   QleT' (lw4c_e_win (Datatypes.S m)) (1%Q / q_pow (2 # 1)%Q m).
 Proof.
@@ -330,9 +366,12 @@ Proof.
       exact Hfact.
 Qed.
 
-(* A6 形态分离主句（S1 §6 注记区预留名启用；前提位与 sigT 守卫位均取
-   NatLe Set 序界（S01 :88，Id (Nat.leb) true 面）——And 内嵌前提 Set
-   承载与窗族认证正本 And 内嵌 QltT 前提同法；And＝S01 A×B 逐字） *)
+(* A6: the shape-separation main statement (the reserved name enabled);
+   premises and sigT guard positions both use the NatLe Set order bound
+   (S01 L88, the Id (Nat.leb) true face) — premises embedded in the And
+   are Set-carried by the same method as the certified window-family
+   statement with its And-embedded QltT premises; And is the S01 A×B
+   form verbatim *)
 Definition lw4c_shape_separation : Set :=
   And (forall n : nat, NatLe 2 n ->
          sigT (fun _ : NatLe 2 n =>
@@ -352,32 +391,36 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §9 数值区（Set 面闭项表；id_refl 承收；vm_compute 判例随件）      *)
+(* §9. Numeric region (closed Set-face terms discharged by       *)
+(*   [id_refl])                                                  *)
 (* ============================================================ *)
 
-(* T1 窗宽对照闭项表：1/6 < 5/7、1/120 < 5/11、1/16 < 5/7 *)
+(* T1: the closed-term window-width contrast table — 1/6 < 5/7, 1/120 < 5/11, 1/16 < 5/7 *)
 Lemma lw4c_win_tbl :
   And (QltT (lw4c_e_win 3) (lw4c_pi_win 3))
       (And (QltT (lw4c_e_win 5) (lw4c_pi_win 5))
            (QltT (lw4c_powwin 2 3) (lw4c_pi_win 3))).
 Proof. repeat split; exact id_refl. Qed.
 
-(* e 侧见证数值表位（预置 T2）：lic_witness_e 的计算面在 vm_compute 下不终止，
-   本位暂缺；窗宽对照表 T1 在位。 *)
+(* e-side witness numeric table slot (planned as T2): the computational
+   face of [lic_witness_e] does not terminate under [vm_compute], so this
+   slot is vacant for now; the window-width contrast table T1 is in place. *)
 
 (* ============================================================ *)
-(* §10 高度坐标预建区（定义件 (b)-独立；证书面候 (b) 上游）          *)
+(* §10. Height-coordinate groundwork (definitions independent of *)
+(*   the π-side supply; the certificate face awaits it)          *)
 (* ============================================================ *)
 
-(* A7 高度函数：S (Pos.to_nat (Qden (Qred q))) 形 *)
+(* A7: the height function, of the shape [S (Pos.to_nat (Qden (Qred q)))] *)
 Definition lw4c_height (q : Q) : nat := Datatypes.S (Pos.to_nat (Qden (Qred q))).
 
-(* A8 幂率窗的 q 坐标版（纯算术定义，(b)-独立） *)
+(* A8: the q-coordinate version of the power-rate window (pure arithmetic definition, independent of the π-side supply) *)
 Definition lw4c_powwin_q (mu0 : nat) (C : Q) (q : Q) : Q :=
   C / q_pow ((Z.of_nat (lw4c_height q)) # 1)%Q mu0.
 
 (* ============================================================ *)
-(* §11 提取＋PA 扩面（五块七名；T2 位暂缺；红线④）                  *)
+(* §11. Extraction + Print Assumptions, extended face (five      *)
+(*   blocks, seven names; the T2 slot vacant)                    *)
 (* ============================================================ *)
 Separate Extraction lw4c_powwin lw4c_pi_win_gt_powwin
   lw4c_shape_separation lw4c_shape_separation_intro

@@ -34,7 +34,7 @@ From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import Lia.
 Require Import S02_CauchyComplete.
 
-(* ========== §1 Q 算术基件 ========== *)
+(* ========== Section 1. Q-arithmetic base lemmas ========== *)
 
 Lemma mdsopt_sq0 : forall lo : Q, (0 < lo)%Q -> QltT 0 (lo*lo).
 Proof.
@@ -77,14 +77,14 @@ Proof.
   field. exact Hd.
 Qed.
 
-(* ========== §2 两态 softmax 核（Q 层，行随机） ========== *)
+(* ========== Section 2. The two-state softmax kernel over Q, row-stochastic ========== *)
 
 Definition mdsopt_k00 (lo : Q) : Q := lo/(1+lo).
 Definition mdsopt_k01 (lo : Q) : Q := 1/(1+lo).
 Definition mdsopt_k10 (lo : Q) : Q := (lo*lo)/(1+lo*lo).
 Definition mdsopt_k11 (lo : Q) : Q := 1/(1+lo*lo).
 
-(* 归一化验证：两行各和为 1 *)
+(* Normalization: each of the two rows sums to one. *)
 Lemma mdsopt_row0_norm : forall lo : Q, (0 < lo)%Q ->
   QeqT (mdsopt_k00 lo + mdsopt_k01 lo) 1.
 Proof.
@@ -110,13 +110,13 @@ Proof.
   field. exact Hdn.
 Qed.
 
-(* ========== §3 δ*、最优常数与间隙（显式闭式定义） ========== *)
+(* ========== Section 3. The Doeblin constant, the optimum and the gap, in explicit closed form ========== *)
 
 Definition mdsopt_dstar (lo : Q) : Q := lo*lo.
 Definition mdsopt_dstar_opt (lo : Q) : Q := 2*(lo*lo)/(1+lo*lo).
 Definition mdsopt_gap (lo : Q) : Q := (lo*lo)*(1-lo*lo)/(1+lo*lo).
 
-(* ========== §4 主定理：δ* = lo² 严格次优（QltT Set 层见证形） ========== *)
+(* ========== Section 4. Main theorem: the Doeblin constant lo*lo is strictly suboptimal, in QltT witness form ========== *)
 
 Lemma mdsopt_main_strict : forall lo : Q, (0 < lo)%Q -> (lo < 1)%Q ->
   QltT (mdsopt_dstar lo) (mdsopt_dstar_opt lo).
@@ -132,9 +132,11 @@ Proof.
   { pose proof (proj2 (Qplus_lt_r (lo*lo) 1 1) Hs1) as H.
     assert (Heq : (1+1 == 2)%Q) by reflexivity.
     rewrite Heq in H. exact H. }
-  (* 两端同乘正数 1+lo²（Qmult_lt_r 的 iff 可逆乘法），并消去右端
-     分母（mdsopt_cancel），归结为 (1+lo²)·lo² < 2·lo²，即
-     1+lo² < 2 与 lo² > 0 的 Qmult_lt_compat_r 直接推论。 *)
+  (* multiply both sides by the positive denominator 1 + lo*lo (the iff
+     form [Qmult_lt_r] for a positive multiplier) and cancel the
+     denominator on the right by [mdsopt_cancel]; the goal reduces to
+     (1 + lo*lo) * lo*lo < 2 * lo*lo, a direct consequence of
+     1 + lo*lo < 2 and lo*lo > 0 by [Qmult_lt_compat_r]. *)
   apply (proj1 (Qmult_lt_r (lo*lo) (2*(lo*lo)/(1+lo*lo)) (1+lo*lo) Hden)).
   rewrite (qeqT_imp_qeq (2*(lo*lo)/(1+lo*lo)*(1+lo*lo)) (2*(lo*lo))
              (mdsopt_cancel lo (2*(lo*lo)) Hnd)).
@@ -148,7 +150,7 @@ Proof.
   intros lo H0 H1. apply mdsopt_main_strict; assumption.
 Qed.
 
-(* δ* 是可行 Doeblin 常数（δ* ≤ δ*_opt），主定理给出严格性 *)
+(* [mdsopt_dstar] is a feasible Doeblin constant (below [mdsopt_dstar_opt]); the main theorem supplies the strict form. *)
 Corollary mdsopt_dstar_le_opt : forall lo : Q, (0 < lo)%Q -> (lo < 1)%Q ->
   QleT' (mdsopt_dstar lo) (mdsopt_dstar_opt lo).
 Proof.
@@ -157,7 +159,7 @@ Proof.
   apply mdsopt_main_strict; assumption.
 Qed.
 
-(* ========== §5 间隙件：闭式与严格正 ========== *)
+(* ========== Section 5. The gap pieces: closed form and strict positivity ========== *)
 
 Lemma mdsopt_gap_eq : forall lo : Q, (0 < lo)%Q ->
   QeqT (mdsopt_dstar_opt lo - mdsopt_dstar lo) (mdsopt_gap lo).
@@ -188,8 +190,10 @@ Proof.
   rewrite Qmult_0_l in Hp.
   rewrite (Qmult_comm (1 - lo*lo) (lo*lo)) in Hp.
   unfold mdsopt_gap.
-  (* 分母 1+lo² > 0，两端同乘归结为分子正性：
-     lo²>0 与 1−lo²>0（由 lo²<1 经 Qopp_lt_compat 移项）之积。 *)
+  (* the denominator 1 + lo*lo is positive; multiplying both sides by it
+     reduces the goal to positivity of the numerator, the product of
+     lo*lo > 0 and 1 - lo*lo > 0, the latter obtained from lo*lo < 1 by
+     [Qopp_lt_compat]. *)
   apply (proj1 (Qmult_lt_r 0 ((lo*lo)*(1 - lo*lo)/(1+lo*lo)) (1+lo*lo) Hden)).
   rewrite Qmult_0_l.
   rewrite (qeqT_imp_qeq ((lo*lo)*(1 - lo*lo)/(1+lo*lo)*(1+lo*lo))
@@ -198,7 +202,7 @@ Proof.
   exact Hp.
 Qed.
 
-(* ========== §6 提取出口（G3：独立目录，魔数=0 判据） ========== *)
+(* ========== Section 6. Extraction outlet into a separate output directory ========== *)
 
 From Stdlib Require Import Extraction.
 Set Extraction Output Directory "../_tdsopt_g3out".

@@ -1,33 +1,33 @@
-(* ==========================================================================
-   UpAblD1S10_UpReqConcMixSel.v - the CmkMixSelect / CmkRPowBridge
-   interface slots and the CmkMixTime remainder family, discharged as a
-   one-point instance package.
-   Mission. 使命: two named instance declarations (the mix-select and
-     r-pow-bridge interface slots, supplied by the world's canonical
-     instance), one record-type package uabd1s10_cmk_pack17 restating the
-     seventeen CmkMixTime remainder slots in declaration order, one
-     enumeration-nonemptiness certificate, and one discharge theorem
-     assembling the one-point witness (S := unit, sumf := fun f => f tt,
-     temp := Delta := one, z := the zero function).
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp of the -Set lineage
-     world; the interface is the argument-less Class
-     RealInterfaceEnhancedSetoid; notation rebind Notation R := Real;
-     predicate faces converged to real_eq / real_le / real_lt - the
-     constant names the world's own statements carry.
-   References. 对标: the concentration mix-select requirement family
-     (single-point sum instance at the world's discharged signatures).
-     Statement names carried over verbatim; adaptation = binder-pair
-     removal + notation rebinding + predicate-face convergence + bare
-     field consumption through the global instance.
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; zero new machinery (each supply arm
-     is a one-step direct match, a definitional collapse, or a field
-     consumption); the tail Print Assumptions probes report the closure
-     face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     UpAblD1S10_UpReqConcMixSel.v (cpu_guard thermal wrapper,
-     ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — the [CmkMixSelect]/[CmkRPowBridge] interface slots
+   and the [CmkMixTime] remainder family, one-point instance package. *)
+(** * UpAblD1S10_UpReqConcMixSel: the mix-select interface slots and the
+      [CmkMixTime] remainder family, discharged as a one-point package.
+
+    Mission.  Two named instance declarations (the mix-select and
+      r-pow-bridge interface slots, supplied by the development's canonical
+      instance); the record-type package [uabd1s10_cmk_pack17] restating the
+      seventeen [CmkMixTime] remainder slots in declaration order; the
+      enumeration-nonemptiness certificate [uabd1s10_cmk_enum_ne]; and the
+      discharge theorem [uabd1s10_cmk_pack17_supplied] at the one-point
+      witness ([S] := [unit], [sumf] := [fun f => f tt], [temp] := [Delta]
+      := [one], [z] := the zero function).
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] of this
+      development and Stdlib [List]; the argument-less [Class]
+      [RealInterfaceEnhancedSetoid]; [Notation R := Real]; predicate faces
+      [real_eq]/[real_le]/[real_lt] (the development's own constant names).
+    References.  This development ([UpReqConcMixSel] mix-select requirement
+      family) and the ConstructiveWorld-Main baseline module of the same
+      name; statement names carried over verbatim; adaptation = binder-pair
+      removal, notation rebinding, predicate-face convergence, bare field
+      consumption through the global instance.
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; zero new machinery (each
+      supply arm is a one-step direct match, a definitional collapse, or a
+      field consumption); the tail [Print Assumptions] lines report the
+      closure face; no new axioms.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpAblD1S10_UpReqConcMixSel.v] compiles cleanly (exit 0) under the
+      [cpu_guard] thermal wrapper with [ulimit -s 65532]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.

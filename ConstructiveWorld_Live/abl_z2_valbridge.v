@@ -1,33 +1,33 @@
-(* ============================================================ *)
-(* abl_z2_valbridge.v —— ζ2 塔 Hanson 链 M1′ 赋值桥（B(n) ∣ C(n)）      *)
-(*                                                               *)
-(* 使命：d_n := lcm(1..n) ≤ 3^n（Hanson 1972）终前置件第二段。交付      *)
-(*   赋值桥：对 C(n) := n!/∏_i⌊n/a_i⌋!（a_i 为 Sylvester 序列，         *)
-(*   承载沿用 abl_z2_dub3 之 z2d_sylv_a/z2d_sylv_sum），证明            *)
-(*   B(n) := hl_lcm_upto n 整除 C(n)。证途三步：其一，Legendre 和        *)
-(*   恒等式 v_p(m!) = Σ_{j≥1}⌊m/p^j⌋（以库内赋值函数 plm_v 为仲裁，      *)
-(*   燃料式定和 z2v_leg 两向夹逼）；其二，嵌套除法                        *)
-(*   ⌊⌊n/p^j⌋/a⌋ = ⌊n/(a·p^j)⌋（stdlib Nat.div_div）；其三，逐层比较：   *)
-(*   对每层 j 取 s = ⌊n/p^j⌋ ≥ 1，Sylvester 稠密不等式（z2d_sylv_floor_t）*)
-(*   给 1 + Σ_i⌊s/a_{j+1}⌋ ≤ s，逐层求和得 ⌊log_p n⌋ ≤ v_p(C(n))，      *)
-(*   再经全数整除折叠（h3_lcm_fold_divide）与强归纳素因子拆分完成证明。      *)
-(* 数学内容：Hanson（Canad. Math. Bull. 15 (1972)，33–37）引理二：       *)
-(*   v_p(C(n)) = Σ_j⌊n/p^j⌋ − Σ_{i,j}⌊n/(a_i p^j)⌋                      *)
-(*   ≥ Σ_{j≤⌊log_p n⌋}[⌊n/p^j⌋ − Σ_i⌊⌊n/p^j⌋/a_i⌋] ≥ ⌊log_p n⌋。        *)
-(*   分母积 ∏_i⌊n/a_i⌋! 整除 n! 由二项式系数阶乘拆分式                    *)
-(*   fact(s+m) = fact s · fact m · C(s+m, m)（h3_prod_binom_fact 之      *)
-(*   恒等式形）与 Sylvester 和的有限性（Σ_i⌊n/a_i⌋ < n）承担。           *)
-(* 依赖：Stdlib（Arith.Arith/Arith.Factorial/Lia）+ HansonLcm +          *)
-(*   Hanson3Pow + abl_z2_dub3（Sylvester 承载与稠密不等式）+             *)
-(*   abl_Pr_core_01/abl_Pr_lcmdecomp_04（素性谓词与赋值函数 plm_v）。    *)
-(* 构造性：全件 Qed，零公理声明、零承认、零经典逻辑；主语句面             *)
-(*   z2v_dvd_t : Set（hl_id 承载，mod 零判据）；支撑引理语句面谓词位      *)
-(*   以 hl_id/hl_le_t 承载（Set）；z2v_leg/z2v_cnt/z2v_pc/z2v_den/z2v_lsum *)
-(*   皆 Fixpoint 可执行；文尾 Print Assumptions 全语句清单复核。         *)
-(* 编译配方：source Live/toolchain/env.sh && unset COQLIB ROCQLIB &&      *)
-(*   ulimit -s 65532 && nice -19 rocq c -native-compiler no               *)
-(*   -Q vo_local_world_unified_0930 "" -Q . "" abl_z2_valbridge.v         *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set -- zeta-2 tower Hanson chain: the valuation
+   bridge [B(n) | C(n)]. *)
+
+(** * abl_z2_valbridge: the valuation bridge [B(n) | C(n)].
+
+    Mission.  For [C(n) := n! / prod_i floor(n/a_i)!] ([a_i] the
+      Sylvester sequence of [abl_z2_dub3]), prove [B(n) :=
+      hl_lcm_upto n] divides [C(n)] (Hanson 1972, Lemma 2): the
+      Legendre identity [v_p(m!) = sum_j floor(m/p^j)] (arbiter
+      [plm_v], fuel-bounded [z2v_leg]); nested division
+      [floor(floor(n/p^j)/a) = floor(n/(a*p^j))]; layer-wise
+      comparison through the Sylvester dense inequality
+      [z2d_sylv_floor_t], giving [floor(log_p n) <= v_p(C(n))];
+      closing via [h3_lcm_fold_divide] and a prime-factor split.
+
+    Dependencies.  Stdlib [Arith.Arith], [Arith.Factorial], [Lia];
+      requires [HansonLcm], [Hanson3Pow], [abl_z2_dub3],
+      [abl_Pr_core_01], [abl_Pr_lcmdecomp_04], [S01_BaseRing].
+
+    References.  ConstructiveWorld-Main, module [abl_z2_valbridge]
+      (statement names carried over verbatim).
+
+    Constructivity.  Whole file [Qed]-closed, no axioms, no admits,
+      no classical logic; the main statement face [z2v_dvd_t : Set]
+      ([hl_id] carrier, mod-zero criterion); supporting predicate
+      slots on [hl_id]/[hl_le_t]; the five [z2v_*] Fixpoints are
+      executable; tail [Print Assumptions] re-audits all statements.
+
+    Build.  [coqc -native-compiler no -q -Q . "" abl_z2_valbridge.v]
+      compiles cleanly (exit 0); artifact magic [436f7121 00015ff4]. *)
 
 From Stdlib Require Import Arith.Arith Arith.Factorial List Lia.
 Require Import HansonLcm.
@@ -38,73 +38,83 @@ Require Import abl_Pr_core_01.
 Require Import abl_Pr_lcmdecomp_04.
 
 (* ============================================================ *)
-(* §0 承载定义                                                          *)
+(* Section 0 - carrier definitions                                 *)
 (* ============================================================ *)
 
-(* Σ_{i<K} ⌊m/p^{i+1}⌋：Legendre 定和（燃料式；p^{i+1} > m 的项自然为零） *)
+(* sum_{i<K} floor(m / p^{i+1}): the fuel-bounded Legendre sum      *)
+(* (terms with p^{i+1} > m vanish naturally).                       *)
 Fixpoint z2v_leg (p K m : nat) : nat :=
   match K with
   | O => 0
   | S K' => z2v_leg p K' m + m / p ^ (S K')
   end.
 
-(* #{i < K : p^{i+1} ∣ t}：逐层整除计数（Legendre 和的增量形式） *)
+(* #{i < K : p^{i+1} divides t}: layer-wise divisibility counting   *)
+(* (the incremental form of the Legendre sum).                      *)
 Fixpoint z2v_cnt (p K t : nat) : nat :=
   match K with
   | O => 0
   | S K' => z2v_cnt p K' t + (if Nat.eqb (t mod p ^ (S K')) 0 then 1 else 0)
   end.
 
-(* #{i < K : p^{i+1} ≤ n}：层计数（⌊log_p n⌋ 的燃料式承载） *)
+(* #{i < K : p^{i+1} <= n}: the layer count (fuel-bounded carrier   *)
+(* of floor(log_p n)).                                              *)
 Fixpoint z2v_pc (p K n : nat) : nat :=
   match K with
   | O => 0
   | S K' => z2v_pc p K' n + (if Nat.leb 1 (n / p ^ (S K')) then 1 else 0)
   end.
 
-(* ∏_{j<k} ⌊n/a_{j+1}⌋!：C(n) 的分母积（a_{j+1} > n 的因子为 0! = 1） *)
+(* prod_{j<k} floor(n/a_{j+1})!: the denominator product of C(n)    *)
+(* (factors with a_{j+1} > n contribute 0! = 1).                    *)
 Fixpoint z2v_den (k n : nat) : nat :=
   match k with
   | O => 1
   | S k' => z2v_den k' n * fact (n / z2d_sylv_a k')
   end.
 
-(* Σ_{i<K} z2d_sylv_sum k ⌊n/p^{i+1}⌋：逐层 Sylvester 和之层和 *)
+(* sum_{i<K} z2d_sylv_sum k floor(n/p^{i+1}): the layer-wise sum of *)
+(* the per-layer Sylvester sums.                                    *)
 Fixpoint z2v_lsum (p K k n : nat) : nat :=
   match K with
   | O => 0
   | S K' => z2v_lsum p K' k n + z2d_sylv_sum k (n / p ^ (S K'))
   end.
 
-(* C(n) := n!/∏_i⌊n/a_i⌋!（分母积取 k = n 的规范层界） *)
+(* C(n) := n! / prod_i floor(n/a_i)! (the denominator product at    *)
+(* the canonical layer bound k = n).                                *)
 Definition z2v_C (n : nat) : nat := fact n / z2v_den n n.
 
-(* Set 面整除判据：b mod a = 0 的 hl_id 承载 *)
+(* Set-face divisibility criterion: [b mod a = 0] carried by        *)
+(* [hl_id].                                                         *)
 Definition z2v_dvd_t (a b : nat) : Set := hl_id (Nat.modulo b a) 0.
 
-(* 幂分裂见证型：sigT 体位 `*` 记法作用域坑的显 `: Set` 注记承载 *)
+(* Power-split witness type: the explicit [: Set] annotation pins   *)
+(* the sort of the sigT-body [*] notation.                          *)
 Definition z2v_split_t (p c x y c1 c2 : nat) : Set :=
   (hl_id (c1 + c2) c) *
   (z2v_dvd_t (p ^ c1) x * z2v_dvd_t (p ^ c2) y).
 
-(* S01 Id 承载到 Prop 等式的消除桥（J 消除式·id_sym 家族同构） *)
+(* Elimination bridge from the S01 [Id] carrier to a Prop equation  *)
+(* (the J eliminator, shaped as the [id_sym] family).               *)
 Lemma z2v_idS_eq : forall (A : Set) (x y : A), Id x y -> x = y.
 Proof.
   intros A x y H.
   exact (match H in Id _ z return x = z with id_refl => eq_refl end).
 Qed.
 
-(* Prop 等式到 hl_id 承载的传递桥（hl_id_eq 之对偶方向） *)
+(* Transport bridge from a Prop equation to the [hl_id] carrier     *)
+(* (the dual direction of [hl_id_eq]).                              *)
 Lemma z2v_id_of_eq : forall (A : Set) (x y : A), x = y -> hl_id x y.
 Proof.
   intros A x y E. induction E. apply hl_idrefl.
 Qed.
 
 (* ============================================================ *)
-(* §1 幂与和的小工具                                                    *)
+(* Section 1 - small tools for powers and sums                     *)
 (* ============================================================ *)
 
-(* 幂的单调整除：a ≤ b 则 p^a ∣ p^b *)
+(* Monotone divisibility of powers: [a <= b] gives [p^a | p^b].     *)
 Lemma z2v_pow_dvd : forall p a b : nat,
   a <= b -> Nat.divide (p ^ a) (p ^ b).
 Proof.
@@ -114,14 +124,14 @@ Proof.
   exists (p ^ (b - a)). apply Nat.mul_comm.
 Qed.
 
-(* 幂正性：1 ≤ p 则 1 ≤ p^e *)
+(* Power positivity: [1 <= p] gives [1 <= p^e].                     *)
 Lemma z2v_pow_pos : forall p e : nat, 1 <= p -> hl_le_t 1 (p ^ e).
 Proof.
   intros p e Hp. apply hl_le_to_le_t. assert (Hp0 : p <> 0) by lia.
   pose proof (Nat.pow_nonzero p e Hp0). lia.
 Qed.
 
-(* Sylvester 和的零底：z2d_sylv_sum k 0 = 0 *)
+(* Zero base of the Sylvester sum: [z2d_sylv_sum k 0 = 0].          *)
 Lemma z2v_sylv_sum_0 : forall k : nat, hl_id (z2d_sylv_sum k 0) 0.
 Proof.
   intros k. apply z2v_id_of_eq.
@@ -129,7 +139,7 @@ Proof.
   cbn [z2d_sylv_sum]. rewrite IH, Nat.Div0.div_0_l. lia.
 Qed.
 
-(* Legendre 和的零底：z2v_leg p K 0 = 0 *)
+(* Zero base of the Legendre sum: [z2v_leg p K 0 = 0].              *)
 Lemma z2v_leg_0 : forall p K : nat, hl_id (z2v_leg p K 0) 0.
 Proof.
   intros p K. apply z2v_id_of_eq.
@@ -137,7 +147,7 @@ Proof.
   cbn [z2v_leg]. rewrite IH, Nat.Div0.div_0_l. lia.
 Qed.
 
-(* 分母积正性：1 ≤ z2v_den k n *)
+(* Denominator-product positivity: [1 <= z2v_den k n].              *)
 Lemma z2v_den_pos : forall k n : nat, hl_le_t 1 (z2v_den k n).
 Proof.
   induction k as [| k IH]; intro n.
@@ -149,10 +159,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 赋值面：plm_v 的加性与幂分裂                                      *)
+(* Section 2 - the valuation face: additivity of [plm_v] and the   *)
+(*   power split                                                   *)
 (* ============================================================ *)
 
-(* plm_v p 1 = 0（1 < p） *)
+(* [plm_v p 1 = 0] for [1 < p].                                     *)
 Lemma z2v_v_1 : forall p : nat, 1 < p -> hl_id (plm_v p 1) 0.
 Proof.
   intros p Hp. apply z2v_id_of_eq. unfold plm_v. cbn [plm_vmax Nat.pow].
@@ -161,8 +172,9 @@ Proof.
   reflexivity.
 Qed.
 
-(* 幂分裂：p^c ∣ x·y 则存在 c₁ + c₂ = c 的双整除拆分
-   （素数整除积则整除一因子，逐层消 p 递降） *)
+(* Power split: if [p^c | x*y], there are [c1 + c2 = c] with the    *)
+(* two-way divisibility split (a prime dividing a product divides   *)
+(* one factor; recurse by cancelling p layer by layer).             *)
 Lemma z2v_pow_split : forall p c x y : nat,
   pr_prime p -> Nat.divide (p ^ c) (x * y) ->
   sigT (fun c1 : nat => sigT (fun c2 : nat =>
@@ -233,9 +245,10 @@ Proof.
                     Hyt)).
 Qed.
 
-(* 赋值加性：v_p(x·y) = v_p(x) + v_p(y)（x, y ≥ 1，p 素）
-   下界：p^{a+b} ∣ x·y 而 p^{v+1} ∤ x·y 夹逼；上界：p^{S(a+b)} ∣ x·y
-   经幂分裂得 p^{S a} ∣ x 或 p^{S b} ∣ y，与极大性相斥。 *)
+(* Valuation additivity: [v_p(x*y) = v_p(x) + v_p(y)] for [x, y >= 1],
+   [p] prime.  Lower side: [p^{a+b} | x*y] while [p^{v+1} ∤ x*y]
+   squeezes; upper side: [p^{S(a+b)} | x*y] and the power split give *)
+(* [p^{S a} | x] or [p^{S b} | y], contradicting maximality.        *)
 Lemma z2v_v_add : forall p x y : nat,
   pr_prime p -> 1 <= x -> 1 <= y ->
   hl_id (plm_v p (x * y)) (plm_v p x + plm_v p y).
@@ -294,10 +307,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 Legendre 恒等式（精确两向：plm_v p (fact m) = z2v_leg p K m）      *)
+(* Section 3 - the Legendre identity (exact:                       *)
+(*   [plm_v p (fact m) = z2v_leg p K m])                           *)
 (* ============================================================ *)
 
-(* 逐层增量：S m / d = m / d + [d ∣ S m]（商在层界的跳变恰为指示子） *)
+(* Layer increment: [S m / d = m / d + [d divides S m]] - the       *)
+(* quotient jumps at a layer boundary exactly by the indicator.     *)
 Lemma z2v_inc : forall m d : nat,
   1 <= d ->
   hl_id (S m / d) (m / d + (if Nat.eqb (S m mod d) 0 then 1 else 0)).
@@ -307,14 +322,15 @@ Proof.
   - pose proof (Nat.div_mod_eq m (S d')) as Hdm.
     pose proof (Nat.mod_upper_bound m (S d') ltac:(lia)) as Hlt.
     destruct (Nat.eq_dec (m mod S d' + 1) (S d')) as [Ecase|Ecase].
-    + (* 满层档：r + 1 = d，S m 被 d 整除 *)
+    + (* full-layer case: [r + 1 = d], so [d] divides [S m]. *)
       assert (HSm : S m = S d' * S (m / S d')).
       { rewrite Hdm at 1. rewrite <- Nat.add_1_r, <- Nat.add_assoc, Ecase.
         rewrite (Nat.mul_succ_r (S d') (m / S d')). reflexivity. }
       rewrite HSm. rewrite (Nat.mul_comm (S d') (S (m / S d'))).
       rewrite Nat.div_mul by lia. rewrite Nat.mod_mul by lia.
       rewrite Nat.eqb_refl. change (if true then 1 else 0) with 1. lia.
-    + (* 不满层档：r + 1 < d，商不变且余非零 *)
+    + (* partial-layer case: [r + 1 < d], the quotient is unchanged   *)
+      (* and the remainder is nonzero.                                *)
       assert (Hne : m mod S d' + 1 <> 0) by lia.
       assert (HSm : S m = S d' * (m / S d') + (m mod S d' + 1)).
       { rewrite Hdm at 1. rewrite <- Nat.add_1_r. lia. }
@@ -329,7 +345,8 @@ Proof.
       rewrite Eeqb. change (if false then 1 else 0) with 0. lia.
 Qed.
 
-(* Legendre 和的增量式：z2v_leg p K (S m) = z2v_leg p K m + 层计数 *)
+(* Incremental form of the Legendre sum: [z2v_leg p K (S m) =       *)
+(* z2v_leg p K m + the layer count].                                *)
 Lemma z2v_leg_cnt : forall p K m : nat,
   1 <= p ->
   hl_id (z2v_leg p K (S m)) (z2v_leg p K m + z2v_cnt p K (S m)).
@@ -343,8 +360,9 @@ Proof.
     rewrite Hinc. lia.
 Qed.
 
-(* 层计数的极小值形：z2v_cnt p K t = min K (plm_v p t)
-   逐档：p^{S K} ∣ t 则 S K ≤ v 且前 K 层全计；否则 v < S K 且计满 v 层。 *)
+(* Minimum form of the layer count: [z2v_cnt p K t = min K          *)
+(* (plm_v p t)].  Cases: if [p^{S K} | t] then [S K <= v] and all K *)
+(* layers count; otherwise [v < S K] and exactly v layers count.    *)
 Lemma z2v_cnt_min : forall p K t : nat,
   pr_prime p -> 1 <= t -> hl_id (z2v_cnt p K t) (Nat.min K (plm_v p t)).
 Proof.
@@ -386,9 +404,11 @@ Proof.
       change (if false then 1 else 0) with 0. lia.
 Qed.
 
-(* Legendre 恒等式（精确）：p^K > m 则 v_p(m!) = Σ_{i<K}⌊m/p^{i+1}⌋。
-   对 m 归纳：v_p((S m)!) = v_p(S m) + v_p(m!)（加性），而层和的增量
-   恰为层计数 = min(K, v_p(S m)) = v_p(S m)（v_p(S m) < K 由 p^K > S m）。 *)
+(* The exact Legendre identity: [p^K > m] gives [v_p(m!) =           *)
+(* sum_{i<K} floor(m/p^{i+1})].  Induction on [m]: [v_p((S m)!) =     *)
+(* v_p(S m) + v_p(m!)] by additivity, and the layer-sum increment    *)
+(* equals the layer count [min(K, v_p(S m)) = v_p(S m)] (since       *)
+(* [v_p(S m) < K] follows from [p^K > S m]).                         *)
 Lemma z2v_fact_ex : forall p m K : nat,
   pr_prime p -> p ^ K > m -> hl_id (plm_v p (fact m)) (z2v_leg p K m).
 Proof.
@@ -425,11 +445,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 分母积的层界（嵌套除法）与整除面                                  *)
+(* Section 4 - the denominator product's layer bound (nested       *)
+(*   division) and the divisibility face                           *)
 (* ============================================================ *)
 
-(* 层和的换层恒等式：k 层推进一时，层和的增量恰为分母新因子的
-   Legendre 和——逐层用嵌套除法 ⌊⌊n/p^j⌋/a⌋ = ⌊n/(a·p^j)⌋ = ⌊⌊n/a⌋/p^j⌋。 *)
+(* Layer-shift identity of the layer sum: advancing [k] by one      *)
+(* increments the layer sum exactly by the Legendre sum of the new  *)
+(* denominator factor - applying nested division                    *)
+(* [floor(floor(n/p^j)/a) = floor(n/(a*p^j)) =                      *)
+(* floor(floor(n/a)/p^j)] layer by layer.                           *)
 Lemma z2v_lsum_S_k : forall p K k n : nat,
   1 <= p ->
   hl_id (z2v_lsum p K (S k) n)
@@ -449,8 +473,11 @@ Proof.
     lia.
 Qed.
 
-(* 分母积的赋值上界：v_p(∏_{j<k}⌊n/a_{j+1}⌋!) ≤ Σ_{i<K} z2d_sylv_sum k ⌊n/p^{i+1}⌋
-   （分母各因子的精确 Legendre 和经换层恒等式逐层归入 Sylvester 和） *)
+(* Valuation upper bound for the denominator product:               *)
+(* [v_p(prod_{j<k} floor(n/a_{j+1})!) <=                            *)
+(* sum_{i<K} z2d_sylv_sum k floor(n/p^{i+1})] - each denominator    *)
+(* factor's exact Legendre sum is folded layer-wise into the        *)
+(* Sylvester sums by the layer-shift identity.                      *)
 Lemma z2v_den_val : forall p k n K : nat,
   pr_prime p -> p ^ K > n ->
   hl_le_t (plm_v p (z2v_den k n)) (z2v_lsum p K k n).
@@ -479,8 +506,10 @@ Proof.
     cbn [z2v_den]. lia.
 Qed.
 
-(* 逐层 Sylvester 点态不等式：层指示子与层 Sylvester 和之和不超层商
-   （s ≥ 1 用 z2d_sylv_floor_t 全强度；s = 0 两肢皆零） *)
+(* Layer-wise pointwise Sylvester inequality: the layer indicator   *)
+(* plus the layer Sylvester sum does not exceed the layer quotient  *)
+(* (full strength of [z2d_sylv_floor_t] at [s >= 1]; at [s = 0]     *)
+(* both sides vanish).                                              *)
 Lemma z2v_pointwise : forall k s : nat,
   hl_le_t ((if Nat.leb 1 s then 1 else 0) + z2d_sylv_sum k s) s.
 Proof.
@@ -493,8 +522,10 @@ Proof.
     rewrite z2v_sylv_sum_0. lia.
 Qed.
 
-(* 层和闭环：Σ_{i<K}[⌊n/p^{i+1}⌋ ≥ 1] + Σ_{i<K} z2d_sylv_sum k ⌊n/p^{i+1}⌋
-   ≤ Σ_{i<K}⌊n/p^{i+1}⌋——逐层点态不等式的求和。 *)
+(* Layer-sum closure: [sum_{i<K} [floor(n/p^{i+1}) >= 1] +          *)
+(* sum_{i<K} z2d_sylv_sum k floor(n/p^{i+1}) <=                     *)
+(* sum_{i<K} floor(n/p^{i+1})] - the pointwise inequality summed    *)
+(* over layers.                                                     *)
 Lemma z2v_layersum_bound : forall p K k n : nat,
   hl_le_t (z2v_lsum p K k n + z2v_pc p K n) (z2v_leg p K n).
 Proof.
@@ -504,7 +535,8 @@ Proof.
     pose proof (hl_le_t_to_le _ _ (z2v_pointwise k (n / p ^ S K))). lia.
 Qed.
 
-(* 层计数的下界：p^e ≤ n 且 e ≤ K 则 e ≤ #{i < K : p^{i+1} ≤ n} *)
+(* Lower bound for the layer count: [p^e <= n] and [e <= K] give    *)
+(* [e <= #{i < K : p^{i+1} <= n}].                                  *)
 Lemma z2v_pc_ge : forall p K e n : nat,
   1 < p -> p ^ e <= n -> e <= K -> hl_le_t e (z2v_pc p K n).
 Proof.
@@ -532,8 +564,10 @@ Proof.
       pose proof (hl_le_t_to_le _ _ (IH e n Hp He ltac:(lia))). lia.
 Qed.
 
-(* 二因子阶乘拆分：fact (a + b) = fact b · h3_prod_from (S b) a——
-   区间积承载的步进式恒等（h3_prod_binom_fact 给出二项式系数形）。 *)
+(* Two-factor factorial split: [fact (a + b) = fact b *             *)
+(* h3_prod_from (S b) a] - the stepping identity on the interval    *)
+(* product ([h3_prod_binom_fact] gives the binomial-coefficient     *)
+(* form).                                                           *)
 Lemma z2v_fact_split : forall a b : nat,
   hl_id (fact (a + b)) (fact b * h3_prod_from (S b) a).
 Proof.
@@ -544,9 +578,12 @@ Proof.
     replace (S b + a) with (S (b + a)) by lia. ring.
 Qed.
 
-(* 分母积整除（一般形）：Σ_{j<k}⌊n/a_{j+1}⌋ + s ≤ n 则
-   ∏_{j<k}⌊n/a_{j+1}⌋! · s! ∣ (s + Σ)!——逐因子以二项式系数为见证
-   的伸缩（归纳不变量：分母积 · 剩余阶乘整除总阶乘）。 *)
+(* Denominator-product divisibility (general form): if              *)
+(* [sum_{j<k} floor(n/a_{j+1}) + s <= n], then                      *)
+(* [prod_{j<k} floor(n/a_{j+1})! * s! divides (s + sum)!] -         *)
+(* telescoping factor by factor with binomial coefficients as       *)
+(* witnesses (induction invariant: the denominator product times    *)
+(* the residual factorial divides the total factorial).             *)
 Lemma z2v_den_dvd_gen : forall k n s : nat,
   s + z2d_sylv_sum k n <= n ->
   Nat.divide (z2v_den k n * fact s) (fact (s + z2d_sylv_sum k n)).
@@ -584,8 +621,10 @@ Proof.
     + exact HIH.
 Qed.
 
-(* 分母积整除（主形）：1 ≤ n 则 ∏_{j≤n}⌊n/a_{j+1}⌋! ∣ n!——
-   取 s = n − Σ（Sylvester 稠密不等式给 Σ + 1 ≤ n，故 s + Σ = n）。 *)
+(* Denominator-product divisibility (main form): [1 <= n] gives     *)
+(* [prod_{j<=n} floor(n/a_{j+1})! | n!] - take [s = n - sum] (the   *)
+(* Sylvester dense inequality gives [sum + 1 <= n], hence           *)
+(* [s + sum = n]).                                                  *)
 Lemma z2v_den_dvd : forall n : nat,
   1 <= n -> Nat.divide (z2v_den n n) (fact n).
 Proof.
@@ -599,15 +638,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 每素数定理：层计数 ≤ v_p(C(n))（逐层比较合拢）                     *)
+(* Section 5 - the per-prime theorem: the layer count is at most   *)
+(*   [v_p(C(n))] (layer-wise comparison closing up)                *)
 (* ============================================================ *)
 
-(* 每素数主链：z2v_pc p (S n) n ≤ plm_v p (C n)。
-   链序：fact n = C n · den（分母积整除面的精确方程）⟹
-   v_p(fact n) = v_p(den) + v_p(C n)（加性）；
-   v_p(fact n) = z2v_leg p (S n) n（Legendre 精确式）；
-   v_p(den) ≤ z2v_lsum（分母积层界）；
-   z2v_lsum + z2v_pc ≤ z2v_leg（逐层比较闭环）。 *)
+(* Per-prime main chain: [z2v_pc p (S n) n <= plm_v p (C n)].       *)
+(* Chain order: [fact n = C n * den] (the exact equation of the     *)
+(* denominator-divisibility face), so [v_p(fact n) = v_p(den) +     *)
+(* v_p(C n)] by additivity; [v_p(fact n) = z2v_leg p (S n) n] (the  *)
+(* exact Legendre identity); [v_p(den) <= z2v_lsum] (the            *)
+(* denominator layer bound); [z2v_lsum + z2v_pc <= z2v_leg] (the    *)
+(* layer-wise comparison closure).                                  *)
 Theorem z2v_v_C_ge : forall p n : nat,
   pr_prime p -> 1 <= n -> hl_le_t (z2v_pc p (S n) n) (plm_v p (z2v_C n)).
 Proof.
@@ -638,8 +679,9 @@ Proof.
   lia.
 Qed.
 
-(* 素幂整除 C(n)：p^e ≤ n 则 p^e ∣ C(n)——Hanson 引理二的可用形态
-   （e ≤ ⌊log_p n⌋ = 层计数 ≤ v_p(C n)，幂单调传递）。 *)
+(* Prime powers divide C(n): [p^e <= n] gives [p^e | C(n)] - the    *)
+(* usable form of Hanson's Lemma 2 ([e <= floor(log_p n) = the      *)
+(* layer count <= v_p(C n)], transported by power monotonicity).    *)
 Theorem z2v_ppow_dvd_C : forall p e n : nat,
   pr_prime p -> p ^ e <= n -> Nat.divide (p ^ e) (z2v_C n).
 Proof.
@@ -656,10 +698,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §6 全数整除与主定理：B(n) = hl_lcm_upto n ∣ C(n)                       *)
+(* Section 6 - whole-number divisibility and the main theorem:     *)
+(*   [B(n) = hl_lcm_upto n] divides [C(n)]                         *)
 (* ============================================================ *)
 
-(* 素幂的因子两分：d ∣ p^e 则 d = 1 或 p ∣ d（素数逐层消去） *)
+(* Two-way factor split for prime powers: [d | p^e] gives [d = 1]   *)
+(* or [p | d] (cancelling the prime layer by layer).                *)
 Lemma z2v_dvd_pow_split : forall p e d : nat,
   pr_prime p -> hl_id ((p ^ e) mod d) 0 -> hl_id d 1 + z2v_dvd_t p d.
 Proof.
@@ -707,7 +751,8 @@ Proof.
       exact (z2v_idS_eq _ _ _ (pr_dvd_mod0 p d ltac:(lia) Hdd2)).
 Qed.
 
-(* 素幂与素的互素：p 素且 p 不整除 u 则 gcd(p^e, u) = 1 *)
+(* Coprimality of a prime power with [u]: [p] prime and [p] not     *)
+(* dividing [u] give [gcd(p^e, u) = 1].                             *)
 Lemma z2v_gcd_pow_prime : forall p e u : nat,
   pr_prime p -> (Nat.divide p u -> False) ->
   hl_id (Nat.gcd (p ^ e) u) 1.
@@ -734,10 +779,12 @@ Proof.
     + apply Nat.gcd_divide_r.
 Qed.
 
-(* 全数整除（强归纳）：1 ≤ m ≤ n 则 m ∣ C(n)。
-   归纳步：素因子分解见证取素因子 p，m = p^e·u（e = v_p(m) 全幂拆分，
-   u 与 p 互素）；u ∣ C(n) 归纳，p^e ∣ C(n) 由素幂定理，二者以
-   gcd = 1 的乘法整除合成；m = 1 平凡。 *)
+(* Whole-number divisibility (strong induction): [1 <= m <= n]      *)
+(* gives [m | C(n)].  Induction step: the factorization witness     *)
+(* yields a prime [p] with [m = p^e * u] ([e = v_p(m)] the full     *)
+(* power, [u] coprime to [p]); [u | C(n)] by induction and          *)
+(* [p^e | C(n)] by the prime-power theorem, combined through        *)
+(* multiplicative divisibility at [gcd = 1]; [m = 1] is immediate.  *)
 Theorem z2v_m_dvd_C : forall m n : nat,
   1 <= m -> m <= n -> Nat.divide m (z2v_C n).
 Proof.
@@ -791,15 +838,17 @@ Proof.
         rewrite Hu, (Nat.mul_comm u (p ^ plm_v p (S m'))). exact Hcomb.
 Qed.
 
-(* 主定理（Prop 面）：B(n) = hl_lcm_upto n ∣ C(n)
-   ——h3_lcm_fold_divide 以全数整除假设折叠。 *)
+(* Main theorem (Prop face): [B(n) = hl_lcm_upto n] divides         *)
+(* [C(n)] - [h3_lcm_fold_divide] folds under the whole-number       *)
+(* divisibility premises.                                           *)
 Theorem z2v_lcm_dvd_C : forall n : nat, Nat.divide (hl_lcm_upto n) (z2v_C n).
 Proof.
   intro n. apply (h3_lcm_fold_divide n (z2v_C n)).
   intros m Hm1 Hm2. apply (z2v_m_dvd_C m n Hm1 Hm2).
 Qed.
 
-(* 主定理（Set 面）：B(n) ∣ C(n) 的 mod 零判据形。 *)
+(* Main theorem (Set face): the mod-zero criterion form of          *)
+(* [B(n) | C(n)].                                                   *)
 Theorem z2v_lcm_dvd_C_t : forall n : nat, z2v_dvd_t (hl_lcm_upto n) (z2v_C n).
 Proof.
   intro n. unfold z2v_dvd_t. apply z2v_id_of_eq.
@@ -808,16 +857,20 @@ Proof.
        (hl_le_t_to_le _ _ (h3_lcm_pos n)) (z2v_lcm_dvd_C n))).
 Qed.
 
-(* 数值锚：C(6) = 6!/(3!·2!·0!·…) = 720/12 = 60 = lcm(1..6) *)
+(* Numeric anchor: [C(6) = 6!/(3!*2!*0!*...) = 720/12 = 60 =        *)
+(* lcm(1..6)].                                                      *)
 Lemma z2v_C_6 : hl_id (z2v_C 6) 60.
 Proof. apply z2v_id_of_eq. reflexivity. Qed.
 
-(* 数值锚（Set 面可执行）：B(6) ∣ C(6) 之 mod 零判据直算 *)
+(* Numeric anchor (executable on the Set face): direct computation  *)
+(* of the mod-zero criterion for [B(6) | C(6)].                     *)
 Lemma z2v_dvd_t_smoke_6 : z2v_dvd_t (hl_lcm_upto 6) (z2v_C 6).
 Proof. reflexivity. Qed.
 
-(* 假设审计：以下 Print Assumptions 输出应为零依赖（零承认复核）。
-   （Print Assumptions 日志不回显定理名，证据按本清单挂序对照。） *)
+(* Assumption audit: the following [Print Assumptions] outputs      *)
+(* should report no assumptions (rechecking a clean global          *)
+(* context).  The log does not echo statement names, so the         *)
+(* evidence is checked against this list in order.                  *)
 Print Assumptions z2v_pow_dvd.
 Print Assumptions z2v_pow_pos.
 Print Assumptions z2v_sylv_sum_0.

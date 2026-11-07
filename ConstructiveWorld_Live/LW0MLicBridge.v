@@ -1,17 +1,33 @@
-(* 五字段指针｜使命：π 莱布尼茨部分和序列（lp_four * lp_odd）的柯西完备判据适配三件——
-   尾控实例 lw0m_tail_bounded_pi（lic_tail_bounded 接口）、窗宽消失实例
-   lw0m_vanish_pi（lic_vanish 接口）、度量同余件 lw0m_metric_congr（real_eq 左元
-   换代下 real_metric 不变）。依赖：PiEnvelope（pie_tail4/pie_modulus/
-   pie_modulus_bound/pie_v_eq/pie_mag_pos/pie_mag_antitone）、
-   UpReqIrrationalCriterion（lic_tail_bounded/lic_vanish）、S02_CauchyComplete
-   （real_eq/QltT/Real/real_plus/real_opp/QltT_to_Qlt/Qlt_to_QltT/QleT'_to_Qle/
-   qeqT_imp_qeq）、S03_QExp（real_metric/real_abs/q_abs_abs_triangle）、
-   S10_KVQuantTrig（lp_four/lp_odd）。构造性：零承认式语句（机械核验）；语句面
-   全 Set 层承载零 Prop 泄露（lic 两接口与 real_eq 均 Set 值形），证明内 Prop
-   （Qlt/Qle/Qeq）仅作脚手架，经 QltT_to_Qlt/QleT'_to_Qle/qeqT_imp_qeq 三桥
-   出入，结论面恒 Set。统一窗 lw0m_e n := 5 * pie_mag n 三件共享。
-   编译配方：rocq c -native-compiler no -Q /tmp/nw10abl43 "" LW0MLicBridge.v
-   （编译经 cpu_guard.sh 温控包裹）。命名：lw0m_ 前缀（全树查重零占用）。 *)
+(* ConstructiveWorld-Set — Cauchy-completeness adapters for the pi Leibniz partial-sum sequence. *)
+
+(** * LW0MLicBridge: three adapter members for the pi Leibniz
+       partial-sum sequence.
+
+    Mission.  Cauchy-completeness adaptation of the pi Leibniz
+    partial-sum sequence [lp_four * lp_odd]: the tail-controlled
+    instance [lw0m_tail_bounded_pi] ([lic_tail_bounded]), the
+    vanishing-window instance [lw0m_vanish_pi] ([lic_vanish]), and the
+    metric congruence member [lw0m_metric_congr] ([real_metric]
+    invariant under left-argument [real_eq] substitution), sharing the
+    uniform window [lw0m_e n := 5 * pie_mag n].
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Lia],
+    [Lqa]; development members itemized in the provenance block below.
+
+    References.  This development, LW0MLicBridge.v, the baseline
+    module in ConstructiveWorld-Main whose statement names are carried
+    over here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements and fields are carried by
+      [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
+      [NatLe]); statements extract with [Obj.magic] = 0 and no
+      erasure; [coqchk] reports [Axioms: none].  The statement face is
+      Set-carried, zero Prop leakage; the in-proof Prop scaffolding
+      crosses the three bridges, so the conclusion face stays Set.
+
+    Build.  [coqc -native-compiler no -q -Q . "" LW0MLicBridge.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import Lia Lqa.
@@ -22,20 +38,37 @@ Require Import PiEnvelope.
 Require Import UpReqIrrationalCriterion.
 
 (* ============================================================ *)
-(* §0 统一窗与 π 投影序列                                          *)
+(* Dependency provenance.  [S02_CauchyComplete]: [real_eq], [QltT],     *)
+(* [Real], [real_plus], [real_opp], [QltT_to_Qlt], [Qlt_to_QltT],       *)
+(* [QleT'_to_Qle], [qeqT_imp_qeq].  [S03_QExp]: [real_metric],          *)
+(* [real_abs], [q_abs_abs_triangle].  [S10_KVQuantTrig]: [lp_four],     *)
+(* [lp_odd].  [PiEnvelope]: [pie_tail4], [pie_modulus],                 *)
+(* [pie_modulus_bound], [pie_v_eq], [pie_mag_pos], [pie_mag_antitone].  *)
+(* [UpReqIrrationalCriterion]: [lic_tail_bounded], [lic_vanish].        *)
+(* Naming: the [lw0m_] prefix has zero occupancy across the tree.  The  *)
+(* pi projection sequence is [lw0m_xL n := lp_four * lp_odd n]; the     *)
+(* in-proof Prop facts ([Qlt]/[Qle]/[Qeq]) cross through                *)
+(* [QltT_to_Qlt]/[QleT'_to_Qle]/[qeqT_imp_qeq]; both lic interfaces and *)
+(* [real_eq] are Set-valued.                                            *)
 (* ============================================================ *)
 
-(* 统一窗：e n := 5 * pie_mag n（三件共享；系数 5 吸收两处索引抬升） *)
+(* ============================================================ *)
+(* Section 0. The uniform window and the pi projection sequence.        *)
+(* ============================================================ *)
+
+(* Uniform window: e n := 5 * pie_mag n (shared by the three members; the
+   factor 5 absorbs the two index lifts). *)
 Definition lw0m_e (n : nat) : Q := 5 * pie_mag n.
 
-(* π 投影序列：xL n := lp_four * lp_odd n *)
+(* Pi projection sequence: xL n := lp_four * lp_odd n. *)
 Definition lw0m_xL (n : nat) : Q := lp_four * lp_odd n.
 
 (* ============================================================ *)
-(* §1 尾控桥                                                       *)
-(* pie_tail4 非严格 Qle + 1×pie_mag 余量 ⟹ 严格 QltT；            *)
-(* 索引抬升 pie_mag(2n+2) ⟹ pie_mag n（pie_mag_antitone）；        *)
-(* 序列接缝 pie_v_eq（lp_four * lp_odd ⟹ 4 * pie_partial(2·+2)）。 *)
+(* Section 1. The tail-control bridge.                                  *)
+(* The non-strict Qle of pie_tail4 plus a margin of 1 * pie_mag gives   *)
+(* the strict QltT; the index lift pie_mag(2n+2) <= pie_mag n is        *)
+(* pie_mag_antitone; the sequence seam pie_v_eq rewrites                *)
+(* lp_four * lp_odd into 4 * pie_partial (2 * +2).                      *)
 (* ============================================================ *)
 Definition lw0m_tail_bounded_pi : lic_tail_bounded lw0m_xL lw0m_e.
 Proof.
@@ -54,10 +87,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 窗宽消失桥                                                   *)
-(* 模量重标定 N := pie_modulus (eps / 10)（pie_modulus 天然配      *)
-(* 4 系窗，lic 窗是 5 系）；单点界 ⟹ 最终界经 pie_mag_antitone；   *)
-(* QltT↔Qlt 双换形器各一处（前提换入＋结论换出）。                 *)
+(* Section 2. The vanishing-window bridge.                              *)
+(* The modulus is recalibrated as N := pie_modulus (eps / 10)           *)
+(* (pie_modulus is naturally paired with the factor-4 window, while the *)
+(* lic window has factor 5); the point bound lifts to the eventual      *)
+(* bound via pie_mag_antitone; one converter in each direction between  *)
+(* QltT and Qlt (premise converted in, conclusion converted out).       *)
 (* ============================================================ *)
 Definition lw0m_vanish_pi : lic_vanish lw0m_e.
 Proof.
@@ -78,10 +113,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 real_metric 同余件                                           *)
-(* 逐 eps 构造：反三角 q_abs_abs_triangle 单步给界；                *)
-(* 投影定义性展开 real_metric := real_abs (real_plus x             *)
-(* (real_opp z))（real_plus/real_opp/real_abs 均 Defined 透明）。   *)
+(* Section 3. The real_metric congruence member.                        *)
+(* Constructed eps by eps: the inverse triangle q_abs_abs_triangle      *)
+(* gives the bound in one step; the projections unfold definitionally,  *)
+(* real_metric := real_abs (real_plus x (real_opp z)), where            *)
+(* real_plus/real_opp/real_abs are transparent Defined.                 *)
 (* ============================================================ *)
 Lemma lw0m_metric_congr : forall (x y z : Real), real_eq x y ->
   real_eq (real_metric x z) (real_metric y z).

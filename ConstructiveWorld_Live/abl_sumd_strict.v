@@ -1,37 +1,40 @@
-(* ==========================================================================
-   abl_sumd_strict.v - strict generic finite-sum monotonicity (positivity
-   premise form), discharged against the UpReqSumD sum machine.
-   Mission. 使命: dsu_list_sum_lt_cons (head-witness strict sum monotonicity,
-     cons form) together with dsu_sum_lt_pos (nonempty-enum slot form):
-     nonempty list + pointwise strict positivity + pointwise strict f<g imply
-     sum f < sum g. The mixed weak/strict shape falls under the RW-MIX
-     mixed-ordering wall (UpReqAlgebra ReqStrictOrderBridge) and is not
-     attempted; the positivity-premise form is the adjudicated shape.
-   Dependencies. 依赖清单: UpReqSumD (sumd_list_sum/sumd_sumf finite-sum
-     machine), S02_CauchyComplete/S07_RealSetoidExpLog of the -Set lineage
-     world; interface = the argument-less Class RealInterfaceEnhancedSetoid
-     (module RealInterfaceEnhancedMod).
-   References. 对标: statement names carried over verbatim; adaptation =
-     binder-shell removal + notation rebinding on this world's own precedent
-     (the source argumented Class applications raised "Illegal application
-     (Non-functional construction)" against the argument-less interface):
-     the Context pair (R : Set) (RIS : RealInterfaceEnhancedSetoid R) is
-     removed and R := Real by notation (UpReqSumD.v L58), the strict-order
-     predicate face is real_lt (UpReqSumD.v L113-114), law fields resolve as
-     bare names through the global instance RealEnhancedReal (UpReqSumD.v
-     L68-72); the negation helper dsu_neg is retyped to the Set face
-     (A : Set) : Set := A -> Empty_set (the world Not face, S01_BaseRing).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; the tail Print Assumptions probes
-     report the closure face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> "" -Q . ""
-     abl_sumd_strict.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — strict finite-sum monotonicity in positivity-premise form. *)
+
+(** * abl_sumd_strict: strict finite-sum monotonicity with a positivity
+      premise.
+
+    Mission.  [dsu_list_sum_lt_cons] (head-witness strict sum monotonicity,
+      cons form) and [dsu_sum_lt_pos] (nonempty-enum slot form): for a
+      nonempty list, pointwise strict positivity of [f] plus pointwise
+      strict [f < g] imply [sum f < sum g].
+
+    Dependencies.  [UpReqSumD] (finite-sum machine [sumd_list_sum] /
+      [sumd_sumf]), [S02_CauchyComplete], [S07_RealSetoidExpLog]; the
+      interface is the argument-less Class [RealInterfaceEnhancedSetoid]
+      of module [RealInterfaceEnhancedMod].
+
+    References.  This development, [UpReqSumD].v; statement names carried
+      over verbatim from the same-name ConstructiveWorld-Main baseline
+      module (statement-face Set-carrier completion).  Adaptation to the
+      argument-less interface: [R] is [Real] by notation ([UpReqSumD.v]
+      L58), the strict-order face is [real_lt] ([UpReqSumD.v] L113-114),
+      law fields resolve through [RealEnhancedReal] ([UpReqSumD.v]
+      L68-72), and [dsu_neg] is retyped at [Set] as [A -> Empty_set]
+      (the world [Not] face, [S01_BaseRing]).
+
+    Constructivity.  All statements are Set-layer; every proof is
+      [Qed]-closed with zero admitted items; no new axioms.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      abl_sumd_strict.v] compiles cleanly (exit 0); the first eight bytes
+      of the artifact are [436f7121 00015ff4]. *)
 
 Require Import UpReqSumD.
-(* RealInterfaceEnhancedSetoid 类与 RealInterfaceEnhancedMod 定义于
-   S07；透传 Require 不再导出短名，本件自 Import；Real 短名由 S02
-   显式导入（传递闭包内已有，取短名供记号重绑位）。 *)
+(* [RealInterfaceEnhancedSetoid] and [RealInterfaceEnhancedMod] are defined
+   in [S07]; a plain [Require] does not re-export their short names, so
+   this file imports the module itself; the [Real] short name is imported
+   explicitly by [S02] (already present in the transitive closure, the
+   short name serves the notation-rebinding site). *)
 Require Import S02_CauchyComplete.
 Require Import S07_RealSetoidExpLog.
 From Stdlib Require Import List.

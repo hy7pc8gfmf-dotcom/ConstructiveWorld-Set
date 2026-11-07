@@ -1,33 +1,32 @@
-(* UpReqPinWallEquiv.v —— 钉定不可证结果 ⟺ 受限 LPO（第三类定理化）    *) (* 使命：钉定接口不可满足性与受限 LPO 的等价（第三类定理化）。           *)
-(* 主件：pwe_pin_wall_lpo 与 pwe_canon_cstar_ok：钉定等价器与 C* 正典范  *) (*   可判定对接。                                                       *)
-(* 依赖：S01_BaseRing、S02_CauchyComplete、UpReqLpoEquiv、               *) (*   UpReqBanachInstB；Stdlib QArith.QArith、QArith.Qabs。               *)
-(* 公理面：本件零公理、零假设负载。基石 = INSTB 判定件                   *) (*   UpReqBanachInstB.v 之 bxib_canon_pin_wall（S2）：canon-bnorm        *)
-(*   （Qabs ∘ qnorm）无法满足 Qabs 原始钉定字段——若钉定面对一切         *) (*   q 成立，则 2#4 与 1#2 Leibniz 相等（假等式，构造子级可驳）。        *)
-(*   本件把 INSTB「钉定接口不可满足是接口设计使然」结论升级为机器检验   *) (*   的归约定理：                                                       *)
-(*   pwe_PinWall : Set := 存在 bnorm : Q -> Q 同时满足                   *) (*     (a) 钉定形 pwe_pin  ：一切 q 保 Qabs 原始形                      *)
-(*         （bnorm q = Qabs q，钉定字段语句面原形）；                    *) (*     (b) C* 恒等式 pwe_cstar：与 canon-bnorm（bxib_bcnorm）            *)
-(*         一致 + bplus_zero 位（q+(−q) 范数=零范数）+ assoc 位          *) (*         （三和两括序范数一致）的 Leibniz-相容。                       *)
-(*     ——钉定接口的可满足性断言（sigT 存在形，全 Set 零 Prop）。         *) (*   pwe_pin_wall_lpo : pwe_PinWall -> rLPO（保底件·单方向）：           *)
-(*     核心论证 = INSTB 互斥判定——钉定形 × canon 一致在 2#4 位           *) (*     逼出 Id (2#4) (1#2)，经构造子级判别器（pwe_qdisc）在 Set 层       *)
-(*     提取判据数据（Empty_set 消去 = 全决策力），受限 LPO 随取。        *) (*   pwe_reverse_obstacle（反向受阻申报·降档件）：若反向归约             *)
-(*     rLPO -> pwe_PinWall 存在，则与正向复合得 rLPO 被驳斥。            *)
-(*     障碍的本质：钉定接口不可满足（pwe_pin_wall_void 机器判定），      *)
-(*     而反向归约将迫使 rLPO 供出该不可满足接口的存在见证，即            *)
-(*     驳斥经典可满足的 LPO——构造性不可达，故主件按使命降档条款         *)
-(*     以「正向归约 + 反向受阻申报」结果（pwe_equivalence）交付。        *)
-(*   pwe_canon_cstar_ok（构造性对偶正件）：canon 形接口（bxib_bcnorm）   *)
-(*     无条件下满足 C* 恒等式三参数位——「钉定接口不可满足是接口设计    *)
-(*     使然」的构造性对偶：原始形参数位空、canon 形参数位满，设计修正    *)
-(*     后可满足性得证。                                                 *)
-(*   pwe_carrier_excl（泛型载体段，范式同 UpReqGibbsWallEquiv 机制段）： *)
-(*     互斥机制对一切 Φ-因子化载体（任意 C 带求值 ev 与 bnorm）          *)
-(*     一致成立；E-载体（自由项树）实例 pwe_E_carrier_excl 判定。        *)
-(* 对标：受限选择原理（LPO 族）等价件族（SqWall 同构先例）。             *)
-(* 构造性注记：纯构造性 Set 层、语句面全 Type/sigT/自定义 And/Or，       *)
-(*   零 Prop 泄露；零承认、公理面为空；降档显式标注（第二参数位不供，   *)
-(*   以 pwe_reverse_obstacle 承载）。                                    *)
-(* 编译配方：Rocq 9.1 直调 rocq c -Q . "" UpReqPinWallEquiv.v，          *)
-(*   cpu_guard 包装。                                                    *)
+(* ConstructiveWorld-Set — Equivalence between pinned-interface satisfiability and restricted LPO. *)
+(** * UpReqPinWallEquiv: the pinned-interface / restricted-LPO equivalence package.
+
+    Mission.  [pwe_PinWall] asserts ([sigT], all [Set]) that some [bnorm : Q -> Q]
+      satisfies the pin form [pwe_pin] ([bnorm q = Qabs q] for all [q]) and the C*
+      identities [pwe_cstar] (canon consistency with [bxib_bcnorm], [bplus_zero],
+      assoc); the pinned form cannot actually hold — it would force the Leibniz
+      false equality [2#4 = 1#2], refutable at the constructor level.  Statements:
+      [pwe_pin_wall_lpo] ([pwe_PinWall -> rLPO], forward reduction via [pwe_qdisc]);
+      [pwe_pin_wall_void]; [pwe_reverse_obstacle] (a reverse reduction would refute
+      [rLPO] — constructively unreachable); [pwe_equivalence] (forward + obstacle);
+      [pwe_canon_cstar_ok] (the constructive dual: [bxib_bcnorm] satisfies the C*
+      positions unconditionally); [pwe_carrier_excl]/[pwe_E_carrier_excl] (generic
+      carriers).
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs]; requires [S01_BaseRing],
+      [S02_CauchyComplete], [UpReqLpoEquiv], [UpReqBanachInstB] of this development.
+
+    References.  The INSTB cornerstone [bxib_canon_pin_wall]/[bxib_bcnorm] in
+      [UpReqBanachInstB.v]; the restricted-choice-principle (LPO family) equivalence
+      files of this development; the generic-carrier section follows the pattern of
+      [UpReqGibbsWallEquiv].
+
+    Constructivity.  Purely constructive [Set] layer; statement face all [Type]/[sigT]/
+      custom [And]/[Or] with zero [Prop]; nothing admitted, empty assumption face; the
+      downgraded form is explicit (carried by [pwe_reverse_obstacle]).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpReqPinWallEquiv.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 Require Import S01_BaseRing.
@@ -38,19 +37,21 @@ Require Import UpReqBanachInstB.
 Local Open Scope Q_scope.
 
 (* ============================================================ *)
-(* Part 1：判据提取机——互斥性（Leibniz 假等式）→ Set 层数据的通道  *)
+(* Part 1. The decision-data extractor — from mutual exclusion   *)
+(*   (a Leibniz false equality) to Set-layer data                *)
 (* ============================================================ *)
 
-(* Id 的依值运输（S01 Id 消去器自证；大消去 into Set 合法） *)
+(* Dependent transport along Id (the eliminator of the S01 [Id]; large elimination into Set is legitimate) *)
 Definition pwe_id_transport {A : Set} (P : A -> Set) {x y : A}
             (p : Id x y) (u : P x) : P y :=
   match p in Id _ z return P z with
   | id_refl => u
   end.
 
-(* 构造子级判别器：分子 xH 位（1#2 计算形）→ 空型 Empty_set；      *)
-(* 其余（含 2#4 = Qmake (Zpos (xO xH)) 4）→ unit 形。              *)
-(* pwe_qdisc (2#4) ≡ unit（ inhabited）；pwe_qdisc (1#2) ≡ Empty_set。 *)
+(* The constructor-level discriminator: numerator position xH (the computed form of
+   1#2) maps to the empty type Empty_set; everything else (including
+   2#4 = Qmake (Zpos (xO xH)) 4) maps to unit.
+   pwe_qdisc (2#4) ≡ unit (inhabited); pwe_qdisc (1#2) ≡ Empty_set. *)
 Definition pwe_qdisc (q : Q) : Set :=
   match q with
   | Qmake n _ => match n with
@@ -59,7 +60,7 @@ Definition pwe_qdisc (q : Q) : Set :=
                  end
   end.
 
-(* Leibniz 假等式 2#4 = 1#2 的 Set 层全驳斥（判据数据提取） *)
+(* Full Set-layer refutation of the Leibniz false equality 2#4 = 1#2 (decision-data extraction) *)
 Theorem pwe_false_of_half_quarter_id :
   forall A : Set, Id (2#4)%Q (1#2)%Q -> A.
 Proof.
@@ -68,15 +69,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2：钉定接口语句面（全 Set 零 Prop）                       *)
+(* Part 2. The pinned-interface statement face (all Set, zero Prop) *)
 (* ============================================================ *)
 
-(* 钉定形：bnorm 保 Qabs 原始形（INSTB bxib_canon_pin_wall 钉定    *)
-(* 字段语句面 pwe_ 中介化） *)
+(* The pin form: bnorm preserves the raw Qabs form (the pin-field statement shape of the INSTB [bxib_canon_pin_wall], mediated under pwe_ names) *)
 Definition pwe_pin (bnorm : Q -> Q) : Set :=
   forall q : Q, Id (bnorm q) (Qabs q).
 
-(* C* 恒等式：canon 一致 + bplus_zero 位 + assoc 位 Leibniz-相容 *)
+(* The C* identities: canon consistency + the bplus_zero position + the assoc position, Leibniz-compatible *)
 Definition pwe_cstar (bnorm : Q -> Q) : Set :=
   And (forall q : Q, Id (bnorm q) (bxib_bcnorm q))
       (And (forall q : Q, Id (bnorm (Qplus q (Qopp q))) (bnorm (0#1)%Q))
@@ -84,22 +84,23 @@ Definition pwe_cstar (bnorm : Q -> Q) : Set :=
               Id (bnorm (Qplus a (Qplus b c)))
                  (bnorm (Qplus (Qplus a b) c)))).
 
-(* PinWall：钉定接口的可满足性断言（存在某 bnorm 同满足钉定形+C*）*)
+(* PinWall: the satisfiability assertion for the pinned interface (some bnorm satisfies both the pin form and the C* identities) *)
 Definition pwe_PinWall : Set :=
   sigT (fun bnorm : Q -> Q => And (pwe_pin bnorm) (pwe_cstar bnorm)).
 
 (* ============================================================ *)
-(* Part 3：泛型载体段——互斥机制对一切 Φ-因子化载体一致（AA22 范式） *)
+(* Part 3. The generic carrier section — the mutual-exclusion    *)
+(*   mechanism holds uniformly for all Φ-factorized carriers     *)
 (* ============================================================ *)
 
-(* 载体泛型钉定形/canon 形（任意 C 带求值 ev 与 bnorm） *)
+(* The carrier-generic pin form / canon form (any C with evaluation ev and bnorm) *)
 Definition pwe_pin_gen (C : Set) (ev : C -> Q) (bnorm : C -> Q) : Set :=
   forall c : C, Id (bnorm c) (Qabs (ev c)).
 
 Definition pwe_canon_gen (C : Set) (ev : C -> Q) (bnorm : C -> Q) : Set :=
   forall c : C, Id (bnorm c) (Qabs (bxib_qnorm (ev c))).
 
-(* 泛型互斥定理：钉定形 × canon 形在任一实例点逼出 canon-raw 假等式 *)
+(* The generic mutual-exclusion theorem: the pin form × canon form forces the canon-raw false equality at every instance point *)
 Theorem pwe_carrier_excl :
   forall (C : Set) (ev : C -> Q) (bnorm : C -> Q),
     pwe_pin_gen C ev bnorm -> pwe_canon_gen C ev bnorm ->
@@ -109,7 +110,7 @@ Proof.
   exact (id_trans (id_sym (Hpin x0)) (Hcanon x0)).
 Qed.
 
-(* E-载体（INSTB 自由项树）实例：esc 2#4 实例点直取假等式 2#4 = 1#2 *)
+(* The E-carrier (the INSTB free-term tree) instance: the instance point esc 2#4 yields the false equality 2#4 = 1#2 directly *)
 Theorem pwe_E_carrier_excl : forall bnorm : bxib_E -> Q,
   pwe_pin_gen bxib_E bxib_ev bnorm -> pwe_canon_gen bxib_E bxib_ev bnorm ->
   Id (2#4)%Q (1#2)%Q.
@@ -118,7 +119,7 @@ Proof.
   exact (pwe_carrier_excl bxib_E bxib_ev bnorm Hpin Hcanon           (bxib_esc (2#4)%Q)).
 Qed.
 
-(* E-载体互斥的驳斥形态（全决策力） *)
+(* The refutation form of the E-carrier mutual exclusion (full decision power) *)
 Theorem pwe_E_carrier_void : forall bnorm : bxib_E -> Q,
   pwe_pin_gen bxib_E bxib_ev bnorm -> pwe_canon_gen bxib_E bxib_ev bnorm ->
   forall A : Set, A.
@@ -128,7 +129,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 4：Q-载体互斥定理（INSTB bxib_canon_pin_wall 接口化升级）  *)
+(* Part 4. The Q-carrier mutual-exclusion theorem (the interface-level upgrade of the INSTB [bxib_canon_pin_wall]) *)
 (* ============================================================ *)
 
 Theorem pwe_pin_excl : forall bnorm : Q -> Q,
@@ -138,17 +139,17 @@ Proof.
   destruct Hcs as [Hcanon _].
   specialize (Hpin (2#4)%Q).
   specialize (Hcanon (2#4)%Q).
-  (* Hpin    : Id (bnorm (2#4)) (Qabs (2#4))    ≡ Id (bnorm (2#4)) (2#4) *)
-  (* Hcanon  : Id (bnorm (2#4)) (bxib_bcnorm (2#4)) ≡ Id (bnorm (2#4)) (1#2) *)
-  (* （bxib_bcnorm (2#4) ≡ Qabs (1#2) ≡ 1#2，INSTB 保底件①同位）      *)
+  (* Hpin   : Id (bnorm (2#4)) (Qabs (2#4))        ≡ Id (bnorm (2#4)) (2#4) *)
+  (* Hcanon : Id (bnorm (2#4)) (bxib_bcnorm (2#4)) ≡ Id (bnorm (2#4)) (1#2) *)
+  (* (bxib_bcnorm (2#4) ≡ Qabs (1#2) ≡ 1#2, as computed in the INSTB base file) *)
   exact (id_trans (id_sym Hpin) Hcanon).
 Qed.
 
 (* ============================================================ *)
-(* Part 5：钉定接口不可满足判定 + 保底件（单方向归约）             *)
+(* Part 5. The unsatisfiability decision for the pinned interface + the one-direction reduction *)
 (* ============================================================ *)
 
-(* 钉定接口不可满足（互斥判定的全决策力形态） *)
+(* The pinned interface is unsatisfiable (the full-decision-power form of the mutual-exclusion decision) *)
 Theorem pwe_pin_wall_void : pwe_PinWall -> forall A : Set, A.
 Proof.
   intros H A.
@@ -157,7 +158,7 @@ Proof.
 Qed.
 
 
-(* 判据数据 = 互斥性逼出的 Leibniz 假等式经 Set 层消去的全决策力）   *)
+(* The decision data: the Leibniz false equality forced by mutual exclusion, eliminated at the Set layer for full decision power *)
 Theorem pwe_pin_wall_lpo : pwe_PinWall -> rLPO.
 Proof.
   intro H.
@@ -165,21 +166,24 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 6：构造性对偶正件——canon 形接口无条件下满足 C* 三参数位        *)
-(* （「钉定接口不可满足是接口设计使然」的构造性对偶：原始形参数位空、canon 形参数位满） *)
+(* Part 6. The constructive dual — the canon-form interface      *)
+(*   satisfies the three C* identity positions unconditionally   *)
+(*   (the constructive dual of the unsatisfiability-by-design of *)
+(*   the pinned interface: raw-form positions empty, canon-form  *)
+(*   positions full)                                             *)
 (* ============================================================ *)
 
 Theorem pwe_canon_cstar_ok : pwe_cstar bxib_bcnorm.
 Proof.
   unfold pwe_cstar.
   split.
-  - (* canon 参数位：自反（bxib_bcnorm 即 canon 形本身） *)
+  - (* the canon position: reflexivity ([bxib_bcnorm] is the canon form itself) *)
     intros q. apply id_refl.
   - split.
-    + (* bplus_zero 参数位：INSTB bxib_zero_canon_opp（q+(−q) 规范到 0#1） *)
+    + (* the bplus_zero position: [bxib_zero_canon_opp] (q + (−q) normalizes to 0#1) *)
       intros q.
       exact (id_cong Qabs (bxib_zero_canon_opp q)).
-    + (* assoc 参数位：Qeq 结合律 → QeqT → 规范形唯一性机检 *)
+    + (* the assoc position: associativity as Qeq, lifted to QeqT, then the machine-checked uniqueness of the normal form *)
       intros a b c.
       apply (id_cong Qabs).
       apply bxib_qnorm_id_of_qeqT.
@@ -188,24 +192,29 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 7：反向受阻申报（降档件）+ 主件（降档形，显式标注）         *)
+(* Part 7. The reverse-obstacle report + the main statement      *)
+(*   (downgraded form, explicitly annotated)                     *)
 (* ============================================================ *)
 
-(* 反向受阻申报：反向归约 rLPO -> pwe_PinWall 若存在，则与正向复合  *)
-(* 得 rLPO 被驳斥——钉定接口不可满足（Part 5 判定），反向归约即       *)
-(* 强迫 rLPO 供出不可满足接口的存在见证 = 驳斥经典可满足的 LPO，     *)
-(* 构造性不可达。此件即双向受阻面的机器检验清单。                   *)
+(* The reverse-obstacle report: if a reverse reduction rLPO -> pwe_PinWall existed,
+   composing it with the forward one would refute rLPO — the pinned interface is
+   unsatisfiable (the Part 5 decision), so the reverse reduction would force rLPO
+   to supply an existence witness for an unsatisfiable interface, i.e. refute the
+   classically satisfiable LPO; constructively unreachable.  This statement is the
+   machine-checked account of the blocked reverse direction. *)
 Theorem pwe_reverse_obstacle : (rLPO -> pwe_PinWall) -> rLPO -> Empty_set.
 Proof.
   intros Hrev Hlpo.
   exact (pwe_pin_wall_void (Hrev Hlpo) Empty_set).
 Qed.
 
-(* 主件（降档形，按使命降档条款显式标注）：                        *)
-(*   第一参数位 = 正向归约（保底件，已证）；                            *)
-(*   第二参数位 ≠ rLPO -> pwe_PinWall（受阻，见 pwe_reverse_obstacle），  *)
-(*   以反向受阻申报承载。非假等价声明：本件不证 PinWall ⟺ rLPO 全形， *)
-(*   只证正向归约 + 反向不可达申报。                                *)
+(* The main statement (downgraded form, annotated as such):
+   the first component is the forward reduction (proved);
+   the second component is not rLPO -> pwe_PinWall (blocked, see
+   [pwe_reverse_obstacle]) and is carried by the reverse-obstacle report.
+   Not a false equivalence claim: the file does not prove the full
+   PinWall ⟺ rLPO form, only the forward reduction together with the
+   reverse-unreachability report. *)
 Definition pwe_equivalence :
   And (pwe_PinWall -> rLPO)
       ((rLPO -> pwe_PinWall) -> rLPO -> Empty_set) :=

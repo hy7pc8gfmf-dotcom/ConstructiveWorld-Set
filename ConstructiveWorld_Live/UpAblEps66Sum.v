@@ -1,48 +1,31 @@
-(* ============================================================
-   使命：本件定理/引理声明面所述性质的形式化（原头注为历史注记块，
-         实质整编尚待后续；本块为五字段指针）。
-   依赖：件内 Require 声明面所列库件。
-   编译配方：coqc -native-compiler no -q -Q . ""。
-   ============================================================ *)
+(* ConstructiveWorld-Set -- the three sum properties instantiated on enum list sums. *)
+(** * UpAblEps66Sum: the three sum properties (extensionality, order
+    preservation, additivity) instantiated on enum list sums.
 
-(* ========================================================================= *)
-(*                                                                           *)
-(* Require 面                                                                *)
-(* 替换定理清单：e66s_real_sum_over_S_ext／e66s_real_sum_over_S_le／         *)
-(* e66s_real_sum_over_S_add（共 3 位）                                       *)
-(* 非平凡性口径：源版本体换实例归纳重演（换形实例化，中转项双段转移）；无一    *)
-(* 行拆分式假非平凡。                                                        *)
-(* 本稿零公理、零承认件、全闭合、纯构造性、无经典逻辑；落件时与本次补标      *)
-(* 抽验编译均验零承认。                                                      *)
-(* ========================================================================= *)
-(* ============================================================ *)
-(* UpAblEps66Sum.v                                               *)
-(*                                                               *)
-(* 使命：本件形式化求和三性质在 enum 列表和实例上的成立：外延性     *)
-(*   （逐点 real_eq 则和 real_eq）、保序性（逐点 real_le 则和        *)
-(*   real_le）与加法性（逐项相加的和等于和的逐项相加）。三者即       *)
-(*   S08_RealMainlineDPO 中 Section 假设 real_sum_over_S_ext /      *)
-(*   real_sum_over_S_le / real_sum_over_S_add 的具体实例。           *)
-(*                                                               *)
-(*   本件另附 bool 二元载体（枚举 true::false::nil）上的完全        *)
-(*   具体实例：求和三性质在柯西实数层 Real 上无残留抽象变量地       *)
-(*   成立。                                                        *)
-(*                                                               *)
-(* 依赖：CW_ConstructiveWorld_219（内含 S08_RealMainlineDPO）、       *)
-(*   UpReqSumD（sumd_sum_ext / sumd_sum_le / sumd_sum_add、求和      *)
-(*   算子 sumd_sumf）。                                            *)
-(*                                                               *)
-(* 对标：mathlib Finset.sum_congr / Finset.sum_le_sum / map_sum      *)
-(*   （有限和的外延性、保序性与加法性）。                           *)
-(*                                                               *)
-(* 构造性：全 Set 层语句（real_eq / real_le 均 Set 值谓词，语句面     *)
-(*   零裸 Prop）；零承认、全 Qed；核心件 e66s_sumf 可提取。          *)
-(*                                                               *)
-(* 编译：Rocq 9.1 直调 coqc，cpu_guard 限核包裹。验证编译一律        *)
-(*   -o 临时目录，树内 .vo 不重写；旧 .vo 仍为改后源件的合法         *)
-(*   编译产物（注释不进 .vo）。                                    *)
-(*                                                               *)
-(* ============================================================ *)
+    Mission.  Extensionality (pointwise real_eq gives real_eq of the sums),
+      order preservation (pointwise real_le gives real_le of the sums), and
+      additivity (the sum of the termwise sum equals the real_plus of the
+      sums): the concrete instances of the Section hypotheses
+      real_sum_over_S_ext / real_sum_over_S_le / real_sum_over_S_add of
+      S08_RealMainlineDPO, with the sum operator instantiated as
+      [e66s_sumf]; plus the fully concrete bool-carrier instance
+      ([e66s_flag_enum] := true::false::nil) with no residual abstract
+      variables.
+
+    Dependencies.  This development: [S01_BaseRing] .. [S15_TailFEPUp]
+      (containing S08_RealMainlineDPO), [UpReqSumD] (sumd_sum_ext /
+      sumd_sum_le / sumd_sum_add and the sum operator sumd_sumf); Stdlib
+      [Extraction], [List].
+
+    References.  mathlib Finset.sum_congr / Finset.sum_le_sum / map_sum
+      (extensionality, order preservation, additivity of finite sums);
+      the same-name ConstructiveWorld-Main baseline.
+
+    Constructivity.  All statements Set-layer (real_eq / real_le are
+      Set-valued predicates, zero bare Prop); axiom-free, all Qed; the core
+      piece [e66s_sumf] is extractable.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpAblEps66Sum.v] (direct call, cpu_guard wrapped). *)
 
 From Stdlib Require Import Extraction.
 Require Import S01_BaseRing.
@@ -65,22 +48,24 @@ From Stdlib Require Import List.
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
 
-(* ================= §1 求和三性质在 enum 列表和上的实例化 ========= *)
-(* 语句与 S08_RealMainlineDPO 的 Section 假设 real_sum_over_S_ext    *)
-(*   / real_sum_over_S_le / real_sum_over_S_add 一致，仅将求和算子   *)
-(*   实例化为 e66s_sumf。                                          *)
+(* ================= §1 instantiating the three sum properties on enum list sums ========= *)
+(* The statements match the Section hypotheses real_sum_over_S_ext /
+   real_sum_over_S_le / real_sum_over_S_add of S08_RealMainlineDPO, with
+   only the sum operator instantiated as e66s_sumf. *)
 (* ============================================================ *)
 Section E66SumD.
 
 Context (S0 : Set).
 Context (enum0 : list S0).
 
-(* 求和算子的实例：enum 列表和，透明 Definition，展开即 sumd_sumf。  *)
+(* The instance of the sum operator: the enum list sum, a transparent
+   Definition; unfolding gives sumd_sumf. *)
 Definition e66s_sumf (f : S0 -> Real) : Real := sumd_sumf S0 enum0 f.
 
-(* 性质 1（求和的外延性）：若两函数逐点 real_eq 相等，则其 enum       *)
-(* 列表和 real_eq 相等。由 UpReqSumD 的 sumd_sum_ext 直接推得；       *)
-(* 等词面 real_eq 与供体接口的 req 在 Real 实例下为同一名。           *)
+(* Property 1 (extensionality of the sum): if two functions are pointwise
+   real_eq-equal, their enum list sums are real_eq-equal.  Derived directly
+   from sumd_sum_ext of UpReqSumD; the equality face real_eq and the
+   donor-interface req are the same name under the Real instance. *)
 Theorem e66s_real_sum_over_S_ext :
   forall (f g : S0 -> Real),
     (forall s : S0, real_eq (f s) (g s)) ->
@@ -94,10 +79,11 @@ Proof.
              (sumd_list_sum S0 g t) (H x) IH).
 Qed.
 
-(* 性质 2（求和的保序性）：若两函数逐点满足 real_le (f s) (g s)，     *)
-(* 则其 enum 列表和满足 real_le。由 UpReqSumD 的 sumd_sum_le 直接    *)
-(* 推得，空表情形由 le_refl 处理，故本语句无需非空前提；序面           *)
-(* real_le 与供体接口的 le 为同一名。                                *)
+(* Property 2 (order preservation of the sum): if two functions satisfy
+   real_le (f s) (g s) pointwise, their enum list sums satisfy real_le.
+   Derived directly from sumd_sum_le of UpReqSumD, the empty-list case
+   handled by le_refl, so the statement needs no nonemptiness premise; the
+   order face real_le and the donor-interface le are the same name. *)
 Theorem e66s_real_sum_over_S_le :
   forall (f g : S0 -> Real),
     (forall s : S0, real_le (f s) (g s)) ->
@@ -111,9 +97,10 @@ Proof.
              (sumd_list_sum S0 g t) (H x) IH).
 Qed.
 
-(* 性质 3（求和的加法性）：两函数逐项相加后的列表和，等于各自列表     *)
-(* 和的 real_plus；由 UpReqSumD 的 sumd_sum_add 直接推得，求和次序   *)
-(* 的重排由 req_plus_exchange 处理。                                *)
+(* Property 3 (additivity of the sum): the list sum of the termwise sum of
+   two functions equals the real_plus of their list sums; derived directly
+   from sumd_sum_add of UpReqSumD, the reordering of the summation handled
+   by req_plus_exchange. *)
 Theorem e66s_real_sum_over_S_add :
   forall (f g : S0 -> Real),
     real_eq (e66s_sumf (fun s : S0 => real_plus (f s) (g s)))
@@ -141,10 +128,11 @@ Qed.
 End E66SumD.
 
 (* ============================================================ *)
-(* §2 bool 载体上的完全具体实例：取 bool 为载体、true::false::nil    *)
-(*   为枚举，求和三性质在柯西实数层 Real 上于完全具体的载体成立，     *)
-(*   无残留抽象变量；S08 各节抽象载体 S 的 Set 层实例即落本面。       *)
-(*                                                               *)
+(* §2 the fully concrete instance on the bool carrier: with bool as the carrier *)
+(*   and true::false::nil as the enumeration, the three sum properties hold on *)
+(*   the Cauchy-real layer Real over a fully concrete carrier, with no residual *)
+(*   abstract variables; the Set-layer instances of the abstract carrier S of the *)
+(*   S08 sections land here. *)
 (* ============================================================ *)
 Definition e66s_flag_enum : list bool := [true; false].
 Definition e66s_flag_sumf (f : bool -> Real) : Real :=
@@ -177,16 +165,19 @@ Proof.
   exact (e66s_real_sum_over_S_add bool e66s_flag_enum f g).
 Qed.
 
-(* ============ 提取核验 ========================================== *)
-(* 本件唯一计算内容为求和载体件 e66s_sumf（enum 列表和，由列表       *)
-(* 折叠定义），提取其 OCaml 输出以核验计算面。                        *)
-(* 三件性质定理处于等词与序谓词层面，不属于计算内容，                 *)
-(* 不进入提取输出的实质。                                          *)
-(* 提取目标：e66s_G3_sumf.ml。                                     *)
+(* ============ extraction check ========================================== *)
+(* The only computational content of this file is the sum-carrier piece
+   e66s_sumf (the enum list sum, defined by a list fold); its OCaml output
+   is extracted to check the computational face.
+   The three property theorems live at the equality and order-predicate
+   level, are not computational content, and do not enter the substance of
+   the extraction output.
+   Extraction target: e66s_G3_sumf.ml. *)
 Set Extraction Output Directory "_tab5_g3out".
 Extraction "e66s_G3_sumf.ml" e66s_sumf.
 
-(* 假设闭包核验：以下各定理的假设闭包应为空（Closed）。 *)
+(* Assumption-closure check: the assumption closures of the following
+   theorems should be empty (Closed). *)
 Print Assumptions e66s_real_sum_over_S_ext.
 Print Assumptions e66s_real_sum_over_S_le.
 Print Assumptions e66s_real_sum_over_S_add.

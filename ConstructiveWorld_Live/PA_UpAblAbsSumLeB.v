@@ -1,53 +1,32 @@
-(* ============================================================
-   使命：本件数学使命叙述见下方原头注首段（既有件注记型头注整编尚待后续）。
-   依赖：见原头注 Require 面与依赖段。
-   对标：见原头注来源/对标行。
-   构造性：纯构造性、零承认件（详见原头注红线自审段）。
-   编译配方：coqc -native-compiler no -q -Q . ""。
-   ============================================================ *)
-(* ============================================================ *)
-(* 本件为消融落件：原件全文逐字保留，仅将文末清单所列定理之证明体  *)
-(* 替换为玩具证（实质非平凡三口径：定义层受控展开／显式见证直取／  *)
-(* 结构性重演，直取既勘引擎位），声明面与引用面零改动，零新增      *)
-(* Require，证明结尾记号与原件逐件守恒，纯构造性闭合，文尾保留    *)
-(* 原件 Print Assumptions 追印面。清单：                          *)
-(*   uabS4_diff_double_kill（原 L311，3 句玩具证）                        *)
-(*   uabS4_abs_list_sum_le_eps（原 L263，4 句玩具证）                     *)
-(*   uabS4_abs_list_sum_le_B（原 L252，4 句玩具证）                       *)
-(*   uabS4_abs_sum_le_B_pair（原 L129，2 句玩具证）                       *)
-(*   uabS4_abs_diff_triangle_le_B（原 L118，4 句玩具证）                  *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set -- abs_sum_le family I (plain Or form): strongest
+   reachable forms, on the Bishop B face. *)
 
-(* ============================================================ *)
-(* UpAblAbsSumLeB.v —— abs_sum_le 族（族 I plain Or 形）可达最强形依赖模块 *)
-(*                                                                *)
-(* 零承认件：无承认词面、无假设参数声明、无经典逻辑、全件 Qed 闭合。 *)
-(*   全部语句 Set 层值（real_le/real_lt/real_eq/real_le_b 均 Set），  *)
-(*   语句面无裸「命题层」；证明全构造（Or 逐支、sigT 见证直接构造）。 *)
-(*                                                                *)
-(* 结论（本件头注即结论正文）：                                      *)
-(*   abs_sum_le 族 I（plain Or 形，UpReqSampling 的族 I 接口）        *)
-(*   的可达最强形 = Bishop B 形（real_le_b，见 UpRealLeB）：          *)
-(*   ① B 形严格强于逐 eps 形（real_le_closure_b_one 单步闭包）；      *)
-(*   ② 逐 eps 形经 Or-inl 支直接给出（real_lt_le_iff_req 左注入）；   *)
-(*   ③ plain Or 形不可达（本件不触及该方向的构造）。                 *)
-(*                                                                *)
-(* 三件供给（全为独立构造）：                                        *)
-(*   A 两点核差形：|a−c| ≤ (|a−b|+|b−c|)+eps 逐 eps（Or-inl）        *)
-(*      ＋ B 形——差恒等式 eq 链（assoc/opp/zero 五步）＋三角实例；    *)
-(*   B list 折叠形：real_list_sum 折叠三角——归纳承载两点核＋         *)
-(*      误差分配（约定：单点引入=每步恰一整单位 e；常数加权=          *)
-(*      权函数 W(l)（W(nil)=1，W(cons)=W(rest)+1）线性加权）；        *)
-(*      末端=以 W(l) 显式正性证书经 real_le_closure_b 得 B 形），     *)
-(*      ＋B 形⟹逐 eps 形（Or-inl 注入）；                            *)
-(*   C 余量倍率 2 不可共存引理：余量倍率 2 时——                      *)
-(*      real_lt (Y+2e) X 与 real_le X (Y+e) 不可能共存（lt 支        *)
-(*      传递与 eq 支运输同归于 real_lt (Y+2e) (Y+e)，与 e < 2e        *)
-(*      的平移合取后撞 real_lt_irrefl）。                             *)
-(*                                                                *)
-(* 依赖：CW_ConstructiveWorld_219＋UpRealLeB＋                       *)
-(*   S08_RealMainlineDPO（real_list_sum）。                           *)
-(* ============================================================ *)
+(** * PA_UpAblAbsSumLeB: strongest reachable forms for the abs_sum_le
+    family I.
+
+    Mission.  The strongest reachable form of the abs_sum_le family I
+      (plain Or form, UpReqSampling family I interface) is the Bishop
+      B form [real_le_b]: strictly stronger than the per-eps form
+      ([real_le_closure_b_one] closes in one step), which follows by
+      the [inl] injection into [real_lt_le_iff_req]; the plain Or
+      form is not constructed here.  Supplies: the two-point core
+      difference form on both faces, the [real_list_sum] fold form
+      by induction on the weight [W], and the non-coexistence of
+      [real_lt (Y+2e) X] with [real_le X (Y+e)].
+
+    Dependencies.  Stdlib [List], [QArith.Qring]; requires the
+      [S01]-[S15] chain and [UpRealLeB].
+
+    References.  ConstructiveWorld-Main, module [PA_UpAblAbsSumLeB]
+      (statement names carried over verbatim).
+
+    Constructivity.  No admission words, no axiom declarations, no
+      classical logic, whole file [Qed]-closed; statements are
+      Set-level values, proofs constructive ([Or] by branches,
+      [sigT] witnesses direct).
+
+    Build.  [coqc -native-compiler no -q -Q . "" PA_UpAblAbsSumLeB.v]
+      compiles cleanly (exit 0). *)
 
 From Stdlib Require Import List.
 From Stdlib Require Import QArith.Qring.
@@ -69,28 +48,32 @@ Require Import S15_TailFEPUp.
 Require Import UpRealLeB.
 
 (* ============================================================ *)
-(* §0 库内接口核对（Check 逐项对照真实签名）                            *)
+(* Section 0 - in-library interface check ([Check] against the     *)
+(*   true signatures)                                              *)
 (* ============================================================ *)
 
-Check real_le_b.              (* Bishop 形 ≤（可达最强形谓词，见 UpRealLeB） *)
-Check real_le_closure_b_one.  (* 逐 eps 完成为 B 形（单步闭包） *)
-Check real_le_closure_b.      (* 带加权正性证书 D 的 B 形闭合 *)
-Check real_abs_triangle_le_B. (* |a+b| ≤_B |a|+|b|（B 形三角不等式） *)
-Check real_abs_triangle_le_eps. (* |a+b| ≤ (|a|+|b|)+eps 逐 eps（两点核三角不等式） *)
-Check real_lt_zero_one.       (* 0 < 1（W(nil) 正性证书） *)
-Check real_lt_plus_r_zero.    (* y < y+eps（见 UpRealLeB） *)
-Check real_list_sum.          (* list 折叠（X 全称，见 S08_RealMainlineDPO） *)
-Check RealSetoid.real_eq_abs_compat. (* abs 尊重 real_eq *)
-Check real_abs_zero_req.      (* |0| ≡ 0 *)
-Check real_lt_irrefl.         (* 实数 < 的反自反（归谬的共同落点） *)
+Check real_le_b.              (* the Bishop-form <= (the strongest-reachable predicate, see UpRealLeB) *)
+Check real_le_closure_b_one.  (* per-eps completion into the B form (one-step closure) *)
+Check real_le_closure_b.      (* B-form closure with an explicit positivity certificate D *)
+Check real_abs_triangle_le_B. (* |a+b| <=_B |a|+|b| (the B-form triangle) *)
+Check real_abs_triangle_le_eps. (* |a+b| <= (|a|+|b|)+eps per eps (the two-point core triangle) *)
+Check real_lt_zero_one.       (* 0 < 1 (the positivity certificate for W(nil)) *)
+Check real_lt_plus_r_zero.    (* y < y+eps (see UpRealLeB) *)
+Check real_list_sum.          (* the list fold (X universal, from S08_RealMainlineDPO) *)
+Check RealSetoid.real_eq_abs_compat. (* abs respects real_eq *)
+Check real_abs_zero_req.      (* |0| == 0 *)
+Check real_lt_irrefl.         (* irreflexivity of real < (the common landing point of the contradiction arguments) *)
 
 (* ============================================================ *)
-(* §1 基础引理：正余量右吸收 ＋ 差形两点三角不等式                     *)
+(* Section 1 - basic lemmas: right absorption by a positive        *)
+(*   margin, and the difference-form two-point triangle            *)
 (* ============================================================ *)
 
-(* 基础引理：le a b ＋ 0 < c ⟹ le a (b+c)（正余量右吸收）。
-   构造：Or 两支分别 lt 传递（b < b+c 经 (b+0) 换形平移）
-   ／eq 支运输后同链；统一经 real_lt_le_iff_req 左注入收束。 *)
+(* Basic lemma: [le a b] with [0 < c] gives [le a (b+c)] (right     *)
+(* absorption of a positive margin).  Construction: the [lt] branch *)
+(* composes by transitivity ([b < b+c] via the [(b+0)] transport),  *)
+(* the [eq] branch transports then follows the same chain; both     *)
+(* close through the [inl] injection of [real_lt_le_iff_req].       *)
 Lemma uabS4_le_add_r : forall a b c : Real,
   real_le a b -> real_lt real_zero c -> real_le a (real_plus b c).
 Proof.
@@ -109,9 +92,12 @@ Proof.
       * apply (real_lt_plus_translate b real_zero c). exact Hc.
 Qed.
 
-(* A.1 两点核差形（逐 eps，Or-inl）：|a−c| ≤ (|a−b|+|b−c|)+eps。
-   构造：差恒等式 eq 链 (a−b)+(b−c) ≡ a−c（assoc×2＋opp＋zero 五步，
-   逐项经 real_eq_plus_compat 运输），abs 尊重 eq 后两点核三角直接应用。 *)
+(* A.1 Two-point core difference form (per eps, via [inl]):        *)
+(* [|a-c| <= (|a-b|+|b-c|)+eps].  Construction: the difference     *)
+(* identity [(a-b)+(b-c) == a-c] (five steps: assoc twice, opp,    *)
+(* zero, each transported by [real_eq_plus_compat]); once [abs]    *)
+(* respects the equation, the two-point core triangle applies      *)
+(* directly.                                                       *)
 Lemma uabS4_abs_diff_triangle_le_eps : forall a b c e : Real,
   real_lt real_zero e ->
   real_le (real_abs (real_plus a (real_opp c)))
@@ -147,7 +133,8 @@ Proof.
                                   (real_plus b (real_opp c)) e He).
 Qed.
 
-(* A.2 两点核差形（B 形，可达最强形）：|a−c| ≤_B |a−b|+|b−c|。 *)
+(* A.2 Two-point core difference form (B face, strongest           *)
+(* reachable): [|a-c| <=_B |a-b|+|b-c|].                           *)
 Theorem uabS4_abs_diff_triangle_le_B : forall a b c : Real,
   real_le_b (real_abs (real_plus a (real_opp c)))
             (real_plus (real_abs (real_plus a (real_opp b)))
@@ -159,8 +146,9 @@ Proof.
   exact (uabS4_abs_diff_triangle_le_eps a b c e He).
 Qed.
 
-(* A.3 两点世界（S := bool）B 形实例：两点为 abs_sum_le 问题的最小
-   非平凡世界，此处直接应用 real_abs_triangle_le_B。 *)
+(* A.3 B-form instance on the two-point world ([S := bool]): the   *)
+(* two-point world is the least nontrivial world for abs_sum_le;   *)
+(* [real_abs_triangle_le_B] applies directly.                      *)
 Theorem uabS4_abs_sum_le_B_pair : forall f : bool -> Real,
   real_le_b (real_abs (real_plus (f true) (f false)))
             (real_plus (real_abs (f true)) (real_abs (f false))).
@@ -170,19 +158,24 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 list 折叠形：权函数加权归纳 ＋ B 形闭合                          *)
+(* Section 2 - the list fold form: weighted induction with a       *)
+(*   weight function, closed on the B face                         *)
 (* ============================================================ *)
 
-(* 权函数：W(nil)=1，W(w::rest)=W(rest)+1（定义性尾权 +1）。
-   误差分配：单点引入每步恰一整单位 e，尾段余量由 W(rest)·e 承担，
-   合计 (W(rest)+1)·e ≡ W(cons)·e——该分配逐级精确成立。 *)
+(* Weight function: [W(nil)=1], [W(w::rest)=W(rest)+1]             *)
+(* (definitional tail weight plus one).  Error allocation: a       *)
+(* single-point introduction spends exactly one whole unit [e] per *)
+(* step, and the tail margin is carried by [W(rest)*e]; together   *)
+(* [(W(rest)+1)*e == W(cons)*e] - the allocation is exact at every *)
+(* level.                                                          *)
 Fixpoint uabS4_wlen (X : Type) (l : list X) : Real :=
   match l with
   | nil => real_one
   | w :: rest => real_plus (uabS4_wlen X rest) real_one
   end.
 
-(* 权正性证书：0 < W(l)（归纳：1 > 0；W(rest) > 0 平移至 W(rest)+1）。 *)
+(* Weight positivity certificate: [0 < W(l)] (induction: [1 > 0];  *)
+(* [W(rest) > 0] translates to [W(rest)+1]).                       *)
 Lemma uabS4_wlen_pos : forall (X : Type) (l : list X),
   real_lt real_zero (uabS4_wlen X l).
 Proof.
@@ -194,11 +187,13 @@ Proof.
     + apply real_lt_plus_r_zero. exact real_lt_zero_one.
 Qed.
 
-(* 归纳步引理（折叠归纳的 cons 一步）：
-   两点核三角（单点引入，余量恰一整单位 e）＋尾段余量（w·e 加权承担）
-   ⟹ 折叠目标余量 (w+1)·e。
-   构造：经 real_le_plus_compat 合成，再以 assoc×3＋distrib/mult_one
-   的 eq 链终运输（(w+1)·e ≡ w·e + e，经 comm/distrib 逐步重排）。 *)
+(* Induction-step lemma (the cons step of the fold induction): the *)
+(* two-point core triangle (single-point introduction, margin one  *)
+(* whole unit [e]) plus the tail margin (carried weighted by       *)
+(* [w*e]) give the fold target margin [(w+1)*e].  Construction:    *)
+(* composed through [real_le_plus_compat], then final transport    *)
+(* along an eq chain ([assoc] three times, [distrib]/[mult_one];   *)
+(* [(w+1)*e == w*e + e] rearranged stepwise via comm/distrib).     *)
 Lemma uabS4_cons_glue : forall a s t w e : Real,
   real_lt real_zero e ->
   real_le (real_abs (real_plus a s))
@@ -255,9 +250,12 @@ Proof.
   - exact Hchain.
 Qed.
 
-(* B.1 加权归纳主体（逐 eps 形，权函数 W）：|Σ_l f| ≤ Σ_l|f| + W(l)·e。
-   情形 l=[]：|0| ≡ 0 ≤ 0 + 1·e（正余量右吸收）；
-   归纳步 l 到 w::rest：两点核三角以整单位 e 引入，尾段由归纳假设同权承担，经 uabS4_cons_glue 合成。 *)
+(* B.1 Weighted induction body (per-eps form, weight [W]):         *)
+(* [|sum_l f| <= sum_l|f| + W(l)*e].  Case [l = []]: [|0| == 0 <=  *)
+(* 0 + 1*e] (right absorption of a positive margin); step [l] to   *)
+(* [w::rest]: the two-point core triangle introduces one whole     *)
+(* unit [e], the tail is carried at the same weight by the         *)
+(* induction assumption, composed by [uabS4_cons_glue].            *)
 Lemma uabS4_abs_list_sum_le_wt : forall (X : Type) (f : X -> Real) (l : list X)
                                         (e : Real),
   real_lt real_zero e ->
@@ -283,8 +281,9 @@ Proof.
     + exact (IH e He).
 Qed.
 
-(* B.2 B 形闭合（可达最强形）：|Σ_l f| ≤_B Σ_l|f|。
-   real_le_closure_b 以 D := W(l) 显式正性证书闭合加权族。 *)
+(* B.2 B-form closure (strongest reachable): [|sum_l f| <=_B       *)
+(* sum_l|f|] - [real_le_closure_b] closes the weighted family at   *)
+(* the explicit positivity certificate [D := W(l)].                *)
 Theorem uabS4_abs_list_sum_le_B : forall (X : Type) (f : X -> Real) (l : list X),
   real_le_b (real_abs (real_list_sum X f l))
             (real_list_sum X (fun x => real_abs (f x)) l).
@@ -295,8 +294,10 @@ Proof.
   exact (uabS4_abs_list_sum_le_wt X f l e He).
 Qed.
 
-(* B.3 逐 eps 形推论：B 形 ⟹ |Σ_l f| ≤ Σ_l|f| + eps（Or-inl 注入）。
-   对照结论：B 形严格强于逐 eps 形——real_le_closure_b_one 即单步反演。 *)
+(* B.3 Per-eps corollary: the B form gives [|sum_l f| <= sum_l|f| + *)
+(* eps] (the [Or]-inl injection).  Comparison result: the B form is *)
+(* strictly stronger than the per-eps form -                        *)
+(* [real_le_closure_b_one] is exactly its one-step inversion.       *)
 Theorem uabS4_abs_list_sum_le_eps : forall (X : Type) (f : X -> Real) (l : list X)
                                            (e : Real),
   real_lt real_zero e ->
@@ -310,15 +311,18 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 余量倍率 2 的不可共存引理                                        *)
+(* Section 3 - the margin-ratio-2 non-coexistence lemma            *)
 (* ============================================================ *)
 
-(* C.1 余量倍率 2 不可共存：0 < e ＋ real_lt (Y+2e) X ＋ real_le X (Y+e)
-   不可能共存。构造：Or 两支都导出 real_lt (Y+2e) (Y+e)——
-   lt 支经传递（Y+2e < X < Y+e）；eq 支经 RHS 运输（X ≡ Y+e）；
-   另一侧 e < 2e 经平移给出 Y+e < Y+2e，与上式合取即与 real_lt_irrefl 矛盾。
-   边界注记：余量恰为 e（倍率 1）时 eq 支与反向
-   strict 可共存（xₙ−yₙ = e+1/n 型逼近例），倍率 2 方不可共存。 *)
+(* C.1 Margin-ratio-2 non-coexistence: [0 < e], [real_lt (Y+2e) X] *)
+(* and [real_le X (Y+e)] cannot coexist.  Construction: both [Or]  *)
+(* branches derive [real_lt (Y+2e) (Y+e)] - the [lt] branch by     *)
+(* transitivity ([Y+2e < X < Y+e]); the [eq] branch by RHS         *)
+(* transport ([X == Y+e]); the other side [e < 2e] translates to   *)
+(* [Y+e < Y+2e], and conjoining hits [real_lt_irrefl].  Boundary   *)
+(* note: at margin exactly [e] (ratio 1) the [eq] branch coexists  *)
+(* with the converse strict side (approach examples of the form    *)
+(* [x_n - y_n = e + 1/n]); ratio 2 does not.                       *)
 Theorem uabS4_lt_double_margin_le_half_contr : forall X Y e : Real,
   real_lt real_zero e ->
   real_lt (real_plus Y (real_plus e e)) X ->
@@ -342,10 +346,12 @@ Proof.
              (real_plus Y e) Heq Hfar).
 Qed.
 
-(* C.2 倍率 2 矛盾的差形实例（两点核差形与 C.1 的对角组合）：以逐 eps
-   差形两点核（uabS4_abs_diff_triangle_le_eps）为 le 来源：real_lt (b + 2e) a ＋ |a−c| ≤_B |a−b|+|b−c| 型
-   余量约束下的矛盾实例——B 形在 eps := e 处给出 le a (|a−b|+|b−c|+e)，
-   代入 C.1 即得。 *)
+(* C.2 Difference-form instance of the ratio-2 contradiction (the  *)
+(* two-point core difference form composed diagonally with C.1):   *)
+(* the per-eps two-point core ([uabS4_abs_diff_triangle_le_eps])   *)
+(* serves as the [le] source - under the margin constraint of the  *)
+(* shape [real_lt (b + 2e) a] with [|a-c| <= |a-b|+|b-c|+e] at     *)
+(* [eps := e], substituting into C.1 gives the contradiction.      *)
 Theorem uabS4_diff_double_kill : forall a b c e : Real,
   real_lt real_zero e ->
   real_lt (real_plus (real_plus (real_abs (real_plus a (real_opp b)))
@@ -360,7 +366,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 审计注记：Print Assumptions 预期全 Closed（零外部未证假设）         *)
+(* Audit note: the [Print Assumptions] outputs are expected all    *)
+(* Closed (zero external unproved facts).                          *)
 (* ============================================================ *)
 
 Print Assumptions uabS4_le_add_r.
@@ -375,7 +382,7 @@ Print Assumptions uabS4_abs_list_sum_le_eps.
 Print Assumptions uabS4_lt_double_margin_le_half_contr.
 Print Assumptions uabS4_diff_double_kill.
 
-(* PA 追印段（ 核验副本件） *)
+(* Print Assumptions replay block (verification copies).           *)
 Print Assumptions uabS4_diff_double_kill.
 Print Assumptions uabS4_abs_list_sum_le_eps.
 Print Assumptions uabS4_abs_list_sum_le_B.

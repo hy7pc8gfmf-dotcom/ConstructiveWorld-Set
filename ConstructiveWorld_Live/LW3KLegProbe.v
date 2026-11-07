@@ -1,16 +1,33 @@
-(* LW3KLegProbe.v                                                        *)
-(* 使命：M3 K 非零判据一般形勘形首件——零例多项式 -46 + 7t 在指数一阶     *)
-(*       实例上使 K 面见证型空化，无条件一般形由值级机械证伪；另附锚例    *)
-(*       泛函值 -265 被节点位移 5 整除的结构钉。                          *)
-(* 依赖：LW3ETranscendental（只读正本）及其 Require 闭包 S02/S03/LW0/     *)
-(*       LW1/LW2 系。                                                    *)
-(* 对标：E-STAGING-LW3-PROBEPIN 坑4；E-STAGING-LW3-KNZWALL；             *)
-(*       _tlw372 同配方绿件。                                            *)
-(* 构造性：语句面全 Set（见证型空化定理一件、非零前提入住一件、透明路径  *)
-(*       值钉两件），语句与前提位零 Prop；提取并集仅数据名，魔数=0；      *)
-(*       禁引六族零命中。                                                *)
-(* 编译配方：coqc 全路径 -q -Q . "" -Q ConstructiveWorld-Main/           *)
-(*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。 *)
+(* ConstructiveWorld-Set — the general form of the K-nonzero criterion probed at a zero instance. *)
+
+(** * LW3KLegProbe: the K-nonzero criterion in general form, refuted at a zero instance.
+
+    Mission.  The zero-instance polynomial [p377] = -46 + 7 t voids the
+      K-face witness type at the first exponent instance: the node
+      functional vanishes ([lam377_zero]), so [kleg377_empty] derives
+      [Empty_set] from the K witness (unconditional K-witness
+      production from [p377_nz] admits no construction); [lam377b_div]
+      pins the divisibility of the anchor value -265 by node shift 5.
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith_base]; requires [S02_CauchyComplete], [S03_QExp], the
+      LW0/LW1/LW2 modules and [LW3ETranscendental] of this development
+      (read-only).
+
+    References.  This development, [LW3ETranscendental].v; the baseline
+      module of the same name in ConstructiveWorld-Main, whose statement
+      names are carried over here verbatim.
+
+    Constructivity.  All statements carried by [Set]: the voiding
+      theorem [kleg377_empty] targets [Empty_set], [p377_nz] is a [sigT]
+      inhabitation, value pins ride [match] over [Qeq_bool]/[Z.eqb];
+      zero admission words; no classical axioms; extraction names data
+      only ([p377], [p377b]), with generic library-lemma parameters
+      surfacing as [Obj.magic] (disclosed per the extraction census).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW3KLegProbe.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith_base.
 Require Import S01_BaseRing.
