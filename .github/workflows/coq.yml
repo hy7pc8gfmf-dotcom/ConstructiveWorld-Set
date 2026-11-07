@@ -568,7 +568,7 @@ jobs:
           echo "coqchk modules (${#mods[@]}): ${mods[*]}"
           set +e
           bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -MaxWaitSec 7200 -- \
-            "$COQCHK" -o -Q "ConstructiveWorld_Live" "" "${mods[@]}" > "$log" 2>&1
+            "${COQCHK_EXTRA_FLAGS:--bytecode-compiler yes}" -o -Q "ConstructiveWorld_Live" "" "${mods[@]}" > "$log" 2>&1
           rc=$?
           set -e
           echo "COQCHK_EXIT=$rc"
