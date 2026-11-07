@@ -16,7 +16,7 @@ Import DTPT.DTPT.
 Module DTPT_Truth.
 
 (* ========== §0 语句面 Set 形承载 twin（born-clean·与 DTPT.v §0 同构姊妹块）
-   Id/eq_imp_id/id_imp_eq/NatLe/NatLe_drop/NatLe_lift 由 DTPT.DTPT §0 供给；
+   Id/eq_imp_id/id_imp_eq/NatLe/NatLe_dropI/NatLe_liftI are provided by DTPT.DTPT §0;
    此处补 AndT/OrT/NotT/IffT 四承载（A*B / A+B / A->Empty_set / (A->B)*(B->A)
    Set 形；本件不 Require S01，twin 本地定义且命名避让 Stdlib 连接词记法）。 ========== *)
 Definition AndT (A B : Set) : Set := A * B.
@@ -745,11 +745,11 @@ Proof.
   - intro Ha. pose proof (id_imp_eq Ha) as Ha'.
     destruct (proj1 (Bool.andb_true_iff _ _) Ha') as [H1 H2].
     split; [ apply eq_imp_id; exact H1
-           | apply NatLe_lift; exact (proj1 (Nat.leb_le _ _) H2) ].
+           | apply NatLe_liftI; apply eq_imp_id; exact H2 ].
   - intros [H1 H2]. apply eq_imp_id.
     apply (proj2 (Bool.andb_true_iff _ _)).
     split; [ apply id_imp_eq; exact H1
-           | apply (proj2 (Nat.leb_le _ _)); exact (NatLe_drop _ _ H2) ].
+           | apply (proj2 (Nat.leb_le _ _)); exact (NatLe_drop_le _ _ H2) ].
 Qed.
 
 (* 3.2 行为定理（构造子级拆解）：对 mkTrNode 逐分支反射 *)
@@ -910,9 +910,9 @@ Proof.
   exists (mkTrNode Lv1 phi phi (evNum 0%Q)).
   split.
   - apply id_refl.
-  - (* 尺寸下界定义层消约——trValue 投影与 evNum 支逐层归约出
-       后继一，le_n 直构经 NatLe_lift 抬升入 NatLe 面 *)
-    apply NatLe_lift. exact (le_n (Datatypes.S Datatypes.O)).
+  - (* The size lower bound reduces to the successor-one shape; the
+       reflexive native face closes it directly. *)
+    exact (NatLe_refl (Datatypes.S Datatypes.O)).
 Qed.
 
 (* 纤维 × 审查器组合面：Lv2 层携带证据的纤维见证必过审
@@ -974,15 +974,17 @@ Theorem tneg_counter_size : forall (phi m : Dig) (v : DTPT.DTPT.Evidence),
               (ev_size (cv_ev (refCounter (mkRef phi m v))))).
 Proof.
   intros phi m v.
-  (* 合取两支分证——左支 RefNode 计数投影 iota 与桥测度 delta
-     展开双侧归一；右支内联 ev_size_pos 三构造子骨架：叶支下界
-     直构、Pair 支后继单调链闭合（le 形经 NatLe_lift 抬升入 NatLe 面） *)
+  (* Both conjuncts proved separately: the left arm normalizes the
+     counting projection and the bridge measure on both sides; the right
+     arm splits on the evidence constructor, and [Nat.leb] of the
+     successor-one lower bound computes to [true] in every branch, each
+     closed with the identity witness. *)
   split.
   - apply id_refl.
-  - apply NatLe_lift. destruct v as [q | l | a b].
-    + simpl. apply le_n.
-    + simpl. apply le_n.
-    + simpl. apply nat_succ_le_mono. apply nat_le_0.
+  - apply NatLe_liftI. destruct v as [q | l | a b].
+    + simpl. exact id_refl.
+    + simpl. exact id_refl.
+    + simpl. exact id_refl.
 Qed.
 
 (* ---------- T1.3 Evidence 深水区：ev_append 精确加性 Set 面 ---------- *)

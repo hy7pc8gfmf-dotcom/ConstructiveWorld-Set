@@ -13,7 +13,7 @@
     equals n (well-founded strong induction).
 
     Dependencies.  Stdlib (Arith.Arith, List, Bool, Lia); S01_BaseRing
-    (Id, id_refl, NatLe, NatLe_lift, NatLe_drop, And).
+    (Id, id_refl, NatLe, NatLe_liftI, NatLe_refl, NatLe_drop_le, And).
 
     References.  Design basis: item 1 of the prime-field
     domain-formation series (the domain foundation).
@@ -30,7 +30,30 @@
     dependency .vo reused read-only from the source seat's world). *)
 
 From Stdlib Require Import Arith.Arith List Bool Lia.
-Require Import S01_BaseRing (Id, id_refl, NatLe, NatLe_lift, NatLe_drop, And).
+Require Import S01_BaseRing (Id, id_refl, NatLe, NatLe_liftI, NatLe_refl,
+  NatLe_drop_le, And).
+
+(* ---- Helpers: Set-level [Id] evidence builders for the native
+   [NatLe_liftI] write face ------------------------------------------- *)
+
+(* Set-level transport of a Leibniz equation into the [Id] face.  Pure
+   cast by singleton elimination of the equation; erased at extraction. *)
+Lemma pr_eq_id : forall (A : Set) (x y : A), x = y -> Id x y.
+Proof. intros A x y H.
+  exact (match H in (_ = z) return Id x z with eq_refl => id_refl end).
+Qed.
+
+(* Reflection: the arithmetic fact [n <= m] fixes the computed boolean
+   [Nat.leb n m] to [true].  The [false] branch is closed by the
+   arithmetic contradiction (unreachable on contract), mirroring the
+   [NatLe_refl] body. *)
+Lemma pr_leb_id : forall n m : nat, (n <= m)%nat -> Id (Nat.leb n m) true.
+Proof.
+  intros n m H. destruct (Nat.leb n m) eqn:E.
+  - apply id_refl.
+  - exfalso.
+    exact (Nat.lt_irrefl n (Nat.le_lt_trans n m n H (proj1 (Nat.leb_gt n m) E))).
+Qed.
 
 (* ---- Sec.0  The primality statement (Set-carried: the NatLe
    least-factor bound conjoined with the per-divisor non-divisibility
@@ -143,12 +166,11 @@ Theorem pr_prime_bool_true : forall n : nat,
   pr_prime_bool n = true -> pr_prime n.
 Proof.
   intros n H. unfold pr_prime. unfold pr_prime_bool in H.
-  apply andb_prop in H. destruct H as [Hleb Htr].
-  apply (proj1 (Nat.leb_le 2 n)) in Hleb. split.
-  - apply NatLe_lift. exact Hleb.
+  apply andb_prop in H. destruct H as [Hleb Htr]. split.
+  - apply NatLe_liftI. exact (pr_eq_id bool (Nat.leb 2 n) true Hleb).
   - intros d Hd2 Hdlt.
-    pose proof (NatLe_drop _ _ Hd2).
-    pose proof (NatLe_drop _ _ Hdlt).
+    pose proof (NatLe_drop_le _ _ Hd2).
+    pose proof (NatLe_drop_le _ _ Hdlt).
     assert (H1 : 1 <= n) by lia.
     assert (Hd1 : 1 <= d) by lia.
     destruct (Nat.eqb (n mod d) 0) eqn:Em.
@@ -162,7 +184,7 @@ Theorem pr_prime_bool_false : forall n : nat,
   pr_prime n -> Id (pr_prime_bool n) true.
 Proof.
   intros n Hpp. destruct Hpp as [H2 Hall].
-  assert (H2' : 2 <= n) by (apply (NatLe_drop _ _ H2)).
+  assert (H2' : 2 <= n) by (apply (NatLe_drop_le _ _ H2)).
   assert (H1 : 1 <= n) by lia.
   assert (Hl : Nat.leb 2 n = true) by (apply (proj2 (Nat.leb_le 2 n)); exact H2').
   unfold pr_prime_bool. rewrite Hl.
@@ -172,7 +194,8 @@ Proof.
     assert (Hd2 : 2 <= d) by lia.
     assert (Hdlt2 : S d <= n) by lia.
     assert (Hd1 : 1 <= d) by lia.
-    pose proof (Hall d (NatLe_lift _ _ Hd2) (NatLe_lift _ _ Hdlt2)) as Hne.
+    pose proof (Hall d (NatLe_liftI 2 d (pr_leb_id 2 d Hd2))
+                      (NatLe_liftI (S d) n (pr_leb_id (S d) n Hdlt2))) as Hne.
     pose proof (pr_dvd_mod0 d n Hd1 Hdvd) as Hm0.
     assert (Heq0 : n mod d = 0).
     { exact (match Hm0 in (Id _ z0) return (n mod d = z0)
@@ -216,9 +239,9 @@ Proof.
   intros n k. induction k as [|k IH]; intros Hn Hk Hall.
   - simpl. repeat split.
     + apply Nat.divide_refl.
-    + apply NatLe_lift. lia.
-    + apply NatLe_lift. lia.
-    + intros e He Hlt Hdvd. apply NatLe_drop in He. apply NatLe_drop in Hlt.
+    + apply NatLe_liftI. apply pr_leb_id. lia.
+    + apply NatLe_refl.
+    + intros e He Hlt Hdvd. apply NatLe_drop_le in He. apply NatLe_drop_le in Hlt.
       apply (Hall e); try lia. exact Hdvd.
   - simpl.
     assert (Hk2 : k <= n - 2) by lia.
@@ -227,9 +250,9 @@ Proof.
     + apply Nat.eqb_eq in Em.
       repeat split.
       * apply (pr_mod0_dvd (n - S k) n); [lia | exact Em].
-      * apply NatLe_lift. lia.
-      * apply NatLe_lift. lia.
-      * intros e He Hlt Hdvd. apply NatLe_drop in He. apply NatLe_drop in Hlt.
+      * apply NatLe_liftI. apply pr_leb_id. lia.
+      * apply NatLe_liftI. apply pr_leb_id. lia.
+      * intros e He Hlt Hdvd. apply NatLe_drop_le in He. apply NatLe_drop_le in Hlt.
         apply (Hall e); try lia. exact Hdvd.
     + apply IH; try lia.
       intros e He Hlt Hdvd.
@@ -255,7 +278,7 @@ Proof.
   destruct (pr_min_factor_sound n (n - 2) Hn Hkvac Hvac) as [Hpn [Hp2 [Hpn' Hmin]]].
   split; [exact Hp2|].
   intros d Hd2 Hdlt.
-  assert (Hd1 : 1 <= d) by (pose proof (NatLe_drop _ _ Hd2); lia).
+  assert (Hd1 : 1 <= d) by (pose proof (NatLe_drop_le _ _ Hd2); lia).
   destruct (Nat.eqb (pr_min_factor (n - 2) n mod d) 0) eqn:Em.
   + exfalso. apply Nat.eqb_eq in Em.
     pose proof (pr_mod0_dvd d (pr_min_factor (n - 2) n) Hd1 Em) as Hdm.
@@ -293,7 +316,7 @@ Proof.
   pose proof (fst Hpf) as Hpn.
   pose proof (snd Hpf) as Hpp.
   pose proof (fst Hpp) as Hp2.
-  pose proof (NatLe_drop _ _ Hp2) as Hp2'.
+  pose proof (NatLe_drop_le _ _ Hp2) as Hp2'.
   assert (Hpn0 : p = 0 -> False) by lia.
   assert (Hmod0 : n mod p = 0).
   { destruct Hpn as [z Hz].
