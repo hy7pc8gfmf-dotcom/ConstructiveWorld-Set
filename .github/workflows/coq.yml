@@ -29,30 +29,24 @@ jobs:
     # pipe deadlock with zero ceiling. 720min >= cold build + gate7 worst case.
     timeout-minutes: 720
     steps:
-      # NETRED self-heal gate (20261106): github.com:443 flaps in multi-minute windows;
-      # checkout dying at fetch costs the whole run. Wait (bounded) for a stable channel first.
-      # REF-QUIESCENCE (20261109): rapid force-push chains leave runs dispatched for
-      # shas the server no longer serves - checkout then dies "upload-pack: not our
-      # ref" 90s x3 (run 42498188787 precedent). After the channel settles, wait for
-      # refs/heads/main to settle on THIS run's sha; if a different head is seen
-      # persistently, this run is superseded - cancel itself (cancelled, not red):
-      # the newer push's run owns certification.
-      - name: Wait for git channel and ref quiescence (NETRED + supersede gate)
+      # Ref quiescence + source fetch via the REST API (20261109 dual-store lesson):
+      # the git smart-HTTP fleet and the REST API served two different object
+      # stores for this repo (fed757f visible only via git, 3657123/022f2e9 only
+      # via API; checkouts of cross-store shas died "upload-pack: not our ref").
+      # The gate now reads refs/heads/main over the API, and the source tree is
+      # fetched as the API tarball of this run's sha - both on the same channel
+      # the rest of the workflow already trusts.
+      - name: Wait for API ref quiescence (supersede gate)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           set +e
           SHA="${{ github.sha }}"
-          REPO_URL="https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set.git"
-          ok=0
-          for i in $(seq 1 40); do
-            if git ls-remote "$REPO_URL" refs/heads/main >/dev/null 2>&1; then ok=$((ok+1)); else ok=0; fi
-            [ "$ok" -ge 2 ] && { echo "NETRED-GATE: channel stable (try $i)"; break; }
-            sleep 30
-          done
-          [ "$ok" -ge 2 ] || { echo "NETRED-GATE-FAIL: git channel unstable for 20min - fail loud (rerun when the window opens)"; exit 1; }
+          HEAD=""
           superseded=0
           for i in $(seq 1 60); do
-            HEAD=$(git ls-remote "$REPO_URL" refs/heads/main 2>/dev/null | cut -f1)
+            HEAD=$(curl -s -m 30 -H "Authorization: Bearer ${{ github.token }}" -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/main" \
+              | python -c "import json,sys;print(json.load(sys.stdin).get('commit',{}).get('sha',''))" 2>/dev/null)
             if [ "$HEAD" = "$SHA" ]; then
               echo "REF-QUIESCENCE: main settled at this run's sha (try $i)"
               exit 0
@@ -72,12 +66,26 @@ jobs:
             sleep 10
             exit 0
           fi
-          echo "REF-QUIESCENCE-FAIL: main never settled on this run's sha within 20min - fail loud"
+          echo "REF-GATE-FAIL: API channel never settled on this run's sha within 20min - fail loud"
           exit 1
 
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
+      - name: Fetch source tree (API tarball of this run's sha)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          set -e
+          rm -rf _src && mkdir -p _src
+          curl -sL -m 600 -H "Authorization: Bearer ${{ github.token }}" -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/tarball/${{ github.sha }}" -o _src/src.tar.gz
+          test -s _src/src.tar.gz || { echo "TARBALL-FETCH-FAIL: empty download"; exit 1; }
+          tar -xzf _src/src.tar.gz -C _src
+          d="$(ls -d _src/*/ | head -1)"
+          test -d "$d" || { echo "TARBALL-EXTRACT-FAIL: no top dir"; exit 1; }
+          find . -mindepth 1 -maxdepth 1 ! -name '_src' -exec rm -rf {} +
+          mv "$d"* .
+          mv "$d"/.[!.]* . 2>/dev/null || true
+          rm -rf _src
+          test -d ConstructiveWorld_Live || { echo "TARBALL-SHAPE-FAIL: ConstructiveWorld_Live missing"; exit 1; }
+          echo "source tree fetched ($(find ConstructiveWorld_Live -maxdepth 1 -name '*.v' | wc -l) modules)"
 
       # ── AX-FORTRESS 防线挂点（20260925 施工单，R131 落树）────────────────────
       # 闸① 毒 token 守卫：pre-build fail-fast，秒级。exit 0 洁净／1 命中／2 树无效——
