@@ -31,17 +31,48 @@ jobs:
     steps:
       # NETRED self-heal gate (20261106): github.com:443 flaps in multi-minute windows;
       # checkout dying at fetch costs the whole run. Wait (bounded) for a stable channel first.
-      - name: Wait for git channel (NETRED self-heal gate)
+      # REF-QUIESCENCE (20261109): rapid force-push chains leave runs dispatched for
+      # shas the server no longer serves - checkout then dies "upload-pack: not our
+      # ref" 90s x3 (run 42498188787 precedent). After the channel settles, wait for
+      # refs/heads/main to settle on THIS run's sha; if a different head is seen
+      # persistently, this run is superseded - cancel itself (cancelled, not red):
+      # the newer push's run owns certification.
+      - name: Wait for git channel and ref quiescence (NETRED + supersede gate)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           set +e
+          SHA="${{ github.sha }}"
+          REPO_URL="https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set.git"
           ok=0
           for i in $(seq 1 40); do
-            if git ls-remote https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set.git refs/heads/main >/dev/null 2>&1; then ok=$((ok+1)); else ok=0; fi
-            [ "$ok" -ge 2 ] && { echo "NETRED-GATE: channel stable (try $i)"; exit 0; }
+            if git ls-remote "$REPO_URL" refs/heads/main >/dev/null 2>&1; then ok=$((ok+1)); else ok=0; fi
+            [ "$ok" -ge 2 ] && { echo "NETRED-GATE: channel stable (try $i)"; break; }
             sleep 30
           done
-          echo "NETRED-GATE-FAIL: git channel unstable for 20min - fail loud (rerun when the window opens)"
+          [ "$ok" -ge 2 ] || { echo "NETRED-GATE-FAIL: git channel unstable for 20min - fail loud (rerun when the window opens)"; exit 1; }
+          superseded=0
+          for i in $(seq 1 60); do
+            HEAD=$(git ls-remote "$REPO_URL" refs/heads/main 2>/dev/null | cut -f1)
+            if [ "$HEAD" = "$SHA" ]; then
+              echo "REF-QUIESCENCE: main settled at this run's sha (try $i)"
+              exit 0
+            fi
+            if [ -n "$HEAD" ]; then
+              superseded=$((superseded+1))
+              [ "$superseded" -ge 3 ] && break
+            fi
+            sleep 20
+          done
+          if [ "$superseded" -ge 3 ]; then
+            echo "SUPERSEDED: main head ${HEAD:0:7} != this run's sha ${SHA:0:7} - a newer push owns certification; cancelling this run (cancelled, not red)"
+            curl -s -X POST -w "cancel-api http=%{http_code}\n" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/cancel"
+            sleep 10
+            exit 0
+          fi
+          echo "REF-QUIESCENCE-FAIL: main never settled on this run's sha within 20min - fail loud"
           exit 1
 
       - uses: actions/checkout@v5
