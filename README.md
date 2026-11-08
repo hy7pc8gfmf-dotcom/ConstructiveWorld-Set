@@ -18,37 +18,38 @@
 
 ## 1. 库概述
 
-- **规模**：89 个在册模块（注册序 `order.txt`，89 行，注册批次 `#R0`–`#R17`）。注册序是库的权威引用面：每个在册件一行，形如 `S01_BaseRing.v#R0-d66910`，`#` 之后为注册批次指纹；两树与注册序零差集。
+- **规模**：487 个在册模块（注册序 `ConstructiveWorld_Live/order.txt`，注册行 487 行·批次 `#R0`–`#R153`；文件含批次间空行共 518 行，2026-11-08 实测；随注册演进而增长，以现势为准）。注册序是库的权威引用面：每个在册件一行，形如 `S01_BaseRing.v#R0-d66910`，`#` 之后为注册批次指纹；树内 `.v`（487 件）与注册序零差集（2026-11-08 实测）。
 - **内容面**：S01–S15 构造性实数与分析基座；Banach 范数与 Padé 逼近的上界需求族（`UpReqBanach*`／`UpReqPade*`）；Boltzmann/Gibbs、GRPO/DPO 对齐与熵面（S05/S06/S08/S09）；注意力链界（`Attn*`）；以及机械件伴生面（`b1_*`、`mach_fold_q`、`abl_z2/z3_pointwise`、`abl_Hqarch_*`、`fib_machine`）。
-- **纯构造性**：全库不使用 `Axiom`/`Admitted`/经典逻辑；内核级 `coqchk -o` 复核口径为 `Axioms: <none>`。
+- **纯构造性**：全库不使用 `Axiom`/`Admitted`/经典逻辑；内核级 `coqchk -o` 复核口径为 `Axioms: <none>`（本仓口径要求；云端落定状态以 §2「CI 认证」行为准，不预支审计结论）。
 - **Set 层 `sigT` 显式见证**：存在型结论一律给出可计算见证（有理数端点、近似根等），不停留于命题层。
 - **可提取**：以 `Separate Extraction` 生成目标语言代码并机械检查 `Obj.magic` 计数为零（计数非零即示 Prop 层内容泄入提取面）。
 - **「率即算法」范式**：可执行件（`Defined` 计算器）与其正确性证书（`Qed` 证明）同体共存——定理与程序是同一件东西的两面。
 
-**姊妹仓分工**：全库 893 件的完整大库见 [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main)（含 π 阶梯、五常数族与 ZZ 测度路线）；本仓为 Set 层精简注册面。
+**姊妹仓分工**：全库完整大库（认证面 1021 件，含 π 阶梯、五常数族与 ZZ 测度路线）见 [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main)；Main 已于 Rocq 9.3.0 完成内核全闭包收官认证（2026-11-07 run #9·`coqchk` 14 组·`Axioms: <none>`，GPG 签名 tag `GREEN-CERTIFIED-v1`——发布面详见其 README §2）。本仓为 Set 层精简注册面。
 
-**π 支柱独立包**：π 的构造性强无理闭合已以独立 Rocq 包 [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) 发布（Leibniz 窗法·Set 载体·零公理·见证可提取），现势 `v1.0.4`（tag 解引用 commit `e1891fce`，绿 CI run 27），Zenodo 归档 DOI：[10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983)（集成线，concept 23656982）；v1.0.0 批已合并进 Rocq opam 仓（rocq-prover/opam #3884），v1.0.1–1.0.4 合并式 PR [#3899](https://github.com/rocq-prover/opam/pull/3899) 在审（supersedes #3896/#3897/#3898）。早期其通用逃逸窗判据引擎曾以 Issue #312／PR #313 提交上游标准库 rocq-prover/stdlib，后按维护者意见转为独立库发布路线（即上述包）。
+**π 支柱独立包**：π 的构造性强无理闭合已以独立 Rocq 包 [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) 发布（Leibniz 窗法·Set 载体·零公理·见证可提取），版本面 `v1.0.4`（tag 解引用 commit `e1891fce`；该包 CI 状态与本仓无涉，以 rocq-pi-leibniz 仓库页面现势为准），Zenodo 归档 DOI：[10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983)（集成线，concept 23656982）；v1.0.0 批已合并进 Rocq opam 仓（rocq-prover/opam #3884），v1.0.1–1.0.4 合并式 PR [#3899](https://github.com/rocq-prover/opam/pull/3899)（supersedes #3896/#3897/#3898）状态以上游 PR 页现势为准。早期其通用逃逸窗判据引擎曾以 Issue #312／PR #313 提交上游标准库 rocq-prover/stdlib，后按维护者意见转为独立库发布路线（即上述包）。
 
 ## 2. 版本与认证记录
 
 | 项 | 值 |
 |---|---|
-| 库版本 | `ec228da`（`main` 分支，2026-10-29 实测） |
-| CI 认证 | 最近绿 run [#55](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set/actions/runs)（head `5293f1b`，2026-10-29）；现势 head `ec228da` 的 run #56 在飞，认证结论以该 run 落定为准，不预支绿 |
-| 公理审计 | `coqchk -o` 全库复核，`Axioms: <none>` |
-| 注册序 | `order.txt` 89 行（`#R0`–`#R17`） |
+| 库版本 | `682e3c7`（`main` 分支，2026-11-08 实测） |
+| CI 认证 | run **#220** 红·判读未完成——本仓不声称 CI 全绿，认证结论以判读落定为准（Actions 页为唯一现势源）。表载历史绿面止于 run #55（head `5293f1b`，2026-10-29）；其后的 run 状态本表不逐个追述，亦不预支绿 |
+| 公理审计 | 口径要求：`coqchk -o` 全库复核须得 `Axioms: <none>`。最近一次绿炉落定为 run #55（2026-10-29）；现势 run #220 判读未完成，本仓不预支任何审计结论 |
+| 注册序 | `order.txt` 注册行 487 行（`#R0`–`#R153`；文件含批次间空行共 518 行，2026-11-08 实测） |
 | 许可 | Apache-2.0（见 `LICENSE`） |
 
-持续集成（`.github/workflows/coq.yml`）在每次推送时执行：gate1 毒 token 守卫 → gate4 注释哨兵 → gate3 跨树 diff → 全树编译 → gate5 vo 二进制检疫 → `coqchk` 全树内核复核 → gate2 公理哨兵（解析 `coqchk` 日志判定 `Axioms: <none>`）。哨兵脚本位于 `scripts/gates/`。
+持续集成（`.github/workflows/coq.yml`）在每次推送时执行（Windows 认证 job；macOS 观察 job `coq-build-macos` 已于 2026-11-03 解闸）：gate1 毒 token 守卫 → gate4 注释哨兵 → gate6 语句普查（红即增长）→ vo 信任缓存起步播种（fail-open）→ 全树编译（单 Live 树·order 拓扑·温控包裹）→ gate7 提取执行（红即增长）→ gate5 vo 二进制检疫（token＋digest·对照校准）→ `coqchk` 全树内核复核（共享闭包单遍·温控包裹）→ gate2 公理哨兵（块状态机解析 `coqchk` 日志判定 `Axioms: <none>`）。gate3 跨树 diff 已随 2026-10-07 单树化（#C-S00c）撤除。哨兵脚本位于 `scripts/gates/`。CI 工具链代际钉 `Welcome to Chicken 9.3.0`（Rocq 9.3.0·2026-11-02 换基）——工具链代际不等于认证结论，后者见上行 CI 认证行。
 
 ## 3. 环境前置
 
-- **Rocq / Coq 9.1.0**（`rocq` 与 `coqchk` 已在此版本实测）。旧版未验证；更换验证环境后须重跑下方四步。
+- **Rocq / Coq 9.3.0**（本仓 CI 代际——`.github/workflows/coq.yml` gate2 钉 `Welcome to Chicken 9.3.0`）。旧版未验证；更换验证环境后须重跑下方四步。
+- **姊妹仓认证口径（交叉引用）**：ConstructiveWorld-Main 已于 Rocq 9.3.0 完成内核全闭包收官认证（tag `GREEN-CERTIFIED-v1`·`coqchk` 14 组·`Axioms: <none>`，2026-11-07）；该认证属 Main 仓，不代表本仓 CI 现势——本仓 run #220 红未判读，Set 侧认证状态以本仓 Actions 与后续判读为准。
 - 无外部 OCaml 依赖；提取产物为普通 OCaml 源码，仅作审计对象，不要求可编译执行环境。
 
 ## 4. 复现：四步验证
 
-与论文 §6「四步命令形态」逐字一致。以下命令在 `ConstructiveWorld_vo/`（或 `ConstructiveWorld_Live/`）内执行；两树均采用 `-Q . ""` 扁平命名空间。全树驱动见 `.github/workflows/coq.yml`。
+与论文 §6「四步命令形态」逐字一致。以下命令在 `ConstructiveWorld_Live/` 内执行；采用 `-Q . ""` 扁平命名空间。全树驱动见 `.github/workflows/coq.yml`。
 
 ```sh
 # ① 全量编译：按 order.txt 注册序逐件（本机直调；全树 driver 见 CI workflow）
@@ -65,17 +66,18 @@ coqchk -silent -Q . "" <逻辑库名>.<件名>
 
 - 逻辑库名**不等于**文件名。例如 `S01_BaseRing.v` 的逻辑库名是 `FS01_BaseRing`（取自 `S01_BaseRing.glob` 第 2 行）。第 ④ 步若误用文件名，`coqchk` 将报库不存在。
 - 第 ① 步按 `order.txt` 行序逐件执行即满足依赖序；单件失败先行解决再续。
-- 四步覆盖注册面全部在册件（89 件）。
+- 四步覆盖注册面全部在册件（现势 487 件）。
 
 ## 5. 仓库布局
 
+本仓为单树形制：`ConstructiveWorld_vo/` 产物树已于 2026-10-07 基线裁剪（#C-S00）移除，gate3 跨树 diff 随之撤除。
+
 | 路径 | 内容 |
 |---|---|
-| `ConstructiveWorld_Live/` | 源码树：全树 `.v` 源件＋`order.txt`（89 行）＋`_CoqProject`（`-Q . ""`） |
-| `ConstructiveWorld_vo/` | 产物树：与源树同构，另含 `.vo`/`.glob`/`.vos`/`.vok` 编译产物 |
-| `order.txt` | 注册序（两树及 `scripts/` 各一份，内容一致），权威引用面 |
-| `scripts/` | 注册序维护脚本与 `scripts/gates/` 哨兵（毒 token 守卫、公理解析、跨树 diff、注释哨兵、vo 依赖检疫） |
-| `.github/workflows/coq.yml` | CI 全树驱动（编译＋`coqchk`＋哨兵） |
+| `ConstructiveWorld_Live/` | 源码树：全树 `.v` 源件（487 件，2026-11-08 实测）＋`order.txt`（注册 487 行·含空行 518 行）＋`_CoqProject`（462 行，`-Q . ""`） |
+| `order.txt` | 注册序，权威引用面。`scripts/` 留有维护用历史副本（671 行·止于 #R172 波·2026-10-07 定格）——定格早于当晚单树化与后续现注册面重建，其行数与批号序列同现注册面（#R0–#R153）不可直接对照，仅存史备查 |
+| `scripts/` | 注册序维护脚本与 `scripts/gates/` 哨兵（毒 token 守卫、公理解析、注释哨兵、语句普查、vo 依赖检疫、提取执行） |
+| `.github/workflows/coq.yml` | CI 全树驱动（编译＋`coqchk`＋哨兵·Rocq 9.3.0 代际钉） |
 | `docs/` | 设计与规划文档 |
 | `releases/` | 历史单文件合并版（220 版，见附录） |
 
@@ -83,11 +85,12 @@ coqchk -silent -Q . "" <逻辑库名>.<件名>
 
 - **许可**：Apache-2.0。提取产物（`.ml`/`.mli`）与源件同许可。
 - **引用锚**：引用库内语句时，建议以「件名＋`order.txt` 行号＋批次指纹」定位。批次指纹随注册批固化，可用于核对所引版本。
+- **姊妹仓认证发布面**：tag／Release／Zenodo 见 [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main) README §2/§7（属 Main 仓认证面，与本文所述本仓 CI 状态相互独立）。
 - **作者**：见文首「作者与贡献者」表。
 
 ## 7. 公开范围与例外
 
-引用面所在件全量公开。现势（2026-10-29 实测）：树内 `.v` 与注册序零差集，无在册外源件。若后续出现未在册件，其去留随仓库公开前置批次的裁定结果在此登记；当前注册序（89 行）为唯一权威引用面，未在册件不构成库的引用承诺。
+引用面所在件全量公开。现势（2026-11-08 实测）：树内 `.v`（487 件）与注册序零差集，无在册外源件——此前注册面外的供给件已于 2026-11-08 批量入册（commit `95e7631`·message 自述补注册 31 件·去重 5 行；`git show` 实测 +32 行／−6 行，落既有 #R0／#R97 批次、未开新批号）。若后续出现未在册件，其去留随仓库公开前置批次的裁定结果在此登记；当前注册序（注册行 487 行）为唯一权威引用面，未在册件不构成库的引用承诺。
 
 ## 附录：220 版历史说明（2026-09-07/08）
 
