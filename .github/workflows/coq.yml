@@ -484,6 +484,16 @@ jobs:
       # 绿门 Export 步），sidecar 双 token "<.v md5> <closure digest>" 与
       # scripts/ci_build_live_cached.sh 逐字同算法；fail-open=种子器故障清播
       # 退诚实冷编。source md5 对不上=不播=真编（E949 字节层失效语义）。
+      - name: gate6 statement+field Prop census (pre-build, red-on-growth)
+        shell: bash -e {0}
+        run: |
+          # 闸⑥ mac 道补装（20261108 拦截对称化·王小哥 PR#31 帖证据：run 42463027917
+          # 同树 Win 道 gate7 红＋11 magic 而 mac 道绿——mac 步谱缺 gate6/gate7 闸类）。
+          python3 scripts/gates/gate6_statement_census.py \
+            --tree ConstructiveWorld_Live \
+            --gate --baseline scripts/gates/gate6_baseline.json \
+            --json gate6_report.json
+
       - name: Seed mac-native 9.3 trust cache (era-guarded, md5-reconciled, fail-open)
         shell: bash -e {0}
         run: |
@@ -532,6 +542,23 @@ jobs:
             bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -Reg /tmp/cw_reg_w61w3 -Front 0 -Mid 1 -MaxWaitSec 600 -- \
               bash scripts/ci_seed_mac93.sh --build-only
           fi
+
+      - name: gate7 extraction execution (post-build, red-on-growth)
+        shell: bash -e {0}
+        run: |
+          # 闸⑦ mac 道补装（拦截对称化·提取面=泄露最终机械仲裁）。Form-A mac 等价：
+          # 驱动件对本道新编 .vo 同代 9.3 工具链编译（MAC_ROCQ93_ROOT 注入）。
+          export COQC="${MAC_ROCQ93_ROOT}/bin/coqc"
+          export COQCHK="${MAC_ROCQ93_ROOT}/bin/coqchk"
+          export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          export ROCQLIB="$COQLIB"
+          python3 scripts/gates/gate7_extract_run.py \
+            --coqc "${MAC_ROCQ93_ROOT}/bin/coqc" \
+            --tree ConstructiveWorld_Live \
+            --order ConstructiveWorld_Live/order.txt \
+            --workdir _gate7_work_mac \
+            --gate --baseline scripts/gates/gate7_extract_baseline.json \
+            --json gate7_report.json
 
       - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
         if: always()
