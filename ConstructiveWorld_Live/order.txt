@@ -501,3 +501,7 @@ abl_redischarge_sumd_inst.v#R97-b46a001
 Arch_UpAbl_01.v#R97-b46a002
 RMaxSwap.v#R97-b46a003
 DenPosGeneral.v#R97-b47a001
+piu1909_K_assembly.v#R97-b46a002
+tlw1728R2_r2_res1_moment.v#R97-b46a003
+abl_mixrational_wide.v#R97-b46a005
+PA_TempSoftmaxInstantiation.v#R97-b46a006
