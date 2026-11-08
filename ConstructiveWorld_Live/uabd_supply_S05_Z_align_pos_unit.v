@@ -11,7 +11,7 @@
       zero extra premises.
 
     Dependencies.  Requires [S01_BaseRing], [S05_AlignmentGRPO],
-      [S07_RealSetoidExpLog], [G13_EvictFam], and [UpAblT13c_G13] of this
+      [S07_RealSetoidExpLog], [G13_EvictFam], and the [G13] companion module of this
       development; the concrete-carrier names bind through the
       [RealInterfaceEnhancedMod] import per the companion modules' idiom.
 
