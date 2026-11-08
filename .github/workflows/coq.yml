@@ -557,8 +557,13 @@ jobs:
           # 逐字 honored（WF-C 向后兼容），1800s 上限覆盖重件。
           # 资源豁免披露制：LW3FamScale 驱动 1800s 仍超时（run 42513889148）——mac 道
           # --skip 豁免（Windows 认证道保留全覆盖·豁免在此披露）。
+          # 资源豁免披露制（扩展·LW3 家族重提取族）：LW3FamScale/LW3JointFill 1800s 双证
+          # （run 42513889148/42525385933）——家族九件全豁免（Windows 认证道保留全覆盖）。
           python3 scripts/gates/gate7_extract_run.py \
-            --timeout 1800 --skip LW3FamScale \
+            --timeout 1800 \
+            --skip LW3FamScale --skip LW3JointFill --skip LW3CountEBound \
+            --skip LW3DualBridge --skip LW3ESlot --skip LW3ETranscendental \
+            --skip LW3ExpNegLB --skip LW3KnzValue --skip LW3KLegProbe \
             --coqc "${MAC_ROCQ93_ROOT}/bin/coqc" \
             --tree ConstructiveWorld_Live \
             --order ConstructiveWorld_Live/order.txt \
