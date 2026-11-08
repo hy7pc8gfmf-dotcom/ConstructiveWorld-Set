@@ -513,3 +513,7 @@ abl_redischarge_sumd_inst.v
 Arch_UpAbl_01.v
 RMaxSwap.v
 DenPosGeneral.v
+piu1909_K_assembly.v
+tlw1728R2_r2_res1_moment.v
+abl_mixrational_wide.v
+PA_TempSoftmaxInstantiation.v

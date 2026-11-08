@@ -297,6 +297,8 @@ def main():
     ap.add_argument("--gate", action="store_true")
     ap.add_argument("--baseline")
     ap.add_argument("--baseline-out", dest="baseline_out")
+    ap.add_argument("--skip", action="append", default=[],
+                     help="module name to exclude from the scan (repeatable; mac-lane resource exception)")
     args = ap.parse_args()
 
     tree = Path(args.tree).resolve()
@@ -319,6 +321,9 @@ def main():
 
     results = {}
     for i, mod in enumerate(modules, 1):
+        if mod in getattr(args, "skip", []):
+            print(f"GATE7 [skip] {mod} (excluded by --skip)")
+            continue
         rec = run_module(mod, tree, workdir, args.coqc, args.timeout)
         results[mod] = rec
         print("GATE7 [%d/%d] %s names=%s rc=%s magic=%s/%s missing=%d %s"

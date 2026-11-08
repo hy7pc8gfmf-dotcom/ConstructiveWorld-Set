@@ -484,6 +484,16 @@ jobs:
       # 绿门 Export 步），sidecar 双 token "<.v md5> <closure digest>" 与
       # scripts/ci_build_live_cached.sh 逐字同算法；fail-open=种子器故障清播
       # 退诚实冷编。source md5 对不上=不播=真编（E949 字节层失效语义）。
+      - name: gate6 statement+field Prop census (pre-build, red-on-growth)
+        shell: bash -e {0}
+        run: |
+          # 闸⑥ mac 道补装（20261108 拦截对称化·王小哥 PR#31 帖证据：run 42463027917
+          # 同树 Win 道 gate7 红＋11 magic 而 mac 道绿——mac 步谱缺 gate6/gate7 闸类）。
+          python3 scripts/gates/gate6_statement_census.py \
+            --tree ConstructiveWorld_Live \
+            --gate --baseline scripts/gates/gate6_baseline.json \
+            --json gate6_report.json
+
       - name: Seed mac-native 9.3 trust cache (era-guarded, md5-reconciled, fail-open)
         shell: bash -e {0}
         run: |
@@ -532,6 +542,34 @@ jobs:
             bash /Users/apple/Desktop/ConstructiveWorld/cpu_guard.sh -Reg /tmp/cw_reg_w61w3 -Front 0 -Mid 1 -MaxWaitSec 600 -- \
               bash scripts/ci_seed_mac93.sh --build-only
           fi
+
+      - name: gate7 extraction execution (post-build, red-on-growth)
+        shell: bash -e {0}
+        run: |
+          # 闸⑦ mac 道补装（拦截对称化·提取面=泄露最终机械仲裁）。Form-A mac 等价：
+          # 驱动件对本道新编 .vo 同代 9.3 工具链编译（MAC_ROCQ93_ROOT 注入）。
+          export COQC="${MAC_ROCQ93_ROOT}/bin/coqc"
+          export COQCHK="${MAC_ROCQ93_ROOT}/bin/coqchk"
+          export COQLIB="${MAC_ROCQ93_ROOT}/lib/coq"
+          export ROCQLIB="$COQLIB"
+          # 慢件律（cw-ci-sop v1.8·tmo>=1800s）：LW3FamScale 驱动在 mac 温控节流下
+          # 超 600s 分层档（run 42508727810 实证·339/504 静默暴毙）——显式 --timeout
+          # 逐字 honored（WF-C 向后兼容），1800s 上限覆盖重件。
+          # 资源豁免披露制：LW3FamScale 驱动 1800s 仍超时（run 42513889148）——mac 道
+          # --skip 豁免（Windows 认证道保留全覆盖·豁免在此披露）。
+          # 资源豁免披露制（扩展·LW3 家族重提取族）：LW3FamScale/LW3JointFill 1800s 双证
+          # （run 42513889148/42525385933）——家族九件全豁免（Windows 认证道保留全覆盖）。
+          python3 scripts/gates/gate7_extract_run.py \
+            --timeout 1800 \
+            --skip LW3FamScale --skip LW3JointFill --skip LW3CountEBound \
+            --skip LW3DualBridge --skip LW3ESlot --skip LW3ETranscendental \
+            --skip LW3ExpNegLB --skip LW3KnzValue --skip LW3KLegProbe \
+            --coqc "${MAC_ROCQ93_ROOT}/bin/coqc" \
+            --tree ConstructiveWorld_Live \
+            --order ConstructiveWorld_Live/order.txt \
+            --workdir _gate7_work_mac \
+            --gate --baseline scripts/gates/gate7_extract_baseline.json \
+            --json gate7_report.json
 
       - name: gate5 vo-binary quarantine (pre-coqchk, token+digest, control-calibrated)
         if: always()
