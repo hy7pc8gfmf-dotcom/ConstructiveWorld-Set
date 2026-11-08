@@ -31,42 +31,6 @@ Require Import S01_BaseRing.
 Require Import S07_RealSetoidExpLog.
 Require Import G13_EvictFam.
 Require Import UpAblT13c_G13.
-(* Interface-face re-import (same idiom as the [G13] companion module's own closing
-   [Require Import S01_BaseRing]): the req segments of G13_EvictFam /
-   UpReqAlgebra / UpReqDist export the abbreviation [R := Real], which shadows
-   the [S01_BaseRing] carrier projection [R : RealInterface -> Set] used by the
-   Id-layer statement face.  Re-importing [S01_BaseRing] here restores the
-   projection resolution for the Id layer; the request layer below re-binds
-   [R] to the concrete carrier by the registered tree notation. *)
-Require Import S01_BaseRing.
-
-(* ---- Id layer, [Z_thermo_pos] face: single-point world, the sum degenerates to a factor row. ---- *)
-
-Theorem uabda_g13_zpos_id :
-  forall {RI : RealInterfaceEnhanced}
-         (D : @R RI) (D_pos : @lt RI (@zero RI) D)
-         (energy : @S RI uab_ssUnit -> @R RI),
-    @lt RI (@zero RI)
-      (@evict_Z_thermo RI uab_ssUnit uab_soUnit D D_pos energy).
-Proof.
-  intros RI D D_pos energy.
-  exact (uabT13c_evict61 D D_pos energy).
-Qed.
-
-(* ---- Id layer, [evicted_partition_pos] face: single-point world, with the retention decision supplied as all-keep. ---- *)
-
-Theorem uabda_g13_evpart_id :
-  forall {RI : RealInterfaceEnhanced}
-         (D : @R RI) (D_pos : @lt RI (@zero RI) D)
-         (energy : @S RI uab_ssUnit -> @R RI),
-    @lt RI (@zero RI)
-      (@evict_evicted_partition RI uab_ssUnit uab_soUnit D D_pos energy
-         (fun _ : @S RI uab_ssUnit => unit)
-         (fun _ : @S RI uab_ssUnit => inl tt : Or unit (Not unit))).
-Proof.
-  intros RI D D_pos energy.
-  exact (uabT13c_evict87 D D_pos energy).
-Qed.
 
 Import RealInterfaceEnhancedMod.
 
@@ -89,6 +53,26 @@ Import RealInterfaceEnhancedMod.
 Require Import G13_EvictFam.
 
 Section UabdaG13Req.
+
+(* ---- Id layer, [Z_thermo_pos] face on the single-point world (carrier unit,
+   sum uab_unit_sum): forwards to the companion module's concrete face. ---- *)
+
+Theorem uabda_g13_zpos_id (D : R) (D_pos : lt zero D) (energy : unit -> R) :
+  lt zero (@evq_Z_thermo unit uab_unit_sum D D_pos energy).
+Proof.
+  exact (uabT13c_evict61 D D_pos energy).
+Qed.
+
+(* ---- Id layer, [evicted_partition_pos] face on the single-point world, with
+   the retention decision supplied as all-keep. ---- *)
+
+Theorem uabda_g13_evpart_id (D : R) (D_pos : lt zero D) (energy : unit -> R) :
+  lt zero (@evq_evicted_partition unit uab_unit_sum D D_pos energy
+             (fun _ : unit => unit)
+             (fun _ : unit => inl tt : Or unit (Not unit))).
+Proof.
+  exact (uabT13c_evict87 D D_pos energy).
+Qed.
 
 (* request-layer [Z_thermo_pos] face on the two-point world [uab_t2sum]:
    forwards to the in-development companion supply theorem. *)
