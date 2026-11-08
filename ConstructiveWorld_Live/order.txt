@@ -512,3 +512,11 @@ abl_redischarge_sumd_inst.v#R97-b46a001
 Arch_UpAbl_01.v#R97-b46a002
 RMaxSwap.v#R97-b46a003
 DenPosGeneral.v#R97-b47a001
+UpReqMixingTime.v#R97-b47a001
+u5c_pr_mertens_nat.v#R97-b47a002
+u5c_zeta2_a1_sign11.v#R97-b47a003
+u5c_zeta2_gapB.v#R97-b47a004
+abl_div_chisq_twopoint.v#R97-b47a005
+abl_z2_decay.v#R97-b47a006
+RMaxSwap.v#R97-b47a007
+UpAblP6_GibbsFamilyExt.v#R97-b47a008
