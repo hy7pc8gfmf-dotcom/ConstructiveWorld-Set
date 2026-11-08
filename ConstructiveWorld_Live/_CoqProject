@@ -460,4 +460,6 @@ abl_Pr_euler_prod.v
 abl_diffreal_family.v
 u5c_bridge.v
 u5c_dm_e_measure_qcore.v
-mach_atan_addsub.v
+mach_atan_addsub.vUpReqMisc5B.v
+G04ProjHook.v
+abl_tail_pos_supply_sum.v
