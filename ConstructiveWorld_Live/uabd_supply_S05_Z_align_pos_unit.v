@@ -11,8 +11,9 @@
       zero extra premises.
 
     Dependencies.  Requires [S01_BaseRing], [S05_AlignmentGRPO],
-      [S07_RealSetoidExpLog], [G13_EvictFam], and [UpAblT13c_G13] of this
-      development; the concrete-carrier names bind through the
+      [S07_RealSetoidExpLog], and the [G13] companion modules of this
+      development (the remaining verbatim Require names are carried by the
+      Require lines below); the concrete-carrier names bind through the
       [RealInterfaceEnhancedMod] import per the companion modules' idiom.
 
     References.  This development, uabd_supply_S05_Z_align_pos_unit.v, the baseline module in
