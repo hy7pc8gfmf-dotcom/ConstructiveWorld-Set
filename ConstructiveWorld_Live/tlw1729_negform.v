@@ -1,32 +1,32 @@
-(* ConstructiveWorld-Set -- constructive analysis over Q with every statement face carried by [Set]. *)
+(* ConstructiveWorld-Set -- negative-form witnesses for the coefficient-sequence tail. *)
 
-(** * tlw1729_negform: negative-form witnesses for the tail of the conv(V_2, altser) coefficient sequence.
+(** * tlw1729_negform: negative form of the tail-head monotonicity at n = 1.
 
-    Mission.  The tail-head absolute values of conv(V_2, altser) are not
-      monotone at n = 1: [conv_head_nonmono_n1] and its rational-literal
-      anchor [conv_head_nonmono_n1_literal] decide 12/35 < 8/21 as a
-      decidable conjunction on the Q order; [kappa_nat] computes the tail
-      ratio threshold kappa_n = 2n^2 + n - 2; [b_route_mono_fail] casts the
-      failure of the tail ratio relation as a dependent pair of nat
-      witnesses with residual fiber [bid]; [b_route_mono_fail_witness]
-      supplies the witness (n, k) = (1, 0).
+    Mission.  Negative-form witnesses for the tail of the coefficient
+      sequence of conv(V_2, altser): at n = 1 the tail-head absolute values
+      are not monotone, b_0 = |c_3| = 12/35 < b_1 = |c_4| = 8/21 with ratio
+      10/9, decided on the table machinery ([conv_head_nonmono_n1], literal
+      anchor [conv_head_nonmono_n1_literal]), re-cast as an explicit
+      dependent-pair witness (n, k) = (1, 0) of the failure of the tail
+      ratio relation at k < kappa_n, kappa_n = 2n^2 + n - 2 ([kappa_nat],
+      [b_route_mono_fail], [b_route_mono_fail_witness]).
 
-    Dependencies.  Requires [tlw1463_pade_table] of this development
-      ([bid], [bidI], [vconv], [padeV], [altser]).  Stdlib:
-      [QArith], [QArith.Qabs], [ZArith], [List].
+    Dependencies.  Stdlib [QArith], [QArith.Qabs], [ZArith], [List].
+      Requires [tlw1463_pade_table] ([bid], [bidI], [vconv], [padeV],
+      [altser]) of this development.
 
-    References.  This development, tlw1729_negform.v, the baseline module in
+    References.  tlw1463_pade_table anchor style; Mahler, On the
+      approximation of pi (1953), Lambert continued fraction; this
+      development, tlw1729_negform.v, the baseline module in
       ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).  Anchor style
-      follows [tlw1463_pade_table] (Mahler 1953, Lambert fraction for pi).
+      verbatim.
 
-    Constructivity.  All named statements and fields are carried by [Set]
-      (decidable Q-carriers and boolean identity carriers); statements
-      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
-      [Axioms: none].
+    Constructivity.  All named statements are informative (bid / sigT
+      carriers over [Set]; no Prop statements, no classical logic); each
+      witness is a single [vm_compute] reduction of the table recursion.
 
-    Build.  [coqc -native-compiler no -q -Q . "" tlw1729_negform.v] compiles cleanly
-      (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" tlw1729_negform.v] compiles
+      cleanly (exit 0); the artifact starts with [436f7121 000160bc]. *)
 From Stdlib Require Import QArith.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import ZArith.
@@ -75,7 +75,7 @@ Definition kappa_nat (n : nat) : nat := (2 * n * n + n - 2)%nat.
 (* k < kappa_n and b_{k+1} >= b_k, where                               *)
 (* b_j := |conv(V_{2n}, altser)[2n+1+j]|.  The statement is a          *)
 (* dependent pair over two nat witnesses whose residual fiber is the   *)
-(* Set-level boolean carrier bid -- informative, not Prop.              *)
+(* Set-level boolean carrier bid — informative, not Prop.              *)
 (* ------------------------------------------------------------------ *)
 Definition b_route_mono_fail : Set :=
   sigT (fun n : nat =>
@@ -95,10 +95,3 @@ Proof.
   exists 1%nat. exists 0%nat.
   apply bidI. vm_compute. reflexivity.
 Qed.
-
-(* ---- per-statement closure audit by [Print Assumptions]. ---- *)
-Print Assumptions conv_head_nonmono_n1.
-Print Assumptions conv_head_nonmono_n1_literal.
-Print Assumptions kappa_nat.
-Print Assumptions b_route_mono_fail.
-Print Assumptions b_route_mono_fail_witness.
