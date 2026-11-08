@@ -1,102 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* ToyR 玩具证替换件 ——   工程（tier2 头批）          *)
-(* 本件为消融落件：原件全文逐字保留，仅将文末清单所列定理之证明体  *)
-(* 替换为玩具证（实质非平凡三口径：定义层受控展开／显式见证直取／  *)
-(* 结构性重演，直取既勘引擎位），声明面与引用面零改动，零新增      *)
-(* Require，证明结尾记号与原件逐件守恒，纯构造性闭合，文尾保留    *)
-(* 原件 Print Assumptions 追印面。清单：                          *)
-(*   w2_gibbs_eq（原 L479，2 句玩具证）                                   *)
-(*   w2_gap_diff（原 L457，2 句玩具证）                                   *)
-(*   w2_policy_improvement_mono（原 L445，2 句玩具证）                    *)
-(*   w2_rel_ent_self_zero（原 L438，2 句玩具证）                          *)
-(*   w2_pi_star_normalized（原 L433，1 句玩具证）                         *)
-(*   w2_pi_next_normalized（原 L425，2 句玩具证）                         *)
-(*   r2u_JJ_witness_ext（原 L417，2 句玩具证）                            *)
-(*   log_req_compat_real（原 L121，2 句玩具证）                           *)
-(*   log_req_witness_compat（原 L109，2 句玩具证）                        *)
-(* ============================================================ *)
-(* ============================================================ *)
-(* 【 恒等守恒修订注记】 包AW九 （恒等头注修订全量首段）                     *)
-(* 上方 ToyR 头注所记「仅将文末清单所列定理之证明体替换为玩具证」，                                 *)
-(* 经 （包AL）全量恒等核查已证结论、（包AV六）试点已证结论：本件实测                             *)
-(* 为恒等守恒——清单所列 9 槽证明体与 Main 现版原件逐字同文（刀体                                *)
-(* ＝原体，零变化），头注「替换」声称与实物不符，特此修订。                                        *)
-(* 修订口径：真替换 0 槽＋恒等守恒 9 槽；本注记为追加块，上方原头                                  *)
-(* 注一字未改（历史证据保全）；证明体、声明面、语句面、Require 面                                 *)
-(* 零改动；记录册承载见  附录／ 修正块／ 评估册／ 记录册。                        *)
-(* 附记： 判级全文恒等； 全量首段整批直推（ 六·1 方案①）                           *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — U2 upgrade face: the logarithmic req-compatibility bridge and the alignment-family witness machinery. *)
+(** * UpReqU2: the [ReqLogBridge] extension, [req_u2_kl_arg2_ext], and the
+      seven-statement U2 main body in [req] form.
 
-(* ============================================================ *)
-(* UpReqU2.v *)
-(* *)
-(* 目的： U2 升级面：log_req_compat 桥与对齐族 witness 扩充。 *)
-(* 主件： log_req_compat_real / u2_rlhf_optimal_seed_discharge 与 w2_* 求和定律族。 *)
-(* 依赖： CW_ConstructiveWorld_219、UpReqAlgebra、UpReqDist、UpReqAlign、UpReqAlign2、UpReqAlign3、UpSigMigrate2。 *)
-(* 备注： 对数接口兼容性经具体实数实例落定；witness 外延为构造核。 *)
-(* ============================================================ *)
+    Mission.  File-level lemmas: [log_req_compat] (req compatibility of [log]
+      from the monotone le bridge), [log_req_witness_compat],
+      [log_req_compat_real] (resolved at the [Real] instance via
+      [real_log_le_mono]), [req_u2_kl_arg2_ext] (pointwise req
+      extensionality of KL), and [u2_rlhf_optimal_seed_discharge]
+      (discharging the rlhf_optimal_seed premise by FEP assembly); the
+      section main body proves the alignment/unique-fixed-point family.
 
-(* UpReqU2.v — 签名迁移批 3 U2 ：ReqLogBridge 扩展 + req_u2_kl_arg2_ext + U2 主体 7 件 req 化
-     （批 2 清单 U2FixedPoint 区：Section 23281–23791 共 10 件；
-       2 件辅件 req_u2_nonneg_sum_zero / req_u2_minus_minus 已在 UpReqDist.v 结果，
-       本文件结果保底 2 件 + 主体 7 件，10 − 2 − 1 = 7 核对闭合。）
-   上游（Require 按依赖序，全部使用不重建）：
-     CW_ConstructiveWorld_219.v（基座，含 setoid 接口与 RealEnhancedReal 具体实例）
-     UpReqAlgebra.v（批 1 代数银行 + ReqLogBridge 节）+ UpReqDist.v（批 2，req_gibbs_equality 等）
-     + UpReqAlign.v / UpReqAlign2.v（批 3/3b，req2 定义簇）+ UpReqAlign3.v（批 3c，r2_/w_ 机器）
-     + UpSigMigrate2.v（RLHF req 机器上游）。
-   纯 term-mode（req_trans 链 + compat 桥），零 Morphisms 依赖；
-   Set 层语句（req/lt/le/Or/And 均为 自定义 Set 值连词，零 Prop 泄露）。
-   ----------------------------------------------------------------
-   本文件结果：
-   [保底 1] log_req_compat —— setoid log 兼容场，文件级成品引理（ReqLogBridge 扩展）。
-     语句形态与 UpReqAlign3.v Section 内同名自持桥假设位逐位同形
-     （forall x y Hx Hy, req x y -> req (log x Hx) (log y Hy)），
-     但该假设位节闭后非常量不可跨文件使用，故以**显式单参桥**（log 单调 le 桥）
-     重建为文件级引理：req 兼容场 ⟸ log 单调 le 桥（Real 层种子 real_log_le_mono
-     同形；无条件版不可得——接口仅备逐 eps log_le_linear_eps，序无消去，诚实边界）。
-     log_req_compat 的 x ≡ x 特例；req_gibbs_equality 的 log_inv_one_inv 槽
-     见证无关化即使用此件（Algebra 版 req_log_inv_one_inv 结论钉死 inv_pos_pos 见证）。
-   [保底 1b] log_req_compat_real —— 具体实例消解（T2 模板 ② 形态）：
-     以 L112104 real_log_le_mono 显式应用抽象桥，Real 层无条件闭合。
-   [保底 2] req_u2_kl_arg2_ext —— 函数外延性敏感件 (b) 化改述（规划书 §3-(d).3 规则）：
-     逐点 req 前提版 (forall s, req (q s) (q' s)) -> req (KL p q) (KL p q')。
-     诚实签名变化：log 前提化（Hp/Hq 显式携带）+ Hq' 逐点正性由 req_lt_compat
-   [主体 7 件] req_u2_align_objective_ext / req_u2_pi_next_pi_star_fixed /
-     req_u2_no_progress_fixed_point / req_u2_fixed_point_unique /
-     req_u2_no_progress_optimal / req_u2_optimal_no_progress /
-     req_u2_objective_eq_optimal_iff —— 与 Id 版语句逐位同构（T2 模板 ①：
-     假设位逐位对应；Id align_objective 的 req 对位 = JJ := req2_J；
-     Id pi_next/pi_star 的 req 对位 = NPX/PSTR（req2_pi_next/pi_star）；
-     Id relative_entropy 的 req 对位 = KLE（req2_rel_ent，与 UpReqDist.req_relative_entropy
-     δ 透明同形）。
-   [保底 3] u2_rlhf_optimal_seed_discharge —— rlhf_optimal_seed 槽 FEP 装配消解
-     （Id rlhf_optimal @19049 对位；沿 UpSigMigrate2.a_rlhf_optimal 消解手法：
-     FEP 分解 ⟹ F(pistar) ≤ F(p) ⟹ opp 保序取负。分解机 = UpReqAlign3
-     对 p := pistar 复用之 + w_rel_ent_self_zero（KL(pistar‖pistar)==0）得
-     F(p) == F(pistar) + β·KL(p‖pistar)；KL ≥ 0 = req2_gibbs_inequality 槽（登记表 5）
-     + β>0 保序；完成 = le_id_l/r 转换 + opp_le_compat）。
-     节内 rlhf_optimal_seed 槽随之降为使用件（Hypothesis → Definition）。
-   ----------------------------------------------------------------
-   诚实桥假设位登记表（逐位保留，不放大主张；槽 = 节参数，非公理，
-   唯一性件 Print Assumptions 因此保持 Closed under the global context）：
-   1. sum_zero_nonneg —— SumOver 类 sum_zero_nonneg 字段的 req 槽
-     （req_gibbs_equality 出口参数位，UpReqDist ReqFEP 同款假设位）。
-   2. log_le_linear —— log x ≤ x−1 的 plain-le 桥（setoid 接口仅备逐 eps 形式，
-     深水区注 = UpReqDist 文件头同款；req_gibbs_inequality/equality 出口参数位）。
-     Real 层需强三分/LPO，构造性不可证，诚实边界 = L41204 注）。
-   4. log_req_compat / log_inv_exp_neg_req —— ReqLogBridge 同位桥槽
-     （本文件保底件给出单参桥归约与具体实例消解）。
-   5. req2_gibbs_inequality —— KL ≥ 0 桥槽（UpReqAlign3 同名假设位同位；
-     KL ≥ 0 的 plain-le 形态不可由接口逐 eps 字段导出）。
-   6. req_backward_kl_step_le —— 【已消解降级，非槽】向后 KL 单步 ≤ 桥
-     （Id policy_iter_backward_kl_step_le @22790 同位）。UpReqAlign3 增量
-     已结果（req2_backward_kl_step 主定理三点恒等式 + r2_backward_kl_step_le
-     Print Assumptions 保持 Closed。
-     （= u2_rlhf_optimal_seed_discharge 节参数一次喂定；FEP 装配吃
-     r2_F_align_kl_diff + w_rel_ent_self_zero + req2_gibbs_inequality（登记表 5），
-     Print Assumptions 保持 Closed）。
-   ---------------------------------------------------------------- *)
+    Dependencies.  Requires [S01_BaseRing]–[S15_TailFEPUp] and the
+      [UpReqAlgebra]/[UpReqDist]/[UpReqAlign]/[UpReqAlign2]/[UpReqAlign3]/
+      [UpSigMigrate2] modules of this development; pure term-mode, no [Morphisms].
+
+    References.  This development; the baseline module of the same name in
+      ConstructiveWorld-Main, whose statement names are carried over verbatim
+      (statement-face Set-carrier completion), following its [U2FixedPoint]
+      section ([L23281]-[L23791]; [rlhf_optimal@19049]).
+
+    Constructivity.  All named statements are carried by [Set] (Set-valued
+      [req]/[lt]/[le]/[And]/[Or]); the honest bridges ([sum_zero_nonneg],
+      [log_le_linear], [log_req_compat], [log_inv_exp_neg_req],
+      [req2_gibbs_inequality]) are Section premises, so [Print Assumptions]
+      stays Closed; extraction gives [Obj.magic] = 0; [coqchk] reports
+      [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpReqU2.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -159,12 +90,15 @@ Notation log := real_log.
 Notation log_inv := real_log_inv.
 
 (* ============================================================ *)
-(* 保底 1：log_req_compat —— ReqLogBridge 扩展（文件级成品引理） *)
+(* Deliverable 1: [log_req_compat] — the [ReqLogBridge] extension (a file-level lemma) *)
 (* ============================================================ *)
 
-(* 单参桥版：req 兼容场 ⟸ log 单调 le 桥。
-   路线：req x y 经 lt_le_iff 右支升 le，双支 le_antisym 完成。
-   real_log_le_mono 同形，可被 T2 模板 ② 显式应用消解（见 log_req_compat_real）。 *)
+(* single-premise bridge form: req compatibility of [log] follows from the
+   monotone le bridge.
+   Route: [req x y] is raised to [le] by the right branch of [lt_le_iff], then
+   closed in both directions by [le_antisym].
+   Same shape as [real_log_le_mono]; discharges the explicit-application
+   template (see [log_req_compat_real]). *)
 Lemma log_req_compat : 
   (forall (x y : R) (Hx : lt zero x) (Hy : lt zero y),
     le x y -> le (log x Hx) (log y Hy)) ->
@@ -179,8 +113,9 @@ Proof.
     exact (lt_le_iff y x (inr (req_sym x y Hxy))).
 Qed.
 
-(* 保底 1a：log 见证无关性——同点双正性见证转换（x ≡ x 特例；
-   吃 Align3 形态兼容槽，零单调需求）。 *)
+(* Deliverable 1a: witness independence of [log] — converting between two
+   positivity witnesses at the same point (the x ≡ x special case;
+   consumes the Align3-shaped compatibility premise, no monotonicity needed). *)
 Lemma log_req_witness_compat : 
   (forall (x y : R) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy)) ->
@@ -191,8 +126,10 @@ Proof.
   exact (Hcompat x x Hx Hx' (req_refl x)).
 Qed.
 
-(* 保底 1b：具体实例消解（T2 模板 ②）——Real 层无条件闭合。
-   种子：real_log_le_mono（L112104）显式应用抽象桥单参位。 *)
+(* Deliverable 1b: resolution at the concrete instance (the explicit-application
+   template) — closed unconditionally on the [Real] layer.
+   Seed: [real_log_le_mono] ([L112104]) supplied explicitly at the
+   single-premise position of the abstract bridge. *)
 Lemma log_req_compat_real : forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
   req x y -> req (log x Hx) (log y Hy).
 Proof.
@@ -201,10 +138,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 保底 2：req_u2_kl_arg2_ext —— KL 对第二参数逐点 req 外延                     *)
-(*（Id u2_kl_arg2_ext @23369 的 (b) 化改述：逐点 req 前提版）                   *)
+(* Deliverable 2: [req_u2_kl_arg2_ext] — pointwise req extensionality of KL     *)
+(* in its second argument (premise-carried restatement of the upstream          *)
+(* u2_kl_arg2_ext@23369: the pointwise req premise version)                     *)
 (* ============================================================ *)
-(* 诚实签名变化：log 前提化（Hp/Hq 显式）+ Hq' 正性由 req_lt_compat 运输导出。  *)
+(* honest signature change: the log premises are made explicit ([Hp]/[Hq]) and *)
+(* the positivity of [Hq'] is transported via [req_lt_compat].                 *)
 Lemma req_u2_kl_arg2_ext :
   forall  (S : Set)
          (sumf : (S -> R) -> R),
@@ -234,17 +173,23 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 保底 3：u2_rlhf_optimal_seed_discharge —— rlhf_optimal_seed 槽 FEP 装配消解  *)
-(*（Id rlhf_optimal @19049 的 req 对位；沿 UpSigMigrate2.a_rlhf_optimal         *)
-(*  消解手法：FEP 分解 ⟹ F(pistar) ≤ F(p) ⟹ opp 保序取负。                          *)
+(* Deliverable 3: [u2_rlhf_optimal_seed_discharge] — FEP assembly discharging   *)
+(* the rlhf_optimal_seed premise (req counterpart of the upstream               *)
+(* rlhf_optimal@19049; follows the resolution method of                         *)
+(* [UpSigMigrate2.a_rlhf_optimal]: FEP decomposition ⟹ F(pistar) ≤ F(p) ⟹      *)
+(* order-preserving negation via [opp].                                         *)
 
 
-(*  对 u := pistar 复用该分解，KL(pistar‖pistar) == 0（w_rel_ent_self_zero）消去首项得      *)
+(*  the same decomposition is consumed at u := pistar, and the first term drops
+    out by KL(pistar‖pistar) == 0 ([w_rel_ent_self_zero]), giving: *)
 
-(*  KL ≥ 0 = req2_gibbs_inequality 槽（登记表 5，本件不改其显式假设）+ β>0 保序；     *)
-(*  完成 = le_id_l/r 转换 + req_minus δ 展开（plus·opp）+ opp_le_compat。       *)
-(*  假设位降级：节内 rlhf_optimal_seed 由 Hypothesis 改 Definition 使用本件       *)
-(*  （节参数一次喂定，零重证）；U2a/U2e 使用链 Print Assumptions 保持 Closed。   *)
+(*  KL ≥ 0 is the [req2_gibbs_inequality] premise (entry 5; this file leaves its
+    explicit premises untouched) + order preservation under β>0;
+    closing = [le_id_l]/[le_id_r] conversions + the δ unfolding of [req_minus]
+    (plus·opp) + [opp_le_compat].
+    Premise demotion: the in-section rlhf_optimal_seed becomes a [Definition]
+    consuming this lemma (section parameters fed once, no reproof); the
+    U2a/U2e usage chains keep [Print Assumptions] Closed. *)
 (* ============================================================ *)
 Lemma u2_rlhf_optimal_seed_discharge :
   forall  (S : Set)
@@ -289,7 +234,7 @@ Proof.
     by exact (r2_F_align_kl_diff S sumf Hext Hadd Hlin Hlog Hinv
                                  reward beta beta_pos pi_ref pi_ref_pos ZAL_pos
                                  p Hp Hn).
-  (* 2. 同一分解吃在 pistar 处（pistar 归一化 = w_pi_star_normalized） *)
+  (* 2. the same decomposition consumed at pistar (pistar normalization = [w_pi_star_normalized]) *)
   assert (HPSTRn : req2_norm_one S sumf PSTR)
     by exact (w_pi_star_normalized S sumf Hlin reward beta beta_pos pi_ref
                                    ZAL_pos).
@@ -297,7 +242,7 @@ Proof.
     by exact (r2_F_align_kl_diff S sumf Hext Hadd Hlin Hlog Hinv
                                  reward beta beta_pos pi_ref pi_ref_pos ZAL_pos
                                  PSTR PSTR_pos HPSTRn).
-  (* 3. KL(pistar‖pistar) == 0（w_rel_ent_self_zero）⟹ β·KL(pistar‖pistar) == 0
+  (* 3. KL(pistar‖pistar) == 0 (w_rel_ent_self_zero) ⟹ β·KL(pistar‖pistar) == 0
      ⟹ F(pistar) == −β·log ZAL *)
   assert (Hklself : req KLself zero)
     by exact (w_rel_ent_self_zero S sumf Hext Hlin PSTR PSTR_pos).
@@ -315,12 +260,12 @@ Proof.
                                (opp LOGZ)
                                (req_refl (req_minus zero LOGZ))
                                (req_plus_zero_l (opp LOGZ))))).
-  (* 4. KL ≥ 0（槽）+ β>0 保序 ⟹ 0 ≤ β·KL(p‖pistar) *)
+  (* 4. KL ≥ 0 (premise) + order preservation under β>0 ⟹ 0 ≤ β·KL(p‖pistar) *)
   assert (Hdkl : le zero (mult beta KLp))
     by exact (r2_le_mult_nonneg beta KLp
                                 (lt_le_iff zero beta (inl beta_pos))
                                 (Hgibbs p PSTR Hp PSTR_pos)).
-  (* 5. F(pistar) ≤ F(pistar) + β·KL == F(p)（le_plus_compat 保左 + 转换完成） *)
+  (* 5. F(pistar) ≤ F(pistar) + β·KL == F(p) ([le_plus_compat] keeps the left summand; conversion finishes) *)
   assert (Hfin : le FAPI (plus FAPI (mult beta KLp)))
     by exact (le_id_l FAPI (plus FAPI zero) (plus FAPI (mult beta KLp))
                       (req_sym (plus FAPI zero) FAPI (plus_zero FAPI))
@@ -349,14 +294,14 @@ Proof.
                                                    (req_sym FAPI (opp LOGZ)
                                                             HFAPI)))
                                      (plus_comm (mult beta KLp) FAPI)))).
-  (* 6. 取负（opp 保序）：J(p) = −F(p) ≤ −F(pistar) = J(pistar) *)
+  (* 6. negation ([opp] order-preserving): J(p) = −F(p) ≤ −F(pistar) = J(pistar) *)
   exact (opp_le_compat FAPI FAP
                        (le_id_r FAPI (plus FAPI (mult beta KLp)) FAP
                                 Hconv Hfin)).
 Qed.
 
 (* ============================================================ *)
-(* ReqU2FixedPoint：U2 主体节（节参数与 UpReqAlign3.Req3AlignCore 同骨）        *)
+(* [ReqU2FixedPoint]: the U2 main-body section (section parameters share the skeleton of [UpReqAlign3.Req3AlignCore]) *)
 (* ============================================================ *)
 Section ReqU2FixedPoint.
 
@@ -378,13 +323,13 @@ Hypothesis sum_zero_nonneg :
   forall f : S -> R,
     (forall s : S, le zero (f s)) -> req (sumf f) zero -> forall s : S, req (f s) zero.
 
-(* ---- ReqLogBridge 同位桥槽（保底件给出归约与消解） ---- *)
+(* ---- [ReqLogBridge] bridge premises at the same positions (reduced and discharged by the file-level lemmas) ---- *)
 Hypothesis log_req_compat :
   forall (x y : R) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
 Hypothesis log_inv_exp_neg_req :
   forall x : R, req (log_inv (exp_neg x) (exp_neg_pos x)) x.
-(* ---- req_gibbs_equality 出口桥槽（plain-le 深水区） ---- *)
+(* ---- exit bridge premises of [req_gibbs_equality] (the plain-le form, not derivable from the interface) ---- *)
 Hypothesis log_le_linear :
   forall (x : R) (Hx : lt zero x), le (log x Hx) (req_minus x one).
 Hypothesis log_eq_linear :
@@ -399,7 +344,7 @@ Variable eta : R.
 Variable eta_pos : lt zero eta.
 Variable eta_le_one : le eta one.
 
-(* ---- 本节局部别名（全部为上游 req2 定义的 δ 透明薄包装，同 UpReqAlign3） ---- *)
+(* ---- section-local aliases (all δ-transparent thin wrappers of the upstream [req2] definitions, as in [UpReqAlign3]) ---- *)
 Definition pos3 (p : S -> R) : Set := req2_pos_dist S p.
 Definition nrm (p : S -> R) : Set := req2_norm_one S sumf p.
 Definition AL (s : S) : R :=
@@ -421,21 +366,26 @@ Definition PSTR (s : S) : R :=
 Definition PSTR_pos : pos3 PSTR :=
   req2_pi_star_pos S sumf reward beta beta_pos pi_ref pi_ref_pos ZAL_pos.
 
-(* 透明证人（Set 值关系的证人参数是数据：必须是 Definition，不得
-   Qed 包装——否则与上游语句中的原始应用不可转换） *)
+(* transparent witnesses (the witness arguments of Set-valued relations are
+   data: they must be [Definition]s, not Qed-wrapped — otherwise they are not
+   convertible with the raw applications inside the upstream statements) *)
 Definition npx_pos (pi_t : S -> R) (Hpi_t : pos3 pi_t) : pos3 (NPX pi_t Hpi_t) :=
   req2_pi_next_pos S sumf sum_pos reward beta beta_pos pi_ref
                     pi_ref_pos eta pi_t Hpi_t.
 
-(* ---- 诚实桥槽（依赖 PSTR/NPX，定义后声明） ---- *)
+(* ---- honest bridge premises (depending on [PSTR]/[NPX]; declared after their definitions) ---- *)
 Hypothesis req2_gibbs_inequality :
   forall (p q : S -> R) (Hp : pos3 p) (Hq : pos3 q),
     le zero (KLE p q Hp Hq).
-(* ---- req_backward_kl_step_le（原假设位 6，已消解降级为使用件——非假设位） ----
-   UpReqAlign3 增量结果已证明：req2_backward_kl_step 主定理 + r2_backward_kl_step_le
-   （le 形同位件，Id policy_iter_backward_kl_step_le @22790 同位）已落
-   本节 req2_gibbs_inequality 槽与 ZAL_pos 证人在参面），@ 全显节参数
-   一次喂定，零重证、零适配；U2c 使用点零改动。 *)
+(* ---- [req_backward_kl_step_le] (former premise entry 6, resolved and demoted
+   to a using definition — no longer a premise) ----
+   proved as an incremental result of [UpReqAlign3]: the main theorem
+   [req2_backward_kl_step] plus [r2_backward_kl_step_le] (the le-shaped
+   counterpart, matching the upstream policy_iter_backward_kl_step_le@22790);
+   here the section's [req2_gibbs_inequality] premise and the [ZAL_pos] witness
+   are supplied at the argument face, all section parameters explicit in
+   [@]-form, fed once — no reproof, no adaptation; the U2c use site is
+   unchanged. *)
 Definition req_backward_kl_step_le :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
     le (KLE PSTR (NPX pi_t Hpi_t) PSTR_pos (npx_pos pi_t Hpi_t))
@@ -446,11 +396,14 @@ Definition req_backward_kl_step_le :
     log_req_compat log_inv_exp_neg_req
     reward beta beta_pos pi_ref pi_ref_pos eta
     eta_pos ZAL_pos req2_gibbs_inequality.
-(* ---- rlhf_optimal_seed（原假设位，已消解降级为使用件——非假设位） ----
-   FEP 装配消解 = u2_rlhf_optimal_seed_discharge（文件级保底 3）：
-   r2_F_align_kl_diff 分解 + w_rel_ent_self_zero + req2_gibbs_inequality 槽
-   + β>0 保序 + opp 保序取负（a_rlhf_optimal 手法）。节参数一次喂定，零重证；
-   登记表 7 同步改写；U2a/U2e 使用链 Print Assumptions 保持 Closed。 *)
+(* ---- [rlhf_optimal_seed] (former premise, resolved and demoted to a using
+   definition — no longer a premise) ----
+   FEP assembly resolution = [u2_rlhf_optimal_seed_discharge] (file-level
+   Deliverable 3): the [r2_F_align_kl_diff] decomposition + [w_rel_ent_self_zero]
+   + the [req2_gibbs_inequality] premise + order preservation under β>0 +
+   order-preserving negation via [opp] (the [a_rlhf_optimal] method).  Section
+   parameters are fed once, no reproof; the U2a/U2e usage chains keep
+   [Print Assumptions] Closed. *)
 Definition rlhf_optimal_seed :
   forall (p : S -> R) (Hn : nrm p) (Hp : pos3 p),
     le (JJ p Hp) (JJ PSTR PSTR_pos) :=
@@ -459,8 +412,10 @@ Definition rlhf_optimal_seed :
                                  reward beta beta_pos pi_ref pi_ref_pos ZAL_pos
                                  req2_gibbs_inequality.
 
-(* ---- 见证转换件（正性见证是数据：log 见证进值，FA/JJ 对见证 req 外延。
-   在前提见证 ps_pos 世界——经本件转换后完成） ---- *)
+(* ---- witness-conversion lemmas (positivity witnesses are data: the log
+   witness enters the value, and [FA]/[JJ] are req-extensional in the witness;
+   results stated in the PSTR_pos witness world are reached after the
+   conversion provided here) ---- *)
 Lemma r2u_FA_witness_ext :
   forall (p : S -> R) (Hp Hq : pos3 p), req (FA p Hp) (FA p Hq).
 Proof.
@@ -491,7 +446,7 @@ Proof.
   exact (req_opp_compat (FA p Hp) (FA p Hq) (r2u_FA_witness_ext p Hp Hq)).
 Qed.
 
-(* ---- 上游件使用包装（节参数一次喂定；零重证） ---- *)
+(* ---- wrappers consuming the upstream lemmas (section parameters fed once; no reproof) ---- *)
 Lemma w2_pi_next_normalized :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t), req (sumf (NPX pi_t Hpi_t)) one.
 Proof.
@@ -534,9 +489,11 @@ Proof.
   exact (r2_gap_diff S sumf sum_ext sum_add sum_linear sum_pos                     log_req_compat log_inv_exp_neg_req                     reward beta beta_pos pi_ref pi_ref_pos eta eta_pos                     pi_t Hpi_t Hn).
 Qed.
 
-(* req_gibbs_equality 出口组装：sum_zero_nonneg + log 桥槽一次喂定。
-   log_inv_one_inv 假设位以 req_log_inv_one_inv（Algebra ReqLogBridge 成品）
-   假设位要求任意 Hi——经 log_req_witness_compat 转换后对齐）。 *)
+(* exit assembly of [req_gibbs_equality]: [sum_zero_nonneg] and the log bridge
+   premises fed once.
+   The log_inv_one_inv premise of [req_log_inv_one_inv] (the [UpReqAlgebra]
+   [ReqLogBridge] lemma) demands an arbitrary [Hi] — aligned after conversion
+   by [log_req_witness_compat]). *)
 Lemma w2_gibbs_eq :
   forall (p q : S -> R) (Hp : pos3 p) (Hq : pos3 q),
     nrm p -> nrm q -> req (KLE p q Hp Hq) zero ->
@@ -547,9 +504,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主体 1：对齐目标对策略逐点 req 外延（Id u2_align_objective_ext @23396 同位） *)
-(*   Id 证明：unfold align_objective; id_cong opp; free_energy_ext。           *)
-(*   req 对位：JJ ≡ opp(req2_F_align)，FA 外延 = sum_ext + log_req_compat 组装。 *)
+(* Main body 1: pointwise req extensionality of the alignment objective in      *)
+(* the policy (counterpart of the upstream u2_align_objective_ext@23396)        *)
+(*   upstream proof: unfold align_objective; id_cong opp; free_energy_ext.      *)
+(*   req counterpart: [JJ] ≡ [opp (req2_F_align)]; FA extensionality =          *)
+(*   [sum_ext] + [log_req_compat] assembly.                                     *)
 (* ============================================================ *)
 Theorem req_u2_align_objective_ext :
   forall (p q : S -> R) (Hp : pos3 p) (Hq : pos3 q),
@@ -581,10 +540,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* U2a：pi_star 是单步改进算子 NPX 的不动点                                     *)
-(*   （Id u2_pi_next_pi_star_fixed @23425 同位；六步链逐位对应：               *)
-(*     夹逼 J 等值 → gap 恒等式 → beta 消去 → 非负性 → 非负和为零 →            *)
-(*     gibbs_equality 逐点化）                                                  *)
+(* U2a: [pi_star] is a fixed point of the one-step improvement operator [NPX]   *)
+(*   (counterpart of the upstream u2_pi_next_pi_star_fixed@23425; a six-step    *)
+(*   chain, step by step: squeeze J to an equality -> gap identity -> beta      *)
+(*   cancellation -> nonnegativity -> a zero sum of nonnegatives ->             *)
+(*   pointwise conclusion via gibbs_equality)                                   *)
 (* ============================================================ *)
 Theorem req_u2_pi_next_pi_star_fixed :
   forall (ps_pos : pos3 PSTR) (ps_norm : nrm PSTR),
@@ -595,8 +555,9 @@ Proof.
   set (K1 := KLE Np PSTR (npx_pos PSTR ps_pos) ps_pos).
   set (K2 := KLE PSTR Np ps_pos (npx_pos PSTR ps_pos)).
   assert (HNp_norm : nrm Np) by exact (w2_pi_next_normalized PSTR ps_pos).
-  (* 1. 夹逼：J(NPX pi_star) <= J(pi_star) 且 J(pi_star) <= J(NPX pi_star)
-       PSTR_pos——经 r2u_JJ_witness_ext 转换到 ps_pos 世界后完成） *)
+  (* 1. squeeze: J(NPX pi_star) <= J(pi_star) and J(pi_star) <= J(NPX pi_star);
+       the right inequality is stated in the PSTR_pos witness world and reaches
+       ps_pos after conversion by [r2u_JJ_witness_ext] *)
   assert (Hopt : le (JJ Np (npx_pos PSTR ps_pos)) (JJ PSTR PSTR_pos))
     by exact (rlhf_optimal_seed Np HNp_norm (npx_pos PSTR ps_pos)).
   assert (HoptR : le (JJ Np (npx_pos PSTR ps_pos)) (JJ PSTR ps_pos))
@@ -610,13 +571,13 @@ Proof.
   assert (Hdiff0 : req (req_minus (JJ Np (npx_pos PSTR ps_pos))
                                   (JJ PSTR ps_pos)) zero)
     by exact (req_minus_self_zero _ _ Hjeq).
-  (* 2. gap 恒等式：J(NPX pi_star) − J(pi_star) == beta·[(1/eta−1)·K1 + (1/eta)·K2] *)
+  (* 2. gap identity: J(NPX pi_star) − J(pi_star) == beta·[(1/eta−1)·K1 + (1/eta)·K2] *)
   assert (Hgap : req (req_minus (JJ Np (npx_pos PSTR ps_pos)) (JJ PSTR ps_pos))
                     (mult beta
                           (plus (mult (req_minus (inv_pos eta eta_pos) one) K1)
                                 (mult (inv_pos eta eta_pos) K2))))
     by exact (w2_gap_diff PSTR ps_pos ps_norm).
-  (* 3. beta > 0 消去（req_mult_cancel_l）：括号内 == 0 *)
+  (* 3. cancellation by beta > 0 ([req_mult_cancel_l]): the bracketed sum == 0 *)
   assert (HX0 : req (plus (mult (req_minus (inv_pos eta eta_pos) one) K1)
                           (mult (inv_pos eta eta_pos) K2)) zero).
   { apply (req_mult_cancel_l beta
@@ -641,7 +602,7 @@ Proof.
                                 Hdiff0
                                 (req_sym (mult beta zero) zero
                                          (mult_zero beta)))). }
-  (* 4. 非负性：(1/eta−1) >= 0（r2_inv_ge_one 一步达）、K1 >= 0、K2 >= 0 *)
+  (* 4. nonnegativity: (1/eta−1) >= 0 (one step via [r2_inv_ge_one]), K1 >= 0, K2 >= 0 *)
   assert (HP : le zero (req_minus (inv_pos eta eta_pos) one))
     by exact (req_le_minus_nonneg one (inv_pos eta eta_pos)
                                   (r2_inv_ge_one eta eta_pos eta_le_one)).
@@ -655,7 +616,7 @@ Proof.
     by exact (r2_le_mult_nonneg _ _
              (lt_le_iff zero (inv_pos eta eta_pos) (inl (inv_pos_pos eta eta_pos)))
              HK2).
-  (* 5. 非负和为零 => (1/eta)·K2 == 0 =>（1/eta > 0）K2 == 0 *)
+  (* 5. a sum of nonnegatives is zero => (1/eta)·K2 == 0 => (1/eta > 0) K2 == 0 *)
   assert (HQK2z : req (mult (inv_pos eta eta_pos) K2) zero).
   { apply (req_u2_nonneg_sum_zero (mult (inv_pos eta eta_pos) K2)
                                   (mult (req_minus (inv_pos eta eta_pos) one) K1)
@@ -677,7 +638,7 @@ Proof.
                      HQK2z
                      (req_sym (mult (inv_pos eta eta_pos) zero) zero
                               (mult_zero (inv_pos eta eta_pos)))). }
-  (* 6. gibbs_equality：K2 == 0 => pi_star == NPX pi_star 逐点 => 结论（req_sym） *)
+  (* 6. gibbs_equality: K2 == 0 => pi_star == NPX pi_star pointwise => conclusion ([req_sym]) *)
   assert (Hpi : forall s : S, req (PSTR s) (Np s))
     by (intro s;
         exact (w2_gibbs_eq PSTR Np ps_pos (npx_pos PSTR ps_pos)
@@ -686,8 +647,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* U2b：无进展 => 不动点（Id u2_no_progress_fixed_point @23517 同位；           *)
-(*   与 U2a 第 3–6 步同构，目标等值直接给出 J 差 == 0，无需夹逼）               *)
+(* U2b: no progress => fixed point (counterpart of the upstream                 *)
+(* u2_no_progress_fixed_point@23517; steps 3–6 mirror U2a, with the goal        *)
+(* equality handing over J-diff == 0 directly, no squeeze needed)               *)
 (* ============================================================ *)
 Theorem req_u2_no_progress_fixed_point :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
@@ -699,16 +661,16 @@ Proof.
   set (K1 := KLE Np pi_t (npx_pos pi_t Hpi_t) Hpi_t).
   set (K2 := KLE pi_t Np Hpi_t (npx_pos pi_t Hpi_t)).
   assert (HNp_norm : nrm Np) by exact (w2_pi_next_normalized pi_t Hpi_t).
-  (* 1. 目标差 == 0（无进展假设） *)
+  (* 1. goal difference == 0 (the no-progress premise) *)
   assert (Hdiff0 : req (req_minus (JJ Np (npx_pos pi_t Hpi_t)) (JJ pi_t Hpi_t)) zero)
     by exact (req_minus_self_zero _ _ Hno).
-  (* 2. gap 恒等式 *)
+  (* 2. gap identity *)
   assert (Hgap : req (req_minus (JJ Np (npx_pos pi_t Hpi_t)) (JJ pi_t Hpi_t))
                     (mult beta
                           (plus (mult (req_minus (inv_pos eta eta_pos) one) K1)
                                 (mult (inv_pos eta eta_pos) K2))))
     by exact (w2_gap_diff pi_t Hpi_t Hn).
-  (* 3. beta > 0 消去 *)
+  (* 3. cancellation by beta > 0 *)
   assert (HX0 : req (plus (mult (req_minus (inv_pos eta eta_pos) one) K1)
                           (mult (inv_pos eta eta_pos) K2)) zero).
   { apply (req_mult_cancel_l beta
@@ -733,7 +695,7 @@ Proof.
                                 Hdiff0
                                 (req_sym (mult beta zero) zero
                                          (mult_zero beta)))). }
-  (* 4. 非负性 *)
+  (* 4. nonnegativity *)
   assert (HP : le zero (req_minus (inv_pos eta eta_pos) one))
     by exact (req_le_minus_nonneg one (inv_pos eta eta_pos)
                                   (r2_inv_ge_one eta eta_pos eta_le_one)).
@@ -769,7 +731,7 @@ Proof.
                      HQK2z
                      (req_sym (mult (inv_pos eta eta_pos) zero) zero
                               (mult_zero (inv_pos eta eta_pos)))). }
-  (* 6. gibbs_equality：K2 == 0 => pi_t == NPX pi_t 逐点 => 结论（req_sym） *)
+  (* 6. gibbs_equality: K2 == 0 => pi_t == NPX pi_t pointwise => conclusion ([req_sym]) *)
   assert (Hpi : forall s : S, req (pi_t s) (Np s))
     by (intro s;
         exact (w2_gibbs_eq pi_t Np Hpi_t (npx_pos pi_t Hpi_t)
@@ -778,14 +740,18 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* U2c：不动点唯一 => pi_star（Id u2_fixed_point_unique @23576 同位）           *)
-(*   证明：Hfix 同余换形 KLE(pi_star‖NPX) == A、KLE(pi_t‖NPX) == 0；            *)
-(*     向后 KL 单步 <=（使用件 req_backward_kl_step_le，原槽 6 已消解）         *)
-(*     化简为 A <= (1−eta)·A；                                                   *)
-(*     Hma：(1−eta)·A == A − eta·A，故 A <= A − eta·A；u2_minus_minus 与        *)
-(*     req_le_minus_nonneg 得 0 <= −eta·A，opp 保序两次反号得 eta·A <= 0；      *)
-(*     req2_gibbs 槽给 0 <= A => 夹逼 eta·A == 0 =>（eta > 0 消去）A == 0 =>    *)
-(*     w2_gibbs_eq 逐点化 => pi_t == pi_star 逐点。                             *)
+(* U2c: unique fixed point => pi_star (counterpart of the upstream              *)
+(* u2_fixed_point_unique@23576)                                                 *)
+(*   proof: [Hfix] congruently transports KLE(pi_star‖NPX) == A and             *)
+(*     KLE(pi_t‖NPX) == 0; the backward one-step KL inequality (the using       *)
+(*     definition [req_backward_kl_step_le], former premise entry 6, resolved)  *)
+(*     reduces to A <= (1−eta)·A;                                               *)
+(*     [Hma]: (1−eta)·A == A − eta·A, hence A <= A − eta·A; [req_u2_minus_minus] *)
+(*     and [req_le_minus_nonneg] give 0 <= −eta·A, and order-preserving         *)
+(*     negation twice yields eta·A <= 0;                                        *)
+(*     the [req2_gibbs] premise gives 0 <= A, squeezing eta·A == 0, and         *)
+(*     cancellation by eta > 0 gives A == 0; [w2_gibbs_eq] makes it pointwise:  *)
+(*     pi_t == pi_star pointwise.                                               *)
 (* ============================================================ *)
 Theorem req_u2_fixed_point_unique :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
@@ -797,7 +763,7 @@ Proof.
   set (A := KLE PSTR pi_t PSTR_pos Hpi_t).
   set (ANp := KLE PSTR Np PSTR_pos (npx_pos pi_t Hpi_t)).
   set (TNp := KLE pi_t Np Hpi_t (npx_pos pi_t Hpi_t)).
-  (* 1. 同余换形：KL(pi_star‖Np) == A 且 KL(pi_t‖Np) == 0 *)
+  (* 1. congruent transport: KL(pi_star‖Np) == A and KL(pi_t‖Np) == 0 *)
   assert (Hc1 : req ANp A)
     by exact (req_u2_kl_arg2_ext  S sumf sum_ext log_req_compat
                                  PSTR Np pi_t PSTR_pos
@@ -809,7 +775,7 @@ Proof.
   assert (HC0 : req TNp zero)
     by exact (req_trans TNp (KLE pi_t pi_t Hpi_t Hpi_t) zero Hc2
                          (w2_rel_ent_self_zero pi_t Hpi_t)).
-  (* 2. 向后 KL 单步（<= 桥槽）：KL(pi_star‖Np) <= (1−eta)·A + KL(pi_t‖Np) *)
+  (* 2. backward one-step KL (the <= bridge): KL(pi_star‖Np) <= (1−eta)·A + KL(pi_t‖Np) *)
   assert (H1 : le ANp (plus (mult (req_minus one eta) A) TNp))
     by exact (req_backward_kl_step_le pi_t Hpi_t Hn).
   assert (H3 : le A (plus (mult (req_minus one eta) A) TNp))
@@ -829,7 +795,7 @@ Proof.
   assert (HleA : le A (mult (req_minus one eta) A))
     by exact (le_id_r A (plus (mult (req_minus one eta) A) TNp)
                       (mult (req_minus one eta) A) H4 H3).
-  (* 3. (1−eta)·A == A − eta·A，故 A <= A − eta·A *)
+  (* 3. (1−eta)·A == A − eta·A, hence A <= A − eta·A *)
   assert (Hma : req (mult (req_minus one eta) A) (req_minus A (mult eta A))).
   { exact (req_trans (mult (req_minus one eta) A)
                      (req_minus (mult one A) (mult eta A))
@@ -843,14 +809,14 @@ Proof.
   assert (HleB : le A (req_minus A (mult eta A)))
     by exact (le_id_r A (mult (req_minus one eta) A)
                       (req_minus A (mult eta A)) Hma HleA).
-  (* 4. 0 <= −eta·A（req_le_minus_nonneg + (A − eta·A) − A == −eta·A） *)
+  (* 4. 0 <= −eta·A ([req_le_minus_nonneg] plus (A − eta·A) − A == −eta·A) *)
   assert (Hz1 : le zero (req_minus (req_minus A (mult eta A)) A))
     by exact (req_le_minus_nonneg A (req_minus A (mult eta A)) HleB).
   assert (Hz2 : le zero (opp (mult eta A))).
   { exact (le_id_r zero (req_minus (req_minus A (mult eta A)) A)
                    (opp (mult eta A))
                    (req_u2_minus_minus A (mult eta A)) Hz1). }
-  (* 5. eta·A <= 0（opp 保序两次反号；opp zero == zero 自证） *)
+  (* 5. eta·A <= 0 (order-preserving negation twice; opp zero == zero by hand) *)
   assert (Hoppz : req (opp zero) zero).
   { exact (req_plus_cancel_l zero (opp zero) zero
              (req_trans (plus zero (opp zero)) zero (plus zero zero)
@@ -865,14 +831,14 @@ Proof.
                       (req_sym (opp (opp (mult eta A))) (mult eta A)
                                (req_double_neg (mult eta A)))
                       Hopp1).
-  (* 6. 0 <= eta·A（req2_gibbs 槽：0 <= A；eta >= 0 => 0 <= eta·A） *)
+  (* 6. 0 <= eta·A (the [req2_gibbs] premise: 0 <= A; eta >= 0 => 0 <= eta·A) *)
   assert (HA0 : le zero A)
     by exact (req2_gibbs_inequality PSTR pi_t PSTR_pos Hpi_t).
   assert (Heta0 : le zero eta)
     by exact (lt_le_iff zero eta (inl eta_pos)).
   assert (HX0 : le zero (mult eta A))
     by exact (r2_le_mult_nonneg eta A Heta0 HA0).
-  (* 7. eta·A == 0 =>（eta > 0 消去）A == 0 => w2_gibbs_eq => pi_t == pi_star *)
+  (* 7. eta·A == 0 => (cancellation by eta > 0) A == 0 => [w2_gibbs_eq] => pi_t == pi_star *)
   assert (HXz : req (mult eta A) zero)
     by exact (req_sym zero (mult eta A)
                       (le_antisym zero (mult eta A) HX0 Heta_le0)).
@@ -888,8 +854,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 推论：无进展 => 已最优（Id u2_no_progress_optimal @23718 同位；              *)
-(*   U2b + U2c 组装）                                                           *)
+(* Corollary: no progress => already optimal (counterpart of the upstream       *)
+(* u2_no_progress_optimal@23718; assembly of U2b + U2c)                         *)
 (* ============================================================ *)
 Theorem req_u2_no_progress_optimal :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
@@ -903,8 +869,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 反向：已最优 => 无进展（Id u2_optimal_no_progress @23737 同位；              *)
-(*   逐点相等 + 目标外延 => J(pi_t) == J(pi_star)；rlhf 槽 + mono 夹逼）        *)
+(* Converse: already optimal => no progress (counterpart of the upstream        *)
+(* u2_optimal_no_progress@23737; pointwise equality + objective extensionality  *)
+(* give J(pi_t) == J(pi_star); the rlhf premise and the monotonicity squeeze)   *)
 (* ============================================================ *)
 Theorem req_u2_optimal_no_progress :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),
@@ -934,8 +901,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 等值刻画（双向，Set 层 And := A*B 乘积；Id u2_objective_eq_optimal_iff       *)
-(* @23769 同位）                                                                *)
+(* Equivalence characterization (both directions, with the Set-level            *)
+(* [And] := A*B product; counterpart of the upstream                            *)
+(* u2_objective_eq_optimal_iff@23769)                                           *)
 (* ============================================================ *)
 Theorem req_u2_objective_eq_optimal_iff :
   forall (pi_t : S -> R) (Hpi_t : pos3 pi_t) (Hn : nrm pi_t),

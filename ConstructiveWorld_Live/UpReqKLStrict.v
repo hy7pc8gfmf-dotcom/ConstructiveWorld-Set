@@ -1,6 +1,6 @@
 (* ConstructiveWorld-Set — strict KL-divergence lemma family. *)
 
-(** * UpReqKLStrict: strict Gibbs/KL inequality lemmas at the rational layer..
+(** * UpReqKLStrict: strict Gibbs/KL inequality lemmas at the rational layer.
 
     Mission.  The strict family behind non-constant energy implying positive KL
  divergence: the two-term exponential lower bound [klst_ep_two_terms],
@@ -47,9 +47,7 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Import ListNotations.
 
-(* ============================================================ *)
-(* Part A：Q 层二阶部分和下界（严格切线的间隙源）                       *)
-(* ============================================================ *)
+(* =================== Part A: Q-layer second-order partial-sum lower bound (the gap source of the strict tangents) =================== *)
 
 Lemma klst_ep_two_terms : forall (m : nat) (x : Q),
   Qle 0 x ->
@@ -70,9 +68,10 @@ Proof.
                     q_fact (Datatypes.S (Datatypes.S (Datatypes.S m)))).
     { cbn [exp_partial]. reflexivity. }
     setoid_rewrite Hstep.
-    (* Qle A (B + T)：经 Qle_trans 拆成 Qle A B（IH）与 Qle B (B + T)；      *)
-    (* 后者再经 Qle_trans 过 (B + 0)（qeq_le 环换形杀 +0 失配）              *)
-    (* + Qplus_le_r 0 T B 的 proj1（iff 正向）供 0 ≤ T 入场。               *)
+    (* Qle A (B + T): split through Qle_trans into Qle A B (the IH) and *)
+    (* Qle B (B + T); the latter again goes through Qle_trans via (B + 0) *)
+    (* (a qeq_le ring reshaping settles the +0 mismatch), then the proj1 *)
+    (* (forward iff direction) of Qplus_le_r 0 T B admits 0 <= T. *)
     apply (Qle_trans (1 + x + x * x * (1#2))
                      (exp_partial (Datatypes.S (Datatypes.S m)) x)
                      (exp_partial (Datatypes.S (Datatypes.S m)) x +
@@ -94,9 +93,7 @@ Proof.
         apply (q_pow_fact_nonneg x (Datatypes.S (Datatypes.S (Datatypes.S m))) (Qle_to_QleT' _ _ Hx)).
 Qed.
 
-(* ============================================================ *)
-(* Part B：严格指数/对数切线（正 argument 支）                          *)
-(* ============================================================ *)
+(* =================== Part B: strict exponential/logarithmic tangents (positive-argument branch) =================== *)
 
 Lemma klst_exp_tangent_pos : forall w : Real,
   real_lt real_zero w ->
@@ -119,8 +116,9 @@ Proof.
     assert (HnN0 : (N0 <= n)%nat) by lia.
     assert (Hn2 : (2 <= n)%nat) by lia.
     destruct n as [| [| m]]; [ lia | lia | ].
-    (* HN0 结论形为 QltT eps (u k − 0)：QltT 为 Id bool，不可 unfolds 直用，   *)
-    (* 经 b5a_QltT_eq_r（x==y ⟹ QltT a y ⟹ QltT a x）+ Q 环换形去 −0。       *)
+    (* The conclusion of HN0 has the shape QltT eps (u k - 0); since QltT is *)
+    (* an Id on bool it cannot be unfolded directly — b5a_QltT_eq_r *)
+    (* (x == y -> QltT a y -> QltT a x) plus a Q ring reshaping removes the -0. *)
     assert (Hun0m : QltT eps (u (Datatypes.S (Datatypes.S m)) - 0))
       by (apply (HN0 (Datatypes.S (Datatypes.S m))); apply NatLe_lift; exact HnN0).
     assert (HunT : QltT eps (u (Datatypes.S (Datatypes.S m))))
@@ -155,7 +153,8 @@ Proof.
       cbn [projT1 cauchy_real_exp real_one].
       unfold Qminus. ring. }
     rewrite Hproj.
-    (* 收尾：Hscale（严格）+ Htwo 左乘平移（Qplus_le_compat 嵌套，形状逐位对齐） *)
+    (* Finale: Hscale (strict) plus the left-multiplied shift of Htwo *)
+    (* (nested Qplus_le_compat, shapes aligned position by position). *)
     apply (Qlt_le_trans (eps * eps * (1#2))
                         (u (Datatypes.S (Datatypes.S m)) * u (Datatypes.S (Datatypes.S m)) * (1#2))
                         (exp_partial (Datatypes.S (Datatypes.S m)) (u (Datatypes.S (Datatypes.S m))) + (- 1) + (- u (Datatypes.S (Datatypes.S m))))).
@@ -223,12 +222,13 @@ Proof.
       exact H2.
 Qed.
 
-(* ============================================================ *)
-(* Part C0：实层换形微型助手（逐点 exact 恒等，Q 环收尾）                *)
-(*   注：real_inv_pos 的投影带 if leb 分支，逐点 q == p·(q·inv p) 非恒等，  *)
-(*   故 gap_shape 的换形不得走 real_eq_of_zero_diff，须在实层经            *)
-(*   assoc/comm/one/inv_pos_correct 链完成（klst_r_pqx_eq_q）。           *)
-(* ============================================================ *)
+(* =================== Part C0: small Real-layer reshaping helpers =================== *)
+(* Pointwise exact identities closed by the Q ring. *)
+(* Note: the projection of real_inv_pos carries an if-leb branch, so *)
+(* pointwise q == p*(q*inv p) is not an identity; the reshaping in *)
+(* gap_shape must therefore not go through real_eq_of_zero_diff but is *)
+(* done at the Real layer along the assoc/comm/one/inv_pos_correct chain *)
+(* (klst_r_pqx_eq_q). *)
 
 Lemma klst_r_mult_distr_l : forall (p a b : Real),
   real_eq (real_mult p (real_plus a b))
@@ -293,8 +293,9 @@ Proof.
   unfold Qminus. ring.
 Qed.
 
-(* 严格 + 弱序相加：0 < x、0 ≤ y ⟹ 0 < x + y
-   （real_lt_plus_compat_lt_le 的结论带 (0+0)，经 real_lt_id_l + real_plus_zero 换形） *)
+(* Strict-plus-weak-order addition: 0 < x and 0 <= y give 0 < x + y *)
+(* (the conclusion of real_lt_plus_compat_lt_le carries (0+0), reshaped *)
+(* via real_lt_id_l + real_plus_zero). *)
 Lemma klst_r_lt_plus_le : forall (x y : Real),
   real_lt real_zero x -> real_le real_zero y -> real_lt real_zero (real_plus x y).
 Proof.
@@ -304,9 +305,7 @@ Proof.
   - exact (real_lt_plus_compat_lt_le real_zero x real_zero y Hx Hy).
 Qed.
 
-(* ============================================================ *)
-(* Part C：严格 Gibbs 逐点核（q>p 支）+ 退化对照                        *)
-(* ============================================================ *)
+(* =================== Part C: strict Gibbs pointwise kernel (q > p branch) and the degenerate counterpart =================== *)
 
 
 
@@ -325,7 +324,7 @@ Proof.
   apply (real_eq_trans
            _ (real_plus (real_opp (real_mult p L))
                         (real_plus (real_mult p X) (real_opp p))) _).
-  - (* 左形：p·(−L) + (q + −p) → −(p·L) + (p·X + −p) *)
+  - (* Left shape: p*(-L) + (q + -p) -> -(p*L) + (p*X + -p). *)
     apply (RealSetoid.real_eq_plus_compat (real_mult p (real_opp L))
                                           (real_plus q (real_opp p))
                                           (real_opp (real_mult p L))
@@ -334,7 +333,8 @@ Proof.
     + apply (RealSetoid.real_eq_plus_compat q (real_opp p) (real_mult p X) (real_opp p)).
       * apply real_eq_sym. exact (klst_r_pqx_eq_q p q Hp).
       * apply real_eq_refl.
-  - (* 右形：p·((X + −1) + −L) → (p·(X+−1)) + p·(−L) → (p·X + −p) + −(p·L)，再交换合流 *)
+  - (* Right shape: p*((X + -1) + -L) -> (p*(X + -1)) + p*(-L) -> *)
+    (* (p*X + -p) + -(p*L), then reordered by commutativity. *)
     apply real_eq_sym.
     apply (real_eq_trans
              _ (real_plus (real_mult p (real_plus X (real_opp real_one)))
@@ -400,7 +400,8 @@ Proof.
   - exact Hprod.
 Qed.
 
-(* 退化对照件：p == q ⟹ kl_term(p,q) + (q − p) == 0（与严格件成对）。 *)
+(* Degenerate counterpart: p == q gives kl_term(p,q) + (q - p) == 0 *)
+(* (paired with the strict lemma). *)
 Lemma klst_gibbs_core_zero : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hpq : real_eq p q),
@@ -410,7 +411,7 @@ Proof.
   unfold real_kl_term.
   set (x := real_mult q (real_inv_pos p Hp)).
   set (Hx := real_mult_positive q (real_inv_pos p Hp) Hq (real_inv_pos_pos p Hp)).
-  (* x == 1：p==q 换 inv（inv_pos_ext）+ inv_pos_correct *)
+  (* x == 1: replace the inverse under p == q (inv_pos_ext) plus inv_pos_correct. *)
   assert (Hx1 : real_eq x real_one).
   { unfold x.
     apply (real_eq_trans _ (real_mult q (real_inv_pos q Hq)) _).
@@ -423,8 +424,8 @@ Proof.
   { apply (real_eq_trans _ (real_log real_one real_lt_zero_one) _).
     - exact (real_log_wd x real_one Hx real_lt_zero_one Hx1).
     - exact (real_log_one real_lt_zero_one). }
-  (* 实层换形链：g == p·(−log x) + q − p == p·(−log 1) + q − p
-     == p·0 + q − p == q − p == q − q == 0 *)
+  (* Real-layer reshaping chain: g == p*(-log x) + q - p == p*(-log 1) + q - p *)
+  (* == p*0 + q - p == q - p == q - q == 0. *)
   apply (real_eq_trans
            _ (real_plus (real_mult p (real_opp (real_log real_one real_lt_zero_one)))
                         (real_plus q (real_opp p))) _).
@@ -472,9 +473,7 @@ Proof.
   apply real_plus_opp.
 Qed.
 
-(* ============================================================ *)
-(* Part D：KL 严格和主件（弱序 p≤q 支）                                 *)
-(* ============================================================ *)
+(* =================== Part D: the strict KL-sum main lemma (weak-order p <= q branch) =================== *)
 
 Lemma klst_list_sum_app : forall (X : Type) (f : X -> Real) (l₁ l₂ : list X),
   real_eq (real_list_sum X f (l₁ ++ l₂))
@@ -495,8 +494,10 @@ Proof.
     + apply real_plus_assoc.
 Qed.
 
-(* KL 严格正主件：逐项正性 + 双归一化 + 逐项 p≤q（弱序，排除 q>p 支）+
-   s₀ 处严格分离见证（p s₀ < q s₀）⟹ 0 < Σ_s kl_term。 *)
+(* Strict KL positivity main lemma: pointwise positivity + double *)
+(* normalization + pointwise p <= q (weak order, with the strict q > p *)
+(* branch as a subcase) + a strict separation witness at s0 *)
+(* (p s0 < q s0) give 0 < sum_s kl_term. *)
 Lemma klst_kl_sum_strict : forall (X : Type) (l₁ : list X) (s₀ : X) (l₂ : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -512,14 +513,16 @@ Proof.
   set (L := l₁ ++ s₀ :: l₂).
   set (KL := fun s : X => real_kl_term (p s) (q s) (Hp s) (Hq s)).
   set (G := fun s : X => real_plus (KL s) (real_plus (q s) (real_opp (p s)))).
-  (* 1. 逐项 g ≥ 0（弱序两支：严格支 C / 等号支退化件） *)
+  (* 1. g >= 0 pointwise (the two weak-order branches: the strict branch of *)
+  (* Part C and the equality branch, the degenerate lemma). *)
   assert (Hgnonneg : forall s : X, real_le real_zero (G s)).
   { intro s. unfold G. destruct (Hpq s) as [Hlt | Heq].
     - unfold real_le. left.
       exact (klst_gibbs_core_strict (p s) (q s) (Hp s) (Hq s) Hlt).
     - unfold real_le. right. apply real_eq_sym.
       exact (klst_gibbs_core_zero (p s) (q s) (Hp s) (Hq s) Heq). }
-  (* 2. Σ kl L == Σ G L（归一化零和抵消，gibbs_inequality_eps 同款） *)
+  (* 2. sum kl L == sum G L (the normalized zero-sum cancellation, in the *)
+  (* manner of gibbs_inequality_eps). *)
   assert (Hzero : real_eq (real_list_sum X (fun s => real_plus (p s) (real_opp (q s))) L) real_zero).
   { apply (real_eq_trans _ (real_plus (real_list_sum X p L) (real_list_sum X (fun s => real_opp (q s)) L)) _).
     - apply (real_list_sum_add X p (fun s => real_opp (q s)) L).
@@ -558,7 +561,7 @@ Proof.
         * apply real_eq_sym. exact Hqp.
     - apply (real_eq_sym _ _). unfold G.
       apply (real_list_sum_add X KL (fun s => real_plus (q s) (real_opp (p s))) L). }
-  (* 3. Σ G L == G s₀ + Σ G l₁ + Σ G l₂（app 拆分 + assoc + comm） *)
+  (* 3. sum G L == G s0 + sum G l1 + sum G l2 (app split + assoc + comm). *)
   assert (Hsplit : real_eq (real_list_sum X G L)
                            (real_plus (real_plus (G s₀) (real_list_sum X G l₁))
                                       (real_list_sum X G l₂))).
@@ -575,7 +578,7 @@ Proof.
                                              (real_list_sum X G l₂)).
         * apply real_plus_comm.
         * apply real_eq_refl. }
-  (* 4. 尾和 ≥ 0 + 严格项 ⟹ 0 < Σ G L ⟹ 0 < Σ kl L *)
+  (* 4. Tail sum >= 0 plus the strict term give 0 < sum G L, hence 0 < sum kl L. *)
   assert (Htail : real_le real_zero (real_plus (real_list_sum X G l₁) (real_list_sum X G l₂))).
   { apply (RealSetoid.real_le_id_r real_zero (real_list_sum X G (l₁ ++ l₂))
                                    (real_plus (real_list_sum X G l₁) (real_list_sum X G l₂))).
@@ -601,9 +604,7 @@ Proof.
   - exact Hmain.
 Qed.
 
-(* ============================================================ *)
-(* 闭合证明（Print Assumptions 须全 Closed）                            *)
-(* ============================================================ *)
+(* =================== Assumption audits (all Print Assumptions outputs must read Closed) =================== *)
 
 Print Assumptions klst_ep_two_terms.
 Print Assumptions klst_exp_tangent_pos.
@@ -620,32 +621,42 @@ Print Assumptions klst_gibbs_core_zero.
 Print Assumptions klst_list_sum_app.
 Print Assumptions klst_kl_sum_strict.
 
-(* ============================================================ *)
-(* 尾注（结论总表）                                                      *)
-(*   结论 1（正支全链闭合）：严格指数/对数切线正支 + 严格 Gibbs 核 q>p 支 +   *)
-(*     退化对照件 + KL 严格和（弱序 p≤q 支）全 Qed，零假设位——            *)
-(*     「能量非常数 ⟹ KL>0」在 p≤q 侧已完整闭合。                        *)
-(*     技术注记：①Part A 步进 case 以 Qle_trans 过 (B+0)                      *)
-
-(*     ②gap_shape 的 real_eq_of_zero_diff 路线证伪（real_inv_pos 投影带    *)
-(*     if leb 分支，逐点 q == p·q·inv p 非恒等），改实层链               *)
-(*     （C0 五件：distr_l / mult_opp_r / mult_m1_r / pqx_eq_q /           *)
-(*     opp_minus，前四者经 assoc/comm/one/inv_pos_correct，               *)
-(*     opp_minus 逐点 exact）；③klst_log_tangent_pos 换形链两处            *)
-(*     (−1)+1 / 0+x 形位以 comm+opp / comm+zero 重排；④Part D 拆和/      *)
-(*     平移各件以 real_list_sum_ext + real_opp_zero 桥 Σ(q−p)==0，        *)
-(*     s₀ 严格项直接注入 gibbs_core_strict（Hdiv 即其 Hpq 实参）。         *)
-(*   结论 2（负支阻塞精确裁决）：q<p 支的逐项 g≥0 需负 argument 严格指数    *)
-
-(*     ＝ 对数上切线 x<1 侧。其 Q 层间隙源需四项交错部分和下界             *)
-(*     1−t+t²/2−t³/6 ≤ ep_n(−t)；现有 exp_partial 族仅一阶                *)
-(*     （exp_partial_ge_plus_x）与符号分段非严格件                *)
-(*     （odd/even_ge_minus，服务 eps 形 non-strict），     *)
-(*     无正间隙见证字段 ⟹ 单引理缺口，补齐后与 Part D 逐项前提换全称弱序    *)
-(*     即得无条件件（温度桥：β₂<β₁、E₀<E₁ ⟹ 比率严格分离，               *)
-(*     cauchy_real_exp_mono 严格单调已备，exp_neg 反号换形一路可通）。     *)
-(*   结论 3（与 eps 形引擎关系）：本件不使用 real_le_b 完成器——严格层      *)
-(*     real_lt 为 sigT 正陈述，无 Or 等号分支提取障碍；障碍在库侧切线      *)
-(*     字段缺失（real_exp_ge_linear_eps / real_log_le_linear_eps 均为     *)
-(*     eps 形 Or 编码），与 UpRealLeB 尾注已知限制同源不同位。             *)
-(* ============================================================ *)
+(* =================== Endnotes (summary of results) =================== *)
+(* Result 1 (positive branch, fully closed): the strict exponential and *)
+(* logarithmic tangents on the positive branch, the strict Gibbs kernel *)
+(* (q > p branch), the degenerate counterpart, and the strict KL sum *)
+(* (weak-order p <= q branch) are all closed by Qed with no standing *)
+(* premises — "non-constant energy implies KL > 0" is fully closed on the *)
+(* p <= q side. *)
+(* Technical notes: (1) the Part A step case goes through Qle_trans via *)
+(* (B + 0); (2) the real_eq_of_zero_diff route for gap_shape does not work *)
+(* (the projection of real_inv_pos carries an if-leb branch, so pointwise *)
+(* q == p*q*inv p is not an identity) and is replaced by the Real-layer *)
+(* chain (the five C0 pieces: distr_l / mult_opp_r / mult_m1_r / pqx_eq_q / *)
+(* opp_minus; the first four via assoc/comm/one/inv_pos_correct, *)
+(* opp_minus pointwise exact); (3) in the reshaping chains of *)
+(* klst_log_tangent_pos, the two (-1)+1 / 0+x positions are reordered by *)
+(* comm+opp / comm+zero; (4) the Part D split and shift pieces bridge *)
+(* sum(q-p) == 0 via real_list_sum_ext + real_opp_zero, and the strict *)
+(* s0 term injects gibbs_core_strict directly (Hdiv is its Hpq argument). *)
+(* Result 2 (negative branch, blocked pending one lemma): pointwise *)
+(* g >= 0 on the q < p branch needs a strict exponential with negative *)
+(* argument, i.e. the upper tangent of log on the x < 1 side. *)
+(* Its Q-layer gap source requires the four-term alternating partial-sum *)
+(* lower bound 1 - t + t^2/2 - t^3/6 <= ep_n(-t); the existing *)
+(* exp_partial family has only the first-order bound *)
+(* (exp_partial_ge_plus_x) and the sign-split non-strict pieces *)
+(* (odd/even_ge_minus, serving the eps-form non-strict statements), *)
+(* with no positive-gap witness field — a single-lemma gap; once filled, *)
+(* swapping the pointwise premise of Part D for the unrestricted weak *)
+(* order gives the unconditional statement (temperature bridge: beta2 < *)
+(* beta1 and E0 < E1 give strictly separated ratios; the strict *)
+(* monotonicity cauchy_real_exp_mono is already available, and the exp_neg *)
+(* sign flip reshapes straight through). *)
+(* Result 3 (relation to the eps-form engine): this file does not use the *)
+(* real_le_b finisher — the strict layer real_lt is a sigT positive *)
+(* statement with no Or-equality-branch extraction obstacle; the obstacle *)
+(* is the library-side missing tangent fields *)
+(* (real_exp_ge_linear_eps / real_log_le_linear_eps are both eps-form Or *)
+(* encodings), the same limitation as recorded in the UpRealLeB endnotes *)
+(* but at a different site. *)

@@ -1,29 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* UpReqKLStrictB.v *)
-(* 目的： KLStrict 族的 ≤_B 显式对照与完成件。 *)
-(* 主件： klstb_kl_sum_strict_B / klstb_gibbs_core_zero_B：严格核的 B 形完成。 *)
-(* 依赖： CW_ConstructiveWorld_219、UpRealLeB、UpRealLeB2、UpRealLeB3、G07_KLWall。 *)
-(* 备注： 结论 C 为显式假设件（G07_KLWall 成员承担）；对照形与原 eps 形并存。 *)
-(* ============================================================ *)
-(*   尾注结论 C：「逐项 Bishop 形（eps 余量）无前提路线由库侧 real_gibbs_core_eps/    *)
-(*   real_gibbs_inequality_eps 承载；E.12 real_gibbs_core_B（UpRealLeB L578）与       *)
-(*   E.13 real_gibbs_inequality_B（UpRealLeB L592）两件「eps 形源件 -> ≤_B」直接完成器  *)
-(*   已在盘（real_le_closure_b D:=p 实例/closure_b_one 单步定式），本件不再复刻——本件  *)
-(*   覆盖其未覆盖余留面：A. 严格层 sigT 正陈述 -> ≤_B 的显式单向桥（real_lt ->         *)
-(*   real_le_b）；B. ≤_B 右平移兼容器（plus_compat + 自反一步合成）；C. 逐项无条件      *)
-(*   B 面：0 ≤_B kl_term(p,q)+(q−p)（零比较零归一化前提，仅 Hp/Hq 供 real_kl_term       *)
-(*   类型位；p<q 与 p==q 与 q<p 三支合一）；D. ≤_B 逐点求和保序器（族级组合器；          *)
-(*   UpRealLeB/2/3 无 list 版）；E. 无条件平移和件（0 ≤_B Σ_s (kl_term+(q−p))）；        *)
-(*   F. klst 严格族两主件的 ≤_B 对照形（签名逐位对位，结论换 ≤_B）；G. 退化对照件        *)
-(*   klst_gibbs_core_zero 的 ≤_B 对偶面。基座（全在盘只读使用）：UpRealLeB               *)
-(*   （real_le_b L63 定义/real_le_to_le_b L78/real_le_closure_b_one L373/E.12/E.13）、    *)
-(*   UpRealLeB2（real_le_b_plus_compat L336）、UpRealLeB3（leb3_le_b_refl L45/           *)
-(*   leb3_le_b_eq_l L51）、G07_KLWall（klst_kl_sum_strict/klst_kl_energy_nonconst/       *)
-(*   klst_gibbs_core_zero/real_kl_term/real_list_sum）。红线自审：real_le_b 为 Set 值    *)
-(*   全称谓词（UpRealLeB L63），real_lt 为 sigT 见证集值，语句面全 Set 零类域降级；       *)
-(*   纯构造（弱三分内消解，不引入排中形态前提）；全件 Qed。                              *)
-(*   编译配方：-Q ConstructiveWorld_vo "" -Q 本目录 ""。                                 *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — Bishop-order companions of the KL-strict family. *)
+
+(** * UpReqKLStrictB: explicit [real_le_b] companions and completions for the strict KL family.
+
+    Mission.  The strict-to-Bishop bridge [klstb_lt_le_b], the
+      right-translation combinator [klstb_le_b_translate_r], the
+      premise-free pointwise gap [klstb_gibbs_core_shift_B], the
+      list-sum combiners [klstb_list_sum_zero]/[klstb_list_sum_le_b],
+      the unconditional shifted sum [klstb_kl_sum_shift_B], the
+      companions [klstb_kl_sum_strict_B]/[klstb_kl_energy_nonconst_B],
+      and the degenerate dual [klstb_gibbs_core_zero_B].
+
+    Dependencies.  Stdlib [List].  Requires [S01_BaseRing] through
+      [S15_TailFEPUp], [UpRealLeB], [UpRealLeB2], [UpRealLeB3] and
+      [G07_KLWall] of this development.
+
+    References.  This development, UpReqKLStrictB.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried over
+      here verbatim (statement-face Set-carrier completion); strict
+      sources in [G07_KLWall], Bishop-order toolkit in
+      [UpRealLeB]/[UpRealLeB2]/[UpRealLeB3].
+
+    Constructivity.  [real_le_b] is a Set-valued predicate and
+      [real_lt] a [sigT] witness set, so all statements stay in [Set]
+      with no classical-domain downgrade; proofs resolve within the
+      weak trichotomy; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqKLStrictB.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact
+      are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -45,11 +49,11 @@ Require Import UpRealLeB2.
 Require Import UpRealLeB3.
 Require Import G07_KLWall.
 
-(* ============================================================ *)
-(* Part 0：换形辅件——平移量正负对消的等式面                            *)
-(* ============================================================ *)
+(* ==================== Part 0. Rewriting auxiliary: the equality face of shifted cancellation ==================== *)
 
-(* (p−q)+(q−p) == 0：assoc/comm/opp/zero 显式链（无环法，G07 C0 同款手法） *)
+(* [(p-q) + (q-p) == 0] through an explicit
+   associativity/commutativity/inverse/zero chain (no ring automation,
+   as in G07 Part C0). *)
 Lemma klstb_pq_shift_zero : forall p q : Real,
   real_eq (real_plus (real_plus p (real_opp q)) (real_plus q (real_opp p)))
           real_zero.
@@ -68,7 +72,7 @@ Proof.
                (real_plus (real_opp q) (real_plus q (real_opp p)))
                p (real_opp p)).
       * apply real_eq_refl.
-      * (* 内层：(−q) + (q + (−p)) == −p *)
+      * (* Inner sum: [(-q) + (q + (-p)) == -p]. *)
         apply (real_eq_trans
                  (real_plus (real_opp q) (real_plus q (real_opp p)))
                  (real_plus (real_plus (real_opp q) q) (real_opp p))
@@ -101,12 +105,12 @@ Proof.
   - apply real_plus_opp.
 Qed.
 
-(* ============================================================ *)
-(* Part A：严格 → ≤_B 显式单向桥（结论 C 需求件之一）                    *)
-(* ============================================================ *)
+(* ==================== Part A. Explicit one-way bridge from strict order to [real_le_b] ==================== *)
 
-(* x < y（sigT 正陈述）⟹ x ≤_B y：real_lt_le_iff_req 左支入 Or 面，      *)
-(*   再经 real_le_to_le_b 单向桥（Set 层全程，零类域降级）                *)
+(* [x < y] (a [sigT] positive statement) implies [x <=_B y]: the left
+   disjunct enters the [Or] face via [real_lt_le_iff_req], then the
+   one-way bridge [real_le_to_le_b] applies (the derivation stays in
+   [Set] throughout, with no classical-domain downgrade). *)
 Lemma klstb_lt_le_b : forall x y : Real,
   real_lt x y -> real_le_b x y.
 Proof.
@@ -116,9 +120,7 @@ Proof.
   left. exact Hlt.
 Qed.
 
-(* ============================================================ *)
-(* Part B：≤_B 右平移兼容器                                              *)
-(* ============================================================ *)
+(* ==================== Part B. Right-translation combinator for [real_le_b] ==================== *)
 
 Lemma klstb_le_b_translate_r : forall x y z : Real,
   real_le_b x y -> real_le_b (real_plus x z) (real_plus y z).
@@ -128,11 +130,10 @@ Proof.
   apply leb3_le_b_refl.
 Qed.
 
-(* ============================================================ *)
-(* Part C：逐项无条件 B 面——0 ≤_B kl_term + (q−p)                       *)
-(*   （结论 C「无前提路线」≤_B 显形：零比较前提、零归一化前提；          *)
-(*    证书供给 = E.12 real_gibbs_core_B 右平移 (q−p) + Part 0 对消）     *)
-(* ============================================================ *)
+(* ==================== Part C. Pointwise premise-free Bishop face: [0 <=_B kl_term + (q-p)] ==================== *)
+(* No comparison premise and no normalization premise; the witness is
+   [real_gibbs_core_B] right-translated by [(q-p)] and closed with the
+   Part 0 cancellation. *)
 
 Lemma klstb_gibbs_core_shift_B : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
@@ -152,9 +153,7 @@ Proof.
   exact (real_gibbs_core_B p q Hp Hq).
 Qed.
 
-(* ============================================================ *)
-(* Part D：≤_B 逐点求和保序器（族级组合器；real_list_sum 形）            *)
-(* ============================================================ *)
+(* ==================== Part D. Pointwise sum combinator for [real_le_b] ==================== *)
 
 Lemma klstb_list_sum_zero : forall (X : Type) (l : list X),
   real_eq (real_list_sum X (fun _ : X => real_zero) l) real_zero.
@@ -190,10 +189,9 @@ Proof.
     + exact IH.
 Qed.
 
-(* ============================================================ *)
-(* Part E：无条件平移和件——0 ≤_B Σ_s (kl_term + (q−p))                  *)
-(*   （零比较前提、零归一化前提；逐项 Part C 经 Part D 完成）            *)
-(* ============================================================ *)
+(* ==================== Part E. Unconditional shifted sum: [0 <=_B sum_s (kl_term + (q-p))] ==================== *)
+(* No comparison premise and no normalization premise; pointwise Part C
+   is lifted through the Part D combiner. *)
 
 Lemma klstb_kl_sum_shift_B : forall (X : Type) (l : list X) (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -219,13 +217,14 @@ Proof.
   apply (klstb_gibbs_core_shift_B (p s) (q s) (Hp s) (Hq s)).
 Qed.
 
-(* ============================================================ *)
-(* Part F：klst 严格族两主件的 ≤_B 对照形（签名逐位对位）                *)
-(*   对照件语义：前提面照抄族件、结论面由 strict 换 ≤_B——               *)
-(*   严格层与 Bishop 层在同型语句面上的可达性显形。                      *)
-(* ============================================================ *)
+(* ==================== Part F. Bishop-form companions of the two strict main statements ==================== *)
+(* Companion semantics: the premise face is copied verbatim from the
+   strict family and the conclusion is weakened from strict to
+   [real_le_b] — showing what the strict layer and the Bishop layer
+   each reach on identically shaped statement faces. *)
 
-(* 对位 klst_kl_sum_strict（G07 Part D，单向弱序支）：使命点名件          *)
+(* Companion of [klst_kl_sum_strict] (G07 Part D, one-sided weak-order
+   branch). *)
 Lemma klstb_kl_sum_strict_B : forall (X : Type) (l₁ : list X) (s₀ : X) (l₂ : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -245,7 +244,8 @@ Proof.
   exact (klst_kl_sum_strict X l₁ s₀ l₂ p q Hp Hq Hpq Hnormp Hnormq Hdiv).
 Qed.
 
-(* 对位 klst_kl_energy_nonconst（G07 Part G，双向弱序无条件主件）         *)
+(* Companion of [klst_kl_energy_nonconst] (G07 Part G, two-sided
+   premise-free main statement). *)
 Lemma klstb_kl_energy_nonconst_B : forall (X : Type) (l₁ : list X) (s₀ : X) (l₂ : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -265,11 +265,11 @@ Proof.
   exact (klst_kl_energy_nonconst X l₁ s₀ l₂ p q Hp Hq Hpq Hnormp Hnormq Hdiv).
 Qed.
 
-(* ============================================================ *)
-(* Part G：退化对照件的 ≤_B 对偶面                                       *)
-(*   （p == q ⟹ kl_term+(q−p) == 0，经 eq 面右支入桥；与 Part C 成对——   *)
-(*    C 支 q≠p 无前提、G 支等号点，三支在 ≤_B 面合流）                   *)
-(* ============================================================ *)
+(* ==================== Part G. The degenerate dual face ==================== *)
+(* At [p == q] the shifted gap [kl_term + (q-p)] is zero: the equality
+   face enters the bridge through its right disjunct.  Together with
+   Part C (premise-free away from [p == q]) the three cases of the weak
+   comparison meet on the [real_le_b] face. *)
 
 Lemma klstb_gibbs_core_zero_B : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
@@ -285,9 +285,7 @@ Proof.
   exact (klst_gibbs_core_zero p q Hp Hq Hpq).
 Qed.
 
-(* ============================================================ *)
-(* 闭合审计（Print Assumptions 须全 Closed）                             *)
-(* ============================================================ *)
+(* ==================== Closure audit: [Print Assumptions] reports every statement Closed ==================== *)
 
 Print Assumptions klstb_pq_shift_zero.
 Print Assumptions klstb_lt_le_b.

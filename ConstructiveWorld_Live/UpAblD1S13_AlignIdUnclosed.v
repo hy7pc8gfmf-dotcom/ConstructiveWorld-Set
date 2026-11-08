@@ -1,33 +1,33 @@
-(* ==========================================================================
-   UpAblD1S13_AlignIdUnclosed.v - data-supply module for the AiuBackwardKL
-   section (piece two): the fourteen remaining slot positions of the
-   AiuBackwardKL section, given by one single-point instance.
-   Mission. 使命: instance supply for the AiuBackwardKL residual slots --
-   R, RIS (the interface itself), S, sumf, sum_ext, sum_add, sum_linear,
-   reward, beta, beta_pos, pi_ref, pi_ref_pos, eta, and ZAL_pos (the Z
-   certificate, the req2_Z_align single-point instance) -- assembled as the
-   supply record uabd1s13_aiu_pack14 with its supply theorem; sum_pos and
-   the two log slots go to the sibling pieces and are excluded here.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlign2 of the
-   -Set lineage world; interface = the argument-less Class
-   RealInterfaceEnhancedSetoid (module RealInterfaceEnhancedMod).
-   References. 对标: statement names carried over verbatim; adaptation =
-     binder-shell removal + notation rebinding on this world's own precedent
-     (the source argumented Class applications raised "Illegal application
-     (Non-functional construction)"): the binder pairs (R : Set)
-     (RIS : RealInterfaceEnhancedSetoid R) are removed, R := Real by
-     notation (UpReqSumD.v L58), law fields resolve as bare names through
-     the global instance RealEnhancedReal (UpReqSumD.v L68-72), the
-     predicate faces are real_eq/real_lt (UpReqSumD.v L113-114); the type
-     slots (S) are monomorphised to the supplied unit instance (type slots
-     are erased at extraction and would raise Obj.magic at slot values).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; supply-grade unconditional witnesses
-     throughout; tail Print Assumptions report the closure face.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> "" -Q . ""
-     UpAblD1S13_AlignIdUnclosed.v (cpu_guard thermal wrapper,
-     ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — data-supply module for the [AiuBackwardKL]
+   section, piece two: its fourteen remaining slots. *)
+(** * UpAblD1S13_AlignIdUnclosed: the fourteen remaining slots of the
+      [AiuBackwardKL] section, given by one single-point instance.
+
+    Mission.  Instance supply for the [AiuBackwardKL] residual slots —
+      [R], [RIS] (the interface itself), [S], [sumf], [sum_ext], [sum_add],
+      [sum_linear], [reward], [beta], [beta_pos], [pi_ref], [pi_ref_pos],
+      [eta], [ZAL_pos] (the [req2_Z_align] single-point instance) — as the
+      supply record [uabd1s13_aiu_pack14] with its supply theorem;
+      [sum_pos] and the two log slots go to the sibling pieces.
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
+      [UpReqAlign2] of this development; the interface is the argument-less
+      [Class] [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
+    References.  This development and the ConstructiveWorld-Main baseline
+      module of the same name; statement names carried over verbatim;
+      adaptation = binder-shell removal + notation rebinding on this
+      development's own precedent ([UpReqSumD.v] L58/L68-72/L113-114):
+      binder pairs ([R : Set]) ([RIS : RealInterfaceEnhancedSetoid R])
+      removed, [R := Real] by notation, law fields as bare names through
+      the global instance [RealEnhancedReal], predicate faces
+      [real_eq]/[real_lt], type slots ([S]) monomorphised to the supplied
+      [unit] instance (type slots are erased at extraction and would raise
+      [Obj.magic] at slot values).
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; supply-grade unconditional
+      witnesses; the tail [Print Assumptions] lines report the closure face.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpAblD1S13_AlignIdUnclosed.v] compiles cleanly (exit 0) under the
+      [cpu_guard] thermal wrapper with [ulimit -s 65532]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

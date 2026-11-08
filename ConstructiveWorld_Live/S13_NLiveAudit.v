@@ -1,34 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* S13_NLiveAudit.v                                            *)
-(*                                                             *)
-(* 目的：LLM 工作流监督算法与科学诚信管线的 Set 层形式化；        *)
-(*       实数指数接口的可实现性证明与提取审计。                   *)
-(* 主件：real_expf_realizable——cauchy_real_exp 满足 expf 迷你     *)
-(*       接口全部字段（Part C 满足性证明）。                      *)
-(* 依赖：S01–S12；Stdlib（QArith、List、Bool、Arith、Setoid、    *)
-(*       Morphisms、Lia）。                                      *)
-(* 备注：本件为 CW_ConstructiveWorld_219.v 拆分模块之一，原文区间 *)
-(*       L93448-L97866，去头正文与原文区间逐字节同源；监督调度器  *)
-(*       与诚信管线的代理/更替/焦点为被形式化算法的域语义。       *)
-(* ============================================================ *)
-
-(* ============================================================ *)
-(* 替换定理清单：qleT_refl_local（原两句桥转发 → 语句体展开至      *)
-(*   Qle_bool/Qcompare 定义层，三分逐支构造矛盾项，矛盾支以 Z 层    *)
-(*   自反比较构造性排除）；natlt_intro（原桥转发 → 绝对值反映面     *)
-(*   显式装配：次大比较规约＋反映引理＋改写闭合）。                 *)
-(* 非平凡性说明：两处替换均消除单跳转发，显式构造推导链（三分      *)
-(*   逐支构造 / 反映面装配链），非等价拆行。                        *)
-(* 红线自检：纯构造性；零新增承认语句；Set 层合取走构造子面；       *)
-(*   替换证明全部以真证明闭合语句闭尾；文件尾附假设面打印锚。       *)
-(* 编译态：三形战术已检验件验证（ProbeC 全部通过）；本件全链编译待验    *)
-(* ============================================================ *)
-
-(*   Qcompare 逐支构造，同 qleT_refl_local 定形）；natlt_elim（原换形桥单跳 → *)
-(*   消去向独立装配：判定面消取＋次大比较反映面投影＋定义性换算闭合）。     *)
-(*   消去/构造定形机械复用，独立版同构）；bool_id_true/bool_true_id（等同判定面三分： *)
-(*   布尔逐支构造/消去，假支反转穷尽或判别式构造性排除）；audit_and_comm/       *)
-(*   audit_or_comm（逐点布尔判定面四分逐支构造）。文件尾增假设面打印锚六条。   *)
+(* ConstructiveWorld-Set — LLM workflow supervision, the scientific integrity pipeline, and realizability of the real exponential interface. *)
+(**
+ * S13_NLiveAudit: LLM workflow supervision and the scientific
+ *   integrity pipeline on the constructive [Set] layer.
+ *
+ * Mission.  The supervision scheduler ([sf_sub_cx_descent],
+ *   [sf_run_done_mono], counterexample-search soundness and
+ *   completeness), the integrity pipeline ([sf_anchor_sound],
+ *   [sf_spec_sync_sound], [sf_publish_gate]), audited generation
+ *   with early stopping, audit as KL projection
+ *   ([projected_distribution_minimizes_kl]), the Doeblin contraction
+ *   of bounded-logits softmax kernels ([u_tv_contraction],
+ *   [u_tv_iter], [bs_minorization]), constructive square roots
+ *   ([real_sqrt_exists]), and [real_expf_realizable]:
+ *   [cauchy_real_exp] satisfies the [expf] mini interface; the
+ *   replacement statements expand forwarded bodies at definition level.
+ *
+ * Dependencies.  [S01_BaseRing]-[S12_B5RecycleSF]; Stdlib [QArith],
+ *   [List], [Bool], [Arith], [ZArith.Znat], [Setoid], [Morphisms], [Lia].
+ *
+ * References.  This development, the baseline module [S13_NLiveAudit.v]
+ *   in ConstructiveWorld-Main whose statement names are carried over verbatim.
+ *
+ * Constructivity.  All statements are carried by [Set] ([QltT]/[QleT']/[QeqT],
+ *   [Id], [NatLe]/[NatLt]); no admitted statements; proofs close by [Qed];
+ *   the file tail carries [Print Assumptions] anchors.
+ *
+ * Build.  [coqc -native-compiler no -q -Q . "" S13_NLiveAudit.v]
+ *   compiles cleanly (exit 0); the artifact magic is [436f7121 000160bc].
+ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -51,20 +50,23 @@ Opaque Qred.
 
 Section NSymplectic.
 
-(* 二维辛旋转作用于 (q, p) 对。 *)
+(* a two-dimensional symplectic rotation acting on a (q, p) pair *)
 Definition rot (c s : Q) (p : (Q * Q)%type) : (Q * Q)%type :=
   (c * fst p - s * snd p, s * fst p + c * snd p).
 
-(* 对分量对的 Set 层等同（数值相等 QId，非 Leibniz——乘法结合律敏感）。 *)
+(* set-level equality on component pairs: the numeric equality [QId], not
+   Leibniz equality, which is sensitive to multiplication associativity *)
 Definition PairId (p q : (Q * Q)%type) : Set :=
   And (QId (fst p) (fst q)) (QId (snd p) (snd q)).
 
-(* 范数平方（分量平方和；可计算，无 sqrt）。 *)
+(* the squared norm: the sum of squared components, computable without [sqrt] *)
 Definition norms2 (p : (Q * Q)%type) : Q :=
   fst p * fst p + snd p * snd p.
 
-(* T-N1.1 旋转保范数：c²+s² = 1 ⟹ 新范数 == 旧范数。
-   （前提 QId 化：公开语句禁 Prop，Qeq 桥经 qid_elim 在证明体内中转。） *)
+(* T-N1.1 rotations preserve the norm: [c^2 + s^2 = 1] implies the new norm
+   equals the old one.  (The premise is carried as [QId]: public statements
+   stay on [Set], so the [Qeq] bridge is routed through [qid_elim] in the
+   proof body.) *)
 Theorem rot_preserves_norm :
   forall (c s : Q) (p : (Q * Q)%type),
     QId (c * c + s * s) 1 ->
@@ -84,7 +86,8 @@ Proof.
   rewrite <- Hfin. exact Hexp.
 Qed.
 
-(* T-N1.2 复合律：两次旋转 = 角度相加的一次旋转。 *)
+(* T-N1.2 composition law: two successive rotations equal one rotation by the
+   summed angle *)
 Theorem rot_compose :
   forall c1 s1 c2 s2 (p : (Q * Q)%type),
     PairId (rot (c2 * c1 - s2 * s1) (s2 * c1 + c2 * s1) p)
@@ -94,8 +97,9 @@ Proof.
   split; apply qid_intro; ring.
 Qed.
 
-(* T-N1.3 辛形式保持：ω(q,p) = q·p' − q'·p 的 2D 旋转不变量
-   （2D 中辛形式即有向面积；旋转行列式 = c²+s² = 1）。 *)
+(* T-N1.3 symplectic form preservation: the 2D rotation invariance of
+   [w(q,p) = q*p' - q'*p] (in 2D the symplectic form is the signed area; the
+   rotation matrix has determinant [c^2 + s^2 = 1]) *)
 Definition symp2 (p q : (Q * Q)%type) : Q :=
   fst p * snd q - snd p * fst q.
 
@@ -120,13 +124,13 @@ Qed.
 End NSymplectic.
 
 (* ============================================================ *)
-(* N2. 语言亲和簇（lac_prototype.py：关联表查询）                  *)
-(* 数据形态：nat 键（域 id / 语种 id / 概念 id），option 查找。     *)
+(* N2. language-affinity clusters (lac_prototype.py: association-table lookups) *)
+(* data shape: [nat] keys (domain id / language id / concept id) with [option] lookups *)
 (* ============================================================ *)
 
 Section NLAC.
 
-(* 域条目：域 id × (优势语种 id × 概念 id 列表)。 *)
+(* a domain entry: a domain id paired with (dominant language id, list of concept ids) *)
 Definition LACEntry : Set := (nat * (nat * list nat))%type.
 
 Fixpoint lac_lookup (d : nat) (e : list LACEntry) : option (nat * list nat) :=
@@ -135,7 +139,7 @@ Fixpoint lac_lookup (d : nat) (e : list LACEntry) : option (nat * list nat) :=
   | (d', info) :: rest => if Nat.eqb d d' then Some info else lac_lookup d rest
   end.
 
-(* 翻译桥：概念 id 对 (源, 目标)。 *)
+(* a translation bridge: a concept id paired with (source, target) *)
 Definition TransPair : Set := (nat * nat)%type.
 
 Fixpoint lac_translate (c : nat) (t : list TransPair) : option nat :=
@@ -144,7 +148,7 @@ Fixpoint lac_translate (c : nat) (t : list TransPair) : option nat :=
   | (c', t') :: rest => if Nat.eqb c c' then Some t' else lac_translate c rest
   end.
 
-(* T-N2.1 查到即命中：头部键相等时返回该条目。 *)
+(* T-N2.1 head lookup: when the head key matches, the entry is returned *)
 Theorem lac_lookup_here :
   forall d info e,
     Id (lac_lookup d ((d, info) :: e)) (Some info).
@@ -155,7 +159,8 @@ Proof.
   - exfalso. apply Nat.eqb_neq in E. apply E. reflexivity.
 Qed.
 
-(* T-N2.2 翻译自反：概念在桥表中查到自身条目即返回目标。 *)
+(* T-N2.2 translation reflexivity: a concept whose entry sits at the head of
+   the bridge table returns its target *)
 Theorem lac_translate_here :
   forall c t e,
     Id (lac_translate c ((c, t) :: e)) (Some t).
@@ -166,8 +171,10 @@ Proof.
   - exfalso. apply Nat.eqb_neq in E. apply E. reflexivity.
 Qed.
 
-(* T-N2.3 首中优先（覆盖语义）：表中同一概念多次出现时取最前者。
-   构造性陈述：若表中首匹配为 (c,t) 且其后另有 (c,t')，结果仍为 t。 *)
+(* T-N2.3 first match wins (override semantics): when a concept occurs several
+   times in the table, the earliest entry is taken.
+   Constructive statement: if the first match is (c,t) and another (c,t')
+   follows it, the result is still [t]. *)
 Theorem lac_translate_first_wins :
   forall c t t' e,
     Id (lac_translate c ((c, t) :: (c, t') :: e)) (Some t).
@@ -181,19 +188,20 @@ Qed.
 End NLAC.
 
 (* ============================================================ *)
-(* N3. 变量团解析（variable_clusters.py：双极轴/修饰语/强度分级）    *)
+(* N3. variable-cluster parsing (variable_clusters.py: bipolar axes / modifiers / intensity grading) *)
 (* ============================================================ *)
 
 Section NBipolar.
 
-(* 轴条目：词 id × 轴值（Q ∈ [−1, 1]）。 *)
+(* an axis entry: a word id paired with an axis value ([Q] in [-1, 1]) *)
 Definition BipolarEntry : Set := (nat * Q)%type.
 Definition Axis : Set := list BipolarEntry.
 
-(* 修饰语归纳类型（very / slightly / not）。 *)
+(* the inductive type of modifiers (very / slightly / not) *)
 Inductive SFModifier : Set := Very | Slightly | ModNot.
 
-(* 修饰语应用（very 封顶 1；slightly 向零收 1/20；not 取反）。 *)
+(* modifier application: [Very] caps the value at 1, [Slightly] pulls it toward
+   zero by 1/20, [ModNot] negates it *)
 Definition apply_mod (m : SFModifier) (v : Q) : Q :=
   match m with
   | Very => if Qle_bool 1 (v + (1 # 5)) then 1 else v + (1 # 5)
@@ -201,42 +209,45 @@ Definition apply_mod (m : SFModifier) (v : Q) : Q :=
   | ModNot => - v
   end.
 
-(* 轴解析：词 → 轴值（头中优先）。 *)
+(* axis resolution: a word id to its axis value (the head of the table wins) *)
 Fixpoint bipolar_resolve (w : nat) (ax : Axis) : option Q :=
   match ax with
   | nil => None
   | (w', v) :: rest => if Nat.eqb w w' then Some v else bipolar_resolve w rest
   end.
 
-(* 反义词扫描：异号且绝对值 > 1/5 的词 id 列表。 *)
+(* antonym scan: the word ids whose axis value has the opposite sign and
+   absolute value greater than 1/5 *)
 Fixpoint antonyms_of (v : Q) (ax : Axis) : list nat :=
   match ax with
   | nil => nil
   | (w', u) :: rest =>
       if andb (Qle_bool (1 # 5) (Qabs u))
-              (Qlt_bool 0 (v * u))          (* 异号：v·u < 0 *)
+              (Qlt_bool 0 (v * u))          (* opposite signs: v * u < 0 *)
       then w' :: antonyms_of v rest
       else antonyms_of v rest
   end.
 
-(* 近义词扫描：同号且差 < 1/5。 *)
+(* synonym scan: the same sign and a difference smaller than 1/5 *)
 Fixpoint synonyms_of (v : Q) (ax : Axis) : list nat :=
   match ax with
   | nil => nil
   | (w', u) :: rest =>
       if andb (Qlt_bool (Qabs (u - v)) (1 # 5))
-              (Qlt_bool 0 (v * u + (1 # 100)))   (* 同号（含零）判定的 Q 可判定化 *)
+              (Qlt_bool 0 (v * u + (1 # 100)))   (* the decidable [Q] form of the same-sign-or-zero test *)
       then w' :: synonyms_of v rest
       else synonyms_of v rest
   end.
 
-(* 强度分级：0=弱(≤1/10) 1=中(≤7/10) 2=强（QleT' 可判定分例）。 *)
+(* intensity grading: 0 = weak ([|v|] <= 1/10), 1 = medium ([<= 7/10]),
+   2 = strong (a decidable three-way split on the [QleT'] face) *)
 Definition intensity (v : Q) : nat :=
   if Qle_bool (Qabs v) (1 # 10) then 0
   else if Qle_bool (Qabs v) (7 # 10) then 1
   else 2.
 
-(* T-N3.1 双重否定即肯定：Not 修饰两次 == 恒等。 *)
+(* T-N3.1 double negation is the identity: applying [ModNot] twice equals the
+   identity *)
 Theorem apply_mod_not_twice :
   forall v : Q, QId (apply_mod ModNot (apply_mod ModNot v)) v.
 Proof.
@@ -244,7 +255,7 @@ Proof.
   apply qid_intro. ring.
 Qed.
 
-(* T-N3.2 解析命中：轴表头部条目即返回其值。 *)
+(* T-N3.2 resolution hit: the head entry of the axis table returns its value *)
 Theorem bipolar_resolve_here :
   forall w v ax, Id (bipolar_resolve w ((w, v) :: ax)) (Some v).
 Proof.
@@ -254,8 +265,8 @@ Proof.
   - exfalso. apply Nat.eqb_neq in E. apply E. reflexivity.
 Qed.
 
-(* T-N3.3 强度分级可判定且完备：结果必为 0/1/2 之一
-   （Set 层三分穷尽陈述，sigT 编码）。 *)
+(* T-N3.3 intensity grading is total: the result is one of 0/1/2
+   (an exhaustive three-way statement at the [Set] layer, encoded with [sigT]) *)
 Theorem intensity_total :
   forall v : Q,
     sigT (fun k : nat =>
@@ -274,12 +285,12 @@ Qed.
 End NBipolar.
 
 (* ============================================================ *)
-(* N4. 按语义维度翻译（translate_by_dim：查表 + 回退）             *)
+(* N4. translation by semantic dimension (translate_by_dim: table lookup with fallback) *)
 (* ============================================================ *)
 
 Section NTransDim.
 
-(* 维度翻译条目：词 id × 维度 id × 目标词 id。 *)
+(* a dimension-translation entry: word id x dimension id x target word id *)
 Definition DimTrans : Set := (nat * nat * nat)%type.
 
 Fixpoint translate_by_dim (w dim : nat) (t : list DimTrans) : option nat :=
@@ -289,15 +300,18 @@ Fixpoint translate_by_dim (w dim : nat) (t : list DimTrans) : option nat :=
       if andb (Nat.eqb w w') (Nat.eqb d' dim) then Some t' else translate_by_dim w dim rest
   end.
 
-(* 回退语义：指定维度查不到时，取同词的首个可用翻译。 *)
+(* fallback semantics: when the requested dimension is absent, the first
+   available translation of the same word is taken *)
 Fixpoint translate_fallback (w : nat) (t : list DimTrans) : option nat :=
   match t with
   | nil => None
   | (w', _, t') :: rest => if Nat.eqb w w' then Some t' else translate_fallback w rest
   end.
 
-(* T-N4.1 维度精确命中优先于回退：若维度命中存在，回退结果不改变
-   最终语义选取（以“维度命中 ≠ None ⟹ 两函数返回同一目标”表述）。 *)
+(* T-N4.1 an exact dimension hit takes priority over the fallback: when a
+   dimension hit exists, the fallback does not change the final semantic
+   choice (stated as: a dimension hit <> None implies both functions return
+   the same target) *)
 Theorem translate_dim_priority :
   forall w d t' t,
     Id (translate_by_dim w d ((w, d, t') :: t)) (Some t').
@@ -308,7 +322,8 @@ Proof.
   apply id_refl.
 Qed.
 
-(* T-N4.2 回退命中：同词异维度条目可经回退取到。 *)
+(* T-N4.2 fallback hit: an entry of the same word in another dimension is
+   reachable through the fallback *)
 Theorem translate_fallback_hit :
   forall w d t e, Id (translate_fallback w ((w, d, t) :: e)) (Some t).
 Proof.
@@ -321,14 +336,15 @@ Qed.
 End NTransDim.
 
 (* ============================================================ *)
-(* N5. 随机介质分支场（branching_medium.py 的 Q 层精确化）          *)
-(* 介质 = Q 多项式 bump（避开 exp）；噪声 = lcg 确定性伪随机流；    *)
-(* 比较全走 QleT'/QltT；量子比特 = 权重对（避免 sqrt）。           *)
+(* N5. the branching random-medium field (the [Q]-layer refinement of branching_medium.py) *)
+(* medium = a polynomial bump over [Q] (avoiding [exp]); noise = a deterministic
+   LCG pseudo-random stream; comparisons all go through [QleT']/[QltT];
+   qubits = weight pairs (avoiding [sqrt]). *)
 (* ============================================================ *)
 
 Section NBranch.
 
-(* bump 源：(cx, cy, a, s²)——支撑域内 a·(1 − d²/s²)，域外 0。 *)
+(* a bump source (cx, cy, a, s^2): [a*(1 - d^2/s^2)] inside its support, 0 outside *)
 Definition BumpSrc : Set := (Q * Q * Q * Q)%type.
 
 Definition bcx (s : BumpSrc) : Q := fst (fst (fst s)).
@@ -336,11 +352,12 @@ Definition bcy (s : BumpSrc) : Q := snd (fst (fst s)).
 Definition bamp (s : BumpSrc) : Q := snd (fst s).
 Definition bs2 (s : BumpSrc) : Q := snd s.
 
-(* 距离平方。 *)
+(* the squared distance *)
 Definition d2of (x y : Q) (s : BumpSrc) : Q :=
   (x - bcx s) * (x - bcx s) + (y - bcy s) * (y - bcy s).
 
-(* 介质密度：bump 叠加（Q 可计算；支撑域判定走 Qle_bool）。 *)
+(* the medium density: a superposition of bumps (computable over [Q]; support
+   membership decided by [Qle_bool]) *)
 Fixpoint rho (x y : Q) (srcs : list BumpSrc) : Q :=
   match srcs with
   | nil => 0
@@ -350,7 +367,8 @@ Fixpoint rho (x y : Q) (srcs : list BumpSrc) : Q :=
        else 0) + rho x y rest
   end.
 
-(* 密度的 x 偏导（bump 支撑域内解析式：−2a(x−cx)/s²）。 *)
+(* the x partial derivative of the density (closed form inside a bump support:
+   [-2a(x-cx)/s^2]) *)
 Fixpoint drho_dx (x y : Q) (srcs : list BumpSrc) : Q :=
   match srcs with
   | nil => 0
@@ -360,7 +378,7 @@ Fixpoint drho_dx (x y : Q) (srcs : list BumpSrc) : Q :=
        else 0) + drho_dx x y rest
   end.
 
-(* 密度的 y 偏导。 *)
+(* the y partial derivative of the density *)
 Fixpoint drho_dy (x y : Q) (srcs : list BumpSrc) : Q :=
   match srcs with
   | nil => 0
@@ -370,8 +388,9 @@ Fixpoint drho_dy (x y : Q) (srcs : list BumpSrc) : Q :=
        else 0) + drho_dy x y rest
   end.
 
-(* 确定性伪随机流（线性同余；构造性诚实：Coq 无真随机）。 *)
-(* 小常数 LCG：避开超大 nat 字面量的展开黑洞（判例同源教训）。 *)
+(* a deterministic pseudo-random stream (linear congruential; constructively
+   honest: Coq has no true randomness) *)
+(* a small-constant LCG: avoids the reduction blow-up of very large [nat] literals *)
 Definition lcg_next (s : nat) : nat := Nat.modulo (89 * s + 31) 97.
 
 Fixpoint prng (s : nat) (n : nat) : Q :=
@@ -380,18 +399,20 @@ Fixpoint prng (s : nat) (n : nat) : Q :=
   | Datatypes.S n' => prng (lcg_next s) n'
   end.
 
-(* 光线状态（切线向量版：无 sin/cos 依赖，方向由 (tx,ty) 携带）。 *)
+(* the ray state (tangent-vector form: no [sin]/[cos] dependence, the direction
+   carried by (tx, ty)) *)
 Record QRay : Set := Build_QRay {
   rx : Q;
   ry : Q;
-  rtx : Q;                 (* 切线 x 分量 *)
-  rty : Q;                 (* 切线 y 分量 *)
-  rw : Q;                  (* 逻辑权重 *)
-  rbits : list bool;  (* 分支历史比特串 *)
-  racc : Q                 (* 累计偏转量 *)
+  rtx : Q;                 (* tangent x component *)
+  rty : Q;                 (* tangent y component *)
+  rw : Q;                  (* logical weight *)
+  rbits : list bool;  (* branch-history bit string *)
+  racc : Q                 (* accumulated deflection *)
 }.
 
-(* 偏转 + 前进 + 伪随机游走（确定性种子流）。 *)
+(* deflection plus advance plus the pseudo-random walk (a deterministic seed
+   stream) *)
 Definition q_deflect (kappa step : Q) (seed n : nat) (r : QRay)
   (srcs : list BumpSrc) : QRay :=
   let gx := drho_dx (rx r) (ry r) srcs in
@@ -402,20 +423,21 @@ Definition q_deflect (kappa step : Q) (seed n : nat) (r : QRay)
              (rtx r + turn + walk) (rty r + turn + walk)
              (rw r) (rbits r) (racc r + Qabs turn).
 
-(* 分支：权重对半，比特分叉 0/1。 *)
+(* branching: the weight is halved and the bit histories fork *)
 Definition q_branch (phi : Q) (r : QRay) : (QRay * QRay)%type :=
   (Build_QRay (rx r) (ry r) (rtx r - phi) (rty r - phi) (rw r / (2 # 1)) (rbits r ++ true :: nil)%list 0,
    Build_QRay (rx r) (ry r) (rtx r + phi) (rty r + phi) (rw r / (2 # 1)) (rbits r ++ false :: nil)%list 0).
 
-(* 权重总和。 *)
+(* the total weight *)
 Fixpoint rw_sum (rs : list QRay) : Q :=
   match rs with
   | nil => 0
   | r :: rest => rw r + rw_sum rest
   end.
 
-(* T-N5.1 权重守恒（分支事件级，全真证）：
-   一次分支把权重 w 对半分给两个子光线，总和不变。 *)
+(* T-N5.1 weight conservation (at the branching-event level):
+   one branch splits the weight [w] in half between the two child rays and the
+   total is unchanged *)
 Theorem q_branch_weight :
   forall (phi : Q) (r : QRay),
     QId (rw (fst (q_branch phi r)) + rw (snd (q_branch phi r))) (rw r).
@@ -424,36 +446,38 @@ Proof.
   apply qid_intro. field.
 Qed.
 
-(* 列表级守恒（rw_sum 版）：由 q_branch_weight 经列表归纳闭合
-   —— 闭合批 P4（归纳步 = q_branch_weight + Qeq 加法同余）。 *)
+(* list-level conservation (the [rw_sum] form): closes by list induction from
+   [q_branch_weight] (induction step: [q_branch_weight] plus the additive
+   congruence of [Qeq]). *)
 
 (* ============================================================ *)
-(* N6. 初心向量收敛核（convergence_core.py 的 Q 层精确化）          *)
+(* N6. the intention-vector convergence core (the [Q]-layer refinement of convergence_core.py) *)
 (* ============================================================ *)
 
-(* 阶段收缩步：x' = x + h·sign(g − x)（负向量 = 负梯度框架）。 *)
+(* the phase contraction step: [x' = x + h*sign(g - x)] (the negative vector as
+   negative gradient) *)
 Definition qstep (h x g : Q) : Q := x + h * qsign (g - x).
 
-(* T-N6.1 阶段可达（收缩定理 T1）：0 < h ≤ |g−x| ⟹ |x'−g| == |g−x| − h。
-   【临时承认】——Qabs 分例装配，闭合批 P4。 *)
+(* T-N6.1 phase reachability (contraction theorem T1): [0 < h <= |g-x|] implies
+   [|x'-g| == |g-x| - h].  (Assembled per case through [Qabs].) *)
 Lemma qle_add_r : forall x y z : Q, Qle x y -> QleT' (x + z) (y + z).
 Proof.
   intros x y z H. exact (Qle_to_QleT' _ _ (Qplus_le_compat x y z z H (Qle_refl z))).
 Qed.
 
-(* Qle 左项 Qeq 同构替换。 *)
+(* rewriting the left argument of [Qle] along a [Qeq] *)
 Lemma qle_congr_l : forall a b c : Q, a == b -> Qle a c -> QleT' b c.
 Proof.
   intros a b c Hab H. apply Qle_to_QleT'. rewrite <- Hab. exact H.
 Qed.
 
-(* Qle 右项 Qeq 同构替换。 *)
+(* rewriting the right argument of [Qle] along a [Qeq] *)
 Lemma qle_congr_r : forall a b c : Q, b == c -> Qle a b -> QleT' a c.
 Proof.
   intros a b c Hab H. apply Qle_to_QleT'. rewrite Hab in H. exact H.
 Qed.
 
-(* qsign 三分刻画：0 < x ⟹ qsign x == 1。 *)
+(* three-way characterization of [qsign]: [0 < x] implies [qsign x == 1] *)
 Lemma qsign_pos : forall x : Q, Qlt 0 x -> QeqT (qsign x) 1.
 Proof.
   intros x H. apply qeq_imp_qeqT. unfold qsign.
@@ -463,7 +487,7 @@ Proof.
   - exfalso. rewrite <- H1 in H. exact (Qlt_irrefl 0 H).
 Qed.
 
-(* qsign 三分刻画：x < 0 ⟹ qsign x == -1。 *)
+(* three-way characterization of [qsign]: [x < 0] implies [qsign x == -1] *)
 Lemma qsign_neg : forall x : Q, Qlt x 0 -> QeqT (qsign x) (-1).
 Proof.
   intros x H. apply qeq_imp_qeqT. unfold qsign.
@@ -473,7 +497,7 @@ Proof.
   - exfalso. rewrite <- H1 in H. exact (Qlt_irrefl 0 H).
 Qed.
 
-(* qsign 三分刻画：x == 0 ⟹ qsign x == 0。 *)
+(* three-way characterization of [qsign]: [x == 0] implies [qsign x == 0] *)
 Lemma qsign_zero : forall x : Q, x == 0 -> QeqT (qsign x) 0.
 Proof.
   intros x H. apply qeq_imp_qeqT. unfold qsign.
@@ -494,7 +518,7 @@ Proof.
   assert (Hhle : Qle h (Qabs (g - x))) by (apply QleT'_to_Qle; exact Hle).
   unfold qstep.
   destruct (Q_dec (g - x) 0) as [[Hd | Hd] | Hd].
-  - (* g - x < 0：|g−x| = −(g−x)，g−x' = (g−x)+h ≤ 0 *)
+  - (* g - x < 0: |g-x| = -(g-x), and g - x' = (g-x) + h <= 0 *)
     apply qid_intro.
     assert (Hs : qsign (g - x) == -1) by (apply qeqT_imp_qeq; apply qsign_neg; exact Hd).
     rewrite (Qabs_neg (g - x) (Qlt_le_weak (g - x) 0 Hd)) in Hhle.
@@ -508,7 +532,7 @@ Proof.
     rewrite (Qabs_neg (g - x) (Qlt_le_weak (g - x) 0 Hd)).
     rewrite (Qabs_neg _ Hnp).
     rewrite Hs. ring.
-  - (* 0 < g - x：|g−x| = g−x，g−x' = (g−x)−h ≥ 0 *)
+  - (* 0 < g - x: |g-x| = g-x, and g - x' = (g-x) - h >= 0 *)
     apply qid_intro.
     assert (Hs : qsign (g - x) == 1) by (apply qeqT_imp_qeq; apply qsign_pos; exact Hd).
     rewrite (Qabs_pos (g - x) (Qlt_le_weak 0 (g - x) Hd)) in Hhle.
@@ -522,7 +546,7 @@ Proof.
     rewrite (Qabs_pos (g - x) (Qlt_le_weak 0 (g - x) Hd)).
     rewrite (Qabs_pos _ Hp).
     rewrite Hs. ring.
-  - (* g - x == 0 与 0 < h 矛盾 *)
+  - (* g - x == 0 contradicts 0 < h *)
     exfalso.
     assert (Hz : Qabs (g - x) == 0)
       by (rewrite (Qabs_pos (g - x) (QleT'_to_Qle _ _ (qeq_imp_qle 0 (g - x) (qeq_imp_qeqT _ _ (Qeq_sym _ _ Hd))))); exact Hd).
@@ -530,11 +554,12 @@ Proof.
     exact (Qlt_irrefl 0 (Qlt_le_trans 0 h 0 Hhlt Hhle)).
 Qed.
 
-(* 究极逃逸步：T' = T + e·sign(T − x)（e ≥ h，背离方向）。 *)
+(* the escape step: [T' = T + e*sign(T - x)] with [e >= h], moving away from the
+   target *)
 Definition qescape (e x t : Q) : Q := t + e * qsign (t - x).
 
-(* T-N6.2 终极不可达（逃逸定理 T2）：h ≤ e ⟹ |T'−x'| ≥ |T−x|。
-   【临时承认】——Qabs_triangle 分例装配，闭合批 P4。 *)
+(* T-N6.2 ultimate unreachability (escape theorem T2): [h <= e] implies
+   [|T'-x'| >= |T-x|].  (Assembled per case through [Qabs_triangle].) *)
 Theorem qescape_recedes :
   forall h e x t : Q,
     QleT' h e ->
@@ -545,7 +570,8 @@ Proof.
   unfold qescape, qstep.
   apply Qle_to_QleT'.
   destruct (Q_dec (t - x) 0) as [[Hd | Hd] | Hd].
-  - (* t - x < 0：差 = (t−x) − (e−h) ≤ t−x < 0，两绝对值取负 *)
+  - (* t - x < 0: the difference is (t-x) - (e-h) <= t-x < 0, so both absolute
+       values are negated *)
     assert (Hs : qsign (t - x) == -1) by (apply qeqT_imp_qeq; apply qsign_neg; exact Hd).
     rewrite (Qabs_neg (t - x) (Qlt_le_weak (t - x) 0 Hd)).
     assert (Hz : h + - h == 0) by ring.
@@ -575,7 +601,7 @@ Proof.
     rewrite Qplus_0_r in Hmid.
     rewrite Hrg in Hmid.
     apply (Qopp_le_compat _ _ Hmid).
-  - (* 0 < t - x：差 = (t−x) + (e−h) ≥ t−x > 0 *)
+  - (* 0 < t - x: the difference is (t-x) + (e-h) >= t-x > 0 *)
     assert (Hs : qsign (t - x) == 1) by (apply qeqT_imp_qeq; apply qsign_pos; exact Hd).
     rewrite (Qabs_pos (t - x) (Qlt_le_weak 0 (t - x) Hd)).
     assert (Hz : h + - h == 0) by ring.
@@ -599,7 +625,7 @@ Proof.
     + apply (Qplus_le_compat (t - x) (t - x) 0 (e + - h)).
       * apply Qle_refl.
       * exact Hdm.
-  - (* t - x == 0：差恒为 0 *)
+  - (* t - x == 0: the difference is constantly 0 *)
     assert (Hs : qsign (t - x) == 0) by (apply qeqT_imp_qeq; apply qsign_zero; exact Hd).
     assert (Hrg : (t + e * qsign (t - x)) - (x + h * qsign (t - x)) == 0).
     { assert (Hpoly : (t + e * qsign (t - x)) - (x + h * qsign (t - x)) == t - x)
@@ -615,21 +641,26 @@ Proof.
     apply Qle_refl.
 Qed.
 
-(* T-N6.3 层级隔离（T3）：两定理同时成立且互不冲突
-   —— 阶段层 {gₖ} 可达（收缩）与终极层 {Tₖ} 不可达（逃逸）的合取。 *)
+(* T-N6.3 level isolation (T3): the two theorems hold simultaneously without
+   conflict — the conjunction of phase-level reachability {g_k} (contraction)
+   and ultimate-level unreachability {T_k} (escape). *)
 Lemma qleT_refl_local : forall x : Q, QleT' x x.
 Proof.
   intro x.
-  (* 展开至定义层：布尔反映面不经桥单跳，change 落判定函数定义体，
-     在序比较三分上逐支构造等同项。 *)
+  (* expansion to the definition level: the boolean reflection face is entered
+     without a single-hop bridge; [change] lands on the body of the decision
+     function, and the equal witness is constructed branch by branch over the
+     three-way order comparison. *)
   unfold QleT'.
   change (Id (match Qcompare x x with Gt => false | _ => true end) true).
   destruct (Qcompare x x) eqn:E; simpl.
-  - (* 小于支：判定面取真，自反构造子闭合 *)
+  - (* the less-than branch: the decision face holds true, closed by the reflexive
+    constructor *)
     apply id_refl.
-  - (* 等于支：同上 *)
+  - (* the equal branch: as above *)
     apply id_refl.
-  - (* 大于支：与整数层自反比较矛盾，构造性排除 *)
+  - (* the greater-than branch: it contradicts the reflexive comparison at the
+    integer layer, excluded constructively *)
     exfalso.
     assert (Hrefl : Qcompare x x = Eq).
     { unfold Qcompare. apply Z.compare_refl. }
@@ -648,43 +679,51 @@ Proof.
   intros h e x t Hh He Hle. split; [exact Hle | exact (qleT_refl_local (Qabs (t - x)))].
 Qed.
 
-(* 觉醒层级记录：每完成一阶段 level+1（N+1 觉醒事件）。 *)
+(* level recording: each completed phase increments the level (the ascending
+   (N+1)-event). *)
 Definition ascend (k : nat) : nat := Datatypes.S k.
 
 End NBranch.
 
 
-(* ############ 合并模块边界 _p9 ############ *)
+(* ############ merged module boundary _p9 ############ *)
 
-Close Scope Q_scope.  (* _p9 全 nat/bool 层；解除 NCA 段引入的 Q_scope 影响 *)
+Close Scope Q_scope.  (* _p9 lives wholly at the nat/bool layer; this closes the [Q_scope] effect introduced by the NCA section *)
 
 (* ============================================================ *)
-(* _p9：LLM 工作流监督算法 + 科学诚信管线（可核验性范式）        *)
+(* _p9: the LLM workflow supervision algorithm + the scientific integrity pipeline (the verifiability paradigm) *)
 (*                                                                *)
-(* 动机：长任务写作失焦（b5j_v_abs_bd 连续卡滞于多个代理）、      *)
-(*   接口可达性过度自信（S_ge_one ∀x 证伪、rdf opaque）。          *)
-(*   有效对策：强制节奏 + 分解 + 代理更替。                         *)
-(*   A. 监督调度器：卡点检测（尾部连续失败 ≥ 阈值）→ 强制子任务    *)
-(*      分解（复杂度严格下降）；焦点节奏 → 强制代理更替（焦点归一）；   *)
-(*      进度单调（已闭合计数不减）。                                *)
-(*   B. 诚信管线：零公理前提下"AI 生成内容可核验"四要素——           *)
-(*      内容哈希锚（变化可检测）、三验一致（一票否决）、            *)
-(*      规格-实现逐字同步、禁语扫描（消灭夸大）；                   *)
-(*      递归自强化：验证产物经同一验证门入库（能力自举，           *)
-(*      门通过计数严格增长，门拒绝状态不变）。                      *)
-(*   全 Set 层（nat/bool/list/Id/NatLe/NatLt）、纯构造性、         *)
-(*   全链可提取 OCaml。                                            *)
+(* motivation: long-task writing loses focus (b5j_v_abs_bd repeatedly     *)
+(*   stalling across successive agents), over-confident interface          *)
+(*   reachability claims (S_ge_one forall x falsified, rdf opaque).        *)
+(*   effective countermeasures: forced pacing + decomposition + agent rotation. *)
+(*   A. the supervision scheduler: stall detection (>= threshold of trailing *)
+(*      consecutive failures) -> forced subtask decomposition (complexity     *)
+(*      strictly decreases); focus pacing -> forced agent rotation (focus reset); *)
+(*      monotone progress (the closed count never decreases).                *)
+(*   B. the integrity pipeline: the four elements of "AI-generated content is *)
+(*      verifiable" under zero axioms — content hash anchors (changes are     *)
+(*      detectable), triple verification with one-vote veto,                 *)
+(*      verbatim spec-implementation sync, banned-word scanning (no overstatement); *)
+(*      recursive self-reinforcement: verified artifacts re-enter through the *)
+(*      same verification gate (capability bootstrapping: the gate-pass count *)
+(*      strictly grows, the gate-reject state is unchanged).                 *)
+(*   entirely at the Set layer (nat/bool/list/Id/NatLe/NatLt), purely         *)
+(*   constructive, the whole chain extractable to OCaml.                      *)
 (* ============================================================ *)
 
-(* ---- 模块头工具：NatLt 桥（基线已提供 NatLe_to_le/RealSetoid.le_to_NatLe/Id_eq/eq_Id， *)
-(* ---- NatLt 方向自建，全部复用基线 Id↔Leibniz 桥） ---- *)
+(* ---- module-head tools: the NatLt bridge (the baseline provides NatLe_to_le / RealSetoid.le_to_NatLe / Id_eq / eq_Id; *)
+(* ---- the NatLt direction is built here, reusing the baseline Id <-> Leibniz bridges throughout) ---- *)
 
 Lemma sf_natlt_elim : forall a b : nat, NatLt a b -> NatLe (Datatypes.S a) b.
 Proof.
   intros a b H.
-  (* 消去向独立装配（natlt_elim 定形机械复用，_p9 独立版同构）：判定面
-     消去取布尔等式，经次大比较反映面投影得严格序，再升格非严格序落于
-     NatLe 判定面（后继 a 与 b 的 leb 判定），判定面自反构造子闭合。 *)
+  (* elimination-side independent assembly (the natlt_elim shape reused
+     mechanically, the _p9-local twin): the elimination of the Id decision face
+     takes the boolean equation, projects the strict order through the
+     successor-comparison reflection face, lifts it to the non-strict order
+     landing on the NatLe decision face (the leb decision of successor a
+     against b), and closes with the reflexive constructor of the decision face. *)
   unfold NatLt in H.
   assert (Hb : Nat.ltb a b = true).
   { exact (RealSetoid.Id_eq (Nat.ltb a b) true H). }
@@ -698,9 +737,11 @@ Qed.
 Lemma sf_natlt_intro : forall a b : nat, a < b -> NatLt a b.
 Proof.
   intros a b H.
-  (* 展开至定义层（natlt_intro 定形机械复用，_p9 独立版同构）：布尔反映面
-     先显式取等——比较规约后大一位的小于等于判定，经反映引理与线性
-     算术装配，再改写闭合于自反构造子。 *)
+  (* expansion to the definition level (the natlt_intro shape reused
+     mechanically, the _p9-local twin): the boolean reflection face first takes
+     the equation explicitly — after comparison reduction, the less-or-equal
+     decision of the successor, assembled through the reflection lemma and
+     linear arithmetic, then rewritten to close at the reflexive constructor. *)
   unfold NatLt.
   assert (Hb : Nat.ltb a b = true).
   { unfold Nat.ltb. apply Nat.leb_le. lia. }
@@ -709,22 +750,23 @@ Proof.
 Qed.
 
 (* ############################################################ *)
-(* 第一节：LLM 监督调度器（多代理工作流的形式化）                  *)
+(* Section 1: the LLM supervision scheduler (a formalization of the multi-agent workflow) *)
 (* ############################################################ *)
 
-(* ---- 数据形态 ---- *)
+(* ---- data shapes ---- *)
 
-(* 尝试记录：(代理 id, (轮序, 成败))；日志头部 = 最新事件。 *)
+(* an attempt record: (agent id, (round index, success flag)); the log head is
+   the most recent event *)
 Definition SFAttempt : Set := (nat * (nat * bool))%type.
 Definition SFLog : Set := list SFAttempt.
 
-(* 任务：(目标 id, (复杂度度量, 分解深度))。 *)
+(* a task: (goal id, (complexity measure, decomposition depth)) *)
 Definition SFTask : Set := (nat * (nat * nat))%type.
 
-(* 调度配置：(卡点阈值, (焦点轮数上限, 分解因子))。 *)
+(* the scheduler configuration: (stall threshold, (focus round cap, decomposition factor)) *)
 Definition SFConf : Set := (nat * (nat * nat))%type.
 
-(* 调度状态：(当前任务, (日志, (燃料, 已闭合计数)))。 *)
+(* the scheduler state: (current task, (log, (fuel, closed count))) *)
 Definition SFState : Set := (SFTask * (SFLog * (nat * nat)))%type.
 
 Definition sf_ag (a : SFAttempt) : nat := fst a.
@@ -733,7 +775,7 @@ Definition sf_goal (t : SFTask) : nat := fst t.
 Definition sf_cx (t : SFTask) : nat := fst (snd t).
 Definition sf_dp (t : SFTask) : nat := snd (snd t).
 
-(* ---- 1. 卡点检测：最新侧连续失败计数 ---- *)
+(* ---- 1. stall detection: counting consecutive failures from the newest side ---- *)
 
 Fixpoint sf_consec_fail (l : SFLog) : nat :=
   match l with
@@ -745,10 +787,12 @@ Fixpoint sf_consec_fail (l : SFLog) : nat :=
     end
   end.
 
-(* 判例实录：b5j 连卡两代理 ⟹ 阈值取 2 触发强制分解。 *)
+(* recorded case: b5j stalled across two agents in a row, hence the threshold 2
+   triggers forced decomposition *)
 Definition sf_is_stuck (k : nat) (l : SFLog) : bool := Nat.leb k (sf_consec_fail l).
 
-(* 卡点检测的活性：一次新失败让计数严格 +1（失败可被监督器感知）。 *)
+(* liveness of stall detection: one new failure strictly increments the count
+   (a failure is perceivable by the supervisor) *)
 Theorem sf_consec_fail_fail_step :
   forall (ag : nat) (l : SFLog),
     Id (sf_consec_fail ((ag, (0, false)) :: l)) (Datatypes.S (sf_consec_fail l)).
@@ -756,7 +800,8 @@ Proof.
   intros ag l. simpl. apply id_refl.
 Qed.
 
-(* ---- 2. 焦点节奏：头部同一代理连续条数（长单件失焦风险度量） ---- *)
+(* ---- 2. focus pacing: the count of consecutive head entries with the same
+   agent (a risk measure for long single-task focus loss) ---- *)
 
 Fixpoint sf_focus_len (l : SFLog) : nat :=
   match l with
@@ -772,7 +817,8 @@ Fixpoint sf_focus_len (l : SFLog) : nat :=
     end
   end.
 
-(* 强制代理更替：换新代理（id = 头部代理 + 1，保证不同）记轮 0 非失败。 *)
+(* forced agent rotation: switch to a fresh agent (id = head agent + 1,
+   guaranteed distinct) logged as round 0, non-failure *)
 Definition sf_fresh_agent (l : SFLog) : nat :=
   match l with
   | nil => 0
@@ -781,26 +827,30 @@ Definition sf_fresh_agent (l : SFLog) : nat :=
 
 Definition sf_handoff (l : SFLog) : SFLog := (sf_fresh_agent l, (0, true)) :: l.
 
-(* 更替的焦点复位：强制更替后焦点计数 = 1（失焦风险归零重启）。 *)
+(* focus reset under rotation: after the forced rotation the focus count is 1
+   (the focus-loss risk restarts from zero) *)
 Theorem sf_handoff_focus_reset :
   forall l : SFLog, Id (sf_focus_len (sf_handoff l)) 1.
 Proof.
   intros l. unfold sf_handoff.
   destruct l as [| [ag [r0 ok]] rest].
   - apply id_refl.
-  - (* 头 = 新代理 S ag，第二 = 原头 ag：S ag =? ag 恒 false *)
+  - (* the head is the fresh agent S ag and the second entry the old head ag:
+       S ag =? ag is always false *)
     cbn [sf_focus_len sf_ag sf_fresh_agent fst snd].
     destruct (Nat.eqb (Datatypes.S ag) ag) eqn:E; [| apply id_refl].
     exfalso. apply Nat.eqb_eq in E. lia.
 Qed.
 
-(* ---- 3. 强制分解：子任务生成与复杂度严格下降 ---- *)
+(* ---- 3. forced decomposition: subtask generation and strictly decreasing complexity ---- *)
 
-(* 子目标 id 编码：10*g + (i+1)，与父 id 及兄弟 id 可区分。 *)
+(* subgoal id encoding: [10*g + (i+1)], distinguishable from the parent id and
+   from sibling ids *)
 Definition sf_subgoal (g i : nat) : nat := 10 * g + Datatypes.S i.
 
-(* 子复杂度：c / (f+1)。当 c ≥ 1、f ≥ 1 时严格小于 c；为 0 即原子粒度
-   （不可再分解，分解树自然终止）。 *)
+(* sub-complexity: [c / (f+1)]; for [c >= 1] and [f >= 1] it is strictly smaller
+   than [c], and 0 means atomic granularity (no further decomposition, so the
+   decomposition tree terminates). *)
 Definition sf_sub_cx (c f : nat) : nat := c / Datatypes.S f.
 
 Fixpoint sf_decompose (t : SFTask) (f : nat) : list SFTask :=
@@ -811,7 +861,8 @@ Fixpoint sf_decompose (t : SFTask) (f : nat) : list SFTask :=
     :: sf_decompose t f'
   end.
 
-(* 分解破解的核心：子复杂度严格下降（判例：强制子引理分解破解连卡）。 *)
+(* the core of the decomposition remedy: the sub-complexity strictly decreases
+   (recorded case: forced sub-lemma decomposition breaks consecutive stalls) *)
 Theorem sf_sub_cx_descent :
   forall c f : nat, NatLe 1 c -> NatLe 1 f -> NatLt (sf_sub_cx c f) c.
 Proof.
@@ -827,7 +878,7 @@ Proof.
   unfold sf_sub_cx. exact Hdiv.
 Qed.
 
-(* 分解产出恰好 f 个子任务（工程量可控）。 *)
+(* decomposition produces exactly [f] subtasks (a bounded workload) *)
 Theorem sf_decompose_length :
   forall (t : SFTask) (f : nat), Id (length (sf_decompose t f)) f.
 Proof.
@@ -835,7 +886,8 @@ Proof.
   exact (id_cong Datatypes.S IH).
 Qed.
 
-(* 每个子任务的复杂度都严格低于父任务（分解树沿深度递降，无环路）。 *)
+(* every subtask has complexity strictly smaller than its parent (the
+   decomposition tree decreases along depth, so it has no cycles) *)
 Theorem sf_decompose_descent :
   forall (t : SFTask) (f : nat) (s : SFTask),
     NatLe 1 (sf_cx t) -> NatLe 1 f ->
@@ -854,14 +906,16 @@ Proof.
         -- exact Htail.
 Qed.
 
-(* ---- 4. 监督器：单步策略 + 迭代运行 ---- *)
+(* ---- 4. the supervisor: the one-step policy plus iterated runs ---- *)
 
 Definition sf_cur_agent (l : SFLog) : nat :=
   match l with nil => 0 | a :: _ => sf_ag a end.
 
-(* 单步（可提取策略）：
-   停滞点（连续失败 ≥ 阈值）→ 强制分解 + 更替新代理；
-   焦点超限（同代理连续 ≥ 上限）→ 强制更替（防失焦）；
+(* one step (an extractable policy):
+   a stall (consecutive failures >= threshold) -> forced decomposition plus a
+   fresh agent;
+   a focus overrun (the same agent consecutively >= cap) -> forced rotation
+   (preventing focus loss);
 *)
 Definition sf_step (cfg : SFConf) (res : bool) (st : SFState) : SFState :=
   match st with
@@ -895,7 +949,8 @@ Fixpoint sf_run (cfg : SFConf) (fuel : nat) (results : list bool) (st : SFState)
     end
   end.
 
-(* 进度资产保全：任意步后已闭合计数单调不减。 *)
+(* progress preservation: the closed count is monotone non-decreasing after any
+   step *)
 Lemma sf_step_done_mono :
   forall (cfg : SFConf) (res : bool) (st : SFState),
     NatLe (snd (snd (snd st))) (snd (snd (snd (sf_step cfg res st)))).
@@ -926,9 +981,10 @@ Proof.
       apply NatLe_drop in H2. lia.
 Qed.
 
-(* ---- 5. 证伪优先：接口可达性预审（S_ge_one ∀x 证伪教训） ---- *)
+(* ---- 5. falsification first: the reachability pre-audit of an interface (the S_ge_one forall-x falsification lesson) ---- *)
 
-(* 在有限域 0..N-1 上搜索声称 P 的反例（构造性：找到即有见证）。 *)
+(* search for a counterexample to the claim [P] over the finite domain [0..N-1]
+   (constructively: a found counterexample comes with a witness) *)
 Fixpoint sf_search_counter (P : nat -> bool) (N : nat) : option nat :=
   match N with
   | 0 => None
@@ -939,7 +995,8 @@ Fixpoint sf_search_counter (P : nat -> bool) (N : nat) : option nat :=
     end
   end.
 
-(* 探测器健全性：报出的反例必是真反例（拒绝有据）。 *)
+(* soundness of the search: a reported counterexample is a genuine one
+   (rejections are justified) *)
 Theorem sf_search_counter_sound :
   forall (P : nat -> bool) (N n : nat),
     sf_search_counter P N = Some n -> Id (P n) false.
@@ -952,7 +1009,8 @@ Proof.
       exact (RealSetoid.eq_Id (P k) false E).
 Qed.
 
-(* 探测器有限完备性：有限域内无反例 ⟹ 域内全真（接受有据）。 *)
+(* finite completeness of the search: no counterexample in the finite domain
+   implies every point in the domain satisfies [P] (acceptances are justified) *)
 Theorem sf_search_counter_complete :
   forall (P : nat -> bool) (N n : nat),
     sf_search_counter P N = None -> NatLt n N -> Id (P n) true.
@@ -967,12 +1025,13 @@ Proof.
 Qed.
 
 (* ############################################################ *)
-(* 第二节：科学诚信管线（"AI 生成内容可核验"范式）                 *)
+(* Section 2: the scientific integrity pipeline (the "AI-generated content is verifiable" paradigm) *)
 (* ############################################################ *)
 
-(* ---- 6. 内容哈希锚：变化可检测（SHA 锚的构造性对应物） ---- *)
+(* ---- 6. content hash anchors: changes are detectable (the constructive counterpart of a SHA anchor) ---- *)
 
-(* 滚动多项式指纹（小常数 LCG 式混合；模 97 避免大字面量停滞）。 *)
+(* a rolling polynomial fingerprint (small-constant LCG-style mixing; the
+   modulus 97 avoids large-literal reduction stalls) *)
 Fixpoint sf_hash (l : list nat) (acc : nat) : nat :=
   match l with
   | nil => acc
@@ -981,7 +1040,8 @@ Fixpoint sf_hash (l : list nat) (acc : nat) : nat :=
 
 Definition sf_anchor (content : list nat) : nat := sf_hash content 0.
 
-(* 锚的健全性：内容相同 ⟹ 锚相同（逆否：锚变 ⟹ 内容必变过）。 *)
+(* anchor soundness: identical content implies identical anchors (the
+   contrapositive: a changed anchor means the content changed) *)
 Theorem sf_anchor_sound :
   forall l1 l2 : list nat, Id l1 l2 -> Id (Nat.eqb (sf_anchor l1) (sf_anchor l2)) true.
 Proof.
@@ -991,7 +1051,7 @@ Proof.
   rewrite Ha. apply RealSetoid.eq_Id. apply Nat.eqb_refl.
 Qed.
 
-(* ---- 7. 三验一致：一票否决（数学侧消灭幻觉的机器检查形态） ---- *)
+(* ---- 7. triple verification with one-vote veto (the machine-checked form of eliminating hallucination on the math side) ---- *)
 
 Definition sf_triple_ok (c1 c2 c3 : bool) : bool := andb (andb c1 c2) c3.
 
@@ -1005,13 +1065,13 @@ Proof.
     try inversion H; repeat split; exact id_refl.
 Qed.
 
-(* 一票否决：任一验证通道失败即整体拒绝。 *)
+(* one-vote veto: a failure in any single verification channel rejects the whole *)
 Theorem sf_triple_reject : Id (sf_triple_ok true true false) false.
 Proof.
   simpl. exact (@id_refl _ false).
 Qed.
 
-(* ---- 8. 规格-实现逐字同步（论文-代码同步的算法形态） ---- *)
+(* ---- 8. verbatim spec-implementation sync (the algorithmic form of paper-code synchronization) ---- *)
 
 Fixpoint sf_spec_sync (spec impl : list nat) : bool :=
   match spec, impl with
@@ -1026,7 +1086,8 @@ Proof.
   rewrite Nat.eqb_refl. exact IH.
 Qed.
 
-(* 同步健全性：逐字同步通过 ⟹ 规格与实现逐元素相同。 *)
+(* sync soundness: passing the verbatim sync implies the spec and the
+   implementation are element-wise identical *)
 Theorem sf_spec_sync_sound :
   forall spec impl : list nat,
     Id (sf_spec_sync spec impl) true -> Id spec impl.
@@ -1041,7 +1102,7 @@ Proof.
              (RealSetoid.eq_Id x y Hxy) (IH ys (RealSetoid.eq_Id _ _ Hsync))).
 Qed.
 
-(* ---- 9. 禁语扫描：文本侧消灭夸大 ---- *)
+(* ---- 9. banned-word scanning: eliminating overstatement on the text side ---- *)
 
 Fixpoint sf_contains (w : nat) (l : list nat) : bool :=
   match l with
@@ -1049,7 +1110,7 @@ Fixpoint sf_contains (w : nat) (l : list nat) : bool :=
   | x :: rest => orb (Nat.eqb x w) (sf_contains w rest)
   end.
 
-(* 干净判定：所有禁语词都不出现在正文中。 *)
+(* the clean verdict: none of the banned words occurs in the body *)
 Fixpoint sf_banned_scan (banned body : list nat) : bool :=
   match banned with
   | nil => true
@@ -1074,7 +1135,7 @@ Proof.
       apply IH; [apply RealSetoid.eq_Id; exact Hrest | assumption].
 Qed.
 
-(* ---- 10. 可信发布门：三验 ∧ 规格同步 ∧ 禁语干净 ---- *)
+(* ---- 10. the trusted publishing gate: triple verification AND spec sync AND banned-word clean ---- *)
 
 Definition sf_publish (content spec : list nat) (c1 c2 c3 : bool) (banned : list nat) : bool :=
   andb (sf_triple_ok c1 c2 c3)
@@ -1095,12 +1156,14 @@ Proof.
   - split; apply RealSetoid.eq_Id; assumption.
 Qed.
 
-(* ---- 11. 递归自强化：验证产物经同一验证门入库（能力自举） ---- *)
+(* ---- 11. recursive self-reinforcement: verified artifacts re-enter through the same verification gate (capability bootstrapping) ---- *)
 
-(* 自举状态：(已入库验证产物数, 最新内容锚)。 *)
+(* the bootstrap state: (the number of verified artifacts admitted, the latest
+   content anchor) *)
 Definition SFBoot : Set := (nat * nat)%type.
 
-(* 自强化一步：门通过 → 计数严格 +1 且锚更新；门拒绝 → 状态严格不变。 *)
+(* one self-reinforcement step: a gate pass strictly increments the count and
+   updates the anchor; a gate rejection leaves the state strictly unchanged *)
 Definition sf_bootstrap_step (gate : bool) (b : SFBoot) (content : list nat) : SFBoot :=
   match gate with
   | true => (Datatypes.S (fst b), sf_anchor content)
@@ -1122,27 +1185,30 @@ Theorem sf_bootstrap_safe :
 Proof. intros b content. destruct b as [n a]. simpl. exact id_refl. Qed.
 
 
-(* ############ 合并分片边界 LiveCore（Module LCAudit 隔离命名冲突） ############ *)
-(* LiveCore 段与上文存在 Sequence/qeq_le 同名冲突 → 整体包 Module LCAudit *)
-(* （段内自封闭、无外部引用者，隔离零成本）；提取产物带 LCAudit 前缀。 *)
+(* ############ merged shard boundary LiveCore (Module LCAudit isolates the name clashes) ############ *)
+(* the LiveCore segment clashes with the text above on [Sequence]/[qeq_le], so it is wrapped wholesale in Module LCAudit *)
+(* (self-contained, with no external referers, isolation at zero cost); extraction output carries the LCAudit prefix. *)
 
 Module LCAudit.
-(* ############ 合并分片边界 LiveCore ############ *)
+(* ############ merged shard boundary LiveCore ############ *)
 (* ============================================================ *)
-(* §5 LiveCore：三阶段审计算法框架（可判定控制面）                 *)
-(*    92 块全新内容；与主库 sf_ 体系零命名冲突（短名桥并存，        *)
-(*    natlt_elim/bool_id_true/qleT_refl 等为本区独立版）。         *)
-(*    依赖：仅 206 基线（不依赖 §1-§4 任何定义），追加于尾部。      *)
-(*    scope 编排：§4 前 Close Scope Q_scope（护 _p9 nat 层），      *)
-(*    本区需要 Q（qleT/qsum_w/top_p）→ 先 Open Scope Q_scope。     *)
+(* §5 LiveCore: the three-phase audit algorithm framework (a decidable control plane) *)
+(*    92 blocks of new content; zero name clashes with the main-library sf_ system
+   (short-name bridges coexist, and natlt_elim/bool_id_true/qleT_refl etc. are
+   the local versions of this section). *)
+(*    dependencies: only the 206 baseline (no dependence on any definition of
+   §1-§4), appended at the tail. *)
+(*    scope arrangement: [Q_scope] is closed before §4 (protecting the _p9 nat
+   layer); this section needs [Q] (qleT/qsum_w/top_p), so [Q_scope] is reopened
+   first. *)
 (* ============================================================ *)
 
-Open Scope Q_scope.  (* 恢复 Q 层；LiveCore 正文按 Q_scope 开环境编写验证 *)
+Open Scope Q_scope.  (* restoring the Q layer; the LiveCore body was written and verified in the Q_scope-open environment *)
 
 Section LiveCore.
 
 (* ============================================================ *)
-(* §0 类型与桥                                                   *)
+(* §0 types and bridges *)
 (* ============================================================ *)
 
 Definition Context : Set := list nat.
@@ -1157,13 +1223,16 @@ Variable default_seq : Sequence.
 Variable default_seq_valid : forall post_aud, Id (post_aud default_seq) true.
 Variable ground_truth : Sequence -> bool.
 
-(* NatLt 桥（_p9 同款） *)
+(* the NatLt bridge (the _p9 pattern) *)
 Lemma natlt_elim : forall a b : nat, NatLt a b -> NatLe (Datatypes.S a) b.
 Proof.
   intros a b H.
-  (* 消去向独立装配（natlt_intro 反向同构）： Id 判定面消去取布尔等式，
-     经次大比较反映面投影得严格序，再升格非严格序落于 NatLe 判定面
-     （后继 a 与 b 的 leb 判定），判定面自反构造子闭合。 *)
+  (* elimination-side independent assembly (reverse-isomorphic to natlt_intro):
+     the elimination of the Id decision face takes the boolean equation,
+     projects the strict order through the successor-comparison reflection face,
+     lifts it to the non-strict order landing on the NatLe decision face (the
+     leb decision of successor a against b), and closes with the reflexive
+     constructor of the decision face. *)
   unfold NatLt in H.
   assert (Hb : Nat.ltb a b = true).
   { exact (RealSetoid.Id_eq (Nat.ltb a b) true H). }
@@ -1177,8 +1246,10 @@ Qed.
 Lemma natlt_intro : forall a b : nat, (a < b)%nat -> NatLt a b.
 Proof.
   intros a b H.
-  (* 展开至定义层：布尔反映面先显式取等——次大比较规约后大一位的
-     小于等于判定，经反映引理与线性算术装配，再改写闭合于自反构造子。 *)
+  (* expansion to the definition level: the boolean reflection face first takes
+     the equation explicitly — after comparison reduction, the less-or-equal
+     decision of the successor, assembled through the reflection lemma and
+     linear arithmetic, then rewritten to close at the reflexive constructor. *)
   unfold NatLt.
   assert (Hb : Nat.ltb a b = true).
   { unfold Nat.ltb. apply Nat.leb_le. lia. }
@@ -1186,20 +1257,26 @@ Proof.
   apply id_refl.
 Qed.
 
-(* bool ↔ Id 桥 *)
+(* the bool <-> Id bridge *)
 Lemma bool_id_true : forall b : bool, Id b true -> Id b true.
 Proof.
   intros b H.
-  (* 判定面恒等：布尔判定面在 Set 层即其自身；莱布尼茨投影面（b = true）
-     于使用点以基线 Id 桥就地装配，本位不承载换桥。 *)
+  (* decision-face identity: the boolean decision face is itself at the Set
+     layer; the Leibniz projection face ([b = true]) is assembled at the use
+     sites through the baseline Id bridges, and this statement carries no
+     bridge conversion of its own. *)
   exact H.
 Qed.
 
 Lemma bool_true_id : forall b : bool, b = true -> Id b true.
 Proof.
   intros b H.
-  (* 构去向独立装配（Id 判定面三分）：布尔逐支，真支以自反构造子直构
-     判定面；假支真假莱布尼茨等无构造子可居，判别式构造性排除——不经换桥单跳。 *)
+  (* construction-side independent assembly (the three-way split of the Id
+     decision face): boolean case by case — the true branch builds the decision
+     face directly with the reflexive constructor; the false branch has no
+     constructor to inhabit (false equals true under Leibniz is absurd) and is
+     excluded constructively by the discriminator — no single-hop bridge
+     conversion. *)
   destruct b as [|].
   - apply id_refl.
   - discriminate H.
@@ -1211,14 +1288,16 @@ Proof. intros H. inversion H. Qed.
 Lemma id_false_true_absurd : Id false true -> Empty_set.
 Proof. intros H. inversion H. Qed.
 
-(* InT → In 换谱桥退役为判定面恒等：stdlib In 结论面（Prop）不居语句层，
-   体内使用点以 InT 归纳就地装配 Prop 投影。 *)
+(* the InT -> In universe-switch bridge retires into a decision-face identity:
+   the stdlib [In] conclusion face ([Prop]) does not live at the statement layer,
+   and use sites inside proofs assemble the [Prop] projection on the spot by
+   induction on [InT]. *)
 Lemma inT_in_gen : forall (A : Set) (x : A) (l : list A), InT x l -> InT x l.
 Proof.
   intros A x l H. exact H.
 Qed.
 
-(* filter 健全性（泛型） *)
+(* filter soundness (generic) *)
 Lemma inT_filter_sound_gen : forall (A : Set) (f : A -> bool) (l : list A) (x : A),
   InT x (filter f l) -> Id (f x) true.
 Proof.
@@ -1231,7 +1310,7 @@ Proof.
     + exact (IH x H).
 Qed.
 
-(* forallb 逐点使用/构造（泛型） *)
+(* pointwise use/construction for forallb (generic) *)
 Lemma forallb_inT_gen : forall (A : Set) (f : A -> bool) (l : list A) (x : A),
   Id (forallb f l) true -> InT x l -> Id (f x) true.
 Proof.
@@ -1258,7 +1337,8 @@ Proof.
   - right. exact Hrec.
 Qed.
 
-(* InT 于 map 的逆向（信息性版，不走 Prop in_map_iff） *)
+(* the inversion of [InT] under map (the informative version, not going through
+   the Prop in_map_iff) *)
 Lemma inT_map_inv_gen : forall (A B : Set) (f : A -> B) (l : list A) (y : B),
   InT y (map f l) -> sigT (fun x => And (InT x l) (Id (f x) y)).
 Proof.
@@ -1271,22 +1351,27 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §1 Q 层工具（判例：Q 禁 lia，显式引理装配）                     *)
+(* §1 Q-layer tools (recorded: [lia] is unavailable on [Q], so explicit lemmas
+   are assembled instead) *)
 (* ============================================================ *)
 
 Lemma qleT_refl : forall x : Q, QleT' x x.
 Proof.
   intro x.
-  (* 三分样板复用（同 qleT_refl_local 定形）：展开至布尔判定定义体，
-     序比较三分逐支构造等同项，大于支以整数层自反比较矛盾构造性排除。 *)
+  (* reuse of the three-way template (the qleT_refl_local shape): unfold to the
+     body of the boolean decision, construct the equal witness branch by branch
+     over the three-way order comparison, and exclude the greater-than branch
+     constructively by the contradiction with the reflexive comparison at the
+     integer layer. *)
   unfold QleT'.
   change (Id (match Qcompare x x with Gt => false | _ => true end) true).
   destruct (Qcompare x x) eqn:E; simpl.
-  - (* 小于支：判定面取真，自反构造子闭合 *)
+  - (* the less-than branch: the decision face holds true, closed by the reflexive
+    constructor *)
     apply id_refl.
-  - (* 等于支：同上 *)
+  - (* the equal branch: as above *)
     apply id_refl.
-  - (* 大于支：构造性矛盾排除 *)
+  - (* the greater-than branch: excluded by constructive contradiction *)
     exfalso.
     assert (Hrefl : Qcompare x x = Eq).
     { unfold Qcompare. apply Z.compare_refl. }
@@ -1317,7 +1402,8 @@ Fixpoint qsum_w (w : nat -> Q) (l : list nat) : Q :=
   | x :: rest => w x + qsum_w w rest
   end.
 
-(* 和的除法分配（判例：除法不经 Q-ring 的 Qminus 项；此处无 Qminus，field 安全） *)
+(* distributivity of division over sums (recorded: division does not reduce
+   through Q-ring Qminus terms; no Qminus occurs here, so [field] is safe) *)
 Lemma qsum_w_div : forall (w : nat -> Q) (Z : Q) (l : list nat),
   (~ (Z == 0))%Q -> QeqT (qsum_w (fun t => w t / Z) l) (qsum_w w l / Z).
 Proof.
@@ -1326,13 +1412,15 @@ Proof.
   - rewrite IH. field. exact HZ.
 Qed.
 
-(* 归一化（全函数：Σ=0 回退零分布） *)
+(* normalization (a total function: the zero distribution is the fallback when
+   the sum is 0) *)
 Definition q_normalize (w : nat -> Q) (l : list nat) : nat -> Q :=
   let Z := qsum_w w l in
   if Qeq_bool Z 0%Q then fun _ => 0%Q
   else fun t => w t / Z.
 
-(* 归一化定理：Σ>0 前提下归一化分布质量和为 1 *)
+(* the normalization theorem: under the premise sum > 0, the normalized
+   distribution has total mass 1 *)
 Lemma q_normalize_normalized : forall (w : nat -> Q) (l : list nat),
   Qlt 0%Q (qsum_w w l) -> Id (Qeq_bool (qsum_w (q_normalize w l) l) 1%Q) true.
 Proof.
@@ -1352,7 +1440,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 选择核（best-携带扫描；不变式骨架＝判例7；三分反映＝判例6）   *)
+(* §2 the selection kernel (a best-carrying scan; the invariant skeleton per
+   recorded case 7; the three-way reflection per recorded case 6) *)
 (* ============================================================ *)
 
 Fixpoint q_pick_aux {A : Set} (w : A -> Q) (l : list A) (best : A) : A :=
@@ -1410,7 +1499,7 @@ Proof.
     + right. exact (IH a).
 Qed.
 
-(* nat 投票选择（NatLe = Id (Nat.leb ..) true） *)
+(* nat-valued voting selection ([NatLe] = [Id (Nat.leb ..) true]) *)
 Fixpoint nat_pick_aux {A : Set} (w : A -> nat) (l : list A) (best : A) : A :=
   match l with
   | nil => best
@@ -1462,7 +1551,8 @@ Proof.
     + right. exact (IH a).
 Qed.
 
-(* 审计门控选择：按表序找首个通过审计的 token（带回溯预算的扫描原语） *)
+(* audit-gated selection: find the first token that passes the audit, in table
+   order (a scan primitive with a backtrack budget) *)
 Fixpoint pick_passing (aud : nat -> bool) (fuel : nat) (l : list nat) : option nat :=
   match l with
   | nil => None
@@ -1498,7 +1588,9 @@ Proof.
     + cbn [pick_passing] in Hnil. try rewrite E in Hnil. simpl in Hnil.
       destruct (aud a) eqn:E.
       * discriminate Hnil.
-      * (* In 分位先落 Prop 投影面（Id 目标禁 Prop 消去），再以布尔等值桥升格 *)
+      * (* the In membership case first lands on the Prop projection face (an Id
+           goal admits no Prop elimination), then lifts through the
+           boolean-equality bridge *)
         assert (Hprop : aud x = false).
         { destruct Hin as [Heq | Hin2].
           - subst. exact E.
@@ -1507,7 +1599,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §3 审计器接口与实例                                            *)
+(* §3 the auditor interface and instances *)
 (* ============================================================ *)
 
 Definition PreAud  := Context -> bool.
@@ -1534,7 +1626,8 @@ Theorem threshold_auditor_sound : forall (soft : Sequence -> Q) (th : Q) (s : Se
 Proof. intros soft th s H. exact H. Qed.
 
 (* ============================================================ *)
-(* §4 审计器代数（逐点化——消 functional_extensionality 公理风险）    *)
+(* §4 auditor algebra (pointwise — removing the functional_extensionality axiom
+   risk) *)
 (* ============================================================ *)
 
 Definition audit_and (a1 a2 : PostAud) : PostAud := fun s => andb (a1 s) (a2 s).
@@ -1564,8 +1657,11 @@ Theorem audit_and_comm : forall (a b : PostAud) (s : Sequence),
   Id (audit_and a b s) (audit_and b a s).
 Proof.
   intros a b s.
-  (* 判定面四分（序三分样板族推广）：展开至逐点布尔判定面，真值组合四支
-     逐支以自反构造子闭合（无矛盾支）——不经莱布尼茨换桥、不使用交换引理。 *)
+  (* a four-way split of the decision face (generalizing the order three-way
+     template family): unfold to the pointwise boolean decision face and close
+     each of the four truth-value combinations with the reflexive constructor
+     (no contradictory branch) — no Leibniz bridge conversion, no commutativity
+     lemma. *)
   unfold audit_and.
   destruct (a s) as [|]; destruct (b s) as [|]; simpl; apply id_refl.
 Qed.
@@ -1574,8 +1670,11 @@ Theorem audit_or_comm : forall (a b : PostAud) (s : Sequence),
   Id (audit_or a b s) (audit_or b a s).
 Proof.
   intros a b s.
-  (* 判定面四分（序三分样板族推广）：展开至逐点布尔判定面，真值组合四支
-     逐支以自反构造子闭合（无矛盾支）——不经莱布尼茨换桥、不使用交换引理。 *)
+  (* a four-way split of the decision face (generalizing the order three-way
+     template family): unfold to the pointwise boolean decision face and close
+     each of the four truth-value combinations with the reflexive constructor
+     (no contradictory branch) — no Leibniz bridge conversion, no commutativity
+     lemma. *)
   unfold audit_or.
   destruct (a s) as [|]; destruct (b s) as [|]; simpl; apply id_refl.
 Qed.
@@ -1585,7 +1684,8 @@ Theorem audit_and_assoc : forall (a b c : PostAud) (s : Sequence),
 Proof. intros a b c s. unfold audit_and. apply RealSetoid.eq_Id.
   symmetry. apply andb_assoc. Qed.
 
-(* 审计器格偏序（Id 化后整式为 Set：原 eq 版 a s = true -> b s true 仍是 Prop） *)
+(* the auditor-lattice order (after Id-ification the whole statement is Set: the
+   original eq version [a s = true -> b s true] is still Prop) *)
 Definition auditor_le (a b : PostAud) : Set :=
   forall s : Sequence, Id (a s) true -> Id (b s) true.
 
@@ -1627,7 +1727,7 @@ Proof.
       * destruct (id_false_true_absurd Hs).
 Qed.
 
-(* 并行审计（双向；语句层 InT） *)
+(* parallel audit (both directions; the statement layer InT) *)
 Definition parallel_audit (auds : list PostAud) : PostAud :=
   fun s => forallb (fun aud => aud s) auds.
 
@@ -1647,7 +1747,8 @@ Proof.
         exact IHrest.
 Qed.
 
-(* 多数审计（修正原 count 版无判等缺陷：按 bool 计票） *)
+(* majority audit: votes are counted on bools (the count-based version lacked
+   decidable token equality) *)
 Fixpoint count_true (bs : list bool) : nat :=
   match bs with
   | nil => 0%nat
@@ -1658,7 +1759,8 @@ Definition majority_audit (auds : list PostAud) : PostAud :=
   fun s => Nat.ltb (length auds) (Nat.double (count_true (map (fun aud => aud s) auds))).
 
 (* ============================================================ *)
-(* §5 生成核：审计门控轨迹（trail 版为正源）                        *)
+(* §5 the generation kernel: audit-gated trajectories (the trail version is the
+   source of truth) *)
 (* ============================================================ *)
 
 Fixpoint generate_trail (in_aud : InAud) (c : Context) (prefix : Sequence)
@@ -1678,7 +1780,8 @@ Definition generate_audited (in_aud : InAud) (c : Context) (prefix : Sequence)
            (n : nat) : Sequence :=
   fst (generate_trail in_aud c prefix n).
 
-(* 轨迹合法性：每条 trail 记录的 token 在其选择前缀处通过审计 *)
+(* trajectory legality: each token recorded in the trail passes the audit at its
+   selection prefix *)
 Theorem generate_audited_legal_trajectory :
   forall (in_aud : InAud) (c : Context) (prefix : Sequence) (n : nat),
   Id (forallb (fun tb => snd tb) (snd (generate_trail in_aud c prefix n))) true.
@@ -1695,7 +1798,9 @@ Proof.
     + apply bool_true_id. reflexivity.
 Qed.
 
-(* 轨迹完整性：长度守恒 + 逐记录审计通过（每前缀至少一 token 可过审前提下） *)
+(* trajectory completeness: length preservation plus per-record audit passage
+   (under the premise that every prefix has at least one token that can pass the
+   audit) *)
 Theorem audit_trail_complete :
   forall (in_aud : InAud) (c : Context) (prefix : Sequence) (n : nat)
          (Hstep : forall p : Sequence,
@@ -1733,7 +1838,7 @@ Proof.
       destruct (id_false_true_absurd (id_trans (id_sym Hfail) Haud)).
 Qed.
 
-(* 输出审计：过滤首通过者 / 缺省安全序列 *)
+(* output audit: filter the first passer / fall back to the default safe sequence *)
 Definition post_stage_audited (post_aud : PostAud) (cands : Candidates) : Sequence :=
   match filter (fun s => post_aud s) cands with
   | nil => default_seq
@@ -1751,7 +1856,8 @@ Proof.
     exact (inT_filter_sound_gen Sequence (fun x => post_aud x) cands s Hin).
 Qed.
 
-(* 幻觉零化（L210 修正版：Id 形式 + bool ground_truth；健全性传播） *)
+(* hallucination annihilation (the L210 form: Id statements plus a bool
+   ground_truth; soundness propagates) *)
 Theorem audited_hallucination_zero :
   forall (oracle : PostAud),
   (forall s : Sequence, Id (oracle s) true -> Id (ground_truth s) true) ->
@@ -1762,7 +1868,8 @@ Proof.
   intros oracle Hsound cands Hpass. exact (Hsound (post_stage_audited oracle cands) Hpass).
 Qed.
 
-(* 审计重采样：通过审计 或 回退安全序列（Or := A+B，Set 层析取） *)
+(* audited resampling: pass the audit, or fall back to the safe sequence
+   ([Or] := A+B, the Set-layer disjunction) *)
 Fixpoint resample_attempt (post_aud : PostAud) (g : nat -> Sequence)
          (attempts : nat) : Sequence :=
   match attempts with
@@ -1783,7 +1890,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §6 共识与早停（Post 阶段）                                     *)
+(* §6 consensus and early stopping (the Post phase) *)
 (* ============================================================ *)
 
 Fixpoint seq_eqb (s1 s2 : Sequence) : bool :=
@@ -1861,7 +1968,8 @@ Fixpoint sum_overlap (s : Sequence) (cands : Candidates) : nat :=
 Definition self_consistency_score (s : Sequence) (cands : Candidates) : Q :=
   q_of_nat (sum_overlap s cands).
 
-(* 早停（信息性析取 orb 的 Id 形式；R7 版方向：燃料计数右边） *)
+(* early stopping (the Id form of the informative disjunction orb; the R7
+   version orients the fuel count to the right) *)
 Definition stop_condition (threshold : Q) (cands : Candidates) : bool :=
   forallb (fun s => Qle_bool threshold (self_consistency_score s cands)) cands.
 
@@ -1917,7 +2025,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §7 状态化审计器                                                *)
+(* §7 stateful auditors *)
 (* ============================================================ *)
 
 Variable State : Set.
@@ -1938,7 +2046,8 @@ Fixpoint generate_stateful (aud : StatefulAud) (st : State) (prefix : Sequence)
       end
   end.
 
-(* 状态一致性（#49 修正版：折乘作用在生成后缀 skipn 上，不 rev） *)
+(* state consistency (the #49 form: the fold acts on the generated suffix via
+   skipn, not rev) *)
 Lemma generate_stateful_inv : forall (aud : StatefulAud) (n : nat) (st : State)
          (prefix : Sequence),
   sigT (fun gen => And (Id (fst (generate_stateful aud st prefix n)) (prefix ++ gen))
@@ -1973,7 +2082,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §8 审计束搜索（#48；#21 支配留蓝图——需排序机器）                 *)
+(* §8 audited beam search (#48; #21 dominance stays in the blueprint — it needs
+   a sorting machine) *)
 (* ============================================================ *)
 
 Definition BeamState : Set := (Sequence * Q)%type.
@@ -2019,7 +2129,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §9 Top-p 截断（#19 修正版：前提方向已翻转；Q 显式装配）            *)
+(* §9 Top-p truncation (the #19 form: the premise direction is flipped; [Q]
+   assembled explicitly) *)
 (* ============================================================ *)
 
 Fixpoint top_p_prefix (p : Q) (sorted : list nat) (w : nat -> Q) : list nat :=
@@ -2090,20 +2201,25 @@ Qed.
 End LiveCore.
 
 (* ============================================================ *)
-(* 提取注记：Recursive Extraction 本文件 + 上游 baseline 接口，     *)
-(*   全部为 nat/bool/list/Q 信息性计算，无 Obj.magic。              *)
-(*   （提取验证在编译绿后由 extract 脚本执行）                      *)
-(* 蓝图保留项（不在本模块，见 Live-修正版.V §7-8）：                *)
+(* extraction note: Recursive Extraction over this file plus the upstream
+   baseline interfaces yields only nat/bool/list/Q informative computation, with
+   no Obj.magic. *)
+(*   (the extraction check runs via the extract script after the compile goes
+   green) *)
+(* blueprint retainers (not in this module, see Live-revised.V §7-8): *)
 (*   projected_distribution_minimizes_kl / free_energy_with_audit_decomp *)
-(*   / stricter_auditor F 代价 / TV 严格分离 / beam 支配 / 长度归一化   *)
-(*   ——依赖柯西实数比较、log/KL 机器或排序机器，待接口入库另立论证。    *)
+(*   / the stricter_auditor F cost / strict TV separation / beam dominance /
+   length normalization *)
+(*   — these depend on Cauchy real comparison, log/KL machinery, or a sorting
+   machine; separate arguments await those interfaces. *)
 (* ============================================================ *)
 
 End LCAudit.
 
 (* ============================================================ *)
-(* KLProjection 合并块（论证③：审计 = KL 投影）——源 KLProjection.v，去 Require 头；*)
-(* minus_split 与根 L760 冲突改名 kl_minus_split。 *)
+(* the KLProjection merged block (argument 3: audit = KL projection) — source
+   KLProjection.v with its Require header removed; minus_split clashed with the
+   root L760 and is renamed kl_minus_split. *)
 (* ============================================================ *)
 
 Section KLProjection.
@@ -2127,30 +2243,35 @@ Variable p : S -> R.
 Variable Hp_norm : normalized p.
 Variable Hp_pos : positive_dist p.
 
-(* 通过集质量 *)
+(* the passing-set mass *)
 Definition Z_aud : R := sum_over_S (fun s => if post_aud s then p s else zero).
 Variable HZ : lt zero Z_aud.
 
-(* 投影分布：通过集上重归一化（审计 = KL 投影的定义载体） *)
+(* the projected distribution: renormalization over the passing set (the
+   defining statement of audit = KL projection) *)
 Definition projected_distribution (s : S) : R :=
   if post_aud s then mult (p s) (inv_pos Z_aud HZ) else zero.
 
-(* 引理 1：逐点，(if aud then p else 0) ≤ p（fail 支用 p 全正） *)
+(* lemma 1: pointwise, (if aud then p else 0) <= p (the fail branch uses the
+   positivity of p) *)
 Lemma if_p_le_p : forall s : S, le (if post_aud s then p s else zero) (p s).
 Proof.
   intro s. destruct (post_aud s).
   - apply le_refl.
-  - (* lt→le 桥 = 接口字段 lt_le_iff（Or := A+B，left 可用） *)
+  - (* the lt -> le bridge is the interface field lt_le_iff ([Or] := A+B, [left]
+       applies) *)
     apply (lt_le_iff zero (p s)). left. exact (Hp_pos s).
 Qed.
 
-(* 引理 2：通过集质量 ≤ 总质量（单调分块 = sum_over_S_le + 引理 1） *)
+(* lemma 2: the passing-set mass is at most the total mass (monotone
+   partitioning via sum_over_S_le plus lemma 1) *)
 Theorem Z_aud_le_one : le Z_aud (sum_over_S p).
 Proof.
   unfold Z_aud. exact (sum_over_S_le (fun s => if post_aud s then p s else zero) p if_p_le_p).
 Qed.
 
-(* 引理 3：投影分布逐点 = mult inv(Z_aud) (if aud then p else 0)——线性装配形态 *)
+(* lemma 3: the projected distribution is pointwise mult (inv Z_aud)
+   (if aud then p else 0) — the linear-assembly form *)
 Lemma projected_pt :
   forall s : S,
     Id (projected_distribution s)
@@ -2161,34 +2282,40 @@ Proof.
   - exact (id_sym (mult_zero (inv_pos Z_aud HZ))).
 Qed.
 
-(* 引理 4：投影分布归一化（主定理地基：Σ projected_distribution = 1） *)
+(* lemma 4: the projected distribution is normalized (the foundation of the main
+   theorem: the sum of projected_distribution is 1) *)
 Theorem projected_normalized : normalized projected_distribution.
 Proof.
   unfold normalized.
-  (* 前段：sum_ext 换成线性形态 + linear 提出常量（中项经 Z_aud 定义体转换衔接） *)
+  (* first half: sum_ext converts to the linear form and linear pulls out the
+     constant (the middle term is bridged through the body of Z_aud) *)
   apply (id_trans
           (id_trans (sum_over_S_ext (fun s => projected_distribution s)
                      (fun s => mult (inv_pos Z_aud HZ) (if post_aud s then p s else zero))
                      projected_pt)
                     (sum_over_S_linear (inv_pos Z_aud HZ)
                        (fun s => if post_aud s then p s else zero)))).
-  (* 后段：invZ · Z_aud = one（comm 换位 + inv_pos_correct 右乘形态） *)
+  (* second half: invZ * Z_aud = one (a commutativity swap plus the
+     right-multiplication form of inv_pos_correct) *)
   apply (id_trans (mult_comm (inv_pos Z_aud HZ) Z_aud)).
   apply inv_pos_correct.
 Qed.
 
 (* ================================================================ *)
-(* 主定理：审计 = KL 投影（projected_distribution_minimizes_kl）       *)
-(* 分解：relative_entropy q p == relative_entropy q projected_distribution + opp(log Z_aud)， *)
-(*       尾项 ≥ 0（HlogZ 经 opp_le_compat 反变）→ le 链合成。          *)
+(* main theorem: audit = KL projection (projected_distribution_minimizes_kl) *)
+(* decomposition: relative_entropy q p == relative_entropy q projected_distribution
+   + opp(log Z_aud), with the tail term >= 0 (HlogZ through the contravariant
+   opp_le_compat), composing the le chain. *)
 (* ================================================================ *)
 
-(* 引理 5（通用 R 层恒等式）：a−c == (a−b)+(b−c) —— transitivity 风格 *)
+(* lemma 5 (a generic R-layer identity): a-c == (a-b)+(b-c) — the
+   transitivity-style split *)
 Lemma kl_minus_split : forall a b c : R, Id (minus a c) (plus (minus a b) (minus b c)).
 Proof.
   intros a b c. unfold minus.
   transitivity (plus a (plus (opp b) (plus b (opp c)))).
-  - (* 左段：a+opp c == a+(内层) —— 内层 zero 插入路径 *)
+  - (* the left half: a + opp c == a + (the inner term) — the inner
+       zero-insertion path *)
     apply (id_cong (fun w => plus a w)).
     transitivity (plus (plus (opp b) b) (opp c)).
     + apply (id_trans (id_sym (plus_zero (opp c)))
@@ -2196,11 +2323,12 @@ Proof.
                 (id_sym (id_cong (fun w => plus w (opp c))
                                 (id_trans (plus_comm (opp b) b) (plus_opp b)))))).
     + apply (id_sym (plus_assoc (opp b) b (opp c))).
-  - (* 右段：assoc 正向拉直 *)
+  - (* the right half: straightened by assoc in the forward direction *)
     apply (plus_assoc a (opp b) (plus b (opp c))).
 Qed.
 
-(* 引理 6（逐点分解，无分支恒等式）：distrib 反向套 kl_minus_split *)
+(* lemma 6 (pointwise split, a branch-free identity): kl_minus_split followed by
+   distrib *)
 Lemma kl_pointwise_split :
   forall (q : S -> R) (s : S),
     Id (mult (q s) (minus (log (q s)) (log (p s))))
@@ -2212,7 +2340,8 @@ Proof.
   apply distrib.
 Qed.
 
-(* 引理 7：和的分解——relative_entropy q p == relative_entropy q projected_distribution + 尾项 *)
+(* lemma 7: the split of the sum — relative_entropy q p == relative_entropy
+   q projected_distribution + the tail term *)
 Lemma kl_sum_split :
   forall (q : S -> R),
     Id (relative_entropy q p)
@@ -2224,7 +2353,7 @@ Proof.
   apply sum_over_S_add.
 Qed.
 
-(* 引理 8（中间恒等式）：minus (plus x (opp L)) x == opp L *)
+(* lemma 8 (an intermediate identity): minus (plus x (opp L)) x == opp L *)
 Lemma minus_plus_opp : forall x L : R, Id (minus (plus x (opp L)) x) (opp L).
 Proof.
   intros x L.
@@ -2232,7 +2361,8 @@ Proof.
   exact ((id_trans (id_sym (plus_assoc x (opp L) (opp x)))) ((id_trans (id_cong (fun w => plus x w) (plus_comm (opp L) (opp x)))) ((id_trans (plus_assoc x (opp x) (opp L))) ((id_trans (id_cong (fun w => plus w (opp L)) (plus_opp x))) ((id_trans (plus_comm zero (opp L))) ((plus_zero (opp L)))))))).
 Qed.
 
-(* 引理 9（尾项求值）：Σ q·(log projected_distribution − log p) == opp (log Z_aud) *)
+(* lemma 9 (evaluation of the tail term): the sum of q*(log projected_distribution
+   - log p) == opp (log Z_aud) *)
 Lemma kl_tail_eval :
   forall (q : S -> R) (Hq_norm : normalized q) (Hq_pos : positive_dist q)
          (Hq_fail : forall s : S, Id (post_aud s) false -> Id (q s) zero),
@@ -2244,7 +2374,8 @@ Proof.
     Id (mult (q s) (minus (log (projected_distribution s)) (log (p s))))
        (mult (opp (log Z_aud)) (q s))).
   { intro s. destruct (post_aud s) eqn:Es.
-    - (* pass：log projected_distribution == log p + opp(log Z) → 尾差 == opp(log Z) *)
+    - (* the pass case: log projected_distribution == log p + opp(log Z), so the
+         tail difference is opp(log Z) *)
       assert (Hpa : Id (projected_distribution s) (mult (p s) (inv_pos Z_aud HZ))).
       { unfold projected_distribution. rewrite Es. apply id_refl. }
       assert (Hlpa : Id (log (projected_distribution s)) (plus (log (p s)) (opp (log Z_aud)))).
@@ -2255,7 +2386,7 @@ Proof.
                  (id_trans (id_cong (fun w => minus w (log (p s))) Hlpa)
                            (minus_plus_opp (log (p s)) (log Z_aud))))).
       apply mult_comm.
-    - (* fail：q s = 0，两侧皆零 *)
+    - (* the fail case: q s = 0, so both sides are zero *)
       assert (Hq0 : Id (q s) zero) by exact (Hq_fail s (RealSetoid.eq_Id _ _ Es)).
       apply (id_trans (id_cong (fun w => mult w (minus (log (projected_distribution s)) (log (p s)))) Hq0)).
       apply (id_trans (mult_comm zero (minus (log (projected_distribution s)) (log (p s))))).
@@ -2268,7 +2399,7 @@ Proof.
   apply mult_one.
 Qed.
 
-(* 主定理：审计 = KL 投影（框架理论锚） *)
+(* main theorem: audit = KL projection (the framework-theoretic anchor) *)
 Theorem projected_distribution_minimizes_kl :
   forall (q : S -> R) (Hq_norm : normalized q) (Hq_pos : positive_dist q)
          (Hq_fail : forall s : S, Id (post_aud s) false -> Id (q s) zero)
@@ -2279,7 +2410,8 @@ Proof.
   eapply le_id_r.
   - exact (id_sym (kl_sum_split q)).
   - apply le_plus_nonneg_r.
-    (* 尾项 T == opp (log Z_aud)，且 le zero (opp log Z) ← HlogZ 反变桥 *)
+    (* the tail term T == opp (log Z_aud), and le zero (opp log Z) follows from
+       HlogZ through the contravariant bridge *)
     apply (le_id_r _ _ _ (id_sym (kl_tail_eval q Hq_norm Hq_pos Hq_fail))).
     apply (le_id_l _ _ _ (id_sym (opp_zero_t13))).
     apply (opp_le_compat (log Z_aud) zero).
@@ -2294,45 +2426,56 @@ Open Scope Q_scope.
 
 
 (* ============================================================ *)
-(* 217 块 22 · AttnDoeblin（P1：有界 logits softmax 核显式          *)
-(*   Doeblin 收缩——u_tv_contraction/bs_minorization δ*=e^{−2Δ/T}） *)
-(*   源：AttnDoeblin.v（上游；改名 attn_nat_to_R 系）；        *)
-(*   插入位 = 基底末尾（全基底先于 Attn——依赖约束）；零公理面      *)
+(* block 22 of 217 · AttnDoeblin (P1: the explicit Doeblin contraction of the *)
+(*   bounded-logits softmax kernel — u_tv_contraction/bs_minorization with *)
+(*   delta* = e^{−2Δ/T}) *)
+(*   source: AttnDoeblin.v (upstream; the attn_nat_to_R family renamed); *)
+(*   insertion point = the end of the base (the whole base precedes Attn — a *)
+(*   dependency constraint); zero axioms *)
 (* ============================================================ *)
 (* ============================================================ *)
-(* AttnDoeblin.v —— P1 主定理包：有界 logits softmax 核的显式 Doeblin 收缩 *)
+(* AttnDoeblin.v — the P1 main-theorem package: the explicit Doeblin contraction *)
+(*   of the bounded-logits softmax kernel *)
 (*                                                                *)
-(* Part A（抽象层）u_tv_contraction：双点 TV 收缩——相对库内           *)
-(*   attention_tv_contraction 的推广：参考分布 u 只需归一化（无需       *)
-(*   平稳性/详细平衡），收缩在任意两个归一化分布之间成立；迭代版         *)
-(*   u_tv_iter 给出几何率 (1−δ)ⁿ。                                 *)
-(* Part B（主定理）有界 logits softmax 核：z 双显式界（−Δ ≤ z ≤ Δ）     *)
-(*   ⟹ 核逐点 ≥ δ*·U，δ* := e^{−Δ/T}·e^{+Δ/T}⁻¹ 形态 exact 化为       *)
-(*   δ* := lo·lo（lo := e^{−Δ/T}），即 e^{−2Δ/T}——温度与 logit        *)
-(*   直径的显式函数；Part A 原样实例化 ⟹ 收缩率 (1 − e^{−2Δ/T})ⁿ。     *)
-(* Part C（满足性证明）：cauchy_real_exp 满足 expf 迷你接口全部字段——     *)
-(*   Part B 假设类在具体柯西实数上非空（real_eq 版语义实现）。          *)
-(* 诚实接口（Variable）：sum_swap_cc / abs_ge_zero_id_cc /              *)
-(*   lt_plus_compat（与库内 Doeblin 节同款）；sum_eq_list（枚举求和      *)
-(*   规范化 = 有限世界假设）；expf 迷你接口（Part C 证其可满足）。             *)
-(* 纪律：零公理面、零承认件、零参数声明；Set 层语句；全 Qed；可提取。      *)
+(* Part A (the abstract layer) u_tv_contraction: the two-point TV contraction — *)
+(*   a generalization of the in-library attention_tv_contraction: the reference *)
+(*   distribution u only needs to be normalized (no stationarity / detailed *)
+(*   balance), and the contraction holds between any two normalized *)
+(*   distributions; the iterated version u_tv_iter gives the geometric rate *)
+(*   (1−δ)ⁿ.                                                       *)
+(* Part B (the main theorem) the bounded-logits softmax kernel: the two-sided *)
+(*   explicit bound (−Δ ≤ z ≤ Δ) implies the kernel is pointwise >= δ*·U with *)
+(*   δ* := e^{−Δ/T}·e^{+Δ/T}⁻¹, realized exactly as δ* := lo·lo (lo := *)
+(*   e^{−Δ/T}), i.e. e^{−2Δ/T} — an explicit function of the temperature and *)
+(*   the logit diameter; instantiating Part A verbatim gives the rate *)
+(*   (1 − e^{−2Δ/T})ⁿ.                                             *)
+(* Part C (the satisfiability proof): cauchy_real_exp satisfies every field of *)
+(*   the expf mini interface — the Part B assumptions are all satisfiable over *)
+(*   concrete Cauchy reals (the real_eq-form semantic realization).        *)
+(* honest interfaces ([Variable]): sum_swap_cc / abs_ge_zero_id_cc / *)
+(*   lt_plus_compat (as in the in-library Doeblin section); sum_eq_list (the *)
+(*   enumerated-sum normalization = the finite-world assumption); the expf mini *)
+(*   interface (Part C proves its satisfiability).                         *)
+(* discipline: zero axioms, zero admitted statements, zero assumption-style *)
+(*   declarations; Set-layer statements; all Qed; extractable.      *)
 (* ============================================================ *)
 
 From Stdlib Require Import List.
 
-(* ################ Part 0：通用代数辅助 ################ *)
+(* ################ Part 0: generic algebra helpers ################ *)
 
 Section AlgHelpers.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 
-(* Id 上的目标右端改写（Id 单构造子，destruct 消去） *)
+(* rewriting the right end of a goal along Id (Id has a single constructor,
+   eliminated by destruct) *)
 Lemma lt_id_r_loc : forall (a b c : R), Id b c -> lt a b -> lt a c.
 Proof.
   intros a b c H Hlt. destruct H. exact Hlt.
 Qed.
 
-(* 四项交换：(a+c)+(b+d) == (a+b)+(c+d) *)
+(* four-term exchange: (a+c)+(b+d) == (a+b)+(c+d) *)
 Lemma plus_exchange : forall a b c d : R,
   Id (plus (plus a c) (plus b d)) (plus (plus a b) (plus c d)).
 Proof.
@@ -2344,7 +2487,7 @@ Proof.
             (plus_assoc a c (plus b d))))))).
 Qed.
 
-(* 左公因子相减：(a+b) − (a+c) == b − c *)
+(* subtracting with a common left factor: (a+b) - (a+c) == b - c *)
 Lemma minus_plus_congr_l : forall a b c : R,
   Id (minus (plus a b) (plus a c)) (minus b c).
 Proof.
@@ -2353,7 +2496,8 @@ Proof.
   exact ((id_trans (id_cong (fun x => plus (plus a b) x) (opp_plus a c))) ((id_trans (plus_exchange a (opp a) b (opp c))) ((id_trans (id_cong (fun x => plus x (plus b (opp c))) (plus_opp a))) ((id_trans (plus_comm zero (plus b (opp c)))) ((plus_zero (plus b (opp c)))))))).
 Qed.
 
-(* 公因子提出相减（k 在前）：k·x − k·y == k·(x−y) *)
+(* factoring out the common factor in a difference (k on the left):
+   k*x - k*y == k*(x-y) *)
 Lemma minus_factor : forall k x y : R,
   Id (minus (mult k x) (mult k y)) (mult k (minus x y)).
 Proof.
@@ -2362,7 +2506,8 @@ Proof.
   exact ((id_trans (id_cong (fun x0 => plus (mult k x) x0) (id_sym (opp_mult_l k y)))) ((id_sym (distrib k x (opp y))))).
 Qed.
 
-(* 公因子提出相减（k 在后）：x·k − y·k == (x−y)·k *)
+(* factoring out the common factor in a difference (k on the right):
+   x*k - y*k == (x-y)*k *)
 Lemma minus_factor_pt : forall x y k : R,
   Id (minus (mult x k) (mult y k)) (mult (minus x y) k).
 Proof.
@@ -2371,7 +2516,8 @@ Proof.
   exact ((id_trans (id_cong (fun x0 => plus (mult x k) x0) (id_sym (opp_mult_r y k)))) ((id_trans (id_cong2 plus (mult_comm x k) (mult_comm (opp y) k))) ((id_trans (id_sym (distrib k x (opp y)))) ((mult_comm k (minus x y)))))).
 Qed.
 
-(* 逆元对乘法分配：inv(a·b) == inv a · inv b（正元） *)
+(* inverses distribute over multiplication: inv(a*b) == inv a * inv b (for
+   positive elements) *)
 Lemma inv_pos_mult_distr : forall (a b : R) (Ha : lt zero a) (Hb : lt zero b),
   Id (inv_pos (mult a b) (mult_positive a b Ha Hb))
      (mult (inv_pos a Ha) (inv_pos b Hb)).
@@ -2394,7 +2540,7 @@ Proof.
   exact (inv_pos_correct b Hb).
 Qed.
 
-(* nat → R 嵌入与正性 *)
+(* the nat -> R embedding and its positivity *)
 Fixpoint attn_nat_to_R (k : nat) : R :=
   match k with
   | 0%nat => zero
@@ -2412,7 +2558,7 @@ Qed.
 
 End AlgHelpers.
 
-(* ################ Part A：抽象双点 TV 收缩 ################ *)
+(* ################ Part A: the abstract two-point TV contraction ################ *)
 
 Section UContraction.
 Context {RI : RealInterfaceEnhanced}.
@@ -2441,7 +2587,10 @@ Variable sum_swap_cc : forall f : S -> S -> R,
   Id (sum_over_S (fun s : S => sum_over_S (fun s' : S => f s s')))
      (sum_over_S (fun s' : S => sum_over_S (fun s : S => f s s'))).
 Variable abs_ge_zero_id_cc : forall a : R, le zero a -> Id (abs a) a.
-(* [墙族登记·RW-MIX 混合保序] 接口层结构墙（论文7§9.1 三分表；uabm_wall 先例 ToyR_UpAblP7_UMixSelect.v:155）：接口仅载严格-严格/弱-弱加法保序（S01:232-233），无「严格从弱」产生子，本位（h 后缀副本节 UContraction）接口层不可导，禁硬证禁纯删；具体层已证供给 real_lt_plus_compat_lt_le（S07_RealSetoidExpLog.v:6147，cms_bs_lpc 同件）——消解走实例层供给或 TB-2 字段化归一批。 *)
+(* the interface carries only strict-strict and weak-weak additive order
+   compatibility (S01:232-233), and no strict-from-weak constructor exists at
+   this interface level, so the premise below is assumed at this level; the
+   concrete-layer supply is [real_lt_plus_compat_lt_le] (S07_RealSetoidExpLog.v:6147). *)
 Variable lt_plus_compat_lt_le_h : forall a b c d : R,
   lt a b -> le c d -> lt (plus a c) (plus b d).
 
@@ -2526,7 +2675,7 @@ Qed.
 
 Let u_step := @attention_step RI SS SO transition.
 
-(* 单步分解：Tμ == δ·u + (1−δ)·Rμ *)
+(* the one-step decomposition: T mu == delta*u + (1-delta)*R mu *)
 Lemma u_step_decomp : forall (mu : S -> R) (s' : S),
   Id (sum_over_S mu) one ->
   Id (u_step mu s')
@@ -2565,7 +2714,7 @@ Proof.
       (sum_over_S_linear omd (fun s : S => mult (mu s) (u_r_kernel s s'))))).
 Qed.
 
-(* 单步保持归一化 *)
+(* one step preserves normalization *)
 Lemma u_step_norm : forall mu : S -> R,
   Id (sum_over_S mu) one -> Id (sum_over_S (fun s' : S => u_step mu s')) one.
 Proof.
@@ -2608,7 +2757,8 @@ Proof.
   - exact (abs_sum_le (fun s : S => mult (f s) (u_r_kernel s s'))).
 Qed.
 
-(* ========== 主定理 A：双点 TV 收缩（无需平稳性） ========== *)
+(* ========== main theorem A: the two-point TV contraction (no stationarity
+   needed) ========== *)
 Theorem u_tv_contraction : forall (mu nu : S -> R),
   Id (sum_over_S mu) one -> Id (sum_over_S nu) one ->
   le (tv (u_step mu) (u_step nu)) (mult omd (tv mu nu)).
@@ -2682,7 +2832,7 @@ Proof.
     exact (le_refl _).
 Qed.
 
-(* ========== 迭代收缩：几何率 (1−δ)ⁿ ========== *)
+(* ========== iterated contraction: the geometric rate (1−δ)ⁿ ========== *)
 Fixpoint u_titer (n : nat) (mu : S -> R) : S -> R :=
   match n with
   | 0%nat => mu
@@ -2719,7 +2869,7 @@ Qed.
 
 End UContraction.
 
-(* ################ Part B（主定理）：有界 logits softmax 核 ################ *)
+(* ################ Part B (the main theorem): the bounded-logits softmax kernel ################ *)
 
 Section BoundedSoftmax.
 Context {RI : RealInterfaceEnhanced}.
@@ -2736,7 +2886,7 @@ Let mult := @mult RI.
 Let sum_over_S := @sum_over_S RI SS SO.
 Let tv := @tv_dist RI SS SO.
 
-(* 有限世界数据 *)
+(* the finite-world data *)
 Variable enum : list S.
 Variable enum_nonempty : Not (Id enum nil).
 Variable temp : R.
@@ -2747,7 +2897,8 @@ Variable z : S -> S -> R.
 Variable z_lb : forall s s' : S, le (opp Delta) (z s s').
 Variable z_ub : forall s s' : S, le (z s s') Delta.
 
-(* 构造性指数迷你接口（Part C 证其可满足性） *)
+(* the constructive exponential mini interface (Part C proves its
+   satisfiability) *)
 Variable expf : R -> R.
 Variable expf_pos : forall x : R, lt zero (expf x).
 Variable expf_zero : Id (expf zero) one.
@@ -2755,7 +2906,8 @@ Variable expf_plus : forall a b : R, Id (expf (plus a b)) (mult (expf a) (expf b
 Variable expf_mono_lt : forall a b : R, lt a b -> lt (expf a) (expf b).
 Variable expf_mono_le : forall a b : R, le a b -> le (expf a) (expf b).
 
-(* 诚实接口三件（与 Part A 同款，供主定理实例化） *)
+(* the three honest-interface fields (as in Part A, consumed by the main-theorem
+   instantiation) *)
 Variable bs_swap : forall f : S -> S -> R,
   Id (sum_over_S (fun s : S => sum_over_S (fun s' : S => f s s')))
      (sum_over_S (fun s' : S => sum_over_S (fun s : S => f s s'))).
@@ -2768,7 +2920,8 @@ Fixpoint bs_list_sum (f : S -> R) (l : list S) : R :=
   | x :: t => plus (f x) (bs_list_sum f t)
   end.
 
-(* 枚举求和规范化（有限世界公理：抽象求和的规模被 enum 钉住） *)
+(* the enumerated-sum normalization (the finite-world axiom: the scale of the
+   abstract sum is pinned by enum) *)
 Variable sum_eq_list : forall g : S -> R, Id (sum_over_S g) (bs_list_sum g enum).
 
 
@@ -2787,8 +2940,10 @@ Proof.
     apply (mult_comm c (plus one (attn_nat_to_R (length t)))).
 Qed.
 
-(* ====  基座消融波 T1 终判位49 前置引理组：bs_swap 槽由兄弟字段 enum+sum_eq_list 整体导出 ==== *)
-(* （照 P7BoundedSoftmaxDeep.v 同款归纳链移植；禁 import 该件——order 反序）。零承认件 ==== *)
+(* ==== preliminary lemma group: the bs_swap slot is derived wholesale from the
+   sibling fields enum + sum_eq_list ==== *)
+(* (the same induction chain as P7BoundedSoftmaxDeep.v, ported; that file is not
+   imported — the module order is reversed). Zero admitted statements. ==== *)
 Lemma bs_lsum_zero : forall l : list S, Id zero (bs_list_sum (fun _ : S => zero) l).
 Proof.
   intro l.
@@ -2832,7 +2987,9 @@ Proof.
     apply (id_sym (bs_lsum_add (fun s' : S => f x s')
               (fun s' : S => bs_list_sum (fun s : S => f s s') t) l2)).
 Qed.
-(* 主前置引理：bs_swap 出节槽的「无槽精简版」P'——出节签名仅依赖 enum+sum_eq_list 两槽 *)
+(* the main preliminary lemma: the slot-free reduced form P' of bs_swap at
+   section exit — the exit signature depends only on the two slots enum and
+   sum_eq_list *)
 Lemma bs_swap_derived : forall f : S -> S -> R,
   Id (sum_over_S (fun s : S => sum_over_S (fun s' : S => f s s')))
      (sum_over_S (fun s' : S => sum_over_S (fun s : S => f s s'))).
@@ -2906,7 +3063,7 @@ Proof. exact (expf_pos (mult invT (opp Delta))). Qed.
 Lemma bs_hi_pos : lt zero hi.
 Proof. exact (expf_pos (mult invT Delta)). Qed.
 
-(* opp Δ < Δ（由 Δ > 0） *)
+(* opp Delta < Delta (from Delta > 0) *)
 Lemma bs_opp_lt : lt (opp Delta) Delta.
 Proof.
   apply (le_lt_trans (opp Delta) zero Delta).
@@ -2924,7 +3081,7 @@ Proof.
                         (inv_pos_pos temp temp_pos) bs_opp_lt).
 Qed.
 
-(* lo·hi == one（exp 同态性，logits 有界的代数核心） *)
+(* lo * hi == one (the exp homomorphism; the algebraic core of bounded logits) *)
 Lemma bs_lo_hi_eq : Id (mult lo hi) one.
 Proof.
   apply (id_trans (id_sym (expf_plus (mult invT (opp Delta)) (mult invT Delta)))).
@@ -2946,7 +3103,7 @@ Proof.
                   (id_sym (id_trans (mult_comm hi lo) bs_lo_hi_eq))).
 Qed.
 
-(* 因子下界：e^{z/T} ≥ e^{−Δ/T} *)
+(* factor lower bound: e^{z/T} >= e^{−Δ/T} *)
 Lemma bs_factor_ge_lo : forall s s' : S, le lo (factor s s').
 Proof.
   intros s s'. unfold factor, lo.
@@ -2955,7 +3112,7 @@ Proof.
            (lt_le_iff _ _ (inl (inv_pos_pos temp temp_pos))) (z_lb s s')).
 Qed.
 
-(* 因子上界：e^{z/T} ≤ e^{Δ/T} *)
+(* factor upper bound: e^{z/T} <= e^{Δ/T} *)
 Lemma bs_factor_le_hi : forall s s' : S, le (factor s s') hi.
 Proof.
   intros s s'. unfold factor, hi.
@@ -2987,7 +3144,7 @@ Proof.
                      (mult_positive nR lo bs_nR_pos bs_lo_pos) (bs_Zrow_ge s)).
 Qed.
 
-(* softmax 核（温度 T） *)
+(* the softmax kernel (temperature T) *)
 Definition bs_kernel (s s' : S) : R :=
   mult (factor s s') (inv_pos (Zrow s) (bs_Zrow_pos s)).
 
@@ -3015,7 +3172,7 @@ Proof.
                   (inv_pos_correct (Zrow s) (bs_Zrow_pos s))).
 Qed.
 
-(* 均匀分布 U ≡ 1/|enum| *)
+(* the uniform distribution U == 1/|enum| *)
 Let Unif : S -> R := fun _ : S => inv_pos nR bs_nR_pos.
 
 Lemma bs_Unif_norm : Id (sum_over_S Unif) one.
@@ -3023,8 +3180,8 @@ Proof.
   exact ((id_trans (sum_eq_list Unif)) ((id_trans (bs_list_const_sum (inv_pos nR bs_nR_pos) enum)) ((inv_pos_correct nR bs_nR_pos)))).
 Qed.
 
-(* ===== 主定理核心：显式 Doeblin 下界 =====
-   P(s,s') ≥ δ*·U(s')，δ* := lo·lo = e^{−2Δ/T}（精确，无损耗） *)
+(* ===== the core of the main theorem: the explicit Doeblin lower bound =====
+   P(s,s') >= δ*·U(s') with δ* := lo·lo = e^{−2Δ/T} (exact, no loss) *)
 Lemma bs_minorization : forall s s' : S,
   le (mult delta_star (Unif s')) (bs_kernel s s').
 Proof.
@@ -3068,8 +3225,9 @@ Proof.
 exact (le_id_l _ _ _ Heq Hchain).
 Qed.
 
-(* ===== 主定理定理 1：有界 softmax 核的双点 TV 收缩 =====
-   收缩率显式：1 − e^{−2Δ/T} *)
+(* ===== main theorem 1: the two-point TV contraction of the bounded softmax
+   kernel =====
+   the contraction rate is explicit: 1 − e^{−2Δ/T} *)
 Theorem bounded_softmax_tv_contraction : forall (mu nu : S -> R),
   Id (sum_over_S mu) one -> Id (sum_over_S nu) one ->
   le (tv (@attention_step RI SS SO bs_kernel mu) (@attention_step RI SS SO bs_kernel nu))
@@ -3082,7 +3240,8 @@ Proof.
            bs_swap bs_abs bs_lpc mu nu Hmu Hnu).
 Qed.
 
-(* ===== 主定理定理 2：迭代收缩，显式几何率 (1 − e^{−2Δ/T})ⁿ ===== *)
+(* ===== main theorem 2: iterated contraction with the explicit geometric rate
+   (1 − e^{−2Δ/T})ⁿ ===== *)
 Theorem bounded_softmax_tv_iter : forall (n : nat) (mu nu : S -> R),
   Id (sum_over_S mu) one -> Id (sum_over_S nu) one ->
   le (tv (@u_titer RI SS SO bs_kernel n mu) (@u_titer RI SS SO bs_kernel n nu))
@@ -3098,11 +3257,13 @@ Qed.
 End BoundedSoftmax.
 
 
-(* ################ Part C：Real 层满足性证明 ################ *)
+(* ################ Part C: the Real-layer satisfiability proof ################ *)
 
-(* expf 迷你接口在具体柯西实数上的可满足性——Part B 假设类非空：
-   五字段全部由 cauchy_real_exp 的已证定理逐一供给
-   （mono_le 经 real_le = Or (real_lt) (real_eq) 的构造性析取逐支证明）。 *)
+(* the satisfiability of the expf mini interface over concrete Cauchy reals —
+   the Part B assumptions are all satisfiable: all five fields are supplied one
+   by one by the proved theorems about cauchy_real_exp (mono_le is proved branch
+   by branch through the constructive disjunction real_le = Or (real_lt)
+   (real_eq)). *)
 Theorem real_expf_realizable :
   sigT (fun f : Real -> Real => And (forall x : Real, real_lt real_zero (f x))
         (And (real_eq (f real_zero) real_one)
@@ -3122,43 +3283,51 @@ Proof.
                         end)))))).
 Qed.
 
-(* 提取检验：实层指数构造可提取为 OCaml（零 Obj.magic） *)
+(* extraction check: the Real-layer exponential construction extracts to OCaml
+   (zero Obj.magic) *)
 
 (* ============================================================ *)
-(* 217 块 23 · AttnSqrt（P3：构造性平方根 real_sqrt_exists——       *)
-(*   ∀d≥0 {r | r≥0 ∧ r·r==d}，cw_log 路线）                       *)
-(*   源：AttnSqrt.v（上游）；零公理面、零承认件                    *)
+(* block 23 of 217 · AttnSqrt (P3: the constructive square root real_sqrt_exists *)
+(*   — forall d >= 0, {r | r >= 0 and r*r == d}, via the cw_log route) *)
+(*   source: AttnSqrt.v (upstream); zero axioms, zero admitted statements *)
 (* ============================================================ *)
 (* ============================================================ *)
-(* AttnSqrt.v —— P3 升级包：构造性平方根一般化                  *)
+(* AttnSqrt.v — the P3 upgrade package: a generalization of constructive square
+   roots *)
 (*                                                              *)
-(* G1（一般平方维数见证，抽象 R 层）：                           *)
-(*   - sqrt_witness_sq / sqrt_witness_nat_sq：k² 维数下的       *)
-(*     sqrt_witness 见证（库内此前仅有 d=4 机器检查实例）。      *)
-(*   - nat_to_R_pos：nat → R 嵌入的正性。                       *)
-(*   - scale_dual_sq_k：k² 维数下「1/k 缩放 == 温度 k」的       *)
-(*     scale_sqrt_witness_dual 实例化。                         *)
+(* G1 (witnesses for general square dimensions, at the abstract R layer):   *)
+(*   - sqrt_witness_sq / sqrt_witness_nat_sq: sqrt_witness witnesses for k^2  *)
+(*     dimensions (the library previously had only the d=4 machine-checked    *)
+(*     instance).                                                          *)
+(*   - nat_to_R_pos: the positivity of the nat -> R embedding.              *)
+(*   - scale_dual_sq_k: the scale_sqrt_witness_dual instantiation for k^2     *)
+(*     dimensions, where the 1/k scaling equals the temperature k.          *)
 (*                                                              *)
-(* G2（主菜，Real 层）：构造性平方根存在性                      *)
+(* G2 (the main piece, at the Real layer): constructive existence of square   *)
+(*   roots                                                                 *)
 (*   real_sqrt_exists : forall d : Real, real_le real_zero d -> *)
 (*   sigT (fun r => And (real_le real_zero r)                   *)
 (*                     (real_eq (real_mult r r) d)).            *)
-(*   路线（构造性，零经典）：real_le 在库内展开为              *)
-(*   Or (real_lt zero d) (real_eq zero d)——前提本身就是 Or，    *)
-(*   提供构造性情形数据：                                       *)
-(*   ① d ≡ 0（右支）：r := real_zero，r·r == 0 == d。           *)
-(*   ② d > 0（左支，带正间隙证书）：r := exp(½·log d)——        *)
-(*      库内 log 论证产物 cw_log（右逆 cw_log_exp_right）+      *)
-(*      cauchy_real_exp_plus（exp 加法性）+ cauchy_real_exp_wd  *)
-(*      （exp 外延）+ cauchy_real_exp_pos（exp 恒正）拼装：      *)
-(*      r·r == exp(t+t) == exp(log d) == d，且 r > 0 直接由     *)
-(*      exp 正性给出（无需二分/夹逼/诊断分支）。                *)
-(*   注：规范原建议同构 cos π/2 二分模板；本实现改走库内      *)
-(*   log 论证既有产物（其本身即二分模板的产物），构造更短、     *)
-(*   且对弱前提 d ≥ 0 严格成立（Or 左支给出正间隙证书，         *)
-(*   右支给出 r := 0 的精确相等）——无假命题修正。               *)
+(*   route (constructive, zero classical steps): real_le unfolds in the     *)
+(*   library as Or (real_lt zero d) (real_eq zero d) — the premise itself is  *)
+(*   an Or, supplying constructive case data:                                *)
+(*   (1) d == 0 (right branch): r := real_zero, so r*r == 0 == d.           *)
+(*   (2) d > 0 (left branch, with a positive-gap certificate): r :=            *)
+(*       exp((1/2)*log d) — assembled from the library log products cw_log    *)
+(*       (right inverse cw_log_exp_right) + cauchy_real_exp_plus (additivity  *)
+(*       of exp) + cauchy_real_exp_wd (extensionality of exp) +               *)
+(*       cauchy_real_exp_pos (positivity of exp): r*r == exp(t+t) ==          *)
+(*       exp(log d) == d, and r > 0 follows directly from the positivity of   *)
+(*       exp (no bisection, no squeezing, no diagnostic branches).            *)
+(*   note: the original specification suggested the cos(pi/2) bisection       *)
+(*   template; this implementation reuses the existing library log products   *)
+(*   (which are themselves products of that template), giving a shorter       *)
+(*   construction that holds verbatim under the weaker premise d >= 0 (the    *)
+(*   Or left branch supplies the positive-gap certificate, the right branch   *)
+(*   the exact equality r := 0).                                           *)
 (*                                                              *)
-(* 纪律：纯构造性 Set 层、零公理面、零承认件、非经典。        *)
+(* discipline: purely constructive Set layer, zero axioms, zero admitted      *)
+(*   statements, non-classical.                                             *)
 (* ============================================================ *)
 
 From Stdlib Require Import List.
@@ -3168,10 +3337,12 @@ From Stdlib Require Import Setoid Morphisms.
 Local Open Scope Q_scope.
 
 (* ============================================================ *)
-(* Part 0：Real 层逐点工具（½x + ½x == x，逐点 Q 环恒等）        *)
+(* Part 0: Real-layer pointwise tools ((1/2)x + (1/2)x == x, a pointwise Q-ring
+   identity) *)
 (* ============================================================ *)
 
-(* 逐点：projT1 (real_mult (real_const ½) x) n == ½·x_n（组装投影引理） *)
+(* pointwise: projT1 (real_mult (real_const (1/2)) x) n == (1/2)*x_n (assembling
+   the projection lemmas) *)
 Lemma sqrt_half_proj : forall (x : Real) (n : nat),
   QeqT (projT1 (real_mult (real_const (1#2)) x) n) ((1#2) * projT1 x n).
 Proof.
@@ -3181,7 +3352,8 @@ Proof.
   reflexivity.
 Qed.
 
-(* ½·x + ½·x == x（real_eq 逐点；Q 层恒等 ½q + ½q == q 由 ring 判定） *)
+(* (1/2)*x + (1/2)*x == x (pointwise real_eq; the Q-layer identity
+   (1/2)q + (1/2)q == q is decided by ring) *)
 Lemma sqrt_real_plus_half_half : forall x : Real,
   real_eq (real_plus (real_mult (real_const (1#2)) x)
                      (real_mult (real_const (1#2)) x))
@@ -3190,7 +3362,8 @@ Proof.
   intros x eps Heps.
   exists 0%nat.
   intros n Hn.
-  (* 差的逐点化简：½x_n + ½x_n − x_n == 0 *)
+  (* pointwise simplification of the difference:
+     (1/2)x_n + (1/2)x_n - x_n == 0 *)
   assert (Hd : projT1 (real_plus (real_mult (real_const (1#2)) x)
                                  (real_mult (real_const (1#2)) x)) n
                 - projT1 x n == 0%Q).
@@ -3198,7 +3371,7 @@ Proof.
                             (real_mult (real_const (1#2)) x) n)).
     setoid_rewrite (qeqT_imp_qeq _ _ (sqrt_half_proj x n)).
     ring. }
-  (* Qabs(差) == Qabs 0 == 0，逐点界 |0| < eps *)
+  (* Qabs(difference) == Qabs 0 == 0, giving the pointwise bound |0| < eps *)
   assert (Habs0 : Qabs (projT1 (real_plus (real_mult (real_const (1#2)) x)
                                           (real_mult (real_const (1#2)) x)) n
                         - projT1 x n) == 0%Q).
@@ -3211,7 +3384,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 1（G2）：Real 层构造性平方根存在性                       *)
+(* Part 1 (G2): constructive existence of square roots at the Real layer *)
 (* ============================================================ *)
 
 Theorem real_sqrt_exists : forall d : Real, real_le real_zero d ->
@@ -3220,43 +3393,45 @@ Theorem real_sqrt_exists : forall d : Real, real_le real_zero d ->
 Proof.
   intros d Hd.
   destruct Hd as [Hdlt | Hdeq].
-  - (* 情形①：d > 0（正间隙证书 Hdlt）。r := exp(½·log d)。 *)
+  - (* case 1: d > 0 (the positive-gap certificate Hdlt); r := exp((1/2)*log d). *)
     exists (cauchy_real_exp (real_mult (real_const (1#2)) (cw_log d Hdlt))).
     split.
-    + (* r > 0：exp 恒正（real_le 左支 = real_lt） *)
+    + (* r > 0: exp is strictly positive (the real_le left branch = real_lt) *)
       exact (inl (cauchy_real_exp_pos
               (real_mult (real_const (1#2)) (cw_log d Hdlt)))).
-    + (* r·r == d：链 exp(t)·exp(t) == exp(t+t) == exp(log d) == d *)
+    + (* r*r == d: the chain exp(t)*exp(t) == exp(t+t) == exp(log d) == d *)
       apply (real_eq_trans
               (real_mult (cauchy_real_exp (real_mult (real_const (1#2)) (cw_log d Hdlt)))
                          (cauchy_real_exp (real_mult (real_const (1#2)) (cw_log d Hdlt))))
               (cauchy_real_exp (real_plus (real_mult (real_const (1#2)) (cw_log d Hdlt))
                                           (real_mult (real_const (1#2)) (cw_log d Hdlt))))
               d).
-      * (* 反向用 exp 加法性：exp(x)·exp(y) == exp(x+y) *)
+      * (* exp additivity in the reverse direction: exp(x)*exp(y) == exp(x+y) *)
         apply real_eq_sym. apply cauchy_real_exp_plus.
       * apply (real_eq_trans
                 (cauchy_real_exp (real_plus (real_mult (real_const (1#2)) (cw_log d Hdlt))
                                             (real_mult (real_const (1#2)) (cw_log d Hdlt))))
                 (cauchy_real_exp (cw_log d Hdlt)) d).
-        -- (* exp 外延：t + t == log d（sqrt_real_plus_half_half） *)
+        -- (* exp extensionality: t + t == log d (sqrt_real_plus_half_half) *)
            apply cauchy_real_exp_wd.
            apply sqrt_real_plus_half_half.
-        -- (* log 右逆：exp(log d) == d *)
+        -- (* the log right inverse: exp(log d) == d *)
            apply cw_log_exp_right.
-  - (* 情形②：d ≡ 0（real_eq 证书 Hdeq）。r := real_zero。 *)
+  - (* case 2: d == 0 (the real_eq certificate Hdeq); r := real_zero. *)
     exists real_zero.
     split.
-    + (* 0 ≥ 0：real_le 右支 = real_eq 0 0（自反） *)
+    + (* 0 >= 0: the real_le right branch = real_eq 0 0 (reflexive) *)
       exact (inr (real_eq_refl real_zero)).
-    + (* 0·0 == 0 == d *)
+    + (* 0*0 == 0 == d *)
       apply (real_eq_trans (real_mult real_zero real_zero) real_zero d).
       * apply real_mult_zero.
       * exact Hdeq.
 Qed.
 
-(* 具体实例（机器可提取的健全性检查）：1 的平方根可构造。        *)
-(*   r := exp(½·log 1)，r ≥ 0 且 r·r == 1——G2 主定理的 d=1 实例。 *)
+(* a concrete instance (a machine-extractable soundness check): the square root
+   of 1 is constructible. *)
+(*   r := exp((1/2)*log 1) with r >= 0 and r*r == 1 — the d=1 instance of the G2
+   main theorem. *)
 
 Lemma real_one_pos_local : real_lt real_zero real_one.
 Proof.
@@ -3274,9 +3449,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2（G1）：一般平方维数见证（抽象 R 层，接口泛型）          *)
-(*   库内机器检查实例此前仅 d=4（sq_witness_4）；本节给出一般    *)
-(*   k² 维数的 sqrt_witness 见证族与对偶实例。                   *)
+(* Part 2 (G1): witnesses for general square dimensions (abstract R layer,
+   generic in the interface) *)
+(*   the library's machine-checked instance previously covered only d=4
+   (sq_witness_4); this section gives the sqrt_witness family for general k^2
+   dimensions and the dual instances. *)
 (* ============================================================ *)
 
 Section SqrtWitnessGeneral.
@@ -3284,9 +3461,10 @@ Section SqrtWitnessGeneral.
 Context {RI : RealInterfaceEnhanced}.
 Local Existing Instance RI_base.
 
-(* nat → R 嵌入复用库内 nat_to_R（RI 隐式实例参数）。           *)
+(* the nat -> R embedding reuses the library nat_to_R (with RI as an implicit
+   instance argument). *)
 
-(* 加法同态：nat_to_R (m+n) == nat_to_R m + nat_to_R n          *)
+(* the additive homomorphism: nat_to_R (m+n) == nat_to_R m + nat_to_R n *)
 Lemma nat_to_R_plus_hom : forall m n : nat,
   Id (nat_to_R (m + n)%nat) (plus (nat_to_R m) (nat_to_R n)).
 Proof.
@@ -3299,7 +3477,7 @@ Proof.
                     (plus_assoc one (nat_to_R m) (nat_to_R n))).
 Qed.
 
-(* 乘法同态：nat_to_R (m·n) == nat_to_R m · nat_to_R n          *)
+(* the multiplicative homomorphism: nat_to_R (m*n) == nat_to_R m * nat_to_R n *)
 Lemma nat_to_R_mult_hom : forall m n : nat,
   Id (nat_to_R (m * n)%nat) (mult (nat_to_R m) (nat_to_R n)).
 Proof.
@@ -3318,7 +3496,7 @@ Proof.
                      (mult_comm (nat_to_R n) (plus one (nat_to_R m)))))))).
 Qed.
 
-(* nat_to_R 的严格正性：k ≥ 1 ⟹ 0 < nat_to_R k                 *)
+(* strict positivity of nat_to_R: k >= 1 implies 0 < nat_to_R k *)
 Lemma nat_to_R_pos : forall k : nat, lt zero (nat_to_R (Datatypes.S k)).
 Proof.
   intro k. induction k as [| k IH].
@@ -3328,20 +3506,23 @@ Proof.
   - simpl. exact (plus_positive one (nat_to_R (Datatypes.S k)) one_pos IH).
 Qed.
 
-(* 见证（字面形式）：d := r·r（Id 自反；即「r 即 √(r²)」的命名式） *)
+(* the witness (literal form): d := r*r (Id reflexivity; the naming form of "r is
+   the square root of r^2") *)
 Lemma sqrt_witness_sq : forall k : nat,
   sqrt_witness (mult (nat_to_R k) (nat_to_R k)) (nat_to_R k).
 Proof. intro k. exact id_refl. Qed.
 
-(* 见证（非平凡形式）：d := nat_to_R (k·k) == nat_to_R k · nat_to_R k
-   （由乘法同态 nat_to_R_mult_hom 给出——k² 维数的真见证）      *)
+(* the witness (non-trivial form): d := nat_to_R (k*k) == nat_to_R k * nat_to_R k
+   (given by the multiplicative homomorphism nat_to_R_mult_hom — a genuine
+   witness for k^2 dimensions) *)
 Lemma sqrt_witness_nat_sq : forall k : nat,
   sqrt_witness (nat_to_R (k * k)%nat) (nat_to_R k).
 Proof. intro k. exact (id_sym (nat_to_R_mult_hom k k)). Qed.
 
-(* k² 维数对偶实例：1/(S k) 缩放 == 温度 (S k)
-   （scale_sqrt_witness_dual 在 d := nat_to_R (S k) · nat_to_R (S k)、
-     r := nat_to_R (S k) 的实例化；k ≥ 0 ⟹ 温度 ≥ 1 > 0）       *)
+(* the dual instance for k^2 dimensions: the 1/(S k) scaling equals the
+   temperature (S k) (the scale_sqrt_witness_dual instantiation at
+   d := nat_to_R (S k) * nat_to_R (S k), r := nat_to_R (S k); k >= 0 implies
+   temperature >= 1 > 0) *)
 Lemma scale_dual_sq_k :
   forall (SS : StateSpace RI) (SO : SumOver RI SS)
          (spp : forall f : @S RI SS -> @R RI,
@@ -3360,7 +3541,7 @@ Proof.
            (sqrt_witness_sq (Datatypes.S k)) z s).
 Qed.
 
-(* 对偶实例（nat 平方形式，d := nat_to_R ((S k)·(S k))）         *)
+(* the dual instance (nat-square form, d := nat_to_R ((S k)*(S k))) *)
 Lemma scale_dual_nat_sq_k :
   forall (SS : StateSpace RI) (SO : SumOver RI SS)
          (spp : forall f : @S RI SS -> @R RI,
@@ -3382,56 +3563,64 @@ Qed.
 End SqrtWitnessGeneral.
 
 (* ============================================================ *)
-(* 块 24 · AttnHardLimit：词表/计数/权重机制——                 *)
-(*   eq_inv2_double 根域自足化 + TV 界链闭式，39 Qed。           *)
-(*   源：AttnHardLimit218.v（上游）；零公理面、零承认件         *)
+(* block 24 · AttnHardLimit: the vocabulary / counting / weighting mechanism — *)
+(*   eq_inv2_double made self-contained at the root domain + the closed TV bound
+   chain, 39 Qed. *)
+(*   source: AttnHardLimit218.v (upstream); zero axioms, zero admitted statements *)
 (* ============================================================ *)
 (* ============================================================ *)
-(* AttnHardLimit.v —— P4 升级包：硬注意力极限定理               *)
+(* AttnHardLimit.v — the P4 upgrade package: the hard-attention limit theorem *)
 (*                                                              *)
-(*   主定理 hard_attention_limit：T→0 的总变差收敛（量词翻转）  *)
-(*     ∃T₀>0, ∀T（0<T<T₀）, TV(w_T, δ_m) ≤ eps                  *)
+(*   main theorem hard_attention_limit: total-variation convergence as T -> 0 *)
+(*   (a quantifier flip) *)
+(*     exists T0 > 0, forall T (0 < T < T0), TV(w_T, δ_m) <= eps *)
 (*                                                              *)
-(*   上游 softmax_gap_concentration / temperature_zero_limit     *)
-(*   只给逐固定 T 的不等式，"T→0 收敛到硬注意力"在论文中仅为     *)
-(*   interpretation；本文件把量词翻转为真极限定理（sigT 见证）。 *)
+(*   the upstream softmax_gap_concentration / temperature_zero_limit give only *)
+(*   per-fixed-T inequalities; "T -> 0 converges to hard attention" was in the *)
+(*   paper merely an interpretation; this file flips the quantifiers into a *)
+(*   genuine limit theorem (a sigT witness). *)
 (*                                                              *)
-(*   设定同构 MinPSampling Section（L30691）：Set 层 list 词表    *)
-(*   世界 + token_eq_dec；权重 w_T(x) = e^{z(x)/T}/Z(T)。        *)
+(*   the setting is isomorphic to the MinPSampling Section (L30691): a Set-layer *)
+(*   list vocabulary world + token_eq_dec; weights w_T(x) = e^{z(x)/T}/Z(T). *)
 (*                                                              *)
-(*   诚实接口（假命题修正协议）：                                *)
-(*   ① m 在 vocab 中恰好出现一次（count_token m vocab == 1）。   *)
-(*     若 m 有并列副本，w_T 的 T→0 极限是副本上的均匀分布，      *)
-(*     δ_m 硬分布的 TV 不趋零——原陈述为假命题，须收紧前提。     *)
-(*   ② 一致间隙 γ>0：∀x≠m, z(x)+γ ≤ z(m)。Cauchy 实数的          *)
-(*     real_le 是 Or( lt, eq ) 编码，从逐 x 的 real_lt 见证构造  *)
-(*     一致 real_le 常数间隙在构造性框架内不可行（无实数序的     *)
-(*     可判定比较），故以单一显式 γ 为前提变量（可实例化）。    *)
+(*   honest interfaces: *)
+(*   (1) m occurs in vocab exactly once (count_token m vocab == 1). *)
+(*     if m had parallel copies, the T -> 0 limit of w_T would be the uniform *)
+(*     distribution over the copies, and the TV of the δ_m hard distribution *)
+(*     would not tend to zero — the statement is false under that relaxation, *)
+(*     so the premise is tightened. *)
+(*   (2) a uniform gap γ > 0: forall x <> m, z(x) + γ <= z(m). for Cauchy reals *)
+(*     real_le is an Or(lt, eq) encoding, and building a uniform real_le constant *)
+(*     gap from per-x real_lt witnesses is not feasible in the constructive *)
+(*     framework (no decidable comparison of the real order), so a single *)
+(*     explicit γ is taken as a premise variable (instantiable). *)
 (*                                                              *)
-(*   纪律：纯构造性、零公理面、零承认件、非经典逻辑；         *)
-(*         语句全 Set 层（sigT/库内 And/Or/Id）；全部 Qed。      *)
+(*   discipline: purely constructive, zero axioms, zero admitted statements, *)
+(*         non-classical logic; all statements at the Set layer *)
+(*         (sigT / library And/Or/Id); all closed by Qed. *)
 (* ============================================================ *)
 
 From Stdlib Require Import List Arith Lia.
 Import ListNotations.
 
 (* ============================================================ *)
-(* 0. 通用辅助（Real 层，Section 外，全局可复用）               *)
+(* 0. generic helpers (the Real layer, outside any Section, reusable globally) *)
 (* ============================================================ *)
 
-(* Id 到 real_eq 的桥（real_eq 是函数型 Set 值等价） *)
+(* the bridge from Id to real_eq (real_eq is a functional Set-valued equality) *)
 Lemma aid_real_eq : forall a b : Real, Id a b -> real_eq a b.
 Proof.
   intros a b H. destruct H. apply real_eq_refl.
 Qed.
 
-(* lt ⟹ le（real_le 的 Or 编码左支） *)
+(* lt implies le (the Or-encoding left branch of real_le) *)
 Lemma real_le_from_lt_aux : forall a b : Real, real_lt a b -> real_le a b.
 Proof.
   intros a b H. exact (inl H).
 Qed.
 
-(* 左乘保序：0<c、a≤b ⟹ c·a≤c·b（同构 real_le_mult_compat） *)
+(* left multiplication preserves order: 0 < c and a <= b imply c*a <= c*b
+   (isomorphic to real_le_mult_compat) *)
 Lemma real_le_mult_compat_l_aux : forall a b c : Real,
   real_lt real_zero c -> real_le a b -> real_le (real_mult c a) (real_mult c b).
 Proof.
@@ -3443,7 +3632,7 @@ Proof.
     + apply (real_le_mult_compat a b c Hc Hab).
 Qed.
 
-(* a ≤ a + b（b ≥ 0） *)
+(* a <= a + b (for b >= 0) *)
 Lemma real_le_plus_nonneg_r_aux : forall a b : Real,
   real_le real_zero b -> real_le a (real_plus a b).
 Proof.
@@ -3453,7 +3642,7 @@ Proof.
   - apply real_le_plus_compat; [apply real_le_refl | exact Hb].
 Qed.
 
-(* a ≤ b ⟹ 0 ≤ b − a *)
+(* a <= b implies 0 <= b - a *)
 Lemma real_le_minus_nonneg_aux : forall a b : Real,
   real_le a b -> real_le real_zero (real_plus b (real_opp a)).
 Proof.
@@ -3468,14 +3657,14 @@ Proof.
     + apply real_plus_opp.
 Qed.
 
-(* u ≤ v ⟹ |u − v| == v − u（abs 恒等式：minus_r 形态） *)
+(* u <= v implies |u - v| == v - u (the abs identity in the minus_r form) *)
 Lemma real_abs_minus_r_nonneg_aux : forall u v : Real,
   real_le u v -> real_eq (real_abs (real_minus_r u v)) (real_plus v (real_opp u)).
 Proof.
   intros u v Huv.
   assert (Hd : real_le real_zero (real_plus v (real_opp u)))
     by exact (real_le_minus_nonneg_aux u v Huv).
-  (* u − v == −(v − u) *)
+  (* u - v == -(v - u) *)
   assert (E1 : real_eq (real_minus_r u v)
                        (real_opp (real_plus v (real_opp u)))).
   { apply (real_eq_trans _ (real_plus (real_opp v) u) _).
@@ -3505,7 +3694,7 @@ Proof.
   - exact E3.
 Qed.
 
-(* e^a·e^{−a} == 1（两种顺序） *)
+(* e^a * e^{−a} == 1 (in both orders) *)
 Lemma exp_mult_opp_r_aux : forall a : Real,
   real_eq (real_mult (cauchy_real_exp a) (cauchy_real_exp (real_opp a))) real_one.
 Proof.
@@ -3528,7 +3717,7 @@ Proof.
   - apply exp_mult_opp_r_aux.
 Qed.
 
-(* of_nat 嵌入：非负与单调 *)
+(* the of_nat embedding: nonnegativity and monotonicity *)
 Lemma real_of_nat_nonneg_aux : forall k : nat,
   real_le real_zero (real_of_nat k).
 Proof.
@@ -3552,12 +3741,12 @@ Proof.
   intros k1 k2 H.
   revert k1 H.
   induction k2 as [| k2 IH]; intros k1 H.
-  - (* k1 ≤ 0 ⟹ k1 = 0（le 的 Prop 内消去） *)
+  - (* k1 <= 0 implies k1 = 0 (eliminated inside the Prop le) *)
     assert (Hk : k1 = 0%nat) by (inversion H; reflexivity).
     rewrite Hk. apply real_le_refl.
   - destruct (Nat.eq_dec k1 (Datatypes.S k2)) as [Heq | Hne].
     + rewrite Heq. apply real_le_refl.
-    + (* k1 ≤ S k2 且 k1 ≠ S k2 ⟹ k1 ≤ k2（Prop 内推理） *)
+    + (* k1 <= S k2 and k1 <> S k2 imply k1 <= k2 (reasoning inside Prop) *)
       assert (Hle : (k1 <= k2)%nat).
       { inversion H; subst.
         - exfalso. apply Hne. reflexivity.
@@ -3577,7 +3766,7 @@ Proof.
            ++ apply real_le_plus_compat; [exact (IH k1 Hle) | apply real_le_refl].
 Qed.
 
-(* nat 后继 Id 的可逆性 *)
+(* invertibility of Id on nat successors *)
 Lemma nat_S_id_inv_aux : forall a b : nat,
   @Id nat (Datatypes.S a) (Datatypes.S b) -> @Id nat a b.
 Proof.
@@ -3585,19 +3774,20 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Section AttnHardLimit：list 词表世界（同构 MinPSampling）    *)
+(* Section AttnHardLimit: the list-vocabulary world (isomorphic to MinPSampling) *)
 (* ============================================================ *)
 
 Section AttnHardLimit.
 
-(* ---------- 1. 词表基础设施 ---------- *)
+(* ---------- 1. vocabulary infrastructure ---------- *)
 Variable Token : Set.
 Variable vocab : list Token.
 Variable vocab_nonempty : Not (Id vocab nil).
 Variable token_eq_dec : forall a b : Token, Or (Id a b) (Not (Id a b)).
 Variable z : Token -> Real.
 
-(* m 在 vocab 中的出现次数（token_eq_dec 支撑折叠计数） *)
+(* the number of occurrences of m in vocab (the fold count supported by
+   token_eq_dec) *)
 Fixpoint count_token (t : Token) (l : list Token) : nat :=
   match l with
   | nil => O
@@ -3608,7 +3798,7 @@ Fixpoint count_token (t : Token) (l : list Token) : nat :=
       end
   end.
 
-(* 首次出现删除 *)
+(* deletion of the first occurrence *)
 Fixpoint removeT (t : Token) (l : list Token) : list Token :=
   match l with
   | nil => nil
@@ -3619,7 +3809,7 @@ Fixpoint removeT (t : Token) (l : list Token) : list Token :=
       end
   end.
 
-(* ---------- 2. argmax 见证（诚实接口，见文件头说明） ---------- *)
+(* ---------- 2. the argmax witness (honest interface, see the file header) ---------- *)
 Variable m : Token.
 Variable m_in_vocab : InT m vocab.
 Variable m_count_one : @Id nat (count_token m vocab) (Datatypes.S O).
@@ -3628,9 +3818,10 @@ Variable gamma_pos : real_lt real_zero gamma.
 Variable gap_le : forall x : Token, Not (Id x m) ->
   real_le (real_plus (z x) gamma) (z m).
 
-(* ---------- 3. 计数/删除组合学 ---------- *)
-(*   惯例：先 cbn 暴露 match 层，再 destruct token_eq_dec；     *)
-(*   嵌套层逐层处理；矛盾分支用 Empty_set 匹配消解。            *)
+(* ---------- 3. counting/removal combinatorics ---------- *)
+(*   convention: cbn first to expose the match layer, then destruct token_eq_dec;
+   nested layers are processed level by level; contradictory branches are
+   discharged by Empty_set matches. *)
 
 Lemma count_zero_notin : forall (t : Token) (l : list Token),
   @Id nat (count_token t l) O -> not_InT t l.
@@ -3664,7 +3855,8 @@ Proof.
   - cbn [count_token] in Hc. cbn [removeT].
     destruct (token_eq_dec y t) as [Hyt | Hnyt].
     + inversion Hc.
-    + (* 目标 Id (count_token t (y :: removeT t rest)) O：暴露 count 层 *)
+    + (* the goal Id (count_token t (y :: removeT t rest)) O: exposing the count
+         layer *)
       cbn [count_token].
       destruct (token_eq_dec y t) as [Hyt2 | Hnyt2].
       * exact (match Hnyt Hyt2 with end).
@@ -3711,7 +3903,8 @@ Proof.
     destruct (token_eq_dec y t) as [Hyt | Hnyt]; cbn [length]; apply NatLe_lift; lia.
 Qed.
 
-(* removeT 在表首的两种展开（一次性证明，供 rewrite 使用） *)
+(* the two unfoldings of removeT at the head of the list (proved once, for
+   rewriting) *)
 Lemma removeT_cons_self : forall (t x : Token) (l : list Token),
   Id x t -> @Id (list Token) (removeT t (x :: l)) (removeT t l).
 Proof.
@@ -3730,7 +3923,8 @@ Proof.
   - apply id_refl.
 Qed.
 
-(* 拆分引理：t 恰出现一次 ⟹ Σ l f == f t + Σ (removeT t l) f *)
+(* the splitting lemma: t occurs exactly once implies the sum over l of f ==
+   f t + the sum over removeT t l of f *)
 Lemma split_count_one : forall (f : Token -> Real) (t : Token) (l : list Token),
   @Id nat (count_token t l) (Datatypes.S O) ->
   real_eq (real_list_sum Token f l)
@@ -3784,7 +3978,7 @@ Proof.
            ++ apply real_eq_sym. apply real_plus_assoc.
 Qed.
 
-(* ---------- 4. list 求和的序引理（Token 版） ---------- *)
+(* ---------- 4. order lemmas for list sums (the Token version) ---------- *)
 
 Lemma sum_nonneg_aux : forall (f : Token -> Real) (l : list Token),
   (forall y : Token, real_le real_zero (f y)) ->
@@ -3882,13 +4076,13 @@ Proof.
       * apply IH. intros y Hin. apply Hb. apply (InT_next y x rest Hin).
 Qed.
 
-(* ---------- 5. 温度化 softmax 权重与硬分布 ---------- *)
+(* ---------- 5. temperature-scaled softmax weights and the hard distribution ---------- *)
 
-(* 权重因子：factor_T T Ht x = e^{z(x)/T} *)
+(* the weight factor: factor_T T Ht x = e^{z(x)/T} *)
 Definition factor_T (T : Real) (Ht : real_lt real_zero T) (x : Token) : Real :=
   cauchy_real_exp (real_mult (real_inv_pos T Ht) (z x)).
 
-(* 配分函数：Z(T) = Σ vocab e^{z(x)/T} *)
+(* the partition function: Z(T) = the sum over vocab of e^{z(x)/T} *)
 Definition ZT (T : Real) (Ht : real_lt real_zero T) : Real :=
   real_list_sum Token (factor_T T Ht) vocab.
 
@@ -3900,22 +4094,22 @@ Proof.
   - exact vocab_nonempty.
 Defined.
 
-(* 归一化权重：w_T(x) = e^{z(x)/T}/Z(T) *)
+(* the normalized weight: w_T(x) = e^{z(x)/T}/Z(T) *)
 Definition w_T (T : Real) (Ht : real_lt real_zero T) (x : Token) : Real :=
   real_mult (factor_T T Ht x) (real_inv_pos (ZT T Ht) (ZT_pos T Ht)).
 
-(* 硬分布：δ_m *)
+(* the hard distribution δ_m *)
 Definition hard_dist (x : Token) : Real :=
   match token_eq_dec x m with
   | inl _ => real_one
   | inr _ => real_zero
   end.
 
-(* 衰减基元：e^{−γ/T} *)
+(* the decay base: e^{−γ/T} *)
 Definition decay_T (T : Real) (Ht : real_lt real_zero T) : Real :=
   cauchy_real_exp (real_opp (real_mult (real_inv_pos T Ht) gamma)).
 
-(* 总变差：TV(w_T, δ_m) = (1/2)·Σ |w_T(x) − δ_m(x)| *)
+(* total variation: TV(w_T, δ_m) = (1/2)*the sum of |w_T(x) − δ_m(x)| *)
 Definition tv_hard (T : Real) (Ht : real_lt real_zero T) : Real :=
   real_mult
     (real_inv_pos (real_plus real_one real_one)
@@ -3924,7 +4118,7 @@ Definition tv_hard (T : Real) (Ht : real_lt real_zero T) : Real :=
     (real_list_sum Token
        (fun x => real_abs (real_minus_r (w_T T Ht x) (hard_dist x))) vocab).
 
-(* ---------- 6. 权重分析 ---------- *)
+(* ---------- 6. weight analysis ---------- *)
 
 Lemma factor_T_pos : forall (T : Real) (Ht : real_lt real_zero T) (x : Token),
   real_lt real_zero (factor_T T Ht x).
@@ -3940,7 +4134,7 @@ Proof.
   - apply real_inv_pos_pos.
 Qed.
 
-(* 归一化：Σ vocab w_T == 1 *)
+(* normalization: the sum over vocab of w_T == 1 *)
 Lemma w_T_sum_one : forall (T : Real) (Ht : real_lt real_zero T),
   real_eq (real_list_sum Token (w_T T Ht) vocab) real_one.
 Proof.
@@ -3958,7 +4152,7 @@ Proof.
       * apply (real_inv_pos_correct (ZT T Ht) (ZT_pos T Ht)).
 Qed.
 
-(* m 的权重 ≤ 1（单点质量和 ≤ 全和） *)
+(* the weight of m is at most 1 (a single-point mass is at most the total) *)
 Lemma w_T_m_le_one : forall (T : Real) (Ht : real_lt real_zero T),
   real_le (w_T T Ht m) real_one.
 Proof.
@@ -3970,7 +4164,8 @@ Proof.
     intro y. apply real_le_from_lt_aux. apply w_T_pos.
 Qed.
 
-(* （X·Y)·invX == Y（inv 吸收，用于核心衰减界的换序收尾） *)
+(* (X*Y)*invX == Y (inverse absorption, used to reorder the close of the core
+   decay bound) *)
 Lemma eq_mult_inv_absorb : forall (X Y : Real) (HX : real_lt real_zero X)
   (H : real_eq (real_mult X (real_inv_pos X HX)) real_one),
   real_eq (real_mult (real_mult X Y) (real_inv_pos X HX)) Y.
@@ -3998,12 +4193,12 @@ Proof.
            ++ apply real_mult_one.
 Qed.
 
-(* 核心衰减界：x ≠ m ⟹ w_T(x) ≤ e^{−γ/T}
-   链：z x + γ ≤ z m ⟹ (z x + γ)/T ≤ z m/T
-       ⟹ e^{z x/T} ≤ e^{z m/T}·e^{−γ/T}
-       ⟹ w_T(x) = e^{z x/T}·inv Z ≤ e^{z m/T}·e^{−γ/T}·inv Z
-       ≤ e^{z m/T}·e^{−γ/T}·inv(e^{z m/T}) = e^{−γ/T}
-   （Z ≥ e^{z m/T}：单点质量和；inv 反序）                    *)
+(* the core decay bound: x <> m implies w_T(x) <= e^{−γ/T}
+   chain: z x + γ <= z m implies (z x + γ)/T <= z m/T
+       implies e^{z x/T} <= e^{z m/T}*e^{−γ/T}
+       implies w_T(x) = e^{z x/T}*inv Z <= e^{z m/T}*e^{−γ/T}*inv Z
+       <= e^{z m/T}*e^{−γ/T}*inv(e^{z m/T}) = e^{−γ/T}
+   (Z >= e^{z m/T}: single-point mass; inv reverses order) *)
 Lemma core_decay_bound : forall (T : Real) (Ht : real_lt real_zero T) (x : Token),
   Not (Id x m) -> real_le (w_T T Ht x) (decay_T T Ht).
 Proof.
@@ -4015,7 +4210,7 @@ Proof.
   set (g := real_mult invT gamma).
   set (invZ := real_inv_pos (ZT T Ht) (ZT_pos T Ht)).
   set (invF := real_inv_pos (factor_T T Ht m) (factor_T_pos T Ht m)).
-  (* 1. a + g ≤ b（除以 T，分配律展开） *)
+  (* 1. a + g <= b (dividing by T, distributing) *)
   assert (H1 : real_le (real_plus a g) b).
   { apply (RealSetoid.real_le_id_l (real_plus a g)
              (real_mult invT (real_plus (z x) gamma)) b).
@@ -4054,13 +4249,13 @@ Proof.
     - apply real_exp_le_mono. exact H2.
     - apply (RealSetoid.real_eq_le).
       apply (cauchy_real_exp_plus b (real_opp g)). }
-  (* 4. invZ ≤ invF（Z ≥ factor m：单点质量和 + inv 反序） *)
+  (* 4. invZ <= invF (Z >= factor m: single-point mass, inv reverses order) *)
   assert (H4 : real_le invZ invF).
   { apply (real_inv_pos_le_compat (factor_T T Ht m) (ZT T Ht)).
     - unfold ZT.
       exact (single_le_sum_aux (factor_T T Ht) m vocab m_in_vocab
                (fun y => real_le_from_lt_aux _ _ (factor_T_pos T Ht y))). }
-  (* 5. 组装：e^a·invZ ≤ (e^b·e^{−g})·invZ ≤ (e^b·e^{−g})·invF = e^{−g} *)
+  (* 5. assembly: e^a*invZ <= (e^b*e^{−g})*invZ <= (e^b*e^{−g})*invF = e^{−g} *)
   unfold w_T, decay_T.
   apply (real_le_trans _
            (real_mult (real_mult (cauchy_real_exp b)
@@ -4084,9 +4279,10 @@ Proof.
                      (factor_T_pos T Ht m))).
 Qed.
 
-(* ---------- 7. 质量守恒与两段 TV 界 ---------- *)
+(* ---------- 7. mass conservation and the two-piece TV bound ---------- *)
 
-(* 非最优质量恒等式：1 − w_T(m) == Σ_{removeT m vocab} w_T *)
+(* the non-optimal mass identity: 1 - w_T(m) == the sum of w_T over
+   removeT m vocab *)
 Lemma nonm_mass_eq : forall (T : Real) (Ht : real_lt real_zero T),
   real_eq (real_plus real_one (real_opp (w_T T Ht m)))
           (real_list_sum Token (w_T T Ht) (removeT m vocab)).
@@ -4172,7 +4368,7 @@ Proof.
   exact (real_eq_trans _ _ _ Hc Hd).
 Qed.
 
-(* 非最优质量 ≤ N·e^{−γ/T} *)
+(* the non-optimal mass is at most N*e^{−γ/T} *)
 Lemma nonm_mass_le_bound : forall (T : Real) (Ht : real_lt real_zero T),
   real_le (real_list_sum Token (w_T T Ht) (removeT m vocab))
           (real_mult (real_of_nat (length vocab)) (decay_T T Ht)).
@@ -4192,11 +4388,11 @@ Proof.
     + apply real_of_nat_le_mono_aux. apply NatLe_drop. apply remove_length_le_aux.
 Qed.
 
-(* 逐点 TV 被积项 *)
+(* the pointwise TV integrand *)
 Definition h_abs (T : Real) (Ht : real_lt real_zero T) (x : Token) : Real :=
   real_abs (real_minus_r (w_T T Ht x) (hard_dist x)).
 
-(* m 项：|w_T(m) − 1| == Σ_{removeT} w_T == 1 − w_T(m) *)
+(* the m term: |w_T(m) - 1| == the sum of w_T over removeT == 1 - w_T(m) *)
 Lemma h_m_eq_nonm_mass : forall (T : Real) (Ht : real_lt real_zero T),
   real_eq (h_abs T Ht m) (real_list_sum Token (w_T T Ht) (removeT m vocab)).
 Proof.
@@ -4227,7 +4423,7 @@ Proof.
   intros T Ht. exact (split_count_one (h_abs T Ht) m vocab m_count_one).
 Qed.
 
-(* 非 m 项的 TV 质量 ≤ N·e^{−γ/T} *)
+(* the TV mass of the non-m terms is at most N*e^{−γ/T} *)
 Lemma hsum_nonm_le : forall (T : Real) (Ht : real_lt real_zero T),
   real_le (real_list_sum Token (h_abs T Ht) (removeT m vocab))
           (real_mult (real_of_nat (length vocab)) (decay_T T Ht)).
@@ -4278,7 +4474,7 @@ Proof.
     + apply real_of_nat_le_mono_aux. apply NatLe_drop. apply remove_length_le_aux.
 Qed.
 
-(* 词表势的正性（vocab 非空 ⟹ |vocab| ≥ 1） *)
+(* the positivity of the vocabulary size (vocab nonempty implies |vocab| >= 1) *)
 Lemma vocab_len_pos : real_lt real_zero (real_of_nat (length vocab)).
 Proof.
   destruct vocab as [| w rest].
@@ -4296,7 +4492,7 @@ Proof.
     + apply real_eq_refl.
 Qed.
 
-(* inv2·(X+X) == X（inv2 := inv(2)，用于 TV 的二分之一折叠） *)
+(* inv2*(X+X) == X (inv2 := inv(2), folding the TV by one half) *)
 Lemma eq_inv2_double : forall (X : Real) (HX : real_lt real_zero (real_plus real_one real_one)),
   real_eq (real_mult (real_inv_pos (real_plus real_one real_one) HX)
              (real_plus X X))
@@ -4461,7 +4657,7 @@ Proof.
     set (invT := real_inv_pos T Ht).
     assert (HinvT : real_lt real_zero invT) by apply real_inv_pos_pos.
     set (a := real_mult invT gamma).
-    (* 步1：T·L < γ *)
+    (* step 1: T*L < gamma *)
     assert (Hs1 : real_lt (real_mult T (cw_log ylog Hy)) gamma).
     { apply (real_lt_eq_lt (real_mult T (cw_log ylog Hy))
                (real_mult (real_mult gamma (real_inv_pos (cw_log ylog Hy) HL))
@@ -4493,7 +4689,7 @@ Proof.
                ++ apply real_eq_refl.
                ++ apply (real_inv_pos_correct (cw_log ylog Hy) HL).
             -- apply real_mult_one. }
-    (* 步2：L < γ/T *)
+    (* step 2: L < gamma/T *)
     assert (Hs2 : real_lt (cw_log ylog Hy) a).
     { assert (Hmul : real_lt (real_mult invT (real_mult T (cw_log ylog Hy)))
                              (real_mult invT gamma))
@@ -4522,7 +4718,7 @@ Proof.
                      (real_mult_one (cw_log ylog Hy)))).
         * exact Hmul.
       + apply real_eq_refl. }
-    (* 步3：M ≤ e^{γ/T} *)
+    (* step 3: M <= e^{γ/T} *)
     assert (Hs3 : real_le M (cauchy_real_exp a)).
     { apply (real_le_trans _ (cauchy_real_exp (cw_log ylog Hy)) _).
       - apply (RealSetoid.real_le_id_r M ylog
@@ -4532,7 +4728,7 @@ Proof.
         + apply real_le_plus_nonneg_r_aux.
           apply real_le_from_lt_aux. apply real_lt_zero_one.
       - apply real_exp_le_mono. exact (real_le_from_lt_aux _ _ Hs2). }
-    (* 步4：N ≤ eps·e^{γ/T} *)
+    (* step 4: N <= eps*e^{γ/T} *)
     assert (Hs4 : real_le EN (real_mult eps (cauchy_real_exp a))).
     { apply (RealSetoid.real_le_id_l EN (real_mult eps M) _).
       - exact (real_eq_sym _ _
@@ -4554,7 +4750,7 @@ Proof.
                   (real_mult_one EN)))))).
       - apply (real_le_mult_compat_l_aux M (cauchy_real_exp a) eps
                  Heps Hs3). }
-    (* 步5：e^{−γ/T}·N ≤ eps *)
+    (* step 5: e^{−γ/T}*N <= eps *)
     assert (Hs5 : real_le
                     (real_mult (cauchy_real_exp (real_opp a)) EN) eps).
     { apply (RealSetoid.real_le_id_r
@@ -4593,7 +4789,7 @@ Proof.
                  (cauchy_real_exp (real_opp a))).
         + apply cauchy_real_exp_pos.
         + exact Hs4. }
-    (* 结论：tv_hard ≤ N·e^{−γ/T} ≤ e^{−γ/T}·N ≤ eps *)
+    (* conclusion: tv_hard <= N*e^{−γ/T} <= e^{−γ/T}*N <= eps *)
     apply (real_le_trans _
              (real_mult (real_of_nat (length vocab))
                         (decay_T T Ht)) _).

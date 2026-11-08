@@ -1,13 +1,33 @@
-(* ==========================================================================)
-   Arch_ToyR_04.v -- 命题族集注与实例化承载
-   使命：本件形式化以下命题族：gfe_le_of_lt（Gibbs 族）、bv_term（Beukers
-   级数族）、pi_ptilde（p̃ 整化族）、bk_Qn_int（q̃ 整性族）。
-   依赖：件内 Require 声明面所列库件；SecondLawQuantified 不在本世界可用
-   库件之列，slc_minus_r_plus_cancel 等九件第二定律依存语句随该 Require
-   一并移出本件，由其原件 SecondLawConsume.v 另件承载。
-   构造性：全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载，零 Prop 泄露。
-   编译配方：Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""，cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — statement-family cluster: temperature-weighted Gibbs inequalities, Beukers series terms, ln2 integralization, q-tilde integrality. *)
+
+(** * Arch_ToyR_04: statement families with their witness carriers.
+
+    Mission.  The [gfe_le_of_lt] Gibbs family: pointwise and finite-sum
+      eps/Bishop forms of the temperature-weighted KL inequality and the
+      symmetric Jeffreys forms [gfe_jeffreys_sym_B],
+      [gfe_jeffreys_sym_list_B]; the [bv_term] Beukers series family:
+      term values and positivity, truncation carriers, [bv_sum_mono],
+      [bv_sum_pos], the discrete core [bv_delannoy_eq_qtilde] and the
+      numerator closed form [bv_p]; the [pi_ptilde] integralization
+      family: [pi_Pn_int], [pi_Qn_le_8pow], [pi_x_n_frac],
+      [pi_den_divide]; the nat-layer binomial scaffolding [bkC] with the
+      integrality witnesses [bk_Qn_int], [bk_Qn_ge_3pow].
+
+    Dependencies.  The library files listed in the Require face below;
+      Stdlib [List], [QArith], [ZArith], [Arith], [Lia].
+
+    References.  Statement families carried over from the
+      ConstructiveWorld-Main baseline; the nine second-law statements
+      around [slc_minus_r_plus_cancel] are not carried here
+      ([SecondLawQuantified] is outside this world) — [SecondLawConsume.v]
+      hosts them.
+
+    Constructivity.  All proofs close by [Qed]; zero admission words; no
+      classical logic; statement faces are carried by the [Set] layer.
+
+    Build.  [coqc -native-compiler no -q -Q . "" Arch_ToyR_04.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are
+      [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -36,14 +56,15 @@ Require Import PolyIntegral.
 Require Import PadeErrorIntegral BeukersLists PintMono.
 Require Import BeukersLists HansonLcm.
 
-(* ================= §2 gfe_le_of_lt 族 ================= *)
+(* ================= Section 2. The gfe_le_of_lt family ================= *)
 Import ListNotations.
 
-(* Part 0：序代数支撑件（四件）                                          *)
+(* Part 0: order-algebraic support lemmas (four). *)
 
-(* 0.1 严格正到弱非负桥（温度前提降级：β>0 出口喂 β≥0 入口）。
-   real_le 为 Or 编码（CW219 S02:460），lt 支 inl 直连——
-   零中介件（S07 real_lt_le_iff_req 不入 CW219 聚合出口，实测）。 *)
+(* 0.1 Bridge from strict positivity to weak nonnegativity (temperature  *)
+(* premise downgrade: the [b > 0] exit feeds a [b >= 0] entry).  [real_le] *)
+(* is Or-encoded, so the [lt] branch is the [inl] injection directly; no *)
+(* intermediate lemma is needed. *)
 Lemma gfe_le_of_lt : forall b : Real,
   real_lt real_zero b -> real_le real_zero b.
 Proof.
@@ -51,8 +72,9 @@ Proof.
   exact (inl Hb).
 Qed.
 
-(* 0.2 (q−p)+(p−q) == 0：非对称对消核（assoc 三跳链，零 opp 分配依赖；
-   对称 Jeffreys 形的对消引擎） *)
+(* 0.2 [(q - p) + (p - q) == 0]: the asymmetric cancellation core (an    *)
+(* associativity chain with no dependence on an opp-distribution law;    *)
+(* the cancellation engine of the symmetric Jeffreys form). *)
 Lemma gfe_pq_shift_zero : forall p q : Real,
   real_eq (real_plus (real_plus q (real_opp p)) (real_plus p (real_opp q)))
           real_zero.
@@ -62,7 +84,7 @@ Proof.
   { exact (real_eq_trans (real_plus (real_opp p) p)
                          (real_plus p (real_opp p)) real_zero
              (real_plus_comm (real_opp p) p) (real_plus_opp p)). }
-  (* 步1：assoc 两跳把 p 肢并入 q 肢 *)
+  (* step 1: two associativity hops fold the [p] arm into the [q] arm *)
   assert (Hs1 : real_eq (real_plus (real_plus q (real_opp p))
                                    (real_plus p (real_opp q)))
                         (real_plus (real_plus q (real_plus (real_opp p) p))
@@ -81,7 +103,7 @@ Proof.
                            (real_plus (real_plus q (real_opp p)) p)).
         exact (real_plus_assoc q (real_opp p) p).
       + apply real_eq_refl. }
-  (* 步2：内层 (−p)+p 对消为 0 *)
+  (* step 2: the inner [(- p) + p] cancels to [0] *)
   assert (Hs2 : real_eq (real_plus (real_plus q (real_plus (real_opp p) p))
                                    (real_opp q))
                         (real_plus (real_plus q real_zero) (real_opp q))).
@@ -95,7 +117,7 @@ Proof.
       + apply real_eq_refl.
       + exact Hopp0.
     - apply real_eq_refl. }
-  (* 步3+4：(q+0)+(−q) 换形后 plus_opp 闭合 *)
+  (* steps 3-4: reassociate [(q + 0) + (- q)] and close by [real_plus_opp] *)
   assert (Hs3 : real_eq (real_plus (real_plus q real_zero) (real_opp q))
                         real_zero).
   { apply (real_eq_trans
@@ -118,8 +140,9 @@ Proof.
               real_zero Hs2 Hs3)).
 Qed.
 
-(* 0.3 平移对消恒等式：(a+s)+(d+t) == a+d（当 s+t == 0）；
-   swap_mid 一跳闭合——对称 Jeffreys 主恒等式的引擎 *)
+(* 0.3 Translation-cancellation identity: [(a + s) + (d + t) == a + d]   *)
+(* whenever [s + t == 0]; closes in one hop by [real_plus_swap_mid] —    *)
+(* the engine of the symmetric Jeffreys main identity. *)
 Lemma gfe_sym_sum_eq : forall (a d s t : Real),
   real_eq (real_plus s t) real_zero ->
   real_eq (real_plus (real_plus a s) (real_plus d t)) (real_plus a d).
@@ -141,8 +164,9 @@ Proof.
     + exact (real_plus_zero (real_plus a d)).
 Qed.
 
-(* 0.4 Bishop 形右元换形器（族级组合器：le_b x y + y==z 给 le_b x z；
-   左元换形 leb3_le_b_eq_l 的对偶件，UpRealLeB3 无右元版） *)
+(* 0.4 Bishop-form right-operand transporter (a family-level combiner:   *)
+(* [le_b x y] with [y == z] gives [le_b x z]; the dual of the            *)
+(* left-operand transporter [leb3_le_b_eq_l], which [UpRealLeB3] lacks). *)
 Lemma gfe_le_b_eq_r : forall (x y z : Real),
   real_le_b x y -> real_eq y z -> real_le_b x z.
 Proof.
@@ -157,12 +181,16 @@ Proof.
   - exact (Hxy eps Heps).
 Qed.
 
-(* Part A：温度参数化形（真缺变体面 A；β 加权 Gibbs 族五件）             *)
+(* Part A: temperature-parameterized forms (variant face A; five members *)
+(* of the beta-weighted Gibbs family). *)
 
-(* A1 温度参数化逐点核 eps 形（β ≥ 0 弱前提——容许零温退化）：
-   β·(p−q) ≤ β·kl(p‖q) + β·p·eps。
-   证书链：real_gibbs_core_eps → 左乘保序 real_le_mult_compat_r
-   → distrib 换形（三步组装，系数全程显式追踪）。 *)
+(* A1 temperature-parameterized pointwise core, eps form (weak premise   *)
+(* [b >= 0], admitting the zero-temperature degeneration):               *)
+(* [b*(p-q) <= b*kl(p|q) + b*p*eps].                                     *)
+(* Certificate chain: [real_gibbs_core_eps], then order preservation of  *)
+(* left multiplication [real_le_mult_compat_r], then the distributive    *)
+(* reassociation (three-step assembly; the coefficient is tracked        *)
+(* explicitly throughout). *)
 Lemma gfe_gibbs_core_temp_eps : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_le real_zero b) (eps : Real) (Heps : real_lt real_zero eps),
@@ -183,12 +211,15 @@ Proof.
              (real_gibbs_core_eps p q Hp Hq eps Heps)).
 Qed.
 
-(* A2 温度参数化逐点核 Bishop 形（β > 0 严格前提）：
-   β·(p−q) ≤_B β·kl(p‖q)。
-   闭合器：real_le_closure_b，D := β·p（正性证书 real_mult_positive）；
-   逐 eps 余量 (β·p)·eps 由 A1 经 mult_assoc 换形供给。
-   注：β = 0 时 D 证书无从供给——Bishop 形前提强于 eps 形，
-   即 §4.3 形态选择在温度参数化下的构造性分化。 *)
+(* A2 temperature-parameterized pointwise core, Bishop form (strict      *)
+(* premise [b > 0]): [b*(p-q) <=_B b*kl(p|q)].                           *)
+(* Closer: [real_le_closure_b] with [D := b*p] (positivity certificate   *)
+(* [real_mult_positive]); the per-eps margin [(b*p)*eps] is supplied by  *)
+(* A1 reassociated through [real_mult_assoc].                            *)
+(* Note: at [b = 0] no certificate for D can be supplied — the Bishop    *)
+(* premise is strictly stronger than the eps premise, which is the       *)
+(* constructive bifurcation of the form choice under temperature         *)
+(* parameterization. *)
 Theorem gfe_gibbs_core_temp_B : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -217,10 +248,12 @@ Proof.
   - exact (gfe_gibbs_core_temp_eps p q b Hp Hq (gfe_le_of_lt b Hb) eps Heps).
 Qed.
 
-(* A3 温度参数化有限和 eps 形（β ≥ 0 弱前提）：
-   0 ≤ β·Σ_s kl(p s‖q s) + β·eps。
-   证书链：real_gibbs_inequality_eps → 左乘保序 → distrib 换形，
-   左端 β·0 == 0 经 mult_zero 换形（归一化消去在温度下保持）。 *)
+(* A3 temperature-parameterized finite-sum eps form (weak premise        *)
+(* [b >= 0]): [0 <= b*sum_s kl(p s|q s) + b*eps].                        *)
+(* Certificate chain: [real_gibbs_inequality_eps], order preservation of *)
+(* left multiplication, distributive reassociation; the left end         *)
+(* [b*0 == 0] is reassociated by [real_mult_zero] (normalization        *)
+(* cancellation survives temperature scaling). *)
 Lemma gfe_gibbs_inequality_temp_eps : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -260,10 +293,11 @@ Proof.
                    eps Heps)).
 Qed.
 
-(* A4 温度参数化有限和 Bishop 形（β > 0 严格前提）：
-   0 ≤_B β·Σ_s kl(p s‖q s)。
-   闭合器：real_le_closure_b，D := β；A3 出口余量形状
-   (β·Σkl) + β·eps 与 closure 供给形 y + D·eps 逐字同形，一步直接代入。 *)
+(* A4 temperature-parameterized finite-sum Bishop form (strict premise   *)
+(* [b > 0]): [0 <=_B b*sum_s kl(p s|q s)].                               *)
+(* Closer: [real_le_closure_b] with [D := b]; the A3 exit margin         *)
+(* [(b*sum kl) + b*eps] matches the closure supply shape [y + D*eps]     *)
+(* verbatim, so it plugs in directly. *)
 Theorem gfe_gibbs_inequality_temp_B : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -281,10 +315,12 @@ Proof.
   exact (gfe_gibbs_inequality_temp_eps X l p q Hp Hq Hnormp Hnormq b           (gfe_le_of_lt b Hb) eps Heps).
 Qed.
 
-(* A5 族级组合器：Bishop 形正数乘保序器（全库无 ≤_B 乘法出口，本件补位）：
-   x ≤_B y ∧ 0 < β ⟹ β·x ≤_B β·y。
-   证书链：le_b 逐 eps 展形 → real_lt_le_iff_req 升 le →
-   左乘保序 → distrib 换形 → closure_b（D := β）再闭合。 *)
+(* A5 family-level combiner: order preservation of multiplication by a   *)
+(* positive in Bishop form (the library has no multiplicative [<=_B]     *)
+(* exit): [x <=_B y] with [0 < b] entails [b*x <=_B b*y].                *)
+(* Certificate chain: unfold [le_b] eps by eps, lift to [le], apply the  *)
+(* order preservation of left multiplication, reassociate                *)
+(* distributively, and re-close by [real_le_closure_b] with [D := b]. *)
 Lemma gfe_le_b_mult_pos : forall (x y b : Real),
   real_lt real_zero b -> real_le_b x y -> real_le_b (real_mult b x) (real_mult b y).
 Proof.
@@ -299,10 +335,11 @@ Proof.
     exact (inl (Hxy eps Heps)).
 Qed.
 
-(* A6 温度参数化无条件 gap Bishop 形（β > 0）：
-   0 ≤_B β·(kl(p‖q) + (q−p))。
-   证书链：klstb_gibbs_core_shift_B（零前提 gap Bishop 形）经 A5 组合器
-   一次升温——第二定律读法在温度缩放下的不变性。 *)
+(* A6 temperature-parameterized unconditional gap Bishop form ([b > 0]): *)
+(* [0 <=_B b*(kl(p|q) + (q-p))].                                         *)
+(* Certificate chain: the premise-free gap Bishop form                   *)
+(* [klstb_gibbs_core_shift_B] lifted once through the A5 combiner — the  *)
+(* second-law reading is invariant under temperature scaling. *)
 Theorem gfe_gibbs_temp_gap_B : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -320,7 +357,8 @@ Proof.
              b Hb (klstb_gibbs_core_shift_B p q Hp Hq)).
 Qed.
 
-(* A6b 展开形推论：0 ≤_B β·kl(p‖q) + β·(q−p)（distrib 换形面）。 *)
+(* A6b flattened corollary: [0 <=_B b*kl(p|q) + b*(q-p)] (distributive   *)
+(* reassociation face). *)
 Lemma gfe_gibbs_temp_gap_B_flat : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -339,13 +377,15 @@ Proof.
              (real_plus q (real_opp p))).
 Qed.
 
-(* Part B：对称 Jeffreys 形（真缺变体面 B；非对称互补面两件）            *)
+(* Part B: the symmetric Jeffreys forms (variant face B; two members     *)
+(* complementing the asymmetric face). *)
 
-(* B1 对称 Jeffreys 逐点 Bishop 形（非对称形的互补闭合）：
-   0 ≤_B kl(p‖q) + kl(q‖p)。
-   证书链：klstb 两支 shift 形各自 ≥_B 0 → real_le_b_plus_compat
-   相加 → 平移对消项 (q−p)+(p−q) 经 gfe_sym_sum_eq（swap_mid 引擎）
-   从和式中闭合剥除。 *)
+(* B1 symmetric Jeffreys pointwise Bishop form (the complementary        *)
+(* closure of the asymmetric form): [0 <=_B kl(p|q) + kl(q|p)].          *)
+(* Certificate chain: the two klstb shift forms are each [>=_B 0], added *)
+(* by [real_le_b_plus_compat]; the translation-cancellation term         *)
+(* [(q-p) + (p-q)] is then peeled off the sum by [gfe_sym_sum_eq] (the   *)
+(* [swap_mid] engine). *)
 Theorem gfe_jeffreys_sym_B : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
   real_le_b real_zero
@@ -371,10 +411,11 @@ Proof.
              (gfe_pq_shift_zero p q)).
 Qed.
 
-(* B2 对称 Jeffreys 有限和 Bishop 形：
-   0 ≤_B Σ_s (kl(p s‖q s) + kl(q s,p s))。
-   证书链：klstb_list_sum_le_b 逐点喂 B1 + 零常量和 klstb_list_sum_zero
-   换形（求和层闭合对称族）。 *)
+(* B2 symmetric Jeffreys finite-sum Bishop form:                         *)
+(* [0 <=_B sum_s (kl(p s|q s) + kl(q s|p s))].                           *)
+(* Certificate chain: [klstb_list_sum_le_b] feeds B1 pointwise, and the  *)
+(* zero-constant sum is reassociated by [klstb_list_sum_zero] (the       *)
+(* symmetric family closes at the summation layer). *)
 Theorem gfe_jeffreys_sym_list_B : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -400,7 +441,8 @@ Proof.
     intro s. exact (gfe_jeffreys_sym_B (p s) (q s) (Hp s) (Hq s)).
 Qed.
 
-(* 闭合审计（G4：Print Assumptions 全 Closed）                           *)
+(* Closure audit: the Print Assumptions outputs below should all report  *)
+(* Closed. *)
 
 Print Assumptions gfe_le_of_lt.
 Print Assumptions gfe_pq_shift_zero.
@@ -415,18 +457,20 @@ Print Assumptions gfe_gibbs_temp_gap_B.
 Print Assumptions gfe_gibbs_temp_gap_B_flat.
 Print Assumptions gfe_jeffreys_sym_B.
 Print Assumptions gfe_jeffreys_sym_list_B.
-(* ================= §3 bv_term 族 ================= *)
+(* ================= Section 3. The bv_term family ================= *)
 From Stdlib Require Import QArith.QArith Lists.List Arith.Arith ZArith.ZArith Lia.
 
 Open Scope nat_scope.
 
-(* §A 级数定形：级数项 bv_term = C(n+m,n)·B(n+2m+1, 2n+1) 与其正性        *)
+(* Section A. Series definition: the term [bv_term = C(n+m,n) *          *)
+(* B(n+2m+1, 2n+1)] and its positivity. *)
 
 Definition bv_term (n m : nat) : Q :=
   ((Z.of_nat (bkC (n + m) n) # 1) *
      (q_fact (n + 2 * m) * q_fact (2 * n + 1) / q_fact (3 * n + 2 * m + 2)))%Q.
 
-(* bv_term n m == C(n+m,n)·∫₀¹ t^{n+2m}(1−t)^{2n+1} dt（由 pei_beta_value 归到 pint_integral） *)
+(* [bv_term n m == C(n+m,n) * integral_0^1 t^{n+2m} (1-t)^{2n+1} dt],    *)
+(* reduced to [pint_integral] by [pei_beta_value]. *)
 Lemma bv_term_value : forall n m : nat,
   bv_term n m ==
   ((Z.of_nat (bkC (n + m) n) # 1) * pint_integral (pei_list (n + 2 * m) (2 * n + 1)))%Q.
@@ -437,7 +481,8 @@ Proof.
   reflexivity.
 Qed.
 
-(** bv_term_pos：级数项严格正——bkC ≥ 1 与 q_fact 正性相乘。 *)
+(** bv_term_pos: the series term is strictly positive — [bkC >= 1]        *)
+(** multiplied by the positivity of [q_fact]. *)
 Theorem bv_term_pos : forall n m : nat, QltT 0 (bv_term n m).
 Proof.
   intros n m. apply Qlt_to_QltT. unfold bv_term. unfold Qdiv.
@@ -451,7 +496,8 @@ Proof.
     + apply Qinv_lt_0_compat. apply QltT_to_Qlt. apply q_fact_pos.
 Qed.
 
-(* §B 截断承载：bv_pad（补两个零系数）与 bv_carrier（pei_eb_list 同型）   *)
+(* Section B. Truncation carriers: [bv_pad] (appends two zero            *)
+(* coefficients) and [bv_carrier] (same shape as [pei_eb_list]). *)
 
 Definition bv_pad (p : list Q) : list Q := pei_ztail (pei_ztail p).
 
@@ -479,7 +525,9 @@ Proof.
   rewrite app_length, app_length. cbn [length]. lia.
 Qed.
 
-(* bv_carrier n M：部分和 Σ_{m≤M} C(n+m,n)·t^{n+2m}(1−t)^{2n+1} 的系数表（pei_eb_list 同型） *)
+(* [bv_carrier n M]: the coefficient table of the partial sum            *)
+(* [sum_{m<=M} C(n+m,n) * t^{n+2m} (1-t)^{2n+1}] (same shape as           *)
+(* [pei_eb_list]). *)
 Fixpoint bv_carrier (n M : nat) : list Q :=
   match M with
   | 0 => pint_scale ((Z.of_nat (bkC (n + 0) n) # 1)%Q)
@@ -529,7 +577,9 @@ Proof.
     lia.
 Qed.
 
-(** bv_carrier_eval：逐点值 == tⁿ(1−t)^{2n+1}·Σ_{m≤M} C(n+m,n)(t²)^m（负二项型截断）。 *)
+(** bv_carrier_eval: the pointwise value equals                          *)
+(** [t^n (1-t)^{2n+1} * sum_{m<=M} C(n+m,n) (t^2)^m] (a                  *)
+(** negative-binomial-type truncation). *)
 Theorem bv_carrier_eval : forall (n M : nat) (t : Q),
   pint_eval (bv_carrier n M) t ==
   q_pow t n * q_pow (1 - t)%Q (2 * n + 1) *
@@ -580,7 +630,8 @@ Proof.
     ring.
 Qed.
 
-(* §C 截断积分：bv_carrier_value 精确值、bv_sum_mono 单调、bv_sum_pos 正性  *)
+(* Section C. Truncated integrals: the exact value [bv_carrier_value],   *)
+(* monotonicity [bv_sum_mono], positivity [bv_sum_pos]. *)
 
 Fixpoint bv_zeros (L : nat) : list Q :=
   match L with
@@ -627,7 +678,8 @@ Proof.
           (pei_beta_pos (n + 2 * m) (2 * n + 1))))).
 Qed.
 
-(** bv_carrier_value：截断积分 == 级数部分和 Σ_{m≤M} bv_term n m（精确 QeqT）。 *)
+(** bv_carrier_value: the truncated integral equals the series partial    *)
+(** sum [sum_{m<=M} bv_term n m] (exact [QeqT]). *)
 Theorem bv_carrier_value : forall n M : nat,
   pint_integral (bv_carrier n M) == sum_upto (Datatypes.S M) (fun m : nat => bv_term n m).
 Proof.
@@ -674,8 +726,9 @@ Proof.
     ring.
 Qed.
 
-(** bv_sum_mono：截断积分对 M 单调（QleT'）；由 PintMono 的 pm_scale_mono、
-   pm_add_mono 与同值替换 pm_qle_wd_l、pm_qle_wd_r 合成。 *)
+(** bv_sum_mono: the truncated integral is monotone in M ([QleT']);       *)
+(** assembled from [PintMono]'s [pm_scale_mono] and [pm_add_mono] with    *)
+(** the same-value substitutions [pm_qle_wd_l] and [pm_qle_wd_r]. *)
 Theorem bv_sum_mono : forall n M : nat,
   QleT' (pint_integral (bv_carrier n M))
         (pint_integral (bv_carrier n (Datatypes.S M))).
@@ -697,7 +750,9 @@ Proof.
                                         (pei_list (n + 2 * Datatypes.S M) (2 * n + 1))))
                     (length (bv_pad (bv_carrier n M)))).
   { rewrite <- Hlen. reflexivity. }
-  (* 中间断言 HleX：0 ≤ C(n+M,n)·∫t^{n+2M}(1−t)^{2n+1}，经 bv_c_pos_le、bv_pos_cint 与 pm_scale_mono。 *)
+  (* intermediate assertion HleX: [0 <= C(n+M,n) * integral              *)
+  (* t^{n+2M} (1-t)^{2n+1}], via [bv_c_pos_le], [bv_pos_cint] and         *)
+  (* [pm_scale_mono]. *)
   assert (HleX : QleT' 0 (pint_integral
                     (pint_scale ((Z.of_nat (bkC (n + Datatypes.S M) n) # 1)%Q)
                                 (pei_list (n + 2 * Datatypes.S M) (2 * n + 1))))).
@@ -739,7 +794,8 @@ Proof.
           -- apply (pm_qle_wd_l 0%Q _ _).
              ++ apply Qeq_sym. apply bv_zeros_int0.
              ++ apply bv_pos_cint. }
-  (* 中间断言 Hmove：bv_zeros 与 bv_pad (bv_carrier n M) 之和的积分 == pint_integral (bv_carrier n M)。 *)
+  (* intermediate assertion Hmove: the integral of [bv_zeros] plus       *)
+  (* [bv_pad (bv_carrier n M)] equals [pint_integral (bv_carrier n M)]. *)
   assert (Hmove : pint_integral (pint_add (bv_zeros (3 * n + 2 * M + 2 + 2))
                                           (bv_pad (bv_carrier n M)))
                  == pint_integral (bv_carrier n M)).
@@ -769,7 +825,8 @@ Proof.
     + apply qleT'_refl.
 Qed.
 
-(* bv_sum_upto_pos：部分和严格正（对 M 归纳；由 bv_term_pos 与 pei_lt_le_plus） *)
+(* bv_sum_upto_pos: the partial sum is strictly positive (induction on M; *)
+(* from [bv_term_pos] and [pei_lt_le_plus]). *)
 Lemma bv_sum_upto_pos : forall n M : nat,
   QltT 0 (sum_upto (Datatypes.S M) (fun m : nat => bv_term n m)).
 Proof.
@@ -787,7 +844,8 @@ Proof.
     + apply Qle_to_QleT'. apply Qlt_le_weak. apply QltT_to_Qlt. apply bv_term_pos.
 Qed.
 
-(** bv_sum_pos：截断积分严格正——由 bv_carrier_value 换为部分和，再用 bv_sum_upto_pos。 *)
+(** bv_sum_pos: the truncated integral is strictly positive — rewrite to  *)
+(** the partial sum by [bv_carrier_value], then apply [bv_sum_upto_pos]. *)
 Theorem bv_sum_pos : forall n M : nat,
   QltT 0 (pint_integral (bv_carrier n M)).
 Proof.
@@ -799,10 +857,13 @@ Proof.
   - exact (bv_sum_upto_pos n M).
 Qed.
 
-(* §D ln2 系数离散核：bv_delannoy_eq_qtilde（升幂 Delannoy 和 == q̃_n）    *)
-(*   bv_D_asc n == Σ_{a≤n} C(n,a)²·2^a（经 bk_psd_ext、bk_Qn_sym 调整次序）；*)
-(*   系数恒等式：[u^n](u−1)ⁿ(2−u)ⁿ = Σ_{a+b=n} C(n,a)C(n,b)2^{n−b}(−1)^{n−a+b}；*)
-(*   取 b=n−a 时符号 (−1)^{2n−2a}=1，故 = Σ_a C(n,a)²2^a = D_n = q̃_n。   *)
+(* Section D. Discrete core of the ln2 coefficients:                     *)
+(* [bv_delannoy_eq_qtilde] (the ascending-power Delannoy sum equals      *)
+(* [q~_n]).  [bv_D_asc n == sum_{a<=n} C(n,a)^2 * 2^a] (reordered via    *)
+(* [bk_psd_ext] and [bk_Qn_sym]); coefficient identity:                  *)
+(* [u^n](u-1)^n(2-u)^n = sum_{a+b=n} C(n,a) C(n,b) 2^{n-b} (-1)^{n-a+b}; *)
+(* at [b = n-a] the sign is [(-1)^{2n-2a} = 1], hence the sum is         *)
+(* [sum_a C(n,a)^2 2^a = D_n = q~_n]. *)
 
 Definition bv_D_asc (n : nat) : nat :=
   bk_psd (fun k => bkC n (n - k) * bkC n (n - k)) (Datatypes.S n).
@@ -821,8 +882,10 @@ Proof.
   rewrite Hp. reflexivity.
 Qed.
 
-(* §E 分子闭式 bv_p（Laurent 系数符号和）与数值锚组                        *)
-(*   p_n = −Σ_{j≠n, j≤2n} c_j·(2^{j−n}−1)/(j−n)（锚值 p: 0, 2, 9, 131/3）。*)
+(* Section E. The numerator closed form [bv_p] (signed sum of Laurent    *)
+(* coefficients) and the numerical anchor group:                         *)
+(* [p_n = - sum_{j <> n, j <= 2n} c_j * (2^{j-n} - 1)/(j - n)]           *)
+(* (anchor values of p: 0, 2, 9, 131/3). *)
 
 Fixpoint bv_negpow (k : nat) : Q :=
   match k with
@@ -830,14 +893,15 @@ Fixpoint bv_negpow (k : nat) : Q :=
   | Datatypes.S k' => (- bv_negpow k')%Q
   end.
 
-(* 2 的带符号幂（Z 指数） *)
+(* signed powers of 2 (exponent in Z). *)
 Definition bv_q2 (k : Z) : Q :=
   match Z.leb 0 k with
   | true => q_pow (2 # 1)%Q (Z.to_nat k)
   | false => 1%Q / q_pow (2 # 1)%Q (Z.to_nat (Z.opp k))
   end.
 
-(* Laurent 系数 c_j = (−1)^{n+j}·Σ_{a≤j, a≤n, j−a≤n} C(n,a)C(n,j−a)2^{n−(j−a)} *)
+(* Laurent coefficient [c_j = (-1)^{n+j} * sum_{a<=j, a<=n, j-a<=n}      *)
+(* C(n,a) C(n,j-a) 2^{n-(j-a)}]. *)
 Definition bv_c (n j : nat) : Q :=
   bv_negpow (n + j) *
   bk_psQ (fun a : nat =>
@@ -847,7 +911,8 @@ Definition bv_c (n j : nat) : Q :=
             else 0%Q)
          (Datatypes.S j) 1%Q.
 
-(* bv_p：分子闭式（闭式见 §E；Laurent 系数符号和） *)
+(* bv_p: the numerator closed form (see Section E; signed sum of Laurent *)
+(* coefficients). *)
 Definition bv_p (n : nat) : Q :=
   (- bk_psQ (fun j : nat =>
                if Nat.eqb j n then 0%Q
@@ -856,14 +921,18 @@ Definition bv_p (n : nat) : Q :=
                       ((Z.of_nat j - Z.of_nat n)%Z # 1))%Q))
             (Datatypes.S (2 * n)) 1%Q)%Q.
 
-(* 真归一近似子 x_n := p_n/q̃_n（定形：无 2 幂） *)
+(* the genuinely normalized approximant [x_n := p_n / q~_n] (canonical   *)
+(* form: no power of 2). *)
 Definition bv_x (n : nat) : Q := bv_p n / (Z.of_nat (bk_Qn_qtilde n) # 1)%Q.
 
-(* bv_x2pow：2 幂归一形 x''_n := p_n/(2^n·q̃_n)，与真归一形不相容（见 bv_x2pow_sep1） *)
+(* bv_x2pow: the power-of-2 normalized form [x''_n := p_n / (2^n *       *)
+(* q~_n)], not equivalent to the genuinely normalized form (see           *)
+(* [bv_x2pow_sep1]). *)
 Definition bv_x2pow (n : nat) : Q :=
   bv_p n / (q_pow (2 # 1)%Q n * (Z.of_nat (bk_Qn_qtilde n) # 1))%Q.
 
-(* ---- 数值锚组（各锚由 vm_compute 精确判定）---- *)
+(* ---- numerical anchor group (each anchor decided exactly by           *)
+(* vm_compute) ---- *)
 
 Theorem bv_q1_anchor : QeqT ((Z.of_nat (bk_Qn_qtilde 1) # 1)%Q) (3 # 1)%Q.
 Proof. apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
@@ -898,15 +967,18 @@ Proof. apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
 Theorem bv_x2_anchor : QeqT (bv_x 2) (9 # 13)%Q.
 Proof. apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
 
-(* 跨变体核对：bv_p 2 == 9，与原变体关系 r_2 == 2^{3}·p_2 == 72 一致。 *)
+(* cross-variant check: [bv_p 2 == 9], consistent with the               *)
+(* original-variant relation [r_2 == 2^3 * p_2 == 72]. *)
 Theorem bv_cross2_anchor : QeqT ((bv_p 2 * (Z.of_nat 8 # 1))%Q) (72 # 1)%Q.
 Proof. apply qeq_imp_qeqT. vm_compute. reflexivity. Qed.
 
-(** bv_x2pow_sep1：分离见证——bv_x2pow 1 == 1/3 < 2/3 == bv_x 1（QltT，Set 层）。 *)
+(** bv_x2pow_sep1: the separating witness — [bv_x2pow 1 == 1/3 < 2/3 ==   *)
+(** bv_x 1] ([QltT], Set layer). *)
 Theorem bv_x2pow_sep1 : QltT (bv_x2pow 1) (bv_x 1).
 Proof. vm_compute. reflexivity. Qed.
 
-(* 假设审计：以下 Print Assumptions 输出应为零依赖（零承认复核）。        *)
+(* Assumption audit: the Print Assumptions outputs below should report   *)
+(* zero dependencies (admission re-check). *)
 
 Print Assumptions bv_delannoy_eq_qtilde.
 Print Assumptions bv_term_pos.
@@ -916,12 +988,12 @@ Print Assumptions bv_sum_mono.
 Print Assumptions bv_sum_pos.
 Print Assumptions bv_p3_anchor.
 Print Assumptions bv_x2pow_sep1.
-(* ================= §4 pi_pow3_ge1 族 ================= *)
+(* ================= Section 4. The pi_pow3_ge1 family ================= *)
 From Stdlib Require Import QArith.QArith ZArith.ZArith Arith.Arith Lia Lists.List.
 
 Open Scope nat_scope.
 
-(* §A 幂与正性引理（nat 层）                                            *)
+(* Section A. Power and positivity lemmas (nat layer). *)
 
 Lemma pi_pow3_ge1 : forall n : nat, 1 <= 3 ^ n.
 Proof.
@@ -944,7 +1016,8 @@ Proof.
   - rewrite !Nat.pow_succ_r'. rewrite IH. ring.
 Qed.
 
-(* bk_psd 常系数闭式：Σ_{k<N} c·2^{N−1−k} = c·(2^N−1) *)
+(* closed form of [bk_psd] with a constant coefficient: [sum_{k<N}       *)
+(* c * 2^{N-1-k} = c * (2^N - 1)]. *)
 Lemma pi_psd_const : forall (N c : nat),
   bk_psd (fun _ : nat => c) N = c * (2 ^ N - 1).
 Proof.
@@ -954,7 +1027,7 @@ Proof.
     pose proof (hl_le_t_to_le 1 (2 ^ N) (hl_pow2_ge1 N)). nia.
 Qed.
 
-(* §B bkC ↔ hl_binom 双 Pascal 桥：pi_bkC_hl                             *)
+(* Section B. The dual-Pascal bridge [bkC <-> hl_binom]: [pi_bkC_hl]. *)
 
 Lemma pi_bkC_hl : forall n k : nat, bkC n k = hl_binom n k.
 Proof.
@@ -968,9 +1041,11 @@ Proof.
       symmetry. apply hl_id_eq. exact (hl_binom_S n k').
 Qed.
 
-(* §C Q 层乘除微引理（Q 域域律，全部非零前提显式）                        *)
+(* Section C. Q-layer multiplication/division micro-lemmas (field laws of *)
+(* the Q domain; all nonzero premises explicit). *)
 
-(* 正分母分数乘整数：分母合并不展开 Qinv 分量 *)
+(* fraction times integer with a positive denominator: the denominators  *)
+(* merge without unfolding the [Qinv] component. *)
 Lemma pi_Qden_cancel : forall (u : Z) (p : positive),
   ((u # p) * ((Z.pos p) # 1))%Q == (u # 1)%Q.
 Proof.
@@ -987,7 +1062,8 @@ Proof.
   intros m Hm Hc. unfold Qeq in Hc. cbn [Qnum Qden] in Hc. lia.
 Qed.
 
-(* pi_Qmul_cancel_r_to：Q 域右消去（由 stdlib Qmult_inv_r） *)
+(* pi_Qmul_cancel_r_to: right cancellation in the Q domain (from the     *)
+(* stdlib [Qmult_inv_r]). *)
 Lemma pi_Qmul_cancel_r_to : forall a b c : Q,
   ~ (c == 0)%Q -> a * c == b * c -> a == b.
 Proof.
@@ -998,7 +1074,8 @@ Proof.
   - rewrite H. rewrite <- Qmult_assoc, Hc1. apply Qmult_1_r.
 Qed.
 
-(* 除法等式单侧引入：y≠0 ⟹ x == b·y ⟹ x/y == b *)
+(* one-sided introduction of a division equation: [y <> 0] with          *)
+(* [x == b*y] entails [x/y == b]. *)
 Lemma pi_Qdiv_eq_intro : forall x y b : Q,
   ~ (y == 0)%Q -> x == b * y -> x / y == b.
 Proof.
@@ -1007,7 +1084,8 @@ Proof.
   rewrite <- Qmult_assoc, Hy1. apply Qmult_1_r.
 Qed.
 
-(* pi_Qmul_inv_r_eq：除法交叉等价（Q 域域律） *)
+(* pi_Qmul_inv_r_eq: the division cross-equivalence (a field law of the  *)
+(* Q domain). *)
 Lemma pi_Qmul_inv_r_eq : forall x y z : Q,
   ~ (y == 0)%Q -> ((x * (/ y)) == z <-> x == z * y).
 Proof.
@@ -1021,9 +1099,11 @@ Proof.
     rewrite H. rewrite <- Qmult_assoc, Hy1. apply Qmult_1_r.
 Qed.
 
-(* §D 整除换商与 H_k 整化主桥：pi_div_Qeq、pi_hsum_spec                   *)
+(* Section D. Divisibility quotient transport and the H_k integralization *)
+(* main bridge: [pi_div_Qeq], [pi_hsum_spec]. *)
 
-(* pi_div_Qeq：j ∣ D ⟹ Q#D·(1/Q#j) == Q#(D/j)（由 Nat.div_mul） *)
+(* pi_div_Qeq: [j | D] entails [Q#D * (1/Q#j) == Q#(D/j)] (from           *)
+(* [Nat.div_mul]). *)
 Lemma pi_div_Qeq : forall (D j : nat), 1 <= j -> Nat.divide j D ->
   ((Z.of_nat D # 1) * ((1 # 1) / (Z.of_nat j # 1)))%Q
   == (Z.of_nat (D / j) # 1)%Q.
@@ -1042,14 +1122,16 @@ Proof.
     reflexivity.
 Qed.
 
-(* 整化和承载：pi_hsum D k = Σ_{j=1}^{k} D/j（D 固定，变指标求商和） *)
+(* integralization-sum carrier: [pi_hsum D k = sum_{j=1}^{k} D/j] (D      *)
+(* fixed, the quotient sum taken over a varying index). *)
 Fixpoint pi_hsum (D k : nat) : nat :=
   match k with
   | 0 => 0
   | Datatypes.S m => pi_hsum D m + D / Datatypes.S m
   end.
 
-(* pi_hsum_spec：D_n·H_k == Q#(Σ_{j≤k} D_n/j)；对 k 归纳，逐项由 hl_lcm_divide_all 与 pi_div_Qeq。 *)
+(* pi_hsum_spec: [D_n * H_k == Q#(sum_{j<=k} D_n/j)]; induction on k,     *)
+(* each term via [hl_lcm_divide_all] and [pi_div_Qeq]. *)
 Lemma pi_hsum_spec : forall (n k : nat), k <= n ->
   ((Z.of_nat (hl_lcm_upto n) # 1) * bk_H k)%Q
   == (Z.of_nat (pi_hsum (hl_lcm_upto n) k) # 1)%Q.
@@ -1070,7 +1152,8 @@ Proof.
                          (hl_lcm_upto n / Datatypes.S k))).
 Qed.
 
-(* §E bk_psQ 逐点外延与常数提出：pi_psQ_ext、pi_psQ_mul                   *)
+(* Section E. Pointwise extensionality and constant extraction for       *)
+(* [bk_psQ]: [pi_psQ_ext], [pi_psQ_mul]. *)
 
 Lemma pi_psQ_ext : forall (N : nat) (f g : nat -> Q) (z : Q),
   (forall k : nat, k < N -> f k == g k) -> bk_psQ f N z == bk_psQ g N z.
@@ -1091,9 +1174,11 @@ Proof.
   - cbn [bk_psQ]. rewrite IH. ring.
 Qed.
 
-(* §F p̃_n 整化主件：pi_Pn_int（系数取 C²·D_n，见头部防错注记①）          *)
+(* Section F. The p-tilde integralization main theorem [pi_Pn_int]       *)
+(* (coefficients taken as [C^2 * D_n]). *)
 
-(* 系数整化（逐点）：(Z#(C²·D_n))·H_k == Z#(C²·S_k)，S_k := pi_hsum D_n k *)
+(* coefficient integralization (pointwise): [(Z#(C^2 * D_n)) * H_k ==    *)
+(* Z#(C^2 * S_k)] with [S_k := pi_hsum D_n k]. *)
 Lemma pi_coeff_Zeq : forall (n k : nat), k <= n ->
   ((Z.of_nat (bkC n k * bkC n k * hl_lcm_upto n) # 1) * bk_H k)%Q
   == (Z.of_nat (bkC n k * bkC n k * pi_hsum (hl_lcm_upto n) k) # 1)%Q.
@@ -1110,12 +1195,14 @@ Proof.
                          (pi_hsum (hl_lcm_upto n) k))).
 Qed.
 
-(* pi_ptilde：p̃_n := Σ_{k≤n} C(n,k)²·S_k，S_k := pi_hsum D_n k *)
+(* pi_ptilde: [p~_n := sum_{k<=n} C(n,k)^2 * S_k] with [S_k := pi_hsum    *)
+(* D_n k]. *)
 Definition pi_ptilde (n : nat) : nat :=
   bk_psd (fun k => bkC n k * bkC n k * pi_hsum (hl_lcm_upto n) k)
          (Datatypes.S n).
 
-(* pi_Pn_eval_eq：bk_Pn_eval 的 Qeq 形（经 S02 qeqT_imp_qeq 转换，供 == 目标改写） *)
+(* pi_Pn_eval_eq: the Qeq form of [bk_Pn_eval] (converted through        *)
+(* [qeqT_imp_qeq], for rewriting == goals). *)
 Lemma pi_Pn_eval_eq : forall (n : nat) (z : Q),
   bkQ (bk_Pn_list n) z
   == bk_psQ (fun k : nat => ((Z.of_nat (bkC n k * bkC n k) # 1) * bk_H k)%Q)
@@ -1126,7 +1213,8 @@ Proof.
   apply bk_Pn_eval.
 Qed.
 
-(* 半整数点闭式：D_n·2^n·P_n(1/2) == Q#p̃_n（p̃_n ∈ nat 承载） *)
+(* half-integer closed form: [D_n * 2^n * P_n(1/2) == Q#p~_n] (with       *)
+(* [p~_n] carried by nat). *)
 Lemma pi_Pn_half : forall n : nat,
   ((Z.of_nat (hl_lcm_upto n) # 1)
      * (q_pow (2 # 1)%Q n * bkQ (bk_Pn_list n) (1 # 2)%Q))%Q
@@ -1162,7 +1250,7 @@ Proof.
                (fun k : nat => bkC n k * bkC n k * pi_hsum (hl_lcm_upto n) k))).
 Qed.
 
-(* pi_Pn_int：p̃_n ∈ Z 的 sigT 整性见证（Set 面） *)
+(* pi_Pn_int: the sigT integrality witness of [p~_n in Z] (Set face). *)
 
 Theorem pi_Pn_int : forall n : nat,
   sigT (fun z : Z =>
@@ -1177,7 +1265,7 @@ Proof.
   - apply pi_Pn_half.
 Qed.
 
-(* §G q̃_n ≤ (n+1)·8^n：pi_Qn_le_8pow（QleT' Set 面）                     *)
+(* Section G. [q~_n <= (n+1) * 8^n]: [pi_Qn_le_8pow] ([QleT'] Set face). *)
 
 Theorem pi_Qn_le_8pow : forall n : nat,
   QleT' ((Z.of_nat (bk_Qn_qtilde n) # 1)%Q)
@@ -1219,7 +1307,8 @@ Proof.
       * rewrite Hs2. exact Hs3.
 Qed.
 
-(* §H x'_n 的显式分母：pi_x_n_frac 与 sigT 弱面 pi_den_divide             *)
+(* Section H. The explicit denominator of [x'_n]: [pi_x_n_frac] and the  *)
+(* sigT weak face [pi_den_divide]. *)
 
 Lemma pi_lcm_pos : forall a b : nat, 1 <= a -> 1 <= b -> 1 <= Nat.lcm a b.
 Proof.
@@ -1257,7 +1346,8 @@ Proof.
     pose proof (pi_pow3_ge1 n). lia.
 Qed.
 
-(* pi_Qn_nz：2·Q_n(1/2) 非零（由 bk_Qn_half_closed 与 q̃_n ≥ 3^n > 0） *)
+(* pi_Qn_nz: [2 * Q_n(1/2)] is nonzero (from [bk_Qn_half_closed] and     *)
+(* [q~_n >= 3^n > 0]). *)
 Lemma pi_Qn_nz : forall n : nat,
   ~ (((2 # 1)%Q * bkQ (bk_Qn_list n) (1 # 2)%Q) == 0)%Q.
 Proof.
@@ -1278,7 +1368,8 @@ Proof.
   lia.
 Qed.
 
-(* 交叉恒等式：P_n(1/2)·(2·D_n·q̃_n) == p̃_n·(2·Q_n(1/2))（Q 域纯环） *)
+(* cross identity: [P_n(1/2) * (2 * D_n * q~_n) == p~_n * (2 *           *)
+(* Q_n(1/2))] (pure ring reasoning in the Q domain). *)
 Lemma pi_x_cross : forall n : nat,
   (bkQ (bk_Pn_list n) (1 # 2)%Q
      * (Z.of_nat (2 * hl_lcm_upto n * bk_Qn_qtilde n) # 1))%Q
@@ -1295,9 +1386,12 @@ Proof.
   ring.
 Qed.
 
-(* pi_x_n_frac：x'_n == p̃_n /(2·D_n·q̃_n)，分母显式构造。
-   防错注记：Z.pos (Pos.of_nat M) 数值为 M+1（无零偏移），用它陈述为假命题；
-   Pos.of_succ_nat (Nat.pred M) 数值恰为 M（定义性换算）。 *)
+(* pi_x_n_frac: [x'_n == p~_n / (2 * D_n * q~_n)] with the denominator   *)
+(* constructed explicitly.                                               *)
+(* Pitfall note: [Z.pos (Pos.of_nat M)] evaluates to [M+1] (no zero      *)
+(* offset), so stating with it would give a false statement;             *)
+(* [Pos.of_succ_nat (Nat.pred M)] evaluates to exactly [M] (definitional *)
+(* conversion). *)
 Theorem pi_x_n_frac : forall n : nat,
   QeqT (bkQ (bk_Pn_list n) (1 # 2)%Q
           / ((2 # 1)%Q * bkQ (bk_Qn_list n) (1 # 2)%Q))%Q
@@ -1332,7 +1426,8 @@ Proof.
         ring.
 Qed.
 
-(* pi_den_divide：存在正分母 p 使 x'_n == p̃_n/p（sigT 弱面） *)
+(* pi_den_divide: there is a positive denominator [p] with [x'_n ==       *)
+(* p~_n / p] (sigT weak face). *)
 Theorem pi_den_divide : forall n : nat,
   sigT (fun p : positive =>
     QeqT (bkQ (bk_Pn_list n) (1 # 2)%Q
@@ -1344,7 +1439,8 @@ Proof.
   apply pi_x_n_frac.
 Qed.
 
-(* 假设审计：以下 Print Assumptions 输出应为零依赖（零承认复核）。         *)
+(* Assumption audit: the Print Assumptions outputs below should report   *)
+(* zero dependencies (admission re-check). *)
 
 Print Assumptions pi_bkC_hl.
 Print Assumptions pi_div_Qeq.
@@ -1354,15 +1450,18 @@ Print Assumptions pi_Pn_int.
 Print Assumptions pi_Qn_le_8pow.
 Print Assumptions pi_x_n_frac.
 Print Assumptions pi_den_divide.
-(* ================= §5 bkC 族 ================= *)
+(* ================= Section 5. The bkC family ================= *)
 From Stdlib Require Import QArith.QArith Lists.List Arith.Arith ZArith.ZArith Lia.
 
-(* QArith 泄漏 Q_scope（裸数字被判读为 Q 构造元），压回 nat 优先 *)
+(* QArith leaks Q_scope (bare numerals would be read as Q constructors); *)
+(* restore nat_scope priority. *)
 Open Scope nat_scope.
 
-(* §A nat 层二项式系数（Pascal 递归）与对称引理                          *)
+(* Section A. The nat-layer binomial coefficient (Pascal recursion) and  *)
+(* the symmetry lemma. *)
 
-(* Pascal 递归二项式系数 C(n,k)（名字 bkC 避免与 C 遮蔽冲突） *)
+(* Pascal-recursive binomial coefficient [C(n,k)] (the name [bkC] avoids *)
+(* a shadowing clash with C). *)
 Fixpoint bkC (n k : nat) : nat :=
   match n with
   | 0 => match k with
@@ -1376,7 +1475,7 @@ Fixpoint bkC (n k : nat) : nat :=
       end
   end.
 
-(* 出界件：k > n 时 C(n,k) = 0 *)
+(* out-of-range lemma: [C(n,k) = 0] when [k > n]. *)
 Lemma bkC_out : forall n k : nat, n < k -> bkC n k = 0.
 Proof.
   induction n as [| n IH]; intros k Hk.
@@ -1391,7 +1490,7 @@ Proof.
       reflexivity.
 Qed.
 
-(* 对角件：C(n,n) = 1 *)
+(* diagonal lemma: [C(n,n) = 1]. *)
 Lemma bkC_diag : forall n : nat, bkC n n = 1.
 Proof.
   induction n as [| n IH].
@@ -1402,7 +1501,7 @@ Proof.
     reflexivity.
 Qed.
 
-(* 正性件：k ≤ n 时 C(n,k) ≥ 1 *)
+(* positivity lemma: [C(n,k) >= 1] when [k <= n]. *)
 Lemma bkC_pos : forall n k : nat, k <= n -> 1 <= bkC n k.
 Proof.
   induction n as [| n IH]; intros k Hk.
@@ -1420,7 +1519,8 @@ Proof.
         lia.
 Qed.
 
-(* 逐点 Pascal 恒等：shift(C n)(k) + C(n,k) = C(S n,k)（k 分支全定义性） *)
+(* pointwise Pascal identity: [shift(C n)(k) + C(n,k) = C(S n,k)] (all k *)
+(* branches definitional). *)
 Lemma bkC_pascal_shift : forall n k : nat,
   (match k with
    | 0 => 0
@@ -1432,7 +1532,8 @@ Proof.
   - cbn [bkC]. reflexivity.
 Qed.
 
-(* 对称引理：C(n,k) = C(n,n−k)（后续恒等式归纳用——P2 接口件） *)
+(* symmetry lemma: [C(n,k) = C(n,n-k)] (consumed by the later identity   *)
+(* inductions). *)
 Lemma bk_Qn_sym : forall n k : nat, k <= n -> bkC n k = bkC n (n - k).
 Proof.
   induction n as [| n IH]; intros k Hk.
@@ -1455,9 +1556,11 @@ Proof.
         reflexivity.
 Qed.
 
-(* §B nat 层降幂加权和 bk_psd 与二项定理 (1+2)^n                        *)
-(*   bk_psd f n = Σ_{k<n} f(k)·2^{n−1−k}，递归 bk_psd f (S m) =        *)
-(*   2·bk_psd f m + f m（降幂步进恰为翻倍）。                           *)
+(* Section B. The nat-layer descending-power weighted sum [bk_psd] and   *)
+(* the binomial theorem for [(1+2)^n].                                   *)
+(*   [bk_psd f n = sum_{k<n} f(k) * 2^{n-1-k}]; the recursion            *)
+(*   [bk_psd f (S m) = 2 * bk_psd f m + f m] (the descending-power step  *)
+(*   is exactly a doubling). *)
 
 Fixpoint bk_psd (f : nat -> nat) (n : nat) : nat :=
   match n with
@@ -1484,7 +1587,8 @@ Proof.
   - cbn [bk_psd]. rewrite IH. lia.
 Qed.
 
-(* 移位件：系数行整体右移一位（头部垫零） ⟹ 和恰为原和降一档 *)
+(* shift lemma: shifting the coefficient row one place right (zero-padded *)
+(* head) makes the sum equal the original sum one level down. *)
 Lemma bk_psd_shift : forall (m : nat) (g : nat -> nat),
   bk_psd (fun k => match k with
                    | 0 => 0
@@ -1506,8 +1610,9 @@ Proof.
     rewrite Hunf, IH. reflexivity.
 Qed.
 
-(* 二项定理降幂形：Σ_{k≤n} C(n,k)·2^{n−k} = (1+2)^n = 3^n
-   （stdlib 无二项定理，自建——库存勘定见头注） *)
+(* descending-power binomial theorem: [sum_{k<=n} C(n,k) * 2^{n-k} =     *)
+(* (1+2)^n = 3^n] (self-built; the stdlib carries no binomial theorem at  *)
+(* this layer). *)
 Lemma bk_psd_binom : forall n : nat,
   bk_psd (fun k => bkC n k) (Datatypes.S n) = 3 ^ n.
 Proof.
@@ -1537,7 +1642,7 @@ Proof.
     lia.
 Qed.
 
-(* 单调件：逐点 ≤ ⟹ 和 ≤ *)
+(* monotonicity lemma: pointwise [<=] entails [<=] of the sums. *)
 Lemma bk_psd_mono : forall (N : nat) (f h : nat -> nat),
   (forall k : nat, k < N -> f k <= h k) -> bk_psd f N <= bk_psd h N.
 Proof.
@@ -1550,9 +1655,11 @@ Proof.
     lia.
 Qed.
 
-(* §C nat 层 q̃_n 与 3^n 下界（nat 脚手架面）                            *)
+(* Section C. The nat-layer [q~_n] and its [3^n] lower bound (nat        *)
+(* scaffolding face). *)
 
-(* q̃_n := Σ_{k≤n} C(n,k)²·2^{n−k}（= 2^n·Q_n(1/2) 的 nat 承载） *)
+(* [q~_n := sum_{k<=n} C(n,k)^2 * 2^{n-k}] (the nat carrier of           *)
+(* [2^n * Q_n(1/2)]). *)
 Definition bk_Qn_qtilde (n : nat) : nat :=
   bk_psd (fun k => bkC n k * bkC n k) (Datatypes.S n).
 
@@ -1575,7 +1682,7 @@ Proof.
   exact Hmono.
 Qed.
 
-(* nat→Q 桥：Qle 的 nat 像 *)
+(* nat-to-Q bridge: the nat image of [Qle]. *)
 Lemma bk_Qle_nat : forall a b : nat, (a <= b)%nat -> Qle (Z.of_nat a # 1) (Z.of_nat b # 1).
 Proof.
   intros a b H.
@@ -1585,16 +1692,18 @@ Proof.
   exact H.
 Qed.
 
-(* §D Q 层：Q_n 系数列表、求值面与整性见证                               *)
+(* Section D. The Q layer: the [Q_n] coefficient list, evaluation faces  *)
+(* and the integrality witnesses. *)
 
-(* Horner 折叠求值（头为常数项） *)
+(* Horner-fold evaluation (the head is the constant term). *)
 Fixpoint bkQ (p : list Q) (z : Q) : Q :=
   match p with
   | nil => 0%Q
   | c :: p' => c + z * bkQ p' z
   end.
 
-(* 索引列表核：bk_idx N = [0;1;...;N−1]（列表 Fixpoint 承载字母） *)
+(* index-list core: [bk_idx N = [0;1;...;N-1]] (carried by a list        *)
+(* Fixpoint). *)
 Fixpoint bk_idx (N : nat) : list nat :=
   match N with
   | 0 => nil
@@ -1609,14 +1718,15 @@ Proof.
     rewrite (seq_S N 0). reflexivity.
 Qed.
 
-(* Q_n 系数列表：第 k 项 = C(n,k)²（bkC 平方的 Q 像），k = 0..n *)
+(* the [Q_n] coefficient list: term [k] is [C(n,k)^2] (the Q image of    *)
+(* the squared [bkC]), [k = 0..n]. *)
 Definition bk_Qn_list (n : nat) : list Q :=
   map (fun k => (Z.of_nat (bkC n k * bkC n k) # 1)%Q) (bk_idx (Datatypes.S n)).
 
-(* 求值函数（列表折叠面） *)
+(* the evaluation function (list-fold face). *)
 Definition bk_Qn_eval (n : nat) (z : Q) : Q := bkQ (bk_Qn_list n) z.
 
-(* Q 层指标和核：bk_psQ f N z = Σ_{k<N} f(k)·z^k *)
+(* the Q-layer indexed-sum core: [bk_psQ f N z = sum_{k<N} f(k) * z^k]. *)
 Fixpoint bk_psQ (f : nat -> Q) (N : nat) (z : Q) : Q :=
   match N with
   | 0 => 0%Q
@@ -1634,7 +1744,8 @@ Proof.
     ring.
 Qed.
 
-(* 列表↔指标和：bkQ (map f (seq 0 (S N))) z == Σ_{k<S N} f(k)·z^k *)
+(* list vs indexed sum: [bkQ (map f (seq 0 (S N))) z == sum_{k<S N}       *)
+(* f(k) * z^k]. *)
 Lemma bkQ_seq_map : forall (N : nat) (f : nat -> Q) (z : Q),
   bkQ (map f (seq 0 (Datatypes.S N))) z == bk_psQ f (Datatypes.S N) z.
 Proof.
@@ -1656,7 +1767,8 @@ Proof.
     ring.
 Qed.
 
-(* 逐项像：k 越界排除下 map+seq 的第 k 项 == f k *)
+(* pointwise image: with [k] out-of-range excluded, the [k]-th term of   *)
+(* [map] over [seq] equals [f k]. *)
 Lemma bk_nth_map_lt : forall (f : nat -> Q) (l : list nat) (k : nat) (d : Q),
   k < length l -> nth k (map f l) d == f (nth k l 0).
 Proof.
@@ -1677,7 +1789,8 @@ Proof.
   - apply f_equal. rewrite seq_nth by lia. reflexivity.
 Qed.
 
-(* 系数逐项刻画：第 k 项 == C(n,k)² 的 Q 像 *)
+(* term-by-term characterization of the coefficients: term [k] equals    *)
+(* the Q image of [C(n,k)^2]. *)
 Lemma bk_Qn_list_nth : forall n k : nat, k <= n ->
   nth k (bk_Qn_list n) 0%Q == (Z.of_nat (bkC n k * bkC n k) # 1)%Q.
 Proof.
@@ -1686,7 +1799,8 @@ Proof.
   apply bk_nth_map_seq. lia.
 Qed.
 
-(* §D2 换基核心与整性见证（本件非平凡主件）                              *)
+(* Section D2. The base-change core and the integrality witnesses (the   *)
+(* nontrivial main statements of this file). *)
 
 Lemma bk_q_pow_mul : forall (x y : Q) (k : nat),
   q_pow (x * y) k == q_pow x k * q_pow y k.
@@ -1717,8 +1831,10 @@ Proof.
   rewrite !Z.mul_1_r, !Nat2Z.inj_add. reflexivity.
 Qed.
 
-(* 换基核心（非平凡主件）：2^n·Σ_{k<S n} Q#f(k)·(1/2)^k == Q#Σ_{k<S n} f(k)2^{n−k}
-   ——降幂 nat 和 bk_psd 承载，纯点算归纳，免对称重排 *)
+(* the base-change core (nontrivial main lemma):                         *)
+(* [2^n * sum_{k<S n} Q#f(k) * (1/2)^k == Q# sum_{k<S n} f(k) 2^{n-k}],  *)
+(* carried by the descending-power nat sum [bk_psd]; plain arithmetic    *)
+(* induction, no symmetric reordering needed. *)
 Lemma bk_half_psd : forall (n : nat) (g : nat -> nat),
   q_pow (2 # 1)%Q n
     * bk_psQ (fun k => (Z.of_nat (g k) # 1)%Q) (Datatypes.S n) (1 # 2)%Q
@@ -1764,7 +1880,8 @@ Proof.
     apply bk_Qadd_nat.
 Qed.
 
-(* 半整数点闭式：bkQ (bk_Qn_list n) (1/2) 的 2^n 升格 == Q#q̃_n *)
+(* half-integer closed form: the [2^n] rescale of [bkQ (bk_Qn_list n)    *)
+(* (1/2)] equals [Q#q~_n]. *)
 Lemma bk_Qn_half_closed : forall n : nat,
   q_pow (2 # 1)%Q n * bkQ (bk_Qn_list n) (1 # 2)%Q
   == (Z.of_nat (bk_Qn_qtilde n) # 1)%Q.
@@ -1776,7 +1893,8 @@ Proof.
   apply bk_half_psd.
 Qed.
 
-(* 主件②：整性见证 q̃_n = 2^n·Q_n(1/2) ∈ Z（sigT + QeqT，Set 面） *)
+(* main statement 2: the integrality witness [q~_n = 2^n * Q_n(1/2) in Z] *)
+(* (sigT + QeqT, Set face). *)
 Theorem bk_Qn_int : forall n : nat,
   sigT (fun z : Z =>
     QeqT ((q_pow (2 # 1)%Q n * bkQ (bk_Qn_list n) (1 # 2)%Q)%Q) ((z # 1)%Q)).
@@ -1787,7 +1905,7 @@ Proof.
   apply bk_Qn_half_closed.
 Qed.
 
-(* 主件③：q̃_n ≥ 3^n（QleT' Set 面） *)
+(* main statement 3: [q~_n >= 3^n] ([QleT'] Set face). *)
 Theorem bk_Qn_ge_3pow : forall n : nat,
   QleT' ((Z.of_nat (3 ^ n) # 1)%Q) ((Z.of_nat (bk_Qn_qtilde n) # 1)%Q).
 Proof.
@@ -1797,7 +1915,8 @@ Proof.
   apply bk_Qn_ge_3pow_nat.
 Qed.
 
-(* 求值面语义：bk_Qn_eval n z == Σ_{k≤n} C(n,k)²·z^k（QeqT Set 面） *)
+(* evaluation-face semantics: [bk_Qn_eval n z == sum_{k<=n} C(n,k)^2 *    *)
+(* z^k] ([QeqT] Set face). *)
 Theorem bk_Qn_eval_sem : forall (n : nat) (z : Q),
   QeqT (bk_Qn_eval n z)
        (bk_psQ (fun k => (Z.of_nat (bkC n k * bkC n k) # 1)%Q) (Datatypes.S n) z).
@@ -1809,19 +1928,20 @@ Proof.
 Qed.
 
 
-(* 谐和数 H_k = Σ_{j=1}^{k} 1/j（Q 层 Fixpoint） *)
+(* the harmonic number [H_k = sum_{j=1}^{k} 1/j] (a Q-layer Fixpoint). *)
 Fixpoint bk_H (k : nat) : Q :=
   match k with
   | 0 => 0%Q
   | Datatypes.S k' => bk_H k' + (1%Q / (Z.of_nat (Datatypes.S k') # 1))%Q
   end.
 
-(* P_n 系数列表：第 k 项 = C(n,k)²·H_k *)
+(* the [P_n] coefficient list: term [k] is [C(n,k)^2 * H_k]. *)
 Definition bk_Pn_list (n : nat) : list Q :=
   map (fun k => ((Z.of_nat (bkC n k * bkC n k) # 1) * bk_H k)%Q)
       (bk_idx (Datatypes.S n)).
 
-(* 求值面：bkQ (bk_Pn_list n) z == Σ_{k≤n} C(n,k)²·H_k·z^k（QeqT Set 面） *)
+(* evaluation face: [bkQ (bk_Pn_list n) z == sum_{k<=n} C(n,k)^2 * H_k *  *)
+(* z^k] ([QeqT] Set face). *)
 Theorem bk_Pn_eval : forall (n : nat) (z : Q),
   QeqT (bkQ (bk_Pn_list n) z)
        (bk_psQ (fun k => ((Z.of_nat (bkC n k * bkC n k) # 1) * bk_H k)%Q)
@@ -1833,7 +1953,7 @@ Proof.
   apply bkQ_seq_map.
 Qed.
 
-(* P_n 系数逐项刻画 *)
+(* term-by-term characterization of the [P_n] coefficients. *)
 Lemma bk_Pn_list_nth : forall n k : nat, k <= n ->
   nth k (bk_Pn_list n) 0%Q == ((Z.of_nat (bkC n k * bkC n k) # 1) * bk_H k)%Q.
 Proof.
@@ -1842,7 +1962,7 @@ Proof.
   apply bk_nth_map_seq. lia.
 Qed.
 
-(* 假设审计留痕：Print Assumptions（G4 复核位）                          *)
+(* Assumption audit record: the Print Assumptions lines below. *)
 
 Print Assumptions bk_Qn_sym.
 Print Assumptions bk_psd_binom.

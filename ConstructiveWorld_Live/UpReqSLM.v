@@ -23,11 +23,11 @@
     Constructivity.  Pure constructive: zero admission words, no classical
       logic, term-mode proofs without setoid rewriting; statement faces are
       carried by [Set] ([req]/[lt]/[le]/[Id]/[And := A*B] all Set-valued);
-      the log slots [log_le_zero_slot]/[log_req_compat_plain] remain explicit.
+      the log slots [log_le_linear_plain]/[log_req_compat_plain] remain explicit.
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqSLM.v] compiles
       cleanly (exit 0); the first eight bytes of the artifact are
-      [436f7121 00015ff4]. *)
+      [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -51,33 +51,33 @@ Require Import G09_MiscSmall.
 From Stdlib Require Import List.
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
-(* Pool-build cure (seat_abl19, M43 nw10cure per UpReqAlign3.v/G09_MiscSmall.v
-   precedent): the interface class in this tree is unparameterized
-   (S07_RealSetoidExpLog.v:8075 zero-argument Class RealInterfaceEnhancedSetoid +
-   global Instance RealEnhancedReal); the argument-bearing generation binders
-   the argument-bearing generation binders Context {R : Set}
-   {RIS : RealInterfaceEnhancedSetoid R}. are deleted, the carrier R is bound to
-   the global Real by the file-top Notation below, and the two carrier-bearing
-   premise classes ReqNonnegPlain/ReqLogPlain and
-   reqDecidableOrder are re-anchored zero-argument (pool zero-arg
-   Class reqDecidableOrder at G09_MiscSmall.v:897). Zero Obj.magic, zero Prop
-   casts, statement faces preserved verbatim. *)
+(* Pool-build adaptation: the interface class in this tree is unparameterized
+   ([S07_RealSetoidExpLog.v] zero-argument Class [RealInterfaceEnhancedSetoid]
+   with the global Instance [RealEnhancedReal]); the argument-bearing binders
+   [Context {R : Set} {RIS : RealInterfaceEnhancedSetoid R}] of the upstream
+   revision are dropped, the carrier R is bound to the global Real by the
+   file-top Notation below, and the two carrier-bearing premise classes
+   [ReqNonnegPlain]/[ReqLogPlain] and [reqDecidableOrder] are re-anchored
+   zero-argument (the zero-argument Class [reqDecidableOrder] sits in
+   [G09_MiscSmall.v]). Zero Obj.magic, zero Prop casts, statement faces
+   preserved verbatim. *)
 Notation R := Real.
 
 (* ===================================================================== *)
 
 (* ===================================================================== *)
 
-(* plain 非负假设位组（T2①；Real 消解显式假设见头注波 0 核对） *)
+(* the plain nonnegativity premise class (abs and metric are nonnegative) *)
 Class ReqNonnegPlain := {
   abs_nonneg_plain : forall a : R, le zero (abs a);
   metric_pos_plain : forall a b : R, le zero (metric a b)
 }.
 
-(* log 族假设位组（gibbs_inequality 同参数位家族）：
-   log_le_linear_plain（Id log_le_linear 字段逐位副本）+ log_req_compat_plain
-   （UpReqAlgebra ReqLogBridge log_req_compat 参数位同构 L1492——req_log_inv_one_inv
-   依存所需；LogDiff3 下界件必需） *)
+(* the log-family premise class (the same slots as the gibbs_inequality family):
+   [log_le_linear_plain] is the fieldwise copy of the Id-face [log_le_linear]
+   field, and [log_req_compat_plain] mirrors the [log_req_compat] slot of
+   [ReqLogBridge] in [UpReqAlgebra] — required by [req_log_inv_one_inv] and by
+   the lower-bound lemmas of the [LogDiff3] section below *)
 Class ReqLogPlain := {
   log_le_linear_plain : forall (x : R) (Hx : lt zero x),
     le (log x Hx) (req_minus x one);
@@ -85,7 +85,8 @@ Class ReqLogPlain := {
     req x y -> req (log x Hx) (log y Hy)
 }.
 
-(* 清单「按需假设位」实测可字段链真证——定理化（假设位省一枚） *)
+(* the le-zero-mult field chain is provable outright, so it is stated as a lemma
+   instead of a declared slot *)
 Section ReqWaveZero.
 
 Lemma req_le_zero_mult_nonneg : forall a b : R,
@@ -103,7 +104,7 @@ Qed.
 End ReqWaveZero.
 
 (* ===================================================================== *)
-(* Part 1：reqSLM 定义块 + SLM 17(b)（清单 §3 逐件）                            *)
+(* Part 1. The reqSLM definition block and the SLM 17(b) statement family *)
 (* ===================================================================== *)
 Section ReqSLM.
 
@@ -111,13 +112,14 @@ Section ReqSLM.
 Variable Token : Set.
 Variable vocab : list Token.
 Variable vocab_nonempty : Not (Id vocab nil).
-Variable total_loss : list Token -> R.   (* 序列损失（prefix ++ [w] 的损失） *)
+Variable total_loss : list Token -> R.   (* the sequence loss (the loss of prefix ++ [w]) *)
 Variable temperature : R.
 Variable temperature_pos : lt zero temperature.
 
-(* ---- 定义块（清单 §3：alb_temp_factor/list_sum/alb_partition_temp/alb_markov_kernel/ *)
-(*        expected_loss/markov_entropy/softmax 全部 exp_neg/inv_pos 表出；       *)
-(*        carrier rsum@RestB L126 逐字同构 list_sum） --------------------------- *)
+(* ---- definition block: slm_temp_factor / list_sum / slm_partition_temp /
+   slm_markov_kernel / expected_loss / markov_entropy / softmax are all
+   expressed through exp_neg / inv_pos; the carrier [rsum] is the list_sum
+   Fixpoint carried verbatim from [UpReqAlignRestB] ---- *)
 
 Definition slm_temp_factor (prefix : list Token) (w : Token) : R :=
   exp_neg (mult (inv_pos temperature temperature_pos) (total_loss (prefix ++ [w]))).
@@ -139,7 +141,7 @@ Definition slm_markov_kernel (prefix : list Token) (w : Token) : R :=
 Definition slm_expected_loss (prefix : list Token) : R :=
   rsum Token (fun w => mult (slm_markov_kernel prefix w) (total_loss (prefix ++ [w]))) vocab.
 
-(* ---- 件 2：list_sum_add（L2097，list 归纳 rls_* 同模板） -------------------- *)
+(* ---- item 2: list_sum_add (list induction, the rls_* template) ---- *)
 
 Lemma req_list_sum_add : forall (f g : Token -> R) (l : list Token),
   req (rsum Token (fun w => plus (f w) (g w)) l)
@@ -155,7 +157,7 @@ Proof.
     + apply req_plus_swap_mid.
 Qed.
 
-(* ---- 件 10：list_sum_zero_fn（L2705） ------------------------------------- *)
+(* ---- item 10: list_sum_zero_fn ---- *)
 
 Lemma req_list_sum_zero_fn : forall l : list Token,
   req (rsum Token (fun _ : Token => zero) l) zero.
@@ -166,8 +168,9 @@ Proof.
              (req_trans _ _ _ (plus_zero (rsum Token (fun _ : Token => zero) rest)) IH)).
 Qed.
 
-(* ---- 辅件：list_sum_le_on_list 的 InT 限制形（对位 rls_le@RestB L210 前提形  *)
-(*        差异——见头注核对；6 行归纳真证，rls_le 本体不重证） ------------------- *)
+(* ---- helper: the InT-restricted form of list_sum_le_on_list (its premise
+   shape differs from rls_le of [UpReqAlignRestB] — see the header adaptation
+   note); proved by a short induction, without restating rls_le itself ---- *)
 
 Lemma req_list_sum_le_on_list : forall (l : list Token) (f g : Token -> R),
   (forall w : Token, InT w l -> le (f w) (g w)) ->
@@ -180,8 +183,8 @@ Proof.
     + apply IH. intros w0 Hw0. apply Hfg. exact (InT_next w0 w rest Hw0).
 Qed.
 
-(* ---- 件 1：temp_factor_antitone（L2060：exp_neg_le_decr + req_le_mult_     *)
-(*        compat_r + inv_pos 位） -------------------------------------------- *)
+(* ---- item 1: temp_factor_antitone (exp_neg_le_decr + req_le_mult_compat_r
+   + the inv_pos slot) ---- *)
 
 Lemma req_temp_factor_antitone : forall (prefix : list Token) (w1 w2 : Token),
   le (total_loss (prefix ++ [w1])) (total_loss (prefix ++ [w2])) ->
@@ -198,7 +201,7 @@ Proof.
                                  Hinv_nonneg Hloss)).
 Qed.
 
-(* ---- 件 3：markov_kernel_antitone（L2147：件 1 + 共同 inv 序链） ------------- *)
+(* ---- item 3: markov_kernel_antitone (item 1 + a shared inv ordering chain) ---- *)
 
 Lemma req_markov_kernel_antitone : forall (prefix : list Token) (w1 w2 : Token),
   le (total_loss (prefix ++ [w1])) (total_loss (prefix ++ [w2])) ->
@@ -229,8 +232,9 @@ Proof.
   exact (le_trans _ _ _ Hsw2 (le_trans _ _ _ Hm1 Hsw3)).
 Qed.
 
-(* ---- (a) 让步件：markov_pos（L2184；对位 req_markov_pos@RestB L477 闭在      *)
-(*        Min-P 域节内不可实例化——3 行同语句真证，见头注核对） ------------------ *)
+(* ---- the markov_pos lemma: the counterpart of [UpReqAlignRestB]'s
+   req_markov_pos is closed inside its Min-P domain section and cannot be
+   instantiated here, so the same statement is proved directly ---- *)
 
 Lemma req_markov_pos_slm : forall prefix w, lt zero (slm_markov_kernel prefix w).
 Proof.
@@ -239,7 +243,7 @@ Proof.
   - apply inv_pos_pos.
 Qed.
 
-(* ---- 件 4：markov_normalized（L2193；rls_kernel_norm_gen@RestB L224 实例化） -- *)
+(* ---- item 4: markov_normalized (instantiating rls_kernel_norm_gen) ---- *)
 
 Theorem req_markov_normalized : forall prefix,
   req (rsum Token (fun w => slm_markov_kernel prefix w) vocab) one.
@@ -248,8 +252,9 @@ Proof.
   exact (rls_kernel_norm_gen Token vocab (fun _ : Token => True) (fun _ : Token => inl I)                             (slm_temp_factor prefix) (slm_partition_temp_pos prefix)).
 Qed.
 
-(* ---- 件 5：markov_relative（L2216，SLM 区最大 (b) 件；exp_neg 同余依存        *)
-(*        req_exp_neg_ext_local@RestB L1354） -------------------------------- *)
+(* ---- item 5: markov_relative (the largest (b)-class statement of the SLM
+   block; the exp_neg congruence relies on req_exp_neg_ext_local of
+   [UpReqAlignRestB]) ---- *)
 
 Theorem req_markov_relative :
   forall (prefix : list Token) (w wstar : Token),
@@ -269,14 +274,14 @@ Proof.
   set (C := inv_pos (slm_partition_temp prefix) (slm_partition_temp_pos prefix)).
   set (Ap := exp_neg (mult (inv_pos temperature temperature_pos)
                            (total_loss (prefix ++ [w])))).
-  (* 重组：mult (mult A C) B == mult (mult A B) C *)
+  (* regrouping: mult (mult A C) B == mult (mult A B) C *)
   assert (Hre : req (mult (mult A C) B) (mult (mult A B) C)).
   { exact (req_trans _ _ _
              (req_sym (mult A (mult C B)) (mult (mult A C) B) (mult_assoc A C B))
              (req_trans _ _ _
                (req_mult_compat A A (mult C B) (mult B C) (req_refl A) (mult_comm C B))
                (mult_assoc A B C))). }
-  (* 指数相加：A·B == Ap（exp_neg_plus + distrib + minus 消去链） *)
+  (* exponent addition: A*B == Ap (exp_neg_plus + distrib + a minus-cancellation chain) *)
   assert (Hprod : req (mult A B) Ap).
   { assert (Hep : req (mult A B)
                       (exp_neg (plus (mult (inv_pos temperature temperature_pos)
@@ -309,13 +314,13 @@ Proof.
         by exact (req_minus_plus_cancel _ _).
       exact (req_trans _ _ _ Hd (req_mult_compat _ _ _ _ (req_refl _) Hc)). }
     exact (req_trans _ _ _ Hep (req_exp_neg_ext_local _ _ Halg)). }
-  (* 组装：mult Ap C == mult (mult A C) B *)
+  (* assembly: mult Ap C == mult (mult A C) B *)
   assert (Hmid : req (mult (mult A B) C) (mult Ap C))
     by exact (req_mult_compat (mult A B) Ap C C Hprod (req_refl C)).
   exact (req_sym (mult (mult A C) B) (mult Ap C) (req_trans _ _ _ Hre Hmid)).
 Qed.
 
-(* ---- 件 6：markov_temperature_zero_limit（L2277：件 5 + inv 消去链） --------- *)
+(* ---- item 6: markov_temperature_zero_limit (item 5 + an inv-cancellation chain) ---- *)
 
 Theorem req_markov_temperature_zero_limit :
   forall (prefix : list Token) (w wstar : Token),
@@ -369,8 +374,8 @@ Proof.
   unfold A, B, C in Hfin. exact Hfin.
 Qed.
 
-(* ---- 件 7：expected_loss_min_bound（L2356；rls_ext/rls_linear (a) 依存 +      *)
-(*        req_list_sum_le_on_list） ------------------------------------------ *)
+(* ---- item 7: expected_loss_min_bound (relies on rls_ext / rls_linear and
+   req_list_sum_le_on_list) ---- *)
 
 Theorem req_expected_loss_min_bound :
   forall prefix wstar,
@@ -415,7 +420,7 @@ Proof.
   exact (le_id_l _ _ _ (req_sym _ _ (req_trans _ _ _ Hlin Hunit)) Hsum_le).
 Qed.
 
-(* ---- 件 8：markov_kernel_le_one（L2611；rls_single_le (a) 依存） -------------- *)
+(* ---- item 8: markov_kernel_le_one (relies on rls_single_le) ---- *)
 
 Theorem req_markov_kernel_le_one :
   forall prefix w, InT w vocab -> le (slm_markov_kernel prefix w) one.
@@ -432,16 +437,17 @@ Qed.
 
 Context {RLL : ReqLogPlain}.
 
-(* ---- 定义块续：markov_entropy（log 前提位 markov_pos 内联——定义级签名差异     *)
-(*        登记表 2；清单「前提位 provable」结论实证） --------------------------- *)
+(* ---- definition block, continued: markov_entropy (the log positivity premise
+   is inlined as markov_pos — a definition-level signature difference; the
+   premise is provable, as the lemma below confirms) ---- *)
 
 Definition slm_markov_entropy (prefix : list Token) : R :=
   rsum Token (fun w => mult (slm_markov_kernel prefix w)
                             (opp (log (slm_markov_kernel prefix w)
                                       (req_markov_pos_slm prefix w)))) vocab.
 
-(* ---- 件 11：markov_entropy_pointwise_nonneg（L2715，(b)+假设位：              *)
-(*        log_le_linear_plain 参数位 + opp_minus 链 + req_le_mult_compat_r） ------- *)
+(* ---- item 11: markov_entropy_pointwise_nonneg (the [log_le_linear_plain]
+   slot + an opp_minus chain + req_le_mult_compat_r) ---- *)
 
 Lemma req_markov_entropy_pointwise_nonneg : forall prefix w,
   InT w vocab ->
@@ -454,7 +460,7 @@ Proof.
     by exact (req_markov_kernel_le_one prefix w Hin).
   assert (Hmp : le zero (req_minus one (slm_markov_kernel prefix w)))
     by exact (req_le_minus_nonneg (slm_markov_kernel prefix w) one Hle1).
-  (* le zero (one − P) ⟹ le (P − one) zero（req_opp_minus + plus_comm + opp 链） *)
+  (* le zero (one - P) gives le (P - one) zero (req_opp_minus + plus_comm + an opp chain) *)
   assert (Hopp : le (opp (req_minus one (slm_markov_kernel prefix w))) (opp zero))
     by exact (opp_le_compat _ _ Hmp).
   assert (Hflip : req (opp (req_minus one (slm_markov_kernel prefix w)))
@@ -462,7 +468,7 @@ Proof.
     by exact (req_trans _ _ _ (req_opp_minus _ _) (plus_comm _ _)).
   assert (Hmp' : le (req_minus (slm_markov_kernel prefix w) one) zero)
     by exact (le_id_l _ _ _ (req_sym _ _ Hflip) (le_id_r _ _ _ reqd_opp_zero Hopp)).
-  (* log P ≤ P − 1（参数位）且 P − 1 ≤ 0 ⟹ log P ≤ 0 ⟹ 0 ≤ −log P *)
+  (* log P <= P - 1 (the slot premise) and P - 1 <= 0 give log P <= 0, hence 0 <= -log P *)
   assert (Hlog : le (log (slm_markov_kernel prefix w) (req_markov_pos_slm prefix w))
                     (req_minus (slm_markov_kernel prefix w) one))
     by exact (log_le_linear_plain (slm_markov_kernel prefix w) (req_markov_pos_slm prefix w)).
@@ -473,7 +479,7 @@ Proof.
     by exact (le_id_l zero (opp zero) _
              (req_sym (opp zero) zero reqd_opp_zero)
              (opp_le_compat _ _ Hlog0)).
-  (* P·(−log P) ≥ 0（P > 0 严格位 + req_le_mult_compat_r） *)
+  (* P*(-log P) >= 0 (strict positivity of P + req_le_mult_compat_r) *)
   assert (Hp_nonneg : le zero (slm_markov_kernel prefix w))
     by (apply (lt_le_iff _ _); left; apply req_markov_pos_slm).
   assert (Hprod0 : le (mult (slm_markov_kernel prefix w) zero)
@@ -485,7 +491,7 @@ Proof.
                              (mult_zero (slm_markov_kernel prefix w))) Hprod0).
 Qed.
 
-(* ---- 件 12：markov_entropy_nonneg（L2791：点态 + InT 限制和提升） ------------- *)
+(* ---- item 12: markov_entropy_nonneg (the pointwise lemma lifted through the InT-restricted sum) ---- *)
 
 Theorem req_markov_entropy_nonneg : forall prefix, le zero (slm_markov_entropy prefix).
 Proof.
@@ -499,7 +505,7 @@ Proof.
   exact (le_id_l zero _ _ (req_sym _ _ (req_list_sum_zero_fn vocab)) Hle).
 Qed.
 
-(* ---- 件 14/15/16：softmax 别名三件（L2856/L2862/L2869） --------------------- *)
+(* ---- items 14/15/16: the softmax alias trio ---- *)
 
 Definition slm_softmax (prefix : list Token) (w : Token) : R :=
   slm_markov_kernel prefix w.
@@ -528,8 +534,9 @@ Proof.
   - unfold slm_softmax. apply (req_markov_kernel_le_one prefix w Hin).
 Qed.
 
-(* ---- 贪心域（argmin/list Id 机器域；两顶层事实以参数位申报）：          *)
-(*      其消解见 Part 3（req_pick_best_token / req_pick_best_token_optimal） --------- *)
+(* ---- the greedy block (the argmin/list Id-layer machinery; its two top-level
+   facts are declared as section slots here): their resolution is Part 3
+   (req_pick_best_token / req_pick_best_token_optimal) ---- *)
 
 Section ReqSLMGreedy.
 
@@ -540,7 +547,7 @@ Hypothesis pick_best_optimal : forall (prefix : list Token) (w : Token),
   InT w vocab ->
   le (total_loss (prefix ++ [pick_best_token prefix])) (total_loss (prefix ++ [w])).
 
-(* ---- 件 9：temperature_zero_exponential_bound（L2630；pick_best_in_vocab 参数位） *)
+(* ---- item 9: temperature_zero_exponential_bound (through the pick_best_in_vocab slot) ---- *)
 
 Theorem req_temperature_zero_exponential_bound :
   forall (prefix : list Token) (w : Token),
@@ -576,8 +583,8 @@ Proof.
   exact (le_id_l _ _ _ Hrel Hbound).
 Qed.
 
-(* ---- 件 13：greedy_kernel_limit（L2819；markov_temperature_zero_limit +        *)
-(*        pick_best_optimal 参数位） --------------------------------------------- *)
+(* ---- item 13: greedy_kernel_limit (markov_temperature_zero_limit + the
+   pick_best_optimal slot) ---- *)
 
 Theorem req_greedy_kernel_limit :
   forall (prefix : list Token) (w : Token),
@@ -594,8 +601,9 @@ Proof.
   exact (pick_best_optimal prefix w Hw).
 Qed.
 
-(* ---- 件 17：nonoptimal_probability_absolute（L2887；Id 证明体独立复刻——       *)
-(*        与件 9 语句前提不同（无 lt 前提），非 exact 复用） --------------------- *)
+(* ---- item 17: nonoptimal_probability_absolute (its Id-layer proof body is
+   reproduced independently: unlike item 9 the statement carries no lt
+   premise, so no exact-reuse applies) ---- *)
 
 Theorem req_nonoptimal_probability_absolute :
   forall (prefix : list Token) (w : Token),
@@ -631,15 +639,16 @@ End ReqSLMGreedy.
 End ReqSLM.
 
 (* ===================================================================== *)
-(* Part 2：ReqLogDiffPhase3 尾节（13 件直迁 + 2 件依存 + 2 eps 副道件）     *)
-(*   源坐标 L26405-26685。minus -> req_minus（δ 透明）；log 前提化；        *)
-(*   Id 环引理全换 UpReqAlgebra req 真证件（头注登记表 4）。                        *)
+(* Part 2. The LogDiff3 tail section (13 statements carried over directly +
+   2 with dependencies + 2 per-eta side lemmas): minus becomes req_minus (a
+   definitional unfolding); log premises are made explicit; the Id-ring
+   lemmas are replaced by the req proofs of [UpReqAlgebra]. *)
 (* ===================================================================== *)
 Section ReqLogDiff3.
 
 Context {RLL : ReqLogPlain}.
 
-(* ---- 件 1：minus_one_plus_t（L26409，ring） -------------------------------- *)
+(* ---- item 1: minus_one_plus_t (a ring chain) ---- *)
 
 Lemma req_ld3_minus_one_plus_t : forall t : R, req (req_minus (plus one t) one) t.
 Proof.
@@ -660,8 +669,8 @@ Proof.
   exact (req_trans _ _ _ H1 (req_trans _ _ _ H2 (req_trans _ _ _ H3 (req_trans _ _ _ H4 H5)))).
 Qed.
 
-(* ---- 件 3：set_eq_le（L26435；1 行依存 reqd_le_of_req@UpReqDist——eq->le       *)
-(*        方向接口可导，清单判「非完成类」） ----------------------------------- *)
+(* ---- item 3: set_eq_le (one step through reqd_le_of_req of [UpReqDist]; the
+   eq->le direction is derivable at the interface) ---- *)
 
 Lemma req_set_eq_le : forall a b : R, req a b -> le a b.
 Proof.
@@ -669,7 +678,7 @@ Proof.
   exact (reqd_le_of_req a b H).
 Qed.
 
-(* ---- 件 4：set_square_nonneg（L26441） ------------------------------------- *)
+(* ---- item 4: set_square_nonneg ---- *)
 
 Lemma req_set_square_nonneg : forall t : R, le zero t -> le zero (mult t t).
 Proof.
@@ -679,7 +688,7 @@ Proof.
   - exact (req_le_mult_compat_r t zero t Ht Ht).
 Qed.
 
-(* ---- 件 5：set_cube_nonneg（L26450） --------------------------------------- *)
+(* ---- item 5: set_cube_nonneg ---- *)
 
 Lemma req_set_cube_nonneg : forall t : R, le zero t -> le zero (mult t (mult t t)).
 Proof.
@@ -689,11 +698,11 @@ Proof.
   - exact (req_le_mult_compat_r t zero (mult t t) Ht (req_set_square_nonneg t Ht)).
 Qed.
 
-(* ---- 件 6：set_minus_mult（L26461）= (a) 依存 req_mult_minus_distr_l@         *)
-(*        UpReqAlgebra L525（别名直引，不设 alias 壳） ------------------------- *)
-(* ---- 件 7：set_opp_zero（L26468）= (a) 依存 reqd_opp_zero@UpReqDist L171 ------- *)
+(* ---- item 6: set_minus_mult — relies on req_mult_minus_distr_l of
+   [UpReqAlgebra] (referenced directly, no alias) ---- *)
+(* ---- item 7: set_opp_zero — relies on reqd_opp_zero of [UpReqDist] ---- *)
 
-(* ---- 件 8：set_quad_cube（L26477，全显式环链） ------------------------------ *)
+(* ---- item 8: set_quad_cube (a fully explicit ring chain) ---- *)
 
 Lemma req_set_quad_cube : forall t : R,
   req (plus (req_minus t (mult t t)) (req_minus (mult t t) (mult t (mult t t))))
@@ -739,7 +748,7 @@ Proof.
   exact (req_trans _ _ _ H1 (req_trans _ _ _ H2 (req_trans _ _ _ H3 (req_trans _ _ _ H4 H5)))).
 Qed.
 
-(* ---- 件 9：set_quad_prod（L26507；distrib + (a) 件 + 件 8） ------------------ *)
+(* ---- item 9: set_quad_prod (distrib + the dependency items + item 8) ---- *)
 
 Lemma req_set_quad_prod : forall t : R,
   req (mult (req_minus t (mult t t)) (plus one t))
@@ -764,7 +773,7 @@ Proof.
   exact (req_trans _ _ _ H1 (req_trans _ _ _ H2 (req_set_quad_cube t))).
 Qed.
 
-(* ---- 件 10：set_minus_cube_le（L26527；(a) reqd_opp_zero 依存位） ------------- *)
+(* ---- item 10: set_minus_cube_le (relies on reqd_opp_zero) ---- *)
 
 Lemma req_set_minus_cube_le : forall t : R, le zero t ->
   le (req_minus t (mult t (mult t t))) t.
@@ -778,7 +787,7 @@ Proof.
   - exact (req_set_eq_le (plus t zero) t (plus_zero t)).
 Qed.
 
-(* ---- 件 11：set_one_plus_pos（L26541） ------------------------------------- *)
+(* ---- item 11: set_one_plus_pos ---- *)
 
 Lemma req_set_one_plus_pos : forall t : R, le zero t -> lt zero (plus one t).
 Proof.
@@ -789,7 +798,7 @@ Proof.
     exact (le_plus_compat one one zero t (le_refl one) Ht0).
 Qed.
 
-(* ---- 件 12：set_inv_mul（L26557） ------------------------------------------ *)
+(* ---- item 12: set_inv_mul ---- *)
 
 Lemma req_set_inv_mul : forall (s : R) (Hs : lt zero s),
   req (mult (inv_pos s Hs) s) one.
@@ -798,7 +807,7 @@ Proof.
   exact (req_trans _ _ _ (mult_comm (inv_pos s Hs) s) (inv_pos_correct s Hs)).
 Qed.
 
-(* ---- 件 13：set_div_linear_ge_quad（L26566） -------------------------------- *)
+(* ---- item 13: set_div_linear_ge_quad ---- *)
 
 Lemma req_set_div_linear_ge_quad : forall (t : R) (Ht0 : le zero t)
                                           (Hs : lt zero (plus one t)),
@@ -829,7 +838,7 @@ Proof.
                           (inv_pos_pos s Hs) Hcore).
 Qed.
 
-(* ---- 件 14：set_inv_minus_one_opp（L26605；req_opp_minus 形重述） ------------- *)
+(* ---- item 14: set_inv_minus_one_opp (a req_opp_minus-shaped restatement) ---- *)
 
 Lemma req_set_inv_minus_one_opp : forall (t : R) (Hs : lt zero (plus one t)),
   req (mult t (inv_pos (plus one t) Hs))
@@ -868,7 +877,7 @@ Proof.
          (req_trans _ _ _ H4 (req_trans _ _ _ H5 H6))))).
 Qed.
 
-(* ---- 件 2：log_one_plus_le（L26423，(b)+假设位主道） ------------------------ *)
+(* ---- item 2: log_one_plus_le (the main route through the assumption slot) ---- *)
 
 Lemma req_log_one_plus_le : forall (t : R) (Hpos : lt zero (plus one t)),
   le (log (plus one t) Hpos) t.
@@ -879,7 +888,7 @@ Proof.
   - exact (lt_le_iff _ _ (inr (req_ld3_minus_one_plus_t t))).
 Qed.
 
-(* ---- 件 2 副道：Bishop 逐 eta 形（零参数位真证，log_le_linear_eps 直导） --------- *)
+(* ---- item 2, Bishop per-eta side form (proved outright with no slots, straight from log_le_linear_eps) ---- *)
 
 Lemma req_log_one_plus_le_eps : forall (t : R) (Hpos : lt zero (plus one t)) (eta : R),
   lt zero eta -> le (log (plus one t) Hpos) (plus t eta).
@@ -888,7 +897,7 @@ Proof.
   exact (le_id_r _ _ _           (req_plus_compat (plus (plus one t) (opp one)) t eta eta                            (req_ld3_minus_one_plus_t t) (req_refl eta))           (log_le_linear_eps (plus one t) Hpos eta Heta)).
 Qed.
 
-(* ---- 件 15：log_one_plus_ge（L26638，(b)+假设位主道；链 = 件 13 + 件 14 +      *)
+(* ---- item 15: log_one_plus_ge (the main route through the assumption slot; chain = item 13 + item 14 + ...) ---- *)
 
 
 Lemma req_log_one_plus_ge : forall (t : R), le zero t ->
@@ -920,9 +929,11 @@ Proof.
   - exact Hseg2.
 Qed.
 
-(* ---- 件 15 副道：Bishop 逐 eta 形（零参数位真证；Hoc 的 opp 链两个合取肢重述 ------------ *)
-(*        （req_opp_plus/req_opp_minus/Hio 对偶），末端 req_minus_plus_cancel      *)
-(*        折叠。全链依存 log_le_linear_eps，假设位零依赖。） ---------------------- *)
+(* ---- item 15, Bishop per-eta side form (proved outright with no slots): the
+   two conjuncts of the opp chain around Hoc are restated (the
+   req_opp_plus / req_opp_minus / Hio duality) and the tail folds by
+   req_minus_plus_cancel. The whole chain relies on log_le_linear_eps,
+   with zero slot dependencies ---- *)
 
 Lemma req_log_one_plus_ge_eps : forall (t : R), le zero t ->
   forall (Hs : lt zero (plus one t)) (eta : R), lt zero eta ->
@@ -936,7 +947,7 @@ Proof.
   pose proof (log_le_linear_eps invs (inv_pos_pos s Hs) eta Heta) as Heps.
   pose proof (opp_le_compat (log invs (inv_pos_pos s Hs))
                             (plus (req_minus invs one) eta) Heps) as Hoc.
-  (* 肢 A：opp (invs − 1) == one − invs == t·invs（req_opp_minus + 对偶重述） *)
+  (* conjunct A: opp (invs - 1) == one - invs == t*invs (req_opp_minus + the dual restatement) *)
   assert (Hone_minus : req (plus one (opp invs)) (mult t invs)).
   { apply (req_trans _ (opp (req_minus invs one))).
     - apply (req_trans _ (plus (opp invs) (opp (opp one)))).
@@ -972,7 +983,7 @@ Proof.
                 (req_sym (opp (plus (req_minus invs one) eta))
                          (req_minus (mult t invs) eta) HLflip)
                 Hoc)). }
-  (* t−t² − eta ≤ log s ⟹ t−t² ≤ log s + eta *)
+  (* t - t*t - eta <= log s gives t - t*t <= log s + eta *)
   assert (Hdiff : le (req_minus (req_minus t (mult t t)) eta) (log s Hs)).
   { apply (le_trans _ (req_minus (mult t invs) eta)).
     - exact (le_plus_compat (req_minus t (mult t t))
@@ -996,25 +1007,27 @@ Qed.
 End ReqLogDiff3.
 
 (* ===================================================================== *)
-(* Part 3：ReqSLMGreedy 两参数位消解（显式假设位的定理化收束）              *)
+(* Part 3. Resolving the two slots of [ReqSLMGreedy] (the declared premises theoremized) *)
 
-(*   req_pick_best_token / req_pick_best_token_optimal 闭包参数面 =         *)
-(*   {R}{RIS}{DO} Token vocab total_loss default_token prefix w            *)
-(*   （Check 检验在案）。                                                   *)
-(*   参数位面核对：ReqSLMGreedy 两参数位面 =                                       *)
-(*     optimal  : forall prefix w, InT w vocab ->                          *)
-(*                le (total_loss (prefix++[pick prefix]))                  *)
-(*                   (total_loss (prefix++[w]))                            *)
-(*     in_vocab : forall prefix, InT (pick prefix) vocab                   *)
-(*   optimal 面 = req_pick_best_token_optimal 语句 1:1 对齐——直接消解；     *)
-(*   in_vocab 面 C1 机未结果（(d) 冻结 list 机域），本节 req 侧归纳自证     *)
-(*   （slm_discharge_aux_acc——req_list_sum_le_on_list「辅件自证非重证」    *)
-(*   先例同款，不触 (d) 禁区本体）。两参数位就此全消解，依存面三件升级          *)
-(*   无参数位定理（_noslot）。                                                 *)
-(*   诚实签名差异：无参数位件闭包签名增 DO : reqDecidableOrder R RIS 与        *)
-(*   default_token : Token 两位（C1 机同款面；DO 为永久假设类参数位——      *)
-(*   LPO 结论随桥：全库零 Instance 与 Id 同构，Class 假设位非禁词面，    *)
-(*   End 时入闭包签名，Print Assumptions Closed）。                        *)
+(*   The closure signature of req_pick_best_token / req_pick_best_token_optimal
+   is {R}{RIS}{DO} Token vocab total_loss default_token prefix w.
+   Slot faces: the two slots of [ReqSLMGreedy] are
+     optimal  : forall prefix w, InT w vocab ->
+                le (total_loss (prefix++[pick prefix]))
+                   (total_loss (prefix++[w]))
+     in_vocab : forall prefix, InT (pick prefix) vocab
+   The optimal face matches the statement of req_pick_best_token_optimal
+   one-to-one and resolves directly; the in_vocab face has no machine-layer
+   counterpart usable here, so this section proves it by induction on the req
+   side (slm_discharge_aux_acc, the same helper-proved-not-restated pattern as
+   req_list_sum_le_on_list). With both slots resolved, the three dependent
+   statements are upgraded to slot-free theorems (the _noslot forms).
+   Honest signature difference: the slot-free statements carry two extra
+   closure binders, DO : reqDecidableOrder and default_token : Token; DO stays
+   a permanently declared class premise (the LPO-flavored conclusion rides
+   with the bridge; the library declares no Instance for it, and the class
+   premise enters the closure signature at End with Print Assumptions
+   Closed). *)
 (* ===================================================================== *)
 Section ReqSLMGreedyDischarge.
 
@@ -1028,7 +1041,7 @@ Variable temperature : R.
 Variable temperature_pos : lt zero temperature.
 Variable default_token : Token.
 
-(* ---- 节内简写（ReqSLM 闭包件全参喂定；签名检验 Check 在案） ---- *)
+(* ---- in-section shorthands (the ReqSLM closure statements fed with all arguments) ---- *)
 
 Definition k_d (prefix : list Token) (w : Token) : R :=
   slm_markov_kernel Token vocab vocab_nonempty total_loss temperature
@@ -1038,15 +1051,17 @@ Definition pos_d (prefix : list Token) (w : Token) : lt zero (k_d prefix w) :=
   req_markov_pos_slm Token vocab vocab_nonempty total_loss temperature
     temperature_pos prefix w.
 
-(* ---- 贪心选取（C1 机 req_pick_best_token 实例化；无参数位） ---------------- *)
+(* ---- the greedy selection (instantiating req_pick_best_token; slot-free) ---- *)
 
 Definition slm_discharge_pick_in (prefix : list Token) : Token :=
   req_pick_best_token Token vocab total_loss default_token prefix.
 
-(* ---- 参数 in_vocab 消解前置：argmin 遍历成员归纳（req 侧自证） ---------- *)
-(*   不变式：遍历 l 后 fst 结果 ∈ (btk::l 的任一超集 super)。归纳 +        *)
-(*   rord_le_dec 双支 + InT 反转（inversion as 三名显式——OrderArgmin      *)
-(*   卡「名不足绑首参被 subst 吞」坑对位）。                                *)
+(* ---- resolving the in_vocab slot, preparation: induction over the argmin
+   traversal (proved on the req side). Invariant: after traversing l, the
+   fst result lands in any superset super of btk :: l; by induction + the
+   two branches of rord_le_dec + inversion on InT (with the three names
+   bound explicitly, since too-few binder names get swallowed by subst)
+   ---- *)
 
 Lemma slm_discharge_aux_acc :
   forall (prefix : list Token) (l : list Token) (btk : Token) (bls : R),
@@ -1073,7 +1088,7 @@ Proof.
       intros w Hw. apply Hsuper. exact (Hmem2 w Hw).
 Qed.
 
-(* ---- 参数 in_vocab 消解（pick_best_in_vocab L2575 对位） ----------------- *)
+(* ---- resolving the in_vocab slot (the counterpart of pick_best_in_vocab) ---- *)
 
 Lemma slm_discharge_pick_in_vocab :
   forall prefix : list Token, InT (slm_discharge_pick_in prefix) vocab.
@@ -1087,7 +1102,7 @@ Proof.
              (fun w Hw => Hw)).
 Qed.
 
-(* ---- 参数 optimal 消解（pick_best_optimal L2545 对位；C1 机 1:1 依存） --- *)
+(* ---- resolving the optimal slot (the counterpart of pick_best_optimal; one-to-one reliance) ---- *)
 
 Lemma slm_discharge_pick_optimal :
   forall (prefix : list Token) (w : Token),
@@ -1100,7 +1115,7 @@ Proof.
   exact (req_pick_best_token_optimal Token vocab total_loss default_token          prefix w Hw).
 Qed.
 
-(* ---- 无参数位件 1：req_greedy_kernel_limit 升级（L2819 依存位已证明） -------- *)
+(* ---- slot-free statement 1: req_greedy_kernel_limit upgraded (its slot dependency now proved) ---- *)
 
 Theorem req_greedy_kernel_limit_noslot :
   forall (prefix : list Token) (w : Token),
@@ -1118,7 +1133,7 @@ Proof.
   exact (slm_discharge_pick_optimal prefix w Hw).
 Qed.
 
-(* ---- 无参数位件 2：temperature_zero_exponential_bound 升级（L2630） -------- *)
+(* ---- slot-free statement 2: temperature_zero_exponential_bound upgraded ---- *)
 
 Theorem req_temperature_zero_exponential_bound_noslot :
   forall (prefix : list Token) (w : Token),
@@ -1163,7 +1178,7 @@ Proof.
   exact (le_id_l _ _ _ Hrel Hbound).
 Qed.
 
-(* ---- 无参数位件 3：nonoptimal_probability_absolute 升级（L2887） ------------ *)
+(* ---- slot-free statement 3: nonoptimal_probability_absolute upgraded ---- *)
 
 Theorem req_nonoptimal_probability_absolute_noslot :
   forall (prefix : list Token) (w : Token),
@@ -1206,20 +1221,25 @@ Qed.
 End ReqSLMGreedyDischarge.
 
 (* ===================================================================== *)
-(* 文件尾：机器域事实与显式假设位注记（零证明行）                          *)
+(* File tail: machine-layer facts and notes on the explicit premise slots (no proof lines here) *)
 (* --------------------------------------------------------------------- *)
-(* 机器域不迁移件（nat/list Id 层，恒等保留于基座）：                     *)
-(*   SLM 区 5 件：InT_head_extend L2451 / argmin_aux_token_mem L2461 /            *)
-(*     argmin_aux_token_snd_correct L2517（Leibniz = 正确性伴件）                 *)
-(*     / pick_best_in_vocab' L2531 / pick_best_in_vocab L2575（别名件）。          *)
-(*   本文件 req_temperature_zero_exponential_bound /                              *)
-(*     req_nonoptimal_probability_absolute 经 pick_best_in_vocab 假设位依存其顶层事实： *)
-(*     机器域原样 Require、结论以 req 层组装。                                    *)
-(* 可判定序显式假设类（reqDecidableOrder+reqArgmin）：                       *)
-(*   SLM 区 2 件：argmin_aux_token_min L2481 / pick_best_optimal L2545——            *)
-(*     语句纯 le 可 req 1:1；证明机 = ord_le_dec 归纳（DecidableOrder                *)
-(*     = 整体三分律 = LPO 等价、全库零 Instance，req 侧永久假设类与 Id 同构）。        *)
-(*   两假设位已由 Part 3 消解（optimal = req_pick_best_token_optimal 1:1 依存；       *)
-(*     in_vocab = req 侧归纳自证）+ 依存面三件升级 _noslot 无假设位定理。           *)
-(*     本文件 ReqSLMGreedy 假设位节为接口申报面，依存面以 Part 3 无假设位件为准。      *)
+(* Machine-layer statements not carried over (nat/list Id layer; they stay in
+   the backbone): five statements of the SLM block — InT_head_extend /
+   argmin_aux_token_mem / argmin_aux_token_snd_correct (the Leibniz correctness
+   companion) / pick_best_in_vocab' / pick_best_in_vocab (the alias).
+   req_temperature_zero_exponential_bound and
+   req_nonoptimal_probability_absolute of this file depend on those top-level
+   facts through the pick_best_in_vocab slot: the machine layer is required as
+   is, and the conclusions are assembled on the req layer. *)
+(* The decidable-order explicit premise classes (reqDecidableOrder + reqArgmin):
+   two statements of the SLM block — argmin_aux_token_min / pick_best_optimal —
+   have purely le statements and map one-to-one to req; their proof machine is
+   ord_le_dec induction (a decidable total order is LPO-equivalent, and the
+   library declares no Instance, so the req side keeps a permanently declared
+   class premise isomorphic to the Id form). Both slots are resolved by Part 3
+   (optimal relies one-to-one on req_pick_best_token_optimal; in_vocab is
+   proved by induction on the req side), and the three dependent statements
+   are upgraded to the slot-free _noslot theorems. The ReqSLMGreedy slot
+   section of this file is the interface declaration face; consumers should
+   rely on the slot-free statements of Part 3. *)
 (* ===================================================================== *)

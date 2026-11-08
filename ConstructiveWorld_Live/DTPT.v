@@ -38,6 +38,9 @@ Proof. destruct H. apply eq_refl. Qed.
 
 Definition NatLe (n m : nat) : Set := Id (Nat.leb n m) true.
 
+(* Pre-recast Prop bridges restored verbatim at their original names        *)
+(* S01 v2 pure-increment correction; twin of the S01_BaseRing               *)
+(* correction block).  Proof faces only.                                    *)
 Lemma NatLe_drop : forall n m : nat, NatLe n m -> (n <= m)%nat.
 Proof.
   intros n m H. unfold NatLe in H.
@@ -54,6 +57,56 @@ Proof.
   - exfalso.
     apply (proj1 (Nat.leb_gt n m)) in E.
     lia.
+Qed.
+
+(* Native informative direction family over the carrier [NatLe] (I-suffix   *)
+(* names per the pure-increment correction).  The carrier [NatLe n m] is    *)
+(* boolean identity face [Id (Nat.leb n m) true].  The native faces read    *)
+(* and write boundedness certificates as value-level data; both are total   *)
+(* projections, so the extracted code carries no partial branch and no      *)
+(* recomputation of [Nat.leb].  Proof-side reasoning stays on the Prop      *)
+(* faces above and the bridges below; every value-level consumption of the  *)
+(* family goes through the I faces.                                         *)
+(* Read face: boundedness certificate as a boolean identity value. *)
+Lemma NatLe_dropI : forall n m : nat, NatLe n m -> @Id bool (Nat.leb n m) true.
+Proof. intros n m H. exact H. Qed.
+
+(* Write face: mirror of [NatLe_dropI]. *)
+Lemma NatLe_liftI : forall n m : nat, @Id bool (Nat.leb n m) true -> NatLe n m.
+Proof. intros n m H. exact H. Qed.
+
+(* Set-level [Id] to Leibniz equality eliminator (I-suffix family name). *)
+Lemma id_eq_SI : forall (A : Set) (x y : A), Id x y -> x = y.
+Proof.
+  intros A x y H.
+  exact (match H in Id _ z return x = z with id_refl => eq_refl end).
+Qed.
+
+(* Reflection face: [NatLe n n] holds for every n, by direct computation. *)
+Lemma NatLe_refl : forall n : nat, NatLe n n.
+Proof.
+  intros n. unfold NatLe. destruct (Nat.leb n n) eqn:E.
+  - exact id_refl.
+  - exfalso. exact (Nat.lt_irrefl n (proj1 (Nat.leb_gt n n) E)).
+Qed.
+
+(* Prop-faced bridges below serve proof positions only; every value-level   *)
+(* consumption of the family goes through the I faces above.  Bridge pair   *)
+(* (Prop order read-outs): carrier face and raw boolean identity face.      *)
+Lemma NatLe_drop_le : forall n m : nat, NatLe n m -> (n <= m)%nat.
+Proof.
+  intros n m H.
+  apply (proj1 (Nat.leb_le n m)).
+  exact (id_eq_SI bool (Nat.leb n m) true (NatLe_dropI n m H)).
+Qed.
+
+(* Bridge: Prop order face read out of the boolean identity evidence        *)
+(* Pure-increment correction form of the bridge pair. *)
+Lemma NatLe_lift_le : forall n m : nat, @Id bool (Nat.leb n m) true -> (n <= m)%nat.
+Proof.
+  intros n m H.
+  apply (proj1 (Nat.leb_le n m)).
+  exact (id_eq_SI bool (Nat.leb n m) true H).
 Qed.
 
 Definition QeqT (a b : Q) : Set :=
@@ -2085,7 +2138,7 @@ Proof.
   {
     intros n l Hn. rewrite !llm_rot_id. reflexivity.
   }
-  intros n l Hprem. apply NatLe_drop in Hprem.
+  intros n l Hprem. apply NatLe_drop_le in Hprem.
   exact (eq_imp_id (Hcore n l Hprem)).
 Qed.
 
@@ -2178,7 +2231,7 @@ Proof.
     { apply llm_skipn_ge_nil. exact Hlen. }
     rewrite H1, H2, app_nil_r. reflexivity.
   }
-  intros l s lam Hprem. apply NatLe_drop in Hprem.
+  intros l s lam Hprem. apply NatLe_drop_le in Hprem.
   exact (eq_imp_id (Hcore l s lam Hprem)).
 Qed.
 
@@ -3281,7 +3334,7 @@ Proof.
       + reflexivity.
       + f_equal. apply IH. simpl in Hlen. lia.
   }
-  intros l n Hprem. apply NatLe_drop in Hprem.
+  intros l n Hprem. apply NatLe_drop_le in Hprem.
   exact (eq_imp_id (Hcore l n Hprem)).
 Qed.
 
@@ -4224,7 +4277,7 @@ Print Assumptions Tex_inhabited.
 From Stdlib Require Import Extraction.
 
 Separate Extraction
-  eq_imp_id id_imp_eq NatLe NatLe_drop NatLe_lift QeqT qeq_imp_qeqT qeqT_imp_qeq
+  eq_imp_id id_imp_eq NatLe NatLe_dropI NatLe_liftI QeqT qeq_imp_qeqT qeqT_imp_qeq
   insert_q P0 rot Pinf interleave Pmid insert_q_perm_cons D5_P0_perm
   D5_Pinf_perm D5_support_same dedup_aux dedup H_ms sum_adjdiff H_adj Qle_bool_false_le
   Qle_dec' qadd_le qopp_le qmul_le_r Qle_0_sub' qsub_le_r qsub_add abs_eq

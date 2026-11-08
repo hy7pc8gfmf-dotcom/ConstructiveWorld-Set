@@ -1,37 +1,42 @@
-(* ========================================================================= *)
-(* LW0QPoly - polynomials with rational coefficients and their formal       *)
-(* differential calculus in one indeterminate t.                            *)
-(* 模块名：LW0QPoly.  数学使命：the ring Q[t] presented by coefficient      *)
-(* lists, with addition, scalar multiplication, multiplication, evaluation  *)
-(* at a point, formal differentiation, the substitution t |-> c*t, and      *)
-(* iterated derivatives.  Main statements: the product rule (f*g)' =        *)
-(* f'*g + f*g', the chain rule d/dt P(c*t) = c * P'(c*t), and the           *)
-(* recursion identities for iterated derivatives.                          *)
-(* 次序约定：coefficients are listed from the constant term upward (the     *)
-(* head is the coefficient of t^0); the empty list is the zero polynomial;  *)
-(* the degree of the zero polynomial is 0 by convention; lists carrying     *)
-(* trailing zeros (and the derivative of a constant, the one-element zero   *)
-(* list) denote the same polynomial as their trimmed form, and every        *)
-(* arithmetic statement is phrased pointwise, valid at all t.  Equalities   *)
-(* of lists are Leibniz; equalities of rationals are the field equality ==  *)
-(* (Qeq), since the numeral pairs of Q are not canonical.                   *)
-(* 依赖清单：Stdlib.QArith only.                                            *)
-(* 对标行：no external benchmark imported; the coefficient-list             *)
-(* arrangement follows the usual treatment (cf. stdlib Poly, not Required). *)
-(* 构造性注记：every operation is a structurally recursive Fixpoint with    *)
-(* computing content (Defined), list constructors written nil/cons in word  *)
-(* form; statements are quantified equations between data with no logical   *)
-(* premises, no admitted goals, no classical principles; the exported       *)
-(* constants extract to plain Q arithmetic.                                 *)
-(* 编译配方：@echo off; set COQLIB=C:\Rocq-Platform~9.1~2026.01\lib\coq;    *)
-(* set ROCQLIB=C:\Rocq-Platform~9.1~2026.01\lib\coq;                        *)
-(* "C:\Rocq-Platform~9.1~2026.01\bin\coqc.exe" -q -Q . "" LW0QPoly.v        *)
-(* (ASCII .cmd batch with CRLF endings, current directory = sandbox).       *)
-(* ========================================================================= *)
+(* ConstructiveWorld-Set — polynomials over Q with a formal differential calculus. *)
+
+(** * LW0QPoly: the ring [Q[t]] by coefficient lists, with formal calculus.
+
+    Mission.  The ring [Q[t]] presented by coefficient lists, with
+      addition, scalar multiplication, multiplication, evaluation at a
+      point, formal differentiation, the substitution [t |-> c*t], and
+      iterated derivatives.  Main statements: the product rule
+      [(f*g)' = f'*g + f*g'], the chain rule
+      [d/dt P(c*t) = c * P'(c*t)], and the recursion identities for
+      iterated derivatives.
+
+    Dependencies.  Stdlib [QArith] only.
+
+    References.  No external benchmark imported; the coefficient-list
+      arrangement follows the usual treatment (cf. stdlib [Poly], not
+      Required); this development, the same-name baseline module in
+      ConstructiveWorld-Main.
+
+    Constructivity.  Every operation is a structurally recursive
+      [Fixpoint] with computing content ([Defined]); statements are
+      quantified equations between data with no logical premises, no
+      admitted goals, no classical principles; the exported constants
+      extract to plain [Q] arithmetic.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW0QPoly.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.
 
-(* A polynomial is its coefficient list, constant term first. *)
+(* A polynomial is its coefficient list, constant term first: the head is
+   the coefficient of [t^0]; the empty list is the zero polynomial; the
+   degree of the zero polynomial is [0] by convention; lists carrying
+   trailing zeros (and the derivative of a constant, the one-element zero
+   list) denote the same polynomial as their trimmed form, and every
+   arithmetic statement is phrased pointwise, valid at all [t].  Equalities
+   of lists are Leibniz; equalities of rationals are the field equality
+   [==] ([Qeq]), since the numeral pairs of [Q] are not canonical. *)
 Definition QPoly := list Q.
 
 (* Coefficientwise addition, padding the shorter list with zeros. *)

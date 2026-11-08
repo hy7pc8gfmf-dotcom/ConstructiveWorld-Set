@@ -1,32 +1,33 @@
-(* ==========================================================================)
-   abl_arctan_diff_19.v — arctan 差公式件续片（9a-乙 四未竟项接续）
-   使命: 接 abl_arctan_diff_16 的四个未竟项，按序推进：
-     未竟项① 内点一致 delta 增量估计【本片闭合，两件】：X16 件 1 的 delta
-     在语句面系 forall u → ∃delta（∃ 居 ∀u 内侧），主件 Qed 不透明后两件
-     不同 u 的 delta 不可证等——一致化绕开 b3rr 主件、自其证明体直推：
-     (a) abl9_atan_incr_step_cond 条件化步界引理（delta 的两条逐点后承升为
-     假设，点值链逐字自 b3rr 主体转录）；(b) abl9_atan_deriv_uniform
-     Region-relativized 一致 delta 实例（∃delta 提到 ∀u 外侧，
-     delta := min((1−r)/2, eps·k(r)) 显式构造，k=1/(4(Cr+1)) 与 u 无关，
-     min 解包复用 X16 abl9_min_lt_l/r）。
-     未竟项② 链式规则【推进：Q 核四件闭合】：w(u):=(u−v)/(1+uv) 的无除法
-     多项式恒等核两件（1+w² 通分分子；w 增量通分分子）＋分母非零条件下的
-     除法形两件（field 闭合）；Real 层证书桥余部登记未竟。
-     未竟项③ 常值判据链式版【未闭合，登记】：依赖①的一致 delta（本片已备），
-     N 等步链构造未竟。未竟项④ 端点闭合【未闭合，登记】：9b 装配域
-     1+x(x+h)≥3/4 下 |w|<1 严格内，内点版即可配平，端点件可免。
-     主目标 abl9_atan_diff_formula 未闭合，登记未竟。
-   依赖: S01_BaseRing–S11_TP3B5、abl_arctan_diff_16；Stdlib QArith、List、
-     Setoid、Lia、Qminmax、GenericMinMax、Extraction。
-   构造性: 全件 Qed 闭合（六引理零承认式语句）；继承 X16 的 Set 层零 Prop
-     泄露口径；可提取（尾 Print Assumptions + Recursive Extraction，
-     判据 Closed + Obj.magic 0）。
-   编译配方: source Live/toolchain/env.sh && bash cpu_guard.sh --
-     rocq c -q -native-compiler no -Q /tmp/x19pool "" abl_arctan_diff_19.v
-     （隔离池 /tmp/x19pool=真拷 x16pool 现势链 13 vo，S01–S11 与现势库
-     逐一 SAME；Require 链退回 S11 单链。）
-   ========================================================================== *)
-(* 【陈旧申报勘注（abl9 陈旧申报勘注补录组）】主式 abl9_atan_diff_formula 已由 abl9_atan_diff_a2_56.v L1871–2364 A2 形零前件闭合（闭合日期见注册册字段行；PA 全 Closed、件58 L231–232 活码使用、A2B3 决议136 在役）；本处系闭合当日之前陈旧申报，照录留痕禁删除；定论=abl9 主式深勘报告 §一。四未竟项①②③④及主目标已全链闭合（积木归宿表见abl9 主式深勘报告 §三），本申报旧文照录。 *)
+(* ConstructiveWorld-Set — arctan difference-formula continuation piece (open items 1-4). *)
+(** * abl_arctan_diff_19: uniform-delta and chain-rule cores for the arctan difference formula.
+
+    Mission.  Continues [abl_arctan_diff_16] along four open items.
+      Item 1 closes here: [abl9_atan_incr_step_cond] and
+      [abl9_atan_deriv_uniform] build a uniform delta
+      ([delta := min((1-r)/2, eps*k)], [k = 1/(4*(Cr+1))] independent of u)
+      derived from the proof body of the b3rr main lemma.  Item 2 closes at
+      the Q layer: the division-free polynomial core of the chain rule for
+      [w(u) := (u-v)/(1+u*v)] ([abl9_wsq_ring_id]/[abl9_wincr_ring_id] and
+      the division forms [abl9_wsq_div_id]/[abl9_wincr_div_id] under
+      nonzero denominators).  Items 3-4 and the main goal [abl9_atan_diff_formula] stay open.
+
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [QArith.Qround],
+      [Lists.List], [Bool.Bool], [Arith.Arith], [Setoid], [Morphisms],
+      [Lia], [QArith.Qminmax], [Structures.GenericMinMax], [Extraction];
+      requires [S01_BaseRing] through [S11_TP3B5] and
+      [abl_arctan_diff_16] of this development.
+
+    References.  This development, abl_arctan_diff_19.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All six lemmas close by Qed with zero admitted
+      statements, inheriting the Set-layer no-Prop caliber of the
+      S-modules; extractable with [Obj.magic] count 0.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      abl_arctan_diff_19.v] compiles cleanly (exit 0); the artifact starts
+      with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -46,13 +47,14 @@ From Stdlib Require Import Setoid Morphisms.
 From Stdlib Require Import Lia QArith.Qminmax Structures.GenericMinMax.
 From Stdlib Require Import Extraction.
 
-(* ============================================================ *)
-(* 未竟项①·件 a：条件化步界引理                                      *)
-(*   前件=k 的两条界（0<k 免除——本引理不用；Cr·k≤1/4 用）＋          *)
-(*   delta 的两条逐点后承（|h|<(1−r)/2、|h|<eps·k 的实层形），        *)
-(*   结论=内点导数步界（与 X16 件 1 结论逐字同构，u 变元）。          *)
-(*   证明体=b3rr 主件点值链转录（delta 途经理仅此两发 min 解包）。    *)
-(* ============================================================ *)
+(* =================== Open item 1, piece a: the conditional step-bound lemma =================== *)
+(* Hypotheses: the two bounds on k (0 < k is dropped as unused here; *)
+(* Cr*k <= 1/4 is kept) plus the two pointwise delta consequences *)
+(* (the Real-layer forms of |h| < (1-r)/2 and |h| < eps*k); *)
+(* the conclusion is the interior derivative step bound (literally the *)
+(* X16 piece-1 conclusion, with the variable u). *)
+(* The proof transcribes the pointwise chain of the b3rr main lemma *)
+(* (the two min-unpacking steps on the delta route become hypotheses). *)
 Lemma abl9_atan_incr_step_cond :
   forall (r : Q) (Hr0 : Qle 0 r) (Hr1 : Qlt r 1),
   forall (eps : Real) (k : Q), real_lt real_zero eps ->
@@ -85,7 +87,8 @@ Proof.
   assert (HCrK : Qle (Cr * k) (1 # 4)) by exact HkC.
   destruct Heps as [eps1 [Heps1 [N1 HN1]]].
   destruct Heps' as [eps1' [Heps1' [N1' HN1']]].
-  (* —— delta 两条件实层直取（b3rr 的两发 min 解包至此升为假设） —— *)
+  (* The two delta conditions taken directly at the Real layer (the two *)
+  (* min-unpacking steps of b3rr become hypotheses here). *)
   destruct (Hhalf h Hh) as [e2 [He2 [N2 HN2]]].
   destruct (Hkbound h Hh) as [e3 [He3 [N3 HN3]]].
   destruct (real_inv_proj (real_plus real_one (real_mult u u))
@@ -118,7 +121,7 @@ Proof.
                     - hn * Qinv (1 + un * un)).
     set (wreal := real_inv_pos (real_plus real_one (real_mult u u))
                     (b3r_one_sq_real_pos u)).
-    (* 正性：en ≥ 0、en' > eps1' *)
+    (* Positivity: en >= 0 and en' > eps1'. *)
     assert (HN1e : QltT eps1 en).
     { apply Qlt_to_QltT.
       apply (Qlt_le_trans eps1 (Qminus (projT1 eps n) (projT1 real_zero n)) en).
@@ -135,7 +138,7 @@ Proof.
       - apply QltT_to_Qlt. exact (HN1' n (NatLe_lift _ _ Hn1')).
       - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT.
         cbn [real_zero real_const projT1]. unfold en'. ring. }
-    (* 见证→点界：|hn| ≤ (1−r)/2、|hn| ≤ en·k *)
+    (* From the witnesses to pointwise bounds: |hn| <= (1-r)/2 and |hn| <= en*k. *)
     assert (Hq2 : Qlt e2 (Qminus ((1 # 2) * (1 - r)) (Qabs hn))).
     { apply (Qlt_le_trans e2
                (Qminus (projT1 (real_const ((1 # 2) * (1 - r))) n)
@@ -196,13 +199,13 @@ Proof.
                                    (Qle_refl _) He30).
         + apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
     assert (Hhn_kle : Qle (Qabs hn) (Qmult en k)) by (apply Qlt_le_weak; exact Hhn_k).
-    (* 域：|un| ≤ r *)
+    (* Domain: |un| <= r. *)
     assert (Hun_r : Qle (Qabs un) r).
     { apply (QleT'_to_Qle (Qabs un) r). apply Hu. }
     assert (Hhvn0 : Qle 0 (Qabs hn)) by apply Qabs_nonneg.
     assert (Henhn0 : Qle 0 (Qmult en (Qabs hn))).
     { apply (Qmult_le_0_compat en (Qabs hn)). exact Hen0. exact Hhvn0. }
-    (* 投影恒等（A 侧） *)
+    (* Projection identity (left-hand side). *)
     assert (Hrepl : projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus u h) Huh)
                 (real_opp (real_plus (cauchy_real_arctan u (b3rr_dom_r1 u r Hu Hr1))
                             (real_mult h wreal))))) n ==
@@ -232,7 +235,7 @@ Proof.
       rewrite (qeqT_imp_qeq _ _ (real_mult_proj u u n)).
       rewrite (qeqT_imp_qeq _ _ (b3r_one_proj n)).
       apply Qabs_wd. ring. }
-    (* B 侧投影 *)
+    (* Right-hand side projection. *)
     assert (HB : projT1 (real_plus (real_mult eps (real_abs h)) eps') n
                  == en * Qabs hn + en').
     { unfold en, en', hn.
@@ -240,7 +243,7 @@ Proof.
       setoid_rewrite (qeqT_imp_qeq _ _ (real_mult_proj eps (real_abs h) n)).
       setoid_rewrite (qeqT_imp_qeq _ _ (real_abs_proj h n)).
       cbn [real_zero real_const projT1]. ring. }
-    (* 点主界 1：Cr·|hn|² ≤ en·|hn|·(1/4) *)
+    (* Pointwise bound 1: Cr*|hn|^2 <= en*|hn|*(1/4). *)
     assert (Hcbn : Qle (Qmult Cr (Qmult (Qabs hn) (Qabs hn)))
                        (Qmult (Qmult en (Qabs hn)) (1 # 4))).
     { apply (Qle_trans _ (Qmult Cr (Qmult (Qmult en k) (Qabs hn))) _).
@@ -255,7 +258,7 @@ Proof.
         + apply QleT'_to_Qle. apply (b3_qmult_le_l (Qmult Cr k) (1 # 4) (Qmult en (Qabs hn))).
           * exact Henhn0.
           * exact HCrK. }
-    (* 点主界 2：r^{2(Sn)} ≤ eta（n ≥ Ng ⟹ 2(Sn) ≥ Ng） *)
+    (* Pointwise bound 2: r^(2*S n) <= eta (n >= Ng gives 2*S n >= Ng). *)
     assert (Hdec2 : Qle (q_pow r (2 * Datatypes.S n)) eta).
     { apply QleT'_to_Qle. apply (HNg ((2 * Datatypes.S n)%nat)).
       apply NatLe_lift. lia. }
@@ -266,7 +269,7 @@ Proof.
         + exact Hhn1.
         + apply QleT'_to_Qle. apply q_pow_nonneg. apply Qle_to_QleT'. exact Hr0.
       - apply QleT'_to_Qle. apply qeq_imp_qle. apply qeq_imp_qeqT. ring. }
-    (* 主点界：|D_n| ≤ en·|hn| + eta *)
+    (* Main pointwise bound: |D_n| <= en*|hn| + eta. *)
     assert (Hm1 : Qle
       (Qabs (arctan_partial n yn - arctan_partial n un - hn * Qinv (1 + un * un)))
       (Qplus (Qmult Cr (Qmult (Qabs hn) (Qabs hn)))
@@ -315,7 +318,7 @@ Proof.
           * apply (Qle_trans _ (Qplus (Qmult (Qmult en (Qabs hn)) (1 # 4)) eta) _).
             -- exact Hm4.
             -- exact Hm6. }
-    (* Hfin：eta < (en·|hn| + en') − |D_n| *)
+    (* Hfin: eta < (en*|hn| + en') - |D_n|. *)
     assert (Hfin : Qlt eta
         (Qminus (Qplus (Qmult en (Qabs hn)) en') (Qabs Dform))).
     { apply (Qlt_le_trans eta
@@ -343,7 +346,7 @@ Proof.
         rewrite Heq2.
         apply (proj1 (Qle_minus_iff (Qabs Dform) (Qplus (Qmult en (Qabs hn)) eta))).
         exact Hmain. }
-    (* 投影桥（RHS − LHS）==（B − |D|） *)
+    (* Projection bridge: (RHS - LHS) == (B - |D|). *)
     assert (Hrepl2 : Qeq
         (Qminus (projT1 (real_plus (real_mult eps (real_abs h)) eps') n)
                 (projT1 (real_abs (real_plus (cauchy_real_arctan (real_plus u h) Huh)
@@ -373,12 +376,11 @@ Proof.
     exact Hqfinal.
 Qed.
 
-(* ============================================================ *)
-(* 未竟项①·件 b：Region-relativized 一致 delta 实例（本片主交付）      *)
-(*   ∃delta 提到 ∀u 外侧——delta := min((1−r)/2, eps·k(r)) 与 u 无关   *)
-(*   （k=1/(4(Cr+1))，Cr=b3rr_C2((1+r)/2) 只依赖 r），供未竟项③ N 等   *)
-(*   步链逐点取用。                                                   *)
-(* ============================================================ *)
+(* =================== Open item 1, piece b: the region-relativized uniform-delta instance =================== *)
+(* The main result of this file: the existentially quantified delta moves *)
+(* outside the forall u — delta := min((1-r)/2, eps*k) is independent of u *)
+(* (with k = 1/(4*(Cr+1)) and Cr = b3rr_C2((1+r)/2) depending only on r), *)
+(* ready for the equal-step chain of open item 3. *)
 Lemma abl9_atan_deriv_uniform :
   forall (rho : Q) (Hrho0 : Qle 0 rho) (Hrho1 : Qlt rho 1),
   forall (eps : Real), real_lt real_zero eps ->
@@ -439,12 +441,13 @@ Proof.
     + exact Heps'.
 Qed.
 
-(* ============================================================ *)
-(* 未竟项②·Q 核两件（链式规则的通分分子多项式恒等核，无除法形）        *)
-(*   设 w(u):=(u−v)/(1+uv)，则 1+w(u)²=(1+u²)(1+v²)/(1+uv)²，        *)
-(*   w(u+h)−w(u)=h(1+v²)/((1+(u+h)v)(1+uv))——分母非零条件下的       *)
-(*   Q 层恒等式；其纯多项式核=下列两件（判别基建核：多项式规范形）。  *)
-(* ============================================================ *)
+(* =================== Open item 2, two Q-layer pieces =================== *)
+(* The division-free polynomial identity core of the chain rule, with *)
+(* numerators brought to a common denominator. *)
+(* Let w(u) := (u-v)/(1+u*v); then 1+w(u)^2 = (1+u^2)(1+v^2)/(1+uv)^2 and *)
+(* w(u+h) - w(u) = h(1+v^2)/((1+(u+h)v)(1+uv)) as Q-layer identities under *)
+(* nonzero denominators; their pure polynomial cores are the two lemmas *)
+(* below (polynomial normal forms). *)
 Lemma abl9_wsq_ring_id : forall u v : Q,
   QeqT ((1 + u * v) * (1 + u * v) + (u - v) * (u - v))
        ((1 + u * u) * (1 + v * v)).
@@ -455,8 +458,10 @@ Lemma abl9_wincr_ring_id : forall u v h : Q,
        (h * (1 + v * v)).
 Proof. intros u v h. apply qeq_imp_qeqT. ring. Qed.
 
-(* 未竟项②·Q 核除法形（分母非零条件下的通分恒等式，field 闭合）——          *)
-(*   Real 层证书桥（real_inv_pos_ext 对齐）的直接输入形。                  *)
+(* Open item 2, division forms of the Q core (the common-denominator *)
+(* identities under nonzero denominators, closed by field) — the direct *)
+(* input shape for the Real-layer certificate bridge *)
+(* (aligned with [real_inv_pos_ext]). *)
 Lemma abl9_wsq_div_id : forall u v : Q, ~ (1 + u * v == 0) ->
   QeqT (1 + (u - v) * (u - v) / ((1 + u * v) * (1 + u * v)))
        ((1 + u * u) * (1 + v * v) / ((1 + u * v) * (1 + u * v))).
@@ -482,10 +487,9 @@ Proof.
   field. split; assumption.
 Qed.
 
-(* ============================================================ *)
-(* 终验 · 承认面 + 提取检验                                          *)
-(*   对账三联：Lemma 名清单 6 = Qed 计数 6 = PA 语句 6，零差。        *)
-(* ============================================================ *)
+(* =================== Final checks: the assumption face and the extraction test =================== *)
+(* Triple tally: the list of 6 lemma names = 6 Qed closures = 6 Print *)
+(* Assumptions statements, with zero discrepancy. *)
 Print Assumptions abl9_atan_incr_step_cond.
 Print Assumptions abl9_atan_deriv_uniform.
 Print Assumptions abl9_wsq_ring_id.
@@ -493,6 +497,6 @@ Print Assumptions abl9_wincr_ring_id.
 Print Assumptions abl9_wsq_div_id.
 Print Assumptions abl9_wincr_div_id.
 
-(* 提取检验（判据 = 输出 Obj.magic 计数 0） *)
+(* Extraction test (criterion: the output has Obj.magic count 0). *)
 Recursive Extraction abl9_atan_deriv_uniform abl9_wsq_ring_id abl9_wincr_ring_id
   abl9_wsq_div_id abl9_wincr_div_id.

@@ -26,7 +26,7 @@
  *
  * Build.  [coqc -native-compiler no -q -Q . "" RealEnergyTempMono.v]
  *   compiles cleanly (exit 0); the first eight bytes of the artifact
- *   are [436f7121 00015ff4].
+ *   are [436f7121 000160bc].
  *)
 From Stdlib Require Import QArith.Qring.
 Require Import S01_BaseRing.
@@ -46,16 +46,18 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 
 (* ============================================================ *)
-(* Part 0：定义族（两温度 Boltzmann 有限状态carrier s0 :: l）          *)
+(* Part 0: the definition family (two-temperature Boltzmann over the   *)
+(*   finite state carrier [s0 :: l]).                                   *)
 (* ============================================================ *)
 
-(* 配分函数 Z_t := Σ_{s ∈ s0::l} e^{−β·u_s}，β := 1/t *)
+(* The partition function [Z_t], the sum of [e^{-beta*u_s}] over [s0::l], with [beta := 1/t]. *)
 Definition retm_Ztemp (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t : Real) (Ht : real_lt real_zero t) : Real :=
   real_list_sum X (fun s => real_exp_neg (real_mult (real_inv_pos t Ht) (u s))) (s0 :: l).
 
-(* Z_t > 0：逐点正 + cons carrier非空（real_list_sum_pos 的 <> 前提
-   在证内以 discriminate 使用，语句面零 Prop） *)
+(* [Z_t > 0]: pointwise positivity plus a nonempty cons carrier (the    *)
+(*   [<>] premise of [real_list_sum_pos] is used with [discriminate]    *)
+(*   inside the proof; the statement face carries no [Prop]).           *)
 Lemma retm_Ztemp_pos : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t : Real) (Ht : real_lt real_zero t),
   real_lt real_zero (retm_Ztemp X u s0 l t Ht).
@@ -66,13 +68,13 @@ Proof.
   - discriminate.
 Qed.
 
-(* Boltzmann 分布 p_t(s) := e^{−β·u_s}·inv(Z_t) *)
+(* The Boltzmann distribution [p_t(s) := e^{-beta*u_s} * inv(Z_t)]. *)
 Definition retm_pB (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t : Real) (Ht : real_lt real_zero t) (s : X) : Real :=
   real_mult (real_exp_neg (real_mult (real_inv_pos t Ht) (u s)))
             (real_inv_pos (retm_Ztemp X u s0 l t Ht) (retm_Ztemp_pos X u s0 l t Ht)).
 
-(* 正性证书（透明 Definition，proof-relevant 数据随定义走） *)
+(* The positivity certificate (a transparent [Definition]; the proof-relevant data travels with the definition). *)
 Definition retm_pB_pos (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t : Real) (Ht : real_lt real_zero t) (s : X) :
   real_lt real_zero (retm_pB X u s0 l t Ht s) :=
@@ -81,7 +83,7 @@ Definition retm_pB_pos (X : Type) (u : X -> Real) (s0 : X) (l : list X)
     (real_exp_neg_pos (real_mult (real_inv_pos t Ht) (u s)))
     (real_inv_pos_pos (retm_Ztemp X u s0 l t Ht) (retm_Ztemp_pos X u s0 l t Ht)).
 
-(* 期望能量 E_t := Σ p_t·u *)
+(* The expected energy [E_t], the sum of [p_t * u]. *)
 Definition retm_Eexp (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t : Real) (Ht : real_lt real_zero t) : Real :=
   real_list_sum X (fun s => real_mult (retm_pB X u s0 l t Ht s) (u s)) (s0 :: l).
@@ -91,7 +93,7 @@ Definition retm_LZ (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t : Real) (Ht : real_lt real_zero t) : Real :=
   real_log (retm_Ztemp X u s0 l t Ht) (retm_Ztemp_pos X u s0 l t Ht).
 
-(* KL(p_{t1}‖p_{t2}) := Σ real_kl_term（库件 real_kl_term = p·(−log(q/p))） *)
+(* [KL(p_{t1} || p_{t2})], the sum of [real_kl_term] (the library lemma [real_kl_term] = [p * (-log(q/p))]). *)
 Definition retm_KL (X : Type) (u : X -> Real) (s0 : X) (l : list X)
            (t1 : Real) (Ht1 : real_lt real_zero t1)
            (t2 : Real) (Ht2 : real_lt real_zero t2) : Real :=
@@ -99,9 +101,12 @@ Definition retm_KL (X : Type) (u : X -> Real) (s0 : X) (l : list X)
                                           (retm_pB_pos X u s0 l t1 Ht1 s) (retm_pB_pos X u s0 l t2 Ht2 s))
                   (s0 :: l).
 
-(* 代数恒等捷径：加/乘/负/原子项上的 real_eq 一步 ring 闭合。
-   逐点投影 real_*_proj 现为 QeqT 面（S02_CauchyComplete），故经
-   qeq_imp_qeqT / qeqT_imp_qeq 两向门转 Qeq 环面后 ring 闭合。 *)
+(* The algebraic-identity shortcut: a [real_eq] between sums, products, *)
+(*   negations, and atoms of terms closes in one [ring] step.  The      *)
+(*   pointwise projections [real_*_proj] are on the [QeqT] face         *)
+(*   ([S02_CauchyComplete]), so the goal moves to the [Qeq] ring face   *)
+(*   through the two-direction gates [qeq_imp_qeqT] / [qeqT_imp_qeq]    *)
+(*   before [ring] closes it.                                           *)
 Ltac retm_alg :=
   apply real_eq_of_zero_diff; intro; apply qeq_imp_qeqT;
   repeat first [ rewrite (qeqT_imp_qeq _ _ (real_plus_proj _ _ _))
@@ -110,10 +115,10 @@ Ltac retm_alg :=
   ring.
 
 (* ============================================================ *)
-(* Part 1：代数助手 + log/inv 桥                                   *)
+(* Part 1: algebraic helpers and the log/inv bridge.                    *)
 (* ============================================================ *)
 
-(* a + b == 0 ⟹ b == −a（real_eq 链） *)
+(* [a + b == 0] implies [b == -a] (a [real_eq] chain). *)
 Lemma retm_plus_zero_l_opp : forall a b : Real,
   real_eq (real_plus a b) real_zero -> real_eq b (real_opp a).
 Proof.
@@ -145,7 +150,7 @@ Proof.
               ** exact (real_plus_zero (real_opp a)).
 Qed.
 
-(* log(1/x) == −log x（一般件；由 log(x·inv x) == log 1 == 0 + 助手） *)
+(* [log(1/x) == -log x] (the general lemma; from [log(x * inv x) == log 1 == 0] plus the helper above). *)
 Lemma retm_log_inv_pos_gen : forall (x : Real) (Hx : real_lt real_zero x),
   real_eq (real_log (real_inv_pos x Hx) (real_inv_pos_pos x Hx))
           (real_opp (real_log x Hx)).
@@ -183,10 +188,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2：Boltzmann 分布基本恒等                                  *)
+(* Part 2: basic identities of the Boltzmann distribution.              *)
 (* ============================================================ *)
 
-(* p_t(s)·Z_t == e^{−β·u_s}：(e·invZ)·Z == e·(invZ·Z) == e·(Z·invZ) == e·1 == e *)
+(* [p_t(s) * Z_t == e^{-beta*u_s}]: (e*invZ)*Z == e*(invZ*Z) == e*(Z*invZ) == e*1 == e. *)
 Lemma retm_pB_Z_mult : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t : Real) (Ht : real_lt real_zero t) (s : X),
   real_eq (real_mult (retm_pB X u s0 l t Ht s) (retm_Ztemp X u s0 l t Ht))
@@ -208,7 +213,7 @@ Proof.
       * exact (real_mult_one e).
 Qed.
 
-(* 归一化：Σ_s p_t(s) == 1（linear_r + inv_pos_correct） *)
+(* Normalization: [sum_s p_t(s) == 1] (via [real_list_sum_linear_r] and [real_inv_pos_correct]). *)
 Lemma retm_pB_norm : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t : Real) (Ht : real_lt real_zero t),
   real_eq (real_list_sum X (fun s => retm_pB X u s0 l t Ht s) (s0 :: l)) real_one.
@@ -229,7 +234,7 @@ Proof.
     + exact (real_inv_pos_correct (retm_Ztemp X u s0 l t Ht) (retm_Ztemp_pos X u s0 l t Ht)).
 Qed.
 
-(* log p_t(s) == −β·u_s − log Z_t（log_mult + log_exp_neg + log_inv 桥） *)
+(* [log p_t(s) == -beta*u_s - log Z_t] (the [real_log_mult], [real_log_exp_neg], and log-inverse bridge). *)
 Lemma retm_log_pB : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t : Real) (Ht : real_lt real_zero t) (s : X),
   real_eq (real_log (retm_pB X u s0 l t Ht s) (retm_pB_pos X u s0 l t Ht s))
@@ -262,12 +267,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 3：KL 逐点温度分解                                         *)
+(* Part 3: the pointwise temperature decomposition of KL.               *)
 (* ============================================================ *)
 
-(* real_kl_term(p_{t1}(s), p_{t2}(s)) == p_{t1}(s)·((β2−β1)·u_s + (logZ2−logZ1))
-   链：kl_term = p1·(−log(p2/p1))；log(p2/p1) == log p2 + log(inv p1)
-   == (−β2·u_s−LZ2) + −(−β1·u_s−LZ1)；展开 + 代数闭合。 *)
+(* [real_kl_term(p_{t1}(s), p_{t2}(s)) ==                                *)
+(*   p_{t1}(s) * ((beta2 - beta1)*u_s + (logZ2 - logZ1))].               *)
+(*   Chain: [kl_term = p1 * (-log(p2/p1))]; [log(p2/p1) == log p2 +      *)
+(*   log(inv p1) == (-beta2*u_s - LZ2) + -(-beta1*u_s - LZ1)]; then      *)
+(*   expansion plus algebraic closure.                                   *)
 Lemma retm_kl_point : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t1 : Real) (Ht1 : real_lt real_zero t1) (t2 : Real) (Ht2 : real_lt real_zero t2) (s : X),
   real_eq (real_kl_term (retm_pB X u s0 l t1 Ht1 s) (retm_pB X u s0 l t2 Ht2 s)
@@ -341,14 +348,16 @@ Proof.
                (RealSetoid.real_eq_opp_compat (real_log p2 Hp2)
                   (real_plus (real_opp (real_mult b2 (u s))) (real_opp L2)) H4t2)
                Hinv1).
-    + (* 纯代数：−(−β2·u−LZ2) + (−β1·u−LZ1) == (β2−β1)·u + (LZ2−LZ1) *)
+    + (* pure algebra: -(-beta2*u - LZ2) + (-beta1*u - LZ1) == (beta2 - beta1)*u + (LZ2 - LZ1). *)
       retm_alg.
 Qed.
 
-(* KL(p_{t1}‖p_{t2}) == (β2−β1)·E1 + (logZ2−logZ1)
-   （Real 层对位 UpReqTempEntropy.v:225 req_relative_entropy_temp_decomp）
-   链：逐点展开（retm_kl_point）+ distrib 拆和 + 常数提取（linear_r）
-   + 逐点换形（assoc/comm/comm）+ 归一化（retm_pB_norm）+ mult_one。 *)
+(* [KL(p_{t1} || p_{t2}) == (beta2 - beta1)*E1 + (logZ2 - logZ1)] —      *)
+(*   the Real-layer counterpart of [req_relative_entropy_temp_decomp]   *)
+(*   in [UpReqTempEntropy].  Chain: the pointwise expansion              *)
+(*   ([retm_kl_point]), splitting the sum by distributivity, extracting  *)
+(*   the constants ([real_list_sum_linear_r]), pointwise reassociation   *)
+(*   (assoc/comm/comm), normalization ([retm_pB_norm]), and [mult_one].  *)
 Lemma retm_KL_decomp : forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
   (t1 : Real) (Ht1 : real_lt real_zero t1) (t2 : Real) (Ht2 : real_lt real_zero t2),
   real_eq (retm_KL X u s0 l t1 Ht1 t2 Ht2)
@@ -398,7 +407,7 @@ Proof.
                     (real_list_sum X (fun s => real_mult (p1 s) C) (s0 :: l))
                     (real_mult k E1)
                     C).
-           ++ (* 肢 1：Σ(p1·(k·u)) == k·Σ(p1·u)：逐点换形 + linear_r *)
+           ++ (* limb 1: [sum(p1 * (k*u)) == k * sum(p1*u)]: pointwise rewrite plus [real_list_sum_linear_r]. *)
               apply (real_eq_trans
                        (real_list_sum X (fun s => real_mult (p1 s) (real_mult k (u s))) (s0 :: l))
                        (real_list_sum X (fun s => real_mult (real_mult (p1 s) (u s)) k) (s0 :: l)) _).
@@ -406,7 +415,7 @@ Proof.
                           (fun s => real_mult (real_mult (p1 s) (u s)) k) (s0 :: l)).
                  intro w. retm_alg.
               ** exact (real_list_sum_linear_r X k (fun s => real_mult (p1 s) (u s)) (s0 :: l)).
-           ++ (* 肢 2：Σ(p1·C) == C·Σp1 == C·1 == C *)
+           ++ (* limb 2: [sum(p1 * C) == C * sum(p1) == C * 1 == C]. *)
               apply (real_eq_trans (real_list_sum X (fun s => real_mult (p1 s) C) (s0 :: l))
                                    (real_mult C (real_list_sum X p1 (s0 :: l))) _).
               ** exact (real_list_sum_linear_r X C p1 (s0 :: l)).
@@ -416,17 +425,19 @@ Proof.
                               (real_eq_refl C) (retm_pB_norm X u s0 l t1 Ht1)).
                  --- exact (real_mult_one C).
       * exact (real_eq_refl (real_plus (real_mult k E1) C)).
-  - (* 中项与目标转换：E1 δ 同 retm_Eexp 展开 *)
+  - (* middle term versus goal: [E1] is delta-equal to the [retm_Eexp] unfolding. *)
     exact (real_eq_refl _).
 Qed.
 
 (* ============================================================ *)
-(* Part 4：主定理恒等档主定理                                         *)
+(* Part 4: the identity-grade main theorem.                             *)
 (* ============================================================ *)
 
-(* KL(p_{t2}‖p_{t1}) + KL(p_{t1}‖p_{t2}) == (β1−β2)·(E2−E1)
-   （Real 层对位 UpReqTempEntropy.v:1208 req_temp_strict_ident2，
-   Id temp_strict_ident2 @17879；energy_exp_temp_mono 恒等档） *)
+(* [KL(p_{t2} || p_{t1}) + KL(p_{t1} || p_{t2}) ==                       *)
+(*   (beta1 - beta2)*(E2 - E1)] — the Real-layer counterpart of          *)
+(*   [req_temp_strict_ident2] in [UpReqTempEntropy] and of the           *)
+(*   [Id]-carrier [temp_strict_ident2]; the identity-grade face of       *)
+(*   [energy_exp_temp_mono].                                             *)
 Theorem retm_energy_temp_kl_pair_ident :
   forall (X : Type) (u : X -> Real) (s0 : X) (l : list X)
     (t1 : Real) (Ht1 : real_lt real_zero t1) (t2 : Real) (Ht2 : real_lt real_zero t2),
@@ -456,12 +467,13 @@ Proof.
                                    (retm_Eexp X u s0 l t1 Ht1))
                         (real_plus (retm_LZ X u s0 l t2 Ht2) (real_opp (retm_LZ X u s0 l t1 Ht1))))
              H21 H12).
-  - (* 纯代数：(b1−b2)E2 + (L1−L2) + (b2−b1)E1 + (L2−L1) == (b1−b2)(E2−E1) *)
+  - (* pure algebra: (b1-b2)*E2 + (L1-L2) + (b2-b1)*E1 + (L2-L1) == (b1-b2)*(E2-E1). *)
     retm_alg.
 Qed.
 
 (* ============================================================ *)
-(* G4 证据：全件零外部未证假设                                       *)
+(* Assumption audit: no statement relies on an unproved external        *)
+(*   assumption.                                                        *)
 (* ============================================================ *)
 Print Assumptions retm_Ztemp_pos.
 Print Assumptions retm_pB_Z_mult.

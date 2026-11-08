@@ -1,31 +1,33 @@
-(* ==========================================================================
-   UpAblD1S13_UpReqAlignClose.v - the UpReqAlignClose section-remainder
-   slots, discharged as a one-point instance package.
-   Mission. 使命: one named instance declaration, one positivity
-     certificate for the alignment partition function at the one-point
-     instance, one record-type package uabd1s13_uac_pack16 restating the
-     sixteen remainder slots in declaration order (the KL plain-le slot
-     enters as an explicit premise, exactly as the source section
-     declares it - an honest-interface slot, not claimed as a supply),
-     and one discharge theorem taking that premise.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqAlign of the
-     -Set lineage world; argument-less Class RealInterfaceEnhancedSetoid;
-     notation rebind Notation R := Real; predicate faces converged to
-     real_eq / real_le / real_lt; bare field consumption through the
-     global instance.
-   References. 对标: the alignment requirement family (single-point
-     instance at the world's discharged signatures). Statement names
-     carried over verbatim; adaptation = binder-pair removal + notation
-     rebinding + predicate-face convergence + space-slot monomorphise to
-     unit (the D1S17 record-form precedent, keeping the extracted payload
-     real data).
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; the tail Print Assumptions probes
-     report the closure face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     UpAblD1S13_UpReqAlignClose.v (cpu_guard thermal wrapper,
-     ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — the alignment section-remainder slots discharged
+   as a one-point instance package. *)
+(** * UpAblD1S13_UpReqAlignClose: sixteen remainder slots of the alignment
+      requirement section, discharged at the one-point instance.
+
+    Mission.  One named instance declaration [uabd1s13_ren]; one positivity
+      certificate [uabd1s13_uac_zap_pos] for the alignment partition function
+      [Z_align_req] at the one-point instance; one record-type package
+      [uabd1s13_uac_pack16] restating the sixteen remainder slots in
+      declaration order (the KL plain-[le] slot enters as an explicit
+      premise, exactly as the source section declares it — an honest-interface
+      slot, not claimed as a supply); one discharge theorem
+      [uabd1s13_uac_pack16_supplied] taking that premise.
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
+      [UpReqAlign] of this development; the argument-less [Class]
+      [RealInterfaceEnhancedSetoid]; [Notation R := Real]; predicate faces
+      converged to [real_eq]/[real_le]/[real_lt], bare fields consumed
+      through the global instance.
+    References.  This development and the ConstructiveWorld-Main baseline
+      module of the same name: the alignment requirement family (single-point
+      instance at the world's discharged signatures); statement names carried
+      over verbatim; adaptation = binder-pair removal, notation rebinding,
+      predicate-face convergence, space-slot monomorphisation to [unit],
+      keeping the extracted payload real data.
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; the tail [Print Assumptions]
+      lines report the closure face; no new axioms.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      UpAblD1S13_UpReqAlignClose.v] compiles cleanly (exit 0) under the
+      [cpu_guard] thermal wrapper with [ulimit -s 65532]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

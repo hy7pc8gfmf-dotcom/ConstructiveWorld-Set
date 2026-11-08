@@ -439,7 +439,7 @@ Fixpoint sif_enum (q : Q) (k : nat) :
                       QltT 1%Q
                         (Qabs ((q_fact n1 * (q - exp_series n1 1)%Q)%Q)))
                    Hcc O E)
-          | right E => False_rect _ ltac:(pose proof (NatLe_drop _ _ Hn0); lia)
+          | right E => False_rect _ ltac:(pose proof (NatLe_drop_le _ _ Hn0); lia)
           end)
     end
   | Datatypes.S m =>
@@ -459,7 +459,16 @@ Fixpoint sif_enum (q : Q) (k : nat) :
       | inr c =>
         inr (fun (n : nat) (Hn : NatLe n (Datatypes.S m)) (Hcc : QltT 1%Q (Qabs ((q_fact n * (q - exp_series n 1)%Q)%Q))) =>
           match Nat.eq_dec n (Datatypes.S m) with
-          | right E => g n ltac:(apply NatLe_lift; pose proof (NatLe_drop _ _ Hn); lia) Hcc
+          | right E =>
+              (* Informative face: the predecessor bound is written as the
+                 boolean comparison computed once; the unreachable false
+                 branch follows from the successor bound and [E]. *)
+              g n ltac:(apply NatLe_liftI;
+                        pose proof (NatLe_drop_le _ _ Hn);
+                        destruct (Nat.leb n m) eqn:Elb;
+                        [exact id_refl
+                        | exfalso; apply (proj1 (Nat.leb_gt n m)) in Elb; lia])
+                 Hcc
           | left E =>
               c (eq_rect n
                    (fun n1 : nat =>
@@ -494,8 +503,15 @@ Proof.
   - exists n. apply QltT_to_Qlt. exact Hc.
   - exfalso. apply (sif_window q Hbq).
     intros k HkN.
-    assert (HkN3 : NatLe k (Z.to_nat (2 * Z.pos (Qden q) + 3)))
-      by (apply NatLe_lift; lia).
+    assert (HkN3 : NatLe k (Z.to_nat (2 * Z.pos (Qden q) + 3))).
+    { (* Informative face: the boolean comparison is computed once; the
+         unreachable false branch is closed by the window bound in scope. *)
+      apply NatLe_liftI.
+      destruct (Nat.leb k (Z.to_nat (2 * Z.pos (Qden q) + 3))) eqn:Elb.
+      - exact id_refl.
+      - exfalso.
+        apply (proj1 (Nat.leb_gt k (Z.to_nat (2 * Z.pos (Qden q) + 3)))) in Elb.
+        lia. }
     destruct (Qlt_bool 1%Q (Qabs ((q_fact k * (q - exp_series k 1)%Q)%Q)))
       eqn:EQ.
     + exfalso. destruct (Hno k HkN3 (sif_eq_id _ _ EQ)).
@@ -517,8 +533,17 @@ Proof.
           ++ exact (Qeq_sym _ _ (qeqT_imp_qeq _ _ HF)).
           ++ unfold Qlt. cbn [Qnum Qden Qmult]. lia. }
       assert (Hssk3 : NatLe (Datatypes.S (Datatypes.S k))
-                            (Z.to_nat (2 * Z.pos (Qden q) + 3)))
-        by (apply NatLe_lift; lia).
+                            (Z.to_nat (2 * Z.pos (Qden q) + 3))).
+      { (* Informative face: the boolean comparison is computed once; the
+           unreachable false branch is closed by the window bound in scope. *)
+        apply NatLe_liftI.
+        destruct (Nat.leb (Datatypes.S (Datatypes.S k))
+                          (Z.to_nat (2 * Z.pos (Qden q) + 3))) eqn:Elb.
+        - exact id_refl.
+        - exfalso.
+          apply (proj1 (Nat.leb_gt (Datatypes.S (Datatypes.S k))
+                        (Z.to_nat (2 * Z.pos (Qden q) + 3)))) in Elb.
+          lia. }
       destruct (Z.eq_dec (sif_d q k) 0) as [Hz | Hnz].
       { destruct (Hno (Datatypes.S (Datatypes.S k)) Hssk3
             ltac:(apply sif_hit_of_dd;

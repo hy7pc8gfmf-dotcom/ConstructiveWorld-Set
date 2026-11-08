@@ -1,60 +1,32 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ===================================================================== *)
-(*   基准：ConstructiveWorld-Main/ConstructiveWorld_Live 565 注册面（只读）。 *)
-(*   性质：同名替换稿（消融50/fa56c_ext.v 基线名已在位，按规前缀落件）——      *)
-(*   声明序与语句逐字保留，仅换下列三处玩具证明体。                          *)
-(*   替换清单（本件三刀）：                                                *)
-(*    ①fa56c_le_mult_compat_l：换轨自足链路线——两处自反启动（le_refl 引擎  *)
-(*      把乘法交换律 Id 证升格为 le 证肢）＋双重 le_trans 显式中项链         *)
-(*      （原稿 le_id_l/le_id_r 目标侧迁移三明治）。结构性推导五实质步。      *)
-(*    ②fa56c_loss_structure_correlation：换轨脱钩独立重演——不再使用本件     *)
-(*      ①号帮件，显式具化两支中项原地重演同拓扑五步链（原稿单点引擎使用）。  *)
-(*    ③fa56c_loss_structure_annealed：换轨直供引擎路线——退火标度正性件      *)
-(*      （fa56_prob_neg_entropy_pos）由经帮件中转改为直连右乘兼容字段，      *)
-(*      两支各携自反启动＋交换律换位（原稿单点中转使用）。六实质步。          *)
-(*   其余九条玩具经复核为定义性闭合/判别语义/接口字段直转发/单路唯一形       *)
-(*   （不可化四类），如实批量标注不强造，滚动留记。                          *)
-(*   全文件零禁词面；全真配平；零新增引用面。                                *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set -- fa56c_ext: C-class slot supplies for the S04/S05
+   language-model, temperature, and physical-prediction sections. *)
 
-(* ============================================================ *)
-(*                                                               *)
-(* 使命：Id 载体槽三段——S04/S05 语言模型/温度/物理预测节的      *)
-(*       C 类槽沿引擎批量续做（使用 fa51 引擎出口件 fa56_id_carrier *)
-(*       / fa56b_ext 同目录 .vo，均只 Require 零改）。vocab_nonempty *)
-(*       /sumd_cong/detailed_balance/stationary 已被 fa56/fa56b    *)
-(*       覆盖，本件零重复；只补 VA 对账 §3/§4 判 B 面中引擎可兑现  *)
-(*       且 fa51/fa56/fa56b 均未覆盖的槽。                        *)
-(*                                                               *)
-(* 选槽清单（语句原文坐标，全经 grep 核对）：                      *)
-(*  槽X   S04_RealExpLogConv.v:1590（LM 节 ArgminCorrectness 的     *)
-(*        default_token 槽）——构造兑现：词表非空时 default_token    *)
-(*        不必是接口参数，可由 vocab 头元构造；J 层 nil 分支由      *)
-(*        vocab_nonempty 前提灭（fa56b 单点非空件直接供居民）。    *)
-(*  槽XI  S05_AlignmentGRPO.v:5942-5944（Prediction3Landauer 节     *)
-(*        prediction_landauer 槽：Id E_min (mult k_B (mult          *)
-(*        T_landauer (log (plus one one)))))——既有判例定义件 +         *)
-(*        Landauer 上界伴件（log x ≤ x-1 切线 + minus 环件 +        *)
-(*        le 双重排六段链，非平凡）。                               *)
-(*  槽XII S05:6016-6019（Prediction7LMStructure 节                   *)
-(*        loss_structure_correlation 槽：语法误差降 ⟹ 总损失降）    *)
-(*        ——total_loss 装法定义件（c>0 标度，诚实降级同 fa51 beta   *)
-(*        模式）+ le/lt 双伴件（le_mult_compat/lt_mult_compat）+    *)
-(*        退火特化件（c := fa56_prob_neg_entropy，使用 fa56 正性    *)
-(*        伴件）。                                                  *)
-(*  槽XIII S05:5824-5827（Nonequilibrium 节 max_entropy_production   *)
-(*        槽：ExistsT 最大熵产通量见证）——见证装配件：占优前提      *)
-(*        降级入签名 + existT 直接装配；构造特化件（恒一权重核，    *)
-(*        le_refl 闭合）+ noneq_loss 同构件。                       *)
-(*                                                               *)
-(* 新引擎件：fa56c_le_mult_compat_l（左乘 le 兼容；接口字段只给     *)
-(*        右乘 le_mult_compat，mult_comm 双重排拼装，槽XI/XIII      *)
-(*        共用钥匙）。                                             *)
-(*                                                               *)
-(* 对账口径：同 fa56/fa56b——语句面 Set 层（lt/le/Id/Not/ExistsT     *)
-(*        均 S01 Set 值定义，零 Prop 泄露）；ExistsT := sigT        *)
-(*        （S01:71）。既有文件零改；前缀 fa56c_ 全库防撞已 grep 核。 *)
-(* 红线：纯构造性零承认位；尾 Print Assumptions 全 Closed。         *)
-(* ============================================================ *)
+(** * fa56c_ext: engine-continued Id-carrier slot supplies.
+
+    Mission.  Supplies for four premise slots on the engine exports
+      [fa56_id_carrier]/[fa56b_ext]: the [default_token] slot (from
+      the head element of a nonempty [vocab], with three companions);
+      the [prediction_landauer] slot (the [E_min] piece and the
+      Landauer upper bound [ln 2 <= 1] via the log tangent bound);
+      [loss_structure_correlation] (a scaled [total_loss] with le/lt
+      companions and an annealed specialization); and
+      [max_entropy_production] (an [ExistsT] witness, a
+      constant-weight specialization, the [noneq_loss] mirror).  New
+      engine piece: [fa56c_le_mult_compat_l] (left-multiplication
+      [le] compatibility).
+
+    Dependencies.  Stdlib [Lists.List]; requires [S01_BaseRing],
+      [fa56_id_carrier], [fa56b_ext].
+
+    References.  ConstructiveWorld-Main, module [fa56c_ext]
+      (statement names carried over verbatim).
+
+    Constructivity.  Statement faces are Set-level ([lt]/[le]/[Id]/
+      [Not]/[ExistsT], [ExistsT] [:= sigT]); purely constructive,
+      no admits; tail [Print Assumptions] covers every statement.
+
+    Build.  [coqc -native-compiler no -q -Q . "" fa56c_ext.v]
+      compiles cleanly (exit 0). *)
 
 Require Import S01_BaseRing.
 Require Import fa56_id_carrier.
@@ -76,9 +48,12 @@ Let le   := @le RI.
 Let lt   := @lt RI.
 Let log  := @log RI.
 
-(* ============ 引擎钥匙：左乘 le 兼容件 ============ *)
-(* 接口只给右乘字段 le_mult_compat（c 乘在右）；槽XI 上界链与       *)
-(* 槽XIII 占优链都要左乘形——mult_comm 两次重排拼装，零新假设位。    *)
+(* ============ Engine key: left-multiplication le compatibility *)
+(* The interface provides only the right-multiplication field      *)
+(* [le_mult_compat] ([c] multiplied on the right); the slot XI     *)
+(* upper-bound chain and the slot XIII dominance chain both need   *)
+(* the left form - assembled by two [mult_comm] rearrangements,    *)
+(* no new premises.                                                *)
 
 Lemma fa56c_le_mult_compat_l :
   forall (a b c : R), lt zero c -> le a b -> le (mult c a) (mult c b).
@@ -93,7 +68,8 @@ Proof.
                  (mult_comm b c) (le_refl (mult c b))))).
 Qed.
 
-(* 左乘 lt 兼容件（同法；槽XII 严格版用）。                          *)
+(* Left-multiplication [lt] compatibility (same method; used by    *)
+(* the strict version of slot XII).                                *)
 
 Lemma fa56c_lt_mult_compat_l :
   forall (a b c : R), lt zero c -> lt a b -> lt (mult c a) (mult c b).
@@ -105,11 +81,13 @@ Proof.
               (mult_comm b c) (lt_mult_compat a b c Hc H))).
 Qed.
 
-(* ============ 槽X：S04:1590 default_token 槽（LM 节）============= *)
-(* 槽语句：Variable default_token : Token（ArgminCorrectness 节，    *)
-(* 与 vocab/vocab_nonempty 同组）。兑现：非空词表下 default_token    *)
-(* 由 vocab 头元构造，nil 分支由非空前提灭（S04:1589 槽先例形的      *)
-(* 构造侧闭合）。                                                   *)
+(* ============ Slot X: the S04:1590 default_token slot (LM       *)
+(*   section) ============                                        *)
+(* Slot statement: [Variable default_token : Token] (the          *)
+(* [ArgminCorrectness] section, grouped with [vocab]/             *)
+(* [vocab_nonempty]).  Realization: for a nonempty vocabulary the *)
+(* default token is constructed from the head element of [vocab], *)
+(* the nil branch being killed by the nonemptiness premise.       *)
 
 Definition fa56c_default_token (Token : Set) (vocab : list Token)
                                (Hne : Not (Id vocab (@nil Token))) : Token :=
@@ -118,21 +96,24 @@ Definition fa56c_default_token (Token : Set) (vocab : list Token)
   | w0 :: _ => fun _ => w0
   end Hne.
 
-(* 头元性：cons 词表的 default_token 即首元（定义性归约）。          *)
+(* Head property: the default token of a cons vocabulary is its    *)
+(* first element (definitional reduction).                         *)
 Theorem fa56c_default_token_head :
   forall (Token : Set) (t0 : Token) (l : list Token)
          (Hne : Not (Id (t0 :: l) (@nil Token))),
     Id (fa56c_default_token Token (t0 :: l) Hne) t0.
 Proof. intros Token t0 l Hne. reflexivity. Qed.
 
-(* 单点词表实例：非空见证由 fa56b 单点件直接供给（引擎使用位）。      *)
+(* Singleton-vocabulary instance: the nonemptiness witness is      *)
+(* supplied directly by the fa56b singleton piece.                 *)
 Theorem fa56c_default_token_singleton :
   forall (Token : Set) (t0 : Token),
     Id (fa56c_default_token Token (t0 :: nil)
           (fa56b_singleton_nonempty Token t0)) t0.
 Proof. intros Token t0. reflexivity. Qed.
 
-(* 伴件：default_token 头插回词表保非空（fa56b 判别核使用位）。       *)
+(* Companion: consing the default token back keeps the vocabulary  *)
+(* nonempty (using the fa56b discrimination core).                 *)
 Theorem fa56c_default_token_cons_preserves_nonempty :
   forall (Token : Set) (vocab : list Token)
          (Hne : Not (Id vocab (@nil Token))),
@@ -143,11 +124,15 @@ Proof.
            (fa56c_default_token Token vocab Hne) vocab H).
 Qed.
 
-(* ============ 槽XI：S05:5942-5944 Landauer 槽（物理预测节）======== *)
-(* 槽语句：prediction_landauer : Id E_min (mult k_B (mult T_landauer  *)
-(*   (log (plus one one))))。既有判例装法：E_min 定义件 + 同构 Id 件；   *)
-(* 非平凡伴件为 Landauer 上界：ln 2 ≤ 1（log 切线界 log_le_linear +  *)
-(* two_pos + minus 环件）经左乘兼容件双层提升 ⟹ E_min ≤ k_B·T。      *)
+(* ============ Slot XI: the S05:5942-5944 Landauer slot (physical *)
+(*   prediction section) ============                              *)
+(* Slot statement: [prediction_landauer : Id E_min (mult k_B (mult *)
+(* T_landauer (log (plus one one))))].  Assembly: the [E_min]      *)
+(* definition piece plus the identical [Id] piece; the nontrivial  *)
+(* companion is the Landauer upper bound [ln 2 <= 1] (the log      *)
+(* tangent bound [log_le_linear], [two_pos], and minus ring        *)
+(* pieces) lifted twice by the left-multiplication compatibility   *)
+(* piece, giving [E_min <= k_B*T].                                 *)
 
 Definition fa56c_E_min (k_B T_landauer : R) : R :=
   mult k_B (mult T_landauer (log (plus one one))).
@@ -177,12 +162,15 @@ Proof.
                    (log_le_linear (plus one one) two_pos)))).
 Qed.
 
-(* ============ 槽XII：S05:6016-6019 loss_structure_correlation 槽 == *)
-(* 槽语句：forall epoch, le (grammar_error (model epoch)) (grammar_   *)
-(*   error (model (succ epoch))) -> le (total_loss (model epoch))     *)
-(*   (total_loss (model (succ epoch)))。兑现：total_loss 装法定义件   *)
-(* （正标度 c，诚实降级入签名）；le/lt 双伴件走 le/lt_mult_compat；   *)
-(* 退火特化件以 fa56_prob_neg_entropy 为 c（fa56 正性伴件使用位）。   *)
+(* ============ Slot XII: the S05:6016-6019 loss_structure_       *)
+(*   correlation slot ============                                *)
+(* Slot statement: [forall epoch, le (grammar_error (model epoch)) *)
+(* (grammar_error (model (succ epoch))) -> le (total_loss (model   *)
+(* epoch)) (total_loss (model (succ epoch)))].  Realization: the   *)
+(* [total_loss] assembly definition (positive scale [c]); the      *)
+(* le/lt companions go through [le_mult_compat]/[lt_mult_compat];  *)
+(* the annealed specialization takes [c := fa56_prob_neg_entropy]  *)
+(* (using the fa56 positivity companion).                          *)
 
 Definition fa56c_total_loss (Token : Set) (grammar_error : list Token -> R)
                             (c : R) (l : list Token) : R :=
@@ -220,7 +208,8 @@ Proof.
                  (le_refl (mult c (grammar_error (model (Nat.succ epoch)))))))).
 Qed.
 
-(* 严格版：语法误差严格降 ⟹ 总损失严格降。                           *)
+(* Strict version: a strict decrease in grammar error gives a      *)
+(* strict decrease in total loss.                                  *)
 Theorem fa56c_loss_structure_strict :
   forall (Token : Set) (model : nat -> list Token)
          (grammar_error : list Token -> R) (c : R),
@@ -236,7 +225,9 @@ Proof.
   exact (fa56c_lt_mult_compat_l _ _ _ Hc H).
 Qed.
 
-(* 退火特化：c 取 fa56 涨落尺度件（温度载负标度），正性由 fa56 件    *)
+(* Annealed specialization: [c] is the fa56 fluctuation-scale      *)
+(* piece (a temperature-carried negative scale); positivity from   *)
+(* the fa56 piece.                                                 *)
 Theorem fa56c_loss_structure_annealed :
   forall (Token : Set) (model : nat -> list Token)
          (grammar_error : list Token -> R) (k_B : R)
@@ -288,19 +279,24 @@ Proof.
                                 (grammar_error (model (Nat.succ epoch)))))))).
 Qed.
 
-(* ============ 槽XIII：S05:5824-5827 max_entropy_production 槽 ====== *)
-(* 槽语句：max_entropy_production : forall X, ExistsT (fun J : Flux    *)
-(*   => forall J' : Flux, le (entropy_production_rate J X)              *)
-(*   (entropy_production_rate J' X))。兑现：产率装法定义件（权重×势）  *)
-(* + ExistsT 见证装配件（占优前提入签名，existT J0 一步装配）+ 恒一    *)
-(* 权重构造特化件（无前提，le_refl 闭合）+ noneq_loss 同构件。         *)
+(* ============ Slot XIII: the S05:5824-5827 max_entropy_         *)
+(*   production slot ============                                 *)
+(* Slot statement: [max_entropy_production : forall X, ExistsT     *)
+(* (fun J : Flux => forall J' : Flux, le (entropy_production_rate  *)
+(* J X) (entropy_production_rate J' X))].  Realization: the rate   *)
+(* assembly definition (weight times potential), the [ExistsT]     *)
+(* witness assembly (dominance premise in the signature, [existT   *)
+(* J0] in one step), the constant-weight specialization            *)
+(* (premise-free, closed by [le_refl]), and the [noneq_loss]       *)
+(* mirror.                                                         *)
 
 Definition fa56c_entropy_production_rate (Flux TD : Set) (w : Flux -> R)
                                          (theta : TD -> R) (J : Flux)
                                          (X : TD) : R :=
   mult (w J) (theta X).
 
-(* 存在性主件：J0 为权重占优通量时，最大熵产见证由 existT 直接装配。   *)
+(* Existence main piece: when [J0] is a weight-dominant flux, the  *)
+(* maximal-production witness assembles directly by [existT].      *)
 Theorem fa56c_max_entropy_production :
   forall (Flux TD : Set) (w : Flux -> R) (theta : TD -> R) (J0 : Flux)
          (X : TD),
@@ -316,7 +312,9 @@ Proof.
                         (Hdom J'))).
 Qed.
 
-(* 构造特化：恒一权重核下任取 J0 即见证（权重占优由 le_refl 闭合）。   *)
+(* Constant-weight specialization: under the constant-one weight   *)
+(* kernel any [J0] is a witness (weight dominance closes by        *)
+(* [le_refl]).                                                     *)
 Theorem fa56c_max_entropy_production_const :
   forall (Flux TD : Set) (theta : TD -> R) (J0 : Flux) (X : TD),
     ExistsT (fun J : Flux => forall J' : Flux,
@@ -328,7 +326,8 @@ Proof.
   exact (existT _ J0 (fun J' => le_refl (mult one (theta X)))).
 Qed.
 
-(* noneq_loss 同构件（S05:5822 Definition noneq_loss 同构）。          *)
+(* [noneq_loss] mirror piece (isomorphic to the S05:5822           *)
+(* [Definition noneq_loss]).                                       *)
 Definition fa56c_noneq_loss (Flux TD : Set) (w : Flux -> R)
                             (theta : TD -> R) (J : Flux) (X : TD) : R :=
   opp (fa56c_entropy_production_rate Flux TD w theta J X).
@@ -342,7 +341,7 @@ Proof. intros Flux TD w theta J X. reflexivity. Qed.
 
 End Fa56cExt.
 
-(* ============ 假设面闭合申报 ============ *)
+(* ============ Assumption-face closure report ============ *)
 
 Print Assumptions fa56c_le_mult_compat_l.
 Print Assumptions fa56c_lt_mult_compat_l.

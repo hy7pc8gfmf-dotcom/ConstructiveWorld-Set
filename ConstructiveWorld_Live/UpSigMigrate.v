@@ -86,7 +86,7 @@ Variable Z_pos : lt zero Z.
 Hypothesis partition_condition :
   req Z (sumf (fun s => exp_neg (mult (inv_pos D D_pos) (base_loss s)))).
 
-(* ---- 节内定义（setoid 惯例形态） ---- *)
+(* ---- In-section definitions (setoid-conventional shapes) ---- *)
 Definition sigm_positive_dist (p : S -> R) : Set := forall s : S, lt zero (p s).
 Definition sigm_boltzmann_dist : S -> R :=
   fun s => mult (inv_pos Z Z_pos) (exp_neg (mult (inv_pos D D_pos) (base_loss s))).
@@ -97,7 +97,8 @@ Definition sigm_free_energy (p : S -> R) (Hp : sigm_positive_dist p) : R :=
 Definition sigm_normalized (p : S -> R) : Set := req (sumf p) one.
 Definition rminus (a b : R) : R := plus a (opp b).
 
-(* ---- Boltzmann 分布正性（setoid log 前提所需；接口字段直接组装） ---- *)
+(* ---- Positivity of the Boltzmann distribution (needed by the setoid
+       log premise; assembled directly from interface fields) ---- *)
 Lemma req_boltzmann_positive : sigm_positive_dist sigm_boltzmann_dist.
 Proof.
   intro s.
@@ -117,11 +118,13 @@ Hypothesis free_energy_boltzmann_bridge :
       (mult (opp D) (log Z Z_pos)).
 
 (* ============================================================ *)
-(* A. 代数前奏：req 版 opp 代数（接口字段纯推导，零 destruct，   *)
-(*    全 req_trans 链 + compat 桥） *)
+(* A. Algebraic prelude: the req-face opp algebra (pure derivation   *)
+(*    from interface fields, zero destruct; req_trans chains plus    *)
+(*    compat bridges throughout).                                    *)
 (* ============================================================ *)
 
-(* 加零右形式：plus_zero 字段只有左形式，右形式走 comm 桥 *)
+(* right form of adding zero: the [plus_zero] field has only the left
+   form; the right form routes through [plus_comm] *)
 Lemma req_plus_zero_r : forall a : R, req (plus zero a) a.
 Proof.
   intro a.
@@ -132,7 +135,7 @@ Proof.
   exact (req_trans (plus zero a) (plus a zero) a Hc Hz).
 Qed.
 
-(* 单位元左形式：mult_one 字段只有右形式 *)
+(* left form of the unit: the [mult_one] field has only the right form *)
 Lemma req_mult_one_l : forall a : R, req (mult one a) a.
 Proof.
   intro a.
@@ -143,7 +146,8 @@ Proof.
   exact (req_trans (mult one a) (mult a one) a Hc Ho).
 Qed.
 
-(* 左消去：opp 唯一性的引擎（七段传递链） *)
+(* left cancellation: the engine behind uniqueness of [opp] (a
+   seven-leg transitivity chain) *)
 Lemma req_add_cancel_l : forall (u v w : R),
   req (plus u v) (plus w v) -> req u w.
 Proof.
@@ -169,7 +173,8 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* 双重负号：opp (opp a) == a（两次 plus_opp + 消去） *)
+(* double negation: opp (opp a) == a (two uses of [plus_opp] plus
+   cancellation) *)
 Lemma req_double_neg : forall a : R, req (opp (opp a)) a.
 Proof.
   intro a.
@@ -181,7 +186,7 @@ Proof.
   - apply (req_sym (plus a (opp a)) zero). apply plus_opp.
 Qed.
 
-(* 负号分配：opp (a+b) == opp a + opp b *)
+(* negation distributes: opp (a+b) == opp a + opp b *)
 Lemma req_opp_plus : forall a b : R, req (opp (plus a b)) (plus (opp a) (opp b)).
 Proof.
   intros a b.
@@ -254,7 +259,7 @@ Proof.
     + apply plus_opp.
 Qed.
 
-(* mult (opp a) b == opp (mult a b)（经 comm 桥） *)
+(* mult (opp a) b == opp (mult a b) (via the comm bridge) *)
 Lemma req_opp_mult_l : forall a b : R, req (mult (opp a) b) (opp (mult a b)).
 Proof.
   intros a b.
@@ -266,7 +271,8 @@ Proof.
   Qed.
 
 (* ============================================================ *)
-(* B. 求和层 req 引理（SumOver req 对接面之上的移植）            *)
+(* B. Summation-layer req lemmas (ported above the req docking face  *)
+(*    of SumOver).                                                   *)
 (* ============================================================ *)
 
 (* Σ opp f == opp Σ f *)
@@ -293,7 +299,8 @@ Proof.
       * apply (req_opp_compat (mult one (sumf f)) (sumf f)). apply req_mult_one_l.
 Qed.
 
-(* Boltzmann 分布归一化：分布和为一 *)
+(* normalization of the Boltzmann distribution: the distribution sums
+   to one *)
 Lemma req_boltzmann_normalized : req (sumf sigm_boltzmann_dist) one.
 Proof.
   apply (req_trans (sumf sigm_boltzmann_dist)
@@ -317,7 +324,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* C. 逐点分解：p·E 的两点分解 *)
+(* C. Pointwise decomposition: the two-term splitting of p·E.        *)
 (* ============================================================ *)
 Lemma req_p_times_energy_decomp :
   forall (p : S -> R) (s : S),
@@ -354,9 +361,9 @@ Proof.
       * apply req_opp_plus.
 Qed.
 (* ============================================================ *)
-(* D. 主定理：req_free_energy_kl_decomp                            *)
-(*    F[p] == F[p_b] + D·KL(p‖p_b)                                *)
-(*    KL := fun s => p s · (lgps s − lgpb s)；Fpb := sigm_free_energy p_b *)
+(* D. Main theorem: req_free_energy_kl_decomp.                       *)
+(*    F[p] == F[p_b] + D·KL(p||p_b)                                  *)
+(*    KL := fun s => p s · (lgps s - lgpb s); Fpb := sigm_free_energy p_b *)
 (* ============================================================ *)
 Theorem req_free_energy_kl_decomp :
   forall (p : S -> R) (Hp : sigm_normalized p) (p0 : sigm_positive_dist p),
@@ -367,7 +374,7 @@ Theorem req_free_energy_kl_decomp :
                                    (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))).
 Proof.
   intros p Hp p0.
-  (* 桥：F[p_b] == mult (opp D) lgZ == opp (D·lgZ) *)
+  (* bridge: F[p_b] == mult (opp D) lgZ == opp (D·lgZ) *)
   assert (Hfb' : req (sigm_free_energy sigm_boltzmann_dist req_boltzmann_positive)
                      (opp (mult D (log Z Z_pos)))).
   { apply (req_trans (sigm_free_energy sigm_boltzmann_dist req_boltzmann_positive)
@@ -375,7 +382,7 @@ Proof.
                      (opp (mult D (log Z Z_pos)))).
     - exact free_energy_boltzmann_bridge.
     - apply req_opp_mult_l. }
-  (* 步骤 1：Σ p·E == opp A + opp DlgZ *)
+  (* step 1: Σ p·E == opp A + opp DlgZ *)
   assert (Hse : req (sumf (fun s => mult (p s) (base_loss s)))
                     (plus (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))
                           (opp (mult D (log Z Z_pos))))).
@@ -399,7 +406,8 @@ Proof.
                                (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))
                                (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                                (opp (mult D (log Z Z_pos)))).
-        - (* Σ opp(D·p·lgpb) == opp(D·Σ p·lgpb)：sum_opp + D 线性提取 *)
+        - (* Σ opp(D·p·lgpb) == opp(D·Σ p·lgpb): req_sum_opp plus
+             factoring D out of the sum *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))
                            (opp (sumf (fun s => mult D (mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))
                            (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))).
@@ -407,7 +415,9 @@ Proof.
           { apply (req_opp_compat (sumf (fun s => mult D (mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))
                                   (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))).
             { apply (sum_linear D (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))). } }
-        - (* Σ opp(D·p·lgZ) == opp(D·lgZ)：sum_opp + D 线性 + Σ p·lgZ = lgZ·Σp = lgZ 归一化链 *)
+        - (* Σ opp(D·p·lgZ) == opp(D·lgZ): req_sum_opp plus
+             D-linearity, and the normalization chain
+             Σ p·lgZ = lgZ·Σp = lgZ *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                            (opp (sumf (fun s => mult D (mult (p s) (log Z Z_pos)))))
                            (opp (mult D (log Z Z_pos)))).
@@ -440,7 +450,7 @@ Proof.
                       { apply mult_one. } } } } } } }
   }
   }
-  (* 步骤 3：D·KL == B + opp A *)
+  (* step 3: D·KL == B + opp A *)
   assert (Hkl : req (mult D (sumf (fun s =>
                       mult (p s) (rminus (log (p s) (p0 s)) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))
                     (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))
@@ -505,7 +515,8 @@ Proof.
     { apply req_refl. }
     { apply req_mult_opp_l. } }
 
-  (* 步骤 4：环代数坍缩：(opp A + opp DlgZ) + B → opp DlgZ + (B + opp A) *)
+  (* step 4: ring-algebra collapse:
+     (opp A + opp DlgZ) + B -> opp DlgZ + (B + opp A) *)
   assert (Hfin : req (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))
                      (plus (opp (mult D (log Z Z_pos))) (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s))))))))).
   { set (A := (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))).
@@ -534,7 +545,9 @@ Proof.
       { apply plus_comm. }
       { apply req_refl. } }
     apply plus_comm. }
-  (* 合成：Hleg1（sigm_free_energy p 定义展开 conversion + Hse 于 compat 槽）；Hleg2（Hfin + Hfb'/Hkl 反向收尾槽） *)
+  (* assembly: Hleg1 (conversion by definitional unfolding of
+     sigm_free_energy p, with Hse in the compat slot); Hleg2 (Hfin
+     with Hfb'/Hkl in the reversed closing slots) *)
   assert (Hleg1 : req (sigm_free_energy p p0) (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))).
   { unfold sigm_free_energy.
     apply (req_plus_compat (sumf (fun s => mult (p s) (base_loss s))) (plus (opp (mult D (sumf (fun s => mult (p s) (log (sigm_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))).
@@ -568,7 +581,8 @@ Section ReqGibbsPilot.
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 Hypothesis sum_pos : forall f : S -> R, (forall s : S, lt zero (f s)) -> lt zero (sumf f).
-(* 接口缺口桥：exp_neg 的 req 兼容（字段缺失，见上注） *)
+(* interface-gap bridge: req-compatibility of exp_neg (the field is
+   missing, see the note above) *)
 Hypothesis req_exp_neg_ext : forall x y : R, req x y -> req (exp_neg x) (exp_neg y).
 
 Variable T : R.

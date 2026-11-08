@@ -1,38 +1,32 @@
-(* ===================================================================== *)
-(*  zzm2_qpoly.v —— Q(i) 残数算术组机·切片 2 Q-多项式层（DM-ZZM2·ZZM-2）        *)
-(*  模块名：zzm2_qpoly。单源生成器：ZZ/_log/_zzm2_anchor_gen.py               *)
-(*         （对照 _mirror_zz.py md5 289dd034… MIRROR_GREEN 10/10 先行复跑绿后  *)
-(*          独立复算·S0–S6 七判据一致——含 zzm1b certified zz_pq 表逐位一致——   *)
-(*          后单源发射本件；供件同源·禁手改数值字面量）。                       *)
-(*  使命（ZZ2 设计单 §三·三 需新铸第 3 件·ZZM-2 行）：Q 系数 list 多项式层——     *)
-(*        Qpoly:=list Q（index=幂次·head=常数项）＋padd/pscal/pmul/ppow/        *)
-(*        ptrim＋pdivmod（度差结构递归 pdiv_go·商余恒等式免负幂）＋pshift_gen/  *)
-(*        pshift（p(w+c) 系数·lin 一般式——lin=[5,-1] 即对照 Nplus 扫描，切片 3  *)
-(*        Laurent 提取 A_j/B_j 供件面）。                                      *)
-(*  锚面（三路对照先行律全链兑现）：                                            *)
-(*        ①红笔①形字面锚：pshift 初值 wc=(w+c)^0=[1]（ZZ 池对照红笔第①笔       *)
-(*          「初值 (w+c)^1 差一位」教训位·小件三件+求值路线预仲裁）；            *)
-(*        ②pdivmod 小件锚×3（含 len(num)<len(den) 档）；                        *)
-(*        ③族域 n=1..6 全一致：机器 ppow/pscal 构造 Np/Dp 咬 certified 字面、    *)
-(*          机器 pdivmod 商咬 zzm1b certified zz_pq 表、余咬生成器字面、         *)
-(*          商余恒等式 padd(pmul(q,den),rem)=num 机内判定、pshift 双变体        *)
-(*          （[−5,1]/[5,−1]）全表咬生成器字面——切片 3 Laurent 提取供件面。      *)
-(*  实质律申报：铸件本体=pdiv_go 度差结构递归/pshift_go 扫描线/ptrim 反转归一     *)
-(*        等定义链（全 Defined 透明）；锚=可计算判定族（DIG dig_anchor_* pattern *)
-(*        直迁·设计单 §三·一 判「逐字迁移」），字面锚即本片使命语句形。          *)
-(*  忠实披露（律五）：pdivmod 前置=den 最高次系数≠0（族域 den=(25−x²)^{3n+1}     *)
-(*        首系数=(−1)^{3n+1}=−1 monic 档天生满足·S5 判据在卷）；den 首系数=0    *)
-(*        域行为未定义（归一义务=切片 3 若扩域再铸·现域免铸）。                  *)
-(*  构造性注记：零 Axiom／零 Admitted／零 solver；一切语句 Set 承载（zzId 形·      *)
-(*        ZZM-1 正本等词·签名零改动）；定义一律 Defined。                        *)
-(*  签名稳定律：新件首铸·无下游；命名注册 zz2_ 前缀＋p* 算术件名（设计单 §三·三  *)
-(*        原名）——zzm1b 的 zz_* 注册面零触碰。                                  *)
-(*  依赖：Stdlib QArith/ZArith/List＋池内 zzm1_gauss（ZZM-1·zzId 等词件）。       *)
-(*  编译配方：source Live/toolchain/env.sh && unset COQLIB ROCQLIB &&           *)
-(*        ulimit -s 65532 && cd 本池 && bash cpu_guard.sh -- rocq c             *)
-(*        -native-compiler no -q -Q _world "" zzm2_qpoly.v                      *)
-(*        （前置：zzm1_gauss.vo 已入 _world）。                                 *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — Q-polynomial layer of the Q(i) residue-arithmetic suite. *)
+(** * zzm2_qpoly: Q-coefficient list polynomials with division and shift.
+
+    Mission.  The Q-polynomial layer [Qpoly := list Q] (index = power,
+      head = constant term): the arithmetic [padd]/[pscal]/[pmul]/[ppow]/
+      [ptrim], the long division [pdivmod] (degree-difference structural
+      recursion in [pdiv_go], quotient-remainder identity without negative
+      powers), and the shifts [pshift_gen]/[pshift] (coefficients of
+      p(w+c); lin = [5; -1] gives the Nplus-comparison scan feeding the
+      Laurent coefficient extraction).
+
+    Dependencies.  Stdlib [QArith.QArith], [ZArith.ZArith], [Lists.List];
+      requires [zzm1_gauss] of this development (the [zzId] equality).
+
+    References.  This development, zzm2_qpoly.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim; the Section 2-3 numeric literals are generator-computed
+      certified values (agreeing with the certified [zz_pq] tables).
+
+    Constructivity.  Zero axioms, no admitted proofs, no solvers; all
+      statements are Set-carried ([zzId], the ZZM-1 equality) and all
+      definitions are transparent ([Defined]).  Honest interface note:
+      [pdivmod] requires the leading coefficient of the divisor to be
+      nonzero (automatic in the family domain; a zero leading coefficient
+      is outside the specified domain).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      zzm2_qpoly.v] compiles cleanly (exit 0); the artifact starts with
+      [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith.QArith ZArith.ZArith List.
 Import ListNotations.
@@ -41,14 +35,12 @@ Require Import zzm1_gauss.
 Open Scope Q_scope.
 
 
-(* ============================================================ *)
-(* §0 Qpoly 承载与 Q 表布尔件（Set 承载·律二）                                    *)
-(* ============================================================ *)
+(* =================== Section 0. The [Qpoly] carrier and the Q-list boolean equality (Set-carried) =================== *)
 
-(* Q 系数多项式承载：index=幂次·head=常数项（设计单 §三·三 第 3 件原形） *)
+(* Polynomial carrier with Q coefficients: index = power, head = constant term. *)
 Definition Qpoly : Set := list Q.
 
-(* Q 系数表布尔等词（逐位 Qeq_bool·长度敏感） *)
+(* Boolean equality on Q-coefficient lists (pointwise Qeq_bool, length-sensitive). *)
 Fixpoint plq_eqb (l t : list Q) : bool :=
   match l, t with
   | nil, nil => true
@@ -57,11 +49,9 @@ Fixpoint plq_eqb (l t : list Q) : bool :=
   end.
 
 
-(* ============================================================ *)
-(* §1 Q-多项式层八件算术（全部透明 Defined·对照认证域直译）                        *)
-(* ============================================================ *)
+(* =================== Section 1. The eight arithmetic operations of the Q-polynomial layer (all transparent [Defined]) =================== *)
 
-(* 去最高次零系数（保留至少一位·对照 ptrim 直译·经反转实现） *)
+(* Drop the leading zero coefficients (at least one entry kept; implemented via reversal). *)
 Fixpoint pdrop0 (p : list Q) : list Q :=
   match p with
   | nil => [0%Q]
@@ -91,7 +81,7 @@ Fixpoint ppow (p : list Q) (k : nat) : list Q :=
   | S k' => pmul (ppow p k') p
   end.
 
-(* 对位减法（短位补零·长位尾复制） *)
+(* Position-wise subtraction (the shorter list padded with zeros, the longer list's tail copied). *)
 Fixpoint psub_align (p t : list Q) : list Q :=
   match p, t with
   | nil, _ => nil
@@ -99,15 +89,18 @@ Fixpoint psub_align (p t : list Q) : list Q :=
   | x :: p', y :: t' => (x - y)%Q :: psub_align p' t'
   end.
 
-(* 最高次系数（rev 首） *)
+(* Leading coefficient (the head of the reversal). *)
 Definition plast (p : list Q) : Q :=
   match rev p with nil => 0%Q | c :: _ => c end.
 
-(* 去末位（首=常数项面·tl(rev·) 总形） *)
+(* Drop the last entry (the head is the constant-term face; [tl] of the reversal). *)
 Definition pdroplast (p : list Q) : list Q := rev (tl (rev p)).
 
-(* 度差结构递归长除：每步商一位（自高次向低次）·rem 物理缩一位·k 步即尽。
-   前置：plast den ≠ 0（忠实披露位·族域 monic 档天生满足）。 *)
+(* Long division by structural recursion on the degree difference: one *)
+(* quotient digit per step (from high powers down), the remainder shrinks *)
+(* by one entry at each step, and k steps suffice. *)
+(* Precondition: [plast den <> 0] (disclosed honestly; the monic family *)
+(* domain satisfies it automatically). *)
 Fixpoint pdiv_go (den : list Q) (dd : Q) (k : nat) (rem : list Q)
   : list Q * list Q :=
   match k with
@@ -122,30 +115,34 @@ Fixpoint pdiv_go (den : list Q) (dd : Q) (k : nat) (rem : list Q)
       else (nil, rem)
   end.
 
-(* 商余主入口：商=ptrim(rev 位序还原)·余=ptrim（deg rem < deg den 唯一对·免负幂） *)
+(* Main quotient-remainder entry: quotient = ptrim ([rev] restores the digit *)
+(* order), remainder = ptrim (the unique pair with deg rem < deg den; no *)
+(* negative powers). *)
 Definition pdivmod (num den : list Q) : list Q * list Q :=
   let (q, r) := pdiv_go den (plast den) (S (length num - length den)%nat) num in
   (ptrim (rev q), ptrim r).
 
-(* 移位扫描线：Σ_k p_k·wc_k 累积·wc 乘 lin 步进。
-   初值 acc=[0]·wc=[1]=(w+c)^0——红笔①教训位（ZZ 池对照红笔第①笔：
-   初值误起 (w+c)^1 差一位·本片以 §2 字面锚接判定）。 *)
+(* Shift scan: accumulate sum_k p_k * wc_k while wc steps by multiplication *)
+(* with lin. *)
+(* The initial values acc = [0], wc = [1] = (w+c)^0 matter: starting wc at *)
+(* (w+c)^1 would be off by one power; the literal anchors of Section 2 pin *)
+(* this down. *)
 Fixpoint pshift_go (lin p acc wc : list Q) : list Q :=
   match p with
   | nil => acc
   | coef :: t => pshift_go lin t (padd acc (pscal wc coef)) (pmul wc lin)
   end.
 
-(* 一般移位：lin=[c,1] 即 p(w+c)·lin=[5,-1] 即对照 Nplus 扫描（Bj 供件面·切片 3 使用） *)
+(* General shift: lin = [c; 1] gives the coefficients of p(w+c); *)
+(* lin = [5; -1] gives the Nplus-comparison scan (the B_j supply face for *)
+(* the Laurent extraction). *)
 Definition pshift_gen (p lin : list Q) : list Q := ptrim (pshift_go lin p [0%Q] [1%Q]).
 
-(* p(w+c) 系数（对照 pshift 原名位） *)
+(* The coefficients of p(w+c) (the original pshift name). *)
 Definition pshift (p : list Q) (c : Q) : list Q := pshift_gen p [c; 1%Q].
 
 
-(* ============================================================ *)
-(* §2 小件字面锚（红笔①形·生成器计算值·求值路线预仲裁在卷）                        *)
-(* ============================================================ *)
+(* =================== Section 2. Literal anchors on small pieces (generator-computed values) =================== *)
 
 Lemma zz2_small_shift_c2 : zzId (plq_eqb (pshift [1;2;3] 2) [(17#1)%Q; (14#1)%Q; (3#1)%Q]) true.
 Proof. vm_compute. reflexivity. Qed.
@@ -190,11 +187,12 @@ Lemma zz2_small_div_d3 : zzId (andb (plq_eqb (fst (pdivmod [(1#1)%Q] [(1#1)%Q; (
 Proof. vm_compute. reflexivity. Qed.
 
 
-(* ============================================================ *)
-(* §3 族域 n=1..6 全一致锚（机器八件 vs certified 字面·切片 3 Laurent 供件面）      *)
-(* ============================================================ *)
+(* =================== Section 3. Family-domain n = 1..6 agreement anchors =================== *)
+(* The machine-computed eight operations vs the certified literals; the *)
+(* supply face for the Laurent extraction. *)
 
-(* 族核（E1 口径 en=2 ed=3·对照同源）：Q=x(x⁴+6x²+25)·D=25−x² *)
+(* Family kernel (en = 2, ed = 3, same source as the comparison): *)
+(* Q = x(x^4 + 6x^2 + 25), D = 25 - x^2. *)
 Definition zz2_pQ : list Q := [0; 25; 0; 6; 0; 1].
 Definition zz2_pD : list Q := [25; 0; -1].
 
@@ -362,9 +360,7 @@ Lemma zz2_shp5_bite_6 : zzId (plq_eqb (pshift_gen zz2_np_6 [5; -1]) zz2_shp5_6) 
 Proof. vm_compute. reflexivity. Qed.
 
 
-(* ============================================================ *)
-(* §4 提取与审计（零全局假设复核·提取差分面）                                      *)
-(* ============================================================ *)
+(* =================== Section 4. Extraction and audit (global-assumption recheck and the extraction face) =================== *)
 
 From Stdlib Require Import Extraction.
 Separate Extraction pdivmod pshift_gen pshift padd psub_align pmul ppow ptrim pscal plq_eqb.

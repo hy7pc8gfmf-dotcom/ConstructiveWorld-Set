@@ -49,10 +49,12 @@ Require Import UpRealLeB.
 Require Import UpRealLeB2.
 
 (* ============================================================ *)
-(* 一、双向换形桥（Id 级 / real_eq 级）                                *)
+(* Part 1. Two-directional transport bridges (Id level / real_eq     *)
+(* level).                                                           *)
 (* ============================================================ *)
 
-(* 件 1：Id 级同构桥——对 t 归纳，每步 cbn 定向展开两carrier各一步          *)
+(* item 1: the Id-level isomorphism bridge — induction on [t], each
+   step unfolding both carriers one layer by directed [cbn] *)
 Lemma prc_powb_real_pow_id : forall (base : Real) (t : nat),
   real_eq (powb_pow base t) (real_pow base t).
 Proof.
@@ -65,7 +67,8 @@ Proof.
     + exact IH.
 Qed.
 
-(* 件 2：real_eq 级桥——归纳 + real_eq_mult_compat 逐级组装             *)
+(* item 2: the real_eq-level bridge — induction assembled level by
+   level with [real_eq_mult_compat] *)
 Lemma prc_powb_real_pow_req : forall (base : Real) (t : nat),
   real_eq (powb_pow base t) (real_pow base t).
 Proof.
@@ -78,7 +81,8 @@ Proof.
     + exact IH.
 Qed.
 
-(* 件 3：反向桥（req 对称单步；双向换形成对交付）                       *)
+(* item 3: the reverse bridge (one [real_eq_sym] step; the two
+   transport directions delivered as a pair) *)
 Lemma prc_real_pow_powb_req : forall (base : Real) (t : nat),
   real_eq (real_pow base t) (powb_pow base t).
 Proof.
@@ -87,10 +91,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 二、eq_compat 级对接件（G07 侧原缺位补齐；双路线互证）               *)
+(* Part 2. eq_compat-level docking statements (the slot previously   *)
+(* missing on the G07 side, now filled; the two routes certify each  *)
+(* other).                                                           *)
 (* ============================================================ *)
 
-(* 件 4：powb carrier eq_compat——归纳真证（G07 侧原缺位）                 *)
+(* item 4: eq_compat for the [powb_pow] carrier — a genuine induction
+   proof (the slot previously missing on the G07 side) *)
 Lemma prc_powb_eq_compat : forall (x y : Real) (n : nat),
   real_eq x y -> real_eq (powb_pow x n) (powb_pow y n).
 Proof.
@@ -103,7 +110,9 @@ Proof.
     + exact IH.
 Qed.
 
-(* 件 5：同语句对接路线——CW220 real_pow_eq_compat 经 2/3 双桥接入      *)
+(* item 5: the docking route for the same statement — CW220's
+   [real_pow_eq_compat] connected through the two bridges of items
+   2/3 *)
 Lemma prc_powb_eq_compat_via_cwe : forall (x y : Real) (n : nat),
   real_eq x y -> real_eq (powb_pow x n) (powb_pow y n).
 Proof.
@@ -117,12 +126,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 三、carrier间性质运输（G07 Bishop 件 → real_pow carrier；                  *)
-(*     CW220 Or 序界件 → powb carrier）                                   *)
+(* Part 3. Property transport between the carriers (G07 Bishop       *)
+(* statements -> the [real_pow] carrier; CW220 Or-order bound        *)
+(* statements -> the [powb_pow] carrier).                            *)
 (* ============================================================ *)
 
-(* 件 6：G07 单调性结论 P2 的运输——NatLe 序界 Bishop 形幂单调递减，     *)
-(*   现 real_pow carrier同款可用（CW220 侧原缺位）                         *)
+(* item 6: transport of the G07 monotonicity conclusion P2 — the
+   NatLe-bounded Bishop-form antitone behavior of powers is now
+   available on the [real_pow] carrier in the same shape (previously
+   missing on the CW220 side) *)
 Lemma prc_powb_mono_dec_real_pow : forall (base : Real) (m : nat),
   real_lt real_zero base -> real_le base real_one ->
   forall n : nat, NatLe n m ->
@@ -142,7 +154,8 @@ Proof.
   - exact (HB eps Heps).
 Qed.
 
-(* 件 7：幂不超一 Bishop 件运输                                        *)
+(* item 7: transport of the Bishop statement that powers stay below
+   one *)
 Lemma prc_powb_le_one_pow_real_pow : forall (base : Real) (t : nat),
   real_lt real_zero base -> real_le base real_one ->
   real_le_b (real_pow base t) real_one.
@@ -158,8 +171,10 @@ Proof.
   - exact (HB eps Heps).
 Qed.
 
-(* 件 8：CW220 real_pow_anti_mono 的引用——stdlib nat le 前提位经       *)
-(*   NatLe_drop 转 Set 层 NatLe 序界，结论经 Id 桥回运 powb carrier        *)
+(* item 8: use of CW220's [real_pow_anti_mono] — the stdlib nat le
+   premise is moved to the Set-layer [NatLe] order by [NatLe_drop],
+   and the conclusion is transported back to the [powb_pow] carrier
+   through the Id bridge *)
 Lemma prc_powb_anti_mono_real_le : forall (k : Real),
   real_lt real_zero k -> real_le k real_one ->
   forall p q : nat, NatLe p q ->
@@ -177,7 +192,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 公理面自审（文末八条 Print Assumptions）                            *)
+(* Assumption audit (the eight file-tail Print Assumptions).         *)
 (* ============================================================ *)
 Print Assumptions prc_powb_real_pow_id.
 Print Assumptions prc_powb_real_pow_req.

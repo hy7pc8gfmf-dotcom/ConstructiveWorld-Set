@@ -1,68 +1,33 @@
-(* ===================================================================== *)
-(*  abl_audit_base_v8.v —— 审计载体扩容 v8·G05_LogSmall 孤立岛 log 引擎面    *)
-(*                        甲形态直审闭合件                                 *)
-(* ===================================================================== *)
-(*  使命: G05_LogSmall 是 log 域基座岛——log/exp 基元与 KL/Gibbs 引擎的汇合    *)
-(*        面，此前从未被任何审计载体覆盖（审计覆盖向基座岛延伸首例）。本件      *)
-(*        Require G05_LogSmall（.vo 使用 vo_local_world_unified_0930 预编译   *)
-(*        树，G05/S07/S08/UpRealLeB 四源 md5 与本树逐字一致），对 log 引擎面  *)
-(*        主定理族铸五条轻量真使用载体（使用＝证明体真实行使上游定理非空壳），  *)
-(*        共五载体十七使用点：                                              *)
-(*        ① abh_log_upper_bound_engine——log 上界 Bishop 形主定理             *)
-(*          logd_log_le_linear_B 一般形直引＋四站点槽 lld_{u2,fep,tempent,fw}_*)
-(*          log_le_linear_B 四翼直引（E391 判例四站点逐字同形，各站独立行使）  *)
-(*          ＋具体实例 log 2 ≤_B 1（引擎在 x=2 实例化消解经换形锚 logd_le_b_id_r    *)
-(*          沿 2+(−1)==1 换形链运输，一翼使用三定理）六使用点；               *)
-(*        ② abh_log_upper_bound_eps_limit——log 上界逐 eps 极限形             *)
-(*          logd_log_le_linear_eps 一般形直引＋x=2 具体实例（极限近似面对     *)
-(*          具体点实例化消解）两使用点；                                          *)
-(*        ③ abh_log_mono_and_two_pos——log 严格单调 logd_log_lt_mono_real     *)
-(*          一般形直引＋下界面 log 2 > 0 真推导链（经单调面在 1<2 处实例化消解，    *)
-(*          real_log_one 换形＋1<2 加法平移链，非转述岛面已有件）两使用点；   *)
-(*        ④ abh_kl_term_minus_form_one_one——换底面主定理                     *)
-(*          logd_kl_term_minus_form（KL 规范形 p·(−log(q/p)) ≡ p·(log p−log  *)
-(*          q)，岛面 40 行实证链）一般形直引＋具体实例 kl_term(1,1)==0 计算   *)
-(*          链（minus 形实例化消解＋log 1==0＋x+(−x)==0 代数闭合）两使用点；        *)
-(*        ⑤ abh_gibbs_inequality_two_forms——Gibbs 下界双形并存直审：          *)
-(*          Bishop 保底形 logd_gibbs_inequality_minus_B 与逐 eps 极限形      *)
-(*          logd_gibbs_inequality_minus_eps 一般形各直引一翼（D3/D4 双形      *)
-(*          面各自独立行使）两使用点。                                       *)
-(*  岛值: 直审 G05＝审计覆盖首次伸入 log 域基座岛：岛面定理多为桥形转发       *)
-(*        （one-exact 至根源引擎 real_log_le_linear_B/real_log_lt_mono 等）， *)
-(*        空壳甄别按 CS 判例照办——实拍语句均为实质序关系/等式（非 ->True     *)
-(*        形），其审计价值由本件使用翼的真实行使承担：具体实例翼全部经岛面    *)
-(*        定理实例化消解后叠加非平凡换形/推导/计算链，尾舱 PA 直审逐条出账。        *)
-(*  依赖: G05_LogSmall 及其闭包（S01-S15/UpRealLeB，-Q 预编译树              *)
-(*        vo_local_world_unified_0930 只读引用）；S02_CauchyComplete/        *)
-(*        S07_RealSetoidExpLog/S08_RealMainlineDPO/UpRealLeB 显式导入        *)
-(*        （桥代数与 real_le_b/real_kl_term 声明面）；                       *)
-(*        Stdlib（Lists.List 记法依赖、Extraction 出口舱）。                  *)
-(*  构造性: 零承认语句、零经典逻辑、零 Prop 载体：语句面全 Set 层——上界/下界  *)
-(*        用 real_le_b（forall eps>0, x<y+eps 函数形）与 real_le/real_lt      *)
-(*        （Set 版序，S02 定义面），换底等式用 real_eq（Set 版 setoid），合取  *)
-(*        全 Datatypes.prod（Set 层 *）；无 eq/exists/and/or 任何 Prop 连词    *)
-(*        书写，无 Prop 前提位；证明体全 exact/apply 显式项直交，桥步沿       *)
-(*        S02 代数（assoc/plus_opp/plus_zero）与 RealSetoid 相容性字段。      *)
-(*  编译配方: source Live/toolchain/env.sh && unset COQLIB ROCQLIB &&        *)
-(*        ulimit -s 65532 && rocq c -native-compiler no -q -Q <池> ""        *)
-(*        -Q vo_local_world_unified_0930 "" <池>/abl_audit_base_v8.v          *)
-(*        （独占池 audit_base_v8/，道闸 ≤1，单件无池内链序；9.1.0 工具链）。   *)
-(*  核验注: ①审计目标选型（grep 主定理面实拍）：上界双形（B/eps）、严格单调、  *)
-(*        下界（log 2>0）、换底（KL minus form）、Gibbs 双形、req 换形锚      *)
-(*        （logd_le_b_id_r）、四站点参数位族（lld_ 系）——覆盖任务清单所列          *)
-(*        上界/下界/换底/极限面四代表位；四站点为逐字同形转发（E391 坐标      *)
-(*        实读），各站独立成翼直引。②桥引理签名逐一实拍（S02:2238/2336/     *)
-(*        2342/2348/2354、S07:442/6116/6967/6983/7894、S08:107/398/494、    *)
-(*        UpRealLeB:115/1248）；RealSetoid 模块内 compat 族须限定名          *)
-(*        （检验件两轮判定）。③本件三具体翼换形/推导/计算链先经   *)
-(*        独立烟测通过后入稿。④abh_ 前缀现役池与主树 grep 零命中。       *)
-(*        ⑤诚实边界（提取闭包存量发现）：本件自身提取面零魔数                *)
-(*        （abl_audit_base_v8.ml 计 0）；Separate Extraction 全闭包面上，     *)
-(*        上游岛面存量代码含接口装箱魔数（S07_RealSetoidExpLog.ml 接口实例   *)
-(*        装箱 71 处＋G05_LogSmall.ml 桥引用 2 处，均为接口记录字段装箱      *)
-(*        cast，非公理——coqchk 环境级无公理双证在卷）：属上游       *)
-(*        存量冻结面，非本件引入，登记待接口封装面专项处置，本件不触碰。      *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set -- audit carrier v8: direct-audit closure over the
+   isolated log-engine island [G05_LogSmall]. *)
+
+(** * abl_audit_base_v8: light-use carriers exercising the log engine
+    main-theorem family of [G05_LogSmall].
+
+    Mission.  Five carriers, seventeen use points, genuinely exercising
+      the log engine face: [abh_log_upper_bound_engine] (Bishop-form
+      upper bound [logd_log_le_linear_B], four station slots, concrete
+      instance [log 2 <=_B 1]); [abh_log_upper_bound_eps_limit]
+      (per-eps limit form at [x = 2]); [abh_log_mono_and_two_pos]
+      (strict monotonicity plus [log 2 > 0]);
+      [abh_kl_term_minus_form_one_one] (KL change-of-base plus
+      [kl_term(1,1) == 0]); [abh_gibbs_inequality_two_forms] (two Gibbs
+      lower-bound forms).
+
+    Dependencies.  Stdlib [Lists.List], [Extraction]; requires
+      [S02_CauchyComplete], [S07_RealSetoidExpLog],
+      [S08_RealMainlineDPO], [UpRealLeB], [G05_LogSmall].
+
+    References.  ConstructiveWorld-Main, module [abl_audit_base_v8]
+      (statement names carried over verbatim).
+
+    Constructivity.  No admits, no classical logic, no Prop carriers:
+      bounds sit on [real_le_b]/[real_le]/[real_lt], equations on
+      [real_eq], conjunctions on the Set product; every proof is an
+      explicit [exact]/[apply] term; extraction is [Obj.magic]-free.
+
+    Build.  [coqc -native-compiler no -q -Q . "" abl_audit_base_v8.v]
+      compiles cleanly (exit 0); artifact magic [436f7121 00015ff4]. *)
 
 From Stdlib Require Import Lists.List.
 Require Import S02_CauchyComplete.
@@ -73,19 +38,22 @@ Require Import G05_LogSmall.
 Import RealInterfaceEnhancedMod.
 
 (* ============================================================ *)
-(* §0 内部管件舱（具体点与正性见证，非载体语句）                     *)
+(* Section 0 - internal plumbing bay (concrete points and          *)
+(*   positivity witnesses, not carrier statements).                *)
 (* ============================================================ *)
 
-(* 具体点 2 := 1+1 及其正性见证（0<1 与 0<1 的加法正性）。 *)
+(* The concrete point [2 := 1+1] with its positivity witness       *)
+(* (additive positivity applied to 0 < 1 and 0 < 1).               *)
 Definition abh_two : Real := real_plus real_one real_one.
 
 Definition abh_two_pos : real_lt real_zero abh_two :=
   real_plus_positive real_one real_one real_lt_zero_one real_lt_zero_one.
 
-(* 具体点 log 2（正性见证位全显装配）。 *)
+(* The concrete point [log 2] (positivity witness fully assembled). *)
 Definition abh_log_two : Real := real_log abh_two abh_two_pos.
 
-(* 换形链：2+(−1) == 1（assoc 重排 + 1+(−1)==0 + 加法相容）。 *)
+(* Transport chain: [2 + (-1) == 1] ([assoc] reassociation,        *)
+(* [1 + (-1) == 0], and addition compatibility).                   *)
 Lemma abh_two_minus_one_eq_one :
   real_eq (real_plus abh_two (real_opp real_one)) real_one.
 Proof.
@@ -103,8 +71,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §1 载体一·log 上界引擎面（Bishop 形）：一般形直引＋四站点槽翼直引     *)
-(*    ＋具体实例 log 2 ≤_B 1（引擎实例化消解×换形锚运输）                     *)
+(* Section 1 - carrier 1, the log upper-bound engine face (Bishop  *)
+(*   form): the general form quoted verbatim, four station-slot    *)
+(*   wings quoted, plus the concrete instance [log 2 <=_B 1]       *)
+(*   (engine instantiation transported along the anchor).          *)
 (* ============================================================ *)
 
 Theorem abh_log_upper_bound_engine :
@@ -121,22 +91,24 @@ Theorem abh_log_upper_bound_engine :
       real_le_b abh_log_two real_one)))).
 Proof.
   split.
-  - (* 引擎主定理一般形逐字直引。 *)
+  - (* the engine main theorem applies verbatim in general form. *)
     intros x Hx. exact (logd_log_le_linear_B x Hx).
   - split.
-    + (* 站点 1（UpReqU2:313 槽）直引。 *)
+    + (* station 1 (the UpReqU2:313 slot) quoted verbatim. *)
       intros x Hx. exact (lld_u2_log_le_linear_B x Hx).
     + split.
-      * (* 站点 2（UpReqFEPAttn:90 槽）直引。 *)
+      * (* station 2 (the UpReqFEPAttn:90 slot) quoted verbatim. *)
         intros x Hx. exact (lld_fep_log_le_linear_B x Hx).
       * split.
-        -- (* 站点 3（UpReqTempEntropy:60 槽）直引。 *)
+        -- (* station 3 (the UpReqTempEntropy:60 slot) quoted verbatim. *)
            intros x Hx. exact (lld_tempent_log_le_linear_B x Hx).
         -- split.
-           ++ (* 站点 4（UpFirewallReq:101 槽）直引。 *)
+           ++ (* station 4 (the UpFirewallReq:101 slot) quoted verbatim. *)
               intros x Hx. exact (lld_fw_log_le_linear_B x Hx).
-           ++ (* 具体实例：log 2 ≤_B 1——引擎在 x=2 实例化消解，右端沿                 *)
-              (* 2+(−1)==1 换形锚运输（一次行使引擎＋换形锚两定理）。 *)
+           ++ (* concrete instance [log 2 <=_B 1]: the engine resolves at   *)
+              (* [x = 2] and the right side is transported along the        *)
+              (* [2 + (-1) == 1] anchor (one exercise of the engine plus    *)
+              (* the transport anchor).                                     *)
               apply (logd_le_b_id_r abh_log_two
                        (real_plus abh_two (real_opp real_one)) real_one).
               ** exact (logd_log_le_linear_B abh_two abh_two_pos).
@@ -144,7 +116,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §2 载体二·log 上界逐 eps 极限形：一般形直引＋x=2 具体实例            *)
+(* Section 2 - carrier 2, the per-eps limit form of the log        *)
+(*   upper bound: the general form quoted verbatim plus the        *)
+(*   concrete instance at [x = 2].                                 *)
 (* ============================================================ *)
 
 Theorem abh_log_upper_bound_eps_limit :
@@ -157,15 +131,19 @@ Theorem abh_log_upper_bound_eps_limit :
              (real_plus (real_plus abh_two (real_opp real_one)) eps)).
 Proof.
   split.
-  - (* 极限形主定理一般形逐字直引。 *)
+  - (* the limit-form main theorem applies verbatim in general form. *)
     intros x eps Hx Heps. exact (logd_log_le_linear_eps x eps Hx Heps).
-  - (* 具体实例：x=2 处极限近似面实例化消解（任意 eps>0 一致可行）。 *)
+  - (* concrete instance: the limit-approximation face resolves at     *)
+    (* [x = 2] (uniformly feasible for every [eps > 0]).               *)
     intros eps Heps. exact (logd_log_le_linear_eps abh_two eps abh_two_pos Heps).
 Qed.
 
 (* ============================================================ *)
-(* §3 载体三·log 严格单调＋下界面：一般形直引＋log 2 > 0 真推导链        *)
-(*    （经岛面单调定理在 1<2 处实例化消解＋log 1==0 换形，非转述岛面已有件）   *)
+(* Section 3 - carrier 3, log strict monotonicity plus the lower   *)
+(*   face: the general form quoted verbatim plus the genuinely     *)
+(*   derived chain [log 2 > 0] (the island monotonicity theorem    *)
+(*   resolves at [1 < 2] with the [log 1 == 0] transport, not a    *)
+(*   restatement of existing island statements).                   *)
 (* ============================================================ *)
 
 Theorem abh_log_mono_and_two_pos :
@@ -174,9 +152,10 @@ Theorem abh_log_mono_and_two_pos :
   real_lt real_zero abh_log_two.
 Proof.
   split.
-  - (* 单调主定理一般形逐字直引。 *)
+  - (* the monotonicity main theorem applies verbatim in general form. *)
     intros a b Ha Hb Hlt. exact (logd_log_lt_mono_real a b Ha Hb Hlt).
-  - (* 下界面推导链：log 1 == 0 换形＋单调面吃入 1<2 平移链。 *)
+  - (* lower-face derivation chain: the [log 1 == 0] transport with    *)
+    (* the monotonicity face fed the [1 < 2] translation chain.        *)
     apply (RealSetoid.real_lt_compat
              (real_log real_one real_lt_zero_one) real_zero
              abh_log_two abh_log_two).
@@ -194,8 +173,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §4 载体四·换底面（KL 规范形 ≡ minus 字面形）：一般形直引＋            *)
-(*    具体实例 kl_term(1,1) == 0 计算链                                *)
+(* Section 4 - carrier 4, the change-of-base face (the KL          *)
+(*   canonical form equals the minus form): the general form       *)
+(*   quoted verbatim plus the computation chain                    *)
+(*   [kl_term(1,1) == 0].                                          *)
 (* ============================================================ *)
 
 Theorem abh_kl_term_minus_form_one_one :
@@ -207,10 +188,12 @@ Theorem abh_kl_term_minus_form_one_one :
           real_zero.
 Proof.
   split.
-  - (* 换底主定理一般形逐字直引（岛面 log 逆消去 40 行实证链）。 *)
+  - (* the change-of-base main theorem applies verbatim in general     *)
+    (* form (the island's log-inverse elimination chain).              *)
     intros p q Hp Hq. exact (logd_kl_term_minus_form p q Hp Hq).
-  - (* 具体实例：kl_term(1,1) == 1·(log 1 − log 1) == 1·(0−0) == 0——        *)
-    (* minus 形实例化消解＋log 1==0＋x+(−x)==0 代数闭合三段真行使。 *)
+  - (* concrete instance: [kl_term(1,1) == 1*(log 1 - log 1) ==        *)
+    (* 1*(0-0) == 0] - three genuine steps: minus-form instantiation,  *)
+    (* [log 1 == 0], and the algebraic closure [x + (-x) == 0].        *)
     apply (real_eq_trans
              (real_kl_term real_one real_one real_lt_zero_one
                 real_lt_zero_one)
@@ -229,7 +212,9 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* §5 载体五·Gibbs 下界双形并存：Bishop 保底形与逐 eps 极限形各直引一翼   *)
+(* Section 5 - carrier 5, the Gibbs lower bound in two coexisting  *)
+(*   forms: the Bishop form and the per-eps form each quoted as    *)
+(*   one wing.                                                     *)
 (* ============================================================ *)
 
 Theorem abh_gibbs_inequality_two_forms :
@@ -259,23 +244,32 @@ Theorem abh_gibbs_inequality_two_forms :
           eps)).
 Proof.
   split.
-  - (* Bishop 保底形（0 ≤_B Σ p·(log p − log q)）一般形逐字直引。 *)
+  - (* the Bishop form ([0 <=_B sum p*(log p - log q)]) applies      *)
+    (* verbatim in general form.                                     *)
     intros X l p q Hp Hq Hnormp Hnormq.
     exact (logd_gibbs_inequality_minus_B X l p q Hp Hq Hnormp Hnormq).
-  - (* 逐 eps 极限形（0 ≤ Σ p·(log p − log q) + eps）一般形逐字直引。 *)
+  - (* the per-eps limit form ([0 <= sum p*(log p - log q) + eps])   *)
+    (* applies verbatim in general form.                             *)
     intros X l p q Hp Hq Hnormp Hnormq eps Heps.
     exact (logd_gibbs_inequality_minus_eps X l p q Hp Hq Hnormp Hnormq
              eps Heps).
 Qed.
 
 (* ============================================================ *)
-(* §6 尾舱·假设审计（G05 log 引擎面十二主定理跨件直审＋本件五载体自审）   *)
-(*    判读判据：十七条全输出 Closed under the global context。           *)
-(*    前 12 条＝直审位（上界双形／单调／下界／req 换形锚／换底／Gibbs     *)
-(*    双形／四站点槽族）——G05 log 域基座岛此前全树 PA 直审缺位；         *)
-(*    后 5 条＝本件五载体自审。                                          *)
-(*    注：Require 闭包含 S01-S15/UpRealLeB 全链，coqchk 环境公理面与      *)
-(*    逐定理 PA 定检分账，非本件引入。                                   *)
+(* Section 6 - tail bay: assumption audit (twelve cross-file       *)
+(*   direct audits of the G05 log engine main theorems plus self-  *)
+(*   audits of the five carriers of this file).                    *)
+(*   Reading rule: all seventeen outputs must print                *)
+(*   "Closed under the global context".                            *)
+(*   The first 12 are the direct-audit slots (the upper-bound      *)
+(*   twin forms, monotonicity, the lower face, the transport       *)
+(*   anchor, change-of-base, the Gibbs twin forms, and the four    *)
+(*   station-slot family); the last 5 are self-audits of this      *)
+(*   file's five carriers.                                         *)
+(*   Note: the [Require] closure contains the whole                *)
+(*   S01-S15/[UpRealLeB] chain; the [coqchk] environment-axiom     *)
+(*   face and the per-theorem [Print Assumptions] checks are       *)
+(*   separate accounts, not introduced by this file.               *)
 (* ============================================================ *)
 
 Print Assumptions logd_log_le_linear_B.
@@ -297,7 +291,14 @@ Print Assumptions abh_kl_term_minus_form_one_one.
 Print Assumptions abh_gibbs_inequality_two_forms.
 
 (* ============================================================ *)
-(* §7 出口舱：载体兼任提取端口（G3：提取面零魔数）                       *)
+(* Section 7 - export bay: the carriers double as extraction       *)
+(*   ports; this file's own extraction face is free of             *)
+(*   [Obj.magic].  On the full [Separate Extraction] closure face, *)
+(*   existing upstream island code carries interface-boxing casts  *)
+(*   ([S07_RealSetoidExpLog]: 71 interface-instance boxings;       *)
+(*   [G05_LogSmall]: 2 bridge references, all interface-record-    *)
+(*   field casts, not axioms) - an upstream frozen face, not       *)
+(*   introduced by this file.                                      *)
 (* ============================================================ *)
 
 From Stdlib Require Import Extraction.

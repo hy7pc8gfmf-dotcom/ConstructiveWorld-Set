@@ -1,26 +1,32 @@
-(* ========================================================================= *)
-(* LW2NivenInt - Niven 源头件第三供件面: Niven 型多项式的整系数性自动获证.    *)
-(* 模块名：LW2NivenInt.  数学使命：给出 M3 e-超越装配实际衔接形的 Niven 源头多项式 f = t^n (a - b*t)^n 的纯 ℤ 版直接构造（a b : Z, 系数全为 ℤ 闭式： *)
-(* 二项系数 lw2_binom × ℤ 幂 × 符号因子 (−1)^k），并自动获证其整系数性 lw2_niven_f_intpoly : forall a b n, lw2i_intpoly (lw2_niven_int_f a b n) *)
-(* —— 每个系数自带 sigT 整数证人（Type 层见证形，复用 LW2Hermite 的 lw2i_intpoly 谓词），另附首项系数闭式面供 M3 非零性判定取用。 *)
-(* π 承载裁决（M2 源头件既有裁决沿用）：M3 预留接口为 eval(p,e) 型，f∈ℤ[X] 直接构造，π 不入 f——故本件取纯 ℤ 版：f 中 π 不以有理 q=a/b 形 *)
-(* 出现，亦不触碰 real_pi_geom（Real 层零接触）。与 Niven f（LW0Integrality2 之 lw0_niven_f_z q b n = (b^n/n!)·t^n(q−t)^n，q:Q b:Z）的关系：当 q=a/b *)
-(* 时 lw0_niven_f_z (a/b) b n = (1/n!)·lw2_niven_int_f a b n（有理恒等，本件不 Require LW0Integrality2——其上游链 S03_QExp/UpReqBanachAdd 未入沙箱， *)
-(* 依 LW2Hermite 同款窄依赖裁决，关系作头注声明）；1/n! 标度不属系数层——Niven 论证中 j!/n! 的整数性在 k≥n 的导数值层成立（j!/n! 为 nat 阶乘比）， *)
-(* 系数层取未标度的 t^n(a−bt)^n 使整系数性免证成立。诚实面注记：对 lw0_niven_f_z 本身作无条件整系数谓词为假（q=1,b=1,n=2 时 t^2 系数=1/2）， *)
-(* 故施工指引主件的非零前提形在此由免证的无前提强化形取代。                   *)
-(* 依赖清单：LW0QPoly (QPoly, lw0_coef 经 LW2Hermite); LW2Binom (lw2_binom, lw2_binom_diag); LW2Hermite (lw2i_intpoly, lw0_coef); Stdlib QArith, *)
-(* ZArith, Arith, Lia, List.                                                  *)
-(* 语句面 Exact 形态声明：lw2_niven_int_f 由闭式系数函数 lw2_niven_zcoef 经 map/seq 直接列装，三条取用方程刻画： *)
-(*   lw2_niven_int_f a b n = map (fun k => (lw2_niven_zcoef a b n k # 1)%Q) (seq 0 (Datatypes.S (n + n))) *)
-(*   lw2_niven_zcoef a b n k = if n <=? k then (−1)^(k−n)·binom n (k−n)·a^(n−(k−n))·b^(k−n) *)
-(*   else 0  （nat 截断减法；k>2n 支由 lw2_binom 越界零支自消）               *)
-(*   lw2_niven_f_intpoly a b n : lw2i_intpoly (lw2_niven_int_f a b n)，三区域构造（i<n 证人 0 / n≤i≤2n 证人闭式 / i>2n 证人 0） *)
-(* 构造性注记：every operation is a closed-form map with computing content (Defined); statements carry Qeq between rational data with explicit Z *)
-(* witnesses in sigT form; nat orderings appear only inside proofs (erased on extraction); every proof ends in Qed, purely constructive throughout. *)
-(* 编译配方：env COQLIB/ROCQLIB set to the Rocq 9.1 library, then "coqc.exe -q -Q . "" LW2NivenInt.v" in a sandbox holding byte-identical *)
-(* LW0QPoly.v (md5 6f836288), LW2Binom.v (md5 c3489226), LW2Hermite.v (md5 7b6d5d71), each compiled green in the same sandbox first. *)
-(* ========================================================================= *)
+(* ConstructiveWorld-Set — the Niven source polynomial with certified integer coefficients. *)
+
+(** * LW2NivenInt: integrality of the Niven source polynomial, pure-Z face.
+
+    Mission.  The Niven source polynomial [f = t^n (a - b*t)^n] for
+      [a b : Z] on its pure-Z face: every coefficient is a closed-form
+      integer (binomial [lw2_binom] times Z powers times the sign factor
+      [(-1)^k]) with its own [sigT] integer witness, so [lw2_niven_f_intpoly
+      : forall a b n, [lw2i_intpoly] (lw2_niven_int_f a b n)] holds by
+      construction (via LW2Hermite's [lw2i_intpoly]); [lw2_niven_f_lc] /
+      [lw2_niven_f_lc_closed] serve the nonvanishing determination in M3.
+
+    Dependencies.  Stdlib [QArith], [ZArith], [Arith], [Lia], [List].
+      Requires [S01_BaseRing], [S02_CauchyComplete], [LW0QPoly],
+      [LW2Binom], and [LW2Hermite] of this development.
+
+    References.  This development, LW2NivenInt.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried over
+      here verbatim (statement-face Set-carrier completion); the
+      reserved M3 interface is [eval(p,e)]-shaped and [f ∈ ℤ[X]] is
+      constructed directly (pure-Z face; π does not enter [f]).
+
+    Constructivity.  Every operation is a closed-form map with computing
+      content ([Defined]); statements carry [Qeq] between rational data
+      with explicit [Z] witnesses in [sigT] form; every proof ends in [Qed].
+
+    Build.  [coqc -native-compiler no -q -Q . "" LW2NivenInt.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import QArith ZArith Arith Lia List.
 Require Import S01_BaseRing.
@@ -131,10 +137,29 @@ Definition lw2_niven_int_f (a b : Z) (n : nat) : QPoly :=
       (seq 0 (Datatypes.S (n + n))).
 
 (* ------------------------------------------------------------------ *)
-(* Section 3.  Automatic integrality (the seat's main deliverable).    *)
+(* Section 3.  Automatic integrality (the main deliverable).           *)
 (* Each coefficient carries an explicit Z witness: the same closed     *)
 (* form that defines it -- integrality holds by construction.          *)
+(* Three regions: witness 0 for i < n, the closed-form witness for     *)
+(* n <= i <= 2n, witness 0 for i > 2n.                                 *)
 (* ------------------------------------------------------------------ *)
+
+(* Relation to the Niven polynomial of LW0Integrality2: there
+   [lw0_niven_f_z] q b n = (b^n/n!) * t^n (q - t)^n with q : Q, b : Z,
+   so at [q = a/b], [lw0_niven_f_z (a/b) b n = (1/n!) *
+   lw2_niven_int_f a b n] (a rational identity).  This file does not
+   Require LW0Integrality2: its upstream chain
+   [S03_QExp]/[UpReqBanachAdd] lies outside this build world, so the
+   relation is declared here.  The [1/n!] scaling is not a
+   coefficient-layer matter: in the Niven argument the integrality of
+   j!/n! holds at the derivative-value layer for k >= n (j!/n! is a
+   nat factorial ratio), and the coefficient layer takes the unscaled
+   [t^n (a - b*t)^n], whose integrality holds without further proof.
+   Interface honesty: an unconditional integrality predicate on
+   [lw0_niven_f_z] itself is false (at [q = 1], [b = 1], [n = 2] the
+   coefficient of [t^2] is [1/2]); the nonzero-premise form of the
+   main statement is therefore replaced here by the premise-free
+   strengthened form. *)
 
 Theorem lw2_niven_f_intpoly : forall (a b : Z) (n : nat),
   lw2i_intpoly (lw2_niven_int_f a b n).

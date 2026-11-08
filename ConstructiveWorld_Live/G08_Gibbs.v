@@ -46,10 +46,11 @@ From Stdlib Require Import List.
 Import ListNotations.
 
 (* ============================================================ *)
-(* Part A：Bishop 序代数基元（real_le_b 上的 opp / 数乘 / 换形）        *)
+(* Part A. Bishop-order algebra primitives (opp / scalar                        *)
+(* multiplication / transport over [real_le_b])                                 *)
 (* ============================================================ *)
 
-(* A1：lt 右端 −eps → +eps 平移（opp 反向件地基） *)
+(* A1: translating the right end of [lt] from −eps to +eps (the foundation of the opp-reversal lemma) *)
 Lemma gibbsd_lt_add_opp_r : forall x y e : Real,
   real_lt real_zero e ->
   real_lt (real_plus x (real_opp e)) y ->
@@ -81,7 +82,7 @@ Proof.
   - exact (real_lt_plus_translate e (real_plus x (real_opp e)) y Hlt).
 Qed.
 
-(* A2：Bishop 序 opp 反向（req 层 opp_le_compat 的 le_b 对位） *)
+(* A2: opp reverses the Bishop order (the le_b counterpart of the req layer's [opp_le_compat]) *)
 Lemma gibbsd_le_b_opp : forall a b : Real,
   real_le_b a b -> real_le_b (real_opp b) (real_opp a).
 Proof.
@@ -97,7 +98,7 @@ Proof.
     + exact (real_opp_lt_compat a (real_plus b eps) (H eps Heps)).
 Qed.
 
-(* A3：Bishop 序左端 real_eq 换形（req 层 le_id_l 的 le_b 对位） *)
+(* A3: real_eq transport of the left end in the Bishop order (the le_b counterpart of the req layer's [le_id_l]) *)
 Lemma gibbsd_le_b_id_l : forall a b c : Real,
   real_eq a b -> real_le_b b c -> real_le_b a c.
 Proof.
@@ -107,7 +108,7 @@ Proof.
            (H eps Heps)).
 Qed.
 
-(* A5：minus 翻转恒等：−(a−b) == b−a（req 层 reqd_minus_one_flip 对位） *)
+(* A5: the minus-flip identity −(a−b) == b−a (counterpart of the req layer's reqd_minus_one_flip) *)
 Lemma gibbsd_minus_flip : forall a b : Real,
   real_eq (real_opp (real_plus a (real_opp b)))
           (real_plus b (real_opp a)).
@@ -127,7 +128,7 @@ Proof.
                (real_opp_opp b) (real_eq_refl (real_opp a))).
 Qed.
 
-(* A4：Bishop 序右乘正数保序（req 层 req_le_mult_compat_r 的 le_b 对位） *)
+(* A4: right multiplication by a positive preserves the Bishop order (the le_b counterpart of the req layer's req_le_mult_compat_r) *)
 Lemma gibbsd_le_b_mult_pos_r : forall c a b : Real,
   real_lt real_zero c -> real_le_b a b ->
   real_le_b (real_mult c a) (real_mult c b).
@@ -182,10 +183,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part B：逐点槽证明前置（eq 层恒等）                                  *)
+(* Part B. Pointwise slot-proof preliminaries (eq-layer identities)             *)
 (* ============================================================ *)
 
-(* B0：p·(q/p) == q（分式约分；结合 / 交换 / inv_correct 链） *)
+(* B0: p·(q/p) == q (fraction cancellation; an assoc / comm / inv_correct chain) *)
 Lemma gibbsd_p_mult_ratio : forall (p q : Real) (Hp : real_lt real_zero p),
   real_eq (real_mult p (real_mult q (real_inv_pos p Hp))) q.
 Proof.
@@ -216,7 +217,7 @@ Proof.
     + exact (real_mult_one q).
 Qed.
 
-(* B1：p·(1 − q/p) == p − q（req 层 reqd_p_minus_ratio 的 Real 对位） *)
+(* B1: p·(1 − q/p) == p − q (the Real counterpart of the req layer's reqd_p_minus_ratio) *)
 Lemma gibbsd_p_minus_ratio : forall (p q : Real) (Hp : real_lt real_zero p),
   real_eq (real_mult p (real_plus real_one
                          (real_opp (real_mult q (real_inv_pos p Hp)))))
@@ -247,7 +248,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part C：Bishop 和层机（real_list_sum 上的逐点→求和升格）             *)
+(* Part C. The Bishop summation layer (lifting pointwise facts to sums          *)
+(* over [real_list_sum])                                                        *)
 (* ============================================================ *)
 
 Lemma gibbsd_two_pos : real_lt real_zero (real_plus real_one real_one).
@@ -267,7 +269,7 @@ Proof.
   exact (real_inv_pos_pos (real_plus real_one real_one) gibbsd_two_pos).
 Qed.
 
-(* 半分配：e·h + e·h == e（eps 预算对半拆分的恒等燃料） *)
+(* half-distribution: e·h + e·h == e (the identity behind halving the eps budget) *)
 Lemma gibbsd_half_sum : forall e : Real,
   real_eq (real_plus (real_mult e gibbsd_half) (real_mult e gibbsd_half)) e.
 Proof.
@@ -314,8 +316,9 @@ Proof.
     + exact (real_mult_one e).
 Qed.
 
-(* C3：逐点 le_b ⟹ 求和 le_b（req 层 fsum_le 的 Bishop 对位；       *)
-(*   预算对半归纳：eps 拆 e/2 + e/2，nil 余量走 real_lt_plus_r_zero） *)
+(* C3: pointwise le_b ⟹ summed le_b (the Bishop counterpart of the req layer's   *)
+(*   fsum_le; induction with the budget halved: eps is split as e/2 + e/2, and   *)
+(*   the nil remainder goes through [real_lt_plus_r_zero])                       *)
 Lemma gibbsd_list_sum_le_b : forall (X : Type) (f g : X -> Real) (l : list X),
   (forall s : X, real_le_b (f s) (g s)) ->
   real_le_b (real_list_sum X f l) (real_list_sum X g l).
@@ -365,7 +368,7 @@ Proof.
     + exact (real_lt_plus_compat _ _ _ _ Ha Ht).
 Qed.
 
-(* C4：Σ(p−q) == Σp − Σq（req 层 fsum_minus 的 Real 对位） *)
+(* C4: Σ(p−q) == Σp − Σq (the Real counterpart of the req layer's fsum_minus) *)
 Lemma gibbsd_list_sum_minus : forall (X : Type) (p q : X -> Real) (l : list X),
   real_eq (real_list_sum X (fun s => real_plus (p s) (real_opp (q s))) l)
           (real_plus (real_list_sum X p l)
@@ -388,15 +391,17 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part D：保底证明主体                                                 *)
+(* Part D. The deliverable proof main body                                      *)
 (* ============================================================ *)
 
-(* D0【槽证明位】：逐点 Gibbs 切线 p−q ≤_B p·(−log(q/p))。
-   与 req_gibbs_pointwise（UpReqDist:2066）逻辑同位——该处使用
-   Hypothesis dist_log_le_linear（槽，10 下游）；此处直接提供
-   real_log_le_linear_B（UpRealLeB:535）一次闭合，无条件。
-   链：槽 log(q/p) ≤_B q/p−1 → opp 反向 → 1−q/p 换形 →
-   p 左乘保序 → p·(1−q/p)==p−q 换形闭合。 *)
+(* D0 [slot-proof position]: the pointwise Gibbs tangent p−q ≤_B p·(−log(q/p)).
+   Logically colocated with req_gibbs_pointwise (UpReqDist:2066) — there the
+   Hypothesis dist_log_le_linear is consumed (a slot with 10 downstream
+   consumers); here [real_log_le_linear_B] (UpRealLeB:535) is supplied
+   directly, closing it once and unconditionally.
+   Chain: the slot log(q/p) ≤_B q/p−1 -> reversal by opp -> transport to
+   1−q/p -> order-preserving left multiplication by p -> closed by the
+   transport p·(1−q/p)==p−q. *)
 Lemma gibbsd_gibbs_pointwise_B : forall (X : Type) (p q : X -> Real) (s : X)
   (Hps : real_lt real_zero (p s)) (Hqs : real_lt real_zero (q s)),
   real_le_b (real_plus (p s) (real_opp (q s)))
@@ -407,7 +412,7 @@ Proof.
   set (Rqp := real_mult (q s) (real_inv_pos (p s) Hps)).
   set (Hr := real_mult_positive (q s) (real_inv_pos (p s) Hps) Hqs
                (real_inv_pos_pos (p s) Hps)).
-  (* —— 槽证明位：req 层 dist_log_le_linear 使用位，B 形引擎直接提供 —— *)
+  (* slot-proof position: this is where the req layer consumes dist_log_le_linear; the Bishop-order form supplies it directly *)
   assert (Hlin : real_le_b (real_log Rqp Hr)
                            (real_plus Rqp (real_opp real_one))).
   { exact (real_log_le_linear_B Rqp Hr). }
@@ -426,12 +431,15 @@ Proof.
            Hstep3 eps Heps).
 Qed.
 
-(* D1【保底主件】：Gibbs 不等式 Real 实例化——0 ≤_B Σ_s KL(p s‖q s)。
-   req_gibbs_inequality（UpReqDist:2122，dist_log_le_linear 10 下游）
-   的 Real 实例化证明：归一化前提位照抄 req 层（real_eq 形），求和层
-   real_list_sum 机，序 real_le_b，参数位由 D0 逐点件填充。
-   语句与 E.13 real_gibbs_inequality_B 同形：E.13 走
-   real_gibbs_inequality_eps 闭合路，本件走 log 切线槽证明复演路——双路互证。 *)
+(* D1 [main deliverable]: the Real instantiation of the Gibbs inequality — 0 ≤_B Σ_s KL(p s‖q s).
+   A Real-instantiation proof of req_gibbs_inequality (UpReqDist:2122,
+   dist_log_le_linear with 10 downstream consumers): the normalization premises
+   are copied from the req layer (in real_eq form), the summation layer is the
+   [real_list_sum] machinery, the order is [real_le_b], and the argument
+   positions are filled by the pointwise lemma D0.
+   The statement has the same shape as E.13 real_gibbs_inequality_B: E.13 closes
+   along the real_gibbs_inequality_eps route, this lemma along the log-tangent
+   slot-proof route — the two routes corroborate each other. *)
 Theorem gibbsd_gibbs_inequality :
   forall (X : Type) (l : list X) (p q : X -> Real)
     (Hp : forall s : X, real_lt real_zero (p s))
@@ -479,9 +487,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part E：主件——级联首层 cross_entropy_decomp 同法证明                 *)
-(*   （req_cross_entropy_decomp @UpReqDist:2431 的 Real 实例化对位；    *)
-(*     逐点恒等经 log 乘法分解向 q == p·(q/p) 闭合，零 log 逆消去）     *)
+(* Part E. The main lemma — cross_entropy_decomp, the first cascade layer,      *)
+(*   proved the same way (the Real-instantiation counterpart of                 *)
+(*   req_cross_entropy_decomp@UpReqDist:2431; the pointwise identity closes     *)
+(*   toward q == p·(q/p) via the multiplicative log decomposition, with no      *)
+(*   log-inverse cancellation)                                                  *)
 (* ============================================================ *)
 
 Theorem gibbsd_cross_entropy_decomp :
@@ -558,65 +568,86 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 核对（假设位证明系列 #1 结果清单）：                                     *)
-(*   gibbsd_lt_add_opp_r / gibbsd_le_b_opp / gibbsd_le_b_id_l /         *)
-(*   gibbsd_minus_flip / gibbsd_le_b_mult_pos_r —— Bishop 序代数 5 件    *)
-(*   （req 层 opp_le_compat / le_id_l / req_le_mult_compat_r 的          *)
-(*   real_le_b 对位，req 层无此形——B 形引擎直接提供的缺口件）。             *)
-(*   gibbsd_p_mult_ratio / gibbsd_p_minus_ratio —— eq 恒等 2 件。       *)
-(*   gibbsd_two_pos / gibbsd_half / gibbsd_half_pos / gibbsd_half_sum    *)
-(*   + gibbsd_list_sum_le_b / gibbsd_list_sum_minus —— 和层机 6 件      *)
-(*   （fsum_le / fsum_minus 的 Bishop 对位；预算对半归纳免除法）。      *)
-(*   gibbsd_gibbs_pointwise_B —— 槽证明位（dist_log_le_linear 直接提供）。  *)
-(*   gibbsd_gibbs_inequality —— 保底主件（四项关卡目标）。                  *)
-(*   gibbsd_cross_entropy_decomp —— 级联首层主件。                      *)
-(* 固化卡（索引回补行见技术报告）：                                     *)
-(*   E-GIBBSD-1：B 形引擎证明 req 层 Hypothesis 槽，序异向不可直接提供——    *)
-(*   落点纪律 §380 fallback（Real 实例化定理）首次全链执行；缺口件=      *)
-(*   Bishop 序代数基元 5 件 + Bishop 和单调 1 件（本文件 Part A/C      *)
-(*   可跨模块复用：log_le_linear/log_lt_mono 族槽证明同构缺口）。       *)
-(*   E-GIBBSD-2：log 逆消去（log(inv p)==−log p）CW_ConstructiveWorld_219 未备——          *)
-(*   kl_term 规范形绕行成立（log 乘法分解向 q == p·(q/p) 无需消去）；   *)
-(*   req_relative_entropy 的 p·(log p−log q) 字面形桥接留待该消去件。   *)
+(* Inventory (results of premise-slot proof series #1):                      *)
+(*   gibbsd_lt_add_opp_r / gibbsd_le_b_opp / gibbsd_le_b_id_l /                 *)
+(*   gibbsd_minus_flip / gibbsd_le_b_mult_pos_r — the five Bishop-order         *)
+(*   algebra primitives (le_b counterparts of the req layer's                   *)
+(*   opp_le_compat / le_id_l / req_le_mult_compat_r; the req layer has no       *)
+(*   such forms — gap pieces supplied directly by the Bishop-order engine).     *)
+(*   gibbsd_p_mult_ratio / gibbsd_p_minus_ratio — two eq-layer identities.      *)
+(*   gibbsd_two_pos / gibbsd_half / gibbsd_half_pos / gibbsd_half_sum           *)
+(*   + gibbsd_list_sum_le_b / gibbsd_list_sum_minus — six summation-layer       *)
+(*   pieces (Bishop counterparts of fsum_le / fsum_minus; by the halved-budget  *)
+(*   induction).                                                                *)
+(*   gibbsd_gibbs_pointwise_B — the slot-proof position (dist_log_le_linear     *)
+(*   supplied directly).                                                        *)
+(*   gibbsd_gibbs_inequality — the main deliverable (the four-checkpoint goal). *)
+(*   gibbsd_cross_entropy_decomp — the main lemma of the first cascade layer.   *)
+(* Notes:                                                                       *)
+(*   Note 1: the Bishop-order engine proves what the req layer carries as       *)
+(*   Hypothesis slots; the order-direction mismatch prevents direct provision,  *)
+(*   so the registered fallback route (Real-instantiation theorems) is executed *)
+(*   here in full chain; the gap pieces are the five Bishop-order algebra       *)
+(*   primitives plus the Bishop sum monotonicity (this file's Part A/C are      *)
+(*   reusable across modules: the log_le_linear/log_lt_mono family has          *)
+(*   isomorphic slot-proof gaps).                                               *)
+(*   Note 2: the log-inverse cancellation (log(inv p) == −log p) is not         *)
+(*   available in the upstream baseline —                                       *)
+(*   the kl_term normal form routes around it (the multiplicative log           *)
+(*   decomposition closes toward q == p·(q/p) with no cancellation);            *)
+(*   bridging the literal p·(log p−log q) form of req_relative_entropy awaits   *)
+(*   that cancellation lemma.                                                   *)
 (* ============================================================ *)
 
-(* ======== G08_Gibbs 成员件：UpReqHlogZD（原样并入，自带 Require）======== *)
+(* ======== G08_Gibbs member: UpReqHlogZD (merged verbatim, with its own Requires) ======== *)
 (* ============================================================ *)
-(* UpReqHlogZD.v — 假设位证明系列#4：HlogZ 槽构造性证明（KL 投影主定理）    *)
+(* UpReqHlogZD.v — premise-slot proof series #4: a constructive proof of the HlogZ slot (the KL projection main theorem) *)
 (*                                                              *)
-(* 目标主定理：UpReqAlign.req_projected_distribution_minimizes_kl     *)
-(*   （KL 投影 req 版，ReqKLProjection 节已闭；节后导出签名经        *)
-(*     _hzlogd_probe.v Check 打表核实）。                           *)
+(* Target main theorem: UpReqAlign.req_projected_distribution_minimizes_kl     *)
+(*   (the req version of the KL projection; the ReqKLProjection section is      *)
+(*   closed; the post-Section export signature was verified against a Check     *)
+(*   table in _hzlogd_probe.v).                                                 *)
 (*                                                              *)
-(* HlogZ 槽实测形（校注要点）：                                     *)
-(*   le (log (Z_aud_req S sumf post_aud p) HZ) zero          *)
-(*   ——是 log Z 的「上界形」（log Z ≤ 0），不是 lt zero (log Z)      *)
-(*   下界形，也不是逐 eps 形。故证明路线勘定为：                     *)
-(*   Z_aud ≤ sumf p（req_Z_aud_le_one，通过集质量 ≤ 总质量）          *)
-(*     == one（Hp_norm 归一化）⟹ log Z_aud ≤ log one == 0            *)
-(*     （log 单调 le 版直推；Id 侧总证明先例 = G01_CoreMicro.hlogz_*，      *)
-(*       Real 层种子 = CW_ConstructiveWorld_219 real_log_le_mono/real_log_le_zero_of_le_one）。 *)
-(*   原始任务表述草图「Z ≥ max p_i ⟹ log Z 下界」为下界槽路线，实测槽无     *)
-(*   此形态：max 提取不入职；「逐点正性见证」在二态实例里由           *)
-(*   hzlogd_HZ_bool 给出（HZ 槽一并证明），校注详见技术报告。         *)
+(* Measured shape of the HlogZ slot (key calibration point):                    *)
+(*   le (log (Z_aud_req S sumf post_aud p) HZ) zero                             *)
+(*   — this is the upper-bound form of log Z (log Z ≤ 0), not the lower-bound   *)
+(*   form lt zero (log Z), and not the per-eps form.  The proof route is        *)
+(*   therefore fixed as:                                                        *)
+(*   Z_aud ≤ sumf p ([req_Z_aud_le_one]: the pass-set mass is at most the       *)
+(*     total mass) == one (normalization [Hp_norm]) ⟹ log Z_aud ≤ log one == 0  *)
+(*     (direct from the monotone le form of log; the Id-side proof precedents   *)
+(*     are G01_CoreMicro.hlogz_*, and the Real-layer seeds are the upstream     *)
+(*     real_log_le_mono / real_log_le_zero_of_le_one).                          *)
+(* The original task sketch "Z ≥ max p_i ⟹ a lower bound of log Z" describes a  *)
+(*   lower-bound slot route; the measured slot has no such shape: max           *)
+(*   extraction does not enter the implementation; the pointwise positivity     *)
+(*   witness in the two-state instance is given by hzlogd_HZ_bool (proving the  *)
+(*   HZ slot along the way); see the technical report for calibration details.  *)
 (*                                                              *)
-(* 结果清单（前缀 hzlogd_ 独占，编前 grep 复核 0 同名冲突）：             *)
-(*   [保底] hzlogd_log_le_zero_of_le_one —— Z 正性+Z ≤ 1 ⟹ log Z ≤ 0  *)
-(*           抽象证明（log 单调 le 槽显式位，Set 层零 Prop）；         *)
-(*   [T2②]  hzlogd_discharge_real —— 抽象单调槽由 CW_ConstructiveWorld_219 种子          *)
-(*           real_log_le_mono 直接提供的 Real 具体证明（无条件闭合）；      *)
-(*           hzlogd_discharge_real_direct —— real_log_le_zero_of_le_one *)
-(*           直用双形（双形并存，殊途同归）；                          *)
-(*   [主件1] hzlogd_proj_min_kl_hlogzfree —— 主定理抽象 HlogZ-free      *)
-(*           实例化：HlogZ 槽由保底件填充；诚实前提位移 = 新增          *)
-(*           sum_le/Hp_norm（Z ≤ 1 路线的数学来源，主定理原签名不含）；   *)
-(*   [主件2] hzlogd_proj_min_kl_bool —— 主定理 bool/Real 具体实例        *)
-(*           （S := bool 二态审计，post_aud := id；HZ 槽由             *)
-(*           hzlogd_HZ_bool 一并证明；仅余 p/q 分布前提，全 Set 层）。  *)
+(* Result inventory (the hzlogd_ prefix is exclusive; grep re-checked zero name *)
+(* clashes before writing):                                                     *)
+(*   [deliverable] hzlogd_log_le_zero_of_le_one — Z positive + Z ≤ 1 ⟹ log Z ≤ 0 *)
+(*           abstract proof (the monotone le slot of log at an explicit         *)
+(*           position; Set layer, zero Prop);                                   *)
+(*   [T2(2)] hzlogd_discharge_real — the abstract monotone slot supplied        *)
+(*           directly by the upstream seed real_log_le_mono: the concrete Real  *)
+(*           proof (unconditional closure);                                     *)
+(*           hzlogd_discharge_real_direct — the direct-use twin via             *)
+(*           real_log_le_zero_of_le_one (the two forms coexist, same goal);     *)
+(*   [main 1] hzlogd_proj_min_kl_hlogzfree — abstract HlogZ-free instantiation  *)
+(*           of the main theorem: the HlogZ slot is filled by the deliverable;  *)
+(*           the honest premise shift = the new sum_le/Hp_norm (the             *)
+(*           mathematical source of the Z ≤ 1 route; absent from the main       *)
+(*           theorem's original signature);                                     *)
+(*   [main 2] hzlogd_proj_min_kl_bool — the bool/Real concrete instance of the  *)
+(*           main theorem (S := bool two-state audit, post_aud := id; the HZ    *)
+(*           slot is proved along the way by hzlogd_HZ_bool; only the p/q       *)
+(*           distribution premises remain, all on the Set layer).               *)
 (*                                                              *)
-(* 红线：零公理类禁词；全 Qed；Set 层语句（req/lt/le 全 Set 值；      *)
-(* Hqz 的 post_aud s = false 槽与主定理同位继承）；既有文件零改；        *)
-(* 双形并存。                                                *)
+(* Constraints: zero axiom-class tokens; all proofs close by Qed; Set-layer     *)
+(* statements (req/lt/le all Set-valued; the post_aud s = false slot of Hqz     *)
+(* inherits the main theorem's position); existing files untouched;             *)
+(* the two forms coexist.                                                       *)
 (* ============================================================ *)
 
 Require Import S01_BaseRing.
@@ -666,9 +697,11 @@ Notation log := real_log.
 Notation log_one := real_log_one.
 
 (* ============================================================ *)
-(* 保底件：抽象证明（log 单调 le 槽显式位；四项关卡主链第 1 环）           *)
-(*   论证：Z ≤ 1 ⟹ log Z ≤ log one（单调槽）⟹ log Z ≤ 0               *)
-(*   （log_one 是接口字段：req (log one H) zero，经 le_id_r 换右端）。 *)
+(* Deliverable: the abstract proof (the monotone le slot of log at an explicit  *)
+(*   position; the first link of the main chain)                                *)
+(*   Argument: Z ≤ 1 ⟹ log Z ≤ log one (monotone slot) ⟹ log Z ≤ 0             *)
+(*   ([log_one] is an interface field: req (log one H) zero, with the right end *)
+(*   transported by [le_id_r]).                                                 *)
 (* ============================================================ *)
 Lemma hzlogd_log_le_zero_of_le_one :
   
@@ -683,9 +716,12 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(*  模板 ②：Real 具体证明（抽象单调槽由 CW_ConstructiveWorld_219 种子直接提供）             *)
-(*   real_log_le_mono（CW_ConstructiveWorld_219 L112104 区，G01_CoreMicro 对偶）喂单参槽；    *)
-(*   语句层 lt/le/log 经 RealEnhancedReal 实例 delta 等同 real_*。     *)
+(*  Template (2): the concrete Real proof (the abstract monotone slot supplied  *)
+(*   directly by the upstream seed).                                            *)
+(*   [real_log_le_mono] (upstream baseline [L112104] region; dual of            *)
+(*   G01_CoreMicro) feeds the single-premise slot;                              *)
+(*   the statement-level lt/le/log are delta-equal to real_* via the            *)
+(*   [RealEnhancedReal] instance.                                               *)
 (* ============================================================ *)
 Lemma hzlogd_discharge_real :
   forall (Z : Real) (HZ : lt zero Z), le Z one -> le (log Z HZ) zero.
@@ -696,8 +732,9 @@ Proof.
            (real_log_le_mono Z one HZ one_pos HZ1)).
 Qed.
 
-(* 双形并存：real_log_le_zero_of_le_one（G01_CoreMicro 直用形态）直取，      *)
-(* 与上行殊途同归（同型语句双路互证，G01_CoreMicro 双给出先例）。             *)
+(* twin form: the direct-use form [real_log_le_zero_of_le_one] (as in          *)
+(* G01_CoreMicro) is taken directly, coinciding in result with the lemma above  *)
+(* (the same statement proved by two routes, as G01_CoreMicro does).            *)
 Lemma hzlogd_discharge_real_direct :
   forall (Z : Real) (HZ : lt zero Z), le Z one -> le (log Z HZ) zero.
 Proof.
@@ -706,12 +743,15 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主件 1：主定理抽象 HlogZ-free 实例化                                  *)
-(*   主定理节后签名（检验打表）=  S sumf + sum_ext/add/linear +      *)
-(*   log_req_compat + post_aud p Hp_pos HZ + q Hq Hqn Hqz + HlogZ。    *)
-(*   本件：HlogZ 槽由保底件填充；新增 sum_le/Hp_norm 入口（Z ≤ 1        *)
-(*   路线来源：req_Z_aud_le_one 要 sum_le，换右端要 Hp_norm）——         *)
-(*   诚实前提位移，主定理原签名不含此二者。                              *)
+(* Main 1: abstract HlogZ-free instantiation of the main theorem                *)
+(*   The post-Section signature of the main theorem (verified table) =          *)
+(*   S sumf + sum_ext/add/linear + log_req_compat + post_aud p Hp_pos HZ +      *)
+(*   q Hq Hqn Hqz + HlogZ.                                                      *)
+(*   This lemma: the HlogZ slot is filled by the deliverable; the new entries   *)
+(*   sum_le/Hp_norm are added (the source of the Z ≤ 1 route:                   *)
+(*   [req_Z_aud_le_one] needs sum_le; transporting the right end needs          *)
+(*   Hp_norm) — an honest premise shift; the main theorem's original signature  *)
+(*   contains neither.                                                          *)
 (* ============================================================ *)
 Lemma hzlogd_proj_min_kl_hlogzfree :
   forall  (S : Set)
@@ -745,8 +785,10 @@ Proof.
          post_aud p Hp_norm Hp_pos HZ Hmono q Hq Hqn Hqz.
   apply (req_projected_distribution_minimizes_kl S sumf sum_ext sum_add
            sum_linear log_req_compat post_aud p Hp_pos HZ q Hq Hqn Hqz).
-  (* HlogZ 槽就地直拼：@le_id_r 中停站 log one ＋ log_one 换右端 ＋ Hmono 单调肢，
-     Z_aud≤one 尾肢内联进单调肢第 5 参（零借道保底件） *)
+  (* HlogZ slot assembled in place: the intermediate stop [log one] of *)
+  (* @[le_id_r] + the right end transported by [log_one] + the monotone leg *)
+  (* [Hmono], with the Z_aud ≤ one tail leg inlined into the fifth argument of *)
+  (* the monotone leg (no detour through the deliverable lemma) *)
   apply (le_id_r (log (Z_aud_req S sumf post_aud p) HZ)
            (log one one_pos) zero).
   - exact (log_one one_pos).
@@ -757,9 +799,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主件 2 地基：bool/Real 二态有限和（S := bool 二态审计实例）          *)
-(*   sumf := plus (f true) (f false)；四条和前提 + log_req_compat      *)
-(*   全部在本文件实证（Real 层闭合，零新假设）。                        *)
+(* Foundation of Main 2: the bool/Real two-state finite sum (the S := bool      *)
+(*   two-state audit instance).                                                 *)
+(*   sumf := plus (f true) (f false); the four sum premises + [log_req_compat]  *)
+(*   are all proved inside this file (closed on the Real layer, zero new        *)
+(*   premises).                                                                 *)
 (* ============================================================ *)
 Definition hzlogd_aud_sum (f : bool -> Real) : Real := plus (f true) (f false).
 
@@ -782,14 +826,14 @@ Proof.
   apply (req_trans (plus (plus (f true) (g true)) (plus (f false) (g false)))
                    (plus (f true) (plus (g true) (plus (f false) (g false))))
                    (plus (plus (f true) (f false)) (plus (g true) (g false)))).
-  - (* 步1：(a+b)+(c+d) → a+(b+(c+d))（assoc 反向） *)
+  - (* step 1: (a+b)+(c+d) -> a+(b+(c+d)) (assoc, reversed) *)
     apply (req_sym (plus (f true) (plus (g true) (plus (f false) (g false))))
                    (plus (plus (f true) (g true)) (plus (f false) (g false)))
                    (plus_assoc (f true) (g true) (plus (f false) (g false)))).
   - apply (req_trans (plus (f true) (plus (g true) (plus (f false) (g false))))
                      (plus (f true) (plus (plus (g true) (f false)) (g false)))
                      (plus (plus (f true) (f false)) (plus (g true) (g false)))).
-    + (* 步2：b+(c+d) → (b+c)+d（assoc 正向） *)
+    + (* step 2: b+(c+d) -> (b+c)+d (assoc, forward) *)
       apply (req_plus_compat (f true) (f true)
                (plus (g true) (plus (f false) (g false)))
                (plus (plus (g true) (f false)) (g false))).
@@ -798,7 +842,7 @@ Proof.
     + apply (req_trans (plus (f true) (plus (plus (g true) (f false)) (g false)))
                        (plus (f true) (plus (plus (f false) (g true)) (g false)))
                        (plus (plus (f true) (f false)) (plus (g true) (g false)))).
-      * (* 步3：(b+c)+d → (c+b)+d（comm 中段交换） *)
+      * (* step 3: (b+c)+d -> (c+b)+d (comm on the middle pair) *)
         apply (req_plus_compat (f true) (f true)
                  (plus (plus (g true) (f false)) (g false))
                  (plus (plus (f false) (g true)) (g false))).
@@ -810,7 +854,7 @@ Proof.
       * apply (req_trans (plus (f true) (plus (plus (f false) (g true)) (g false)))
                          (plus (f true) (plus (f false) (plus (g true) (g false))))
                          (plus (plus (f true) (f false)) (plus (g true) (g false)))).
-        -- (* 步4：(c+b)+d → c+(b+d)（assoc 反向） *)
+        -- (* step 4: (c+b)+d -> c+(b+d) (assoc, reversed) *)
            apply (req_plus_compat (f true) (f true)
                     (plus (plus (f false) (g true)) (g false))
                     (plus (f false) (plus (g true) (g false)))).
@@ -818,7 +862,7 @@ Proof.
            ++ apply (req_sym (plus (f false) (plus (g true) (g false)))
                              (plus (plus (f false) (g true)) (g false))
                              (plus_assoc (f false) (g true) (g false))).
-        -- (* 步5：a+(c+(b+d)) → (a+c)+(b+d)（assoc 正向闭合） *)
+        -- (* step 5: a+(c+(b+d)) -> (a+c)+(b+d) (assoc, forward, closing) *)
            apply plus_assoc.
 Qed.
 
@@ -842,7 +886,7 @@ Proof.
            (H true) (H false)).
 Qed.
 
-(* log 兼容场实例（real_log_wd 直取；与 UpReqU2  ② 同位闭合件） *)
+(* instance of the log compatibility face (direct use of [real_log_wd]; the same-position closing lemma as in [UpReqU2]) *)
 Lemma hzlogd_log_req_compat_real :
   forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
@@ -852,9 +896,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* HZ 槽证明（二态「逐点见证」给出件）：通过点 true 处 p 正 ⟹           *)
-(* Z_aud = plus (p true) zero > 0（iota 归约 + plus_zero 运输）。        *)
-(* 二态空间里 max 项 = 通过点本身，无需 max 选择算子。                   *)
+(* Proof of the HZ slot (the two-state pointwise-witness provider): at the      *)
+(* pass point true, p positive ⟹                                               *)
+(* Z_aud = plus (p true) zero > 0 (iota reduction + transport by [plus_zero]).  *)
+(* In the two-state space the max term is the pass point itself; no max         *)
+(* selector is needed.                                                          *)
 (* ============================================================ *)
 Lemma hzlogd_HZ_bool :
   forall p : bool -> Real,
@@ -881,12 +927,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主件 2：主定理 bool/Real 具体实例（HlogZ 槽由  ② 证明件填充）        *)
-(*   post_aud := fun b => b（审计集 = {true}）；和四前提全实证；        *)
-(*   HZ 槽由 hzlogd_HZ_bool 证明（语句内联，免 assert 不透明墙）；       *)
-(*   HlogZ 槽由 hzlogd_discharge_real 证明（Z_aud ≤ one 走               *)
-(*   req_Z_aud_le_one + Hp_norm 同一路线）；                            *)
-(*   余下前提仅 p/q 分布形态（Set 层：real_eq/real_lt carrier）。           *)
+(* Main 2: the bool/Real concrete instance of the main theorem (the HlogZ slot  *)
+(*   filled by the Template-(2) proof lemma).                                   *)
+(*   post_aud := fun b => b (the audit set is {true}); all four sum premises    *)
+(*   proved;                                                                    *)
+(*   the HZ slot proved by [hzlogd_HZ_bool] (the statement is inlined rather    *)
+(*   than introduced by an opaque assert);                                      *)
+(*   the HlogZ slot proved by [hzlogd_discharge_real] (Z_aud ≤ one via          *)
+(*   [req_Z_aud_le_one] + [Hp_norm], the same route);                           *)
+(*   the remaining premises are only the p/q distribution shapes (Set layer:    *)
+(*   real_eq/real_lt carriers).                                                 *)
 (* ============================================================ *)
 Theorem hzlogd_proj_min_kl_bool :
   forall (p : bool -> Real)
@@ -909,8 +959,10 @@ Proof.
            hzlogd_aud_sum hzlogd_sum2_ext hzlogd_sum2_add hzlogd_sum2_linear
            hzlogd_log_req_compat_real (fun b : bool => b) p Hp_pos
            (hzlogd_HZ_bool p (Hp_pos true)) q Hq Hqn Hqz).
-  (* HlogZ 槽就地直拼：@le_id_r 中停站 log one ＋ log_one ＋ real_log_le_mono 单调肢，
-     Z_aud≤one 尾肢内联进单调肢第 5 参（零借道 discharge 件） *)
+  (* HlogZ slot assembled in place: the intermediate stop [log one] of *)
+  (* @[le_id_r] + [log_one] + the monotone leg [real_log_le_mono], with the *)
+  (* Z_aud ≤ one tail leg inlined into the fifth argument of the monotone leg *)
+  (* (no detour through the discharge lemma) *)
   apply (le_id_r
            (log (Z_aud_req bool hzlogd_aud_sum
                   (fun b : bool => b) p)
@@ -930,7 +982,8 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* G3 关：提取检验 + Print Assumptions（新件闭合性核验）                *)
+(* Extraction check + Print Assumptions (closure verification of the new        *)
+(* statements)                                                                  *)
 (* ============================================================ *)
 From Stdlib Require Import Extraction.
 Set Warnings "-extraction-opaque-accessed".
@@ -948,46 +1001,66 @@ Print Assumptions hzlogd_HZ_bool.
 Print Assumptions hzlogd_proj_min_kl_bool.
 
 (* ============================================================ *)
-(* 终验记录（编后核对回补）：                                          *)
-(*   Qed 计数：11 = 保底1 + T2双形2 + 主件1 + 和地基4 + log兼容1 +      *)
-(*   HZ证明1 + 主件2。                                                 *)
-(*   G1 禁词 0；G2 EXIT=0；G3 提取双轨 core/real + PA 全 Closed；       *)
-(*   G4 coqchk Modules were successfully checked。                     *)
+(* Closure record (appended after the build):                                   *)
+(*   Qed count: 11 = deliverable 1 + the two discharge forms 2 + main 1 +       *)
+(*   the four sum foundations + log compatibility 1 +                           *)
+(*   the HZ proof 1 + main 2.                                                   *)
+(*   Zero banned tokens; both extraction tracks (core/real) succeed with all    *)
+(*   PA outputs Closed;                                                         *)
+(*   [coqchk] reports "Modules were successfully checked".                      *)
 (* ============================================================ *)
 
-(* ======== G08_Gibbs 成员件：UpReqGibbsE2（原样并入，自带 Require）======== *)
+(* ======== G08_Gibbs member: UpReqGibbsE2 (merged verbatim, with its own Requires) ======== *)
 (* ============================================================ *)
-(* UpReqGibbsE2.v —— 假设位证明系列 #2 重定位模块：gibbs_equality 有限具体路线      *)
-(*   （上游版本 UpReqGibbsE.v 抽象 Or 形稿已阻塞判定，本文件零碰旧稿；              *)
-(*     gibbe2_ 前缀全库防同名冲突，建前 grep 实测零命中。）                          *)
+(* UpReqGibbsE2.v — relocated module of premise-slot proof series #2: the    *)
+(*   finite concrete route for gibbs_equality                                   *)
+(*   (the upstream draft UpReqGibbsE.v with the abstract Or shape was blocked   *)
+(*   at verdict; this file does not touch that draft;                           *)
+(*   the gibbe2_ prefix is unique library-wide against name clashes; grep       *)
+(*   measured zero hits before writing).                                        *)
 (* ------------------------------------------------------------------ *)
-(* 侦察结论（实读判定）：                                          *)
-(*   1. 逐项钳零可行：real_eq/real_lt 全 Set 值逐 eps 形（CW_ConstructiveWorld_219:3448/3517），  *)
-(*      real_list_sum_pos（根内 L41660 区）背书「逐项正⟹和正」方向；           *)
-(*      逆向「和零⟹逐项零」经 le_b 反对称（根内缺件）本文件自建闭合。            *)
-(*   2. log 引擎：real_log_le_mono（G01_CoreMicro L24，lt 支 real_log_lt_mono      *)
-(*      根内已证——严格单调在库）；log 单射/eq-linear 桥缺模块——CW_ConstructiveWorld_219 L41224      *)
-(*      诚实边界明示「log_eq_linear 需强三分/LPO，构造性不可证」。实测定：      *)
-(*      主件闭合确须该桥。                                                     *)
-(*   3. 双切点互易推导否决：逐项钳零给出 log u_s == u_s − 1 各自成立，          *)
-(*      但 u_1·u_2 == 1 互易关系对任意分布不成立（归一化不生互易），            *)
-(*      有限具体carrier亦不能绕开 eq-linear 桥——X 邻接判定升级为系列工作记录。         *)
+(* Reconnaissance conclusions (from direct reading):                            *)
+(*   1. per-item clamping to zero is feasible: real_eq/real_lt are Set-valued   *)
+(*      per-eps forms (upstream baseline:3448/3517),                            *)
+(*      and real_list_sum_pos (root [L41660] region) backs the direction "each  *)
+(*      item positive ⟹ sum positive";                                          *)
+(*      the converse "sum zero ⟹ each item zero" goes through the antisymmetry  *)
+(*      of le_b (missing in the baseline) and is closed inside this file.       *)
+(*   2. the log engine: real_log_le_mono (G01_CoreMicro L24; the lt branch      *)
+(*      real_log_lt_mono is proved in the baseline — strict monotonicity is in  *)
+(*      the library); a log injectivity/eq-linear bridge module is missing —    *)
+(*      the upstream baseline [L41224] states the honest boundary explicitly:   *)
+(*      "log_eq_linear needs strong trichotomy/LPO and is not provable          *)
+(*      constructively".  Measured: the main lemma's closure does need that     *)
+(*      bridge.                                                                 *)
+(*   3. the swap derivation at the two cut points is rejected: per-item         *)
+(*      clamping gives log u_s == u_s − 1 for each s,                           *)
+(*      but the reciprocity u_1·u_2 == 1 fails for general distributions        *)
+(*      (normalization does not create reciprocity),                            *)
+(*      and a finite concrete carrier cannot bypass the eq-linear bridge        *)
+(*      either — the adjacency question remains an open item of this series.    *)
 (* ------------------------------------------------------------------ *)
-(* 给出（分级）：                                                              *)
-(*   [保底1·逐项钳零件族] gibbe2_le_b_antisym（核心新件，逐 n 构造，            *)
-(*     零 Or 闭合、零 LPO、零三分）；gibbe2_clamp_head / _r；                   *)
-(*     gibbe2_list_sum_zero_extract_bool（有限具体carrier [true;false] 提取）。    *)
-(*   [保底2·log 关系件] gibbe2_kl_eq_of_w_zero + gibbe2_tangent_eq +           *)
-(*     gibbe2_kl_zero_tangent_eq：KL==0 ⟹ 逐点切点等式                          *)
-(*     log(q_s/p_s) == q_s/p_s − 1（Real 层无条件——全库首件）。                 *)
-(*   [主件·桥注入形证明件] gibbe2_gibbs_equality_bool：KL==0 ⟹ 逐点切点等式     *)
-(*     ⟹（eq-linear 桥显式注入）⟹ 逐点 p==q。桥无条件不可证（根内 L41224        *)
-(*     判定；上游版本 exp 复制机属阻塞域本文件零碰），依兜底预案以显式前提证明——      *)
-(*     req 层 dist_log_eq_linear（UpReqDist:1031 Hypothesis）的 Real 实例化     *)
-(*     缺口如实呈报。                                                          *)
-(* 红线：Set 层零 Prop（语句序/等全 Set 值 real_eq/real_lt/real_le_b；          *)
-(*   零 Or 闭合、零三分、零 LPO）；全 Qed 闭合；零公理；既有文件零改；          *)
-(*   旧 UpReqGibbsE.v 零碰（无 .vo，不可 Require，未使用）。            *)
+(* Deliverables (graded):                                                       *)
+(*   [deliverable 1 · per-item clamp family] gibbe2_le_b_antisym (the core new  *)
+(*     lemma, built per n, zero Or closure, zero LPO, zero trichotomy);         *)
+(*     gibbe2_clamp_head / _r;                                                  *)
+(*     gibbe2_list_sum_zero_extract_bool (extraction over the finite concrete   *)
+(*     carrier [true;false]).                                                   *)
+(*   [deliverable 2 · log relation lemmas] gibbe2_kl_eq_of_w_zero +             *)
+(*     gibbe2_tangent_eq + gibbe2_kl_zero_tangent_eq: KL==0 ⟹ pointwise        *)
+(*     tangent equality log(q_s/p_s) == q_s/p_s − 1 (unconditional on the Real  *)
+(*     layer — the first such lemma in the library).                            *)
+(*   [main · bridge-injected proof lemma] gibbe2_gibbs_equality_bool: KL==0 ⟹  *)
+(*     pointwise tangent equality ⟹ (eq-linear bridge injected explicitly) ⟹   *)
+(*     pointwise p==q.  The bridge is unprovable unconditionally (the           *)
+(*     [L41224] verdict; the upstream exp-copy draft belongs to the blocked     *)
+(*     zone and is untouched here), so it is proved with an explicit premise    *)
+(*     by the fallback plan — the Real-instantiation gap of the req-layer       *)
+(*     dist_log_eq_linear (UpReqDist:1031 Hypothesis) is reported as is.        *)
+(* Constraints: Set layer with zero Prop (statement order/equality all          *)
+(*   Set-valued real_eq/real_lt/real_le_b; zero Or closure, zero trichotomy,    *)
+(*   zero LPO); all proofs close by Qed; zero axioms; existing files untouched; *)
+(*   the old UpReqGibbsE.v untouched (no .vo, cannot be Required, unused).      *)
 (* ============================================================ *)
 
 Require Import S01_BaseRing.
@@ -1013,7 +1086,7 @@ From Stdlib Require Import Lia.
 Import ListNotations.
 
 (* ============================================================ *)
-(* Part A：Q 层半分 helper                                                     *)
+(* Part A. Q-layer halving helpers                                              *)
 (* ============================================================ *)
 
 Lemma gibbe2_Q_half_pos : forall eps : Q, QltT 0 eps -> QltT 0 (eps * (1#2))%Q.
@@ -1036,10 +1109,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part B：le_b 补层序机                                                       *)
+(* Part B. The complementary le_b order machinery                               *)
 (* ============================================================ *)
 
-(* B1：le_b 右端 eq 换形 *)
+(* B1: real_eq transport of the right end of le_b *)
 Lemma gibbe2_le_b_id_r : forall a b c : Real,
   real_le_b a b -> real_eq b c -> real_le_b a c.
 Proof.
@@ -1048,7 +1121,7 @@ Proof.
            (RealSetoid.real_eq_plus_compat b eps c eps Hbc (real_eq_refl eps))).
 Qed.
 
-(* B2：le_b 右加平移 *)
+(* B2: right-addition translation for le_b *)
 Lemma gibbe2_le_b_translate_r : forall x y z : Real,
   real_le_b x y -> real_le_b (real_plus x z) (real_plus y z).
 Proof.
@@ -1064,7 +1137,7 @@ Proof.
   - exact (real_lt_plus_translate z x (real_plus y eps) (H eps Heps)).
 Qed.
 
-(* B3：le_b a b ⟹ le_b 0 (b−a) *)
+(* B3: le_b a b ⟹ le_b 0 (b−a) *)
 Lemma gibbe2_le_b_nonneg_diff : forall a b : Real,
   real_le_b a b -> real_le_b real_zero (real_plus b (real_opp a)).
 Proof.
@@ -1084,7 +1157,8 @@ Proof.
   - exact (real_lt_plus_translate (real_opp a) a (real_plus b eps) (H eps Heps)).
 Qed.
 
-(* B4【核心新件】：le_b Bishop 序反对称（逐 n 构造，零 Or 闭合、零 LPO） *)
+(* B4 [core new lemma]: antisymmetry of the Bishop order le_b (built per n;    *)
+(* zero Or closure, zero LPO) *)
 Lemma gibbe2_le_b_antisym : forall a b : Real,
   real_le_b a b -> real_le_b b a -> real_eq a b.
 Proof.
@@ -1166,10 +1240,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part C：保底1·逐项钳零件族                                                  *)
+(* Part C. Deliverable 1: the per-item clamp family                             *)
 (* ============================================================ *)
 
-(* C1：二项和零 ⟹ 首项零 *)
+(* C1: a two-term zero sum ⟹ the first term is zero *)
 Lemma gibbe2_clamp_head : forall a b : Real,
   real_le_b real_zero a -> real_le_b real_zero b ->
   real_eq (real_plus a b) real_zero -> real_eq real_zero a.
@@ -1185,7 +1259,7 @@ Proof.
              (real_plus_comm b a) Hsum).
 Qed.
 
-(* C2：二项和零 ⟹ 次项零（comm 对偶） *)
+(* C2: a two-term zero sum ⟹ the second term is zero (comm dual) *)
 Lemma gibbe2_clamp_head_r : forall a b : Real,
   real_le_b real_zero a -> real_le_b real_zero b ->
   real_eq (real_plus a b) real_zero -> real_eq real_zero b.
@@ -1197,7 +1271,7 @@ Proof.
   - exact Hsum.
 Qed.
 
-(* C3【保底1 主件】：有限具体carrier [true;false] 逐项和零提取 *)
+(* C3 [Deliverable 1 main lemma]: per-item extraction from a zero sum over the finite concrete carrier [true;false] *)
 Lemma gibbe2_list_sum_zero_extract_bool :
   forall (f : bool -> Real),
     (forall s : bool, real_le_b real_zero (f s)) ->
@@ -1222,10 +1296,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part D：保底2·log 关系件（KL==0 ⟹ 逐点切点等式）                            *)
+(* Part D. Deliverable 2: log relation lemmas (KL==0 ⟹ pointwise tangent       *)
+(* equality)                                                                    *)
 (* ============================================================ *)
 
-(* D0：和零 ⟹ 项恒等 *)
+(* D0: a zero sum ⟹ term identity *)
 Lemma gibbe2_kl_eq_of_w_zero : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
   real_eq (real_plus (real_kl_term p q Hp Hq)
@@ -1261,7 +1336,7 @@ Proof.
                (real_plus_zero X)).
 Qed.
 
-(* D1：切点等式形：kl == p−q ⟹ log(q/p) == q/p − 1 *)
+(* D1: tangent-equality shape: kl == p−q ⟹ log(q/p) == q/p − 1 *)
 Lemma gibbe2_tangent_eq : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
   real_eq (real_kl_term p q Hp Hq) (real_plus p (real_opp q)) ->
@@ -1277,7 +1352,7 @@ Proof.
                (real_inv_pos_pos p Hp)).
   set (L := real_log u Hu).
   (* H : p·(−L) == p + −q *)
-  (* 步1：p·L == q + −p（两侧取 opp） *)
+  (* step 1: p·L == q + −p (opp on both sides) *)
   assert (Hs1 : real_eq (real_mult p L) (real_plus q (real_opp p))).
   { apply (real_eq_trans (real_mult p L)
              (real_opp (real_mult p (real_opp L)))
@@ -1298,7 +1373,7 @@ Proof.
                   (real_plus p (real_opp q)) H)
                (gibbsd_minus_flip p q)).
   }
-  (* 步2：L == (q−p)·inv p *)
+  (* step 2: L == (q−p)·inv p *)
   assert (Hs2 : real_eq L (real_mult (real_plus q (real_opp p))
                                         (real_inv_pos p Hp))).
   { apply (real_eq_trans L
@@ -1327,7 +1402,7 @@ Proof.
                (real_inv_pos p Hp) (real_plus q (real_opp p))
                (real_inv_pos p Hp) Hs1 (real_eq_refl _)).
   }
-  (* 步3：(q−p)·inv p == q·inv p + −1 == u + −1 *)
+  (* step 3: (q−p)·inv p == q·inv p + −1 == u + −1 *)
   assert (Hs3 : real_eq (real_mult (real_plus q (real_opp p))
                                    (real_inv_pos p Hp))
                         (real_plus u (real_opp real_one))).
@@ -1362,7 +1437,8 @@ Proof.
   exact (real_eq_trans L _ _ Hs2 Hs3).
 Qed.
 
-(* D2【保底2 主件】：KL==0 ⟹ 逐点切点等式 log(q_s/p_s) == q_s/p_s − 1 *)
+(* D2 [Deliverable 2 main lemma]: KL==0 ⟹ the pointwise tangent equality      *)
+(* log(q_s/p_s) == q_s/p_s − 1 *)
 Lemma gibbe2_kl_zero_tangent_eq :
   forall (p q : bool -> Real)
     (Hp : forall s : bool, real_lt real_zero (p s))
@@ -1447,21 +1523,21 @@ Proof.
                    real_zero real_zero (real_eq_refl _) (real_opp_zero)).
         * exact (real_plus_zero real_zero).
   }
-  (* 3. 逐点钳零：D s == 0 *)
+  (* 3. per-item clamping: D s == 0 *)
   assert (Hclamp : forall s : bool, real_eq (D s) real_zero).
   { intro s. apply (real_eq_sym _ _).
     apply (gibbe2_list_sum_zero_extract_bool D).
     - intro s0. exact (gibbe2_le_b_nonneg_diff _ _
                          (gibbsd_gibbs_pointwise_B bool p q s0 (Hp s0) (Hq s0))).
     - exact HsumD. }
-  (* 4. 逐点：K s == G s ⟹ 切点等式 *)
+  (* 4. pointwise: K s == G s ⟹ the tangent equality *)
   intro s. apply gibbe2_tangent_eq.
   apply gibbe2_kl_eq_of_w_zero.
   exact (Hclamp s).
 Qed.
 
 (* ============================================================ *)
-(* Part E：主件·桥注入形证明件                                                 *)
+(* Part E. Main lemma: the bridge-injected proof                                *)
 (* ============================================================ *)
 
 Theorem gibbe2_gibbs_equality_bool :
@@ -1502,7 +1578,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 尾核：Print Assumptions（G3 零公理见证）                                    *)
+(* Tail check: Print Assumptions (the zero-axiom witness)                       *)
 (* ============================================================ *)
 
 Print Assumptions gibbe2_le_b_antisym.

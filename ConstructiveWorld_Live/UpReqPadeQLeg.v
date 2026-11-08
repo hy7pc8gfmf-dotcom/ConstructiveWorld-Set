@@ -62,13 +62,17 @@ Proof. intros a b H. apply Z.leb_le. exact (Id_eq _ _ H). Defined.
 Lemma ZLeT_lift : forall a b : Z, (a <= b)%Z -> ZLeT a b.
 Proof. intros a b H. exact (eq_Id _ _ (proj2 (Z.leb_le a b) H)). Defined.
 
-(* 正分母正性（Qden 是 positive，显式钉定，不依赖 zify 隐式） *)
+(* positivity of the positive denominator: [Z.pos d] is positive by
+   construction for [d : positive], stated explicitly rather than through an
+   implicit zify step *)
 Lemma pql_pos_den_pos : forall d : positive, ZLtT 0 (Z.pos d).
 Proof. intros d. exact (ZLtT_lift 0 (Z.pos d) (Pos2Z.is_pos d)). Qed.
 
 (* ============================================================ *)
-(* 族 A 基肢：Qeq 右传（0 起点）：a == b ⟹ 0 < a ⟹ 0 < b               *)
-(*   Z 面：na·db = nb·da ∧ 1 ≤ na ⊢ 0 < nb（反证 + 乘单调）。          *)
+(* Family A, basic leg: right propagation from the origin:           *)
+(*   a == b -> 0 < a -> 0 < b.  On the Z face: na*db = nb*da and     *)
+(*   1 <= na imply 0 < nb (by contradiction plus multiplicative      *)
+(*   monotonicity).                                                  *)
 (* ============================================================ *)
 Lemma pql_qlt0_eq_r : forall a b : Q, a == b -> Qlt 0 a -> QltT 0 b.
 Proof.
@@ -80,12 +84,15 @@ Proof.
   pose proof (ZLtT_drop 0 (Z.pos da) (pql_pos_den_pos da)) as Hda.
   assert (Hda0 : (0 <= Z.pos da)%Z) by lia.
   pose proof (ZLtT_drop 0 (Z.pos db) (pql_pos_den_pos db)) as Hdb.
-  (* Ha/goal 中的 *1 与 *0 由 lia 线性归一：得 1 <= na，目标 0 < nb *)
+  (* the factors 1 and 0 in [Ha] and in the goal normalize linearly by
+     lia: [1 <= na] on the [Ha] side, [0 < nb] on the goal side *)
   assert (Hna : (1 <= na)%Z) by lia.
-  (* 主等式：na * db = nb * da（注意：Q_scope 下 == 是 Qeq，Z 面写 =） *)
+  (* the main equation [na * db = nb * da]: under [Q_scope] [==] is
+     [Qeq], written [=] on the Z face *)
   assert (Hmul : (na * Z.pos db = nb * Z.pos da)%Z) by exact Hab.
   assert (Hdb0 : (0 <= Z.pos db)%Z) by lia.
-  (* 反证：nb <= 0 则 nb*da <= 0，与 na*db >= 1*db >= 1 矛盾 *)
+  (* contradiction branch: [nb <= 0] would give [nb*da <= 0], opposing
+     [na*db >= 1*db >= 1] *)
   destruct (Z_le_gt_dec nb 0) as [Hn0 | Hn0].
   - exfalso.
     pose proof (Z.mul_le_mono_nonneg_r nb 0 (Z.pos da) Hda0 Hn0) as Hneg.
@@ -94,9 +101,10 @@ Proof.
   - lia.
 Qed.
 
-(* 族 A 右传肢：a == b ⟹ c < a ⟹ c < b
-   Z 面：nc·da < na·dc，na·db = nb·da ⊢ nc·db < nb·dc
-   （两边乘 db 正数，na·dc·db = nb·dc·da 换形，再消 da）。 *)
+(* Family A, right leg: a == b -> c < a -> c < b.
+   Z face: nc*da < na*dc and na*db = nb*da imply nc*db < nb*dc
+   (multiply both sides by the positive db, reshape through
+   na*dc*db = nb*dc*da, then cancel the positive factor da). *)
 Lemma pql_qlt_eq_r : forall a b c : Q, a == b -> Qlt c a -> QltT c b.
 Proof.
   intros a b c Hab Hlt.
@@ -108,18 +116,18 @@ Proof.
   assert (Hda0 : (0 <= Z.pos da)%Z) by lia.
   pose proof (ZLtT_drop 0 (Z.pos db) (pql_pos_den_pos db)) as Hdb.
   pose proof (ZLtT_drop 0 (Z.pos dc) (pql_pos_den_pos dc)) as Hdc.
-  (* 换形恒等式（ring 只收恒等肢） *)
+  (* reshaping identities ([ring] takes only the identity legs) *)
   assert (E1 : (na * Z.pos dc * Z.pos db = (na * Z.pos db) * Z.pos dc)%Z) by ring.
   assert (E2 : (nc * Z.pos da * Z.pos db = (nc * Z.pos db) * Z.pos da)%Z) by ring.
   assert (E3 : ((nb * Z.pos da) * Z.pos dc = nb * Z.pos dc * Z.pos da)%Z) by ring.
   rewrite Hab in E1.
   rewrite E3 in E1.
-  (* Hlt 两边乘 db > 0 *)
+  (* multiply both sides of [Hlt] by the positive [db] *)
   assert (Hm : (nc * Z.pos da * Z.pos db < na * Z.pos dc * Z.pos db)%Z).
   { apply (proj1 (Z.mul_lt_mono_pos_r (Z.pos db) (nc * Z.pos da) (na * Z.pos dc) Hdb)).
     lia. }
   rewrite E2 in Hm. rewrite E1 in Hm.
-  (* Hm : (nc*db)*da < nb*dc*da，消正因子 da *)
+  (* [Hm : (nc*db)*da < nb*dc*da]: cancel the positive factor [da] *)
   destruct (Z_le_gt_dec (nb * Z.pos dc) (nc * Z.pos db)) as [Hbad | Hgood].
   - exfalso.
     pose proof (Z.mul_le_mono_nonneg_r (nb * Z.pos dc) (nc * Z.pos db) (Z.pos da) Hda0 Hbad) as Hc.
@@ -127,8 +135,9 @@ Proof.
   - lia.
 Qed.
 
-(* 族 A 左传肢：a == b ⟹ a < c ⟹ b < c
-   Z 面：na·dc < nc·da，na·db = nb·da ⊢ nb·dc < nc·db（副本同法）。 *)
+(* Family A, left leg: a == b -> a < c -> b < c.
+   Z face: na*dc < nc*da and na*db = nb*da imply nb*dc < nc*db
+   (dual of the right leg, same method). *)
 Lemma pql_qlt_eq_l : forall a b c : Q, a == b -> Qlt a c -> QltT b c.
 Proof.
   intros a b c Hab Hlt.
@@ -146,24 +155,28 @@ Proof.
   assert (Hm : (na * Z.pos dc * Z.pos db < nc * Z.pos da * Z.pos db)%Z).
   { apply (proj1 (Z.mul_lt_mono_pos_r (Z.pos db) (na * Z.pos dc) (nc * Z.pos da) Hdb)).
     lia. }
-  (* Hm 两端换形到同一单调乘法框：nb·dc·da < nc·db·da *)
+  (* reshape both ends of [Hm] into a single monotone-multiplication
+     frame: nb*dc*da < nc*db*da *)
   assert (T1 : (na * Z.pos dc * Z.pos db = nb * Z.pos dc * Z.pos da)%Z).
   { transitivity ((na * Z.pos db) * Z.pos dc).
     - ring.
     - rewrite Hab. ring. }
   assert (T2 : (nc * Z.pos da * Z.pos db = nc * Z.pos db * Z.pos da)%Z) by ring.
   rewrite T1, T2 in Hm.
-  (* 消正因子 da：iff 形 Z.mul_lt_mono_pos_r 反向一跳直达目标 *)
+  (* cancel the positive factor [da]: the iff-shaped
+     [Z.mul_lt_mono_pos_r] applied in the reverse direction reaches the
+     goal in one step *)
   apply (proj2 (Z.mul_lt_mono_pos_r (Z.pos da) (nb * Z.pos dc) (nc * Z.pos db) Hda)).
   exact Hm.
 Qed.
 
 (* ============================================================ *)
-(* 族 B 加法严格桥三件                                                *)
+(* Family B: the three strict-order addition bridges.                *)
 (* ============================================================ *)
 
-(* Qlt 0 b ⟹ a < a + b
-   Q 层装配：Qplus_lt_r （iff 形）+ (a+0)==a 环换 + 左传肢。 *)
+(* Qlt 0 b -> a < a + b.
+   Assembled at the Q layer: [Qplus_lt_r] (iff form), the ring
+   identity (a+0)==a, and the left leg. *)
 Lemma pql_qlt_add_r : forall a b : Q, Qlt 0 b -> QltT a (a + b)%Q.
 Proof.
   intros a b Hb.
@@ -173,8 +186,9 @@ Proof.
   exact (pql_qlt_eq_l (a + 0)%Q a (a + b)%Q Heq Ht).
 Qed.
 
-(* Qle 0 a ⟹ Qlt 0 b ⟹ 0 < a + b
-   Q 层装配：Qplus_lt_r + 左传腵 + Qle_lt_trans。 *)
+(* Qle 0 a -> Qlt 0 b -> 0 < a + b.
+   Assembled at the Q layer: [Qplus_lt_r], the left leg, and
+   [Qle_lt_trans]. *)
 Lemma pql_qle_lt_add : forall a b : Q, Qle 0 a -> Qlt 0 b -> QltT 0 (a + b)%Q.
 Proof.
   intros a b Ha Hb.
@@ -186,7 +200,7 @@ Proof.
   apply Qlt_to_QltT. exact (Qle_lt_trans 0%Q a (a + b)%Q Ha Hlt2).
 Qed.
 
-(* Qlt 0 a ⟹ Qle 0 b ⟹ 0 < a + b（副本件，Qplus_lt_l 形） *)
+(* Qlt 0 a -> Qle 0 b -> 0 < a + b (dual statement, [Qplus_lt_l] shape) *)
 Lemma pql_qlt_le_add : forall a b : Q, Qlt 0 a -> Qle 0 b -> QltT 0 (a + b)%Q.
 Proof.
   intros a b Ha Hb.
@@ -199,9 +213,11 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 族 C 系数比单调 Nat/Z 肢（DenPos / DenPos12 原nia 位形状）           *)
-(*   数学核：k < n ⟹ S(n−S k) ≤ S(2n−S k)·S k                          *)
-(*     （链：X ≤ 2X ≤ 2Y ≤ Y·S k）；k=0 时 Y = 2X lia 直解。            *)
+(* Family C: nat/Z monotonicity legs for coefficient ratios (the     *)
+(* original nia slots of DenPos / DenPos12).                         *)
+(*   Mathematical core: k < n -> S(n - S k) <= S(2n - S k) * S k     *)
+(*   (chain X <= 2X <= 2Y <= Y * S k); at k = 0, Y = 2X closes by    *)
+(*   lia directly.                                                   *)
 (* ============================================================ *)
 Lemma pql_nat_ratio_mono2 :
   forall n k : nat, (k < n)%nat ->

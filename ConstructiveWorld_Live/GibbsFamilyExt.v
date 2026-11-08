@@ -1,11 +1,33 @@
-(* ==========================================================================)
-   GibbsFamilyExt.v — Gibbs 不等式族的温度扩展
-   使命: gfe_gibbs_core_temp_B/gibbs_inequality_temp_B（温度参数化 Gibbs）、gibbs_temp_gap_B 及 flat 形、le_b_mult_pos（正乘保序）、Jeffreys 对称熵两件（gfe_jeffreys_sym_B/sym_list_B）。
-   依赖: CW_ConstructiveWorld_219、UpRealLeB/2/3、UpReqKLStrictB；Stdlib List。
-   对标: Gibbs 不等式（相对熵非负性）与 Jeffreys 散度的族化。
-   构造性: 全件 Qed 闭合、零承认词面、无经典逻辑；语句面以 Set 层承载（序谓词与等词为 Set 值，零 Prop 泄露）。
-   编译配方: Rocq 9.1 直调 coqc -Q . "" -native-compiler no（vo 影子树同世界重编），cpu_guard 包裹限载。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — temperature-scaled extensions of the Gibbs inequality family. *)
+
+(** * GibbsFamilyExt: temperature-parameterized Gibbs and Jeffreys
+    inequalities for the constructive reals.
+
+    Mission.  Temperature-parameterized Gibbs inequality forms: the
+      pointwise cores [gfe_gibbs_core_temp_B] and
+      [gfe_gibbs_inequality_temp_B], the gap form [gfe_gibbs_temp_gap_B]
+      with its flat expansion [gfe_gibbs_temp_gap_B_flat], order
+      preservation under positive multiplication [gfe_le_b_mult_pos],
+      and the symmetric Jeffreys statements
+      [gfe_jeffreys_sym_B]/[gfe_jeffreys_sym_list_B].
+
+    Dependencies.  Stdlib [List].  Requires [S01_BaseRing] through
+      [S15_TailFEPUp] and [UpRealLeB], [UpRealLeB2], [UpRealLeB3],
+      [UpReqKLStrictB] of this development.
+
+    References.  This development, GibbsFamilyExt.v, the baseline module
+      in ConstructiveWorld-Main whose statement names are carried over
+      here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements are carried by [Set] and the
+      order/equality predicates are Set-valued; every statement closes
+      with [Qed] without classical logic, extracts with
+      [Obj.magic] = 0 and no erasure, and [coqchk] reports
+      [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" GibbsFamilyExt.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact
+      are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import List.
 Import ListNotations.
@@ -30,20 +52,24 @@ Require Import UpRealLeB3.
 Require Import UpReqKLStrictB.
 
 (* ============================================================ *)
-(* Part 0：序代数支撑件（四件）                                          *)
+(* Part 0. Order-algebraic support lemmas (four statements) *)
 (* ============================================================ *)
 
-(* 0.1 严格正到弱非负桥（温度前提降级：β>0 出口喂 β≥0 入口）。
-   real_le 为 Or 编码（CW219 S02:460），lt 支 inl 直连——
-   零中介件（S07 real_lt_le_iff_req 不入 CW219 聚合出口，实测）。 *)
+(* 0.1 Bridge from strict positivity to weak nonnegativity (the
+   temperature premise is downgraded: a [b > 0] exit feeds a [b >= 0]
+   entry).  [real_le] is an [Or] encoding, so the strict-order premise
+   feeds the left disjunct directly through [inl], with no
+   intermediate lemma. *)
 Lemma gfe_le_of_lt : forall b : Real,
   real_lt real_zero b -> real_le real_zero b.
 Proof.
   intros b Hb. exact (inl Hb).
 Qed.
 
-(* 0.2 (q−p)+(p−q) == 0：非对称对消核（assoc 三跳链，零 opp 分配依赖；
-   对称 Jeffreys 形的对消引擎） *)
+(* 0.2 The identity [(q + (-p)) + (p + (-q)) == 0]: the cancellation
+   core of the asymmetric forms (a three-step associativity chain that
+   never distributes over the additive inverse; it drives the
+   symmetric Jeffreys forms). *)
 Lemma gfe_pq_shift_zero : forall p q : Real,
   real_eq (real_plus (real_plus q (real_opp p)) (real_plus p (real_opp q)))
           real_zero.
@@ -53,7 +79,8 @@ Proof.
   { exact (real_eq_trans (real_plus (real_opp p) p)
                          (real_plus p (real_opp p)) real_zero
              (real_plus_comm (real_opp p) p) (real_plus_opp p)). }
-  (* 步1：assoc 两跳把 p 肢并入 q 肢 *)
+  (* Step 1: two associativity regroupings fold the [p] summand into
+     the [q] side. *)
   assert (Hs1 : real_eq (real_plus (real_plus q (real_opp p))
                                    (real_plus p (real_opp q)))
                         (real_plus (real_plus q (real_plus (real_opp p) p))
@@ -72,7 +99,7 @@ Proof.
                            (real_plus (real_plus q (real_opp p)) p)).
         exact (real_plus_assoc q (real_opp p) p).
       + apply real_eq_refl. }
-  (* 步2：内层 (−p)+p 对消为 0 *)
+  (* Step 2: the inner sum [(-p) + p] cancels to zero. *)
   assert (Hs2 : real_eq (real_plus (real_plus q (real_plus (real_opp p) p))
                                    (real_opp q))
                         (real_plus (real_plus q real_zero) (real_opp q))).
@@ -86,7 +113,8 @@ Proof.
       + apply real_eq_refl.
       + exact Hopp0.
     - apply real_eq_refl. }
-  (* 步3+4：(q+0)+(−q) 换形后 plus_opp 闭合 *)
+  (* Steps 3 and 4: after rewriting [(q + 0) + (-q)] to [q + (-q)],
+     [real_plus_opp] closes the goal. *)
   assert (Hs3 : real_eq (real_plus (real_plus q real_zero) (real_opp q))
                         real_zero).
   { apply (real_eq_trans
@@ -109,8 +137,10 @@ Proof.
               real_zero Hs2 Hs3)).
 Qed.
 
-(* 0.3 平移对消恒等式：(a+s)+(d+t) == a+d（当 s+t == 0）；
-   swap_mid 一跳闭合——对称 Jeffreys 主恒等式的引擎 *)
+(* 0.3 The shifted cancellation identity [(a + s) + (d + t) == a + d]
+   whenever [s + t == 0]; one application of [real_plus_swap_mid]
+   closes it.  This is the engine behind the symmetric Jeffreys
+   identity. *)
 Lemma gfe_sym_sum_eq : forall (a d s t : Real),
   real_eq (real_plus s t) real_zero ->
   real_eq (real_plus (real_plus a s) (real_plus d t)) (real_plus a d).
@@ -132,8 +162,10 @@ Proof.
     + exact (real_plus_zero (real_plus a d)).
 Qed.
 
-(* 0.4 Bishop 形右元换形器（族级组合器：le_b x y + y==z 给 le_b x z；
-   左元换形 leb3_le_b_eq_l 的对偶件，UpRealLeB3 无右元版） *)
+(* 0.4 Right-hand rewriting for the Bishop order (family-level
+   combinator: [le_b x y] together with [y == z] gives [le_b x z]; the
+   dual of the left-hand rewriter [leb3_le_b_eq_l], which has no
+   right-hand counterpart in the development). *)
 Lemma gfe_le_b_eq_r : forall (x y z : Real),
   real_le_b x y -> real_eq y z -> real_le_b x z.
 Proof.
@@ -149,13 +181,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part A：温度参数化形（真缺变体面 A；β 加权 Gibbs 族五件）             *)
+(* Part A. Temperature-parameterized forms (variant face A; five
+   members of the beta-weighted Gibbs family) *)
 (* ============================================================ *)
 
-(* A1 温度参数化逐点核 eps 形（β ≥ 0 弱前提——容许零温退化）：
-   β·(p−q) ≤ β·kl(p‖q) + β·p·eps。
-   证书链：real_gibbs_core_eps → 左乘保序 real_le_mult_compat_r
-   → distrib 换形（三步组装，系数全程显式追踪）。 *)
+(* A1 The eps-form of the temperature-parameterized pointwise core,
+   under the weak premise [b >= 0] (zero temperature is allowed):
+   [b*(p-q) <= b*kl(p,q) + b*p*eps].
+   Chain: [real_gibbs_core_eps], then right-multiplication monotonicity
+   [real_le_mult_compat_r], then a distributivity rewrite — three
+   assembly steps with the coefficient kept explicit throughout. *)
 Lemma gfe_gibbs_core_temp_eps : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_le real_zero b) (eps : Real) (Heps : real_lt real_zero eps),
@@ -176,12 +211,15 @@ Proof.
              (real_gibbs_core_eps p q Hp Hq eps Heps)).
 Qed.
 
-(* A2 温度参数化逐点核 Bishop 形（β > 0 严格前提）：
-   β·(p−q) ≤_B β·kl(p‖q)。
-   闭合器：real_le_closure_b，D := β·p（正性证书 real_mult_positive）；
-   逐 eps 余量 (β·p)·eps 由 A1 经 mult_assoc 换形供给。
-   注：β = 0 时 D 证书无从供给——Bishop 形前提强于 eps 形，
-   即 §4.3 形态选择在温度参数化下的构造性分化。 *)
+(* A2 The Bishop form of the temperature-parameterized pointwise core,
+   under the strict premise [b > 0]: [b*(p-q) <=_B b*kl(p,q)].
+   Closer: [real_le_closure_b] with [D := b*p] (positivity witness
+   [real_mult_positive]); the per-eps slack [(b*p)*eps] is supplied by
+   A1 after an associativity rewrite.
+   Note: at [b = 0] no witness for [D] can be produced — the Bishop
+   premise is strictly stronger than the eps premise, so the choice of
+   inequality form bifurcates constructively under temperature
+   scaling. *)
 Theorem gfe_gibbs_core_temp_B : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -210,10 +248,12 @@ Proof.
   - exact (gfe_gibbs_core_temp_eps p q b Hp Hq (gfe_le_of_lt b Hb) eps Heps).
 Qed.
 
-(* A3 温度参数化有限和 eps 形（β ≥ 0 弱前提）：
-   0 ≤ β·Σ_s kl(p s‖q s) + β·eps。
-   证书链：real_gibbs_inequality_eps → 左乘保序 → distrib 换形，
-   左端 β·0 == 0 经 mult_zero 换形（归一化消去在温度下保持）。 *)
+(* A3 The eps-form of the temperature-parameterized finite sum, under
+   the weak premise [b >= 0]: [0 <= b*sum_s kl(p s,q s) + b*eps].
+   Chain: [real_gibbs_inequality_eps], then right-multiplication
+   monotonicity, then a distributivity rewrite; the left end
+   [b*0 == 0] is rewritten via [real_mult_zero] (normalization
+   cancellation survives temperature scaling). *)
 Lemma gfe_gibbs_inequality_temp_eps : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -253,10 +293,11 @@ Proof.
                    eps Heps)).
 Qed.
 
-(* A4 温度参数化有限和 Bishop 形（β > 0 严格前提）：
-   0 ≤_B β·Σ_s kl(p s‖q s)。
-   闭合器：real_le_closure_b，D := β；A3 出口余量形状
-   (β·Σkl) + β·eps 与 closure 供给形 y + D·eps 逐字同形，一步直接代入。 *)
+(* A4 The Bishop form of the temperature-parameterized finite sum,
+   under the strict premise [b > 0]: [0 <=_B b*sum_s kl(p s,q s)].
+   Closer: [real_le_closure_b] with [D := b]; the slack shape of the
+   A3 output, [(b*sum kl) + b*eps], matches the shape [y + D*eps]
+   supplied by the closure verbatim, so it substitutes in one step. *)
 Theorem gfe_gibbs_inequality_temp_B : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -277,10 +318,14 @@ Proof.
               Hnormp Hnormq b (gfe_le_of_lt b Hb) eps Heps)).
 Qed.
 
-(* A5 族级组合器：Bishop 形正数乘保序器（全库无 ≤_B 乘法出口，本件补位）：
-   x ≤_B y ∧ 0 < β ⟹ β·x ≤_B β·y。
-   证书链：le_b 逐 eps 展形 → real_lt_le_iff_req 升 le →
-   左乘保序 → distrib 换形 → closure_b（D := β）再闭合。 *)
+(* A5 Family-level combinator: multiplication by a positive number
+   preserves the Bishop order (this development has no other
+   multiplicative exit for [<=_B]):
+   [x <=_B y /\ 0 < b -> b*x <=_B b*y].
+   Chain: unfold [real_le_b] along each eps, lift to [real_le] via
+   [real_lt_le_iff_req], apply right-multiplication monotonicity,
+   rewrite by distributivity, then close again with
+   [real_le_closure_b] ([D := b]). *)
 Lemma gfe_le_b_mult_pos : forall (x y b : Real),
   real_lt real_zero b -> real_le_b x y -> real_le_b (real_mult b x) (real_mult b y).
 Proof.
@@ -295,10 +340,11 @@ Proof.
     exact (inl (Hxy eps Heps)).
 Qed.
 
-(* A6 温度参数化无条件 gap Bishop 形（β > 0）：
-   0 ≤_B β·(kl(p‖q) + (q−p))。
-   证书链：klstb_gibbs_core_shift_B（零前提 gap Bishop 形）经 A5 组合器
-   一次升温——第二定律读法在温度缩放下的不变性。 *)
+(* A6 The unconditional gap in Bishop form under temperature
+   ([b > 0]): [0 <=_B b*(kl(p,q) + (q-p))].
+   Chain: the premise-free gap form [klstb_gibbs_core_shift_B] is
+   rescaled once through the A5 combinator — invariance of the
+   second-law reading under temperature scaling. *)
 Theorem gfe_gibbs_temp_gap_B : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -316,7 +362,8 @@ Proof.
              b Hb (klstb_gibbs_core_shift_B p q Hp Hq)).
 Qed.
 
-(* A6b 展开形推论：0 ≤_B β·kl(p‖q) + β·(q−p)（distrib 换形面）。 *)
+(* A6b Expanded-form corollary: [0 <=_B b*kl(p,q) + b*(q-p)] (the
+   distributivity face). *)
 Lemma gfe_gibbs_temp_gap_B_flat : forall (p q b : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q)
   (Hb : real_lt real_zero b),
@@ -336,14 +383,16 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part B：对称 Jeffreys 形（真缺变体面 B；非对称互补面两件）            *)
+(* Part B. Symmetric Jeffreys forms (variant face B; two statements
+   complementary to the asymmetric forms) *)
 (* ============================================================ *)
 
-(* B1 对称 Jeffreys 逐点 Bishop 形（非对称形的互补闭合）：
-   0 ≤_B kl(p‖q) + kl(q‖p)。
-   证书链：klstb 两支 shift 形各自 ≥_B 0 → real_le_b_plus_compat
-   相加 → 平移对消项 (q−p)+(p−q) 经 gfe_sym_sum_eq（swap_mid 引擎）
-   从和式中闭合剥除。 *)
+(* B1 The symmetric (Jeffreys) pointwise Bishop form, closing the
+   asymmetric forms complementarily: [0 <=_B kl(p,q) + kl(q,p)].
+   Chain: the two shift forms [klstb_gibbs_core_shift_B] are each
+   [>=_B 0] and are added with [real_le_b_plus_compat]; the shifted
+   cancellation terms [(q-p) + (p-q)] then peel off the sum through
+   [gfe_sym_sum_eq] (the [swap_mid] engine). *)
 Theorem gfe_jeffreys_sym_B : forall (p q : Real)
   (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
   real_le_b real_zero
@@ -369,10 +418,11 @@ Proof.
              (gfe_pq_shift_zero p q)).
 Qed.
 
-(* B2 对称 Jeffreys 有限和 Bishop 形：
-   0 ≤_B Σ_s (kl(p s‖q s) + kl(q s,p s))。
-   证书链：klstb_list_sum_le_b 逐点喂 B1 + 零常量和 klstb_list_sum_zero
-   换形（求和层闭合对称族）。 *)
+(* B2 The symmetric (Jeffreys) finite-sum Bishop form:
+   [0 <=_B sum_s (kl(p s,q s) + kl(q s,p s))].
+   Chain: [klstb_list_sum_le_b] feeds B1 pointwise, and the all-zero
+   constant sum is rewritten via [klstb_list_sum_zero] (the symmetric
+   family closes at the summation level). *)
 Theorem gfe_jeffreys_sym_list_B : forall (X : Type) (l : list X)
   (p q : X -> Real)
   (Hp : forall s : X, real_lt real_zero (p s))
@@ -399,7 +449,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 闭合审计（G4：Print Assumptions 全 Closed）                           *)
+(* Closure audit: [Print Assumptions] reports every statement Closed. *)
 (* ============================================================ *)
 
 Print Assumptions gfe_le_of_lt.

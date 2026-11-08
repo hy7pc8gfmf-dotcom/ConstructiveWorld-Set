@@ -1,23 +1,33 @@
-(* ============================================================
-   使命：SigMigrate_core.v —— setoid 签名（req := real_eq）上的 Boltzmann
-     分布与自由能迁移试点核：主件 req_free_energy_kl_decomp（自由能恒等式
-     F[p] == F[p_b] + D·KL(p‖p_b)）与 req_attention_is_gibbs_temp（softmax 与
-     Boltzmann 分布逐点 req 形），附 req 环代数前奏（零 destruct、全 req_trans
-     链 + compat 桥）；G12_ZPosFam 上游解锁组六上游件之一。
-   依赖：S01_BaseRing S02_CauchyComplete S03_QExp S04_RealExpLogConv
-     S05_AlignmentGRPO S06_DiffSamplingGibbs S07_RealSetoidExpLog
-     S08_RealMainlineDPO S09_EntropyReal S10_KVQuantTrig S11_TP3B5
-     S12_B5RecycleSF S13_NLiveAudit S14_B5BatchBlock S15_TailFEPUp；
-     接口模块 RealInterfaceEnhancedMod（S07 世系，无参形全局实例
-     RealEnhancedReal）。
-   对标：正源真身 CW220_Extensions.v L152-736（Module SigMigrate；turnkey
-     改名映射 SigMigrate→SetoidThermoCore，实证 turnkey 件 L149/:740）；
-     声明名与证明体逐字守恒，仅剥 Module 壳与节级 Context 接口实例。
-   构造性：纯构造性；Set 层承载（req/lt 均 Set 值，语句面零 Prop，
-     born-clean）；零承认件（承认面零命中，提取面零魔值）；节内
-     Hypothesis 均随 Section 终结 discharge 为语句参数，非全局假设。
-   编译配方：rocq c -native-compiler no -Q . "" SigMigrate_core.v。
-   ============================================================ *)
+(* ConstructiveWorld-Set — Setoid-signature transport pilots for the Boltzmann distribution and free energy. *)
+
+(** * SigMigrate_core: Boltzmann distributions and free energy over the setoid
+    equality [req].
+
+    Mission.  Transports the Boltzmann-distribution and free-energy family to
+      the setoid signature [req := real_eq]: the main statements are
+      [req_free_energy_kl_decomp] (the free-energy identity F[p] == F[p_b] +
+      D·KL(p‖p_b)) and [req_attention_is_gibbs_temp] (softmax and Boltzmann
+      distribution agree pointwise under [req]), plus a [req] ring-algebra
+      prelude (no destruct; [req_trans] chains with compatibility bridges).
+
+    Dependencies.  The S-series modules [S01_BaseRing] through [S15_TailFEPUp]
+      of this development, plus [RealInterfaceEnhancedMod] (S07 lineage,
+      global parameterless instance [RealEnhancedReal]).
+
+    References.  The baseline module [SigMigrate] of [CW220_Extensions.v]
+      (L152-736) in ConstructiveWorld-Main; statement names and proof bodies
+      are carried over verbatim (statement-face Set-carrier completion),
+      with only the [Module] shell and the section-level [Context] interface
+      instances stripped.
+
+    Constructivity.  All statements are carried by [Set] ([req]/[lt] are
+      [Set]-valued, statement face [Prop]-free); nothing is admitted;
+      extraction reports zero [Obj.magic]; section-level [Hypothesis]es are
+      discharged as statement parameters at [Section] close.
+
+    Build.  [coqc -native-compiler no -q -Q . "" SigMigrate_core.v] compiles
+      cleanly (exit 0); the artifact's first eight bytes are
+      [436f7121 000160bc]. *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -35,35 +45,46 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Import RealInterfaceEnhancedMod.
 
-(* 无参形再锚（nw10cure 工法）：增强 setoid 接口为 Real 上无参类
-   RealInterfaceEnhancedSetoid，配全局实例 RealEnhancedReal，故原件两节级
-   Context {R} {RIS} 接口实例剥除（原 L172/L667）；下述等词/序词面再锚至对应
-   全局操作，两读法可转换（实例记录经投影归约）。 *)
+(* Parameterless re-anchoring: the enhanced setoid interface is the
+   parameterless class [RealInterfaceEnhancedSetoid] over [Real] with
+   the global instance [RealEnhancedReal], so the two section-level
+   [Context {R} {RIS}] instances of the source file are dropped
+   (source L172/L667); the equality and order notations below re-anchor
+   to the corresponding global operations, and the two readings are
+   convertible (instance records reduce through their projections). *)
 Notation R := Real.
 Notation req := real_eq.
 Notation lt := real_lt.
 
-(* UpSigMigrate.v — 抽象层签名对接试点：Id 系 → setoid 系（req := real_eq）
-   试点 1（必做）: req_free_energy_kl_decomp —— F[p] == F[p_b] + D·KL(p‖p_b) 的
-     setoid 签名版：Section Context 换 RealInterfaceEnhancedSetoid；
-     Id → req 全迁移；normalized := req (Σ p) one；log 族带正性前提。
-   试点 2（尽力）: req_attention_is_gibbs_temp —— 三前提 + 逐点结论全 req。
-   纪律：纯构造性；Set 层（req/lt/le 均 Set 值，语句零 Prop）；
-   中间等式全走 req 字段（req_trans 链 + compat 桥），destruct 消去不可用。 *)
+(* UpSigMigrate.v — the abstract-layer signature-transport pilot, from
+   the [Id] family to the setoid family ([req := real_eq]).
+   Pilot 1 (required): [req_free_energy_kl_decomp] — the setoid-signature
+   version of F[p] == F[p_b] + D·KL(p‖p_b): the section [Context] is
+   replaced by [RealInterfaceEnhancedSetoid]; [Id] is fully migrated to
+   [req]; [normalized := req (Σ p) one]; the log family carries
+   positivity premises.
+   Pilot 2 (secondary): [req_attention_is_gibbs_temp] — three premises
+   and a pointwise conclusion, all under [req].
+   Discipline: purely constructive; [Set] layer ([req]/[lt]/[le] are all
+   [Set]-valued, statements are [Prop]-free); intermediate equations all
+   go through the [req] fields ([req_trans] chains with compatibility
+   bridges), since destruct-based elimination is unavailable. *)
 
-(* ============================================================ *)
-(* 试点 1：FreeEnergyMinimization 节的 setoid 签名对接           *)
-(*   Id 原件：CW L15759-16440（Context {RI : RealInterfaceEnhanced}， *)
-(*   StateSpace/SumOver 为 Id 系类，其字段带 Id——故本试点以       *)
-(*   req 签名的求和三性质作为节假设申报位（= SumOver 类的       *)
-(*   setoid 对接面）；上游两条 Id 系已证                          *)
-(*   引理（energy_in_log_boltzmann / free_energy_boltzmann）以    *)
-(*   req 签名桥假设申报位申报。                                    *)
-(* ============================================================ *)
+(* ============================================================
+   Pilot 1: setoid-signature transport of the FreeEnergyMinimization
+   section.  Id source: CW L15759-16440 ([Context {RI :
+   RealInterfaceEnhanced}]; [StateSpace] and [SumOver] are [Id]-based
+   classes whose fields carry [Id], so this pilot states the three
+   req-signed summation properties as section hypotheses — the setoid
+   counterpart of the [SumOver] class interface).  The two Id-source
+   lemmas already proved upstream ([energy_in_log_boltzmann] /
+   [free_energy_boltzmann]) are declared as req-signature bridge
+   hypotheses.
+   ============================================================ *)
 Section ReqFreeEnergyPilot.
 Variable S : Set.
 
-(* ---- SumOver 的 req 签名对接面（Id 系 SumOver L1400 的 setoid 副本） ---- *)
+(* ---- The req-signature summation interface (setoid counterpart of the Id-source [SumOver], L1400) ---- *)
 Variable sumf : (S -> R) -> R.
 Hypothesis sum_ext :
   forall f g : S -> R, (forall s : S, req (f s) (g s)) -> req (sumf f) (sumf g).
@@ -74,7 +95,7 @@ Hypothesis sum_linear :
   forall (a : R) (f : S -> R),
     req (sumf (fun s => mult a (f s))) (mult a (sumf f)).
 
-(* ---- 节参数（对齐 Id 系 L15778-15791） ---- *)
+(* ---- Section parameters (aligned with the Id source, L15778-15791) ---- *)
 Variable base_loss : S -> R.
 Variable D : R.
 Variable D_pos : lt zero D.
@@ -83,18 +104,18 @@ Variable Z_pos : lt zero Z.
 Hypothesis partition_condition :
   req Z (sumf (fun s => exp_neg (mult (inv_pos D D_pos) (base_loss s)))).
 
-(* ---- 节内定义（setoid 惯例形态） ---- *)
+(* ---- In-section definitions (setoid-conventional shapes) ---- *)
 Definition cwe_positive_dist (p : S -> R) : Set := forall s : S, lt zero (p s).
 Definition cwe_boltzmann_dist : S -> R :=
   fun s => mult (inv_pos Z Z_pos) (exp_neg (mult (inv_pos D D_pos) (base_loss s))).
-(* log 族带正性前提（setoid 接口 L40570），故 free_energy 限定在正性分布上 *)
+(* The log family carries a positivity premise (setoid interface, L40570), so [cwe_free_energy] is restricted to positive distributions *)
 Definition cwe_free_energy (p : S -> R) (Hp : cwe_positive_dist p) : R :=
   plus (sumf (fun s => mult (p s) (base_loss s)))
        (mult D (sumf (fun s => mult (p s) (log (p s) (Hp s))))).
 Definition cwe_normalized (p : S -> R) : Set := req (sumf p) one.
 Definition rminus (a b : R) : R := plus a (opp b).
 
-(* ---- Boltzmann 分布正性（setoid log 前提所需；接口字段直接组装） ---- *)
+(* ---- Positivity of the Boltzmann distribution (required by the setoid log premise; assembled directly from interface fields) ---- *)
 Lemma req_boltzmann_positive : cwe_positive_dist cwe_boltzmann_dist.
 Proof.
   intro s.
@@ -103,7 +124,7 @@ Proof.
   - apply exp_neg_pos.
 Qed.
 
-(* ---- 上游 Id 系已证成果的 req 签名桥（Id 原件 L16116 / L15945） ---- *)
+(* ---- req-signature bridges for the Id-source lemmas proved upstream (Id source L16116 / L15945) ---- *)
 Hypothesis energy_in_log_boltzmann_bridge :
   forall s : S,
     req (base_loss s)
@@ -113,26 +134,28 @@ Hypothesis free_energy_boltzmann_bridge :
   req (cwe_free_energy cwe_boltzmann_dist req_boltzmann_positive)
       (mult (opp D) (log Z Z_pos)).
 
-(* ============================================================ *)
-(* A. 代数前奏：req 版 opp 代数（接口字段纯推导，零 destruct，   *)
-(*    全 req_trans 链 + compat 桥——Id 系 rewrite 消去不可用）    *)
-(* ============================================================ *)
+(* ============================================================
+   A. Algebraic prelude: the req-style algebra of additive inverses
+   (derived purely from interface fields; no destruct; [req_trans]
+   chains with compatibility bridges — [Id]-style rewrite elimination
+   is unavailable).
+   ============================================================ *)
 
-(* 加零右形式：plus_zero 字段只有左形式，右形式走 comm 桥 *)
+(* Right add-zero form: the [plus_zero] field is stated in the left form only, so the right form goes through the commutativity bridge *)
 Lemma req_plus_zero_r : forall a : R, req (plus zero a) a.
 Proof.
   intro a.
   exact (req_trans (plus zero a) (plus a zero) a (plus_comm zero a) (plus_zero a)).
 Qed.
 
-(* 单位元左形式：mult_one 字段只有右形式 *)
+(* Left unit form: the [mult_one] field is stated in the right form only *)
 Lemma req_mult_one_l : forall a : R, req (mult one a) a.
 Proof.
   intro a.
   exact (req_trans (mult one a) (mult a one) a (mult_comm one a) (mult_one a)).
 Qed.
 
-(* 左消去：opp 唯一性的引擎（Id 系经 destruct/注入免费获得，此处 7 段链） *)
+(* Left cancellation: the engine behind uniqueness of additive inverses (free in the [Id] setting via destruct/injection; here a seven-step chain) *)
 Lemma req_add_cancel_l : forall (u v w : R),
   req (plus u v) (plus w v) -> req u w.
 Proof.
@@ -158,7 +181,7 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* 双重负号：opp (opp a) == a（两次 plus_opp + 消去；Id 系 double_neg 引理） *)
+(* Double negation: [opp (opp a) == a], by two uses of [plus_opp] plus cancellation (the [double_neg] lemma of the [Id] source) *)
 Lemma req_double_neg : forall a : R, req (opp (opp a)) a.
 Proof.
   intro a.
@@ -170,7 +193,7 @@ Proof.
   - apply (req_sym (plus a (opp a)) zero). apply plus_opp.
 Qed.
 
-(* 负号分配：opp (a+b) == opp a + opp b（Id 系 opp_plus 引理） *)
+(* Negation distributes over addition: [opp (plus a b) == plus (opp a) (opp b)] (the [opp_plus] lemma of the [Id] source) *)
 Lemma req_opp_plus : forall a b : R, req (opp (plus a b)) (plus (opp a) (opp b)).
 Proof.
   intros a b.
@@ -221,7 +244,7 @@ Proof.
               ** apply plus_zero.
 Qed.
 
-(* mult a (opp b) == opp (mult a b)（Id 系 opp_mult_l 引理） *)
+(* [mult a (opp b) == opp (mult a b)] (the [opp_mult_l] lemma of the [Id] source) *)
 Lemma req_mult_opp_l : forall a b : R, req (mult a (opp b)) (opp (mult a b)).
 Proof.
   intros a b.
@@ -243,7 +266,7 @@ Proof.
     + apply plus_opp.
 Qed.
 
-(* mult (opp a) b == opp (mult a b)（Id 系 opp_mult_r 引理，经 comm 桥） *)
+(* [mult (opp a) b == opp (mult a b)] (the [opp_mult_r] lemma of the [Id] source, via the commutativity bridge) *)
 Lemma req_opp_mult_l : forall a b : R, req (mult (opp a) b) (opp (mult a b)).
 Proof.
   intros a b.
@@ -254,11 +277,12 @@ Proof.
     + apply (req_opp_compat (mult b a) (mult a b)). apply mult_comm.
   Qed.
 
-(* ============================================================ *)
-(* B. 求和层 req 引理（SumOver req 对接面之上的转译）            *)
-(* ============================================================ *)
+(* ============================================================
+   B. req lemmas at the summation layer (transports over the
+   req-signature interface of [sumf]).
+   ============================================================ *)
 
-(* Σ opp f == opp Σ f（Id 原件 L15801 sum_opp） *)
+(* The sum of negations is the negation of the sum ([Σ opp f == opp Σ f]; the [sum_opp] lemma of the [Id] source, L15801) *)
 Lemma req_sum_opp :
   forall f : S -> R, req (sumf (fun s => opp (f s))) (opp (sumf f)).
 Proof.
@@ -282,7 +306,7 @@ Proof.
       * apply (req_opp_compat (mult one (sumf f)) (sumf f)). apply req_mult_one_l.
 Qed.
 
-(* Boltzmann 分布归一化（Id 原件 L15846 boltzmann_normalized 的 req 版） *)
+(* Normalization of the Boltzmann distribution (the req version of [boltzmann_normalized], [Id] source L15846) *)
 Lemma req_boltzmann_normalized : req (sumf cwe_boltzmann_dist) one.
 Proof.
   apply (req_trans (sumf cwe_boltzmann_dist)
@@ -305,9 +329,10 @@ Proof.
       * apply inv_pos_correct.
 Qed.
 
-(* ============================================================ *)
-(* C. 逐点分解（Id 原件 L16198 p_times_energy_decomp 的 req 版） *)
-(* ============================================================ *)
+(* ============================================================
+   C. Pointwise decomposition (the req version of
+   [p_times_energy_decomp], [Id] source L16198).
+   ============================================================ *)
 Lemma req_p_times_energy_decomp :
   forall (p : S -> R) (s : S),
     req (mult (p s) (base_loss s)) (plus (opp (mult D (mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))) (opp (mult D (mult (p s) (log Z Z_pos))))).
@@ -342,13 +367,14 @@ Proof.
       * apply (req_opp_compat (mult D (mult (p s) (plus (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)) (log Z Z_pos)))) (plus (mult D (mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))) (mult D (mult (p s) (log Z Z_pos))))). exact Hdist2.
       * apply req_opp_plus.
 Qed.
-(* ============================================================ *)
-(* D. 主迁移：req_free_energy_kl_decomp                        *)
-(*    F[p] == F[p_b] + D·KL(p‖p_b)（Id 原件 L16259 的 setoid 签名版） *)
-(*    记号：lgpb s := log (cwe_boltzmann_dist s) Hpb；lgps s := log (p s) Hp； *)
-(*    A := D·Σ p·lgpb；B := D·Σ p·lgps；DlgZ := D·log Z；        *)
-(*    KL := fun s => p s · (lgps s − lgpb s)；Fpb := cwe_free_energy p_b *)
-(* ============================================================ *)
+(* ============================================================
+   D. Main transport: [req_free_energy_kl_decomp], the setoid-signature
+   version of F[p] == F[p_b] + D·KL(p‖p_b) ([Id] source L16259).
+   Notation: lgpb s := log (cwe_boltzmann_dist s) Hpb;
+   lgps s := log (p s) Hp; A := D·Σ p·lgpb; B := D·Σ p·lgps;
+   DlgZ := D·log Z; KL := fun s => p s · (lgps s - lgpb s);
+   Fpb := cwe_free_energy p_b.
+   ============================================================ *)
 Theorem req_free_energy_kl_decomp :
   forall (p : S -> R) (Hp : cwe_normalized p) (p0 : cwe_positive_dist p),
     req (cwe_free_energy p p0)
@@ -358,7 +384,7 @@ Theorem req_free_energy_kl_decomp :
                                    (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))).
 Proof.
   intros p Hp p0.
-  (* 桥：F[p_b] == mult (opp D) lgZ == opp (D·lgZ)（Id 系步骤 2 的 req 形态） *)
+  (* bridge: F[p_b] == mult (opp D) lgZ == opp (D·lgZ), the req form of step 2 of the [Id]-source proof *)
   assert (Hfb' : req (cwe_free_energy cwe_boltzmann_dist req_boltzmann_positive)
                      (opp (mult D (log Z Z_pos)))).
   { apply (req_trans (cwe_free_energy cwe_boltzmann_dist req_boltzmann_positive)
@@ -366,7 +392,7 @@ Proof.
                      (opp (mult D (log Z Z_pos)))).
     - exact free_energy_boltzmann_bridge.
     - apply req_opp_mult_l. }
-  (* 步骤 1：Σ p·E == opp A + opp DlgZ（Id 原件 Hse） *)
+  (* step 1: Σ p·E == opp A + opp DlgZ (the [Hse] step of the [Id] source) *)
   assert (Hse : req (sumf (fun s => mult (p s) (base_loss s)))
                     (plus (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))
                           (opp (mult D (log Z Z_pos))))).
@@ -390,7 +416,7 @@ Proof.
                                (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))
                                (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                                (opp (mult D (log Z Z_pos)))).
-        - (* Σ opp(D·p·lgpb) == opp(D·Σ p·lgpb)：sum_opp + D 线性提取 *)
+        - (* the negation moves past the sum by [req_sum_opp], then D is pulled out linearly *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))
                            (opp (sumf (fun s => mult D (mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))
                            (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))).
@@ -398,7 +424,7 @@ Proof.
           { apply (req_opp_compat (sumf (fun s => mult D (mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))
                                   (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))).
             { apply (sum_linear D (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))). } }
-        - (* Σ opp(D·p·lgZ) == opp(D·lgZ)：sum_opp + D 线性 + Σ p·lgZ = lgZ·Σp = lgZ 归一化链 *)
+        - (* the negation moves past the sum ([req_sum_opp]), D is pulled out linearly, and Σ p·lgZ = lgZ·Σ p = lgZ follows from the normalization premise *)
           apply (req_trans (sumf (fun s => opp (mult D (mult (p s) (log Z Z_pos)))))
                            (opp (sumf (fun s => mult D (mult (p s) (log Z Z_pos)))))
                            (opp (mult D (log Z Z_pos)))).
@@ -431,7 +457,7 @@ Proof.
                       { apply mult_one. } } } } } } }
   }
   }
-  (* 步骤 3：D·KL == B + opp A（Id 原件 Hkl） *)
+  (* step 3: D·KL == B + opp A (the [Hkl] step of the [Id] source) *)
   assert (Hkl : req (mult D (sumf (fun s =>
                       mult (p s) (rminus (log (p s) (p0 s)) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))
                     (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))
@@ -496,7 +522,7 @@ Proof.
     { apply req_refl. }
     { apply req_mult_opp_l. } }
 
-  (* 步骤 4：环代数坍缩（Id 原件 Hfin：(opp A + opp DlgZ) + B → opp DlgZ + (B + opp A)） *)
+  (* step 4: ring-algebra reassociation ([Hfin] of the [Id] source: (opp A + opp DlgZ) + B -> opp DlgZ + (B + opp A)) *)
   assert (Hfin : req (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))
                      (plus (opp (mult D (log Z Z_pos))) (plus (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s))))))))).
   { set (A := (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))).
@@ -525,7 +551,7 @@ Proof.
       { apply plus_comm. }
       { apply req_refl. } }
     apply plus_comm. }
-  (* 装配：Hleg1（cwe_free_energy p 定义展开 conversion + Hse 于 compat 槽）；Hleg2（Hfin + Hfb'/Hkl 反向收尾槽） *)
+  (* assembly: [Hleg1] opens the definition of [cwe_free_energy] by conversion and feeds [Hse] through the compatibility slot; [Hleg2] reassociates by [Hfin] and closes with [Hfb'] and [Hkl] in reversed slots *)
   assert (Hleg1 : req (cwe_free_energy p p0) (plus (plus (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))))).
   { unfold cwe_free_energy.
     apply (req_plus_compat (sumf (fun s => mult (p s) (base_loss s))) (plus (opp (mult D (sumf (fun s => mult (p s) (log (cwe_boltzmann_dist s) (req_boltzmann_positive s)))))) (opp (mult D (log Z Z_pos)))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s))))) (mult D (sumf (fun s => mult (p s) (log (p s) (p0 s)))))).
@@ -544,21 +570,24 @@ Qed.
 
 End ReqFreeEnergyPilot.
 
-(* ============================================================ *)
-(* 试点 2（尽力）：req_attention_is_gibbs_temp                    *)
-(*   Id 原件：CW L28634（AttentionGibbsBridge 节，L27929-28710）。*)
-(*   三前提 + 逐点结论全 req 迁移；节内基础设施（exp_pos_fn /      *)
-(*   partition_function_temp / softmax_temp / boltzmann_factor /  *)
-(*   Z_thermo / boltzmann_dist_attn）按同形定义重建。             *)
-(*   接口缺口：RealInterfaceEnhancedSetoid 无 exp_neg 兼容         *)
-(*   字段（Id 系 id_cong 免费可得），以 req 签名桥假设申报位      *)
-(*   申报——Real 实例由 cauchy_real_exp_wd 满足（L40440 先例）。    *)
-(* ============================================================ *)
+(* ============================================================
+   Pilot 2 (secondary): [req_attention_is_gibbs_temp].
+   Id source: CW L28634 (the AttentionGibbsBridge section,
+   L27929-28710).  Three premises and a pointwise conclusion, fully
+   migrated to [req]; the in-section infrastructure ([exp_pos_fn] /
+   [partition_function_temp] / [softmax_temp] / [boltzmann_factor] /
+   [Z_thermo] / [boltzmann_dist_attn]) is rebuilt with the same
+   shapes.  Interface gap: [RealInterfaceEnhancedSetoid] has no
+   [exp_neg]-compatibility field (free in the [Id] setting via
+   [id_cong]), so it is declared as a req-signature bridge premise;
+   the [Real] instance satisfies it via [cauchy_real_exp_wd]
+   (cf. L40440).
+   ============================================================ *)
 Section ReqGibbsPilot.
 Variable S : Set.
 Variable sumf : (S -> R) -> R.
 Hypothesis sum_pos : forall f : S -> R, (forall s : S, lt zero (f s)) -> lt zero (sumf f).
-(* 接口缺口桥：exp_neg 的 req 兼容（字段缺失，见上注） *)
+(* interface-gap bridge: [req]-compatibility of [exp_neg] (the field is missing from the interface; see the banner above) *)
 Hypothesis req_exp_neg_ext : forall x y : R, req x y -> req (exp_neg x) (exp_neg y).
 
 Variable T : R.

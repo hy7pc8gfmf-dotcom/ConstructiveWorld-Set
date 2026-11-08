@@ -1,30 +1,56 @@
-(* ===================================================================== *)
-(*  abl_p7_lower_band.v —— P7 有界 softmax 核的核值下带定理（独立导出件）   *)
-(*  使命: 有界 logits softmax 核逐点不低于 lo/(N·hi)，其中 lo := e^{−Δ/T}、  *)
-(*        hi := e^{Δ/T}、N 为状态枚举规模。该下界链条原先埋存于 AttnDoeblin  *)
-(*        均匀参考 Doeblin 下界主件的证明体内（行和上界 × 倒数反单调 ×       *)
-(*        因子下界 三段装配），本件将其以具名语句独立重组导出：一般形保留    *)
-(*        显式正性前提（不特化 lo·hi=1），实例化形由正性闭式自动供给。       *)
-(*        与在册上带件 p7d_kernel_le_hi_over_nRlo 合成核值显式双带。         *)
-(*  依赖: Stdlib List；S01_BaseRing（接口面：le/lt 传递与替换、inv_pos 保序  *)
-(*        反单调与正性、mult_positive、le_mult_compat_r）；AttnDoeblin       *)
-(*        （基座：bs_Zrow_le 行和上界／bs_Zrow_pos 行和正性／               *)
-(*        bs_factor_ge_lo 因子下界／bs_kernel 核／Zrow 行和／nat_to_R）；    *)
-(*        P7BoundedSoftmaxDeep（与在册上带件同构；其正性证书 p7d_nR_pos／    *)
-(*        p7d_lo_pos／p7d_hi_pos 在本件复用）。                              *)
-(*  对标: AttnDoeblin 主件体内下界组装链条的转写级导出；P7BoundedSoftmaxDeep *)
-(*        段七上带定理的逐肢对应。                                           *)
-(*  构造性: 纯构造性、零承认件；链式装配全 Qed 闭合；语句面零经典选择、      *)
-(*        零弃证；文尾取证两件全 Closed（可提取面与在册上带件同标准）。      *)
-(*  编译配方: rocq c -native-compiler no -Q <现役统一世界树> ""（独占沙箱）。 *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — kernel-value lower band for the bounded softmax kernel. *)
+
+(** * abl_p7_lower_band: a lower band on the P7 bounded softmax kernel
+       values, exported as an independent member.
+
+    Mission.  The bounded-logits softmax kernel is pointwise no smaller
+    than lo / (N * hi) — lo := e^{-Delta/T}, hi := e^{Delta/T}, N the
+    enumeration size; the chain assembles in three stages (row-sum
+    upper bound, antitone reciprocals, factor lower band).
+    [p7d_kernel_ge_lo_over_nRhi] keeps the explicit positivity premise,
+    [p7d_kernel_ge_lo_over_nRhi_pos] closes it by the positivity
+    closure, and with [p7d_kernel_le_hi_over_nRlo] the band is two-sided.
+
+    Dependencies.  Stdlib [List]; [S01_BaseRing], [AttnDoeblin],
+    [P7BoundedSoftmaxDeep] of this development (provenance block below).
+
+    References.  This development, abl_p7_lower_band.v, the baseline
+    module in ConstructiveWorld-Main whose statement names are carried
+    over here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements and fields are carried by
+      [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
+      [NatLe]); statements extract with [Obj.magic] = 0 and no
+      erasure; [coqchk] reports [Axioms: none].  Chained assembly all
+      [Qed]-closed; no classical choice, no proof erasure, zero
+      admitted statements; both closing extractions report Closed.
+
+    Build.  [coqc -native-compiler no -q -Q . "" abl_p7_lower_band.v]
+      compiles cleanly (exit 0); the first eight bytes of the
+      artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import List.
 Require Import S01_BaseRing.
 Require Import AttnDoeblin.
 Require Import P7BoundedSoftmaxDeep.
 
-(* ################ 核值下带：段七上带的对应独立件 ################ *)
+(* ============================================================ *)
+(* Dependency provenance.  [S01_BaseRing] interface face: [le]/[lt]     *)
+(* transitivity and substitution, antitone order-reversing [inv_pos]    *)
+(* with its positivity, [mult_positive], [le_mult_compat_r].            *)
+(* [AttnDoeblin] base: [bs_Zrow_le] row-sum upper bound, [bs_Zrow_pos]  *)
+(* row-sum positivity, [bs_factor_ge_lo] factor lower band, [bs_kernel] *)
+(* kernel, [Zrow] row sum, [nat_to_R].  [P7BoundedSoftmaxDeep]:         *)
+(* isomorphic to the registered upper-band member; its positivity       *)
+(* certificates [p7d_nR_pos], [p7d_lo_pos], [p7d_hi_pos] are reused     *)
+(* here.  Derivation provenance: transcription-level export of the      *)
+(* lower-band assembly chain inside the AttnDoeblin main member;        *)
+(* limb-by-limb counterpart of the Section-7 upper-band theorem of      *)
+(* [P7BoundedSoftmaxDeep].                                              *)
+(* ============================================================ *)
+
+(* ################ Kernel-value lower band: the independent counterpart of the
+   Section-7 upper band ################ *)
 
 Section P7DKernelLowerBand.
 Context {RI : RealInterfaceEnhanced}.
@@ -51,7 +77,9 @@ Let nR := AttnDoeblin.nat_to_R (length enum).
 Let lo := expf (mult invT (opp Delta)).
 Let hi := expf (mult invT Delta).
 
-(* 正性三证书：nR 正性复用对应在册上带件同款证书；lo/hi 正性为指数正性直引 *)
+(* Three positivity certificates: the nR positivity reuses the certificate
+   of the corresponding registered upper-band member; lo/hi positivity cites
+   exponential positivity directly. *)
 Lemma p7d_lb_nR_pos : lt zero nR.
 Proof. exact (p7d_nR_pos enum enum_nonempty sum_eq_list). Qed.
 
@@ -61,10 +89,13 @@ Proof. exact (p7d_lo_pos temp temp_pos Delta expf expf_pos). Qed.
 Lemma p7d_lb_hi_pos : lt zero hi.
 Proof. exact (p7d_hi_pos temp temp_pos Delta expf expf_pos). Qed.
 
-(* ===== 核值下带·一般形 =====
-   链条：行和 ≤ N·hi（bs_Zrow_le） ⟹ 倒数反单调（inv_pos_le_compat）
-   ⟹ lo 乘入（le_mult_compat_r）；另一肢 行和倒数作因子时核 ≥ lo·行和倒数
-   （bs_factor_ge_lo 逐点下界）；两肢 le_trans 闭合。 *)
+(* ===== Kernel-value lower band, general form =====
+   Chain: the row sum is at most N * hi (bs_Zrow_le), so the first limb
+   applies the antitone inversion of reciprocals (inv_pos_le_compat) and
+   multiplies lo into the bound (le_mult_compat_r); in the second limb,
+   with the row-sum reciprocal as the factor, the kernel is at least
+   lo * row-sum-reciprocal (bs_factor_ge_lo pointwise lower band); the
+   two limbs close by le_trans. *)
 Theorem p7d_kernel_ge_lo_over_nRhi : forall (s s' : S) (HnRhi : lt zero (mult nR hi)),
   le (mult lo (inv_pos (mult nR hi) HnRhi))
      (AttnDoeblin.bs_kernel enum enum_nonempty temp temp_pos Delta
@@ -110,7 +141,7 @@ Proof.
                      expf expf_mono_le s s')))).
 Qed.
 
-(* 实例化形：N·hi > 0 由 mult_positive 闭式供给 *)
+(* Instantiated form: N * hi > 0 is supplied by the mult_positive closure. *)
 Theorem p7d_kernel_ge_lo_over_nRhi_pos : forall s s' : S,
   le (mult lo (inv_pos (mult nR hi)
          (mult_positive nR hi p7d_lb_nR_pos p7d_lb_hi_pos)))
@@ -124,6 +155,6 @@ Qed.
 
 End P7DKernelLowerBand.
 
-(* ################ 取证（在册件同口径） ################ *)
+(* ################ Assumption extraction (same standard as the registered members) ################ *)
 Print Assumptions p7d_kernel_ge_lo_over_nRhi.
 Print Assumptions p7d_kernel_ge_lo_over_nRhi_pos.

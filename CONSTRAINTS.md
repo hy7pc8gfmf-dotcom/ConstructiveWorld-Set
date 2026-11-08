@@ -273,11 +273,41 @@ remedy is re-carrier (informative recast), not exemption.
 (data-carrying / proof-bridge, with evidence pointers). A placement census
 without this classification is incomplete; the module does not land.
 
-**Proof-bridge registry (repo-scoped).** *Empty at adoption (2026-11-05).
+**Proof-bridge registry (repo-scoped).** *Adopted empty (2026-11-05).
 Rows are added only in a PR carrying the consumption-face evidence (every
 consumption site as file:line, showing proof-position use); de-registration
 follows re-carrier.* This registry is distinct from §5 and does not reopen
-it.
+it. Rows landed 2026-11-05 with the S01 v2 native informative recast; their
+consumption-face evidence points at the Gen2 programmatic placement census
+(pinned spec commit `ca315c0`: `attn/_natle_site_inventory.md`, incl. the
+176-site EXE-VERIFIED live table, plus `_natle_sites_v3.json` and
+`_census_extlib.json`), which carries the per-site file:line account.
+
+**Correction 2026-11-06 (pure-increment restoration).** The 2026-11-05
+landing had placed the native informative faces on the pre-recast canonical
+names (`NatLe_drop`/`NatLe_lift`), breaking every old-name consumer
+library-wide (mechanical recompile 306/375 red, root cause
+`S03_QExp.v:280` `apply NatLe_lift. lia.` against the shifted signature).
+The correction restores the pre-recast Prop faces **verbatim at their
+original names** (signature and proof body byte-identical to the main
+baseline, `git show main:ConstructiveWorld_Live/S01_BaseRing.v`) and moves
+the native informative family to I-suffix names: `NatLe_dropI`/`NatLe_liftI`
+(design §1.1 N1/N2) and `id_eq_SI` (N3 companion name); the carrier `NatLe`
+(N0) and the reflection face `NatLe_refl` (F4) keep their names. The I
+faces are class-(a) data-carrying native faces — signature-is-contract,
+not registered. The bridge pair is completed in the corrected form:
+`NatLe_lift_le` now reads the Prop order face out of the raw boolean
+identity face (`@Id bool (Nat.leb n m) true -> (n <= m)%nat`). Rows below
+are keyed to the restored original names; the companion bridges
+`NatLe_drop_le`/`NatLe_lift_le` (proof-position logical entries landed with
+the recast, the latter re-formed by this correction) share the rows of the
+restored faces they accompany.
+
+| Statement | Face | Consumption positions (evidence) | `__` erasure |
+|---|---|---|---|
+| `NatLe_drop` (`ConstructiveWorld_Live/S01_BaseRing.v:97`) — the pre-recast Prop face restored verbatim at its original name (2026-11-06 correction; before the correction it was displaced to the `_le` alias) | `forall n m : nat, NatLe n m -> (n <= m)%nat` (Prop conclusion) | proof positions only: the Gen2 census accounts 1,033 drop-side sites across 103 consumption files, all proof/Prop-slot positions (library-wide extraction census: zero live drop calls). Companion bridge `NatLe_drop_le` (`S01_BaseRing.v:168`, same statement face) shares this row's registration and serves the pilot proof-position sites | accepted |
+| `NatLe_lift` (`ConstructiveWorld_Live/S01_BaseRing.v:106`) — the pre-recast Prop face restored verbatim likewise | `forall n m : nat, (n <= m)%nat -> NatLe n m` (Prop premise, informative conclusion) | proof positions only among the 1,024 lift-side sites of the same census; the 176 EXE-VERIFIED live information positions are NOT served by this row — they are fed by the I-suffix native faces (`NatLe_liftI`/`NatLe_refl`, total projections). **Partiality note:** the extracted body recomputes `Nat.leb` with an `assert false` false branch — call contract: only with a genuine `(n <= m)%nat` proof (Coq-side type-guarded; handwritten OCaml must respect the same contract); value paths use `NatLe_liftI`. Companion bridge `NatLe_lift_le` (`S01_BaseRing.v:177`, corrected 2026-11-06 form: the Prop order face read out of the raw boolean identity face; zero current consumption sites, disclosed) shares this row's registration | n/a (informative val face, no `__`) |
+| `id_eq_SI` (`ConstructiveWorld_Live/S01_BaseRing.v:149`) — pure logical support lemma, renamed from the 2026-11-05 landing's `id_eq_S` by the 2026-11-06 correction (I-suffix family name) | `forall (A : Set) (x y : A), Id x y -> x = y` | consumed only at proof positions (the `NatLe_drop_le`/`NatLe_lift_le` proof chains and the `S02_CauchyComplete.v` native value-algebra helpers) | accepted |
 
 **Legal anchors.**
 
@@ -287,8 +317,10 @@ it.
   performant (budget line; over-budget without registration fails). No
   rung may be skipped.
 - **S01 seed precedent** — `NatLe_drop`/`NatLe_lift`
-  (`ConstructiveWorld_Live/S01_BaseRing.v:91`, `:100`) are Prop-face lia
-  bridges marking the seed debt: the extraction face erases the drop
+  (`ConstructiveWorld_Live/S01_BaseRing.v:97`, `:106` — original names,
+  restored verbatim by the 2026-11-06 pure-increment correction) are
+  Prop-face lia bridges marking the seed debt: the extraction face erases
+  the drop
   direction (`val coq_NatLe_drop : __`, cleanse-workspace probe
   `_wt93_ssa/_gate7probe_S01_work/_gate7probe_S01_BaseRing.mli:38`) while
   the gate7 magic scale reads 0/0 — a class-(a) breach invisible to the

@@ -1,51 +1,58 @@
-(* ============================================================
-   模块：LW0FactGrowth.v
-   使命：本件形式化有理数层阶乘的增长下界：对每个自然数 n，
-         n! 不小于半数底幂 (n/2)^(n/2)（取半为 Nat.div2）；并给
-         出显式有理常数 10/3 的幂被阶乘压制的两条推论——对一切
-         n = 22+2k 与 n = 23+2k（k 为自然数，两族合取覆盖一切
-         n ≥ 22），(10/3)^n ≤ n!。结合库内圆周率的有理上界
-         10/3（S10_KVQuantTrig 的 Leibniz 级数双岸估计，其中
-         real_pi_leibniz_lt_ten_thirds 给出 π < 10/3），本件构成
-         「π 的幂增长被 n! 压制」这一事实的有理常数侧引擎；实数
-         层幂运算的转移不在本件范围。
-   依赖：S02_CauchyComplete（QleT' 判定及其双向桥）、S03_QExp
-         （q_fact、q_pow）；Stdlib QArith、Arith、ZArith、Lia。
-   对标：n! ≥ (n/2)^(n/2) 为初等组合学的标准估计（因子表中自
-         n/2 起的因子逐个不小于 n/2）；Coq 标准库无有理数层对
-         应物；库内先例为 BetaLower（QleT' 语句形与件内提取检
-         验同构）。
-   构造性：全部语句 Set 层承载：结论与前提位一律用全局 QleT'，
-         零 Prop 前提位、零存在变元；零公理、零承认、零经典逻
-         辑；因子表分解为真构造的 Fixpoint 归纳结构；主语句支
-         持 Separate Extraction 且 Obj.magic 计数为零。
-   编译配方：coqc -native-compiler no -q -Q ConstructiveWorld_vo "" LW0FactGrowth.v（COQLIB/ROCQLIB 环境前缀直调）
-   ============================================================ *)
+(* ConstructiveWorld-Set -- the rational-layer factorial growth lower bound with the 10/3 domination corollaries. *)
+(** * LW0FactGrowth: the factorial's rational-layer growth lower bound and
+    the domination of the rational constant 10/3 by the factorial.
+
+    Mission.  For every natural number n, n! is at least the half-base
+      power (n/2)^(n/2) (halving by [Nat.div2]); and (10/3)^n <= n! for all
+      n = 22+2k and n = 23+2k (k natural; jointly covering all n >= 22).
+      With the repository's rational upper bound 10/3 for pi
+      (real_pi_leibniz_lt_ten_thirds of S10_KVQuantTrig, pi < 10/3), this
+      module is the rational-constant-side engine for "the power growth of
+      pi is dominated by n!"; real-layer power transport is out of scope.
+
+    Dependencies.  [S02_CauchyComplete] (the QleT' decision and its
+      two-directional bridges), [S03_QExp] ([q_fact], [q_pow]); Stdlib
+      [QArith], [Arith], [ZArith], [Lia].
+
+    References.  n! >= (n/2)^(n/2) is the standard elementary estimate (the
+      factors from n/2 on are each at least n/2); no Stdlib rational-layer
+      counterpart; in-repository precedent BetaLower (isomorphic QleT'
+      statement form and extraction check); same-name ConstructiveWorld-Main
+      baseline.
+
+    Constructivity.  All statements Set-carried (global QleT' throughout;
+      zero Prop premises, zero existential arguments); axiom-free; no
+      classical logic; genuinely constructed Fixpoint factor-table
+      decomposition; main statements support Separate Extraction with zero
+      Obj.magic.
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" LW0FactGrowth.v] (direct call, cpu_guard wrapped). *)
 
 From Stdlib Require Import QArith.QArith Arith.Arith ZArith.ZArith Lia.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
 
-(* ================= §1 有理数层的保序支撑件 ================= *)
+(* ================= §1 order-preserving support lemmas over the rational layer ================= *)
 
-(* 自然数的有理像（与 q_fact 步进系数同形，便于定义性归约）。 *)
+(* The rational image of a natural number (same shape as the q_fact step
+   coefficient, convenient for definitional reduction). *)
 Definition lw0_q_of_nat (n : nat) : Q := (Z.of_nat n # 1)%Q.
 
-(* 自然数的有理像非负。 *)
+(* The rational image of a natural number is nonnegative. *)
 Lemma lw0_q_of_nat_nonneg : forall n : nat, QleT' 0 (lw0_q_of_nat n).
 Proof.
   intro n. apply Qle_to_QleT'.
   unfold Qle, lw0_q_of_nat. cbn [Qnum Qden]. lia.
 Qed.
 
-(* 自然数的后继有理像不小于 1。 *)
+(* The rational image of a successor is at least 1. *)
 Lemma lw0_q_of_nat_ge_one : forall n : nat, QleT' 1 (lw0_q_of_nat (Datatypes.S n)).
 Proof.
   intro n. apply Qle_to_QleT'.
   unfold Qle, lw0_q_of_nat. cbn [Qnum Qden]. lia.
 Qed.
 
-(* 有理像关于后继的单调性。 *)
+(* Monotonicity of the rational image under successor. *)
 Lemma lw0_q_of_nat_le_succ : forall n : nat,
   QleT' (lw0_q_of_nat n) (lw0_q_of_nat (Datatypes.S n)).
 Proof.
@@ -53,7 +60,8 @@ Proof.
   unfold Qle, lw0_q_of_nat. cbn [Qnum Qden]. lia.
 Qed.
 
-(* 有理像关于加法的单调性：a 的有理像不超过 a+b 的有理像。 *)
+(* Monotonicity of the rational image under addition: the image of a does
+   not exceed the image of a+b. *)
 Lemma lw0_q_of_nat_le_add : forall a b : nat,
   QleT' (lw0_q_of_nat a) (lw0_q_of_nat (a + b)%nat).
 Proof.
@@ -61,7 +69,7 @@ Proof.
   unfold Qle, lw0_q_of_nat. cbn [Qnum Qden]. lia.
 Qed.
 
-(* 幂关于底的单调性：0 ≤ x ≤ y 蕴含 x^n ≤ y^n。 *)
+(* Monotonicity of powers in the base: 0 ≤ x ≤ y implies x^n ≤ y^n. *)
 Lemma lw0_q_pow_mono_base : forall (x y : Q) (n : nat),
   QleT' 0 x -> QleT' x y -> QleT' (q_pow x n) (q_pow y n).
 Proof.
@@ -79,7 +87,7 @@ Proof.
       * apply QleT'_to_Qle. apply q_pow_nonneg. apply (qleT'_trans 0 x y H0 Hxy).
 Qed.
 
-(* 幂的后继放大：x ≥ 1 蕴含 x^n ≤ x^(n+1)。 *)
+(* Successor enlargement of powers: x ≥ 1 implies x^n ≤ x^(n+1). *)
 Lemma lw0_q_pow_le_succ_pow : forall (x : Q) (n : nat),
   QleT' 1 x -> QleT' (q_pow x n) (q_pow x (Datatypes.S n)).
 Proof.
@@ -94,14 +102,15 @@ Proof.
       * exact (QleT'_to_Qle _ _ Hx).
 Qed.
 
-(* ================= §2 阶乘的因子表分解与半数底幂下界 ================= *)
+(* ================= §2 the factor-table decomposition of the factorial and the half-base-power lower bound ================= *)
 
-(* 阶乘的步进等式：q_fact (n+1) == (n+1)·q_fact n（系数与 lw0_q_of_nat 定义性一致）。 *)
+(* The step equation of the factorial: q_fact (n+1) == (n+1)·q_fact n (the
+   coefficient is definitionally lw0_q_of_nat). *)
 Lemma lw0_q_fact_step : forall k : nat,
   QeqT (q_fact (Datatypes.S k)) (lw0_q_of_nat (Datatypes.S k) * q_fact k).
 Proof. intro k. apply qeq_imp_qeqT. reflexivity. Qed.
 
-(* 阶乘不小于 1。 *)
+(* The factorial is at least 1. *)
 Lemma lw0_q_fact_ge_one : forall k : nat, QleT' 1 (q_fact k).
 Proof.
   intro k. apply Qle_to_QleT'.
@@ -113,7 +122,8 @@ Proof.
     + exact IH.
 Qed.
 
-(* 阶乘的双步等式：q_fact (n+2) == (n+2)·(n+1)·q_fact n。 *)
+(* The two-step equation of the factorial:
+   q_fact (n+2) == (n+2)·(n+1)·q_fact n. *)
 Lemma lw0_q_fact_step2 : forall k : nat,
   QeqT (q_fact (Datatypes.S (Datatypes.S k)))
   (lw0_q_of_nat (Datatypes.S (Datatypes.S k)) * lw0_q_of_nat (Datatypes.S k) * q_fact k).
@@ -125,14 +135,16 @@ Proof.
   - ring.
 Qed.
 
-(* 因子表尾段：(a+1)·(a+2)···(a+k)，真构造的归纳结构。 *)
+(* The tail segment of the factor table: (a+1)·(a+2)···(a+k), a genuinely
+   constructed inductive structure. *)
 Fixpoint lw0_fact_range (a k : nat) : Q :=
   match k with
   | 0%nat => 1%Q
   | Datatypes.S j => lw0_q_of_nat (a + Datatypes.S j) * lw0_fact_range a j
   end.
 
-(* 因子表分解：q_fact (a+k) == q_fact a·(a+1)···(a+k)。 *)
+(* The factor-table decomposition:
+   q_fact (a+k) == q_fact a·(a+1)···(a+k). *)
 Lemma lw0_q_fact_split : forall a k : nat,
   QeqT (q_fact (a + k)%nat) (q_fact a * lw0_fact_range a k).
 Proof.
@@ -143,7 +155,8 @@ Proof.
     rewrite (qeqT_imp_qeq _ _ (lw0_q_fact_step (a + k)%nat)), IH. ring.
 Qed.
 
-(* 尾段因子的幂下界：(a+1)^k ≤ (a+1)·(a+2)···(a+k)，逐因子比较。 *)
+(* Power lower bound for the tail segment:
+   (a+1)^k ≤ (a+1)·(a+2)···(a+k), factor-by-factor comparison. *)
 Lemma lw0_fact_range_ge_pow : forall a k : nat,
   QleT' (q_pow (lw0_q_of_nat (Datatypes.S a)) k) (lw0_fact_range a k).
 Proof.
@@ -166,9 +179,13 @@ Proof.
         -- exact (QleT'_to_Qle _ _ IH).
 Qed.
 
-(** 半数底幂的双倍下界：对每个自然数 m，m^m ≤ (2m)!。数学含义：因子表
-    1·2···(2m) 的尾段 (m+1)···(2m) 共 m 个因子，逐个不小于 m+1 ≥ m。
-    证明策略：因子表分解至尾段，尾段逐因子与 (m+1)^m 比较，再乘回前段。 *)
+(** The doubled lower bound for the half-base power: for every natural
+    number m, m^m ≤ (2m)!.  Mathematical meaning: the tail segment
+    (m+1)···(2m) of the factor table 1·2···(2m) has m factors, each at
+    least m+1 ≥ m.
+    Proof strategy: decompose the factor table to the tail segment, compare
+    the tail segment factor-by-factor with (m+1)^m, then multiply back the
+    head segment. *)
 Lemma lw0_pow_half_le_fact_double : forall m : nat,
   QleT' (q_pow (lw0_q_of_nat m) m) (q_fact (2 * m)%nat).
 Proof.
@@ -191,17 +208,20 @@ Proof.
            ++ exact (QleT'_to_Qle _ _ (lw0_fact_range_ge_pow m m)).
 Qed.
 
-(** 阶乘的半数底幂下界：对每个自然数 n，(n/2)^(n/2) ≤ n!，其中取半为
-    Nat.div2。数学含义：n 的因子表中自 n/2 起的因子逐个不小于 n/2。
-    证明策略：以 Nat.div2_odd 的奇偶方程按 Nat.odd 的布尔值分情形，
-    偶情形归约到双倍下界，奇情形再乘入最后一个因子。 *)
+(** The half-base-power lower bound for the factorial: for every natural
+    number n, (n/2)^(n/2) ≤ n!, where halving is [Nat.div2].  Mathematical
+    meaning: the factors of the factor table of n from n/2 on are each at
+    least n/2.
+    Proof strategy: case on the Boolean value of [Nat.odd] through the
+    parity equation [Nat.div2_odd]; the even case reduces to the doubled
+    lower bound; the odd case multiplies in the last factor. *)
 Theorem lw0_fact_lower_growth : forall n : nat,
   QleT' (q_pow (lw0_q_of_nat (Nat.div2 n)) (Nat.div2 n)) (q_fact n).
 Proof.
   intro n.
   pose proof (Nat.div2_odd n) as Hd.
   destruct (Nat.odd n) eqn:Hodd.
-  - (* 情形 n 为奇数：n = 2·(n/2)+1。 *)
+  - (* Case n odd: n = 2·(n/2)+1. *)
     cbn [Nat.b2n] in Hd |- *.
     set (m := Nat.div2 n) in *.
     rewrite Hd.
@@ -215,17 +235,19 @@ Proof.
       * apply Qmult_le_compat_r.
         -- exact (QleT'_to_Qle _ _ (lw0_q_of_nat_ge_one (2 * m))).
         -- apply (Qlt_le_weak 0). apply QltT_to_Qlt. apply q_fact_pos.
-  - (* 情形 n 为偶数：n = 2·(n/2)。 *)
+  - (* Case n even: n = 2·(n/2). *)
     cbn [Nat.b2n] in Hd |- *. rewrite Nat.add_0_r in Hd.
     set (m := Nat.div2 n) in *.
     rewrite Hd.
     exact (lw0_pow_half_le_fact_double m).
 Qed.
 
-(* ================= §3 圆周率有理上界的幂被阶乘压制 ================= *)
+(* ================= §3 the powers of the rational upper bound of pi are dominated by the factorial ================= *)
 
-(* 双步推进引理：若 1 ≤ c ≤ n+1 的有理像且 c^n ≤ n!，则 c^(n+2) ≤ (n+2)!。
-   由 c^(n+2) = c·(c·c^n) 与 (n+2)! = (n+2)·(n+1)·n! 逐因子放缩。 *)
+(* Two-step advancement lemma: if 1 ≤ c ≤ the rational image of n+1 and
+   c^n ≤ n!, then c^(n+2) ≤ (n+2)!.
+   From c^(n+2) = c·(c·c^n) and (n+2)! = (n+2)·(n+1)·n!, the inequality is
+   scaled factor by factor. *)
 Lemma lw0_q_pow_fact_step2 : forall (c : Q) (n : nat),
   QleT' 1 c ->
   QleT' c (lw0_q_of_nat (Datatypes.S n)) ->
@@ -282,19 +304,21 @@ Proof.
       * exact H0BF.
 Qed.
 
-(** 圆周率有理上界的幂的阶乘压制（偶数族）：对每个自然数 k，
-    (10/3)^(22+2k) ≤ (22+2k)!。数学含义：结合库内估计 π < 10/3
-    （S10_KVQuantTrig 的 real_pi_leibniz_lt_ten_thirds），对一切偶数
-    n ≥ 22，π 的上界 10/3 的 n 次幂不超过 n!。证明策略：基例以数值
-    判定闭合，归纳步由双步推进引理完成。 *)
+(** Factorial domination of the powers of the rational upper bound of pi
+    (even family): for every natural number k, (10/3)^(22+2k) ≤ (22+2k)!.
+    Mathematical meaning: combined with the in-repository estimate pi < 10/3
+    (real_pi_leibniz_lt_ten_thirds of S10_KVQuantTrig), for every even
+    n ≥ 22 the n-th power of pi's upper bound 10/3 does not exceed n!.
+    Proof strategy: the base case closes by numerical decision; the
+    induction step is completed by the two-step advancement lemma. *)
 Theorem lw0_pi_bound_dominated_even : forall k : nat,
   QleT' (q_pow (10 # 3) (22 + 2 * k)%nat) (q_fact (22 + 2 * k)%nat).
 Proof.
   intro k.
   induction k as [| k IH].
-  - (* 基例 k = 0，即 n = 22：数值判定。 *)
+  - (* Base case k = 0, i.e. n = 22: numerical decision. *)
     vm_compute. reflexivity.
-  - (* 归纳步：由 k 到 S k，即由 n 到 n+2。 *)
+  - (* Induction step: from k to S k, i.e. from n to n+2. *)
     replace (22 + 2 * Datatypes.S k)%nat
       with (Datatypes.S (Datatypes.S (22 + 2 * k)))%nat by lia.
     apply (lw0_q_pow_fact_step2 (10 # 3)%Q (22 + 2 * k)%nat).
@@ -306,17 +330,19 @@ Proof.
     + exact IH.
 Qed.
 
-(** 圆周率有理上界的幂的阶乘压制（奇数族）：对每个自然数 k，
-    (10/3)^(23+2k) ≤ (23+2k)!。与偶数族合取，覆盖一切 n ≥ 22。
-    证明策略与偶数族相同：基例数值判定，归纳步双步推进。 *)
+(** Factorial domination of the powers of the rational upper bound of pi
+    (odd family): for every natural number k, (10/3)^(23+2k) ≤ (23+2k)!.
+    Conjoined with the even family, this covers all n ≥ 22.
+    The proof strategy is the same as the even family: numerical decision
+    at the base case, two-step advancement at the induction step. *)
 Theorem lw0_pi_bound_dominated_odd : forall k : nat,
   QleT' (q_pow (10 # 3) (23 + 2 * k)%nat) (q_fact (23 + 2 * k)%nat).
 Proof.
   intro k.
   induction k as [| k IH].
-  - (* 基例 k = 0，即 n = 23：数值判定。 *)
+  - (* Base case k = 0, i.e. n = 23: numerical decision. *)
     vm_compute. reflexivity.
-  - (* 归纳步：由 k 到 S k，即由 n 到 n+2。 *)
+  - (* Induction step: from k to S k, i.e. from n to n+2. *)
     replace (23 + 2 * Datatypes.S k)%nat
       with (Datatypes.S (Datatypes.S (23 + 2 * k)))%nat by lia.
     apply (lw0_q_pow_fact_step2 (10 # 3)%Q (23 + 2 * k)%nat).
@@ -328,7 +354,8 @@ Proof.
     + exact IH.
 Qed.
 
-(* 提取检验与公理面自审：提取产物零 Obj.magic，各语句 Closed。 *)
+(* Extraction check and axiom-face self-audit: the extraction products
+   contain zero Obj.magic, and every statement is Closed. *)
 
 From Stdlib Require Import Extraction.
 Separate Extraction lw0_fact_lower_growth lw0_pi_bound_dominated_even lw0_pi_bound_dominated_odd.

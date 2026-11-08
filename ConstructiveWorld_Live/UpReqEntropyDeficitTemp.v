@@ -1,11 +1,32 @@
-(* ==========================================================================)
-   UpReqEntropyDeficitTemp.v — 温度化 KL 分解与熵亏损
-   使命: real_sum_neglog_boltzmann（负对数 Boltzmann 和恒等）、real_KL_temp、real_KL_temp_decomp（KL 分解为能量项与温度熵项）与 real_entropy_deficit_kl_temp（能量期望 == 自由能 − 温度·熵）。
-   依赖: CW_ConstructiveWorld_219、UpReqTempDefs
-   对标: 温度化相对熵分解（自由能 = 能量 − T·熵；熵亏损恒等式）。
-   构造性: 全件 Qed 闭合、零承认词面；证体不引入额外公理前提。
-   编译配方: Rocq 9.1 直调 coqc -native-compiler no -q -Q . ""（vo 树同世界重编），COQLIB/ROCQLIB 全字面环境前缀。
-   ========================================================================== *)
+(* ConstructiveWorld-Set — temperature-parametrized KL decomposition and the entropy deficit. *)
+
+(** * UpReqEntropyDeficitTemp: temperature-parametrized KL decomposition
+       and the entropy deficit.
+
+    Mission.  The negative-log Boltzmann sum identity
+    [real_sum_neglog_boltzmann]; the temperature-family KL
+    [real_KL_temp]; its decomposition [real_KL_temp_decomp]; the bridge
+    [real_KL_temp_kl_term_bridge]; and the deficit identity
+    [real_entropy_deficit_kl_temp]: under the common energy constraint
+    E(p) == E_T, S[p_T] - S[p] == KL(p || p_T).
+
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+    [UpReqTempDefs] of this development; [CW_ConstructiveWorld_219]
+    read-only.  [RealEntropyDeficitTemp] mirrors the [UpReqTempDefs]
+    Section slots by name and order (full-arity T6 application).
+
+    References.  This development, UpReqEntropyDeficitTemp.v, the
+    baseline module in ConstructiveWorld-Main whose statement names are
+    carried over here verbatim (statement-face Set-carrier completion).
+
+    Constructivity.  All named statements and fields are carried by
+      [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],
+      [NatLe]); statements extract with [Obj.magic] = 0 and no
+      erasure; [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpReqEntropyDeficitTemp.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -24,9 +45,21 @@ Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import UpReqTempDefs.
 
+(* ============================================================ *)
+(* Derivation provenance: the temperature-parametrized relative-entropy *)
+(* decomposition (free energy = energy - T * entropy; entropy deficit   *)
+(* identity).  [real_KL_temp] is the distribution-level counterpart of  *)
+(* the Id-level [relative_entropy]; [real_KL_temp_decomp] corresponds   *)
+(* to relative_entropy_temp_decomp at S04 L3568; the main member        *)
+(* mirrors Id S04 L3903 argument slot by argument slot; the point       *)
+(* bridge is isomorphic to the req-layer precedent                      *)
+(* [req_entropy_neg_sum].                                               *)
+(* ============================================================ *)
+
 (* ---------------------------------------------------------- *)
 
-(*   去实例化副本，同配方：log_mult + log_wd + inv_pos_correct）        *)
+(* De-instantiated copy, same recipe: [log_mult] + [log_wd] +
+   [inv_pos_correct]. *)
 (* ---------------------------------------------------------- *)
 Lemma real_log_inv_pos_gen :
   forall (x : Real) (Hx : real_lt real_zero x),
@@ -96,7 +129,8 @@ Qed.
 (* ---------------------------------------------------------- *)
 
 
-(*   件 0a + opp_plus/双否定/交换（T6 卡坑 2：opp 肢显式走 trans）。    *)
+(* Item 0a plus [opp_plus], double negation, and commutation (the opp limb
+   walks through [real_eq_trans] explicitly). *)
 (* ---------------------------------------------------------- *)
 Lemma real_kl_term_point_bridge :
   forall (p q : Real) (Hp : real_lt real_zero p) (Hq : real_lt real_zero q),
@@ -161,8 +195,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Section RealEntropyDeficitTemp：求和面/温度/能量参数照               *)
-(*   UpReqTempDefs Section 同名同序（供 T6 件全 arity 显式应用）。          *)
+(* Section RealEntropyDeficitTemp: the sum-face/temperature/energy      *)
+(* slots mirror the same-named, same-ordered Section of                 *)
+(* UpReqTempDefs (so that the T6 members apply with explicit full       *)
+(* arity).                                                              *)
 (* ============================================================ *)
 Section RealEntropyDeficitTemp.
 
@@ -184,7 +220,8 @@ Variable T_pos : real_lt real_zero T.
 Variable energy : S -> Real.
 
 (* ---------------------------------------------------------- *)
-(* 件 1：Σ(−f) ≡ −(Σ f)（opp_one 线性提取；对位 req 层 fsum_opp）      *)
+(* Item 1: sum(-f) == -(sum f) (linear extraction at [-real_one]; the
+   counterpart of the req-layer fsum_opp). *)
 (* ---------------------------------------------------------- *)
 Lemma real_sum_over_S_opp :
   forall f : S -> Real,
@@ -233,7 +270,7 @@ Qed.
 
 (* ---------------------------------------------------------- *)
 
-(*   req 先例 req_entropy_neg_sum 同构）                               *)
+(* Isomorphic to the req-layer precedent [req_entropy_neg_sum]. *)
 (* ---------------------------------------------------------- *)
 Lemma real_entropy_neg_sum :
   forall (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)),
@@ -274,8 +311,9 @@ Qed.
 
 (* ---------------------------------------------------------- *)
 
-(*   T6 逐点件显式应用 + distrib/add/β 提取/logZ 提取，T6 explicit          *)
-(*   步 2-4 同配方，归一化换 q）                                        *)
+(* Explicit application of the T6 point lemma + distrib/add/beta
+   extraction/logZ extraction; steps 2-4 of the T6 explicit chain follow
+   the same recipe, with the normalization carried by q. *)
 (* ---------------------------------------------------------- *)
 Theorem real_sum_neglog_boltzmann :
   forall (q : S -> Real) (Hq : forall s : S, real_lt real_zero (q s)),
@@ -310,7 +348,8 @@ Proof.
              (real_eq_refl (q s))
              (real_neg_log_boltzmann_point S real_sum_over_S real_sum_pos_preserved
                 T T_pos energy s)).
-  - (* 步 2-4：distrib 逐点拆和 → add 分和 → β 提取 + logZ 提取 *)
+  - (* Steps 2-4: distrib splits the sum pointwise, add splits the two
+       sums, then the beta and logZ factors are extracted. *)
     apply (real_eq_trans
              (real_sum_over_S (fun s : S => real_mult (q s) (real_plus (real_mult bta (energy s)) LZ)))
              (real_plus (real_sum_over_S (fun s : S => real_mult (q s) (real_mult bta (energy s))))
@@ -331,7 +370,8 @@ Proof.
                (real_mult bta (real_sum_over_S (fun s : S => real_mult (q s) (energy s))))
                (real_sum_over_S (fun s : S => real_mult (q s) LZ))
                LZ).
-      * (* β 支：Σ q·(β·e) ≡ β·Σ q·e（逐点重排 → 线性提取） *)
+      * (* Beta branch: sum q*(beta*e) == beta * sum q*e (pointwise
+           rearrangement, then linear extraction). *)
         apply (real_eq_trans
                  (real_sum_over_S (fun s : S => real_mult (q s) (real_mult bta (energy s))))
                  (real_mult bta (real_sum_over_S (fun s : S => real_mult (q s) (energy s))))
@@ -359,7 +399,7 @@ Proof.
                      exact (real_mult_assoc bta (q s) (energy s)).
            ++ apply real_sum_over_S_linear.
         -- apply real_eq_refl.
-      * (* logZ 支：Σ q·LZ ≡ LZ·Σ q ≡ LZ·1 ≡ LZ *)
+      * (* logZ branch: sum q*LZ == LZ * sum q == LZ * 1 == LZ. *)
         apply (real_eq_trans
                  (real_sum_over_S (fun s : S => real_mult (q s) LZ))
                  (real_mult LZ (real_sum_over_S q))
@@ -382,7 +422,8 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 定义件：real_KL_temp（温度族分布级 KL；Id relative_entropy          *)
+(* Definition member: [real_KL_temp] (temperature-family distribution-level
+   KL; the Id-level counterpart is [relative_entropy]). *)
 
 (* ---------------------------------------------------------- *)
 Definition real_KL_temp (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)) : Real :=
@@ -394,9 +435,11 @@ Definition real_KL_temp (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p
                     (real_boltzmann_dist_temp_pos S real_sum_over_S real_sum_pos_preserved T T_pos energy s))))).
 
 (* ---------------------------------------------------------- *)
-(* 件 4：KL 温度分解（Id relative_entropy_temp_decomp S04 L3568 对位）  *)
+(* Item 4: the KL temperature decomposition (counterpart of the Id-level
+   relative_entropy_temp_decomp, S04 L3568). *)
 
-(*   add 分和 → 熵负和（件 2）+ 件 3 → 交换重排。                       *)
+(* add splits the sums, the negative entropy sum (Item 2) and Item 3
+   enter, and the two summands are commuted into place. *)
 (* ---------------------------------------------------------- *)
 Theorem real_KL_temp_decomp :
   forall (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)),
@@ -456,8 +499,9 @@ Proof.
 Qed.
 
 (* ---------------------------------------------------------- *)
-(* 件 5：real_kl_term 规范形桥（L41696 分布级完成）：             *)
-(*   real_KL_temp ≡ Σ_s real_kl_term (p s) (p_T s)。                   *)
+(* Item 5: the canonical-form bridge for real_kl_term (distribution level
+   closed at L41696):
+   real_KL_temp == sum_s real_kl_term (p s) (p_T s). *)
 (* ---------------------------------------------------------- *)
 Theorem real_KL_temp_kl_term_bridge :
   forall (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)),
@@ -475,9 +519,13 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* 主件：real_entropy_deficit_kl_temp（Id S04 L3903 逐参数位对位）          *)
-(*   同约束能量 E(p) == E_T ⟹ S[p_T] − S[p] == KL(p‖p_T)。             *)
-(*   链：熵显式（T6）+ 同能量替换（β·E_T ↦ β·E(p)）+ 分解（件 4）反向。 *)
+(* Main member: real_entropy_deficit_kl_temp (argument-slot-by-slot     *)
+(* counterpart of Id S04 L3903).                                        *)
+(*   Under the common energy constraint E(p) == E_T:                    *)
+(*   S[p_T] - S[p] == KL(p || p_T).                                     *)
+(*   Chain: entropy made explicit (T6), substitution of the equal       *)
+(*   energy (beta * E_T maps to beta * E(p)), then the decomposition    *)
+(*   (Item 4) read in reverse.                                          *)
 (* ============================================================ *)
 Theorem real_entropy_deficit_kl_temp :
   forall (p : S -> Real) (Hp : forall s : S, real_lt real_zero (p s)),
@@ -501,7 +549,7 @@ Proof.
                 (real_boltzmann_dist_temp_pos S real_sum_over_S real_sum_pos_preserved T T_pos energy)).
   set (Ep := real_sum_over_S (fun s : S => real_mult (p s) (energy s))).
   set (K := real_KL_temp p Hp).
-  (* 目标：real_minus_r Spt Sp ≡ plus Spt (opp Sp) == K *)
+  (* Goal: real_minus_r Spt Sp == plus Spt (opp Sp) == K. *)
   unfold real_minus_r.
   apply (real_eq_trans
            (real_plus Spt (real_opp Sp))
@@ -526,7 +574,8 @@ Proof.
                   real_sum_over_S_ext real_sum_over_S_linear real_sum_over_S_add
                   T T_pos energy)
                (real_eq_refl (real_opp Sp))).
-    + (* 肢 1b：同能量替换 β·E_T ↦ β·E(p)（Henergy 换载 + 逐字余项） *)
+    + (* Limb 1b: substituting the equal energy, beta * E_T maps to
+         beta * E(p) (carried by Henergy, remainder terms verbatim). *)
       apply (RealSetoid.real_eq_plus_compat_adapt
                (real_plus (real_mult bta
                              (real_energy_exp_temp S real_sum_over_S real_sum_pos_preserved
@@ -547,7 +596,7 @@ Proof.
                      (real_eq_sym _ _ Henergy))
                   (real_eq_refl LZ))
                (real_eq_refl (real_opp Sp))).
-  - (* 肢 2：分解（件 4）反向完成 *)
+  - (* Limb 2: closed by reading the decomposition (Item 4) in reverse. *)
     exact (real_eq_sym _ _
              (real_KL_temp_decomp p Hp Hnp)).
 Qed.

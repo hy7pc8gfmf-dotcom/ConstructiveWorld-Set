@@ -1,27 +1,30 @@
-(* ==========================================================================
-   SumEqListMark.v - the unified instantiation face of the sum_eq_list
-   same-shape slots (the req-form slot 1, two witness theorems), plus the
-   interface-translation forwarding face for slots 2-5 (four theorems
-   carried over the IdSlotTranslate interface-translation piece).
-   Mission. 使命: eight theorems - two instantiate the bridge
-     sumd_sum_eq_list at sumf := sumd_sumf (req_refl collapse), two
-     restate slot 1 against the host machine rsq_bs_list_sum, four
-     forward the slot 2-5 verifications onto IdSlotTranslate's host
-     theorems; zero new machinery.
-   Dependencies. 依赖清单: S01_BaseRing..S15_TailFEPUp, UpReqSumD,
-     UpReqSampling, AttnDoeblin, IdSlotTranslate, List of the -Set lineage
-     world; argument-less Class RealInterfaceEnhancedSetoid; notation
-     rebind Notation R := Real; predicate face converged to real_eq.
-   References. 对标: list-sum folding isomorphism (the definitional
-     instantiation layer of summation operators). Statement names carried
-     over verbatim; adaptation = binder-pair removal + notation rebinding
-     + argument reshaping to the world's discharged signatures.
-   Constructivity. 构造性注记: all Set-layer statements; every station
-     Qed-closed, zero admitted items; zero new machinery; the tail
-     Print Assumptions probes report the closure face; no new axioms.
-   Build. 编译配方: rocq c -native-compiler no -q -Q <world> ""
-     SumEqListMark.v (cpu_guard thermal wrapper, ulimit -s 65532).
-   ========================================================================== *)
+(* ConstructiveWorld-Set — the unified instantiation face of the
+   [sum_eq_list] same-shape slots, plus interface-translation forwarding. *)
+(** * SumEqListMark: the [sum_eq_list] same-shape slots (the req-form slot 1,
+      two witness theorems) and forwarding for slots 2-5.
+
+    Mission.  Eight theorems — two instantiate the bridge [sumd_sum_eq_list]
+      at [sumf] := [sumd_sumf] ([req_refl] collapse), two restate slot 1
+      against the host machine [rsq_bs_list_sum], four forward the slot 2-5
+      verifications onto [IdSlotTranslate]'s host theorems; zero new
+      machinery.
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqSumD], [UpReqSampling], [AttnDoeblin], [IdSlotTranslate], and
+      Stdlib [List] of this development; the argument-less [Class]
+      [RealInterfaceEnhancedSetoid]; [Notation R := Real]; predicate face
+      converged to [real_eq].
+    References.  This development and the ConstructiveWorld-Main baseline
+      module of the same name: the list-sum folding isomorphism (the
+      definitional instantiation layer of summation operators); statement
+      names carried over verbatim; adaptation = binder-pair removal,
+      notation rebinding, argument reshaping to the development's discharged
+      signatures.
+    Constructivity.  All statements live on the [Set] layer; every station
+      closes with [Qed], zero admitted items; zero new machinery; the tail
+      [Print Assumptions] lines report the closure face; no new axioms.
+    Build.  [rocq c -native-compiler no -q -Q ConstructiveWorld_Live ""
+      SumEqListMark.v] compiles cleanly (exit 0) under the [cpu_guard]
+      thermal wrapper with [ulimit -s 65532]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

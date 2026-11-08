@@ -12,7 +12,7 @@
 (*    surface entirely Set-level (sigT + S01.And + S02.QeqT + S01.Id).    *)
 (*    Prop-elimination born-clean: bare = -> Id (id_cong bridge),         *)
 (*    == -> QeqT (two-way gates qeq_imp_qeqT/qeqT_imp_qeq), nat <= ->     *)
-(*    NatLe (NatLe_drop/NatLe_lift bridges); Qeq/== appear only as        *)
+(*    NatLe (NatLe_lift/NatLe_drop_le bridges); Qeq/== appear only as      *)
 (*    proof-internal reasoning scaffolding; ring closures all go through  *)
 (*    the "all-variable pure ring leaf" pattern (pitfall cards AL/AX,     *)
 (*    same as predecessor §1). No magic values, no Prop cast shims, no    *)
@@ -335,9 +335,9 @@ Proof.
   intros c q. induction q as [|qh qt IH]; intros p H.
   - exact id_refl.
   - destruct p as [|ph pt].
-    + exfalso. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia.
+    + exfalso. pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd. lia.
     + assert (H2 : NatLe (length qt) (length pt)).
-      { apply NatLe_lift. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia. }
+      { exact H. }
       exact (id_cong (fun n => Datatypes.S n) (IH pt H2)).
 Qed.
 
@@ -349,9 +349,9 @@ Proof.
   intros c k. induction k as [|k' IH]; intros q p H.
   - cbn [qpg_shift_sub]. apply (qpg_length_align c q p). exact H.
   - destruct p as [|ph pt].
-    + exfalso. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia.
+    + exfalso. pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd. lia.
     + destruct pt as [|b pt'].
-      * pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd.
+      * pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd.
         destruct k' as [|k''].
         -- assert (Hq0 : (length q = 0)%nat) by lia.
            destruct q as [|q1 q2].
@@ -359,7 +359,7 @@ Proof.
            ++ exfalso. cbn [length] in Hq0. lia.
         -- exfalso. lia.
       * assert (H2 : NatLe (k' + length q) (Datatypes.S (length pt'))).
-        { apply NatLe_lift. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia. }
+        { exact H. }
         exact (id_cong (fun n => Datatypes.S n) (IH q (b :: pt') H2)).
 Qed.
 
@@ -372,9 +372,9 @@ Proof.
   intros c q. induction q as [|qh qt IH]; intros p x H.
   - cbn [qpg_align_sub]. exact (qpg_ring_align0 (pint_eval p x) c).
   - destruct p as [|ph pt].
-    + exfalso. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia.
+    + exfalso. pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd. lia.
     + assert (H2 : NatLe (length qt) (length pt)).
-      { apply NatLe_lift. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia. }
+      { exact H. }
       cbn [qpg_align_sub pint_eval]. apply qeq_imp_qeqT.
       rewrite (qeqT_imp_qeq _ _ (IH pt x H2)). ring.
 Qed.
@@ -390,9 +390,9 @@ Proof.
   - cbn [qpg_shift_sub qpg_pow]. apply qeq_imp_qeqT.
     rewrite (qeqT_imp_qeq _ _ (qpg_eval_align c q p x H)). ring.
   - destruct p as [|ph pt].
-    + exfalso. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia.
+    + exfalso. pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd. lia.
     + destruct pt as [|b pt'].
-      * pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd.
+      * pose proof (NatLe_drop_le _ _ H) as Hd. cbn [length] in Hd.
         destruct k' as [|k''].
         -- assert (Hq0 : (length q = 0)%nat) by lia.
            destruct q as [|q1 q2].
@@ -401,7 +401,7 @@ Proof.
            ++ exfalso. cbn [length] in Hq0. lia.
         -- exfalso. lia.
       * assert (H2 : NatLe (k' + length q) (Datatypes.S (length pt'))).
-        { apply NatLe_lift. pose proof (NatLe_drop _ _ H) as Hd. cbn [length] in Hd. lia. }
+        { exact H. }
         cbn [qpg_shift_sub qpg_pow pint_eval]. apply qeq_imp_qeqT.
         rewrite (qeqT_imp_qeq _ _ (IH q (b :: pt') x H2)). cbn [pint_eval]. ring.
 Qed.
@@ -439,7 +439,7 @@ Proof.
       * destruct pt as [|b pt'].
         -- inversion H.
         -- assert (H2le : NatLe (length (a :: qt')) (length (b :: pt')))
-             by (destruct H2; apply NatLe_lift; apply Nat.le_refl).
+             by (destruct H2; apply NatLe_refl).
            assert (Hnn3 : qpg_nonnil (qpg_align_sub c (a :: qt') (b :: pt'))).
            { destruct (qpg_align_sub c (a :: qt') (b :: pt')) as [|h t] eqn:Ed.
              - exfalso.
@@ -537,7 +537,7 @@ Fixpoint qpg_engine (fuel : nat) (q p : list Q) : list Q * list Q :=
 (* Existence limb: with fuel = length p the engine output satisfies the
    CC-registered general-form correctness pair. Born-clean: nat <=
    premise -> NatLe (NatLe bridge); the length/degree bookkeeping
-   stays proof-internal Prop scaffolding fed by NatLe_drop *)
+   stays proof-internal Prop scaffolding fed by NatLe_drop_le *)
 Lemma qpg_engine_sound : forall (fuel : nat) (q p : list Q),
   qpg_divisor_ok q -> NatLe (length p) fuel ->
   qpd_divmod_gen_pred p q (qpg_engine fuel q p).
@@ -545,7 +545,7 @@ Proof.
   induction fuel as [|f IH]; intros q p Hq Hlen.
   - (* fuel exhausted: p must be empty; 0 == eval q * 0 + 0, remainder []
      of degree 0 < deg q (from degge1) *)
-    pose proof (NatLe_drop _ _ Hlen) as HlenD.
+    pose proof (NatLe_drop_le _ _ Hlen) as HlenD.
     destruct p as [|a p'].
     + cbn [qpg_engine fst snd]. unfold qpd_divmod_gen_pred. cbn [fst snd]. split.
       * intros x. cbn [pint_eval].
@@ -591,19 +591,12 @@ Proof.
           - reflexivity. }
         assert (F1prop : (k + length q = length (a :: p'))%nat).
         { rewrite Hk, Hdp, Hlen_q1. cbn [length]. lia. }
-        assert (F1 : NatLe (k + length q) (length (a :: p')))
-          by (apply NatLe_lift; lia).
         assert (F1eq : @Id nat ((k + length q)%nat) (length (a :: p')))
           by (destruct F1prop; exact id_refl).
-        assert (Hlen3 : (length (qpg_remlast (qpg_shift_sub c k q (a :: p'))) <= f)%nat).
-        { assert (Hrl : (length (qpg_remlast (qpg_shift_sub c k q (a :: p')))
-                         = Nat.pred (length (qpg_shift_sub c k q (a :: p'))))%nat)
-            by (destruct (qpg_remlast_length (qpg_shift_sub c k q (a :: p')));
-                reflexivity).
-          assert (Hls : (length (qpg_shift_sub c k q (a :: p')) = length (a :: p'))%nat)
-            by (destruct (qpg_length_shift c k q (a :: p') F1); reflexivity).
-          rewrite Hrl, Hls. cbn [length]. cbn [Nat.pred].
-          pose proof (NatLe_drop _ _ Hlen) as HlenD. cbn [length] in HlenD. lia. }
+        assert (F1 : NatLe (k + length q) (length (a :: p')))
+          by exact (id_trans
+                      (id_cong (fun n => Nat.leb n (length (a :: p'))) F1eq)
+                      (NatLe_refl (length (a :: p')))).
         (* top-term zeroing: lead (shift-sub) == 0 (Qdiv cancellation
            enters here) *)
         assert (Hlead0 : qpd_lead (qpg_shift_sub c k q (a :: p')) == 0).
@@ -616,7 +609,15 @@ Proof.
         destruct (qpg_engine f q (qpg_remlast (qpg_shift_sub c k q (a :: p'))))
           as [sq rr] eqn:Eeng.
         specialize (IH q (qpg_remlast (qpg_shift_sub c k q (a :: p')))
-                         (pair Hd Hl) (NatLe_lift _ _ Hlen3)).
+                         (pair Hd Hl)
+                         (id_trans
+                            (id_cong (fun n => Nat.leb n f)
+                               (id_trans
+                                  (qpg_remlast_length
+                                     (qpg_shift_sub c k q (a :: p')))
+                                  (id_cong Nat.pred
+                                     (qpg_length_shift c k q (a :: p') F1))))
+                            Hlen)).
         rewrite Eeng in IH. unfold qpd_divmod_gen_pred in IH. cbn [fst snd] in IH.
         destruct IH as [IH1 IH2].
         (* evaluation account: eval p == x^k*(c*eval q) + eval remainder *)
@@ -659,12 +660,12 @@ Qed.
 
 (* Top level: general-form delivery in the CC-registered container --
    division with remainder for any-degree divisors (well-formedness
-   precondition); NatLe reflexivity via NatLe_lift *)
+   precondition); NatLe reflexivity via the native NatLe_refl face *)
 Definition qpg_divmod_gen (p q : list Q) (Hq : qpg_divisor_ok q)
   : qpd_divmod_gen_type p q :=
   existT _ (qpg_engine (length p) q p)
            (qpg_engine_sound (length p) q p Hq
-                             (NatLe_lift _ _ (Nat.le_refl (length p)))).
+                             (NatLe_refl (length p))).
 
 (* ============================================================ *)
 (* §5 Uniqueness limb interface (registered only, not built --     *)

@@ -1,29 +1,33 @@
-(* 五字段指针｜使命：本件定理／引理声明面所述性质的形式化。 依赖：件内 Require 声明面所列库件。 构造性：零承认式语句（机械核验）。 编译配方：coqc -native-compiler no -q -Q . ""。  ============================================================ *)
-(* ToyR 玩具证替换件：消融落件——原件全文逐字保留，仅将清单所列定理证明体         *)
-(*   替换为玩具证（非平凡三口径），声明面/引用面零改动、零新增 Require；清单：     *)
-(*   ln2i_p2_succ（原 L64，2 句；裸 reflexivity -> Qeq_refl 显式见证项 1 刀）。     *)
-(* ============================================================ *)
-(* UpReqLn2Irrational.v                                                          *)
-(* 目的：母定理 lic_irrational_criterion 的 ln2 实例依赖模块：ln 2 = Σ_{k≥1}       *)
-(*   1/(k·2^k) 的 Q 层部分和列 ln2i_x n = Σ_{k=1}^{n} 1/(k·2^k)（单调递增，          *)
-(*   余项 0 < R_n < 2^{-n}，exact fractions 数值验真），误差窗 ln2i_e n = 2^{-n}     *)
-(*   （Qinv(ln2i_p2 n) 形）。                                                      *)
-(* 三件供给状态：① 尾控 ln2i_tail：绿（Defined，严格几何和界 2^{-n}−2^{-(n+K)}）；    *)
-(*   ② 窗宽消失 ln2i_vanish：绿（Defined，N=den(eps)+1 配方，2^n ≥ n+1 桥）；         *)
-(*   ③ 逃逸窗 ln2i_escape_witness：受阻（红线③申报）——e-级数逃逸靠 n!·s_n ∈ Z         *)
-(*   的整递推给出窗位于尾控与间隙之间；ln2 级数公共母线为 2^n·(奇lcm)，有理间隙界     *)
-(*   ≪ 2^{-n}，整递推 n!·2^n·(q−x_n) ∈ Z（n ≥ den q）只给                              *)
-(*   |q−x_n| ≥ 2/(n!·2^n) ≪ 窗 2^{-n}，窗放不进「尾控上/间隙下」；本件以                *)
-(*   ln2i_escape_spec 类型定义遗留，主装配走条件形 ln2i_irrational_criterion_cond，    *)
-(*   证据 exact (lic_irrational_criterion …) 零旁路真走母定理。                        *)
-(* 命名：ln2i_ 前缀（开工 grep 零撞名）。                                            *)
-(* 公理面：本件纯构造性（零经典逻辑、零排中、零认授（未证断言））；语句面全 Set 层    *)
-(*   （sigT/And/real_lt/QltT 形，无 Prop 泄露位）；证内 Prop（Qlt/Qle）仅作 Q 层推理   *)
-(*   脚手架，不进结论面。                                                            *)
-(* 依赖：UpReqIrrationalCriterion（母定理件，只读使用）；S01_BaseRing、                *)
-(*   S02_CauchyComplete、S03_QExp、SumInvFactEscape、UpReqBanachNormOpp                *)
-(*   （bno_mul_div_self 等）；Stdlib QArith、ZArith、Arith、Lia、Lra、Qfield。          *)
-(* ============================================================ *)
+(* ConstructiveWorld-Set — Q-layer [ln 2] series instance of the constructive irrationality criterion. *)
+
+(** * UpReqLn2Irrational: the [ln 2] series instance of the irrationality criterion.
+
+    Mission.  Q-layer partial sums [ln2i_x n = sum_{k=1}^{n} 1/(k*2^k)]
+      (monotone, remainders [0 < R_n < 2^{-n}]), the error window
+      [ln2i_e n = 2^{-n}], the supplies [ln2i_tail]/[ln2i_vanish], and
+      the conditional assembly [ln2i_irrational_criterion_cond]: with
+      an escape-window witness supplied, the limit of [ln2i_x]
+      separates from every rational by a positive rational constant.
+
+    Dependencies.  Stdlib [QArith], [ZArith], [Arith], [Lia], [Qfield];
+      requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
+      [SumInvFactEscape], [UpReqBanachNormOpp], [UpReqIrrationalCriterion]
+      of this development.
+
+    References.  This development, UpReqLn2Irrational.v, the baseline
+      module in ConstructiveWorld-Main whose statement names are carried
+      over here verbatim (statement-face Set-carrier completion); the
+      criterion is [lic_irrational_criterion] in [UpReqIrrationalCriterion].
+
+    Constructivity.  All statements are carried by [Set] ([sigT],
+      [And], [QltT] forms; Q-layer order reasoning stays inside
+      proofs); no classical axioms; the escape-window witness is not
+      constructed here and the main statement is conditional on
+      [ln2i_escape_spec] (disclosed); [coqchk] reports [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . ""
+      UpReqLn2Irrational.v] compiles cleanly (exit 0); the first eight
+      bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
@@ -35,11 +39,9 @@ From Stdlib Require Import QArith.QArith QArith.Qabs ZArith.ZArith
   Arith.Arith Bool.Bool.
 From Stdlib Require Import Lia Setoid Morphisms Qfield.
 
-(* ============================================================ *)
-(* S0：Q 层通用小件                                                *)
-(* ============================================================ *)
+(* ==================== S0. Q-layer auxiliary lemmas ==================== *)
 
-(* |u − v| == u − v（v ≤ u） *)
+(* For [v <= u] the absolute value satisfies [|u - v| == u - v]. *)
 Lemma ln2i_abs_sub : forall u v : Q, Qle v u -> Qabs ((u - v)%Q) == (u - v)%Q.
 Proof.
   intros u v H. apply Qabs_pos.
@@ -47,9 +49,7 @@ Proof.
   unfold Qminus, Qplus, Qopp. cbn [Qnum Qden] in *. lia.
 Qed.
 
-(* ============================================================ *)
-(* S1：2 的幂（Q 层）与几何半恒等式                                   *)
-(* ============================================================ *)
+(* ==================== S1. Powers of two in [Q] and the geometric half-identity ==================== *)
 
 Fixpoint ln2i_p2 (n : nat) : Q :=
   match n with
@@ -76,7 +76,8 @@ Proof.
   rewrite Nat2Z.inj_succ in Hp. lia.
 Qed.
 
-(* p2 n 就是 2^n（显式指数形态，供 vanish 的 Z 层幂比较） *)
+(* [ln2i_p2 n] is exactly [2^n] in explicit exponential form, feeding
+   the [Z]-level power comparison in the vanish supply. *)
 Lemma ln2i_p2_Z : forall n : nat, ln2i_p2 n == ((Z.of_nat (2 ^ n)) # 1)%Q.
 Proof.
   induction n as [|n IH].
@@ -99,7 +100,8 @@ Proof.
   exact (Qlt_not_eq 0%Q (ln2i_p2 n) (ln2i_p2_pos n) (eq_sym Hc)).
 Qed.
 
-(* 2^{-m} = 2^{-(m+1)} + 2^{-(m+1)}（Qinv 形几何半恒等式） *)
+(* [2^{-m} = 2^{-(m+1)} + 2^{-(m+1)}]: the geometric half-identity in
+   [Qinv] form. *)
 Lemma ln2i_inv_half : forall m : nat,
   (Qinv (ln2i_p2 (Datatypes.S m)) + Qinv (ln2i_p2 (Datatypes.S m)))%Q
   == Qinv (ln2i_p2 m).
@@ -120,13 +122,11 @@ Proof.
   - unfold Qinv, Qlt. cbn. lia.
 Qed.
 
-(* ============================================================ *)
-(* S2：级数项 1/(j·2^j) 与其对照界                                    *)
-(* ============================================================ *)
+(* ==================== S2. The series term [1/(j*2^j)] and its comparison bound ==================== *)
 
 Definition ln2i_t (j : nat) : Q := Qinv ((Z.of_nat j * Z.of_nat (2 ^ j)) # 1).
 
-(* Qinv 非严格反序：0 < u ≤ v ⟹ v⁻¹ ≤ u⁻¹ *)
+(* [Qinv] is antitone (non-strictly): [0 < u <= v -> Qinv v <= Qinv u]. *)
 Lemma ln2i_inv_le : forall u v : Q, Qlt 0 u -> Qle u v -> Qle (Qinv v) (Qinv u).
 Proof.
   intros [un ud] [vn vd]. unfold Qlt, Qle, Qinv in *.
@@ -142,7 +142,8 @@ Proof.
   nia.
 Qed.
 
-(* 项级界：1/(j·2^j) ≤ 2^{-j}（j ≥ 1；j=1 取等） *)
+(* Termwise bound: [1/(j*2^j) <= 2^{-j}] for [j >= 1] (equality at
+   [j = 1]). *)
 Lemma ln2i_t_le : forall j : nat, (1 <= j)%nat -> Qle (ln2i_t j) (Qinv (ln2i_p2 j)).
 Proof.
   intros j Hj. rewrite ln2i_p2_Z. unfold ln2i_t.
@@ -155,25 +156,25 @@ Proof.
     nia.
 Qed.
 
-(* ============================================================ *)
-(* S3：部分和列、几何尾和、严格几何和界                                  *)
-(* ============================================================ *)
+(* ==================== S3. Partial sums, geometric tails, strict geometric bound ==================== *)
 
-(* 部分和：x_n = Σ_{k=1}^{n} 1/(k·2^k) *)
+(* Partial sums: [x_n = sum_{k=1}^{n} 1/(k*2^k)]. *)
 Fixpoint ln2i_x (n : nat) : Q :=
   match n with
   | O => 0%Q
   | Datatypes.S m => ln2i_x m + ln2i_t (Datatypes.S m)
   end.
 
-(* 加权尾和 gsum n K = Σ_{i=1}^{K} 1/((n+i)·2^{n+i})（S 形指标） *)
+(* Weighted tail [gsum n K = sum_{i=1}^{K} 1/((n+i)*2^{n+i})]
+   (successor-indexed). *)
 Fixpoint ln2i_gsum (n K : nat) : Q :=
   match K with
   | O => 0%Q
   | Datatypes.S k => ln2i_gsum n k + ln2i_t (Datatypes.S (n + k))
   end.
 
-(* 纯几何尾和 hsum n K = Σ_{i=1}^{K} 2^{-(n+i)}（S 形指标） *)
+(* Purely geometric tail [hsum n K = sum_{i=1}^{K} 2^{-(n+i)}]
+   (successor-indexed). *)
 Fixpoint ln2i_hsum (n K : nat) : Q :=
   match K with
   | O => 0%Q
@@ -201,7 +202,8 @@ Proof.
     + apply ln2i_t_le. lia.
 Qed.
 
-(* 几何和界：hsum n K + 2^{-(n+K)} ≤ 2^{-n}（半恒等式归纳） *)
+(* Geometric bound: [hsum n K + 2^{-(n+K)} <= 2^{-n}], by induction on
+   [K] with the half-identity. *)
 Lemma ln2i_hsum_le : forall n K : nat,
   Qle (ln2i_hsum n K + Qinv (ln2i_p2 (n + K)))%Q (Qinv (ln2i_p2 n)).
 Proof.
@@ -228,7 +230,7 @@ Proof.
     exact (Qlt_le_trans _ _ _ Hlt1 Hle).
 Qed.
 
-(* 核心界：gsum n K < 2^{-n} *)
+(* Core bound: [gsum n K < 2^{-n}]. *)
 Lemma ln2i_gsum_lt : forall n K : nat, Qlt (ln2i_gsum n K) (Qinv (ln2i_p2 n)).
 Proof.
   intros n K.
@@ -236,7 +238,7 @@ Proof.
            (ln2i_gsum_le_hsum n K) (ln2i_hsum_lt n K)).
 Qed.
 
-(* 部分和加法形：x_{n+K} == x_n + gsum n K *)
+(* Additive form of the partial sums: [x_{n+K} == x_n + gsum n K]. *)
 Lemma ln2i_x_add : forall n K : nat,
   ln2i_x (n + K) == (ln2i_x n + ln2i_gsum n K)%Q.
 Proof.
@@ -252,7 +254,7 @@ Proof.
   intros n K. rewrite ln2i_x_add. unfold Qminus. ring.
 Qed.
 
-(* 单调性：n ≤ k ⟹ x_n ≤ x_k *)
+(* Monotonicity: [n <= k -> x_n <= x_k]. *)
 Lemma ln2i_mono : forall n k : nat, (n <= k)%nat -> Qle (ln2i_x n) (ln2i_x k).
 Proof.
   intros n k Hnk.
@@ -266,13 +268,11 @@ Proof.
       [apply Qle_refl | apply ln2i_gsum_ge0].
 Qed.
 
-(* ============================================================ *)
-(* S4：误差窗 e_n = 2^{-n}、尾控与消失两件供给                            *)
-(* ============================================================ *)
+(* ==================== S4. The error window [2^{-n}], tail and vanish supplies ==================== *)
 
 Definition ln2i_e (n : nat) : Q := Qinv (ln2i_p2 n).
 
-(* 尾控：n ≥ 1、k ≥ n ⟹ |x_k − x_n| < 2^{-n} *)
+(* Tail control: [n >= 1, k >= n -> |x_k - x_n| < 2^{-n}]. *)
 Definition ln2i_tail : lic_tail_bounded ln2i_x ln2i_e.
 Proof.
   intros n k Hn1 Hnk.
@@ -291,7 +291,8 @@ Proof.
   rewrite Hsub. exact Hlt0.
 Defined.
 
-(* 消失：2^{-n} → 0（N = den(eps)+1，2^n ≥ n+1 桥） *)
+(* Vanishing: [2^{-n} -> 0]; the modulus is [N = den(eps) + 1], bridged
+   through [2^n >= n + 1]. *)
 Definition ln2i_vanish : lic_vanish ln2i_e.
 Proof.
   intros eps Heps. destruct eps as [pn pd].
@@ -338,15 +339,17 @@ Proof.
     exact Hk.
 Defined.
 
-(* ============================================================ *)
-(* S5：逃逸窗遗留位 + 条件形主装配（真走母定理，零旁路）                     *)
-(* ============================================================ *)
+(* ==================== S5. The escape-window slot and the conditional main assembly ==================== *)
 
-(* 逃逸窗类型定义（见证构造受阻，红线③申报；见交付报告 §逃逸窗） *)
+(* The escape-window type; the witness construction is not carried out
+   here, and the main statement below is kept conditional on it. *)
 Definition ln2i_escape_spec : Set := lic_escape_window ln2i_x ln2i_e.
 
-(* 条件形主定理：逃逸窗见证一旦供给，即得「lim x_n 对每个有理数 q          *)
-(* 存在 Q 层正分离常数 c 使 real_const c < |X − q|」——母定理 exact 装配。 *)
+(* Conditional main statement: once an escape-window witness is
+   supplied, the limit of [ln2i_x] admits, for every rational [q], a
+   positive rational separation constant [c] with
+   [real_const c < |X - q|] — assembled by directly applying the
+   criterion [lic_irrational_criterion]. *)
 Theorem ln2i_irrational_criterion_cond : forall (Hesc : ln2i_escape_spec) (q : Q),
   sigT (fun c : Q => And (QltT 0 c)
     (real_lt (real_const c)

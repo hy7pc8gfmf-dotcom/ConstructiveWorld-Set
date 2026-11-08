@@ -1,28 +1,33 @@
-(* ===================================================================== *)
-(* PAReanchor643.v -- K1 paper-anchor re-measurement registry              *)
-(* (self-contained standalone data module)                                 *)
-(*                                                                         *)
-(* Mission. Register the re-measurement result data of 1533 anchors of     *)
-(*   19 papers against the 643-file tree: five-state anchor-line status    *)
-(*   (valid-as-is / shifted / multi-candidate / no-solution / target-      *)
-(*   file-deleted), old and new line numbers, and per-entry census /       *)
-(*   retrieval / self-consistency functions, for target-side Require or    *)
-(*   excerpting.                                                           *)
-(* Dependencies. Zero tree Require; only one standard-library module,      *)
-(*   Stdlib.Strings.String (the Rocq 9.1 prelude does not preload string,  *)
-(*   which is required to host readable registry data); list / nat /       *)
-(*   bool / option all come from the prelude.                              *)
-(* References. Base ConstructiveWorld_Live 643 .v files and order.txt      *)
-(*   643 lines; the anchor-table numbers are authoritative in the in-file  *)
-(*   registry field.                                                       *)
-(* Constructivity. Pure Set-layer data plus all-Defined functions;         *)
-(*   axiom-free at the statement level, no Prop statements.                *)
-(* Build. Standalone compile: rocq c -native-compiler no -q                *)
-(*   PAReanchor643.v (zero tree dependencies; embeddable in any target     *)
-(*   pool). Extraction self-check lives outside this file: an isolated-    *)
-(*   pool probe file (Require this file + Extraction plugin) verifies      *)
-(*   Obj.magic = 0.                                                        *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — K1 paper-anchor re-measurement registry over the 643-file tree, delivered as a self-contained data module. *)
+(** * PAReanchor643: paper-anchor re-measurement registry.
+
+    Mission.  The re-measurement result data of [1533] anchors of 19
+      papers against the 643-file tree: the five-state anchor-line
+      status [AnchorStatus] ([StHit] / [StShift] / [StAmbiguous] /
+      [StNotFound] / [StDeadFile]); the per-entry record [AnchorEntry]
+      (paper and section, anchor text, main symbol, target file, old
+      and new line numbers, verdict); the entry list [registry] with
+      its census, retrieval, and self-consistency functions
+      ([registry_selfconsistent], [registry_total]).
+
+    Dependencies.  Stdlib [Stdlib.Strings.String] only; zero tree
+      [Require]; list, nat, bool, and option all come from the prelude;
+      self-contained, hence embeddable in any target pool.
+
+    References.  This development; the same-named baseline module in
+      ConstructiveWorld-Main, whose statement names, registry numbers,
+      and entry order are carried over here verbatim; the anchor-table
+      numbers are authoritative in the in-file [registry] field.
+
+    Constructivity.  Pure [Set]-layer data plus all-[Defined]
+      functions; no [Prop] statements, no axioms, nothing admitted.
+      The extraction audit lives outside this file: an isolated-pool
+      probe file ([Require] this file plus the [Extraction] plugin)
+      verifies [Obj.magic] = 0, keeping the dependency surface minimal.
+
+    Build.  [coqc -native-compiler no -q -Q . "" PAReanchor643.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact
+      are [436f7121 000160bc]. *)
 
 From Stdlib.Strings Require Import String.
 

@@ -222,6 +222,15 @@ ExtrOcamlNatInt 自带 nat=>int 映射）——判定降至 **O(1) 实测 19.7ns
 O(首参数) 线（E4 复测同量级）。**模块文档 4d 线两态并列**：prescribed（int
 realizer·O(1)）与 fallback（unary·O(首参数)），实现席按认证管线配方择一并实测入档。
 
+**提取输出目录钉定（Wave2 复核残项①·残项清账席 20261106 登记）**：本配方探针
+（realizer 配方提取·E4 同形）未钉 Extraction Output Directory，产物 8 件
+（Datatypes/PeanoNat/S01_BaseRing/Specif × .ml/.mli，与 `_witness_int/` 的
+realizer 提取模块形同构）落 worktree 根（`*.ml`/`*.mli` 系 .gitignore 深度通配·
+untracked 不显于 status）——已逐字节原样整移归档至
+`attn/_s01v2_impl_ws/_realizer_recipe_probe_archive/`（禁删·移动非复制）；
+后续一切提取一律显式钉 `Extraction Output Directory` 或先 cd 入钉定工作区，
+禁再落 worktree 根。
+
 ---
 
 ## §3 迁移文法（三族位点旧形→新形机械规则）

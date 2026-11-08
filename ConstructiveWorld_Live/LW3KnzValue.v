@@ -1,15 +1,33 @@
-(* LW3KnzValue.v                                                         *)
-(* 使命：Niven 辅助族 K 非零判据肢首砖——锚例上 K 面（lw3_Kinst）可判定    *)
-(*       非零见证由 λ 面透明计算钉与 lw3_Kinst_spec 桥回传闭合；首项      *)
-(*       系数面经生产件 lw3_niven_lc_nz 实例化闭合。                      *)
-(* 依赖：LW3ETranscendental（只读正本）及其 Require 闭包 S02/S03/LW0/     *)
-(*       LW1/LW2 系（PROBEPIN 卡 Require 全展开清单同面）。               *)
-(* 对标：E-STAGING-LW3-PROBEPIN 坑4；E-STAGING-LW3-KNZWALL 判例           *)
-(*       _tlw211_knz。                                                    *)
-(* 构造性：语句面全 Set（lw3_qnz 见证三件＋Set 级值钉一件），语句与前提   *)
-(*       位零 Prop；提取并集仅数据名 p372，魔数=0；禁引六族零命中。       *)
-(* 编译配方：coqc 全路径 -q -Q . "" -Q ConstructiveWorld-Main/            *)
-(*       ConstructiveWorld_vo ""，cpu_guard 包裹，SW2 双 export 全字面。  *)
+(* ConstructiveWorld-Set — the nonzero value of the Niven kernel at the anchor. *)
+
+(** * LW3KnzValue: decidable nonzero witnesses of the Niven kernel family at the anchor.
+
+    Mission.  On the anchor polynomial [p372] = 1 + t (kernel value -265),
+      the K face [lw3_Kinst] carries the decidable nonzero witness: the
+      lambda face computes nonzero on the transparent path
+      ([lw3_lam372_nz]), the value pin records -265/1, and the
+      [lw3_Kinst_spec] bridge transports the witness onto the instantiated
+      integer functional ([lw3_kinst372_nz]); the leading-coefficient face
+      instantiates [lw3_niven_lc_nz] ([lw3_lc372_nz]).
+
+    Dependencies.  Stdlib [QArith], [Lia], [Arith], [ZArith], [List],
+      [QArith_base], [QArith.Qabs]; requires [S02_CauchyComplete],
+      [S03_QExp], the LW0/LW1/LW2 modules, [LW3ETranscendental] (read-only).
+
+    References.  This development, [LW3ETranscendental].v; the baseline
+      module of the same name in ConstructiveWorld-Main, whose statement
+      names are carried over here verbatim.
+
+    Constructivity.  All statements carried by [Set]: three [lw3_qnz]
+      witnesses ([lw3_lam372_nz], [lw3_kinst372_nz], [lw3_lc372_nz]) and
+      the value pin riding [match] over [Qeq_bool]; zero admission words;
+      no classical axioms; extraction names data only ([p372]), with
+      generic lemma parameters surfacing as [Obj.magic] (disclosed per
+      the census).
+
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
+      LW3KnzValue.v] compiles cleanly (exit 0); the first eight bytes of
+      the artifact are [436f7121 00015ff4]. *)
 Require Import QArith Lia Arith ZArith List.
 From Stdlib Require Import QArith.Qabs.
 From Stdlib Require Import QArith_base.
