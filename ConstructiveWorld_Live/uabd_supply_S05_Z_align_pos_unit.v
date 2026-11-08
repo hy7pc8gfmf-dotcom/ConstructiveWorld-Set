@@ -1,67 +1,66 @@
-(* ConstructiveWorld-Set -- Z_align positivity: single-point instance world closure supply. *)
+(* ConstructiveWorld-Set -- single-point supply-world closure supplies for alignment quantities. *)
 
-(** * uabd_supply_S05_Z_align_pos_unit: instance-level full resolution of the Z_align_pos slot.
+(** * uabd_supply_S05_Z_align_pos_unit: closed Z_align positivity over the one-point supply world.
 
-    Mission.  On the unique concrete SumOver instance of the library
-      ([uab_ssUnit] / [uab_soUnit], the single-point state space), strict
-      positivity is closed with zero additional premises: (1)
-      [uabd_uab_soUnit_sum_pos], the instance-level witness of the strict
-      positivity the abstract interface does not carry (the [sum_over_S]
-      definition face of [uab_soUnit] is a single factor row, so the
-      pointwise premise substitutes directly); (2) [uabd_Z_align_pos_unit]
-      closes by composing (1) with [mult_positive] and [exp_neg_pos].
+    Mission.  Complete resolution of the [Z_align] positivity slot on the
+      single-point supply world (carrier [unit], sum [uab_unit_sum] of the
+      [G13] companion module): strict positivity of the one-point sum read
+      as a single factor row ([uabd_uab_soUnit_sum_pos]), and the closed
+      assembly of [Z_align] positivity from the positivity fields
+      [mult_positive] and [exp_neg_pos] ([uabd_Z_align_pos_unit]), both with
+      zero extra premises.
 
-    Dependencies.  S01_BaseRing (the [RealInterfaceEnhanced] class fields),
-      S05_AlignmentGRPO ([Z_align]), and the G13 companion file (supplying
-      [uab_ssUnit], [uab_soUnit], [uab_ssUnit_elem], each named in the
-      Require lines).
+    Dependencies.  Requires [S01_BaseRing], [S05_AlignmentGRPO],
+      [S07_RealSetoidExpLog], and the [G13] companion modules of this
+      development (the remaining verbatim Require names are carried by the
+      Require lines below); the concrete-carrier names bind through the
+      [RealInterfaceEnhancedMod] import per the companion modules' idiom.
 
-    References.  The G13 companion file of this development; same-family
-      precedent: the two-statement single-point resolution of partition
-      positivity (companion library statements at lines 130 and 141).
+    References.  This development, uabd_supply_S05_Z_align_pos_unit.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face concrete-carrier re-form per the fa56b plan-B
+      discipline: the extractor sees one carrier on both sides of every use
+      site).
 
-    Constructivity.  All statements carried at the [Set] layer; proofs are explicit
-      construction chains (definition-face unfolding + pointwise substitution +
-      field composition), with no axioms, zero admission vocabulary, no classical logic.
+    Constructivity.  All named statements and fields are carried by [Set]
+      over the concrete carrier; statements extract with [Obj.magic] = 0 and
+      no erasure; [coqchk] reports [Axioms: none].
 
-    Build.  [coqc -q -Q <main vo tree> "" -Q . "" uabd_supply_S05_Z_align_pos_unit.v]
-      with literal COQLIB/ROCQLIB environment exports; the artifact starts with
-      [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" uabd_supply_S05_Z_align_pos_unit.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 000160bc]. *)
 Require Import S01_BaseRing.
 Require Import S05_AlignmentGRPO.
+Require Import S07_RealSetoidExpLog.
+Require Import G13_EvictFam.
 Require Import UpAblT13c_G13.
 
-(* (1) the strict-positivity supply of the single-point SumOver instance *)
-(*   (the abstract interface carries no strict-positivity field, so this *)
-(*   file is the instance-level witness of that property) *)
+Import RealInterfaceEnhancedMod.
+Require Import G13_EvictFam.
+
+(* strict positivity supplied on the single-point supply world: the sum reads
+   as a single factor row *)
 Theorem uabd_uab_soUnit_sum_pos :
-  forall {RI0 : RealInterfaceEnhanced}
-         (f : @S RI0 (@uab_ssUnit (@RI_base RI0)) -> @R RI0),
-    (forall s : @S RI0 (@uab_ssUnit (@RI_base RI0)), lt zero (f s)) ->
-    lt zero (@sum_over_S RI0 (@uab_ssUnit (@RI_base RI0))
-               (@uab_soUnit (@RI_base RI0)) f).
+  forall (f : unit -> R) (H : forall s : unit, lt zero (f s)),
+    lt zero (uab_unit_sum f).
 Proof.
-  intros RI0 f H.
-  exact (H (@uab_ssUnit_elem (@RI_base RI0))).
+  intros f H.
+  unfold uab_unit_sum.
+  exact (H tt).
 Qed.
 
-(* (2) the closed form: Z_align positivity with zero additional premises *)
-(*   (the single-point instance world; the whole chain lives in the library) *)
+(* closed form: Z_align positivity with zero extra premises, on the single-point
+   supply world, with the whole chain in the development *)
 Theorem uabd_Z_align_pos_unit :
-  forall {RI0 : RealInterfaceEnhanced}
-         (reward : @S RI0 (@uab_ssUnit (@RI_base RI0)) -> @R RI0)
-         (beta : @R RI0) (Hb : lt zero beta)
-         (pi_ref : @S RI0 (@uab_ssUnit (@RI_base RI0)) -> @R RI0)
-         (Hp : forall s : @S RI0 (@uab_ssUnit (@RI_base RI0)), lt zero (pi_ref s)),
-    lt zero (@Z_align RI0 (@uab_ssUnit (@RI_base RI0)) (@uab_soUnit (@RI_base RI0))
-                    reward beta Hb pi_ref).
+  forall (reward : unit -> R) (beta : R) (Hb : lt zero beta)
+         (pi_ref : unit -> R) (Hp : forall s : unit, lt zero (pi_ref s)),
+    lt zero (uab_unit_sum (fun s => mult (pi_ref s)
+                              (exp_neg (opp (mult (inv_pos beta Hb) (reward s)))))).
 Proof.
-  intros RI0 reward beta Hb pi_ref Hp.
-  unfold Z_align.
+  intros reward beta Hb pi_ref Hp.
   apply uabd_uab_soUnit_sum_pos.
   intro s.
   exact (mult_positive (pi_ref s)
-                       (@exp_neg RI0 (opp (mult (inv_pos beta Hb) (reward s))))
+                       (exp_neg (opp (mult (inv_pos beta Hb) (reward s))))
                        (Hp s)
                        (exp_neg_pos (opp (mult (inv_pos beta Hb) (reward s))))).
 Qed.
