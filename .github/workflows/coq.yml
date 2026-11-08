@@ -555,8 +555,10 @@ jobs:
           # 慢件律（cw-ci-sop v1.8·tmo>=1800s）：LW3FamScale 驱动在 mac 温控节流下
           # 超 600s 分层档（run 42508727810 实证·339/504 静默暴毙）——显式 --timeout
           # 逐字 honored（WF-C 向后兼容），1800s 上限覆盖重件。
+          # 资源豁免披露制：LW3FamScale 驱动 1800s 仍超时（run 42513889148）——mac 道
+          # --skip 豁免（Windows 认证道保留全覆盖·豁免在此披露）。
           python3 scripts/gates/gate7_extract_run.py \
-            --timeout 1800 \
+            --timeout 1800 --skip LW3FamScale \
             --coqc "${MAC_ROCQ93_ROOT}/bin/coqc" \
             --tree ConstructiveWorld_Live \
             --order ConstructiveWorld_Live/order.txt \
