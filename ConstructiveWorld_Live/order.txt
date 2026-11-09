@@ -501,3 +501,16 @@ abl_redischarge_sumd_inst.v#R97-b46a001
 Arch_UpAbl_01.v#R97-b46a002
 RMaxSwap.v#R97-b46a003
 DenPosGeneral.v#R97-b47a001
+UpAblD1S10_UpReqPPOPlain.v#R97-b48a001
+UpAblD1S2_e752_UpReqAttnIter.v#R97-b48a002
+UpAblD1S3_fep_UpReqAttnGibbs.v#R97-b48a003
+DecBridge6.v#R97-b48a004
+LW3Kills.v#R97-b48a005
+LW3P2Carrier.v#R97-b48a006
+UpAblAbsQFeed.v#R97-b48a007
+UpAblD1S11_UpReqPPOPlain.v#R97-b48a008
+UpAblT13_UpEntropyGainReq.v#R97-b48a009
+tlw1728R2_r2_res1_moment.v#R97-b48a010
+S5SlotWire.v#R97-b48a011
+abl_mixrational_wide.v#R97-b48a012
+abl_tail_supply_66.v#R97-b48a013
