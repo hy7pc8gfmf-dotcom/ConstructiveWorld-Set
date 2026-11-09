@@ -513,11 +513,14 @@ abl_redischarge_sumd_inst.v
 Arch_UpAbl_01.v
 RMaxSwap.v
 DenPosGeneral.v
+piu1909_K_assembly.v
+tlw1728R2_r2_res1_moment.v
+abl_mixrational_wide.v
+PA_TempSoftmaxInstantiation.v
 UpReqMixingTime.v
 u5c_pr_mertens_nat.v
 u5c_zeta2_a1_sign11.v
 u5c_zeta2_gapB.v
 abl_div_chisq_twopoint.v
 abl_z2_decay.v
-RMaxSwap.v
 UpAblP6_GibbsFamilyExt.v
