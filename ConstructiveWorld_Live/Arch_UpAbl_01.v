@@ -1,32 +1,33 @@
-(* ConstructiveWorld-Set -- up-ablation statement family: log compatibility, antitone log, minorization delta bound, positive-factor cancellation, partition-function positivity. *)
+(* ConstructiveWorld-Main -- up-ablation statement families: log compatibility, antitone log, minorization delta bound, positive-factor cancellation, partition-function positivity. *)
 
-(** * Arch_UpAbl_01: log compatibility, the minorization delta bound, positive-factor cancellation, and partition-function positivity.
+(** * Arch_UpAbl_01: six statement families carried verbatim on the constructive Real layer.
 
-    Mission.  Six up-ablation statements carried verbatim on the constructive Real layer: log
-      compatibility for the req order [uabT2a_rppo_log_req_compat] and its alt-form companion
-      [uabT2a_ralt_log_req_compat], the antitone log on positive reals [abl_S12_sf_log_antitone_le],
-      the delta <= 1 row-sum bound carried by [rta_delta_le_one_of_minorization], left
-      cancellation by a positive factor carried by [mult_cancel_l], and partition-function
-      positivity [uabT9_sigm_pft_pos].
+    Mission.  Six statement families, each a verbatim resolution on the Real
+      layer: the log compatibility [uabT2a_rppo_log_req_compat] and its alt
+      form [uabT2a_ralt_log_req_compat], the antitone log on positive reals
+      [abl_S12_sf_log_antitone_le], the delta <= 1 row-sum bound under the
+      minorization constraint (carried by [rta_delta_le_one_of_minorization]),
+      left cancellation by a positive factor (carried by [mult_cancel_l]),
+      and the partition-function positivity [uabT9_sigm_pft_pos].
 
-    Dependencies.  Stdlib [List].  Requires of this development [S01_BaseRing],
-      [S02_CauchyComplete], [S03_QExp], [S04_RealExpLogConv], [S05_AlignmentGRPO],
-      [S06_DiffSamplingGibbs], [S07_RealSetoidExpLog], [S08_RealMainlineDPO],
-      [S09_EntropyReal], [S10_KVQuantTrig], [S11_TP3B5], [S12_B5RecycleSF], [S13_NLiveAudit],
-      [S14_B5BatchBlock], [S15_TailFEPUp], [G05_LogSmall], [RateTheoryAblation],
-      [fa53_compat_abs], [AbsLeId], [TempSoftmaxInstantiation], [UpReqSumD], [UpSigMigrate].
+    Dependencies.  The library pieces listed by this file's Require
+      declaration face: [S01_BaseRing] through [S15_TailFEPUp],
+      [G05_LogSmall], [RateTheoryAblation], [fa53_compat_abs], [AbsLeId],
+      [TempSoftmaxInstantiation], [UpReqSumD], [UpSigMigrate]; Stdlib [List].
 
-    References.  This development, Arch_UpAbl_01.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).
+    References.  Domain-archive composite piece (no single direct baseline);
+      this development, Arch_UpAbl_01.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are kept verbatim
+      (interface-generation alignment per the UpReqMisc5B precedent).
 
-    Constructivity.  All named statements and fields are carried by [Set]
-      (decidable Q-carriers and boolean identity carriers); statements
-      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
-      [Axioms: none].
+    Constructivity.  Every statement closes by [Qed]; no open ends and no
+      classical logic; the statement face is carried at the [Set] layer with
+      zero [Prop] leakage.
 
-    Build.  [coqc -native-compiler no -q -Q . "" Arch_UpAbl_01.v] compiles cleanly
-      (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  Direct [coqc -native-compiler no -q -Q . "" Arch_UpAbl_01.v] under
+      the cpu_guard load cap; compiles cleanly (exit 0); the artifact starts
+      with [436f7121 000160bc]. *)
+
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -51,10 +52,12 @@ Require Import TempSoftmaxInstantiation.
 Require Import UpReqSumD.
 Require Import UpSigMigrate.
 
-(* ================= Section 1. log compatibility for the req order ================= *)
+(* ================= Section 1. the uabT2a_rppo_log_req_compat family ================= *)
 Import RealInterfaceEnhancedMod.
 
-(* ---- slot one, from rppo_log_req_compat in the ReqPPOAdvantage section; statement verbatim with the sort faces carried by the concrete [real_lt]/[real_eq] constants ---- *)
+(* ---- slot one, from rppo_log_req_compat in the ReqPPOAdvantage section;
+   statement verbatim, the sort faces carried by the concrete real_lt/real_eq
+   constants (interface-generation alignment per the UpReqMisc5B precedent) ---- *)
 Theorem uabT2a_rppo_log_req_compat :
   forall (x y : Real) (Hx : real_lt real_zero x) (Hy : real_lt real_zero y),
     real_eq x y -> real_eq (real_log x Hx) (real_log y Hy).
@@ -63,10 +66,11 @@ Proof.
   exact (logd_log_compat_real x y Hx Hy Hxy).
 Qed.
 
-(* ---- assumption audit section; each Print Assumptions must report Closed ---- *)
+(* ---- assumption audit section; each Print Assumptions read off as Closed ---- *)
 Print Assumptions uabT2a_rppo_log_req_compat.
-(* ================= Section 2. antitone log on positive reals ================= *)
-(* ################ sf_log_antitone_le, statement shape taken verbatim from the source ################ *)
+(* ================= Section 2. the abl_S12_sf_log_antitone_le family ================= *)
+(* ################ sf_log_antitone_le, argument shape verbatim from the
+   source version (source lines 12061-12064) ################ *)
 Theorem abl_S12_sf_log_antitone_le :
   forall (a b : Real) (Ha : real_lt real_zero a) (Hb : real_lt real_zero b),
     real_le a b ->
@@ -76,12 +80,16 @@ Proof.
   exact (real_log_le_mono a b Ha Hb Hab).
 Qed.
 
-(* ---- assumption audit section; each statement keeps its Print Assumptions record ---- *)
+(* ---- assumption audit section; each statement keeps its Print Assumptions
+   record at the file end ---- *)
 Print Assumptions abl_S12_sf_log_antitone_le.
-(* ================= Section 3. alt-form log compatibility for the req order ================= *)
+(* ================= Section 3. the uabT2a_ralt_log_req_compat family ================= *)
 Import RealInterfaceEnhancedMod.
 
-(* ---- slot one, from ralt_log_req_compat in the ReqRestACore section; statement verbatim with R := Real and the sort faces carried by the concrete [real_lt]/[real_eq] constants ---- *)
+(* ---- slot one, from ralt_log_req_compat in the ReqRestACore section;
+   statement verbatim with R := Real, the sort faces carried by the concrete
+   real_lt/real_eq constants (interface-generation alignment per the
+   UpReqMisc5B precedent) ---- *)
 Theorem uabT2a_ralt_log_req_compat :
   forall (x y : Real) (Hx : real_lt real_zero x) (Hy : real_lt real_zero y),
     real_eq x y -> real_eq (real_log x Hx) (real_log y Hy).
@@ -90,9 +98,10 @@ Proof.
   exact (logd_log_compat_real x y Hx Hy Hxy).
 Qed.
 
-(* ---- assumption audit section; each Print Assumptions must report Closed ---- *)
+(* ---- assumption audit section; each Print Assumptions read off as Closed ---- *)
 Print Assumptions uabT2a_ralt_log_req_compat.
-(* ================= Section 4. delta <= 1 under minorization row-sum constraints, carried by rta_delta_le_one_of_minorization ================= *)
+(* ================= Section 4. the delta <= 1 family (minorization row-sum
+   constraint; carried by rta_delta_le_one_of_minorization) ================= *)
 Theorem uabT13b_tv_delta_le_one :
   forall (states : list (list Real)) (K : list Real -> list Real -> Real)
          (u : list Real -> Real) (delta : Real),
@@ -108,16 +117,18 @@ Qed.
 
 (* ---- assumption audit section ---- *)
 Print Assumptions uabT13b_tv_delta_le_one.
-(* ================= Section 5. cancellation by a positive left factor: a > 0 and a * x = 0 imply x = 0, carried by mult_cancel_l ================= *)
+(* ================= Section 5. left cancellation by a positive factor (a > 0
+   and a * x = 0 imply x = 0; carried by mult_cancel_l) ================= *)
 Import RealInterfaceEnhancedMod.
 
 Section UabT13Sigm2.
 
-(* The cancellation law lives on the concrete [Real] face of the req-signed
-   enhanced interface: the abstract-interface [mult_cancel_l] is [Id]-valued,
-   so the req face rebuilds the same argument from the concrete carriers
-   ([real_inv_pos_correct], associativity, the one/zero absorptions), with the
-   sort faces carried by the [real_eq]/[real_lt] constants. *)
+(* interface-generation alignment per the UpReqMisc5B precedent: the
+   cancellation law is rebuilt on the concrete Real face, since the
+   abstract-interface mult_cancel_l is Id-valued; the req face recomposes the
+   same argument from the concrete carriers (real_inv_pos_correct,
+   associativity, the one/zero absorptions), with the sort faces carried by
+   the real_eq/real_lt constants. *)
 Theorem uabT13_sigm2_b_mult_cancel :
   forall a x : Real,
     real_lt real_zero a ->
@@ -177,11 +188,16 @@ Qed.
 
 End UabT13Sigm2.
 
-(* ---- assumption audit section; every Print Assumptions must report Closed ---- *)
+(* ---- assumption audit section; assumption faces printed one by one, all
+   read as Closed ---- *)
 Print Assumptions uabT13_sigm2_b_mult_cancel.
-(* ================= Section 6. positivity of the partition function ================= *)
+(* ================= Section 6. the uabT9_sigm_pft_pos family ================= *)
 Import RealInterfaceEnhancedMod.
 
+(* interface-generation alignment per the UpReqMisc5B precedent: this tree's
+   sigm_partition_function_temp is unparameterized, so the explicit
+   Real / RealEnhancedReal arguments are dropped and the sort faces are
+   carried by the real_lt, real_opp, real_exp_neg_pos constants. *)
 Theorem uabT9_sigm_pft_pos :
   forall (S : Set) (enum : list S) (Hne : Not (enum = nil))
          (z : S -> Real) (T : Real) (T_pos : real_lt real_zero T),

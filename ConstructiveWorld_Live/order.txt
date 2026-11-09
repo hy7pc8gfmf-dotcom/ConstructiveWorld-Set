@@ -505,3 +505,10 @@ piu1909_K_assembly.v#R97-127f8aa
 tlw1728R2_r2_res1_moment.v#R97-fd2ce59
 abl_mixrational_wide.v#R97-6aeaec7
 PA_TempSoftmaxInstantiation.v#R97-d368250
+UpAblT13_UpEntropyGainReq.v#R97-b48a001
+uabda_g13_evict_discharge.v#R97-b48a002
+abl_redischarge_sumd_inst.v#R97-b48a003
+Arch_UpAbl_01.v#R97-b48a004
+UpAblDeltaStarSuboptimal.v#R97-b48a005
+UpAblEps66Sum.v#R97-b48a006
+UpAblD1S2_reqlog_UpReqCauchy.v#R97-b48a007
