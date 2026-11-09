@@ -443,9 +443,32 @@ jobs:
     env:
       MAC_ROCQ93_ROOT: /Users/apple/Desktop/mac93_install_work/opam93/rocq93
     steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
+      # 20261109 根治（双对象库分裂＋NETRED）：checkout@v5 的 git 通道退役——
+      # git-HTTP 与 REST API 两套对象库服务不同内容（API 推的件 git 检出不可见
+      # ＝「order 行在册而 .v 不在树」实证；not-our-ref 同源），且 443 窗反复。
+      # 源=REST API tarball（本 run sha·与本仓全部 API 推送同库同视图）。
+      - name: Fetch source via REST API tarball of the run sha (git-store independence)
+        shell: bash -e {0}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${GITHUB_SHA}"
+          for a in 1 2 3 4 5; do
+            curl -sL --fail -H "Authorization: token ${GH_TOKEN}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${SHA}" -o /tmp/src.tar.gz && break
+            echo "tarball attempt $a failed - retry in 30s"; sleep 30
+          done
+          test -s /tmp/src.tar.gz || { echo "TARBALL-FAIL: all attempts exhausted"; exit 1; }
+          rm -rf /tmp/srcx; mkdir -p /tmp/srcx
+          tar -xzf /tmp/src.tar.gz -C /tmp/srcx
+          SRCDIR=$(find /tmp/srcx -maxdepth 1 -mindepth 1 -type d | head -1)
+          cp -R "$SRCDIR"/. "$GITHUB_WORKSPACE"/
+          rm -rf /tmp/srcx /tmp/src.tar.gz
+          cd "$GITHUB_WORKSPACE"
+          git init -q 2>/dev/null || true
+          git add -A >/dev/null 2>&1 || true
+          git -c user.name=ci -c user.email=ci@local commit -qm "workspace snapshot" >/dev/null 2>&1 || true
+          echo "SOURCE-READY: API tarball of ${SHA} unpacked"
 
       - name: gate1 poison-token guard (pre-build fail-fast)
         shell: bash -e {0}
