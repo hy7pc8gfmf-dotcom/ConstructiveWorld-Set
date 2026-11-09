@@ -524,3 +524,6 @@ abl_div_chisq_twopoint.v
 abl_z2_decay.v
 u5c_pr_mertens_nat.v
 u5c_zeta2_a1_sign11.v
+UpAblD1S10_UpReqPPOPlain.v
+UpAblD1S11_UpReqPPOPlain.v
+UpAblD1S2_e752_UpReqAttnIter.v
