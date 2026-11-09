@@ -505,3 +505,10 @@ piu1909_K_assembly.v#R97-127f8aa
 tlw1728R2_r2_res1_moment.v#R97-fd2ce59
 abl_mixrational_wide.v#R97-6aeaec7
 PA_TempSoftmaxInstantiation.v#R97-d368250
+u5c_zeta2_gapB.v#R97-272342c
+UpAblP6_GibbsFamilyExt.v#R97-07f6e32
+UpReqMixingTime.v#R97-aecde2a
+abl_div_chisq_twopoint.v#R97-4cbedac
+abl_z2_decay.v#R97-d068a62
+u5c_pr_mertens_nat.v#R97-ae36931
+u5c_zeta2_a1_sign11.v#R97-6037dad
