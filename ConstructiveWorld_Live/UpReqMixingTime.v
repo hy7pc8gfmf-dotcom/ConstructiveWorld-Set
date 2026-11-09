@@ -1,34 +1,32 @@
-(* ConstructiveWorld-Set -- UpReqMixingTime: the explicit-k mixing-time theorem over the Real layer. *)
+(* ConstructiveWorld-Set -- explicit mixing-time constructions for contraction kernels. *)
 
-(** * UpReqMixingTime: explicit selection of the step count k with TV(K^k mu, K^k nu) < budget.
+(** * UpReqMixingTime: explicit mixing time with explicit k selection.
 
-    Mission.  Given the spectral-gap rate kappa (0 < kappa < 1), the initial deviation TV0 and
-      the precision budget, an explicit nat step count k is constructed with
-      TV(K^k mu, K^k nu) < budget (sigT witness, Defined computable).  Carried under the
-      prefix mix_: the nat/const-scale bridges [mix_scale_eq_const] and [mix_scale_mult_distrib],
-      the Bernoulli upper form [mix_bernoulli_upper], the inverse branch [mix_le_inv], the
-      selection theorems [mix_pow_budget] and [mix_k_select]/[mix_k_select_le], and the
-      witness/proof separation [mix_k_compute]/[mix_k_spec]/[mix_k_select_r1].
+    Mission.  Explicit construction of the mixing-time step count k of a
+      contraction kernel: given the spectral-gap ratio kappa (0 < kappa < 1),
+      the deviation TV0 and an accuracy budget, a nat k with
+      [tv_rpow kappa k * TV0 < budget] is built as a computable [sigT]
+      witness; main statements [mix_pow_budget], [mix_k_select],
+      [mix_k_compute], [mix_k_spec], [mix_bernoulli_upper], [mix_le_inv].
 
-    Dependencies.  The base umbrella CW_ConstructiveWorld_219 (the S01-S15 Export shell):
-      real_arch (S07:2772, the Real-layer Archimedean with explicit nat witness), real_mult_div
-      (S08:79), real_distrib (S02:2384), real_distrib_r (S09:120), real_mult_lt_compat (S07:5979),
-      real_le_mult_compat (S07:6800), the real_inv_pos family (S02), Nat2Z.inj_succ (ZArith); the
-      A module UpTVDoeblin (tv_rpow, tv_doeblin_iter with TV(K^n mu, K^n nu) <= (1-delta)^n * TV0,
-      the tv_omd rate certificate family); the R2 module UpReqIterGeomRate (igr_lt_plus_r / igr_le_plus_r).
+    Dependencies.  Stdlib [QArith.Qring], [ZArith], [Lia].  Requires
+      [S01_BaseRing], [S02_CauchyComplete], [S03_QExp], [S04_RealExpLogConv],
+      [S05_AlignmentGRPO], [S06_DiffSamplingGibbs], [S07_RealSetoidExpLog],
+      [S08_RealMainlineDPO], [S09_EntropyReal], [S10_KVQuantTrig],
+      [S11_TP3B5], [S12_B5RecycleSF], [S13_NLiveAudit], [S14_B5BatchBlock],
+      [S15_TailFEPUp], [UpTVDoeblin], [UpReqIterGeomRate] of this development.
 
-    References.  CW220_Extensions.v r_arch_pow_real (the abstract r_pow-layer precedent, not
-      Required here; the power face is self-built on tv_rpow); this development, UpReqMixingTime.v,
-      the baseline module whose statement names are carried over verbatim (comment-face wash
-      only, zero statement edits, plus interface-generation alignment per UpReqMisc5B precedent).
+    References.  This development, UpReqMixingTime.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
 
-    Constructivity.  Zero new axioms, every premise a Set-layer explicit certificate (real_lt /
-      real_le Or encoding / sigT); the statement face is all Set layer with zero Prop leakage in
-      signatures and zero classical logic; the k selection is computable throughout (Defined).
+    Constructivity.  All named statements and fields are carried by [Set]
+      (decidable Q-carriers and boolean identity carriers); statements
+      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
+      [Axioms: none].
 
-    Build.  Rocq 9.1 direct [coqc -Q . "" -native-compiler no] (the vo shadow tree rebuilt in the
-      same world, cpu_guard load capping); the artifact starts with [436f7121 000160bc]. *)
-
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqMixingTime.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 000160bc]. *)
 From Stdlib Require Import QArith.Qring.
 From Stdlib Require Import ZArith.
 From Stdlib Require Import Lia.
@@ -53,11 +51,11 @@ Require Import UpReqIterGeomRate.
 Local Open Scope Q_scope.
 
 (* ============================================================ *)
-(* Part 0: the ring tactic (following the UpTVDoeblin tvd_rring convention) and the nat scale *)
+(* Part 0. Ring tactic (following the [tvd_rring] pattern of UpTVDoeblin) and nat-scale sums *)
 (* ============================================================ *)
 
 
-(* the nat-scale iterated sum of k·w: mix_scale 0 w = 0, mix_scale (Datatypes.S k) w = w + ... *)
+(* the nat-scale iterated sum k*w: mix_scale 0 w = 0 and mix_scale (Datatypes.S k) w = w + mix_scale k w. *)
 Fixpoint mix_scale (k : nat) (w : Real) : Real :=
   match k with
   | Datatypes.O => real_zero
@@ -71,12 +69,11 @@ Ltac mix_rring :=
          end;
   cbn [projT1 real_plus real_mult real_opp real_minus_r real_one real_zero
        real_const real_of_nat mix_scale tv_omd] in *;
-  (* interface-generation alignment per UpReqMisc5B precedent: the
-     Up-layer premise is the Set-face QeqT, bridged down to the Prop Qeq
-     that ring closes (canonical form Arch_Up_02) *)
+  (* real_eq_of_zero_diff leaves a QeqT goal; ring (Qring) expects Qeq --
+     bridge first, per the real_plus_comm pattern in S02_CauchyComplete *)
   apply qeq_imp_qeqT; ring.
 
-(* 1·x == x (the left-factor reshape of real_mult_one) *)
+(* 1*x == x, the left-factor form of [real_mult_one]. *)
 Lemma mix_mult_one_l : forall x : Real, real_eq (real_mult real_one x) x.
 Proof.
   intro x.
@@ -85,7 +82,7 @@ Proof.
   - exact (real_mult_one x).
 Qed.
 
-(* nat-scale nonnegativity: 0 ≤ w implies 0 ≤ k·w *)
+(* nat-scale nonnegativity: 0 <= w gives 0 <= k*w. *)
 Lemma mix_scale_nonneg : forall (w : Real) (k : nat),
   real_le real_zero w -> real_le real_zero (mix_scale k w).
 Proof.
@@ -99,7 +96,7 @@ Proof.
                (mix_scale k w) Hw IH).
 Qed.
 
-(* nat-scale strict positivity: 0 < w implies 0 < (Datatypes.S k)·w (= w + k·w ≥ w > 0) *)
+(* nat-scale strict positivity: 0 < w gives 0 < (Datatypes.S k)*w, since w + k*w >= w > 0. *)
 Lemma mix_scale_S_pos : forall (w : Real) (k : nat),
   real_lt real_zero w -> real_lt real_zero (mix_scale (Datatypes.S k) w).
 Proof.
@@ -115,14 +112,14 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 1: the const-scale bridge (the real_arch output face (k#1) ↔ the nat scale) *)
+(* Part 1. Const-scale bridge: the real_arch output face (k#1) against the nat scale *)
 (* ============================================================ *)
 
-(* const-zero: (0#1) == 0 *)
+(* const zero: (0#1) == 0. *)
 Lemma mix_const_zero : real_eq (real_const (Z.of_nat 0 # 1)) real_zero.
 Proof. mix_rring. Qed.
 
-(* const-succ: (Datatypes.S k)#1 == (k#1) + 1 (Nat2Z.inj_succ plus Q ring arithmetic) *)
+(* const successor: (Datatypes.S k)#1 == (k#1) + 1, by Nat2Z.inj_succ and Q ring computation. *)
 Lemma mix_const_succ : forall k : nat,
   real_eq (real_const (Z.of_nat (Datatypes.S k) # 1))
           (real_plus (real_const (Z.of_nat k # 1)) real_one).
@@ -130,15 +127,14 @@ Proof.
   intro k. apply real_eq_of_zero_diff. intro n0.
   cbn [projT1 real_const real_plus real_one real_zero] in *.
   replace (Z.of_nat (Datatypes.S k)) with ((Z.of_nat k) + 1)%Z by lia.
-  (* interface-generation alignment per UpReqMisc5B precedent: the
-     real_eq_of_zero_diff premise is the Set-face QeqT, bridged down to
-     the Prop Qeq that the original ring tail closes (canonical form
-     Arch_Up_02) *)
+  (* real_eq_of_zero_diff leaves a QeqT goal; bridge to Qeq first (ring
+     expects Qeq), then the 9.1-era unfold chain does the Qmake
+     cross-product reduction ring needs *)
   apply qeq_imp_qeqT.
   unfold Qminus, Qeq, Qplus, Qmult, Qopp. simpl. ring.
 Qed.
 
-(* the main bridge: k·w == (k#1)·w (the nat scale and the const scale coincide as Real) *)
+(* main bridge: k*w == (k#1)*w, the nat scale and the const scale agree as Real values. *)
 Lemma mix_scale_eq_const : forall (k : nat) (w : Real),
   real_eq (mix_scale k w) (real_mult (real_const (Z.of_nat k # 1)) w).
 Proof.
@@ -189,7 +185,7 @@ Proof.
                      (real_eq_refl w)).
 Qed.
 
-(* distributivity of the nat scale over the right factor: (k·x)·z == k·(x·z) *)
+(* the nat scale distributes over the right factor: (k*x)*z == k*(x*z). *)
 Lemma mix_scale_mult_distrib : forall (k : nat) (x z : Real),
   real_eq (real_mult (mix_scale k x) z) (mix_scale k (real_mult x z)).
 Proof.
@@ -208,10 +204,10 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 2: the rate-certificate small lemmas and the power face *)
+(* Part 2. Rate-certificate lemmas and powers *)
 (* ============================================================ *)
 
-(* δ > 0 implies 1−δ < 1 (the omd upper bound; dual to tv_omd_pos_of_lt) *)
+(* delta > 0 gives 1 - delta < 1, the upper bound on [tv_omd]; dual to [tv_omd_pos_of_lt]. *)
 Lemma mix_omd_lt_one : forall delta : Real,
   real_lt real_zero delta -> real_lt (tv_omd delta) real_one.
 Proof.
@@ -222,7 +218,7 @@ Proof.
   - mix_rring.
 Qed.
 
-(* congruence of powers: equal bases give equal powers *)
+(* power extensionality: equal bases give equal powers. *)
 Lemma mix_rpow_eq_compat : forall (x y : Real) (k : nat),
   real_eq x y -> real_eq (tv_rpow x k) (tv_rpow y k).
 Proof.
@@ -232,14 +228,14 @@ Proof.
              Hxy IH).
 Qed.
 
-(* the power at one: a¹ == a *)
+(* power one: a^1 == a. *)
 Lemma mix_rpow_one : forall a : Real, real_eq (tv_rpow a 1) a.
 Proof.
   intro a.
   exact (real_eq_trans (tv_rpow a 1) (real_mult a real_one) a           (real_eq_refl (real_mult a real_one)) (real_mult_one a)).
 Qed.
 
-(* positivity of powers: 0 < a implies 0 < a^k *)
+(* power positivity: 0 < a gives 0 < a^k. *)
 Lemma mix_rpow_pos : forall (a : Real) (k : nat),
   real_lt real_zero a -> real_lt real_zero (tv_rpow a k).
 Proof.
@@ -248,7 +244,7 @@ Proof.
   - exact (real_mult_pos_compat a (tv_rpow a k) Ha IH).
 Qed.
 
-(* nonnegativity of powers: 0 ≤ a implies 0 ≤ a^k (branch by branch through the Or) *)
+(* power nonnegativity: 0 <= a gives 0 <= a^k, branchwise on the Or coding. *)
 Lemma mix_rpow_nonneg : forall (a : Real) (k : nat),
   real_le real_zero a -> real_le real_zero (tv_rpow a k).
 Proof.
@@ -280,18 +276,18 @@ Proof.
         -- exact (real_mult_zero (tv_rpow a k)).
 Qed.
 
-(* positivity of the boost: 1 + k·w > 0 (0 ≤ w suffices; case k) *)
+(* boost positivity: 1 + k*w > 0; 0 <= w suffices, by cases on k. *)
 Lemma mix_boost_pos : forall (w : Real) (k : nat),
   real_le real_zero w ->
   real_lt real_zero (real_plus real_one (mix_scale k w)).
 Proof.
   intros w k Hw. destruct k as [| k'].
-  - (* k = 0: 1+0 == 1 > 0 *)
+  - (* case k = 0: 1 + 0 == 1 > 0. *)
     apply (real_lt_eq_lt real_zero (real_plus real_one
               (mix_scale 0 w)) real_one).
     + exact real_lt_zero_one.
     + mix_rring.
-  - (* k ≥ 1: 0+0 < 1+(w+k'·w) (0 < 1 and 0 ≤ w) *)
+  - (* case k >= 1: 0 + 0 < 1 + (w + k'*w), from 0 < 1 and 0 <= w. *)
     apply (RealSetoid.real_lt_id_l real_zero
              (real_plus real_zero real_zero)
              (real_plus real_one (mix_scale (Datatypes.S k') w))).
@@ -301,10 +297,9 @@ Proof.
                (mix_scale_nonneg w (Datatypes.S k') Hw)).
 Qed.
 
-(* generic atomic ring lemmas (igr style: destruct everything, then simpl+ring;  *)
-(*   this bypasses the pointwise-irreducibility wall of the fixpoint stuck on a  *)
-(*   non-constructor argument, with mix_scale k w booked as one atomic whole)    *)
-(* multiplication swap: (a·b)·c == b·(a·c) (a chain of equational lemmas, no ring) *)
+(* generic atomic ring lemmas in the igr style: destruct all Reals, then
+   simpl and ring; the unreducible variable-stalling fixpoints are bypassed by taking mix_scale k w as one atom. *)
+(* multiplicative swap: (a*b)*c == b*(a*c), by a chain of eq combinators without ring. *)
 Lemma mix_mult_swap : forall a b c : Real,
   real_eq (real_mult (real_mult a b) c) (real_mult b (real_mult a c)).
 Proof.
@@ -319,7 +314,7 @@ Lemma mix_ring_cancel : forall A C : Real,
   real_eq (real_plus (real_minus_r A C) C) A.
 Proof.
   intros A C. destruct A as [a Ha]. destruct C as [c Hc].
-  apply real_eq_of_zero_diff. intro n. simpl. apply qeq_imp_qeqT. ring.
+  apply real_eq_of_zero_diff. intro n. apply qeq_imp_qeqT. simpl. ring.
 Qed.
 
 Lemma mix_ring_sc : forall u a : Real,
@@ -330,20 +325,20 @@ Lemma mix_ring_sc : forall u a : Real,
        (real_mult (real_plus u a) u)).
 Proof.
   intros u a. destruct u as [p Hp]. destruct a as [q Hq].
-  apply real_eq_of_zero_diff. intro n. simpl. apply qeq_imp_qeqT. ring.
+  apply real_eq_of_zero_diff. intro n. apply qeq_imp_qeqT. simpl. ring.
 Qed.
 
-(* the double complement of omd: x == 1−(1−x) *)
+(* double complement for omd: x == 1 - (1 - x). *)
 Lemma mix_omd_id : forall x : Real,
   real_eq x (real_minus_r real_one (real_minus_r real_one x)).
 Proof.
   intro x. destruct x as [r Hr].
-  apply real_eq_of_zero_diff. intro n. simpl. apply qeq_imp_qeqT. ring.
+  apply real_eq_of_zero_diff. intro n. apply qeq_imp_qeqT. simpl. ring.
 Qed.
 
 (* ============================================================ *)
-(* Part 3: the Bernoulli upper form (the power-contraction kernel with zero exp/log) *)
-(*   (1−w)^k · (1 + k·w) ≤ 1 for 0 < w < 1 *)
+(* Part 3. Bernoulli upper form without exp or log, the power-contraction kernel: *)
+(*   (1-w)^k * (1 + k*w) <= 1 for 0 < w < 1 *)
 (* ============================================================ *)
 
 Lemma mix_bernoulli_upper : forall (w : Real) (k : nat),
@@ -354,7 +349,7 @@ Lemma mix_bernoulli_upper : forall (w : Real) (k : nat),
           real_one.
 Proof.
   intros w k Hw0 Hwp Hw1 Hwlt. induction k as [| k IH].
-  - (* k = 0: 1·(1+0) == 1 *)
+  - (* case k = 0: 1 * (1 + 0) == 1. *)
     apply (RealSetoid.real_eq_le).
     apply (real_eq_trans
              (real_mult real_one (real_plus real_one (mix_scale 0 w)))
@@ -363,9 +358,8 @@ Proof.
                (real_plus real_one (mix_scale 0 w)) real_one real_one
                (real_eq_refl real_one) (real_plus_zero real_one)).
     + exact (real_mult_one real_one).
-  - (* induction step: ring arithmetic reshapes (1−w)(1+(k+1)w) into
-       (1+kw) − ((k+1)w)·w; the subclaim (1−w)(1+(k+1)w) ≤ 1+kw is booked
-       first, then multiplying by Pk connects to the IH *)
+  - (* inductive step: ring computation rewrites (1-w)*(1+(k+1)*w) as
+       (1+k*w) - ((k+1)*w)*w; the subclaim bounds it by 1+k*w, and the positive power Pk connects the estimate to IH. *)
     assert (Hbpos : real_lt real_zero (real_minus_r real_one w))
       by exact (tv_omd_pos_of_lt w Hwlt).
     assert (HPk : real_lt real_zero (tv_rpow (real_minus_r real_one w) k))
@@ -448,7 +442,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 4: the inverse branch (A·B ≤ 1 and 0 < B imply A ≤ 1/B) *)
+(* Part 4. Inverse branch: A*B <= 1 and 0 < B give A <= 1/B *)
 (* ============================================================ *)
 
 Lemma mix_le_inv : forall (A B : Real) (HB : real_lt real_zero B),
@@ -482,7 +476,7 @@ Proof.
 Qed.
 
 (* ============================================================ *)
-(* Part 5: the main selection theorem, mix_pow_budget *)
+(* Part 5. The k-selection main theorem mix_pow_budget *)
 (* ============================================================ *)
 
 Theorem mix_pow_budget : forall (kappa TV0 budget : Real),
@@ -511,11 +505,9 @@ Proof.
              (real_inv_pos (real_mult (real_minus_r real_one kappa) budget)
                 Hwb))) as [N [Hge2 HN]].
   destruct N as [| N'].
-  - exfalso.
-    (* interface-generation alignment per UpReqMisc5B precedent: the
-       Set-face [NatLe] certificate is dropped to the Prop face for lia
-       (canonical form S07 NatLe_drop usage) *)
-    apply NatLe_drop in Hge2. lia.
+  (* NatLe is the Set carrier face; lia reads only nat arithmetic --
+     drop the carrier to its nat face per the NatLe_drop read face in S01 *)
+  - exfalso. assert (Hge : (2 <= 0)%nat) by exact (NatLe_drop 2 0 Hge2). lia.
   - set (w := real_minus_r real_one kappa) in *.
     set (wb := real_mult w budget) in *.
     set (Ms := mix_scale (Datatypes.S N') w) in *.
@@ -531,7 +523,7 @@ Proof.
       by exact (mix_boost_pos w (Datatypes.S N') hw0).
     assert (HinvB : real_lt real_zero (real_inv_pos boost Hboost0))
       by exact (real_inv_pos_pos boost Hboost0).
-    (* ---- the budget branch: TV0 < budget·boost ---- *)
+    (* budget branch: TV0 < budget*boost. *)
     assert (Hstep : real_lt (real_mult (real_mult TV0 invwb) wb)
                          (real_mult mR wb))
       by exact (real_mult_lt_compat _ _ _ HN Hwb).
@@ -570,7 +562,7 @@ Proof.
                  (real_eq_sym _ _ HeqBud)).
     }
     exists (Datatypes.S N').
-    (* ---- the main chain: κ^(Datatypes.S N')·TV0 < budget ---- *)
+    (* main chain: kappa^(Datatypes.S N') * TV0 < budget. *)
     assert (Heqp : real_eq (tv_rpow kappa (Datatypes.S N'))
               (tv_rpow (real_minus_r real_one w) (Datatypes.S N')))
       by exact (mix_rpow_eq_compat kappa (real_minus_r real_one w)
@@ -621,7 +613,7 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 6: the nonnegative-TV0 relaxation (mix_k_select) and the le form *)
+(* Part 6. The nonnegative-TV0 relaxation mix_k_select and its le form *)
 (* ============================================================ *)
 
 Theorem mix_k_select : forall (kappa TV0 budget : Real),
@@ -655,28 +647,20 @@ Proof.
 Defined.
 
 (* ============================================================ *)
-(* Part 6.5: separation of the witness from the proof (an extraction     *)
-(*   efficiency design).  Motivation: mix_pow_budget / mix_k_select      *)
-(*   close by Defined, so after extraction the runtime is forced to      *)
-(*   compute the full mix_bernoulli_upper induction certificate chain    *)
-(*   (a Set-layer real_le of length k, binding the Real value            *)
-(*   constructions of tv_rpow and forcing cauchy-module proofs), which   *)
-(*   bloats and times out.  Design: the witness (a purely computational  *)
-(*   k) is separated from the proof (an opaque Qed).                     *)
-(*   - mix_k_compute: a transparent Definition running only the          *)
-(*     real_arch enumeration (cheap at the Q layer), constructing        *)
-(*     neither tv_rpow nor mix_bernoulli_upper, so the extracted program *)
-(*     pays at runtime only for real_arch plus the basic Real operations *)
-(*     (real_minus_r/real_mult/real_inv_pos), skipping the bloated chain. *)
-(*   - mix_k_spec: opaque by Qed, carrying the full certificate of       *)
-(*     κ^k·TV0 < budget (reused through mix_pow_budget, including        *)
-(*     mix_bernoulli_upper); never forced at runtime.                    *)
-(*   - mix_k_select_r1: the existT packaging (witness = mix_k_compute,   *)
-(*     proof = mix_k_spec); the reduction of projT1 is pinned by         *)
-(*     mix_k_select_r1_projT1 (the Qed second component does not affect  *)
-(*     the projT1 reduction, a standard fact fixed by machine check).    *)
-(*   Zero new axioms; mix_k_compute is transparent tree-wide and         *)
-(*   extractable; mix_k_spec is opaque.                                  *)
+(* Part 6.5. Witness/certificate separation for extraction efficiency: with *)
+(*   mix_pow_budget and mix_k_select closed by Defined, extraction would *)
+(*   force the mix_bernoulli_upper inductive certificate chain (Set-level *)
+(*   real_le of length k, binding the Real constructions of tv_rpow *)
+(*   through the cauchy modulus) at run time, with blowup.  The witness *)
+(*   (a purely computational k) is separated from the opaque Qed *)
+(*   certificate; no new axioms: *)
+(*   - mix_k_compute, a transparent Definition, runs only the real_arch *)
+(*     enumeration (cheap at the Q layer): no tv_rpow, no mix_bernoulli_upper, *)
+(*     so the extracted program pays only real_arch plus the basic Real *)
+(*     operations real_minus_r, real_mult, real_inv_pos; *)
+(*   - mix_k_spec, an opaque Qed proof, carries the full kappa^k * TV0 < budget *)
+(*     certificate via mix_pow_budget; mix_k_select_r1 packages the pair as *)
+(*     existT, with mix_k_select_r1_projT1 fixing the projT1 reduction. *)
 (* ============================================================ *)
 
 Definition mix_k_compute (kappa TV0 budget : Real)
@@ -687,15 +671,13 @@ Definition mix_k_compute (kappa TV0 budget : Real)
   let Hwb := real_mult_pos_compat w budget (tv_omd_pos_of_lt kappa Hk2) Hbudget in
   let (n, _) := real_arch (real_mult TV0 (real_inv_pos wb Hwb)) in n.
 
-(* the witness-agreement lemma (a new proof obligation of R1, fixed by
-   machine check): the k of mix_k_compute and the k certified by
-   mix_pow_budget both descend from the first projection of one and the
-   same real_arch sigT; inside the proof of the latter the dead branch
-   of destruct N is refined into the S-shaped form, extensionally equal
-   to the bare arch witness proposition (the 0 branch is ruled out by
-   the dead 2 <= n branch).  real_arch is opaque by Qed, so the two are
-   not definitionally equal: mix_k_spec reuses the certificate only
-   through this lemma. *)
+(* witness-coherence lemma: the k computed by mix_k_compute and the k certified
+   by mix_pow_budget both originate from the first projection of the same
+   real_arch sigT; after the dead branch of destruct N is discharged, the
+   survivor has successor shape and coincides with the bare arch witness
+   (the 0 branch is excluded by the dead 2 <= n premise); real_arch is opaque
+   under Qed, so the two are not definitionally equal and mix_k_spec reuses
+   the certificate through this lemma. *)
 Theorem mix_k_compute_eq_pow_budget (kappa TV0 budget : Real)
   (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
   (Ha : real_lt real_zero TV0) (Hbudget : real_lt real_zero budget) :
@@ -709,11 +691,9 @@ Proof.
                 (real_mult_pos_compat (real_minus_r real_one kappa) budget
                    (tv_omd_pos_of_lt kappa Hk2) Hbudget)))) as [n [Hge2 Hn]].
   destruct n as [| m].
-  - exfalso.
-    (* interface-generation alignment per UpReqMisc5B precedent: the
-       Set-face [NatLe] certificate is dropped to the Prop face for lia
-       (canonical form S07 NatLe_drop usage) *)
-    apply NatLe_drop in Hge2. lia.
+  (* NatLe is the Set carrier face; lia reads only nat arithmetic --
+     drop the carrier to its nat face per the NatLe_drop read face in S01 *)
+  - exfalso. assert (Hge : (2 <= 0)%nat) by exact (NatLe_drop 2 0 Hge2). lia.
   - reflexivity.
 Qed.
 
@@ -733,9 +713,8 @@ Definition mix_k_select_r1 (kappa TV0 budget : Real)
   existT _ (mix_k_compute kappa TV0 budget Hk1 Hk2 Hbudget)
          (mix_k_spec kappa TV0 budget Hk1 Hk2 Ha Hbudget).
 
-(* reduction pinning: projT1 (mix_k_select_r1 ...) = mix_k_compute ... (the Qed  *)
-(*   second component does not affect the projT1 reduction, a new proof          *)
-(*   obligation of the R1 design note, fixed by machine check)                   *)
+(* reduction fix: projT1 of mix_k_select_r1 equals mix_k_compute; the
+   opaque second component does not affect the projT1 reduction. *)
 Theorem mix_k_select_r1_projT1 (kappa TV0 budget : Real)
   (Hk1 : real_lt real_zero kappa) (Hk2 : real_lt kappa real_one)
   (Ha : real_lt real_zero TV0) (Hbudget : real_lt real_zero budget) :
@@ -748,20 +727,18 @@ Print Assumptions mix_k_spec.
 Print Assumptions mix_k_select_r1.
 
 (* ============================================================ *)
-(* Part 7-8 (mix_time_explicit / mix_k_calc): note on the remaining      *)
-(*   items.  The decidability carrier: the TV0 sign fork of              *)
-(*   mix_time_explicit needs an inhabitant of [real_le real_zero TV0],   *)
-(*   and that Or-Set cannot be built from a decider of the base          *)
-(*   (constructive logic); it must be carried explicitly along with the  *)
-(*   interface, or reshaped into the B form.  The full draft (the        *)
-(*   Section MixingTV 9+1-variable face, the assembly of tv_doeblin_iter *)
-(*   with item 4, the delta=1 and TV0=0 branches closed in one step by   *)
-(*   k := 1, and the Defined calculator mix_k_calc) is to be merged      *)
-(*   after the interface extension.                                      *)
+(* Part 7-8 (mix_time_explicit / mix_k_calc), pending items.  The sign case
+   split of mix_time_explicit needs an inhabitant of the Or-Set
+   real_le real_zero TV0, which the base layer cannot decide constructively;
+   it must be carried explicitly by the interface or recast in B-form.  The
+   full draft (a Section MixingTV over 9+1 variables, assembled from
+   tv_doeblin_iter and mix_pow_budget, with the delta = 1 and TV0 = 0
+   branches closed by k := 1 and a Defined mix_k_calc calculator) is
+   deferred until the interface is extended. *)
 (* ============================================================ *)
 
 (* ============================================================ *)
-(* the audit mouth (the extra Print Assumptions face, expected fully Closed) *)
+(* Audit: Print Assumptions trail, all expected Closed *)
 (* ============================================================ *)
 
 Print Assumptions mix_pow_budget.
