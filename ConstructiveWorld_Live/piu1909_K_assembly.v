@@ -1,33 +1,32 @@
-(* ConstructiveWorld-Set -- coordinate assembly of the separated kernel load K. *)
+(* ConstructiveWorld-Set -- coordinate assembly and rational lower bound for the separation-core loading K. *)
 
-(** * piu1909_K_assembly: the K-model assembly and its floor over the q-band.
+(** * piu1909_K_assembly: assembly of the K-model and its lower bound.
 
-    Mission.  The coordinate assembly of the separated kernel load K:
-      [piu1909_Kmodel q b n] = |b^n * sev_full q n| * (105410/1341)
-      + |b^n * sodd_full q n| * (9664/447) + 1/8 (sev/sodd the even/odd-side
-      alternating sums), with the floor (9664/447) * (62125/82944) *
-      (b^n * [piu1888_T0 n]) <= [piu1909_Kmodel q b n] in [piu1909_K_lower];
-      the odd-side sum joins [piu1905_sodd_full] through the bridge
-      [piu1909_sodd_full_bridge] (reflexivity after unfold).
+    Mission.  Assemble the separation-core loading
+      [piu1909_Kmodel q b n = |b^n * piu1909_sev_full q n| * (105410#1341)
+      + |b^n * piu1909_sodd_full q n| * (9664#447) + 1#8], where
+      [piu1909_sev_full]/[piu1909_sodd_full] are the even-/odd-side
+      alternating sums over the term [piu1909_T], and prove the lower bound
+      [piu1909_K_lower]: [(9664#447) * (62125#82944) * (piu1888_qpow b n *
+      [piu1888_T0] n) <= piu1909_Kmodel q b n] under [(3 <= n)%nat] and
+      [piu1909_band q], fed by [piu1905_sodd_lower] via [piu1909_sodd_full_bridge].
 
     Dependencies.  Stdlib [QArith], [Lia].  Requires
       [piu1888_growth_quant_lemma] ([piu1888_qpow], [piu1888_qfact],
-      [piu1888_T0] and the companion definitions) and [piu1905_sodd_lower]
-      (the odd-side floor, main lemma [piu1905_sodd_lower]).
+      [piu1888_T0] and companions) and [piu1905_sodd_lower] (odd-side
+      alternating sum lower bound) of this development.
 
-    References.  LW0LeibSeparation.v, K = BF*C1 + BFd*C2 + 1/8 (:5469);
-      the independent numerical recheck piu1888_mirror.py, Kexact (:72-74),
-      bit-for-bit identical; this development, piu1909_K_assembly.v, the
-      baseline module in ConstructiveWorld-Main whose statement names are
-      carried over here verbatim.  Interface note: the conclusion faces of [piu1888_qpow_pos] / [piu1888_T0_pos] / [piu1888_mul_ge0] (new generation: [QltT] / [QleT']) are bridged with [QltT_to_Qlt] / [QleT'_to_Qle] imported from S02_CauchyComplete by name (call-form precedent piu1909_sall_upper.v), statement names untouched.
+    References.  This development, piu1909_K_assembly.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
 
-    Constructivity.  Statements are stated with [Qle] at the [Prop] layer,
-      with the wrappers [piu1909_QleT] and [piu1909_band] carried by [Set];
-      definitions are transparent; no classical logic, every proof closes
-      by [Qed]; the final criterion is [Print Assumptions] Closed.
+    Constructivity.  All named statements and fields are carried by [Set]
+      (decidable Q-carriers and boolean identity carriers); statements
+      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
+      [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" piu1909_K_assembly.v] compiles
-      cleanly (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" piu1909_K_assembly.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 000160bc]. *)
 From Stdlib Require Import QArith.
 From Stdlib Require Import Lia.
 Require Import piu1888_growth_quant_lemma.
@@ -137,7 +136,8 @@ Proof.
   assert (Hb05 : piu1905_band q) by (apply piu1905_band_intro; assumption).
   assert (Hfl := piu1905_sodd_lower q n Hn3 Hb05).
   assert (HbT0 : (0#1) < piu1888_qpow b n)
-    by (apply QltT_to_Qlt; apply piu1888_qpow_pos; exact Hb).
+    by (apply (QltT_to_Qlt (0#1) (piu1888_qpow b n));
+        apply piu1888_qpow_pos; exact Hb).
   assert (Hstep1 : piu1888_qpow b n * ((62125#82944) * piu1888_T0 n)
                    <= piu1888_qpow b n * piu1909_sodd_full q n).
   { rewrite (Qmult_comm (piu1888_qpow b n) ((62125#82944) * piu1888_T0 n)).
