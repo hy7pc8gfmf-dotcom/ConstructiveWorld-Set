@@ -512,3 +512,10 @@ abl_div_chisq_twopoint.v#R97-4cbedac
 abl_z2_decay.v#R97-d068a62
 u5c_pr_mertens_nat.v#R97-ae36931
 u5c_zeta2_a1_sign11.v#R97-6037dad
+UpAblDeltaStarSuboptimal.v#R97-b49a001
+UpAblEps66Sum.v#R97-b49a002
+UpAblT13_UpEntropyGainReq.v#R97-b49a003
+uabda_g13_evict_discharge.v#R97-b49a004
+abl_redischarge_sumd_inst.v#R97-b49a005
+Arch_UpAbl_01.v#R97-b49a006
+UpAblD1S2_reqlog_UpReqCauchy.v#R97-b49a007

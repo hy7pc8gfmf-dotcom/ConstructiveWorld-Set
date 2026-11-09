@@ -1,31 +1,30 @@
-(* ConstructiveWorld-Set -- the three sum properties instantiated on enum list sums. *)
-(** * UpAblEps66Sum: the three sum properties (extensionality, order
-    preservation, additivity) instantiated on enum list sums.
-
-    Mission.  Extensionality (pointwise real_eq gives real_eq of the sums),
-      order preservation (pointwise real_le gives real_le of the sums), and
-      additivity (the sum of the termwise sum equals the real_plus of the
-      sums): the concrete instances of the Section hypotheses
-      real_sum_over_S_ext / real_sum_over_S_le / real_sum_over_S_add of
-      S08_RealMainlineDPO, with the sum operator instantiated as
-      [e66s_sumf]; plus the fully concrete bool-carrier instance
-      ([e66s_flag_enum] := true::false::nil) with no residual abstract
-      variables.
-
-    Dependencies.  This development: [S01_BaseRing] .. [S15_TailFEPUp]
-      (containing S08_RealMainlineDPO), [UpReqSumD] (sumd_sum_ext /
-      sumd_sum_le / sumd_sum_add and the sum operator sumd_sumf); Stdlib
-      [Extraction], [List].
-
-    References.  mathlib Finset.sum_congr / Finset.sum_le_sum / map_sum
-      (extensionality, order preservation, additivity of finite sums);
-      the same-name ConstructiveWorld-Main baseline.
-
-    Constructivity.  All statements Set-layer (real_eq / real_le are
-      Set-valued predicates, zero bare Prop); axiom-free, all Qed; the core
-      piece [e66s_sumf] is extractable.
-
-    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" UpAblEps66Sum.v] (direct call, cpu_guard wrapped). *)
+(* ============================================================
+   Mission.  the three summation properties hold on enum list sums:
+     extensionality (pointwise real_eq gives real_eq of the sums),
+     order preservation (pointwise real_le gives real_le of the
+     sums) and additivity (the sum of the pointwise sums equals
+     real_plus of the two sums); concrete instances of the Section
+     assumptions real_sum_over_S_ext / real_sum_over_S_le /
+     real_sum_over_S_add of S08_RealMainlineDPO, plus a fully
+     concrete instance over the bool carrier with enum
+     true::false::nil with no residual abstract variable.
+     replacement theorem list: e66s_real_sum_over_S_ext /
+     e66s_real_sum_over_S_le / e66s_real_sum_over_S_add (3 items).
+   Dependencies.  the libraries named by the in-file Require face;
+     CW_ConstructiveWorld_219 (containing S08_RealMainlineDPO),
+     UpReqSumD (sumd_sum_ext / sumd_sum_le / sumd_sum_add, the
+     summing operator sumd_sumf).
+   References.  mathlib Finset.sum_congr / Finset.sum_le_sum /
+     map_sum (extensionality, order preservation and additivity of
+     finite sums).
+   Constructivity.  all statements live in Set (real_eq and
+     real_le are Set-valued predicates, no bare Prop in the
+     statement face); zero axioms, all proofs close by Qed,
+     assumption closures of the six theorems verified empty by
+     Print Assumptions; the core piece e66s_sumf is extractable.
+   Build.  coqc -native-compiler no -q -Q . "" ; magic
+     [436f7121 000160bc].
+   ============================================================ *)
 
 From Stdlib Require Import Extraction.
 Require Import S01_BaseRing.
@@ -48,24 +47,26 @@ From Stdlib Require Import List.
 Import ListNotations.
 Import RealInterfaceEnhancedMod.
 
-(* ================= §1 instantiating the three sum properties on enum list sums ========= *)
-(* The statements match the Section hypotheses real_sum_over_S_ext /
-   real_sum_over_S_le / real_sum_over_S_add of S08_RealMainlineDPO, with
-   only the sum operator instantiated as e66s_sumf. *)
-(* ============================================================ *)
+(* ============ §1 the three summation properties instantiated on ======= *)
+(* enum list sums; the statements agree with the Section assumptions     *)
+(* real_sum_over_S_ext / real_sum_over_S_le / real_sum_over_S_add of     *)
+(* S08_RealMainlineDPO, with the summing operator instantiated to        *)
+(* e66s_sumf.                                                            *)
+(* ====================================================================== *)
 Section E66SumD.
 
 Context (S0 : Set).
 Context (enum0 : list S0).
 
-(* The instance of the sum operator: the enum list sum, a transparent
-   Definition; unfolding gives sumd_sumf. *)
+(* the instance of the summing operator: the enum list sum, a transparent *)
+(* Definition, unfolds to sumd_sumf.                                      *)
 Definition e66s_sumf (f : S0 -> Real) : Real := sumd_sumf S0 enum0 f.
 
-(* Property 1 (extensionality of the sum): if two functions are pointwise
-   real_eq-equal, their enum list sums are real_eq-equal.  Derived directly
-   from sumd_sum_ext of UpReqSumD; the equality face real_eq and the
-   donor-interface req are the same name under the Real instance. *)
+(* property 1 (extensionality of the sum): if the two functions agree     *)
+(* pointwise under real_eq, then their enum list sums agree under         *)
+(* real_eq; it follows directly from sumd_sum_ext of UpReqSumD, the       *)
+(* equality face real_eq bearing the name req of the donor interface at   *)
+(* the Real instance.                                                     *)
 Theorem e66s_real_sum_over_S_ext :
   forall (f g : S0 -> Real),
     (forall s : S0, real_eq (f s) (g s)) ->
@@ -79,11 +80,12 @@ Proof.
              (sumd_list_sum S0 g t) (H x) IH).
 Qed.
 
-(* Property 2 (order preservation of the sum): if two functions satisfy
-   real_le (f s) (g s) pointwise, their enum list sums satisfy real_le.
-   Derived directly from sumd_sum_le of UpReqSumD, the empty-list case
-   handled by le_refl, so the statement needs no nonemptiness premise; the
-   order face real_le and the donor-interface le are the same name. *)
+(* property 2 (order preservation of the sum): if the two functions       *)
+(* satisfy real_le (f s) (g s) pointwise, then their enum list sums       *)
+(* satisfy real_le; it follows directly from sumd_sum_le of UpReqSumD,    *)
+(* the empty list case being handled by le_refl, so the statement needs   *)
+(* no nonemptiness side condition; the order face real_le bears the name  *)
+(* le of the donor interface at the Real instance.                        *)
 Theorem e66s_real_sum_over_S_le :
   forall (f g : S0 -> Real),
     (forall s : S0, real_le (f s) (g s)) ->
@@ -97,10 +99,10 @@ Proof.
              (sumd_list_sum S0 g t) (H x) IH).
 Qed.
 
-(* Property 3 (additivity of the sum): the list sum of the termwise sum of
-   two functions equals the real_plus of their list sums; derived directly
-   from sumd_sum_add of UpReqSumD, the reordering of the summation handled
-   by req_plus_exchange. *)
+(* property 3 (additivity of the sum): the list sum of the pointwise      *)
+(* sums of the two functions equals real_plus of their list sums; it      *)
+(* follows directly from sumd_sum_add of UpReqSumD, the reordering of     *)
+(* the summation being handled by req_plus_exchange.                      *)
 Theorem e66s_real_sum_over_S_add :
   forall (f g : S0 -> Real),
     real_eq (e66s_sumf (fun s : S0 => real_plus (f s) (g s)))
@@ -128,11 +130,12 @@ Qed.
 End E66SumD.
 
 (* ============================================================ *)
-(* §2 the fully concrete instance on the bool carrier: with bool as the carrier *)
-(*   and true::false::nil as the enumeration, the three sum properties hold on *)
-(*   the Cauchy-real layer Real over a fully concrete carrier, with no residual *)
-(*   abstract variables; the Set-layer instances of the abstract carrier S of the *)
-(*   S08 sections land here. *)
+(* §2 fully concrete instance over a bool carrier: bool is taken as the  *)
+(* carrier and true::false::nil as the enum, so the three summation      *)
+(* properties hold on the Cauchy real layer Real over a fully concrete   *)
+(* carrier with no residual abstract variable; the Set-layer instance of *)
+(* the abstract carrier S of the S08 sections lands on this face.        *)
+(*                                                                       *)
 (* ============================================================ *)
 Definition e66s_flag_enum : list bool := [true; false].
 Definition e66s_flag_sumf (f : bool -> Real) : Real :=
@@ -165,19 +168,19 @@ Proof.
   exact (e66s_real_sum_over_S_add bool e66s_flag_enum f g).
 Qed.
 
-(* ============ extraction check ========================================== *)
-(* The only computational content of this file is the sum-carrier piece
-   e66s_sumf (the enum list sum, defined by a list fold); its OCaml output
-   is extracted to check the computational face.
-   The three property theorems live at the equality and order-predicate
-   level, are not computational content, and do not enter the substance of
-   the extraction output.
-   Extraction target: e66s_G3_sumf.ml. *)
+(* ============ extraction check ======================================== *)
+(* the only computational content of this file is the summation carrier  *)
+(* piece e66s_sumf (the enum list sum, defined by a list fold); its      *)
+(* OCaml output is extracted to check the computational face.  the three *)
+(* property theorems live at the level of the equality and order         *)
+(* predicates, are not computational content and do not enter the        *)
+(* substance of the extraction output.                                   *)
+(* extraction target: e66s_G3_sumf.ml.                                   *)
 Set Extraction Output Directory "_tab5_g3out".
 Extraction "e66s_G3_sumf.ml" e66s_sumf.
 
-(* Assumption-closure check: the assumption closures of the following
-   theorems should be empty (Closed). *)
+(* assumption-closure check: the assumption closures of the theorems     *)
+(* below must be empty (Closed).                                         *)
 Print Assumptions e66s_real_sum_over_S_ext.
 Print Assumptions e66s_real_sum_over_S_le.
 Print Assumptions e66s_real_sum_over_S_add.

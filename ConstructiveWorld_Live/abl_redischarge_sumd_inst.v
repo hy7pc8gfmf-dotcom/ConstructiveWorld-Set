@@ -1,33 +1,34 @@
-(* ConstructiveWorld-Set -- Set-face decision companions and canonical instances of strict finite-sum monotonicity. *)
+(* ConstructiveWorld-Main -- abl_sumd_strict instantiation: resolution corollaries and the dsu_neg Set-face decision companion. *)
 
-(** * abl_redischarge_sumd_inst: Set-level companions of negation and canonical instances of strict sum monotonicity.
+(** * abl_redischarge_sumd_inst: the strict sum monotonicity resolved at unit, and the Set-face decision companion of [dsu_neg].
 
-    Mission.  Set-level decision companions of negation together with the
-      canonical-carrier instances of the generic strict-sum monotonicity of
-      [abl_sumd_strict] (positivity premise form): the negation decision
-      carrier [dsu_neg_sb] with its refutation-data injection
-      [dsu_neg_sb_of_neg], the concrete list-nonemptiness decision carriers
-      [dsu_list_ne_sb] and [dsu_list_ne_sb_neg_carry], the instantiation at
-      the unit carrier with the least nonempty enumeration [tt :: nil]
-      yielding the closed forms [dsu_sum_lt_pos_u1] and
-      [dsu_list_sum_lt_cons_u1], and the singleton decision carriers
-      [dsu_u1_ne_sb] and [dsu_u1_ne_sb_right].
+    Mission.  First, the zero-argument closed corollaries of the upstream strict
+      sum monotonicity (positivity-premise form) at canonical arguments: [R] the
+      S02 Real layer (in-service [RealEnhancedReal], reused, S07:8596), carrier
+      [S := unit], enum [tt :: nil] (minimal nonempty enumeration), giving the
+      zero-Section closed forms [dsu_sum_lt_pos_u1] and
+      [dsu_list_sum_lt_cons_u1].  Second, the carrier upgrade: the Set-face
+      decision twin [dsu_sb] over [A : Set] with [dsu_neg_sb] as its named
+      synonym, and the nonemptiness decision witness [dsu_list_ne_sb].
 
-    Dependencies.  Stdlib [List].  Requires [UpReqSumD], [S07_RealSetoidExpLog],
-      [abl_sumd_strict] of this development.
+    Dependencies.  Upstream [abl_sumd_strict] (pool copy chain: [dsu_neg],
+      [dsu_sum_lt_pos], [dsu_list_sum_lt_cons]); [UpReqSumD] (the sumd
+      machinery); [S07_RealSetoidExpLog] ([RealInterfaceEnhancedSetoid] and the
+      in-service instance [RealEnhancedReal]); Stdlib [List].
 
-    References.  This development, abl_redischarge_sumd_inst.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion; section-3 strict-order
-      face pinned to [S02_CauchyComplete.real_lt] per the E3 prescription).
+    References.  The upstream [abl_sumd_strict] sum monotonicity theory,
+      consumed by direct instantiation (genuine resolution, not re-proof);
+      abl_redischarge_sumd_inst.v, the baseline module in ConstructiveWorld-Main,
+      statement names kept verbatim, statement faces completed to the Set
+      carrier ([dsu_neg] now Set-face, [dsu_sb] twin, [real_lt] pin).
 
-    Constructivity.  All named statements and fields are carried by [Set]
-      (decidable Q-carriers and boolean identity carriers); extraction keeps
-      every statement name with zero generic-cast [Obj.magic] (family E3
-      discharged by the real_lt face pin); [coqchk]: [Axioms: none].
+    Constructivity.  No open ends, no classical logic, zero [not]/[~]/[<>]
+      notation; every statement and field carried by [Set]; [dsu_list_ne_sb]
+      ends in [Defined], extractable, its reading computed by [vm_compute].
 
-    Build.  [coqc -native-compiler no -q -Q . "" abl_redischarge_sumd_inst.v] compiles cleanly
-      (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  Pool chain [abl_sumd_strict.v] first, then this file; compiles
+      cleanly (exit 0); the artifact starts with [436f7121 000160bc]. *)
+
 Require Import UpReqSumD.
 Require Import S07_RealSetoidExpLog.
 From Stdlib Require Import List.
