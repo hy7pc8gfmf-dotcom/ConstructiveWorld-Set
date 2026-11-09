@@ -1,35 +1,32 @@
-(** * UpAblDeltaStarSuboptimal: strict suboptimality of the two-state
-      softmax-kernel Doeblin constant over the rationals.
+(* ==========================================================================
+   UpAblDeltaStarSuboptimal.v — sharp suboptimality of the Doeblin constant
+   for the two-state softmax kernel.
 
-    Mission.  [mdsopt_main]: the star value [mdsopt_dstar lo = lo^2] is
-      strictly below the optimal constant
-      [mdsopt_dstar_opt lo = 2*lo^2/(1+lo^2)], with the explicit positive
-      gap [mdsopt_gap_pos]; supporting lemmas give the row-stochastic
-      normalization [mdsopt_row0_norm] / [mdsopt_row1_norm] and the
-      Q-layer arithmetic chain [mdsopt_sq0] .. [mdsopt_cancel].
+   Mission.  mdsopt_main: the star constant δ* = lo² (mdsopt_dstar) is
+   strictly below the optimal constant δ*_opt = 2·lo²/(1+lo²)
+   (mdsopt_dstar_opt), with the explicit positive gap mdsopt_gap_pos;
+   supporting pieces give the row-stochastic normalization
+   mdsopt_row0_norm/mdsopt_row1_norm and the Q-layer arithmetic chain.
 
-    Dependencies.  S02_CauchyComplete; Stdlib QArith, Lia, Extraction.
+   Dependencies.  S02_CauchyComplete; Stdlib QArith, Lia, Extraction.
 
-    References.  Minimization of the Doeblin (small-gain) constant: the
-      explicit solution of min 2K(s,s') over two-state row-stochastic
-      kernels; this development, UpAblDeltaStarSuboptimal.v, the baseline
-      module in ConstructiveWorld-Main whose statement names are carried
-      over here verbatim.
+   References.  Minimization of the Doeblin (small gain) constant: the
+   explicit solution of min 2K(s,s') over two-state row-stochastic kernels.
 
-    Constructivity.  All proofs close with Qed and no classical logic;
-      the statement face is carried at the Set layer (order predicates
-      and equality are Set values, zero Prop leakage); the extraction
-      outlet writes to the separate G3 directory, with [Obj.magic] = 0
-      as the audit criterion.
+   Constructivity.  All pieces close by Qed; no classical logic; the
+   statement face is carried on the Set layer (the order predicate QltT and
+   the Q equality are Set-valued, with zero Prop leakage).
 
-    Build.  Rocq 9.1 direct [coqc -Q . "" -native-compiler no] (vo
-      shadow tree rebuilt in the same world), cpu_guard wrapped; the
-      artifact starts with [436f7121 000160bc]. *)
+   Build.  Rocq 9.3, direct coqc -native-compiler no with the file root
+   mapped at . (vo shadow tree rebuilt in the same world), cpu_guard
+   wrapping for load capping; .vo magic [436f7121 000160bc].
+   ========================================================================== *)
+
 From Stdlib Require Import QArith.QArith.
 From Stdlib Require Import Lia.
 Require Import S02_CauchyComplete.
 
-(* ========== §1 Q arithmetic base lemmas ========== *)
+(* ========== §1 Q arithmetic basics ========== *)
 
 Lemma mdsopt_sq0 : forall lo : Q, (0 < lo)%Q -> (0 < lo*lo)%Q.
 Proof.
@@ -95,13 +92,13 @@ Proof.
   field. exact Hdn.
 Qed.
 
-(* ========== §3 star value, optimal constant and gap (explicit closed forms) ========== *)
+(* ========== §3 δ*, the optimal constant and the gap (explicit closed forms) ========== *)
 
 Definition mdsopt_dstar (lo : Q) : Q := lo*lo.
 Definition mdsopt_dstar_opt (lo : Q) : Q := 2*(lo*lo)/(1+lo*lo).
 Definition mdsopt_gap (lo : Q) : Q := (lo*lo)*(1-lo*lo)/(1+lo*lo).
 
-(* ========== §4 main theorem: delta* = lo^2 is strictly suboptimal (QltT witness form at the Set layer) ========== *)
+(* ========== §4 main theorem: δ* = lo² strictly suboptimal (QltT Set-layer witness form) ========== *)
 
 Lemma mdsopt_main_strict : forall lo : Q, (0 < lo)%Q -> (lo < 1)%Q ->
   (mdsopt_dstar lo < mdsopt_dstar_opt lo)%Q.
@@ -114,11 +111,11 @@ Proof.
   { pose proof (proj2 (Qplus_lt_r (lo*lo) 1 1) Hs1) as H.
     assert (Heq : (1+1 == 2)%Q) by reflexivity.
     rewrite Heq in H. exact H. }
-  (* multiply both sides by the positive factor 1+lo^2 (the iff form of
-     Qmult_lt_r makes the multiplication reversible) and cancel the
-     denominator on the right by mdsopt_cancel; the goal reduces to
-     (1+lo^2)*lo^2 < 2*lo^2, a direct consequence of 1+lo^2 < 2 and
-     lo^2 > 0 by Qmult_lt_compat_r. *)
+  (* multiply both sides by the positive quantity 1+lo² (the iff form of
+     Qmult_lt_r gives invertible multiplication by a positive denominator)
+     and cancel the denominator on the right by mdsopt_cancel; the goal
+     reduces to (1+lo²)·lo² < 2·lo², a direct consequence of 1+lo² < 2 and
+     lo² > 0 by Qmult_lt_compat_r. *)
   apply (proj1 (Qmult_lt_r (lo*lo) (2*(lo*lo)/(1+lo*lo)) (1+lo*lo) Hden)).
   rewrite (mdsopt_cancel lo (2*(lo*lo)) (mdsopt_den_ne lo H0)).
   rewrite (Qmult_comm (lo*lo) (1+lo*lo)).
@@ -131,15 +128,14 @@ Proof.
   intros lo H0 H1. apply Qlt_to_QltT. apply mdsopt_main_strict; assumption.
 Qed.
 
-(* the star value is a feasible Doeblin constant (delta* <= delta*_opt);
-   the main theorem supplies strictness *)
+(* δ* is a feasible Doeblin constant (δ* ≤ δ*_opt); the main theorem supplies strictness *)
 Corollary mdsopt_dstar_le_opt : forall lo : Q, (0 < lo)%Q -> (lo < 1)%Q ->
   (mdsopt_dstar lo <= mdsopt_dstar_opt lo)%Q.
 Proof.
   intros lo H0 H1. apply Qlt_le_weak. apply mdsopt_main_strict; assumption.
 Qed.
 
-(* ========== §5 gap lemmas: closed form and strict positivity ========== *)
+(* ========== §5 gap pieces: closed form and strict positivity ========== *)
 
 Lemma mdsopt_gap_eq : forall lo : Q, (0 < lo)%Q ->
   (mdsopt_dstar_opt lo - mdsopt_dstar lo == mdsopt_gap lo)%Q.
@@ -165,10 +161,9 @@ Proof.
   rewrite Qmult_0_l in Hp.
   rewrite (Qmult_comm (1 - lo*lo) (lo*lo)) in Hp.
   unfold mdsopt_gap.
-  (* the denominator 1+lo^2 is positive, so multiplying both sides reduces
-     the goal to positivity of the numerator: the product of lo^2 > 0 and
-     1-lo^2 > 0, the latter obtained from lo^2 < 1 by moving the term with
-     Qopp_lt_compat. *)
+  (* the denominator 1+lo² > 0, so multiplying both sides reduces the goal
+     to positivity of the numerator: the product of lo²>0 and 1-lo²>0,
+     where 1-lo²>0 moves lo²<1 to the other side via Qopp_lt_compat. *)
   apply (proj1 (Qmult_lt_r 0 ((lo*lo)*(1 - lo*lo)/(1+lo*lo)) (1+lo*lo) Hden)).
   rewrite Qmult_0_l.
   rewrite (mdsopt_cancel lo ((lo*lo)*(1 - lo*lo)) Hnd).

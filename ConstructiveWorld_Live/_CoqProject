@@ -528,3 +528,13 @@ UpAblD1S10_UpReqPPOPlain.v
 UpAblD1S11_UpReqPPOPlain.v
 UpAblD1S2_e752_UpReqAttnIter.v
 UpAblT13_UpEntropyGainReq.v
+UpAblT13_UpEntropyGainReq.v
+uabda_g13_evict_discharge.v
+abl_redischarge_sumd_inst.v
+Arch_UpAbl_01.v
+UpAblDeltaStarSuboptimal.v
+UpAblEps66Sum.v
+UpAblD1S2_reqlog_UpReqCauchy.v
+Arch_GibbsA_01.v
+EntropyMonoSplitInst.v
+FepIdentClass.v

@@ -501,3 +501,13 @@ abl_redischarge_sumd_inst.v#R97-b46a001
 Arch_UpAbl_01.v#R97-b46a002
 RMaxSwap.v#R97-b46a003
 DenPosGeneral.v#R97-b47a001
+UpAblT13_UpEntropyGainReq.v#R97-b50a001
+uabda_g13_evict_discharge.v#R97-b50a002
+abl_redischarge_sumd_inst.v#R97-b50a003
+Arch_UpAbl_01.v#R97-b50a004
+UpAblDeltaStarSuboptimal.v#R97-b50a005
+UpAblEps66Sum.v#R97-b50a006
+UpAblD1S2_reqlog_UpReqCauchy.v#R97-b50a007
+Arch_GibbsA_01.v#R97-b50a008
+EntropyMonoSplitInst.v#R97-b50a009
+FepIdentClass.v#R97-b50a010
