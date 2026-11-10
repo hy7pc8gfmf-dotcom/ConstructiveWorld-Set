@@ -540,3 +540,10 @@ UpAblD1S15_GibbsAssembly.v
 UpReqConcB1.v
 UpReqLogCompD.v
 UpReqPPOPlain.v
+UpAblD1S3_fep_UpReqAttnGibbs.v
+DecBridge6.v
+LW3Kills.v
+LW3P2Carrier.v
+UpAblAbsQFeed.v
+S5SlotWire.v
+abl_tail_supply_66.v

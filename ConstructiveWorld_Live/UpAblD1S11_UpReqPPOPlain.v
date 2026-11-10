@@ -1,33 +1,33 @@
-(* Mission.  Formalization of the properties stated by the theorem/lemma
-   statement face of this file.  FA-D1S11 data-supply grand wrapper, ladder
-   seven, piece 1: a standalone companion module that supplies the remaining
-   ReqPPOPlain slots of UpReqPPOPlain.v (section 2: pi, p_old, eps, Hpos;
-   section 3: R, RIS, RDP, S, sumf, rpli_sum_le, rpli_sum_ext, rpli_sum_add,
-   rpli_sum_linear, pi, p_old, Hpos, Hnorm) through two wrapper records plus
-   two instance-supply export theorems.
+(* ConstructiveWorld-Set -- requirement-slot instance-supply packs for the UpReqPPOPlain family. *)
 
-   Dependencies.  CW_ConstructiveWorld_219; UpReqAlign (definition file of
-   Z_align_req, same Require surface as S8); UpReqRDF (definition file of the
-   ReqDiffPlain class); read-only use, no git, no registry increments; the
-   library requires follow the in-file Require Import surface.
+(** * UpAblD1S11_UpReqPPOPlain: residual requirement-slot supply packs for UpReqPPOPlain.
 
-   References.  Source file UpReqPPOPlain.v L306-308 and L386-408; S8
-   precedent UpAblD1S8_UpReqPPOPlain (piece 3, pack5); RealEnhancedReal at
-   S07_RealSetoidExpLog.v:8566 inside RealInterfaceEnhancedMod (qualified
-   name reference).  Interface-generation adaptation (UpReqDist precedent
-   per the merged UpReqMisc5B transcription, first-hand grep): binder
-   pairs (R : Set) (RIS : RealInterfaceEnhancedSetoid R) and @ReqDiffPlain
-   shells are carrier-ized away with Abbreviation R := Real; premise
-   predicate faces forward-cast to concrete real_lt/real_le/real_eq; the
-   space slot monomorphised to unit (pack16 control 0/0); statement
-   names verbatim.
+    Mission.  Instance-supply packs for the residual requirement slots of
+      UpReqPPOPlain: [uabd1s11_ppo2_pack3_supplied] and
+      [uabd1s11_ppo3_pack11_supplied] feed one arbitrary [ReqDiffPlain]
+      instance into the pack carriers [uabd1s11_ppo2_pack3] and
+      [uabd1s11_ppo3_pack11], over the singleton state space [unit].
 
-   Constructivity.  Zero-admitted statements, mechanically checked; both
-   export theorems close by Qed and keep their Print Assumptions audits.
+    Dependencies.  No Stdlib Require beyond the prelude.  Requires of this
+      development: [G09_MiscSmall], [S01_BaseRing], [S02_CauchyComplete],
+      [S03_QExp], [S04_RealExpLogConv], [S05_AlignmentGRPO],
+      [S06_DiffSamplingGibbs], [S07_RealSetoidExpLog], [S08_RealMainlineDPO],
+      [S09_EntropyReal], [S10_KVQuantTrig], [S11_TP3B5], [S12_B5RecycleSF],
+      [S13_NLiveAudit], [S14_B5BatchBlock], [S15_TailFEPUp], [UpReqAlgebra],
+      [UpReqAlign], [UpReqAlignRestB], [UpReqDist], [UpReqPropLiftShim],
+      [UpReqRDF], [UpReqSLM].
 
-   Build.  coqc -native-compiler no -q -Q . "" ; magic [436f7121 000160bc].
-   ==================================================================== *)
+    References.  This development, UpAblD1S11_UpReqPPOPlain.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
 
+    Constructivity.  All named statements and fields are carried by [Set]
+      (decidable Q-carriers and boolean identity carriers); statements
+      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
+      [Axioms: none].
+
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblD1S11_UpReqPPOPlain.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 000160bc]. *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -46,48 +46,55 @@ Require Import S15_TailFEPUp.
 Require Import UpReqAlign.
 Require Import UpReqRDF.
 Import RealInterfaceEnhancedMod.
-(* the interface class in this tree is unparameterized (the UpReqDist
-   precedent, per the merged UpReqMisc5B transcription); its carrier
-   is the global Cauchy real [Real] *)
-Abbreviation R := Real.
 
-(* ============ wrapper record form (section 2, remaining 3 slots): cf. source file L306-308 ============ *)
-(* the leading 6 telescope positions = the section-2 slots already closed by
-   S8 (carried as context conditions, not counted as positions here) *)
+(* Interface-generation adaptation (the UpAblD1S10_UpReqPPOPlain / UpReqDist
+   precedent): in this tree [RealInterfaceEnhancedSetoid] (S07_RealSetoidExpLog)
+   and [ReqDiffPlain] (UpReqRDF) are zero-argument Classes with the carrier
+   pinned to the global [Real] (the imported [Notation R := Real]), so the Main
+   binder pairs [(R : Set) (RIS : RealInterfaceEnhancedSetoid R)] and the
+   [@ReqDiffPlain R RIS] shells are carrier-ized away; statement names stay
+   verbatim.  Gate7 born-clean face (the 04 prescription, family E): the space
+   slot is monomorphised to [unit] and the premise predicate faces forward-cast
+   to the concrete [real_le]/[real_lt]/[real_eq] (the [RealEnhancedReal]
+   instance's own field values), so the extract face carries no erased-slot
+   [Obj.magic] casts; the [req_refl] pin slots use the concrete monomorphic
+   [real_eq_refl] (S02_CauchyComplete) instead of the boxed class projection. *)
+
+(* ============ Pack carrier for the three residual section-2 slots, mirroring source lines L306-308 ============ *)
+(* the six positions in front of the pack telescope into the section-2 slots already closed by S8; they are carried as context conditions and are not counted as new positions *)
 
 Inductive uabd1s11_ppo2_pack3 : Type :=
 | uabd1s11_ppo2_pack3_intro :
-      forall (RDP : ReqDiffPlain),
-        forall (sumf : (unit -> R) -> R),
-          (forall f : unit -> R,
-              (forall s : unit, real_le zero (f s)) -> real_le zero (sumf f)) ->
-          forall (pi p_old : unit -> R),
-            forall (eps : R),
-              (forall s : unit, real_lt zero (p_old s)) ->
-              uabd1s11_ppo2_pack3.
+    forall (RDP : ReqDiffPlain),
+      forall (sumf : (unit -> R) -> R),
+        (forall f : unit -> R,
+            (forall s : unit, real_le zero (f s)) -> real_le zero (sumf f)) ->
+        forall (pi p_old : unit -> R),
+          forall (eps : R),
+            (forall s : unit, real_lt zero (p_old s)) ->
+            uabd1s11_ppo2_pack3.
 
-(* ============ wrapper record form (section 3, all 11 slots): cf. source file L386-408 ============ *)
+(* ============ Pack carrier for the eleven section-3 slots, mirroring source lines L386-408 ============ *)
 
 Inductive uabd1s11_ppo3_pack11 : Type :=
 | uabd1s11_ppo3_pack11_intro :
     forall (RDP : ReqDiffPlain),
       forall (sumf : (unit -> R) -> R),
-          (forall f g : unit -> R,
-              (forall s : unit, real_le (f s) (g s)) -> real_le (sumf f) (sumf g)) ->
-          (forall f g : unit -> R,
-              (forall s : unit, real_eq (f s) (g s)) -> real_eq (sumf f) (sumf g)) ->
-          (forall f g : unit -> R,
-              real_eq (sumf (fun s : unit => plus (f s) (g s)))
-                  (plus (sumf f) (sumf g))) ->
-          (forall (a : R) (f : unit -> R),
-              real_eq (sumf (fun s : unit => mult a (f s))) (mult a (sumf f))) ->
-          forall (pi p_old : unit -> R),
-            (forall s : unit, real_lt zero (p_old s)) ->
-            real_eq (sumf pi) one ->
-            uabd1s11_ppo3_pack11.
+        (forall f g : unit -> R,
+            (forall s : unit, real_le (f s) (g s)) -> real_le (sumf f) (sumf g)) ->
+        (forall f g : unit -> R,
+            (forall s : unit, real_eq (f s) (g s)) -> real_eq (sumf f) (sumf g)) ->
+        (forall f g : unit -> R,
+            real_eq (sumf (fun s : unit => plus (f s) (g s)))
+                (plus (sumf f) (sumf g))) ->
+        (forall (a : R) (f : unit -> R),
+            real_eq (sumf (fun s : unit => mult a (f s))) (mult a (sumf f))) ->
+        forall (pi p_old : unit -> R),
+          (forall s : unit, real_lt zero (p_old s)) ->
+          real_eq (sumf pi) one ->
+          uabd1s11_ppo3_pack11.
 
-(* ============ dependency module: one feed fixes an arbitrary RDP instance
-   (RDP taken in universally conditional form) ============ *)
+(* ============ Dependency module: one arbitrary [ReqDiffPlain] instance supplied once, in universally quantified conditional form ============ *)
 
 Theorem uabd1s11_ppo2_pack3_supplied :
   forall RDP : ReqDiffPlain,
@@ -119,21 +126,19 @@ Proof.
               (H : forall s : unit, real_le (f s) (g s)) => H tt)
            (fun (f g : unit -> Real)
               (H : forall s : unit, real_eq (f s) (g s)) => H tt)
-           (fun (f g : unit -> Real) =>
-              @req_refl RealInterfaceEnhancedMod.RealEnhancedReal
-                (plus (f tt) (g tt)))
+           (fun f g : unit -> Real =>
+              real_eq_refl (plus (f tt) (g tt)))
            (fun (a : Real) (f : unit -> Real) =>
-              @req_refl RealInterfaceEnhancedMod.RealEnhancedReal
-                (mult a (f tt)))
+              real_eq_refl (mult a (f tt)))
            (fun _ : unit => one)
            (fun _ : unit => one)
            (fun _ : unit =>
               @RealInterfaceEnhancedMod.one_pos
                 RealInterfaceEnhancedMod.RealEnhancedReal)
-           (@req_refl RealInterfaceEnhancedMod.RealEnhancedReal one)).
+           (real_eq_refl one)).
 Qed.
 
-(* ============ assumption-surface closure declaration ============ *)
+(* ============ Assumption-surface closure audit ============ *)
 
 Print Assumptions uabd1s11_ppo2_pack3_supplied.
 Print Assumptions uabd1s11_ppo3_pack11_supplied.

@@ -515,3 +515,16 @@ UpAblD1S15_GibbsAssembly.v#R97-b48a011
 UpReqConcB1.v#R97-b48a012
 UpReqLogCompD.v#R97-b48a013
 UpReqPPOPlain.v#R97-b48a014
+UpAblD1S10_UpReqPPOPlain.v#R97-70386ed1
+UpAblD1S2_e752_UpReqAttnIter.v#R97-17f59fe6
+UpAblD1S3_fep_UpReqAttnGibbs.v#R97-87653537
+DecBridge6.v#R97-33155d6f
+LW3Kills.v#R97-f88347bc
+LW3P2Carrier.v#R97-6513b45b
+UpAblAbsQFeed.v#R97-221cb860
+UpAblD1S11_UpReqPPOPlain.v#R97-a2eef1fb
+UpAblT13_UpEntropyGainReq.v#R97-c590892b
+tlw1728R2_r2_res1_moment.v#R97-aeed849e
+S5SlotWire.v#R97-d1b94294
+abl_mixrational_wide.v#R97-86c6251b
+abl_tail_supply_66.v#R97-a3fcf70f

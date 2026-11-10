@@ -1,29 +1,32 @@
-(* ConstructiveWorld-Set -- first residual coefficient of the diagonal Pade pair for arctan. *)
+(* ConstructiveWorld-Set -- residual-coefficient moment-sum expansions over the arctan Pade table. *)
 
-(** * tlw1728R2_r2_res1_moment: the first residual coefficient as a finite moment sum.
+(** * tlw1728R2_r2_res1_moment: the first residual coefficient of the diagonal arctan Pade pair as a finite moment sum.
 
-    Mission.  The first residual coefficient of the diagonal Pade pair for
-      arctan: [r2_res1 n] = nth (2n+1) (vconv (padeV (2n)) (altser)), restated
-      as an explicit finite moment sum over the denominator table,
-      [r2_res1 n] = sum_j padeV(2n)[j] * (-1)^(2n+1-j) / (2(2n+1-j)+1)
-      ([r2_res1_moment], [r2_res1_recip]); computable anchors at n = 0..3
-      ([r2_res1_anchor_0] .. [r2_res1_anchor_3]).
+    Mission.  Unfold table entries at arbitrary indices ([nth_vsmul_gen],
+      [nth_vadd_gen], [nth_vconv_cons], [altser_length], [altser_nth]) and
+      restate the first residual coefficient of the diagonal Pade pair for
+      arctan, res1_n = nth (2n+1) (conv (padeV (2n)) (altser)), as an
+      explicit finite moment sum over the denominator table:
+      [r2_wsum] writes the convolution sum, [r2_vconv_wsum] equates every
+      Cauchy-product entry with it, [r2_msq] resolves the alternating
+      summands to signed reciprocals, and [r2_res1_moment] / [r2_res1_recip]
+      carry the two degree forms of [r2_res1]; computable anchors at
+      n = 0..3 close the file ([r2_res1_anchor_0..3]).
 
     Dependencies.  Stdlib [QArith], [ZArith], [List], [Setoid], [Lia].
-      Requires [tlw1463_pade_table] (same [-Q . ""] domain) of this
-      development.
+      Requires [tlw1463_pade_table] of this development.
 
-    References.  nth-unfolding of [vconv], [vadd], [vsmul] in
-      tlw1463_pade_table; this development, tlw1728R2_r2_res1_moment.v, the
-      baseline module in ConstructiveWorld-Main whose statement names are
-      carried over here verbatim.
+    References.  This development, tlw1728R2_r2_res1_moment.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here
+      verbatim (statement-face Set-carrier completion).
 
-    Constructivity.  Statements are carried at the [Set] layer via [bid];
-      axiom-free and free of classical logic; fully computable, with the
-      [vm_compute] anchors closing by [Qed].
+    Constructivity.  All named statements and fields are carried by [Set]
+      (decidable Q-carriers and boolean identity carriers); statements
+      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
+      [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" tlw1728R2_r2_res1_moment.v]
-      compiles cleanly (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" tlw1728R2_r2_res1_moment.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 000160bc]. *)
 From Stdlib Require Import QArith.
 From Stdlib Require Import ZArith.
 From Stdlib Require Import List.
