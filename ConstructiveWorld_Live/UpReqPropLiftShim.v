@@ -1,57 +1,32 @@
 (* ============================================================ *)
-(** ConstructiveWorld-Set — lifting adapters from legacy negative forms to sigT witness forms.
+(** ConstructiveWorld-Set — UpReqPropLiftShim: lifting adapters from legacy negative forms to sigT witness forms.
 
-* UpReqPropLiftShim: one-directional adapters to Set-layer witness forms.
+    Mission.  One-directional adapter family (prefix [pls_]) relating legacy
+      premise shapes (existing forms, not violations and not assumption
+      discharges) to Set-layer witness forms, so new Set-layer code produces
+      and consumes witnesses directly.  [pls_vocab_ne] is the target witness
+      form [sigT (fun l : Tok => InT l vocab)]; [pls_vocab_ne_shim] turns it
+      into the legacy [Not (Id vocab nil)]; [pls_vocab_ne_lift] is the
+      constructive list-split converse: concrete list data splits with no
+      decidability assumption, unlike the general Not-to-sigT conversion.
+      The Q-layer aliases forward the S02 order-carrier conversions, and the
+      accessors [pls_real_lt_eps]/[pls_real_lt_rest]/[pls_real_le_cases] project
+      the [real_lt]/[real_le] dependency faces (sigT witness S02:456; Or form).
 
-    Mission.  A family of one-directional adapter statements (prefix [pls_])
-      relating legacy premise shapes (existing forms, not violations and
-      not assumption discharges) to Set-layer witness forms, so that new
-      Set-layer code produces and consumes witnesses directly:
-      [pls_vocab_ne]/[pls_vocab_ne_shim]/[pls_vocab_ne_lift] for the
-      nonemptiness of [vocab], [pls_Qlt_to_Qlt] for the stdlib-to-S02 order
-      carrier, and the [real_lt]/[real_le] projection accessors
-      [pls_real_lt_eps]/[pls_real_lt_rest]/[pls_real_le_cases].
+    Dependencies.  Requires [S01_BaseRing] ([Id]/[Not]/[InT] connectors) and
+      [S02_CauchyComplete] ([QltT]/[QleT']/[real_lt]/[real_le]/[Real]); adds no
+      new Require beyond these.
 
-    Dependencies.  Stdlib (none beyond the base); requires [S01_BaseRing]
-      ([Id]/[Not]/[InT] connectors) and [S02_CauchyComplete]
-      ([QltT]/[QleT']/[real_lt]/[real_le]/[Real]).  Adds no new Require
-      beyond these.
-
-    References.  This development, ConstructiveWorld-Main baseline module
-      UpReqPropLiftShim.v, whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).  The base modules
-      themselves are untouched; this file is purely additive.
+    References.  ConstructiveWorld-Main baseline module UpReqPropLiftShim.v,
+      whose statement names are carried over verbatim (statement-face
+      Set-carrier completion); the base modules are untouched; purely additive.
 
     Constructivity.  All named statements are carried by [Set]; no
-      assumption-like or classical token appears; every proof ends in
-      [Qed]; [Print Assumptions] reports closed for all statements;
-      [coqchk] reports [Axioms: none].
+      assumption-like or classical token appears; every proof closes in
+      [Qed]/[Defined]; [Print Assumptions] closed; [coqchk] [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqPropLiftShim.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact are
-      [436f7121 00015ff4]. *)
-(* Mission: for legacy statement shapes in the base modules (existing forms, not violations and not assumption debts), this file provides a one-directional adapter family "old negative form to sigT witness form", letting new Set-layer code avoid depending on the legacy negative forms and instead produce or consume witness forms directly. *)
-(* The base modules (S-series, the retired 219 shell, G-series) are untouched: this file is purely additive and standalone. *)
-(* (so that new Set-layer code produces and consumes witness forms directly, without depending on the legacy negative forms). *)
-(* 1. Target Set-layer witness forms plus construction/projection accessors *)
-(* Design:                                                              *)
-(* - pls_vocab_ne      : target Set-layer witness form {l : Tok | InT l vocab} *)
-(* - pls_vocab_ne_shim : witness form implies the legacy form Not (Id vocab nil) *)
-(* (the lifting-side producer supplies the witness; legacy consumers keep their statements verbatim) *)
-(* - pls_vocab_ne_lift : legacy form implies the witness form (list constructor split, constructive; *)
-(* refinement of the blocking point of the one-directional Not-to-sigT conversion (which in general needs list decidability): *)
-(* for concrete list data, Not (Id vocab nil) splits without any decidability assumption; *)
-(* the genuine obstruction lives in double-negation / abstract-carrier shapes) *)
-(* - pls_Qlt_to_Qlt   : stdlib Qlt (Prop) implies S02 QltT (Set) (fills the missing direction; *)
-(* S02 already provides the reverse QltT_to_Qlt and the pair Qle_to_QleT'/QleT'_to_Qle) *)
-(* - pls_real_lt_eps/_rest / pls_real_le_cases: projection accessors for the dependency faces *)
-(* (the sigT witness form of [real_lt], S02:456, and the Or form of [real_le]). *)
-(* Constructivity note: zero hits for assumption-like or classical tokens; nothing admitted; *)
-(* Print Assumptions is expected to report Closed for the whole file. *)
-(* Dependencies: S01_BaseRing ([Id]/[Not]/[InT] connectors), S02_CauchyComplete *)
-(* ([QltT]/[QleT']/[real_lt]/[real_le]/[Real]).  No new Require face beyond these. *)
-(* Build recipe: Rocq 9.1 direct coqc invocation, -Q . "" -native-compiler no. *)
-(* ============================================================ *)
+    Build.  Rocq 9.1 direct [coqc -native-compiler no -q -Q . "" UpReqPropLiftShim.v]
+      compiles cleanly (exit 0); artifact starts [436f7121 00015ff4]. *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 From Stdlib Require Import List QArith.QArith.

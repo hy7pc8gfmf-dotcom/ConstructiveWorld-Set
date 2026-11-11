@@ -9,12 +9,11 @@
       and the two-point carrier [bool] with [uab_t2sum]/[uab_half] at the
       req layer.
 
-    Dependencies.  Requires [S01_BaseRing], [S02_CauchyComplete],
-      [S03_QExp], [S04_RealExpLogConv], [S05_AlignmentGRPO],
-      [S06_DiffSamplingGibbs], [S07_RealSetoidExpLog], [S08_RealMainlineDPO],
-      [S09_EntropyReal], [S10_KVQuantTrig], [S11_TP3B5], [S12_B5RecycleSF],
-      [S13_NLiveAudit], [S14_B5BatchBlock], [S15_TailFEPUp],
-      [G13_EvictFam] of this development.
+    Dependencies.  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
+      [S04_RealExpLogConv], [S05_AlignmentGRPO], [S06_DiffSamplingGibbs],
+      [S07_RealSetoidExpLog], [S08_RealMainlineDPO], [S09_EntropyReal],
+      [S10_KVQuantTrig], [S11_TP3B5], [S12_B5RecycleSF], [S13_NLiveAudit],
+      [S14_B5BatchBlock], [S15_TailFEPUp], [G13_EvictFam] of this development.
 
     References.  This development, the same-named baseline module in
       ConstructiveWorld-Main; statement names verbatim (statements

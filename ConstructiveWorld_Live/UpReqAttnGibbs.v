@@ -2,58 +2,32 @@
 
 (** * UpReqAttnGibbs: req-layer construction of the attention Gibbs/softmax family.
 
-    Mission.  The unit-temperature softmax mixture
-      ([ag_softmax_mix_normalized], [ag_softmax_is_prob]), the
-      temperature-annealed family ([ag_partition_function_temp_pos],
-      [ag_softmax_temp_normalized], [ag_softmax_temp_relative],
-      [ag_softmax_temp_mix_normalized]), the scaled family and its
-      duality with temperature ([ag_temp_is_scale_duality],
-      [ag_sq_witness_4], [ag_scale_sqrt_witness_dual]), the Boltzmann
-      correspondence ([ag_attention_is_gibbs_temp],
-      [ag_scale_inv_T_eq_softmax_temp],
-      [ag_scaled_attention_is_gibbs_temp]), the eviction cluster
-      ([ag_evicted_boltzmann_normalized],
-      [ag_eviction_partition_monotone], [ag_eviction_partition_le_full],
-      [ag_eviction_steady_deviation]), the top-k tail family
-      ([ag_top_k_tail_bound], [ag_tail_plus_kept_full],
-      [ag_top_k_exchange], [ag_top_k_tail_antitone]), the Top-K
-      truncated total-variation identity
-      ([ag_topk_tv_identity_strict]), and the eps-wise machine with gap
-      concentration, the zero-temperature limit and hard-attention
-      collapse ([ag_sum_le_r_max_eps], [ag_softmax_gap_concentration],
-      [ag_temperature_zero_limit], [ag_hard_attention_collapse_eps]).
+    Mission.  The unit-temperature softmax mixture ([ag_softmax_mix_normalized],
+      [ag_softmax_is_prob]); the temperature-annealed and scaled families
+      with their duality in temperature ([ag_temp_is_scale_duality]); the
+      Boltzmann correspondence ([ag_attention_is_gibbs_temp]); the eviction,
+      top-k tail and Top-K TV clusters ([ag_evicted_boltzmann_normalized],
+      [ag_topk_tv_identity_strict]); the eps-wise machine: gap concentration,
+      zero-temperature limit, hard-attention collapse ([ag_sum_le_r_max_eps],
+      [ag_hard_attention_collapse_eps]).
 
-    Dependencies.  Stdlib [List] with [ListNotations].  Requires
-      [S01_BaseRing] through [S15_TailFEPUp], [UpReqAlgebra],
-      [UpReqDist], [UpReqCauchy] of this development; imports
-      [RealInterfaceEnhancedMod].
+    Dependencies.  Stdlib [List] with [ListNotations]; requires [S01_BaseRing]
+      through [S15_TailFEPUp] plus [UpReqAlgebra], [UpReqDist], [UpReqCauchy]
+      of this development; imports [RealInterfaceEnhancedMod].
 
-    References.  This development; the baseline module
-      CW_ConstructiveWorld_219 (Section AttentionGibbsBridge, first
-      segment = the softmax family) of ConstructiveWorld-Main, whose
-      statement names are carried over here verbatim.
-      Already-migrated prerequisites consumed as given: the baseline
-      Setoid-section lemmas ([exp_pos_fn_setoid], the [softmax_setoid]
-      family, [exp_neg_req_compat_setoid]) and the UpReqDist
-      ReqSoftmaxDual cluster ([reqd_softmax_scaled],
-      [reqd_softmax_temp_param], [reqd_scale_temp_duality],
-      [reqd_sqrt_witness]).  Not carried over: the list machinery (the
-      [top_k_majorization] family, Id/nat-based); the [eviction_db]
-      breaking-bound row keeps its distinct form.
+    References.  This development; the baseline module CW_ConstructiveWorld_219
+      (Section AttentionGibbsBridge, first segment = the softmax family) of
+      ConstructiveWorld-Main, whose statement names are carried over verbatim;
+      already-migrated prerequisites are consumed as given; not carried over:
+      the list machinery; the [eviction_db] row keeps its distinct form.
 
-    Constructivity.  All statements live on the [Set] layer with the
-      carriers [req], [lt], [le], [req_minus]; proofs are pure
-      term-mode [req_trans]/compat chains; every interface gap is an
-      explicit section premise ([sum_ext], [sum_linear], [sum_add],
-      [sum_pos], [sum_le], [abs_sum_le_r],
-      [req_lt_plus_compat_lt_le_h], [detailed_balance_r],
-      [exp_neg_geo_break]); the main theorem is audited by
-      [Print Assumptions] at the end of the file.
+    Constructivity.  Statements on the [Set] layer (carriers [req], [lt], [le],
+      [req_minus]); pure term-mode [req_trans]/compat-chain proofs; every
+      interface gap is an explicit section premise; [Print Assumptions] audit.
 
     Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
-      ConstructiveWorld_Live/UpReqAttnGibbs.v] compiles cleanly
-      (exit 0); the first eight bytes of the artifact are
-      [436f7121 000160bc]. *)
+      ConstructiveWorld_Live/UpReqAttnGibbs.v] compiles cleanly (exit 0);
+      the first eight bytes of the artifact are [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

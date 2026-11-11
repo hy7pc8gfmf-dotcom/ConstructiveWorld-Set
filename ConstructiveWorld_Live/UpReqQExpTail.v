@@ -3,12 +3,11 @@
 (** * UpReqQExpTail: explicit Cauchy moduli for the rational exponential tail sums.
 
     Mission.  The tail-sum family [qtail_sum] with nonnegativity
-      [qtail_sum_nonneg], monotonicity [qtail_sum_mono], the term-decay
-      bound [qtail_term_decay], the explicit ratio machine
-      ([qtail_two_b_le]/[qtail_ratio_step]/[qtail_ratio_chain]), the
-      geometric tail bound [qtail_sum_geo], and the constructive Cauchy
-      modulus [qtail_cauchy_modulus] with its ordered-argument form
-      [qtail_cauchy_modulus_ord].
+      [qtail_sum_nonneg], monotonicity [qtail_sum_mono], term-decay bound
+      [qtail_term_decay], the explicit ratio machine ([qtail_two_b_le]/
+      [qtail_ratio_step]/[qtail_ratio_chain]), the geometric tail bound
+      [qtail_sum_geo], and the constructive Cauchy modulus [qtail_cauchy_modulus]
+      with its ordered-argument form [qtail_cauchy_modulus_ord].
 
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [QArith.Qround],
       [Lists.List], [Bool.Bool], [Arith.Arith], [Arith.Factorial],
@@ -16,21 +15,18 @@
       [S01_BaseRing], [S02_CauchyComplete], [S03_QExp] of this development.
 
     References.  This development, UpReqQExpTail.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion: auxiliary [Qle]
-      conclusions moved to [QleT'], [Qlt] conclusions to [QltT], [==]
-      identities to [QeqT], nat order to [NatLe], negations to the
-      Set-layer [Not]; the [QleT]-elimination bridge [qtail_QleT_to_Qle]
-      is kept as a downward-directed interface lemma).
+      ConstructiveWorld-Main whose statement names are carried over verbatim
+      (statement-face Set-carrier completion: auxiliary [Qle] conclusions
+      moved to [QleT'], [Qlt] to [QltT], [==] identities to [QeqT], nat
+      order to [NatLe], negations to Set-layer [Not]; the [QleT]-elimination
+      bridge [qtail_QleT_to_Qle] kept as a downward-directed interface lemma).
 
     Constructivity.  All named statements are carried by [Set] (decidable
       Q-carriers [QltT]/[QleT']/[QeqT], [Id], [NatLe], [Not], [sigT]);
-      statements extract with [Obj.magic] = 0; [coqchk] reports
-      [Axioms: none].
+      statements extract with [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqQExpTail.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqQExpTail.v] compiles
+      cleanly (exit 0); the artifact begins with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

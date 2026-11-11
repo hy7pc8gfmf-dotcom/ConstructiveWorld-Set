@@ -2,37 +2,30 @@
 
 (** * UpReqBanachExpBasic: [exp 0 = 1] at the Banach level.
 
-    Mission.  The terminal step of the inverse law [(e^a)^{-1} = e^{-a}] is
-    [: e^0 = 1].  In a Banach algebra this is provable outright: in
-    [exp_series_partial m bzero] every term of order [: k >= 1] degenerates
-    because [bpow bzero k = bzero], leaving only the leading term.  This
-    file lands that block plus its norm bound.  Statements:
-    [bxb_series_zero], [bxb_norm_series_zero], [bxb_qsum],
-    [bxb_norm_bound], [bxb_expdef_exp_zero_close].
+    Mission.  The terminal step of the inverse law [(e^a)^{-1} = e^{-a}] is [: e^0 = 1].  In a
+      Banach algebra this is provable outright: in [exp_series_partial m bzero] every term of
+      order [: k >= 1] degenerates because [bpow bzero k = bzero], leaving only the leading
+      term.  This file lands that block plus its norm bound.  Statements: [bxb_series_zero],
+      [bxb_norm_series_zero], [bxb_qsum], [bxb_norm_bound], [bxb_expdef_exp_zero_close].
 
-    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith],
-      [Lia].  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [UpReqBanachExp], [UpReqBanachExpDef] of this development; the
-      families [BanachAlg], [bpow], [exp_series_partial], [bae],
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith], [Lia].  Requires
+      [S01_BaseRing], [S02_CauchyComplete], [S03_QExp], [UpReqBanachExp], [UpReqBanachExpDef]
+      of this development; the families [BanachAlg], [bpow], [exp_series_partial], [bae],
       [bnorm_esp_term] are reused without redefinition.
 
-    References.  This development, ConstructiveWorld-Main
-      UpReqBanachExpBasic.v, the baseline module whose statement names are
-      carried over here verbatim.
+    References.  This development, ConstructiveWorld-Main UpReqBanachExpBasic.v, the baseline
+      module whose statement names are carried over here verbatim.
 
-    Constructivity.  All named statements and fields are carried by
-      [Set] ([bae], [Id], [QleT'], [sigT], [QltT]); no Prop leakage in
-      statement faces.  Statements extract with [Obj.magic] = 0 and no
-      erasure; [coqchk] reports [Axioms: none].  The identity
-      [exp bzero = bone] as a full [bae] equation needs a cancellation
-      field the algebra class does not carry; the strongest faces reachable
-      at the current interface are the all-partial-sums identity
-      [bxb_series_zero] and the element neighborhood statement
+    Constructivity.  All named statements and fields are carried by [Set] ([bae], [Id],
+      [QleT'], [sigT], [QltT]); no Prop leakage in statement faces.  Statements extract with
+      [Obj.magic] = 0 and no erasure; [coqchk] reports [Axioms: none].  The identity
+      [exp bzero = bone] as a full [bae] equation needs a cancellation field the algebra class
+      does not carry; the strongest faces reachable at the current interface are the
+      all-partial-sums identity [bxb_series_zero] and the element neighborhood statement
       [bxb_expdef_exp_zero_close].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachExpBasic.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachExpBasic.v] compiles cleanly (exit
+      0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

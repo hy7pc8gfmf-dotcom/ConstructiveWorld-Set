@@ -1,67 +1,33 @@
-(* ============================================================
-   Mission.  the mathematical mission narrative of this piece is in the first paragraph of the original head note
-   below (head-note reorganization deferred). Dependencies.  see the original head note; References.  likewise in the original head note. Wash provenance:
-   seat abl6w3, from pristine md5 51bb7b3e477f7c9ba776311aa94f5dcf; comments anglicized; proof-body fixes
-   born-clean only: 11 qeq_le sites re-routed through the S02 Set-level bridges (QleT'_to_Qle / qeq_le / qeq_imp_qeqT)
-   and 42 proj-rewrite conversions (qeqT_imp_qeq) + 4 QeqT-goal drops (qeq_imp_qeqT); statements untouched.  Constructivity.  all proofs close by Qed/Defined; zero axioms.  Build.  coqc -native-compiler no -q -Q . "".
-   ============================================================ *)
-(* ═════════════════════════════════════════════════════════════════════ *
- * ToyR · slice-3 same-name replacement piece: G10_LoebFam (the record continuation, slice-3 chapter)      *
- * This draft = the original full text preserved verbatim; only the proof bodies below were rewritten item *
- * by item per the toy list (same statements, same symbols, zero new Requires, zero admitted pieces).      *
- * Replacement list (14 pieces): even_ss／div2_ss／unp2_S／dec_gnT／                    *
- *   wpm_solvent_at_last_covered／wpm_melt_bankrupt／wpm_wallet_zero_       *
- *   at_last_cover／wpm_wallet_negative_at_bankrupt／                       *
- *   wpm_insolvent_at_bankrupt／dwm_X_refuted／dwm_wallet_trajectory／      *
- *   dwm_halt_fires／dwm_emit3_legal／dwm_emit3_not_present                 *
- * Slice-5 additional replacements (5 pieces): dec_gnF／unaryT_selfT／diagonal_code_fixed／      *
- *   MPc_dP_closed／grm_two_step_budget_blown (19 pieces in total).                *
- * Slice-5 three-route supplements: dec_gnF's fuel-self-sufficient closed term is used directly, *
- *   isomorphic to dec_gnT; unaryT_selfT unfolds layer by layer under controlled cbn over   *
- *   fvT/app/forallb/Nat.eqb/andb; diagonal_code_fixed inlines the gn_comm + diag_code_eq  *
- *   double jump to the dec_gnF rewrite plus the diagonal combinator's definition face;     *
- *   MPc_dP_closed inlines the MPc_prf_closed forwarding jump (the MPc_code_closed witness- *
- *   replay closed term supplied directly + Nat.le_refl fuel self-proof); grm_two_step_budget_blown   *
- *   inlines the residue_class_never_freezes seven-step chain, replayed in place at the j=2 instance.                *
- * Three routes: (1) definition-level controlled unfolding (solvent/insolvent -> Z.leb -> Z.compare  *
- *   match closure, the X_test -> Z.abs+Z.ltb+Z.eqb comparison MATCH chain, the dmin -> Z.min chain,  *
- *   the melt_wallet -> Z.sub additive-inverse shape) + (2) explicit witnesses (dec_gnT supplied in one  *
- *   step by the gnT_fuel fuel-self-sufficient closed term) + (3) structural derivation (unp2_S's fuel-value  *
- *   two-argument constructor case split; the dwm trajectory's two conjuncts via the dmin helper assert +   *
- *   emitter-projection reductions + numeric-anchor staged reductions; presentb pointwise three-way splits);  *
- * Leftovers (rolling after slice 5): wpm_solvent_bounded_family (identity forwarding — a rewrite    *
- *   would merely restate the same term = pseudo-nontrivial) / wpm_unbounded_family_unsound (the    *
- *   two-hop combinator, inlining needs the melt-coupon chain replayed — honestly noted) / Prf_replay (the   *
- *   original proof is already the gnPrf_replay fuel-self-sufficient closed term, no deepening room).  *
- * ═════════════════════════════════════════════════════════════════════ *)
-(* G group: G10_LoebFam — the finite-merge group (S/G dual-system new naming, members merged verbatim)
-   Members: UpLoeb + UpRefuted + UpQKBound + UpLoebD2 (same-group old-name Requires stripped; old in-library names ablated — downstream Requires this group directly) *)
-(* ======== G10_LoebFam member piece: UpLoeb (merged verbatim, carries its own Requires) ======== *)
-(* ===================================================================== *)
-(* UpLoeb.v — the Löb genuine-proof long line D1: the constructive realization of the diagonal mechanism (pure Set level / stdlib only) *)
-(*                                                                       *)
-(* Paper positioning: "Constructive governance of incompleteness" — constructive realization of HB D1–D3, first leg.              *)
-(*   D1 = the diagonal mechanism (this piece, given as the guaranteed baseline)                                        *)
-(*   D2 = the constructive ledgerization of the provability predicate Σ(σ) (a further-downstream module slot; interface suggestions at file end)      *)
-(*   D3 = the derivability conditions / the Löb main theorem (a further-downstream module slot)                                 *)
-(*                                                                       *)
-(* Item-by-item comparison with the three fake methods of the SelfRef-series pseudo-Löb material (all bypassed):                   *)
-(*   Fake method 1: the Löb proof body = a hyp. placeholder      -> this piece has no placeholder finishes; Prf is a closed       *)
-(*        inductive type, with the metalevel soundness theorem Prf_soundness attached (every proof term is semantically       *)
-(*        verified — structurally impossible to hide Triv/hyp empty shells).                             *)
-(*   Fake method 2: the diagonal lemma = Triv trivial filling    -> both directions of this piece's diagonal theorem are genuinely assembled by the repl rule   *)
-(*        (the replacement-invariant scheme); the witness d = diagF th is an explicit closed-form          *)
-(*        combinator (a fixed-point construction), not a placeholder.                                     *)
-(*   Fake method 3: eval_formula quantifier hard-coding     -> this piece's D1 object language contains only equation atoms and       *)
-(*        implications (all the diagonal biconditional needs); evalF has no quantifier branch to hard-code; the        *)
-(*        quantifier semantics is D2's interface (the honest boundary, see file end).                            *)
-(*   Appendix: the material's decode = None placeholder    -> this piece's dT/dF are total-function decoders,           *)
-(*        the dec_gnT / dec_gnF round-trip theorems genuinely proven.                                  *)
-(*                                                                       *)
-(* Set-level discipline: all statements zero Prop (tid / sigT / bool / nat->nat); tid's       *)
-(* Prop-internal use (tidQ extracting the definitional equation) appears only inside Proof. Zero axiom-style exits, zero admissions,    *)
-(* zero placeholder parameters, zero mid-proof abandons, zero classical logic. The whole chain is informative and extractable.                     *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — the finite-merge group carrying the Löb diagonal-mechanism line. *)
+(** * G10_LoebFam: the Löb genuine-proof long line — the constructive realization of the
+    diagonal mechanism D1 and the provability predicate Σ(σ) D2 (pure Set level, stdlib only).
+
+    Mission.  HB D1, the diagonal mechanism, first leg of the D1–D3 program ("Constructive
+      governance of incompleteness"): the closed inductive proof carrier [Prf] with soundness
+      [Prf_soundness]; the diagonal theorem genuinely assembled by the repl rule, witness the
+      explicit fixed-point combinator [diagF]; the object language has equation atoms and
+      implications only, quantifier semantics being the D2 interface; total decoders
+      [dT]/[dF] with round trips [dec_gnT]/[dec_gnF]; the wallet-trajectory family
+      [wpm_solvent_at_last_covered]/[wpm_melt_bankrupt]/[dwm_wallet_trajectory] with emitter
+      legality [dwm_emit3_legal]; and [unaryT_selfT]/[diagonal_code_fixed]/[MPc_dP_closed]/[grm_two_step_budget_blown].
+
+    Dependencies.  Stdlib [Arith], [Lia], [List], [Wf_nat]; the Set-level identity-type
+      infrastructure is inlined in section 0; merged members carry their own Requires inline
+      ([ZArith] family; [S01_BaseRing]–[S15_TailFEPUp], [UpCS], [Lqa]).
+
+    References.  This development, the ConstructiveWorld-Main baseline modules UpLoeb.v,
+      UpRefuted.v (the four kill experiments), UpQKBound.v (the QKᵀ bound pipeline),
+      UpLoebD2.v (the provability predicate Σ(σ)) — statement names carried over verbatim,
+      old in-library names ablated, downstream Requires this group directly.  Honest face:
+      [wpm_solvent_bounded_family] is identity forwarding; [wpm_unbounded_family_unsound]
+      stays a two-hop combinator; [Prf_replay] is already the closed replay term.
+
+    Constructivity.  All statements are carried by [Set] (tid / sigT / bool / nat->nat; [tidQ]
+      only inside [Proof]); every proof closes by [Qed]/[Defined]; no admissions, no classical
+      logic, no placeholder parameters; [coqchk] reports [Axioms: none]; informative, extractable.
+
+    Build.  [coqc -native-compiler no -q -Q . "" G10_LoebFam.v]; the artifact's first eight
+      bytes are [436f7121 000160bc]. *)
 
 From Stdlib Require Import Arith.
 From Stdlib Require Import Lia.

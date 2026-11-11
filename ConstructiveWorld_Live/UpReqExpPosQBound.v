@@ -14,12 +14,11 @@
       [S08_RealMainlineDPO] of this development.
 
     References.  This development, UpReqExpPosQBound.v, the baseline
-      module in ConstructiveWorld-Main whose statement names are
-      carried over here verbatim (statement-face Set-carrier
-      completion: [Qle] conclusions moved to [QleT'], [Qlt]
-      conclusions to [QltT], the [==] identity to [QeqT]; the
-      [QleT]-elimination bridge [upqb_qleT_to_qle] is kept as a
-      downward-directed interface lemma).
+      module in ConstructiveWorld-Main whose statement names are carried
+      over here verbatim (statement-face Set-carrier completion: [Qle]
+      conclusions moved to [QleT'], [Qlt] conclusions to [QltT], the [==]
+      identity to [QeqT]; the [QleT]-elimination bridge
+      [upqb_qleT_to_qle] is kept as a downward-directed interface lemma).
 
     Constructivity.  All named statements and fields are carried by
       [Set] (decidable Q-carriers [QltT]/[QleT']/[QeqT], [Id],

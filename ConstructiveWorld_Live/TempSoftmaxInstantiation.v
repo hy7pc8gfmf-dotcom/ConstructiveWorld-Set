@@ -1,49 +1,33 @@
 (* ConstructiveWorld-Set — instantiation of the temperature-weighted softmax statements on the concrete Real layer. *)
-
-(** * TempSoftmaxInstantiation: temperature-softmax instantiation and
-      resolved supplies.
+(** * TempSoftmaxInstantiation: temperature-softmax instantiation and resolved supplies.
 
     Mission.  The temperature-weighted softmax of
-      [S06_DiffSamplingGibbs.LanguageModelExtensions] carried onto the
-      concrete [Real] layer: the eps-step lemma [tsi_le_plus_eps_r]
-      ([le a (a+eps)] for 0 < eps), the arity bridge
-      [tsi_twp_is_boltzmann_weight] ([temperature_weighted_prob] equals
-      the explicit Boltzmann weight [exp_neg (mult (inv_pos t Ht)
-      (neg_log_prob prefix w))], an [Id]-level closure), and the four
-      temperature-softmax statements [tsi_temp_weighted_normalized],
-      [tsi_temp_weighted_mix_normalized], [tsi_temp_scale_duality], and
-      [tsi_temp_weighted_relative], each instantiating the corresponding
-      [ag_] statement of [UpReqAttnGibbs] with all arguments explicit.
-      A closing supply section realizes the sum-interface certificates
-      of the abstract section at the concrete list carrier
-      ([tsi_sum_pos_supply], [tsi_sum_ext_supply], [tsi_sum_le_supply],
-      [tsi_sum_linear_supply], [tsi_sum_add_supply]) and gives the
-      temperature-positivity witness at [temperature := one]
-      ([tsi_temperature_one_pos_supply]).
+      [S06_DiffSamplingGibbs.LanguageModelExtensions] carried onto the concrete [Real] layer:
+      the eps-step lemma [tsi_le_plus_eps_r] ([le a (a+eps)] for 0 < eps); the arity bridge
+      [tsi_twp_is_boltzmann_weight] (an [Id]-level closure to the explicit Boltzmann weight);
+      the four temperature-softmax statements [tsi_temp_weighted_normalized],
+      [tsi_temp_weighted_mix_normalized], [tsi_temp_scale_duality],
+      [tsi_temp_weighted_relative], each instantiating the corresponding [ag_] statement
+      of [UpReqAttnGibbs] with all arguments explicit; a closing supply section realizes
+      the sum-interface certificates at the concrete list carrier ([tsi_sum_pos_supply],
+      [tsi_sum_ext_supply], [tsi_sum_le_supply], [tsi_sum_linear_supply], [tsi_sum_add_supply])
+      and the positivity witness [tsi_temperature_one_pos_supply] at [temperature := one].
 
-    Dependencies.  Stdlib [List]. Requires [S01_BaseRing] through
-      [S15_TailFEPUp], [UpReqAlgebra], [UpReqDist], [UpReqAttnGibbs],
-      and, for the supply section, [UpReqSumD], [UpReqConcSoftmax], and
-      [ConcMixSelFeed] of this development.
+    Dependencies.  Stdlib [List]; requires [S01_BaseRing] through [S15_TailFEPUp],
+      [UpReqAlgebra], [UpReqDist], [UpReqAttnGibbs]; for the supply section,
+      [UpReqSumD], [UpReqConcSoftmax], and [ConcMixSelFeed] of this development.
 
-    References.  This development, UpReqAttnGibbs.v (the donor
-      statements [ag_softmax_temp_normalized],
-      [ag_softmax_temp_mix_normalized], [ag_softmax_temp_relative],
-      [ag_temp_is_scale_duality]), and the baseline module of the same
-      name in ConstructiveWorld-Main whose statement names are carried
-      over here verbatim.
+    References.  This development; UpReqAttnGibbs.v (donor statements [ag_softmax_temp_normalized],
+      [ag_softmax_temp_mix_normalized], [ag_softmax_temp_relative], [ag_temp_is_scale_duality]);
+      the same-named baseline module of ConstructiveWorld-Main (names carried over verbatim).
 
-    Constructivity.  All statements are carried by [Set]; no admitted
-      statements; proofs close by [Qed] with fully explicit
-      instantiation of the donor lemmas; the sum-interface certificates
-      of the abstract section stay declared as section premises (they
-      are not derivable for an abstract summation operator), and the
-      supply section provides their concrete instances; the file tail
-      carries eleven [Print Assumptions] audits reporting Closed.
+    Constructivity.  All statements carried by [Set]; no admitted statements; proofs
+      close by [Qed]; the sum-interface certificates stay declared as section premises
+      (not derivable for an abstract summation operator), and the supply section
+      provides their concrete instances; eleven [Print Assumptions] audits reporting Closed.
 
-    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
-      TempSoftmaxInstantiation.v] compiles cleanly (exit 0); the first
-      eight bytes of the artifact are [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" TempSoftmaxInstantiation.v]
+      compiles cleanly (exit 0); the first eight bytes of the artifact are [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

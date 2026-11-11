@@ -6,28 +6,24 @@
    the Or face brp_branch_pos_or, and four source-slot discharges B1..B4
    (UpReqAlign audited-Z, G13_EvictFam evicted partition, UpReqAttnGibbs
    Gibbs-face copy, UpReqAlignRestB two-form KV eviction partition).
-   Dependencies. The pieces on the in-piece Require declaration faces
-   (all read-only, zero original-tree edits): the S01_BaseRing ..
-   S15_TailFEPUp chain, UpReqAlgebra, UpReqSumD; Stdlib List.
+   Dependencies. In-piece Require faces (read-only, zero original-tree edits):
+   S01_BaseRing .. S15_TailFEPUp chain, UpReqAlgebra, UpReqSumD; Stdlib List.
    References. Branch-wise positivity by witness-carrying enumeration
    membership; the non-trivial proof content lives in brp_sum_pos
    (in-piece) over sumd_list_sum_nonneg / sumd_lt_le @UpReqSumD; the
-   B1..B4 statements carry the slot faces of the four source positions
-   on sumd_sumf S enum (InT face: S01_BaseRing.v:77).
-   Alignment. Aligned to the world's unparameterized interface class (the
-   UpReqSumD.v L58 / S10_KVQuantTrig.v L12417 precedents): the binder face
-   forall (R : Set) {RIS : RealInterfaceEnhancedSetoid R} mismatches the
-   zero-argument Class of this -Set-lineage world; aligned by dropping the
-   binders, Notation R := Real, and the real_lt / real_le / real_eq faces
-   (zero shims); brp_mem_split eliminates InT by explicit dependent match.
-   The conditional keep-marks are Id-carrier (Id (c a) true, the QeqT
-   form) or the bare kp a witness carrier, and the strict premises are
-   unconditional real_lt, so every extracted branch value shares one
-   carrier and extraction carries zero Obj.magic.
+   B1..B4 statements carry the slot faces of the four source positions on
+   sumd_sumf S enum (InT face: S01_BaseRing.v:77). Aligned to the world's
+   unparameterized interface class (UpReqSumD.v L58 / S10_KVQuantTrig.v
+   L12417 precedents): the binder face forall (R : Set) {RIS :
+   RealInterfaceEnhancedSetoid R} mismatches the zero-argument Class, so
+   the binders are dropped (Notation R := Real; real_lt / real_le /
+   real_eq faces; zero shims), brp_mem_split eliminates InT by explicit
+   dependent match; keep-marks are the Id-carrier Id (c a) true (QeqT
+   form) or the bare kp a witness carrier; unconditional strict premises
+   give one carrier per extracted branch value, at zero Obj.magic.
    Constructivity. All items close with Qed; zero admission literals; no
    classical logic; the statement face is Set-layered (order predicates
-   and equalities Set-valued, zero Prop leakage); ends with Print
-   Assumptions.
+   and equalities Set-valued, zero Prop leakage); ends with Print Assumptions.
    Build. Rocq 9.1 direct invocation, rocq c -Q . "" -native-compiler no,
    cpu_guard wrapped load caps.
    ========================================================================== *)

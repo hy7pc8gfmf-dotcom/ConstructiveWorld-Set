@@ -1,42 +1,33 @@
 (* ConstructiveWorld-Set — statement-face Set-carrier completions of the
    Main-source analysis modules. *)
 
-(** * UpSLM: soft-language-model order structure with fusion operators on the
-      tid/nle carriers.
+(** * UpSLM: soft-language-model order structure with fusion operators on the tid/nle carriers.
 
-    Mission.  A witness-erasure calculus over a soft-language-model ledger.
-      The identity carrier [slm_tid] and the Set-level order [slm_nle] carry
-      strict-positivity certificates for Z-weighted units: a unit with weight
-      [w] carries [slm_tid bool (Z.ltb 0 w) true], faithful by [Z.ltb_lt] and
-      extractable.  Fusion operators ([fuse2], [fuseL_into], [fuse_all],
-      [fuse_ledger]) merge located units into aggregate records whose type
-      discards the producer field, giving a constructive irreversibility
-      account.  Formalized here: the order laws [slm_nle_trans] and
-      [slm_nle_10_absurd]; sum conservation ([fuseL_into_sum],
-      [lsum_w_app], [lsum_a_app] and the fusion conservation family); the
-      collision witnesses (two distinct producer assignments fusing to one
-      aggregate, distinguishable before fusion and indistinguishable after,
-      with the total conserved); the spend operation (a spent unit's producer
-      vanishes and the total strictly drops); and race-to-mint redemption
-      with its ticket algebra (no-fire safety for unfunded events, demand
-      tickets, minting, burning, relocation, and single-mint-per-ticket).
+    Mission.  A witness-erasure calculus over a soft-language-model ledger. Identity carrier
+      [slm_tid] and Set-level order [slm_nle] carry strict-positivity certificates for
+      Z-weighted units: weight [w] carries [slm_tid bool (Z.ltb 0 w) true], faithful by
+      [Z.ltb_lt], extractable.  Fusion ([fuse2], [fuseL_into], [fuse_all], [fuse_ledger])
+      merges located units into aggregates whose type discards the producer field, giving
+      constructive irreversibility.  Formalized: order laws [slm_nle_trans] and
+      [slm_nle_10_absurd]; sum conservation ([fuseL_into_sum], [lsum_w_app], [lsum_a_app],
+      fusion conservation family); collision witnesses (two distinct producer assignments
+      fusing to one aggregate, distinguishable before fusion, indistinguishable after, total
+      conserved); spend (a spent unit's producer vanishes and the total strictly drops);
+      race-to-mint redemption with ticket algebra (no-fire safety for unfunded events, demand
+      tickets, minting, burning, relocation, single-mint-per-ticket).
 
-    Dependencies.  Stdlib [ZArith], [ZArithRing], [ZArith_dec], [Lia],
-      [List].  Self-contained: no Requires from this development.
+    Dependencies.  Stdlib [ZArith], [ZArithRing], [ZArith_dec], [Lia], [List]; self-contained.
 
-    References.  This development, UpSLM.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).  The Set-level
-      basics are inlined in place.
+    References.  This development, UpSLM.v, the baseline module in ConstructiveWorld-Main whose
+      statement names are carried over here verbatim (statement-face Set-carrier completion).
+      The Set-level basics are inlined in place.
 
-    Constructivity.  All named statements are carried by [Set] via the
-      identity carrier [slm_tid], the order carrier [slm_nle], booleans,
-      and [sigT].  Statements extract with [Obj.magic] = 0 and no erasure;
-      [coqchk] reports [Axioms: none].
+    Constructivity.  All named statements are carried by [Set] via the identity carrier
+      [slm_tid], the order carrier [slm_nle], booleans, and [sigT].  Statements extract with
+      [Obj.magic] = 0 and no erasure; [coqchk] reports [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpSLM.v] compiles cleanly
-      (exit 0); the first eight bytes of the artifact are
-      [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpSLM.v] compiles cleanly (exit 0); the first
+      eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 From Stdlib Require Import ZArith.
 From Stdlib Require Import ZArithRing.

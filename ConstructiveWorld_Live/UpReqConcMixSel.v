@@ -1,6 +1,4 @@
-(* ============================================================ *)
 (* ConstructiveWorld-Set — req-face mixed k-selection and attention-kernel mixing time. *)
-
 (** * UpReqConcMixSel: req-face counterparts of the mixed k-selector and
       the attention-kernel mixing time.
 
@@ -15,22 +13,18 @@
       the declared slots of [CmkMixTime] (the [cmkr_] family: the sum
       interface realized at [sumf := csm_sumf], the world data at a
       two-point instance).
-
     Dependencies.  Stdlib [List]. Requires [S01_BaseRing] through
       [S15_TailFEPUp], [UpReqAlgebra], [UpReqSumD], [UpReqConcSoftmax],
       [UpReqSampling], and [AttnDoeblin] of this development.
-
     References.  This development, and the baseline module of the same
       name in ConstructiveWorld-Main whose statement names are carried
       over here verbatim; the [ums_]/[amt_]/[rsq_] families are the
       mirrored statements reused here.
-
     Constructivity.  All statements are carried by [Set] over the
       req/lt/le carriers; no admitted statements; the selector and
       closing statements close by [Defined] and stay extractable; the
       resolved supplies close by [Qed] from already-proved lemmas with
       explicit arguments; the [Print Assumptions] audits report Closed.
-
     Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
       UpReqConcMixSel.v] compiles cleanly (exit 0); the first eight
       bytes of the artifact are [436f7121 000160bc]. *)

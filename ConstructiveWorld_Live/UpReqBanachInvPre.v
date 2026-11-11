@@ -1,5 +1,4 @@
 (* ConstructiveWorld-Set — Banach exponential inverse: the special case [: x = a + (-a)]. *)
-
 (** * UpReqBanachInvPre: vanishing powers and the product pairing identity
     for [: a + (-a)].
 
@@ -26,9 +25,8 @@
       rational-equality steps inside proofs.  Extraction gives
       [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachInvPre.v]
-      compiles cleanly (exit 0); the artifact starts with
-      [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachInvPre.v] compiles
+      cleanly (exit 0); the artifact starts with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

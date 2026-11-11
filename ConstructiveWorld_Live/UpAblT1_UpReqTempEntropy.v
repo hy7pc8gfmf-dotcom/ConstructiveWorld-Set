@@ -1,45 +1,33 @@
 (* ConstructiveWorld-Set — enumerated-instance discharge of the TempEntropy sumf interface face. *)
 
 (** * UpAblT1_UpReqTempEntropy: interface-slot discharge theorems for the
-      sumf face of the [ReqTempEntropy] section, resolved at the concrete
-      finite-sum instance [sumd_sumf] of [UpReqSumD].
+      [ReqTempEntropy] sumf face at the instance [sumd_sumf] of [UpReqSumD].
 
-    Mission.  The six interface assumptions of the [ReqTempEntropy] sumf
-      face ([fsum_ext] / [fsum_add] / [fsum_linear] / [fsum_pos] /
-      [fsum_le] / [fsum_zero_nonneg]) hold unconditionally at the
-      concrete enumerated finite-sum instance; the assumption slots
-      reduce to pure data slots (the enumeration list); six stations
-      [uabT1_rte_fsum_*] in source order.
+    Mission.  The six interface assumptions of the [ReqTempEntropy] sumf face
+      ([fsum_ext] / [fsum_add] / [fsum_linear] / [fsum_pos] / [fsum_le] /
+      [fsum_zero_nonneg]) hold unconditionally at the concrete enumerated
+      finite-sum instance; the assumption slots reduce to pure data slots
+      (the enumeration list); six stations [uabT1_rte_fsum_*] in source order.
 
     Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
-      [UpReqSumD] (via which the discharge lemmas [sumd_sum_*] carry the
-      content) of this development; interface = the argument-less Class
+      [UpReqSumD] of this development; interface = the argument-less Class
       [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
 
-    References.  This development, UpAblT1_UpReqTempEntropy.v, the
-      baseline module in ConstructiveWorld-Main whose statement names
-      are carried over here verbatim (statement-face Set-carrier
-      completion).  Adaptation = binder-shell removal + notation
-      rebinding + supply-face convergence on this development's own
-      precedent (the source argumented Class applications raised
-      "Illegal application (Non-functional construction)"): the binder
-      pair [(R : Set)] [{RIS : RealInterfaceEnhancedSetoid R}] is
-      removed from every station, [R := Real] by notation (UpReqSumD.v
-      L58), and the predicate faces follow the discharge lemmas' own
-      faces exactly ([real_eq]/[real_lt]/[real_le], UpReqSumD.v L113-114),
-      so the extraction face converges; the nonemptiness slot of
-      [fsum_pos] keeps its source shape ([Not (enum = nil)], the host
-      [sumd_sum_pos] datum face).
+    References.  Verbatim statement-name carryover from the
+      ConstructiveWorld-Main baseline module.  Adaptation: every station drops
+      the binder pair [(R : Set)] [{RIS : RealInterfaceEnhancedSetoid R}];
+      [R := Real] by notation (UpReqSumD.v L58); predicate faces follow the
+      discharge lemmas' faces ([real_eq]/[real_lt]/[real_le], UpReqSumD.v
+      L113-114), so extraction converges; the [fsum_pos] nonemptiness slot
+      keeps its source shape ([Not (enum = nil)], host [sumd_sum_pos]).
 
-    Constructivity.  All Set-layer statements; every station closed by
-      [Qed], zero admitted items; the nontrivial content lives in the
-      discharge lemmas, the list-induction chains [sumd_list_sum_*],
-      consumed directly; tail [Print Assumptions] report the closure
-      face; no new axioms.
+    Constructivity.  All Set-layer statements; every station closed by [Qed],
+      zero admitted items, no new axioms; the content lives in the discharge
+      lemmas ([sumd_sum_*], the [sumd_list_sum_*] list-induction chains),
+      consumed directly; tail [Print Assumptions] report the closure face.
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-      UpAblT1_UpReqTempEntropy.v] compiles cleanly (exit 0); the first
-      eight bytes of the artifact are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblT1_UpReqTempEntropy.v]
+      compiles cleanly (exit 0); the first 8 bytes [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

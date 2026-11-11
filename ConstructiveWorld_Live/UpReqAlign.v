@@ -3,42 +3,30 @@
 (** * UpReqAlign: the req alignment statement face - alignment core, KL
       projection, natural gradient, PPO ratio, sigmoid quick cluster.
 
-    Mission.  The theorem/lemma statement face of this file - the [req]
-      forms of the alignment core (the [F_align]/[pi_star] cluster), the
-      KL projection items (the [rkl_*] family, among them
-      [rkl_log_inv_one_inv]), the natural-gradient items, the PPO ratio
-      cluster, and the sigmoid quick cluster; every item fully proved,
-      each station closed by [Qed], the tail [Print Assumptions] probes
-      report the closure face.  Five sections: [ReqAlignCore],
-      [ReqKLProjection], [ReqNaturalGradient], [ReqPPORatio],
-      [ReqSigmoidQuick].
-
+    Mission.  The [req]-face statement family of this file: the alignment core (the
+      [F_align]/[pi_star] cluster), the KL projection items (the [rkl_*] family,
+      among them [rkl_log_inv_one_inv]), the natural-gradient items, the PPO ratio
+      cluster, and the sigmoid quick cluster; every item fully proved, each closed
+      by [Qed], the tail [Print Assumptions] probes report the closure face.  Five
+      sections: [ReqAlignCore], [ReqKLProjection], [ReqNaturalGradient],
+      [ReqPPORatio], [ReqSigmoidQuick].
     Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
-      [UpReqAlgebra] of this development; the interface is the
-      argument-less Class [RealInterfaceEnhancedSetoid] of
-      [S07_RealSetoidExpLog] (module [RealInterfaceEnhancedMod]), fields
-      resolved through the global [Real] instance.
-
-    References.  This development, UpReqAlign.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).  Adaptation =
-      pure binder removal + notation rebinding on this development's own
-      precedent (the source five [Context {R : Set}]
-      [{RIS : RealInterfaceEnhancedSetoid R}] binders were an argumented
-      face raising "Illegal application (Non-functional construction)"
-      against the argument-less interface): [R := Real] by notation
-      (UpReqSumD.v L58; S10_KVQuantTrig.v L12417-12419), predicate face
-      [real_eq] / [real_lt] / [real_le] (UpReqSumD.v L113-114 /
-      L304-305), law fields as bare names through the global instance
-      (UpReqSumD.v L68-72); no [Obj.magic], no Prop-cast, statement
-      names unchanged.
-
-    Constructivity.  All Set-layer statements; the section premise slots
-      are honest interface premises carried explicitly; zero new axioms.
-
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqAlign.v] compiles
-      cleanly (exit 0); the first eight bytes of the artifact are
-      [436f7121 00015ff4]. *)
+      [UpReqAlgebra] of this development; the interface is the argument-less Class
+      [RealInterfaceEnhancedSetoid] of [S07_RealSetoidExpLog] (module
+      [RealInterfaceEnhancedMod]), fields resolved through the global [Real]
+      instance.
+    References.  [UpReqAlign.v], the baseline module in ConstructiveWorld-Main whose
+      statement names are carried over here verbatim (statement-face Set-carrier
+      completion).  Adaptation = pure binder removal + notation rebinding on this
+      development's own precedent: [R := Real] by notation (UpReqSumD.v L58;
+      S10_KVQuantTrig.v L12417-12419), predicate face [real_eq] / [real_lt] /
+      [real_le] (UpReqSumD.v L113-114 / L304-305), law fields as bare names through
+      the global instance (UpReqSumD.v L68-72); no [Obj.magic], no Prop-cast,
+      statement names unchanged.
+    Constructivity.  All Set-layer statements; the section premise slots are honest
+      interface premises carried explicitly; zero new axioms.
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqAlign.v] compiles cleanly
+      (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

@@ -2,39 +2,32 @@
 
 (** * UpReqBanachInst: instance carriers, walls, and the assembly bridge.
 
-    Mission.  The class [BanachAlg] has no instances; this module lands
-    the first instance study.  The obstruction is not completeness but
-    the [bnorm] field family: [bnorm_wd] has an [Id]-valued codomain and
-    [bnorm_coef] pins the scalar norm to [Qabs].  Three candidate
-    carriers are blocked: (a) the [Q] carrier with the [QeqT] equality
-    forces the false identity [Id (2#4) (1#2)]; (b) the [Q] carrier
-    with Leibniz equality hits the denominator-normalization wall
-    [Id (0#16) (0#1)]; (c) the [Real] carrier admits early-term
-    perturbation counterexamples to any computable candidate.  The
-    module contributes: S1 — the in-class construction of the scalar
-    Cauchy sequence [v n = coef (1/(n+1))] for an arbitrary [B] with
-    its completeness-forced limit; S2 — machine formalizations of the
-    two walls on the implication face; S3 — the 39-field
-    [BanachAlgPre] record and the assembly bridge
-    ([Pre] + completeness gives a full [BanachAlg], with completeness
-    as the single remaining gap).
+    Mission.  [BanachAlg] has no instances; this module lands the
+    first instance study.  The obstruction is not completeness but
+    the [bnorm] field family: [bnorm_wd] has an [Id]-valued codomain,
+    [bnorm_coef] pins the scalar norm to [Qabs].  Three carriers are
+    blocked: (a) [Q] with [QeqT] forces the false identity
+    [Id (2#4) (1#2)]; (b) [Q] with Leibniz equality hits the
+    denominator-normalization wall [Id (0#16) (0#1)]; (c) [Real]
+    admits early-term perturbation counterexamples to any computable
+    candidate.  Contributions: S1 — the in-class scalar Cauchy
+    sequence [v n = coef (1/(n+1))] for arbitrary [B] with its
+    completeness-forced limit; S2 — both walls machine-formalized on
+    the implication face; S3 — the 39-field [BanachAlgPre] record and
+    the assembly bridge ([Pre] + completeness = full [BanachAlg],
+    completeness the single remaining gap).
 
-    Dependencies.  Requires [S01_BaseRing], [S02_CauchyComplete],
-    [S03_QExp], [UpReqBanachExp], [UpReqBanachClassExt],
-    [UpReqBanachExpAdd] of this development.
+    Dependencies.  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
+    [UpReqBanachExp], [UpReqBanachClassExt], [UpReqBanachExpAdd].
 
-    References.  This development, UpReqBanachExp.v, the baseline
-    module in ConstructiveWorld-Main whose statement names are carried
-    over here verbatim (statement-face Set-carrier completion).
+    References.  This development, UpReqBanachExp.v, and the baseline
+    ConstructiveWorld-Main module (statement names carried verbatim).
 
-    Constructivity.  Statements are carried by [Set]; the walls are
-    stated on the implication face and never land on a Prop terminal
-    face.  Statements extract with [Obj.magic] = 0; [coqchk] reports
-    [Axioms: none].
+    Constructivity.  Statements carried by [Set]; walls stated on the
+    implication face.  Extraction: [Obj.magic] = 0; [coqchk] [Axioms: none].
 
     Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachInst.v]
-    compiles cleanly (exit 0); the first eight bytes of the artifact
-    are [436f7121 00015ff4]. *)
+    compiles cleanly (exit 0); artifact starts [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

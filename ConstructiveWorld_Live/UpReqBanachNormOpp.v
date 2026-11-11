@@ -2,38 +2,32 @@
 
 (** * UpReqBanachNormOpp: [Qred] uniqueness and the [bnorm] opposite face.
 
-    Mission.  The key to an [Id]-well-defined norm of the form
-    [bnorm := Qred o Qabs] is uniqueness of the reduced form:
-    [bno_qred_unique : forall x y : Q, x == y -> Qred x = Qred y]
-    (Leibniz codomain), assembled from three legs: the coprime-pair
-    uniqueness machine re-assembled from the [Zis_gcd] recipe, the
-    [bnorm_opp] attack chain of the Real-carrier study used verbatim,
-    and the canonical-pair characterization of [Qred] from
-    [Qcanon]/[Qreduction].  Companion laws: positivity and
-    strict-order bridges on [Z], canonical outputs of [Qred], the
-    [eq]-form and [Id]-form of the norm-of-opposite invariance, and
-    the engine lemmas for the harmonic escape statement
-    [bno_sum_inv_fact_escape] (its main statement remains an honest
-    open item; the engine segment is closed here).
+    Mission.  An [Id]-well-defined norm [bnorm := Qred o Qabs] rests on
+    reduced-form uniqueness: [bno_qred_unique : forall x y : Q,
+    x == y -> Qred x = Qred y] (Leibniz codomain), assembled from three
+    legs: the coprime-pair uniqueness machine (the [Zis_gcd] recipe),
+    the [bnorm_opp] chain of the Real-carrier study used verbatim, and
+    the canonical-pair characterization of [Qred] ([Qcanon]/[Qreduction]).
+    Companion laws: positivity and strict-order bridges on [Z],
+    canonical [Qred] outputs, the [eq]/[Id] norm-of-opposite invariance,
+    and the engine lemmas for the harmonic escape statement
+    [bno_sum_inv_fact_escape] (main statement open; engines closed).
 
     Dependencies.  Stdlib [QArith], [Qabs], [Qcanon], [ZArith],
-    [Znumtheory], [Lia].  Requires [S01_BaseRing],
-    [S02_CauchyComplete], [S03_QExp], [UpReqBanachInstB],
-    [UpReqBanachInstReal] of this development.
+    [Znumtheory], [Lia]; of this development [S01_BaseRing],
+    [S02_CauchyComplete], [S03_QExp], [UpReqBanachInstB], [UpReqBanachInstReal].
 
-    References.  This development, UpReqBanachInstB.v and
-    UpReqBanachInstReal.v, the baseline modules in
-    ConstructiveWorld-Main whose statement names are carried over here
-    verbatim (statement-face Set-carrier completion).
+    References.  UpReqBanachInstB.v and UpReqBanachInstReal.v of this
+    development; the ConstructiveWorld-Main baseline modules, statement
+    names verbatim (statement-face Set-carrier completion).
 
     Constructivity.  Statements are carried by [Set]
     ([Set]/[eq]/[Id]/[Qeq]/[ZLtT] shapes); no global assumptions; the
     closing [Print Assumptions] audits report [Closed]; statements
     extract with [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-    UpReqBanachNormOpp.v] compiles cleanly (exit 0); the first eight
-    bytes of the artifact are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachNormOpp.v]
+    compiles cleanly (exit 0); the first eight artifact bytes are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

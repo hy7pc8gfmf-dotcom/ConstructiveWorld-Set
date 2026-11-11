@@ -3,41 +3,31 @@
 (** * UpAblT6_UpSigMigrate2: the sumf interface slots of the free-energy
       core section, discharged at the enumerated finite-sum instance.
 
-    Mission.  At the concrete finite-sum operator [sumd_sumf] the three
-      sumf interface assumptions hold unconditionally - the premise
-      thins to a pure data slot (the enumeration list), each assumption
-      discharged: [uabT6_sigmig2_sum_ext], [uabT6_sigmig2_sum_add],
-      [uabT6_sigmig2_sum_linear].
+    Mission.  At the concrete finite-sum operator [sumd_sumf] the three sumf interface
+      assumptions hold unconditionally - the premise thins to a pure data slot (the
+      enumeration list), each assumption discharged: [uabT6_sigmig2_sum_ext],
+      [uabT6_sigmig2_sum_add], [uabT6_sigmig2_sum_linear].
 
-    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
-      [UpReqSumD] of this development; the interface is the
-      argument-less Class [RealInterfaceEnhancedSetoid] (module
-      [RealInterfaceEnhancedMod]).
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and [UpReqSumD]
+      of this development; the interface is the argument-less Class
+      [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
 
-    References.  This development, UpAblT6_UpSigMigrate2.v, the baseline
-      module in ConstructiveWorld-Main whose statement names are carried
-      over here verbatim (statement-face Set-carrier completion).  The
-      baseline statements are the sumf interface slots ([sum_ext] /
-      [sum_add] / [sum_linear]) of the free-energy core section.
-      Adaptation = pure binder removal + notation rebinding on this
-      development's own precedent (the source [forall (R : Set)]
-      [{RIS : RealInterfaceEnhancedSetoid R}] binders were an argumented
-      face raising "Illegal application (Non-functional construction)"):
-      [R := Real] by notation (UpReqSumD.v), predicate face [real_eq]
-      through the global instance (UpReqSumD.v L113-114), the proof
-      bodies discharge by direct consumption of the in-register supply
-      lemmas [sumd_sum_ext] / [sumd_sum_add] / [sumd_sum_linear]
-      ([UpReqSumD]).
+    References.  This development, UpAblT6_UpSigMigrate2.v; the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here verbatim
+      (statement-face Set-carrier completion); the baseline statements are the sumf
+      interface slots ([sum_ext] / [sum_add] / [sum_linear]) of the free-energy core
+      section.  Adaptation = pure binder removal + notation rebinding on this
+      development's own precedent ([R := Real] by notation, predicate face [real_eq]
+      via the global instance); proofs by the supply lemmas [sumd_sum_ext] /
+      [sumd_sum_add] / [sumd_sum_linear] ([UpReqSumD]).
 
-    Constructivity.  All Set-layer statements; every station closed by
-      [Qed], zero admitted items; the proof content lives in the supply
-      lemmas (list-induction chains), this piece connects them at the
-      instance; the tail [Print Assumptions] probes report the closure
-      face; no new axioms.
+    Constructivity.  All Set-layer statements; every proof closed by [Qed]; the proof
+      content lives in the supply lemmas (list-induction chains), connected here at
+      the instance; [coqchk] reports [Axioms: none]; the trailing [Print Assumptions]
+      outputs report the closure face.
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-      UpAblT6_UpSigMigrate2.v] compiles cleanly (exit 0); the first
-      eight bytes of the artifact are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblT6_UpSigMigrate2.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

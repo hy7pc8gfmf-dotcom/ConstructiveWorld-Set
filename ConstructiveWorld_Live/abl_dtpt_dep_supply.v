@@ -1,50 +1,32 @@
 (* ConstructiveWorld-Set — residual bounded-guard supplies for the DTPT bridge dependency slots. *)
 
-(** * abl_dtpt_dep_supply: supplies for the premise slots of
-      DTPT_Bridge_Dep.
+(** * abl_dtpt_dep_supply: supplies for the premise slots of DTPT_Bridge_Dep.
 
-    Mission.  Two supplies for the bounded-guard premise slot of
-      [DTPT_Bridge_Dep] (the slot [forall x : Q, In x l -> Qabs x <= B]):
+    Mission.  Two supplies for the bounded-guard premise slot
+      [forall x : Q, In x l -> Qabs x <= B] of [DTPT_Bridge_Dep]:
       [tbd_dep_HB_wit_002], the guard at the closed witness list
       [[0;0;2]] with the tight bound B := 2 (the same witness column as
-      the sorted-witness supplies of the [dtr_] family), and
-      [tbd_dep_HB_P0_single], the computation law on the single-element
-      insertion-sort image [P0 [a]] = [[a]] with the canonical bound
-      B := [Qabs a]. The host's other three premise slots ([SortedQ l],
-      [l <> []], and (lam1 <= lam2)%Q at 0 and 1) are already supplied
-      by the [dtr_] statements and are reused here without new
-      statements.
+      the [dtr_] sorted-witness supplies), and [tbd_dep_HB_P0_single],
+      the computation law on [P0 [a]] = [[a]] with the canonical bound
+      B := [Qabs a]. The host's other three slots ([SortedQ l],
+      [l <> []], (lam1 <= lam2)%Q at 0/1) are [dtr_]-supplied and reused.
 
-    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [List].
-      Requires [S02_CauchyComplete] (the [QleT'] carrier) and [DTPT]
-      (the definitions [P0] and [xq_Qle_bool_le]) of this development,
-      read-only.
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [List];
+      requires [S02_CauchyComplete] (the [QleT'] carrier) and [DTPT]
+      (definitions [P0], [xq_Qle_bool_le]) of this development, read-only.
 
-    References.  This development, DTPT.v (the host definitions), and
-      the baseline module of the same name in ConstructiveWorld-Main
-      whose statement names are carried over here verbatim.
+    References.  DTPT.v (the host definitions) and the baseline module of
+      the same name in ConstructiveWorld-Main (statement names verbatim).
 
-    Constructivity.  Both supplies close by [Qed]; the proofs decide
-      the guard by closed [Q] comparisons ([vm_compute] on [Qle_bool]
-      forms) and discriminate on the [In] membership; no new data
-      carriers, no section variables, no classical logic; [Q] literals
-      are scoped with [%Q]; the two [Print Assumptions] audits report
-      Closed.
+    Constructivity.  Both supplies close by [Qed] via closed [Q]
+      comparisons ([vm_compute] on [Qle_bool]) and discrimination on the
+      [In] membership; no new data carriers, no section variables, no
+      classical logic; [Q] literals scoped with [%Q]; the two
+      [Print Assumptions] audits report Closed.
 
     Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
       abl_dtpt_dep_supply.v] compiles cleanly (exit 0); the first eight
       bytes of the artifact are [436f7121 000160bc]. *)
-
-(* ==================== Name and supply accounting ==================== *)
-(* The two top-level names carry the fresh [tbd_] prefix and collide with no
-   existing name family in the development. Supply accounting over the four
-   premise slots of [DTPT_Bridge_Dep]: one slot is supplied here by two
-   statements (the closed-instance form and the computation-law form), and
-   three slots are reused from the already-supplied [dtr_] statements — one
-   supply plus three reuses covers all four slots with no double supply. The
-   host module DTPT_Bridge_Dep.v stays byte-identical; this file requires only
-   registered read-only .vo artifacts, so recompilation of either side does
-   not cascade to the other. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qabs.
 From Stdlib Require Import List.

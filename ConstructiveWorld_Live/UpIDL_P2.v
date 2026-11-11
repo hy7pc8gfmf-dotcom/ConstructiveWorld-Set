@@ -1,15 +1,19 @@
-(** * UpIDL_P2: proof-body replacement draft for four demonstration
-      statements with verbatim-preserved statement faces.
+(** * UpIDL_P2: the IDL two-stage loom, weaving statement satisfaction out
+      of a verdict stream (second segment of the interface definition
+      language) over the six-hole Q4 carrier.
 
-    Mission.  The theorem and lemma properties of this file, with the
-      four demonstration statements recomputed by closed definitional
-      evaluation.
+    Mission.  The theorem and lemma properties stated by this file:
+      [allpass] and the pinning-aggregation theorems [melt_hom],
+      [pin_iffT], [weave_sound], [weave_replay_b]/[weave_replay_d],
+      [replay_census], [recheck_pass]; the [hbeq]/[vbeq] decider family,
+      the pin-algebra lemmas, and the extensionality faces
+      [mkP_ext_eq]/[mkIng_ext_eq]; the computational demonstrations
+      [xor_defused], [happy_wok], [conflict_once], [conflict_census].
 
-    Dependencies.  The library modules listed in the Require face
-      below.
+    Dependencies.  The library modules listed in the Require face below.
 
-    References.  The ConstructiveWorld-Main baseline module of the
-      same name; statement names carried over verbatim.
+    References.  The ConstructiveWorld-Main baseline module of the same
+      name; statement names carried over verbatim.
 
     Constructivity.  Zero admission tokens (mechanically checked);
       extraction reports [Obj.magic] = 0; [coqchk] reports
@@ -17,79 +21,6 @@
 
     Build.  [coqc -native-compiler no -q -Q . "" UpIDL_P2.v] compiles
       cleanly (exit 0); artifact magic [436f7121 00015ff4]. *)
-
-(* Five-field summary | Mission: formalization of the properties stated by the theorem/lemma faces in this file.  Dependencies: the library modules listed in the Require face below.  Constructivity: zero admission tokens (mechanically checked).  Build recipe: coqc -native-compiler no -q -Q . "". *)
-(* Proof notes on the four demonstration statements xor_defused, happy_wok, conflict_once and conflict_census: *)
-(* all four compute by closed definitional evaluation — *)
-(* each evaluates overall to a constructor normal form and closes by reflexivity (the earlier drafts closed by a single reflexivity hop on an equality). *)
-(* The two statements pjR_PN and pget_mjoin are untouched: the former sits in a deep constructor-order pit, the latter *)
-(* already carries its two-step original proof. *)
-(* ===================================================================== *)
-
-(* ===================================================================== *)
-(* Scope note: this file is a proof-body replacement draft.  The original text is preserved verbatim except for the proof bodies of four of the ten *)
-(* target statements (located by theorem name; statement faces, declaration order and dependencies are unchanged). *)
-(* The four replacement routes (Id-facing goals follow the established route: *)
-(* clq_tid_eq converts to eq; no rewriting tactics): *)
-(* 1. hbeq_refl: structural derivation by exhaustive case analysis — all six hole constructors enumerated, each branch *)
-(* closed by Nat.eqb_refl after index-table definitional reduction (the original closed in one generic hop). *)
-(* 2. vbeq_mkVd: controlled definitional unfolding — after the recorded definitional expansion, the three projections resolve pointwise *)
-(* into the literal right-hand shape and close by reflexivity (the original used a bare reflexivity hop). *)
-(* 3. dbuild_len: controlled definitional unfolding — with the list length and its bound both expanded, the conversion closes *)
-(* (the original used a bare conversion hop). *)
-(* 4. slotiousL_cons: head-unfolding structural derivation — the under-applied list reduces on the Cons head by an iota branch, *)
-(* matches the right-hand head-expanded equation pointwise, and closes by reflexivity (the original used a bare reflexivity hop). *)
-(* The remaining six statements (the pinv deep-analysis statements other than vbeq_mkVd, and the computational demonstrations) involve *)
-(* deep constructor-order pits and large closed computations; they are not touched in this draft. *)
-(* Fully constructive throughout, Set-carried, Qed markers conserved one-for-one, dependency face line-identical to the original. *)
-(* ===================================================================== *)
-
-(* ============================================================ *)
-(* UpIDL_P2.v *)
-(* *)
-(* Purpose: the IDL two-stage loom: weaving statement satisfaction out of a verdict stream (second segment of the interface definition language). *)
-(* Main statements: allpass (the six hole types weave out a list satisfied item by item); the vbeq/hbeq decider family and the extensionality of mkP_ext_eq. *)
-(* Dependencies: G11_IDLFam. *)
-(* Remarks: the six hole types (k0, k1, kb, kc, ke, kr) are made concrete as six assumption slots; purely constructive, axiom-free exits, extractable end to end. *)
-(* Build recipe: fully literal environment (COQLIB/ROCQLIB/OCAMLLIB/COQPATH cleared), *)
-(* Rocq 9.1 coqc -q -native-compiler no, single-root -Q. *)
-(* ============================================================ *)
-
-(* ===================================================================== *)
-(* G11_IDLFam.v — the verdict-loom IDL, ingot-differential two-stage realization *)
-(*                                                                       *)
-(* Design source: the final design of the "Ingot-Differential *)
-(* Loom (IDL) — two stages; the verdict stream is never replayed verdict by verdict" (including the XOR-stream and livelock *)
-
-(* trials; the Q4 semantics are given by G11_IDLFam.v, consumed here directly via Require Import). *)
-(*                                                                       *)
-(* The two stages: *)
-(* Construction stage (melt): the verdict stream is right-folded in one pass into an ingot — the six-hole pinning (equal values *)
-(* accumulate as P1 pins, conflicting values propagate as PB, missing verdicts give PN) plus the rejection-difference clause list. *)
-(* Differential stage (weave): consumes only the ingot, never replays the stream — the pinning is differentially compiled into the Q4 carrier dtab *)
-(* (head gauge k0 normalized to 0, dlen = 5); the rejection-difference clauses are adjudicated one by one over the woven list by Z decisions *)
-(* (inter-stage differentials are decidable); a missing pin / a pin conflict / a clause contradiction is recorded honestly *)
-(* as an under-order wiou; nothing is emitted. *)
-(* Main statements: melt_hom (melting is a list homomorphism — the algebraic content of the two-stage construction) / pin_iffT (pinning is the consistent *)
-(* aggregation of the pass verdicts in the stream, with iffT conservation in both directions) / weave_sound (what is woven is legitimate: every verdict *)
-(* in the stream is satisfied by the woven list — immune to cross-hole illegality from birth) / weave_replay_b/_d + *)
-(* replay_census (whole-stream replay: the weaving decision, the woven artifact and the conflict census are all unchanged — livelock *)
-(* loses its carrier) / recheck_pass (the woven artifact is handed to the Q4 decision face for word-by-word review of [inner]-class queries) / *)
-(* xor_defused (the XOR stream is honestly recorded as an under-order and not woven — the regression companion of the second-round counterexample trial). *)
-(*                                                                       *)
-(* The carrier is at the Z/nat/bool decidable layer throughout (continuing the Q4 Set-layer route: clq_tid/clq_nle/iffT/sigT); *)
-(* zero Prop in statements: equality via clq_tid, order via clq_nle, iff via iffT, branching via bool/prod/sigT. *)
-(* Discipline: purely constructive, axiom-free exits, stdlib + G11_IDLFam, extractable end to end. *)
-(* Design decisions (details left open were fixed by the principles "the two-stage structure is clearest" and "tightest coupling to the Q4 decision face"): *)
-(* (1) The six hole types hole = k0 k1 kb kc ke kr are made concrete as six slots; assumption slots = Q4 dtab indices 0..5; *)
-(* the head gauge k0 is constantly 0 (a gauge fixing); all verdict semantics go through the head-relative difference dsub d (hix h) 0. *)
-(* (2) A verdict verd = hole type x direction x Z evidence: pass(h,w) sets the pin "value = w"; rej(h,e) emits the difference clause *)
-(* "value is not e" (a non-zero difference requirement — the designed witness-shaped difference clause). *)
-(* (3) The pinning tri-state pinv = PN missing / P1 z pinned / PB conflict — the conflict state PB propagates unconditionally, so *)
-(* conflicting values in one hole are recorded at most once per whole-stream pass (the designed "same-hole conflict recorded once"); the friction *)
-(* account is fixed as the conflict census iconf = the number of holes pinned PB (the final "conflict census + under-order ordering key"). *)
-(* (4) The woven artifact = the Q4 dtab (dlen = 5), which drops directly into the Q4 ledger state mkCL for [inner]-class query review. *)
-(* ===================================================================== *)
 
 From Stdlib Require Import ZArith.
 From Stdlib Require Import ZArith_dec.

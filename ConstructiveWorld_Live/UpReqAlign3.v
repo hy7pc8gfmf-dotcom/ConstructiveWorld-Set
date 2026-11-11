@@ -1,73 +1,28 @@
-(* Five-field pointer | Mission.  formalization of the properties stated by the theorem/lemma declaration faces of this file. Dependencies.  the library files listed in the Require declaration face of this file. Constructivity.  zero admitted statements (mechanically checked). Build.  coqc -native-compiler no -q -Q . "".  ============================================================
-    Slice-three same-name replacement note (ToyR · UpReq shallow-chain continuation)
-   This file is the same-name replacement draft of UpReqAlign3.v: the original text is preserved in full (declaration order / colophon header /
-   all other theorems untouched verbatim); only the five toys w_sum_ptimes_const / w_sum_minus /
-   w_sum_opp / w_sum_ptimes_scal / w_sum_ptimes_opp_scal had their proof bodies changed:
-   the @req2_* single-hop forwarding was replaced by explicit replay at the replacement point (req_trans chains + sum_ext/sum_add/
-   sum_linear unwound ring by ring + explicit instantiation of the algebra-bank compat bridges; w_sum_minus and
-   w_sum_ptimes_opp_scal inline the opp-sum subchain to eliminate the slot-argument dependency on upstream
-   req2_sum_opp). Statement faces: zero changes.
-   Green-verification method: semantic-context check of the Require face (c_probe.v, in-pool) —
-   replicating the interface face under the true names and true signatures of the S07_RealSetoidExpLog.v:7915 class block and
-   UpReqAlgebra.v:104/230/255; the five replacement proof bodies were pasted verbatim for a trial compile: rocq c EXIT=0.
-   Whole-file joint-compile leftover: this file Required CW_ConstructiveWorld_219 (a 16-line thin shell
-   = the S01-S15 mega-base); the in-pool joint rebuild exceeded the cpu_guard time cap, deferred to a base-module budget batch.
-   ============================================================ *)
-
-(* ============================================================ *)
-(* UpReqAlign3.v *)
-(* *)
-(* Purpose: third segment of the alignment family: normalization of the temperature weight w and the free-energy KL decomposition. *)
-(* Main pieces: w_pi_next_normalized / w_pi_star_normalized and w_F_t_rel_decomp / w_F_t_simpl_next_kl. *)
-(* Dependencies: CW_ConstructiveWorld_219, UpReqAlgebra, UpReqAlign, UpReqAlign2, and the earlier part of UpReqAlign3. *)
-(* Note: the temperature-weight carriers (pos3/nrm/KLE etc.) are given as Section variables; the KL decomposition is in per-eps interface form. *)
-(* ============================================================ *)
-
-(* UpReqAlign3.v — signature migration batch 3c: unconditional closure of the main-theorem chain
-     (batch 3c = the release batch for the pending list at the tail of batch 3b)
-   Upstream: UpReqAlgebra.v (batch 1 algebra bank) + UpReqAlign.v (batch 3) +
-     UpReqAlign2.v (batch 3b sum-free-energy deep-chain machine, 40 Qed) — all Required and used;
-   pure term-mode (req_trans chains + compat bridges), zero Morphisms dependency;
-   Set-layer statements (req/lt/le all Set-valued, zero Prop leakage).
-   ----------------------------------------------------------------
-   Results of this file (checked item by item against the pending list at the tail of UpReqAlign2.v, all proven):
-   [] reward_expand/align_energy_expand/F_align_F_t_rel/
-     align_objective_t12_decomp/J_pi_t/J_pi_next/surrogate_diff_identity
-     req-lifted + req2_policy_improvement_mono theorized (batch 3 bridge slot 3 released)
-     + req2_gap_diff/req2_gap_mono.
-   [] F_t_simpl_p/F_t_rel_decomp_p (generalized to an arbitrary normalized p)/sum_grad_cross/
-     grad_cross_identity/align_objective_explicit/rlhf_suboptimality_gap/
-     rlhf_policy_improvement/sum_advance_gap/t13_hexp/
-     backward_kl_step_beta/backward_kl_step (batch 3 bridge slot
-     req_backward_kl_identity released)/step_le/iter_le (step_kl_weighted
-     sigT packaging + req2_r_pow powers).
-   [main-theorem unconditionalization demo] req2_backward_kl_step: the backward-KL three-point identity
-     KL(pi_star‖pi_next) == (1−η)·KL(pi_star‖pi_t) − η·KL(pi_t‖pi_star)
-       + KL(pi_t‖pi_next)
-     is an **unconditional theorem** — every link of the chain is a genuine Qed proof (no B-class bridge assumption slots):
-     the statement of bridge slot req_backward_kl_identity is supplied by this file's req2_backward_kl_step
-     in same-position theorem form (the batch 3 assumption slot is demoted to a consumer).
-   [dpo/preference cluster] the dpo_reward cluster (is_implicit/recovers_up_to_baseline/
-     relative_exact/diff_is_log_ratio_diff) + the preference section (denom_pos/
-     implicit_reward_diff/pair_loss_at_star) + dpo_loss_at_pi_star +
-     sigmoid_strict_inc.
-   ----------------------------------------------------------------
-   Honest signature-change register (plan document §7.4):
-   1. log premise-ification: all req2-series logs carry explicit pointwise positivity parameters (same style as batches 3/3b);
-     the req versions of dpo_pair_loss/dpo_loss_pair accordingly carry explicit denominator-positivity slots.
-   2. minus carrier = UpReqAlgebra.req_minus (delta-transparent, same shape as Id minus).
-   3. B-class bridges (assumption slots retained, positioned like Id; this file ADDS TWO RELEASES):
-     - req2_gibbs_inequality (req same-position of Id gibbs_inequality@16629):
-       the plain-le form of KL >= 0 is not derivable from the per-eps interface fields (no order elimination),
-       assumption slot retained — to be demoted to a consumer once UpReqFreeEnergy (batch 2 FEP) lands;
-     - req2_inv_pos_lt_contra / req2_log_lt_mono (req same-position of Id Variables
-       L21013/21024, used by sigmoid_strict_inc).
-     - req2_step_kl_eta_bound: **not in this file** (a B-class Variable,
-       UpReqAlign already provides the assumption slot; its resolution is deferred to the req-sum instantiation batch, outside the deep chain).
-   4. (d) Frozen (following batches 3/3b): ppo_gap_nonneg, fold_right_ext and the list-fold
-     machinery (nat/list-layer Id, two-layer parallel) — dpo_total_loss_at_star/
-     dpo_total_loss_monotone are therefore frozen (fold carriers).
-   ---------------------------------------------------------------- *)
+(* Five-field pointer | Mission.  formalization of the properties stated by the theorem/lemma declaration faces of
+   this file: third segment of the alignment family — normalization of the temperature weight w and the free-energy
+   KL decomposition; main pieces w_pi_next_normalized / w_pi_star_normalized / w_F_t_rel_decomp /
+   w_F_t_simpl_next_kl; the temperature-weight carriers (pos3/nrm/KLE etc.) are Section variables, the KL
+   decomposition is in per-eps interface form.
+   Dependencies.  the library files listed in the Require declaration face of this file:
+   S01_BaseRing through S15_TailFEPUp, plus UpReqAlgebra, UpReqAlign, and UpReqAlign2; the module
+   RealInterfaceEnhancedMod (S07_RealSetoidExpLog) is imported.
+   References.  upstream chain UpReqAlgebra.v (algebra bank) + UpReqAlign.v + UpReqAlign2.v (sum-free-energy
+   deep-chain machine).
+   Constructivity.  zero admitted statements (mechanically checked); pure term-mode (req_trans chains + compat
+   bridges), zero Morphisms dependency; Set-layer statements (req/lt/le all Set-valued, zero Prop leakage).
+   Build.  coqc -native-compiler no -q -Q . "".
+   ============================================================
+   Main results (all proven): reward_expand / align_energy_expand / F_align_F_t_rel / align_objective_t12_decomp
+   / J_pi_t / J_pi_next / surrogate_diff_identity / req2_gap_diff / req2_gap_mono / F_t_simpl_p /
+   F_t_rel_decomp_p (arbitrary normalized p) / sum_grad_cross / grad_cross_identity / align_objective_explicit /
+   rlhf_suboptimality_gap / rlhf_policy_improvement / sum_advance_gap / t13_hexp / backward_kl_step_beta /
+   backward_kl_step / step_le / iter_le / req2_backward_kl_step (unconditional backward-KL three-point identity;
+   req_backward_kl_identity supplied in same-position theorem form) / the dpo_reward cluster + preference
+   section + dpo_loss_at_pi_star + sigmoid_strict_inc.
+   Signature-change register: req2-series logs carry explicit pointwise positivity parameters; minus carrier =
+   UpReqAlgebra.req_minus; B-class assumption slots retained for req2_gibbs_inequality / req2_inv_pos_lt_contra
+   / req2_log_lt_mono (req2_step_kl_eta_bound is an upstream Variable resolved in UpReqAlign); frozen fold carriers:
+   ppo_gap_nonneg / fold_right_ext / list-fold machinery / dpo_total_loss_at_star / dpo_total_loss_monotone. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

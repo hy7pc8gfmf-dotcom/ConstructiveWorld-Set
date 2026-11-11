@@ -1,49 +1,33 @@
-(* ConstructiveWorld-Set — the Real-carrier instance of the Banach
-   algebra pre-class. *)
+(* ConstructiveWorld-Set — the Real-carrier instance of the Banach algebra pre-class. *)
+(** * UpReqBanachInstReal: the Banach-algebra pre-class instantiated over the Real carrier.
 
-(** * UpReqBanachInstReal: a concrete instance of the Banach-algebra
-      pre-class over the Real carrier.
+    Mission.  Assembles the development's [Real] carrier (a dependent pair of a rational
+      sequence and its Cauchy witness) into the 39-field weak pre-class [bxin_BanachAlgPre]
+      of [UpReqBanachInst], producing [bxra_real_pre].  Carrier [Real]; equality face
+      [bxra_bae_germ] equates canonical germs ([Id (bxib_qnorm (head a))
+      (bxib_qnorm (head b))]); operations act on head rationals and renormalize; norm
+      [Qabs ∘ bxib_qnorm ∘ head].  Main statements: [bxra_real_pre], [bxra_norm_wd],
+      [bxra_norm_coef_qeqt], [bxra_f_norm_opp], [bxra_raw_pin_wall] (the original pinning
+      [Id (Qabs q) (Qabs (bxib_qnorm q))] is unsatisfiable), and the completeness dividends
+      [bxra_head_col_cauchy], [bxra_cauchy_limit_elem] (the head column of a pre-Cauchy
+      sequence is Q-Cauchy; the limit element is constructible in the carrier).
 
-    Mission.  Assembles the development's [Real] carrier (a dependent pair
-      of a rational sequence and its Cauchy witness) into the library
-      pre-class [bxin_BanachAlgPre] (the 39-field weak class of
-      [UpReqBanachInst]), producing the concrete instance
-      [bxra_real_pre].  Architecture: the carrier is [Real]; the equality
-      face [bxra_bae_germ] identifies canonical germs
-      ([Id (bxib_qnorm (head a)) (bxib_qnorm (head b))]); operations act
-      on head rationals and renormalize; the norm is
-      [Qabs ∘ bxib_qnorm ∘ head].  Main statements: [bxra_real_pre] (the
-      instance assembly), [bxra_norm_wd] and [bxra_norm_coef_qeqt]
-      (well-definedness of the norm and the pinning face),
-      [bxra_f_norm_opp], [bxra_raw_pin_wall] (the original pinning
-      [Id (Qabs q) (Qabs (bxib_qnorm q))] is unsatisfiable), and the
-      completeness dividends [bxra_head_col_cauchy] and
-      [bxra_cauchy_limit_elem] (the head column of a pre-Cauchy sequence
-      is Q-Cauchy, and the limit element is constructible in the
-      carrier).
+    Dependencies.  Stdlib [QArith], [QArith.Qabs], [ZArith], [Lia]; requires
+      [S01_BaseRing], [S02_CauchyComplete], [S03_QExp], [UpReqBanachExp],
+      [UpReqBanachInstB], [UpReqBanachInst] of this development.
 
-    Dependencies.  Stdlib [QArith], [QArith.Qabs], [ZArith], [Lia].
-      Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [UpReqBanachExp], [UpReqBanachInstB], [UpReqBanachInst] of this
-      development.
+    References.  This development; the ConstructiveWorld-Main baseline module of the same
+      name, statement names carried over verbatim.
 
-    References.  This development, the ConstructiveWorld-Main baseline
-      module of the same name whose statement names are carried over
-      verbatim.
+    Constructivity.  No axioms, parameters, conjectures, admits, Variables or Hypotheses;
+      conclusions carried by [Set]/[Id]/[QeqT]/[QleT'].  The convergence statement whose
+      norm reads the head term (the inner face of [bxin_pre_complete]) is honestly left
+      open: the limit element's head term would be the (constructively unnamed) limit of
+      the head column — the rational-sequence completeness obstruction; no forcing.
+      Extraction probes report [Obj.magic] = 0; [coqchk] reports [Axioms: none].
 
-    Constructivity.  No axioms, parameters, conjectures, admits,
-      Variables or Hypotheses; all statement conclusions are carried by
-      [Set]/[Id]/[QeqT]/[QleT'].  The convergence statement whose norm
-      reads the head term (the inner face of [bxin_pre_complete]) is
-      honestly left open: the head term of the limit element would have
-      to be the (constructively unnamed) limit value of the head column —
-      the rational-sequence completeness obstruction; no forcing.  The
-      extraction probes at the end of this file report [Obj.magic] = 0 on
-      the extracted face; [coqchk] reports [Axioms: none].
-
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachInstReal.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachInstReal.v] compiles cleanly
+      (exit 0); artifact starts with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

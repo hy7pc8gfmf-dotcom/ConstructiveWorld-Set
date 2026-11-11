@@ -3,39 +3,31 @@
 (** * UpAblT5_S04_RealExpLogConv: positive-inverse strict antitone bridge,
       strict log monotonicity, and archimedean power supply slots.
 
-    Mission.  (1) [abl_S04_inv_pos_lt_compat] - the strictly antitone
-      positive-inverse slot at the abstract interface layer; (2)
-      [abl_S04_log_lt_mono_cc] - strict log monotonicity at the concrete
-      [Real] layer; (3) [abl_r_pow] and [abl_S04_r_arch_pow] - the
-      archimedean power witness at the concrete [Real] layer.
+    Mission.  (1) [abl_S04_inv_pos_lt_compat] - strictly antitone
+      positive-inverse slot (abstract interface layer); (2)
+      [abl_S04_log_lt_mono_cc] - strict log monotonicity; (3) [abl_r_pow] /
+      [abl_S04_r_arch_pow] - archimedean power witness (slots (2)/(3) at
+      the concrete [Real] layer).
 
-    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp],
-      [InvPosLtCompat], [CW220_Extensions] (module [BudgetReal]),
-      [G05_LogSmall] of this development; slot (1) consumes
-      [ipl_inv_pos_lt_compat] ([InvPosLtCompat]), slot (2) consumes
-      [logd_log_lt_mono_real] ([G05_LogSmall]), slot (3) consumes
-      [r_arch_pow_real] ([CW220_Extensions.BudgetReal]).
+    Dependencies.  [S01_BaseRing] through [S15_TailFEPUp], [InvPosLtCompat],
+      [CW220_Extensions] (module [BudgetReal]), [G05_LogSmall]; slots (1)/(2)/(3)
+      consume [ipl_inv_pos_lt_compat] ([InvPosLtCompat]), [logd_log_lt_mono_real]
+      ([G05_LogSmall]), [r_arch_pow_real] ([CW220_Extensions.BudgetReal]).
 
-    References.  This development, UpAblT5_S04_RealExpLogConv.v, the
-      baseline module in ConstructiveWorld-Main whose statement names
-      are carried over here verbatim (statement-face Set-carrier
-      completion).  The baseline statements are the
-      [inv_pos_lt_compat] / [log_lt_mono_cc] / [r_arch_pow] slot family
-      of the real exp/log convergence interface.  Adaptation: the
-      carrier alias for slot (1) is bound through the qualified
-      class-field projection (the bare name [R] at the binding site
-      resolves to the [Notation R := Real] of the concrete-layer supply
-      modules, so the bare projection form raises "Illegal application
-      (Non-functional construction)"); the same unpack form as
-      [InvPosLtCompat] of this development.
+    References.  This development; the ConstructiveWorld-Main baseline of
+      the same name (statement names carried over verbatim, statement-face
+      Set-carrier completion), the [inv_pos_lt_compat] / [log_lt_mono_cc] /
+      [r_arch_pow] slot family.  Adaptation: slot (1)'s carrier alias binds
+      via the qualified class-field projection (the bare [R] resolves to
+      the [Notation R := Real] of the concrete-layer supply modules, so the
+      bare projection form raises "Illegal application (Non-functional
+      construction)"); unpack form as in [InvPosLtCompat].
 
-    Constructivity.  All Set-layer statements; every station closed by
-      [Qed], zero admitted items; the tail [Print Assumptions] probes
-      report the closure face; no new axioms.
+    Constructivity.  All Set-layer statements; every station [Qed]-closed,
+      zero admitted items; tail [Print Assumptions] probes; no new axioms.
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-      UpAblT5_S04_RealExpLogConv.v] compiles cleanly (exit 0); the first
-      eight bytes of the artifact are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblT5_S04_RealExpLogConv.v]
+      compiles cleanly (exit 0); first eight bytes [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

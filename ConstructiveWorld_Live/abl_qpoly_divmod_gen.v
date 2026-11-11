@@ -1,69 +1,33 @@
-(* ===================================================================== *)
-(*  Five-field pointer | Mission.  Q-polynomial division-with-remainder    *)
-(*    engine, GENERAL form (CK). Closes the interface qpd_divmod_gen_type *)
-(*    registered by CC: constructive long division for divisors of any    *)
-(*    degree (genuinely nonzero leading coefficient + degree >= 1).  Constructivity.  all proofs close by Qed/Defined; zero axioms.  Build.  rocq c -native-compiler no -Q <tree> "".       *)
-(*  Dependencies.  Stdlib QArith/Qring/Qfield/Lists/Arith/ZArith/Lia/      *)
-(*    Extraction; S01_BaseRing S02_CauchyComplete PolyIntegral            *)
-(*    (world-tree files); predecessor abl_qpoly_divmod (in-pool CC first  *)
-(*    piece: qpd_divmod_gen_pred/type containers, qpd_eval_add/cons/nil   *)
-(*    evaluation limbs, qpd_deglt degree limb, qpd_deg/qpd_lead).         *)
-(*  Constructivity: purely constructive, zero admitted pieces; statement  *)
-(*    surface entirely Set-level (sigT + S01.And + S02.QeqT + S01.Id).    *)
-(*    Prop-elimination born-clean: bare = -> Id (id_cong bridge),         *)
-(*    == -> QeqT (two-way gates qeq_imp_qeqT/qeqT_imp_qeq), nat <= ->     *)
-(*    NatLe (NatLe_lift/NatLe_drop_le bridges); Qeq/== appear only as      *)
-(*    proof-internal reasoning scaffolding; ring closures all go through  *)
-(*    the "all-variable pure ring leaf" pattern (pitfall cards AL/AX,     *)
-(*    same as predecessor §1). No magic values, no Prop cast shims, no    *)
-(*    Prop-ification.                                                     *)
-(*  Compile recipe: source Live/toolchain/env.sh && unset COQLIB ROCQLIB  *)
-(*    && ulimit -s 65532 && rocq c -native-compiler no -Q <world> ""      *)
-(*    abl_qpoly_divmod_gen.v (compile predecessor abl_qpoly_divmod.v      *)
-(*    first; lane gate <= 1 = single-process serial, cpu_guard wrapped).  *)
-(*  Benchmarks: CC abl_qpoly_divmod (linear synthetic division first      *)
-(*    piece); PolyIntegral pint_* (Q coefficient list precedent); BT §    *)
-(*    honest boundary route 3; AE §3.3 route 3.                           *)
-(* ===================================================================== *)
-(*  abl_qpoly_divmod_gen.v -- Q-layer polynomial division engine,         *)
-(*  general form (second stage).                                          *)
-(*                                                                        *)
-(*  Mission: close the CC-registered qpd_divmod_gen_type p q container    *)
-(*    (using its shape verbatim: sigT wrap of (quotient, remainder)       *)
-(*    plus the two correctness limbs                                      *)
-(*      (1) equation limb: forall x, QeqT (eval p x)                      *)
-(*            (eval q x * eval quotient x + eval remainder x)             *)
-(*      (2) degree limb:   qpd_deglt remainder q (decidable Id bool face) *)
-(*    delivering qpg_divmod_gen : forall p q, qpg_divisor_ok q ->         *)
-(*                            qpd_divmod_gen_type p q).                   *)
-(*                                                                        *)
-(*  Route (constructive classic long division): recurse by leading-term   *)
-(*    elimination -- quotient coefficient c = lead p / lead q (Q-level    *)
-(*    Qdiv, in-world); p - c*x^k*q has its top term cancel to zero,       *)
-(*    truncating the top yields p1 with deg p1 = deg p - 1 strictly       *)
-(*    decreasing; fuel = length p, genuine structural Fixpoint (nat fuel  *)
-(*    recursion, nontrivial algorithm body, extractable). Termination =   *)
-(*    length measure; correctness = inductive-step ring equation (taken   *)
-(*    directly from all-variable pure ring leaves).                       *)
-(*                                                                        *)
-(*  Diff vs CC interface (honest boundary): the divisor precondition is   *)
-(*    strengthened to qpg_divisor_ok q =                                  *)
-(*    (1) deg q >= 1 (Id bool face: ltb 0 (deg q) = true -- the degree    *)
-(*        limb then rules out constant divisors automatically),           *)
-(*    (2) lead q ≠ 0 (Id bool face: Qeq_bool (lead q) 0 = false,          *)
-(*        genuinely nonzero leading coefficient).*)
-(*    Reason: with head = constant term dense tables, listdeg is not the  *)
-(*    true degree (tail-zero example q=[1;2;0] has listdeg=2 but true     *)
-(*    degree=1 and lead=0); leading-term elimination requires a genuinely *)
-(*    nonzero leading coefficient to divide. The task brief's single      *)
-(*    precondition "deg q >= 1" is insufficient for this engine; this is  *)
-(*    an honest representation-level widening, with the container face    *)
-(*    and the CC registration unchanged.                                  *)
-(*                                                                        *)
-(*  First-piece strategy (45-minute slice): this piece closes the         *)
-(*    "recursion engine + existence limb"; the uniqueness limb            *)
-(*    (quotient/remainder uniqueness) is §5-registered only, not built.   *)
-(* ===================================================================== *)
+(* ConstructiveWorld-Set — Q-layer polynomial division engine: long division by a general divisor. *)
+(** * abl_qpoly_divmod_gen: division with remainder by a divisor of any degree for dense [Q]-list polynomials.
+
+    Mission.  Closes the general division interface declared by the
+      predecessor: [qpg_divmod_gen : forall p q, qpg_divisor_ok q ->
+      qpd_divmod_gen_type p q] wraps (quotient, remainder) in [sigT] with
+      the equation limb [forall x, QeqT (eval p x) (eval q x * eval
+      quotient x + eval remainder x)] and the degree limb [qpd_deglt
+      remainder q] ([Id] bool face).  Honesty: [qpg_divisor_ok] = degree
+      >= 1 AND nonzero lead, since tail-zero dense tables overstate the
+      degree; the uniqueness limb is declared, not built.
+
+    Dependencies.  Stdlib [QArith], [Qring], [Qfield], [Lists.List],
+      [Arith], [ZArith], [Lia], [Extraction]; requires [S01_BaseRing],
+      [S02_CauchyComplete], [PolyIntegral] and the predecessor
+      [abl_qpoly_divmod] (its [qpd_] container and limb faces).
+
+    References.  This development: [abl_qpoly_divmod] (stage one, linear
+      synthetic division); [PolyIntegral] (the [pint_*] Q-list precedent).
+
+    Constructivity.  All proofs close by [Qed]/[Defined]; zero axioms,
+      nothing admitted; statement face entirely [Set] ([sigT], [And],
+      [QeqT], [Id], [NatLe]); Prop faces stay proof-internal (bridges:
+      bare = to [Id], == to [QeqT], nat <= to [NatLe]); ring closures
+      use all-variable pure ring leaves; [qpg_engine] is a genuine
+      structural [Fixpoint], extractable; no magic values, no Prop casts.
+
+    Build.  [source Live/toolchain/env.sh && unset COQLIB ROCQLIB &&
+      ulimit -s 65532 && rocq c -native-compiler no -Q <world> ""
+      abl_qpoly_divmod_gen.v], compiling [abl_qpoly_divmod.v] first. *)
 
 From Stdlib Require Import QArith.QArith QArith.Qring QArith.Qfield.
 From Stdlib Require Import Lists.List Arith.Arith ZArith.ZArith Lia Extraction.

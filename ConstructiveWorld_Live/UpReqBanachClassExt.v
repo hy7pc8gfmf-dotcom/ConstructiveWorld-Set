@@ -1,35 +1,31 @@
 (* ConstructiveWorld-Set — extension of the Banach algebra class with scalar and separation fields. *)
 
-(** * UpReqBanachClassExt: an extended Banach-algebra class and the
-    discharge of explicit scalar premises.
+(** * UpReqBanachClassExt: an extended Banach-algebra class and the discharge of explicit
+      scalar premises.
 
-    Mission.  The algebra class [BanachAlg] of [UpReqBanachExp] leaves two
-    scalar-image laws as explicit premises downstream: additivity of the
-    rational scalar image and its congruence.  This file packages an
-    extension class [BanachAlgExt] carrying those laws as fields plus a
-    separation field (arbitrarily small norm implies equality), checks
-    each field definitionally against the premise shape it discharges,
-    provides the migration constructor [bxce_mk], and re-derives four
-    representative statements ([bxce_scal_plus], [bxce_binom_merge]).
+    Mission.  The algebra class [BanachAlg] of [UpReqBanachExp] leaves two scalar-image laws as
+      explicit premises downstream: additivity of the rational scalar image and its congruence.
+      This file packages an extension class [BanachAlgExt] carrying those laws as fields plus a
+      separation field (arbitrarily small norm implies equality), checks each field
+      definitionally against the premise shape it discharges, provides the migration
+      constructor [bxce_mk], and re-derives four representative statements ([bxce_scal_plus],
+      [bxce_binom_merge]).
 
-    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith],
-      [Lia].  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [UpReqBanachExp]; the frozen class [BanachAlg] is consumed, never
-      redefined.
+    Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith], [Lia].  Requires
+      [S01_BaseRing], [S02_CauchyComplete], [S03_QExp], [UpReqBanachExp]; the frozen class
+      [BanachAlg] is consumed, never redefined.
 
-    References.  This development, ConstructiveWorld-Main
-      UpReqBanachClassExt.v, the baseline module whose statement names are
-      carried over here verbatim.
+    References.  This development, ConstructiveWorld-Main UpReqBanachClassExt.v, the baseline
+      module whose statement names are carried over here verbatim.
 
     Constructivity.  All named statements and fields are carried by [Set]
-      ([QltT : Q -> Q -> Set]; the [Qeq] premise of [bxce_coef_wd] mirrors
-      the explicit-premise shape it discharges).  Extraction gives
-      [Obj.magic] = 0; [coqchk] reports [Axioms: none].  The completeness
-      field being premise-free, concrete instances must use a complete
+      ([QltT : Q -> Q -> Set]; the [Qeq] premise of [bxce_coef_wd] mirrors the explicit-premise
+      shape it discharges).  Extraction gives [Obj.magic] = 0; [coqchk] reports [Axioms: none].
+      The completeness field being premise-free, concrete instances must use a complete
       carrier; this file is the interface-level deliverable.
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachClassExt.v]
-      compiles cleanly (exit 0); the artifact starts with [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqBanachClassExt.v] compiles cleanly
+      (exit 0); the artifact starts with [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

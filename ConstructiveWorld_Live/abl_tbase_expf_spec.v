@@ -4,35 +4,26 @@
       interface slots of five host modules.
 
     Mission.  The exponential mini interface ([expf_pos], [expf_mono_lt],
-      [expf_mono_le]) declared by the host modules [S13_NLiveAudit],
-      [AttnDoeblin], [S15_TailFEPUp], [G01_CoreMicro], and [UpReqFEPAttn] is
-      supplied here at the concrete carrier [Real]. The function [tbex_fn]
-      transcribes the signature projection [uabd1x_expf] definitionally, and
-      eleven statements realize the slot readings — pointwise strict
-      positivity ([tbex_s13_expf_pos], [tbex_ad_expf_pos], [tbex_s15_expf_pos],
-      [tbex_g01_expf_pos], [tbex_fepa_expf_pos]), strict monotonicity
-      ([tbex_s13_expf_mono_lt], [tbex_ad_expf_mono_lt]), and order preservation
-      ([tbex_s13_expf_mono_le], [tbex_ad_expf_mono_le], [tbex_s15_expf_mono_le],
-      [tbex_g01_expf_mono_le]) — each closing by direct reference to the
+      [expf_mono_le]) declared by the hosts [S13_NLiveAudit], [AttnDoeblin],
+      [S15_TailFEPUp], [G01_CoreMicro], and [UpReqFEPAttn] is supplied at the
+      carrier [Real]: [tbex_fn] transcribes the signature projection
+      [uabd1x_expf] definitionally, and eleven statements realize the slot
+      readings — five pointwise strict positivity, two strict monotonicity,
+      four order preservation — each closing by direct reference to the
       unpacking lemmas [uabd1x_expf_pos], [uabd1x_expf_mono_lt], and
       [uabd1x_expf_mono_le] of [UpAblD1_expf_pack]. The [Id]-face slots
       [expf_zero]/[expf_plus] and the conditional pointwise [expf_agree] rows
       of the hosts stay outside this file's scope.
-
     Dependencies.  Stdlib [Extraction]. Requires [S01_BaseRing],
       [S02_CauchyComplete], [UpAblD1_expf_pack], [S06_DiffSamplingGibbs], and
       [S10_KVQuantTrig] of this development, all read-only.
-
     References.  This development, UpAblD1_expf_pack.v, and the baseline
       module of the same name in ConstructiveWorld-Main whose statement names
       are carried over here verbatim (statement-face Set-carrier completion).
-
     Constructivity.  All named statements are carried by [Set] ([real_lt] and
       [real_le] are Set-valued; no [Prop] components on the statement face);
-      every proof closes by [Qed]; the eleven [Print Assumptions] audits
-      report Closed; extraction reports [Obj.magic] = 0; [coqchk] reports
-      Axioms: none.
-
+      every proof closes by [Qed]; the eleven [Print Assumptions] audits report
+      Closed; extraction reports [Obj.magic] = 0; [coqchk] reports Axioms: none.
     Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
       abl_tbase_expf_spec.v] compiles cleanly (exit 0); the first eight bytes
       of the artifact are [436f7121 000160bc]. *)

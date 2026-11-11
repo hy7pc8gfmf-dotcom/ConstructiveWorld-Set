@@ -1,38 +1,33 @@
 (* ConstructiveWorld-Set — positivity engine for finite alternating sums over Q. *)
-
 (** * UpReqAltSumPos: positivity of finite alternating sums over the rationals.
 
     Mission.  For a nonnegative nonincreasing sequence [f : nat -> Q], the
       finite alternating sum [altsum f n = sum_{k<n} (-1)^k * f k] is
-      nonnegative ([altsum_nonneg], with the [QleT]-premise form), bounded
-      by its head term ([altsum_le_head]), at least the first pair
-      difference ([altsum_ge_pair0]), and strictly positive when the first
-      pair decreases strictly and [n >= 2] ([altsum_pos_strict]); plus the
-      support families [altsum_acc_*], [altsum_sgp_2k]/[altsum_sgp_2k1],
-      [altsum_peven_eq]/[altsum_podd_eq] and the concrete instances
-      [altsum_ex_*].
+      nonnegative ([altsum_nonneg], [QleT]-premise form), bounded by its head
+      term ([altsum_le_head]), at least the first pair difference
+      ([altsum_ge_pair0]), and strictly positive when the first pair
+      decreases strictly and [n >= 2] ([altsum_pos_strict]); plus support
+      families [altsum_acc_*], [altsum_sgp_2k]/[altsum_sgp_2k1],
+      [altsum_peven_eq]/[altsum_podd_eq] and the instances [altsum_ex_*].
 
     Dependencies.  Stdlib [QArith.QArith], [QArith.Qabs], [Arith.Arith],
-      [Lia].  Requires [S01_BaseRing], [S02_CauchyComplete] of this
-      development (the file also defines the local transport pair
-      [Id_eq]/[eq_Id] between [Id] and Leibniz equality).
+      [Lia]; this development's [S01_BaseRing], [S02_CauchyComplete].  The
+      local transport pair [Id_eq]/[eq_Id] bridges [Id] and Leibniz equality.
 
-    References.  This development, UpReqAltSumPos.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion: boolean and nat
-      equations moved to [Id], [==] identities to [QeqT]; premise-position
-      equalities are kept in Leibniz form).  The standard library identity
-      [altf N == 0] of [S03_QExp] is the coefficient identity of the
-      expansion of (1-1)^N, not the general engine, hence this file.
+    References.  The ConstructiveWorld-Main baseline module, statement names
+      carried over verbatim (statement-face Set-carrier completion: boolean
+      and nat equations moved to [Id], [==] identities to [QeqT];
+      premise-position equalities kept in Leibniz form).  The stdlib
+      identity [altf N == 0] of [S03_QExp] is the coefficient identity of
+      the expansion of (1-1)^N, not the general engine, hence this file.
 
     Constructivity.  All named statements are carried by [Set] (decidable
       Q-carriers [QltT]/[QleT']/[QeqT], [Id], the boolean sign accumulator
-      of [altsum_acc]); statements extract with [Obj.magic] = 0;
-      [coqchk] reports [Axioms: none].
+      of [altsum_acc]); statements extract with [Obj.magic] = 0; [coqchk]
+      reports [Axioms: none].
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqAltSumPos.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqAltSumPos.v] compiles
+      cleanly (exit 0), first eight artifact bytes [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

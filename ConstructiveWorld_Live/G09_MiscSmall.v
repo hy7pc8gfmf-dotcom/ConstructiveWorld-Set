@@ -1,143 +1,33 @@
-(* ============================================================
-   G09_MiscSmall -- Mission.  Finite-merge group file: four member
-   modules (UpReqPCT, UpReqBoltzDirect, UpReqSqPos, UpReqOrderArgmin)
-   are merged verbatim under one name; downstream code Requires this
-   group directly.  The group delivers (1) the reqRealSelfSS mini
-   class (three convergence-face fields), its clim:=lim instantiation,
-   and two PCT bridge theorems; (2) the Boltzmann factor positivity
-   family re-proved directly on the Cauchy Real construction layer;
-   (3) the square-nonnegativity slot family with an honest blockage
-   adjudication (the plain slot is not provable constructively; a
-   per-eps Bishop form is supplied); (4) the reqDecidableOrder-based
-   argmin machine with five ported theorems and two restated snd
-   machines.  All statement faces stay on the Set layer.
-   Dependencies.  S01_BaseRing through S15_TailFEPUp (the
-   real-interface chain), UpReqAlgebra, UpReqDist, UpReqAlign (fisher
-   and variance consumers), Stdlib List.
-   References.  Source members UpReqPCT / UpReqBoltzDirect /
-   UpReqSqPos / UpReqOrderArgmin (merged verbatim; each member keeps
-   its own Require block, the old-name Requires having been stripped
-   by the merge convention recorded in the member headers below).
-   Constructivity.  All proofs close by Qed; zero axioms, nothing
-   admitted, no conjectures, no abandoned proofs; statement faces
-   carry zero Prop (the single Leibniz-equality alignment certificate,
-   being predicate-level, is restated as the Set-layer two-way
-   implication bridge); Print Assumptions is listed for the Boltzmann
-   family.
-   Build.  rocq c -native-compiler no -Q <world> "" G09_MiscSmall.v
-   (same-world dependency .vo tree, cpu_guard tiered execution).
-   ============================================================ *)
+(* ConstructiveWorld-Set -- finite merge group: PCT bridge, Boltzmann positivity, square-nonnegativity slots, req argmin. *)
 
-(* ===================================================================== *)
-(* ToyR record continuation, slice three (all-Set, zero-admission faces). *)
-(*   Baseline: ConstructiveWorld-Main/ConstructiveWorld_Live, the 565     *)
-(*   registered faces (read-only).                                        *)
-(*   Nature: same-name deposition (the ablation-50 set has no name        *)
-(*   collision, so the original name is kept per convention) --           *)
-(*   declaration order and the statement faces are preserved verbatim;    *)
-(*   only the four toy proof bodies listed below were replaced.           *)
-(*   Replacement list (four cuts in this file):                           *)
-(*    (1) bzdir_boltzmann_factor_pos: deep swap -- no longer through the  *)
-(*      Real-layer wrapped engine real_exp_neg_pos; it unfolds down to    *)
-(*      the Cauchy per-eps construction layer and lands directly on       *)
-(*      cauchy_real_exp_pos (route swapped with main item B).             *)
-(*    (2) bzdir_boltzmann_factor_pos_cauchy: reverse swap -- no longer    *)
-(*      landing on the Cauchy construction layer directly; it uses the    *)
-(*      Real-layer wrapped engine real_exp_neg_pos (route swapped with    *)
-(*      main item A).                                                     *)
-(*    (3) bzdir_boltzmann_factor_one_pos: decoupled independent replay -- *)
-(*      no longer through main item A alone; it unfolds and lands         *)
-(*      directly on the Cauchy construction layer (zero-premise,          *)
-(*      self-contained form).                                             *)
-(*    (4) bzdir_boltzmann_factor_pos_le: decoupled upgrade -- no longer   *)
-(*      through main item A; the Real-layer engine is inlined directly    *)
-(*      plus an inl upgrade (decoupled from the sibling file's single     *)
-(*      use).                                                             *)
-(*   The remaining seven toys were re-audited as transparent conversion   *)
-(*   bridges (two-way direct-insertion identity items), definitional      *)
-(*   alignment certificates (reflexivity is the body itself), or          *)
-(*   single-route engine shapes (the square-eps item: the plain-layer     *)
-(*   constructive blockage is recorded in this file's header; the engine  *)
-(*   family is the only outlet; the Fisher and group-variance items       *)
-(*   forward the upstream engine wholesale with no second entry; the      *)
-(*   greedy-optimality item is definition unfolding plus a single engine  *)
-(*   use) -- the four un-washable classes, marked honestly in batch and   *)
-(*   not forced.                                                          *)
-(*   The whole file carries zero banned surfaces; fully paired; zero new  *)
-(*   reference faces.                                                     *)
-(* ===================================================================== *)
+(** * G09_MiscSmall: finite merge of the member modules [UpReqPCT],
+      [UpReqBoltzDirect], [UpReqSqPos], [UpReqOrderArgmin] (old-name
+      Requires stripped at merge time; downstream Requires the group).
 
-(* G group: G09_MiscSmall -- finite merge group (S/G dual-system naming,
-   members merged as-is)
-   Members: UpReqPCT + UpReqBoltzDirect + UpReqSqPos + UpReqOrderArgmin
-   (the members' old-name Requires were stripped at merge time; the old
-   names are ablated in the library, downstream code Requires this group
-   directly). *)
-(* ======== G09_MiscSmall member: UpReqPCT (merged as-is, carries its own Requires) ======== *)
-(* UpReqPCT.v -- signature migration batch 5, wave 4, bridge module C3:
-   reqRealSelfSS (a req StateSpace mini class, instantiated with
-   clim:=lim) + reqPCTDefs (the PCT definition layer) + two PCTRealBridge
-   items ported to req form.
-   Source file CW_ConstructiveWorld_219:
-     Class StateSpace (convergence face, 3 fields)   L1160-1187 (clim L1183 /
-                                              clim_unique L1184 /
-                                              cauchy_complete_S L1186-1187)
-     Definition RealSelfSS (the clim:=lim bridge body) L1219-1247
-                                              (convergence instantiation L1242-1244)
-     Module PCC is_truth / is_attractor      L1581-1585
-     Section PCTRealBridge (Let SS_R usage form)  L1710-1780 (2 items L1742 / L1757)
-   Upstream: the CW_ConstructiveWorld_219 base (the setoid interface ships
-   lim/lim_unique/cauchy_complete fields at L40589-40596 -- the locating
-   basis of the list's bridge-C3 adjudication); UpReqAlgebra was needed
-   on demand but is unused, so it is not Required; the other five items
-   need zero Requires.
-   ----------------------------------------------------------------
-   Bridge design (field-by-field check):
-   1. The reqRealSelfSS mini record = the req-isomorphic form of the
-      **convergence-face 3 fields** of Id StateSpace (L1160-1187,
-      21 fields) (the list's section 8 row C3: "req StateSpace mini
-      class (clim:=lim)" -- the PCT definition layer uses exactly the
-      convergence face; the 18 algebra/metric fields belong to the
-      list's section 8 row 4 reqStateSpace+reqHilbertSpace bridges
-      (abstract-class transcription, given by other modules); this
-      file does not cross that boundary and has no same-name clash):
-        clim              L1183 -> rself_clim
-        clim_unique       L1184 -> rself_clim_unique (conclusion position Id->req)
-        cauchy_complete_S L1186 -> rself_cauchy_complete (statement
-                                     verbatim same shape; the metric/lt/NatLe
-                                     base fields as-is)
-   2. reqRealSelfSS_inst = the req-isomorphic form of the convergence-face
-      instantiation of Id RealSelfSS (L1219-1247):
-        rself_clim := lim / rself_clim_unique := lim_unique /
-        rself_cauchy_complete := cauchy_complete -- the list's
-        "clim:=lim instantiation" bridge body (the Id L1242-1244
-        annotation maps position by position).
-   3. The reqPCTDefs definition layer:
-        reqPCT_is_truth     <- Id is_truth     L1581-1582 (statement verbatim
-                                    same shape, le referenced directly)
-        reqPCT_is_attractor <- Id is_attractor L1584-1585 (clim position =
-              rself_clim; the Id bridge uses the dynamics Variable under the
-              closed name fun _ => dyn around L1738 -- the req form moves that
-              dynamics position forward as the explicit argument dyn,
-              signature difference noted: dyn replaces dynamics)
-   4. iterate is reused directly: the CW_ConstructiveWorld_219 L1394
-      polymorphic pure nat Fixpoint (zero Id content; the nat-layer
-      non-migration convention follows the list's section 7.12
-      grpo_count_one precedent of using the count machine).
-   ----------------------------------------------------------------
-   Supplied items (the list's section 7.4 (c), 2 items):
-     req_pct_attractor_is_lim    <- pct_attractor_is_lim    L1742 (statement
-                                    isomorphic, bidirectional exact -- the
-                                    list L276 adjudication "after the bridge,
-                                    proofs are exact h, definition-level
-                                    trivial" is honored: rself_clim RSS_R
-                                    delta/iota-reduces along the
-                                    reqRealSelfSS_inst definition chain to lim)
-     req_pct_truth_is_global_min <- pct_truth_is_global_min L1757 (same)
-   Discipline: purely constructive; Set-layer statements (le/req/products
-   all base Set forms); pure term mode (split/intro/exact); core items Qed.
-   The G3 extraction check runs as an independent file (deleted after
-   verification). *)
+    Mission.  (1) the [reqRealSelfSS] mini class (three convergence-face
+      fields), its [clim:=lim] instantiation, and two PCT bridge theorems;
+      (2) the Boltzmann factor positivity family re-proved directly on
+      the Cauchy Real construction layer; (3) the square-nonnegativity
+      slot family with an honest blockage adjudication (the plain slot
+      is not provable constructively; a per-eps Bishop form is supplied);
+      (4) the [reqDecidableOrder] argmin machine (five ported theorems, two
+      restated snd machines).  All statement faces stay on the [Set] layer.
+
+    Dependencies.  [S01_BaseRing] .. [S15_TailFEPUp] (the real-interface
+      chain), [UpReqAlgebra], [UpReqDist], [UpReqAlign] (fisher and
+      variance consumers), Stdlib [List].
+
+    References.  Source members [UpReqPCT] / [UpReqBoltzDirect] /
+      [UpReqSqPos] / [UpReqOrderArgmin] (verbatim merge, own Require blocks).
+
+    Constructivity.  All proofs close by [Qed]; zero axioms, nothing
+      admitted, no conjectures; statement faces carry zero Prop (the
+      single Leibniz-equality alignment certificate, being predicate-
+      level, is restated as the Set-layer two-way implication bridge);
+      Print Assumptions is listed for the Boltzmann family.
+
+    Build.  [rocq c -native-compiler no -Q <world> "" G09_MiscSmall.v]
+      (same-world dependency .vo tree, cpu_guard tiered execution). *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

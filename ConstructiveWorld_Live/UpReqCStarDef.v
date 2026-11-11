@@ -1,48 +1,33 @@
 (* ConstructiveWorld-Set — C*-algebra definition face and an explicit-rate
    Newton square root for strictly positive elements. *)
-
 (** * UpReqCStarDef: C*-algebra structure over [BanachAlg] with a
       constructive Newton square root of positive elements.
-
-    Mission.  Assembles on top of [BanachAlg] (from [UpReqBanachExp]) the
-      Set/sigT definition face of a C*-algebra — an involutive Banach
-      algebra satisfying the C* identity (the norm of [a*a] equals the
-      squared norm of [a]) — and proves constructive convergence with an
-      explicit rate for the Newton square root of strictly positive
-      elements (classical proofs use order completeness; this module gives
-      an explicit modulus and an extractable index bound).  Layers:
-      the class [CStarAlg] (BanachAlg packaging, the antilinear involution
-      [cst_star], the C* identity field [cst_norm_sq] on the [QeqT] face,
-      and derived star facts); the Q-layer Newton engine ([x0 = a + 1],
-      [x_(n+1) = (x_n + a/x_n)/2], exact residual decay
-      [d_(n+1) = d_n^2 / (4 x_n^2)], geometric rate
-      [d_m <= d_0 (1/4)^m], explicit [N] through the geometric-decay
-      witness); norm transfer to the scalar-embedding face (for any
-      [BanachAlg], with the explicit [N] inherited verbatim); and the
-      positive cone in witness form ([a = star b * b] via [sigT], avoiding
-      order-based decidability) with cone-level lemmas.
-
-    Dependencies.  Stdlib [QArith], [QArith.Qabs], [Arith], [Lia].
-      Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [UpReqBanachExp] of this development.
-
-    References.  This development, the ConstructiveWorld-Main baseline
-      module of the same name whose statement names are carried over
-      verbatim; benchmark: the basic C*-algebra definitions and the
-      positive-element square-root construction in mathlib.
-
-    Constructivity.  No admits; the axiom face is empty; all named
-      statements are carried by [Set]/[sigT] ([bae]/[QeqT]/[QleT']/
-      [QltT]/[NatLe]); Q-layer [Qle]/[Qlt] (Prop) appear only inside
-      proofs as engine lining, never on the statement face.  Class-field
-      projections take the instance argument implicitly — field accesses
-      pass the instance explicitly with [@].  The extraction audit
-      reports [Obj.magic] = 0; [coqchk] reports [Axioms: none].
-
-    Build.  [coqc -native-compiler no -q -Q . "" UpReqCStarDef.v]
-      compiles cleanly (exit 0); the first eight bytes of the artifact
-      are [436f7121 00015ff4]; Q products and quotients are always
-      annotated in the [%Q] scope. *)
+    Mission.  Assembles on [BanachAlg] (from [UpReqBanachExp]) the Set/sigT
+      definition face of a C*-algebra — an involutive Banach algebra with the C*
+      identity (norm of [a*a] = squared norm of [a]) — and proves constructive
+      explicit-rate convergence for the Newton square root of strictly positive
+      elements (explicit modulus, extractable index bound; classical proofs use
+      order completeness).  Layers: the class [CStarAlg] (antilinear involution
+      [cst_star], C* identity field [cst_norm_sq] on the [QeqT] face, derived star
+      facts); Q-layer Newton engine ([x0 = a + 1], [x_(n+1) = (x_n + a/x_n)/2],
+      residual decay [d_(n+1) = d_n^2/(4 x_n^2)], geometric rate
+      [d_m <= d_0 (1/4)^m], explicit [N] via the geometric-decay witness); norm
+      transfer to the scalar-embedding face (any [BanachAlg], [N] inherited
+      verbatim); positive cone in witness form ([a = star b * b] via [sigT],
+      avoiding order-based decidability) with cone-level lemmas.
+    Dependencies.  This development: [S01_BaseRing], [S02_CauchyComplete],
+      [S03_QExp], [UpReqBanachExp]; Stdlib: [QArith], [QArith.Qabs], [Arith], [Lia].
+    References.  ConstructiveWorld-Main baseline module of the same name (statement
+      names carried over verbatim); benchmark: the basic C*-algebra definitions and
+      the positive-element square-root construction in mathlib.
+    Constructivity.  No admits; the axiom face is empty; all named statements are
+      carried by [Set]/[sigT] ([bae]/[QeqT]/[QleT']/[QltT]/[NatLe]); Q-layer
+      [Qle]/[Qlt] (Prop) only inside proofs, as engine lining, never on the
+      statement face; class-field projections implicit — accesses pass the instance
+      with [@]; extraction audit: [Obj.magic] = 0; [coqchk]: [Axioms: none].
+    Build.  [coqc -native-compiler no -q -Q . "" UpReqCStarDef.v] compiles cleanly
+      (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]; Q
+      products and quotients are always annotated in the [%Q] scope. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

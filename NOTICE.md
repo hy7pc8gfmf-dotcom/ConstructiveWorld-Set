@@ -5,11 +5,10 @@ Copyright 2026 王宝军、夏挽岚（通讯作者 xiawanlan33@163.com）、祖
 SOURCE CODE LICENSE
 ==========================================================================
 
-The Rocq/Coq formalization sources (.v) under ConstructiveWorld_Live/ and
-ConstructiveWorld_vo/, the compiled trust caches (.vo) under
-ConstructiveWorld_vo/, the single-file release builds (releases/), and the
-documentation (docs/) in this repository are licensed under the Apache
-License, Version 2.0.
+The Rocq/Coq formalization sources (.v) under ConstructiveWorld_Live/, the
+compiled trust caches (.vo), the single-file release builds (releases/),
+and the documentation (docs/) in this repository are licensed under the
+Apache License, Version 2.0.
 See LICENSE for the full license text.
 
 ==========================================================================
@@ -23,11 +22,11 @@ for details.
 1. EXTRACTED EXECUTABLE CHECKERS (RLA PROTECTED) — NONE PUBLISHED YET
 ==========================================================================
 
-Unlike the .vo trust caches under ConstructiveWorld_vo/ — which are
-development dependencies and are freely usable under Apache 2.0 — the RLA
-(Runtime License Agreement, CLA/RLA.md) protection track of this project
-covers future OCaml executable checkers and runtime components extracted
-from the project modules via Coq Extraction.
+Unlike the .vo trust caches — which are development dependencies and are
+freely usable under Apache 2.0 — the RLA (Runtime License Agreement,
+CLA/RLA.md) protection track of this project covers future OCaml
+executable checkers and runtime components extracted from the project
+modules via Coq Extraction.
 
 No such component has been published as of this NOTICE (status verified
 2026-10-06). Each component will be registered in the table below upon its

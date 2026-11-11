@@ -4,6 +4,61 @@ All notable changes to this library are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-11-11] — pool-erratum rows restored, dual-lane certification green run
+
+### Changed
+
+- The seven registration rows still missing at the `10a2402b` landing —
+  the rows its tree carried outside the registration order, identified by
+  the commit message as rows from the pool erratum disclosed in
+  `9a51c74` — restored to the registration order (`2f1ffbaf`): 530 → 537
+  registered rows, re-anchored in the #R97 batch.
+
+### Certification
+
+- Dual-lane (windows+macOS) certification green run #293 —
+  `COQCHK_ALL_PASS` + gate2 CLEAN with zero axioms. Certification
+  conclusions follow the Actions page's current state (the Actions page is
+  the sole source of current truth); no green beyond it is claimed in
+  advance.
+
+## [2026-11-10] — Main supply batches, dual-lane certification green run
+
+### Added
+
+- b53–b57 Main-to-Set supply, 14 pieces (`b3ae0ad`).
+- b48–b52 Main-migration supply, 13 pieces (`10a2402b`).
+
+### Certification
+
+- Dual-lane (windows+macOS) certification green run #292 —
+  `COQCHK_ALL_PASS` + gate2 CLEAN with zero axioms, the mac lane carrying
+  the gate6/gate7 alignment. Certification conclusions follow the Actions
+  page's current state (the Actions page is the sole source of current
+  truth); no green beyond it is claimed in advance.
+
+## [2026-11-09] — Windows-lane source-fetch channel, gate7 recast, surface reconciliation
+
+### Changed
+
+- Windows-lane source fetch moved to the API tarball of the run's sha,
+  with the ref-quiescence gate on the same API channel (`b943764`).
+- gate7 concrete-face recast and consumer-face stitching chain
+  (`022f2e9` series).
+- Three supply branches merged (`f7af973a`).
+- Registration surface reconciled: 503 = 503 (`d448bbd`).
+
+### Fixed
+
+- QltT signature-face regression reverted (`6fec74e`).
+
+## [2026-11-08] — registration surface completion
+
+### Changed
+
+- Registration surface completed: +31 registered, 5 dedup rows removed →
+  487 = 487 (`95e7631`).
+
 ## [2026-10-31] — M34–M38 waves, queue-mode CI, archive refreshes
 
 ### Added

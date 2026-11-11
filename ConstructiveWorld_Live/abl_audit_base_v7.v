@@ -3,43 +3,31 @@
 (** * abl_audit_base_v7: direct-exercise carriers for the provability
       machinery of [G10_LoebFam].
 
-    Mission.  Five carrier theorems exercise the soundness face of the
-      provability machinery — the meta-level soundness of the object
-      proof system [Prf]. Each carrier pairs the general form of one
-      upstream statement with concrete instances at the certificate
-      code 2624 (= gnPrf of 0 = 0) and the formula code 656 (= gnF of
-      0 = 0): [abg_prf_sound_ax_branch] (general [Prf_soundness] plus
-      the [ax_eqT] branch instance), [abg_prf_sound_mp_repl_derivation]
-      (the real mpF ∘ repl composite derivation, exercising both
-      branches of the soundness induction), [abg_prf_sound_repl_branch]
-      (the repl branch, covering the Σ0 substitution invariant),
-      [abg_gnprf_replay_2624] ([gnPrf_replay] plus its self-fueled
-      corollary at code 2624, where dP2 2624 2624 returns Some(0 = 0)),
-      and [abg_verpf_ledger_656] ([verPf_ledger_sound] plus the Σ-atom
-      ledger instance at the tight bound 2625 and five verPf smoke
-      tests, four of them negative). The explicit certificate closures
-      [abg_fzz], [abg_axz], [abg_th0], [abg_pfr], and [abg_pfmp] build
-      the concrete proofs.
+    Mission.  Five carrier theorems exercise the soundness face of the provability machinery —
+      the meta-level soundness of the object proof system [Prf] — each pairing an upstream
+      statement's general form with concrete instances at certificate code 2624
+      (= gnPrf of 0 = 0) and formula code 656 (= gnF of 0 = 0): [abg_prf_sound_ax_branch]
+      ([Prf_soundness]; [ax_eqT] branch), [abg_prf_sound_mp_repl_derivation] (real mpF ∘ repl
+      composite; both soundness-induction branches), [abg_prf_sound_repl_branch] (the Σ0
+      substitution invariant), [abg_gnprf_replay_2624] ([gnPrf_replay]; self-fueled corollary:
+      dP2 2624 2624 = Some(0 = 0)), [abg_verpf_ledger_656] ([verPf_ledger_sound]; Σ-atom
+      instance at the tight bound 2625; five verPf smoke tests, four negative). Closures
+      [abg_fzz] [abg_axz] [abg_th0] [abg_pfr] [abg_pfmp] build the proofs.
 
     Dependencies.  Requires [G10_LoebFam] of this development; Stdlib
       [Extraction] at the file tail.
 
-    References.  This development, G10_LoebFam.v (the exercised
-      statements [Prf_soundness], [gnPrf_replay], [gnPrf_replay_eq],
-      [verPf_ledger_sound], and [evalF2_fsig_ledger]), and the baseline
-      module of the same name in ConstructiveWorld-Main whose statement
-      names are carried over here verbatim.
+    References.  This development, G10_LoebFam.v (the exercised statements [Prf_soundness],
+      [gnPrf_replay], [gnPrf_replay_eq], [verPf_ledger_sound], [evalF2_fsig_ledger]), and the
+      same-name baseline module of ConstructiveWorld-Main (statement names verbatim).
 
-    Constructivity.  No admitted statements, no classical logic, no
-      [Prop] carriers: conjunctions on the statement face are
-      [Datatypes.prod] and equalities are [loeb_tid]; arithmetic bounds
-      appear only in proof-layer premises; proofs close by [Qed]
-      through explicit terms and [eq_refl]-level computation; the ten
-      [Print Assumptions] audits report Closed.
+    Constructivity.  No admitted statements, no classical logic, no [Prop] carriers:
+      statement-face conjunctions are [Datatypes.prod], equalities are [loeb_tid]; arithmetic
+      bounds only in proof-layer premises; proofs close by [Qed] through explicit terms and
+      [eq_refl]-level computation; the ten [Print Assumptions] audits report Closed.
 
-    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
-      abl_audit_base_v7.v] compiles cleanly (exit 0); the first eight
-      bytes of the artifact are [436f7121 000160bc]. *)
+    Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live "" abl_audit_base_v7.v]
+      compiles cleanly (exit 0); the artifact's first eight bytes are [436f7121 000160bc]. *)
 
 Require Import G10_LoebFam.
 

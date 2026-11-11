@@ -125,7 +125,7 @@ Build Live tree (order.txt topology; fingerprint SKIP over the seeded trust cach
 gate7 extraction execution (post-build; per-module 4a; --gate vs scripts/gates/gate7_extract_baseline.json; red on growth only)
 gate5 .vo/.vos/.vok binary quarantine (pre-coqchk)
 coqchk full-tree certification (shared closure, single pass)
-gate2 axioms sentinel (block state machine; banner generation pin 9.1)
+gate2 axioms sentinel (block state machine; banner generation pin 9.3.0)
 ```
 
 Gate baselines follow the three-tier doctrine: stock is frozen (never

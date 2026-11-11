@@ -2,43 +2,32 @@
 
 (** * UpReqAlignRestB: setoid rest of the alignment sampling family.
 
-    Mission.  List-summation machinery over the setoid interface
-      ([rsum], [rls_ext], [rls_linear], [rls_nonneg], [rls_single_le],
-      [rls_pos], [rls_le], [rls_kernel_norm_gen]) and its consumers:
-      the Min-P and Top-k sampling worlds with combined keep
-      ([req_minp_markov_kernel_normalized],
+    Mission.  List-summation machinery over the setoid interface ([rsum], [rls_ext],
+      [rls_linear], [rls_nonneg], [rls_single_le], [rls_pos], [rls_le],
+      [rls_kernel_norm_gen]) and its consumers: the Min-P/Top-k sampling worlds with
+      combined keep ([req_minp_markov_kernel_normalized],
       [req_topp_markov_kernel_normalized],
-      [req_combined_topk_markov_kernel_normalized]), the entropy
-      definition group ([req_E_B_ent], [req_Omega_total_ent],
-      [req_entropy_ent], [req_Omega_total_pos]), and the KV-quant
-      eviction world ([req_epos], [req_boltzmann_diff_bound],
-      [req_db_breaking_bound_eps]).
-
-    Dependencies.  Stdlib [Datatypes], [List] with [ListNotations].
-      Requires [S01_BaseRing] through [S15_TailFEPUp], [UpReqAlgebra],
-      [UpReqPropLiftShim] of this development; imports
-      [RealInterfaceEnhancedMod].
-
-    References.  This development; the baseline module
-      CW_ConstructiveWorld_219 (sections MinPSampling, TopPSampling,
-      EntropyDiffReal, RealKVQuantMain) of ConstructiveWorld-Main, whose
-      statement names are carried over here verbatim (statement-face
-      Set-carrier completion; [minus] becomes [req_minus] and
-      [Id]-equality becomes [req]).  Fields absent from the setoid
-      interface are explicit premises: [req_le_dec], [req_lt_dec],
-      [pick_max_in_vocab], [req_boltzmann_diff_bridge],
+      [req_combined_topk_markov_kernel_normalized]), the entropy definition group
+      ([req_E_B_ent], [req_Omega_total_ent], [req_entropy_ent],
+      [req_Omega_total_pos]), and the KV-quant eviction world ([req_epos],
+      [req_boltzmann_diff_bound], [req_db_breaking_bound_eps]).
+    Dependencies.  Stdlib [Datatypes], [List] with [ListNotations].  Requires
+      [S01_BaseRing] through [S15_TailFEPUp], [UpReqAlgebra], [UpReqPropLiftShim] of
+      this development; imports [RealInterfaceEnhancedMod].
+    References.  The baseline module CW_ConstructiveWorld_219 (sections
+      MinPSampling, TopPSampling, EntropyDiffReal, RealKVQuantMain) of
+      ConstructiveWorld-Main, whose statement names carry over here verbatim
+      (statement-face Set-carrier completion; [minus] to [req_minus], [Id]-equality
+      to [req]).  Fields absent from the setoid interface are explicit premises:
+      [req_le_dec], [req_lt_dec], [pick_max_in_vocab], [req_boltzmann_diff_bridge],
       [transition_nonneg].
-
-    Constructivity.  All named statements are carried by [Set] (the
-      interface carriers [req], [lt], [le], [req_minus] with
-      [Not]/[And]/[Or] and [Id] on nat/bool/list); proofs are closed
-      term-mode derivations, the decidability lemmas end in [Defined],
-      and no statement is admitted.
-
+    Constructivity.  All statements are carried by [Set] (the interface carriers
+      [req], [lt], [le], [req_minus] with [Not]/[And]/[Or] and [Id] on
+      nat/bool/list); proofs are closed term-mode derivations, the decidability
+      lemmas end in [Defined], and no statement is left unproved.
     Build.  [coqc -native-compiler no -q -Q ConstructiveWorld_Live ""
-      ConstructiveWorld_Live/UpReqAlignRestB.v] compiles cleanly
-      (exit 0); the first eight bytes of the artifact are
-      [436f7121 000160bc]. *)
+      ConstructiveWorld_Live/UpReqAlignRestB.v] compiles cleanly (exit 0); the
+      first eight bytes of the artifact are [436f7121 000160bc]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.

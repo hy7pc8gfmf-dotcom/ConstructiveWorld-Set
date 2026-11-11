@@ -18,37 +18,38 @@ This repository is the constructive mathematics library accompanying the paper "
 
 ## 1. Library overview
 
-- **Scale**: 89 registered modules (registration order `order.txt`, 89 lines, registration batches `#R0`–`#R17`). The registration order is the library's authoritative reference surface: one line per registered file, of the form `S01_BaseRing.v#R0-d66910`, where the part after `#` is the registration batch fingerprint; the two trees and the registration order have zero set difference.
+- **Scale**: 537 registered modules (registration order `ConstructiveWorld_Live/order.txt`, 537 registered lines, registration batches `#R0`–`#R153`; the file has no blank lines and is 537 lines in total, measured 2026-11-11; it grows as registration advances — the current state governs). The registration order is the library's authoritative reference surface: one line per registered file, of the form `S01_BaseRing.v#R0-d66910`, where the part after `#` is the registration batch fingerprint; the tree's `.v` files (537) and the registration order (537 lines) have zero set difference (measured 2026-11-11).
 - **Content surface**: the S01–S15 constructive reals and analysis base; the upper-bound requirements family for Banach norms and Padé approximation (`UpReqBanach*` / `UpReqPade*`); the Boltzmann/Gibbs, GRPO/DPO alignment and entropy surface (S05/S06/S08/S09); attention-chain bounds (`Attn*`); and the companion machinery surface (`b1_*`, `mach_fold_q`, `abl_z2/z3_pointwise`, `abl_Hqarch_*`, `fib_machine`).
-- **Purely constructive**: the library uses no `Axiom`, no `Admitted`, and no classical logic; the kernel-level `coqchk -o` recheck convention is `Axioms: <none>`.
+- **Purely constructive**: the library uses no `Axiom`, no `Admitted`, and no classical logic; the kernel-level `coqchk -o` recheck convention is `Axioms: <none>` (this repository's convention requirement; the cloud-side settled status is governed by the §2 "CI certification" row, and no audit conclusion is claimed in advance).
 - **Explicit `sigT` witnesses at the `Set` layer**: existential conclusions always come with computable witnesses (rational endpoints, approximate roots, etc.), never remaining at the propositional layer.
 - **Extractable**: target-language code is generated via `Separate Extraction`, with the `Obj.magic` count mechanically checked to be zero (a nonzero count would mean Prop-layer content leaking into the extraction surface).
 - **The "rate-is-algorithm" paradigm**: the executable artifact (a `Defined` computation) and its correctness certificate (a `Qed` proof) coexist in one body — theorems and programs are two faces of the same thing.
 
-**Division of labor among sister repositories**: the full 893-file library lives in [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main) (with the π ladder, the five-constants family, and the ZZ measure route); this repository is the condensed `Set`-layer registration surface.
+**Division of labor among sister repositories**: the full certified library (a certified surface of 1021 files, with the π ladder, the five-constants family, and the ZZ measure route) lives in [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main); Main completed its kernel full-closure certification on Rocq 9.3.0 (2026-11-07 run #9, `coqchk` over 14 groups, `Axioms: <none>`, GPG-signed tag `GREEN-CERTIFIED-v1` — see its README §2 for the publication surface). This repository is the condensed `Set`-layer registration surface.
 
-**The π pillar as an independent package**: the constructive strong irrationality of π is published as the independent Rocq package [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) (Leibniz window method · `Set`-layer carriers · zero axioms · extractable witnesses), currently at `v1.0.4` (tag dereferences to commit `e1891fce`, green CI run 27), archived on Zenodo under DOI [10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983) (the integration line, concept 23656982); the v1.0.0 batch is merged into the Rocq opam repository (rocq-prover/opam #3884), and the consolidated PR [#3899](https://github.com/rocq-prover/opam/pull/3899) for v1.0.1–1.0.4 is under review (supersedes #3896/#3897/#3898). Earlier, its generic escape-window criterion engine was submitted upstream to the Rocq standard library (Issue #312 / PR #313); following the maintainers' feedback, that route was turned into the independent-library publication path (the package above).
+**The π pillar as an independent package**: the constructive strong irrationality of π is published as the independent Rocq package [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) (Leibniz window method · `Set`-layer carriers · zero axioms · extractable witnesses), at `v1.0.4` (the tag dereferences to commit `e1891fce`; that package's CI status is independent of this repository — see the rocq-pi-leibniz repository page for its current state), archived on Zenodo under DOI [10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983) (the integration line, concept 23656982); the v1.0.0 batch is merged into the Rocq opam repository (rocq-prover/opam #3884), and the status of the consolidated PR [#3899](https://github.com/rocq-prover/opam/pull/3899) for v1.0.1–1.0.4 (supersedes #3896/#3897/#3898) follows the upstream PR page's current state. Earlier, its generic escape-window criterion engine was submitted upstream to the Rocq standard library rocq-prover/stdlib (Issue #312 / PR #313); following the maintainers' feedback, that route was turned into the independent-library publication path (the package above).
 
 ## 2. Version and certification record
 
 | Item | Value |
 |---|---|
-| Library version | `ec228da` (`main` branch, measured 2026-10-29) |
-| CI certification | most recent green run [#55](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Set/actions/runs) (head `5293f1b`, 2026-10-29); the run #56 for the current head `ec228da` is in flight — its certification conclusion governs once it lands, and no green is claimed in advance |
-| Axiom audit | whole-library `coqchk -o` recheck, `Axioms: <none>` |
-| Registration order | `order.txt`, 89 lines (`#R0`–`#R17`) |
+| Library version | `2f1ffbaf` (`main` branch, measured 2026-11-11) |
+| CI certification | most recent settled green run **#293** (2026-11-11 · win+mac dual-track all-step green · `COQCHK_ALL_PASS` · gate2 CLEAN, 0 axioms) — certification conclusions follow the Actions page's current state (the Actions page is the sole source of current truth), and no green beyond it is claimed in advance. The green face previously recorded in this table ended at run #55 (head `5293f1b`, 2026-10-29); the run states between #55 and #293 are not itemized in this table |
+| Axiom audit | convention requirement: a whole-library `coqchk -o` recheck must yield `Axioms: <none>`. The most recent settled green run is #293 (2026-11-11): gate2 CLEAN, 0 axioms; audit conclusions follow the Actions page's current state, and none beyond it is claimed in advance |
+| Registration order | `order.txt`, 537 registered lines, the file has no blank lines and is 537 lines in total (`#R0`–`#R153`; measured 2026-11-11) |
 | License | Apache-2.0 (see `LICENSE`) |
 
-On every push, continuous integration (`.github/workflows/coq.yml`) runs: gate1 poison-token guard → gate4 comment sentinel → gate3 cross-tree diff → full-tree compilation → gate5 vo-binary quarantine → whole-tree `coqchk` kernel recheck → gate2 axiom sentinel (parsing the `coqchk` log for `Axioms: <none>`). The sentinel scripts live in `scripts/gates/`.
+On every push, continuous integration (`.github/workflows/coq.yml`) runs (Windows certification job; the macOS observation job `coq-build-macos` was unblocked on 2026-11-03): gate1 poison-token guard → gate4 comment sentinel → gate6 statement census (red = growth) → vo trust-cache seed at start (fail-open) → full-tree compilation (single Live tree · order topology · thermal wrap) → gate7 extraction execution (red = growth) → gate5 vo-binary quarantine (token + digest, calibrated) → whole-tree `coqchk` kernel recheck (shared closure, single pass, thermal wrap) → gate2 axiom sentinel (a block state machine parses the `coqchk` log for `Axioms: <none>`). The gate3 cross-tree diff was removed with the 2026-10-07 single-tree-ing (#C-S00c). The sentinel scripts live in `scripts/gates/`. The CI toolchain generation is pinned to `Welcome to Chicken 9.3.0` (Rocq 9.3.0, re-based 2026-11-02) — the toolchain generation is not the certification conclusion; see the CI certification row above.
 
 ## 3. Environment prerequisites
 
-- **Rocq / Coq 9.1.0** (`rocq` and `coqchk` were verified on this version). Older versions are unverified; after changing the verification environment, rerun the four steps below.
+- **Rocq / Coq 9.3.0** (this repository's CI generation — `.github/workflows/coq.yml` gate2 pins `Welcome to Chicken 9.3.0`). Older versions are unverified; after changing the verification environment, rerun the four steps below.
+- **Sister-repository certification (cross-reference)**: ConstructiveWorld-Main completed its kernel full-closure certification on Rocq 9.3.0 (tag `GREEN-CERTIFIED-v1`, `coqchk` over 14 groups, `Axioms: <none>`, 2026-11-07); that certification belongs to the Main repository and does not represent this repository's CI current state — this repository's current settled green is run #293 (settled 2026-11-11), and the Set-side certification status follows this repository's Actions page's current state.
 - No external OCaml dependencies; extraction products are plain OCaml sources kept as audit objects, and no executable OCaml environment is required.
 
 ## 4. Reproduction: four-step verification
 
-Verbatim identical to §6 "four-step command forms" of the paper. Run the commands inside `ConstructiveWorld_vo/` (or `ConstructiveWorld_Live/`); both trees use the `-Q . ""` flat namespace. The full-tree driver is `.github/workflows/coq.yml`.
+Verbatim identical to §6 "four-step command forms" of the paper. Run the commands inside `ConstructiveWorld_Live/`; the tree uses the `-Q . ""` flat namespace. The full-tree driver is `.github/workflows/coq.yml`.
 
 ```sh
 # ① Full compilation: file by file in order.txt registration order (direct local invocation; full-tree driver in the CI workflow)
@@ -65,17 +66,18 @@ Notes:
 
 - The logical library name is **not** the file name. For example, the logical name of `S01_BaseRing.v` is `FS01_BaseRing` (line 2 of `S01_BaseRing.glob`). In step ④, using the file name instead makes `coqchk` report a missing library.
 - In step ①, executing files one by one in `order.txt` line order satisfies the dependency order; resolve any single-file failure before continuing.
-- The four steps cover all 89 registered files of the registration surface.
+- The four steps cover all registered files of the registration surface (537 files, current state).
 
 ## 5. Repository layout
 
+This repository is a single-tree layout: the `ConstructiveWorld_vo/` artifact tree was removed in the 2026-10-07 baseline cut (#C-S00), and the gate3 cross-tree diff was removed with it.
+
 | Path | Contents |
 |---|---|
-| `ConstructiveWorld_Live/` | Source tree: all `.v` sources + `order.txt` (89 lines) + `_CoqProject` (`-Q . ""`) |
-| `ConstructiveWorld_vo/` | Artifact tree: isomorphic to the source tree, plus `.vo`/`.glob`/`.vos`/`.vok` build products |
-| `order.txt` | Registration order (one copy in each tree and in `scripts/`, identical content), the authoritative reference surface |
-| `scripts/` | Registration-order maintenance scripts and the `scripts/gates/` sentinels (poison-token guard, axiom parsing, cross-tree diff, comment sentinel, vo-dependency quarantine) |
-| `.github/workflows/coq.yml` | CI full-tree driver (compilation + `coqchk` + sentinels) |
+| `ConstructiveWorld_Live/` | Source tree: all `.v` sources (537 in the tree / 537 registered, measured 2026-11-11) + `order.txt` (537 lines, no blank lines) + `_CoqProject` (549 lines, `-Q . ""`) |
+| `order.txt` | Registration order, the authoritative reference surface. `scripts/` keeps a maintenance-use historical copy (671 lines, ending at the #R172 wave, frozen 2026-10-07) — the freeze predates that evening's single-tree-ing and the subsequent rebuild of the current registration surface; its line count and batch sequence cannot be directly compared with the current registration surface (#R0–#R153) and are kept for historical reference only |
+| `scripts/` | Registration-order maintenance scripts and the `scripts/gates/` sentinels (poison-token guard, axiom parsing, comment sentinel, statement census, vo-dependency quarantine, extraction execution) |
+| `.github/workflows/coq.yml` | CI full-tree driver (compilation + `coqchk` + sentinels · Rocq 9.3.0 generation pin) |
 | `docs/` | Design and planning documents |
 | `releases/` | Historical single-file merged edition (the 220 edition, see appendix) |
 
@@ -83,11 +85,12 @@ Notes:
 
 - **License**: Apache-2.0. Extraction products (`.ml`/`.mli`) share the license of the sources.
 - **Reference anchors**: when citing a library statement, locate it by "file name + `order.txt` line number + batch fingerprint". Batch fingerprints are fixed per registration batch and can be used to verify the version cited.
+- **Sister-repository certification publication surface**: tag / Release / Zenodo see [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main) README §2/§7 (that is the Main repository's certification surface, independent of this repository's CI status described here).
 - **Authors**: see the "Authors" table at the top.
 
 ## 7. Public scope and exceptions
 
-All files on the reference surface are published in full. As of the 2026-10-29 measurement, the tree's `.v` files and the registration order have zero set difference and there are no unregistered source files. Should unregistered files appear later, their disposition will be registered here along with the adjudication of the upcoming public forward batches; the current registration order (89 lines) is the sole authoritative reference surface, and unregistered files imply no referencing commitment of the library.
+All files on the reference surface are published in full. Current state (measured 2026-11-11): the tree's `.v` files (537) and the registration order (537 lines) have zero set difference and there are no unregistered source files — earlier out-of-registration supply files were batch-registered on 2026-11-08 (commit `95e7631`, whose message self-describes 31 registrations and 5 deduplicated rows; `git show` measures a numstat of +62/−6 lines, of which +32 are registered rows and +30 batch-separator blank lines, landing in the existing #R0/#R97 batches without opening new batch numbers), and the seven files that were in the tree but outside the registration order at the `10a2402b` landing (`PA_TempSoftmaxInstantiation.v`, `UpAblP6_GibbsFamilyExt.v`, `abl_div_chisq_twopoint.v`, `abl_z2_decay.v`, `u5c_pr_mertens_nat.v`, `u5c_zeta2_a1_sign11.v`, `u5c_zeta2_gapB.v`) were all restored to the registration order on 2026-11-11 by commit `2f1ffbaf` (re-anchored in the #R97 batch; its message identifies them as rows from the pool erratum disclosed in `9a51c74`). Should unregistered files appear later, their disposition will be registered here along with the adjudication of the repository's public-forward batches; the current registration order (537 lines) is the sole authoritative reference surface, and unregistered files imply no referencing commitment of the library.
 
 ## Appendix: notes on the 220 edition (2026-09-07/08)
 

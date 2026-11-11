@@ -1,39 +1,33 @@
 (* ConstructiveWorld-Set — DPO alignment partition positivity certificate and premise packaging. *)
 
-(** * UpAblD1S17_UpReqDpoLoss: the DPO alignment partition positivity
-      certificate and its premise packaging record.
+(** * UpAblD1S17_UpReqDpoLoss: the DPO alignment partition positivity certificate
+      and its premise packaging record.
 
-    Mission.  [uabd1s17_dpo_zap_pos] (the positivity supply certificate
-      for [Z_align]) together with the thirteen-slot premise packaging
-      record [uabd1s17_dpo_pack13] and its supplied witness
-      [uabd1s17_dpo_pack13_supplied].
+    Mission.  [uabd1s17_dpo_zap_pos] (the positivity supply certificate for
+      [Z_align]) together with the thirteen-slot premise packaging record
+      [uabd1s17_dpo_pack13] and its supplied witness [uabd1s17_dpo_pack13_supplied].
 
-    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and
-      [UpReqAlign] of this development; the interface is the
-      argument-less Class [RealInterfaceEnhancedSetoid] (module
-      [RealInterfaceEnhancedMod]).
+    Dependencies.  Requires [S01_BaseRing] through [S15_TailFEPUp] and [UpReqAlign]
+      of this development; the interface is the argument-less Class
+      [RealInterfaceEnhancedSetoid] (module [RealInterfaceEnhancedMod]).
 
-    References.  This development, UpAblD1S17_UpReqDpoLoss.v, the
-      baseline module in ConstructiveWorld-Main whose statement names
-      are carried over here verbatim (statement-face Set-carrier
-      completion).  The baseline statement is the DPO alignment
-      partition positivity premise (supply certificate for the alignment
-      partition variable).  Adaptation = pure binder removal + notation
-      rebinding on this development's own precedent (the source
-      argumented Class applications raised "Illegal application
-      (Non-functional construction)" against the argument-less
-      interface): [R := Real] by notation (UpReqSumD.v L58), predicate
-      face [real_lt] (UpReqSumD.v L113-114), law fields resolved as bare
-      names through the global instance [RealEnhancedReal]
-      (UpReqSumD.v L68-72).
+    References.  This development, UpAblD1S17_UpReqDpoLoss.v, the baseline module in
+      ConstructiveWorld-Main whose statement names are carried over here verbatim
+      (statement-face Set-carrier completion).  The baseline statement is the DPO
+      alignment partition positivity premise (supply certificate for the alignment
+      partition variable).  Adaptation = pure binder removal + notation rebinding on
+      this development's own precedent (the source argumented Class applications
+      raised "Illegal application (Non-functional construction)" against the
+      argument-less interface): [R := Real] by notation (UpReqSumD.v L58), predicate
+      face [real_lt] (UpReqSumD.v L113-114), law fields resolved as bare names
+      through the global instance [RealEnhancedReal] (UpReqSumD.v L68-72).
 
-    Constructivity.  All Set-layer statements; every station closed by
-      [Qed], zero admitted items; the tail [Print Assumptions] probes
-      report the closure face; no new axioms.
+    Constructivity.  All Set-layer statements; every station closed by [Qed], zero
+      admitted items; the tail [Print Assumptions] probes report the closure face;
+      no new axioms.
 
-    Build.  [coqc -native-compiler no -q -Q . ""
-      UpAblD1S17_UpReqDpoLoss.v] compiles cleanly (exit 0); the first
-      eight bytes of the artifact are [436f7121 00015ff4]. *)
+    Build.  [coqc -native-compiler no -q -Q . "" UpAblD1S17_UpReqDpoLoss.v] compiles
+      cleanly (exit 0); the first eight bytes of the artifact are [436f7121 00015ff4]. *)
 
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
