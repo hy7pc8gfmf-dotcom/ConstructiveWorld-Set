@@ -121,7 +121,15 @@ elif [ "$have_attest" -eq 1 ]; then
 else
   echo "MAC-SEED: no provenance-carrying source available -- nothing seeded, honest cold build (fail-open)"
   echo "MAC-SEED-SUMMARY seeded=0 (cache=0 attest=0) md5_reject=0 era_reject=0 nocache=0 sidecars=0"
-  exit 0
+  # --build-only / --build must still run the compile loop: the tree needs
+  # .vo files on disk or every gate7 driver dies "Unable to locate library".
+  # The bare `exit 0` here short-circuited those modes (20261112 run
+  # 43142078293: empty cache dir -> 0.1s build step -> 510/510 driver rc=1).
+  if [ "$mode_build" -ge 1 ]; then
+    echo "MAC-SEED: build mode requested -- continuing into the cold build loop"
+  else
+    exit 0
+  fi
 fi
 
 if [ "$mode_seed" -eq 1 ]; then

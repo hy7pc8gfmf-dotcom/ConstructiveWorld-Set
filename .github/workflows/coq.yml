@@ -565,7 +565,7 @@ jobs:
             --skip LW3DualBridge --skip LW3ESlot --skip LW3ETranscendental \
             --skip LW3ExpNegLB --skip LW3KnzValue --skip LW3KLegProbe \
             --coqc "${MAC_ROCQ93_ROOT}/bin/coqc" \
-            --tree ConstructiveWorld_Live \
+            --tree "$GITHUB_WORKSPACE/ConstructiveWorld_Live" \
             --order ConstructiveWorld_Live/order.txt \
             --workdir _gate7_work_mac \
             --gate --baseline scripts/gates/gate7_extract_baseline.json \
