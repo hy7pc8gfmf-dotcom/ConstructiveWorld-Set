@@ -554,3 +554,11 @@ WC_budget_family.v
 window_cos_assembly.v
 N_total_assembly.v
 tier_A_explicit_rate.v
+planb4_g1_laur_extract.v
+planb3_g1_calib.v
+planb3_g1_calib_cert.v
+planb4_g1_witness.v
+planb4_g1_phiwin.v
+planb4_g1_rs_channel.v
+planb4_g1_rs_assembly.v
+planb4_g1_ab_def.v
