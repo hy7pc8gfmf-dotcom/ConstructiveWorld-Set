@@ -547,3 +547,10 @@ LW3P2Carrier.v
 UpAblAbsQFeed.v
 S5SlotWire.v
 abl_tail_supply_66.v
+mach_fold_chain.v
+vertex_window.v
+atan_expl_rate.v
+WC_budget_family.v
+window_cos_assembly.v
+N_total_assembly.v
+tier_A_explicit_rate.v

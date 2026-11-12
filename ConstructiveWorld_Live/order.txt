@@ -453,7 +453,7 @@ abl_Pr_euler_prod.v#R97-b14a001
 abl_diffreal_family.v#R97-b14a002
 u5c_bridge.v#R97-b14a003
 u5c_dm_e_measure_qcore.v#R97-b18a001
-mach_atan_addsub.v#R97-b18a002UpReqMisc5B.v#R97-b44a001
+mach_atan_addsub.v#R97-b18a002
 G04ProjHook.v#R97-b44a002
 abl_tail_pos_supply_sum.v#R97-b44a003
 LW3P2Prod.v#R97-b37a001
@@ -535,3 +535,10 @@ abl_div_chisq_twopoint.v#R97-4cbedac
 abl_z2_decay.v#R97-d068a62
 u5c_pr_mertens_nat.v#R97-ae36931
 u5c_zeta2_a1_sign11.v#R97-6037dad
+mach_fold_chain.v#R98-r2ta001
+vertex_window.v#R98-r2ta002
+atan_expl_rate.v#R98-r2ta003
+WC_budget_family.v#R98-r2ta004
+window_cos_assembly.v#R98-r2ta005
+N_total_assembly.v#R98-r2ta006
+tier_A_explicit_rate.v#R98-r2ta007
