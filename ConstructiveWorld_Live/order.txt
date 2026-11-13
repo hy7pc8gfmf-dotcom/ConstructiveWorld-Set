@@ -552,3 +552,5 @@ planb4_g1_rs_assembly.v#R225-10887b37-g1w008
 planb4_g1_ab_def.v#R225-3c618545-g1w004
 Arch_GibbsA_01.v#R97-1c038464
 EntropyMonoSplitInst.v#R97-5929bb16
+MixTimeChain.v#R226-9ad02623
+abl_mixchain_step_calc.v#R226-123cc69d
