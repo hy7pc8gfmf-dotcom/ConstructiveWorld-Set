@@ -550,3 +550,6 @@ planb4_g1_phiwin.v
 planb4_g1_rs_channel.v
 planb4_g1_rs_assembly.v
 planb4_g1_ab_def.v
+Arch_GibbsA_01.v
+EntropyMonoSplitInst.v
+UpAblT13c_G13.v
