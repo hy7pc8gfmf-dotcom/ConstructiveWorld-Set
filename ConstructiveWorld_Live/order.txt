@@ -554,3 +554,8 @@ Arch_GibbsA_01.v#R97-1c038464
 EntropyMonoSplitInst.v#R97-5929bb16
 MixTimeChain.v#R226-9ad02623
 abl_mixchain_step_calc.v#R226-123cc69d
+UpReqPinskerTransport.v#R227-4ae245b0
+DTPT_Bridge.v#R227-c0b8a38f
+DTPT_DigTheory.v#R227-5f2a1d35
+DTPT_Extract.v#R227-c31426a0
+DenPosGeneralClose.v#R227-c38285c0
