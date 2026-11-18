@@ -1,33 +1,32 @@
-(* ConstructiveWorld-Set -- precedent log bridges for the FA-D1 D1-4 slot family. *)
+(* ConstructiveWorld-Set -- FA-D1 D1-④ precedent log bridge, same-domain statement face. *)
 
-(** * UpAblD1S2_reqlog_UpReqCauchy: precedent log bridge over the real logarithm.
+(** * UpAblD1S2_reqlog_UpReqCauchy: FA-D1 D1-④ precedent log bridge.
 
-    Mission.  The FA-D1 D1-4 precedent log bridge: strict and non-strict
-      monotonicity of the real logarithm and the inversion identity for
-      [exp_neg], replayed verbatim from five upstream slot files.  Main statements:
-      [uabd1s2_aiu_log_req_compat], [uabd1s2_aiu_log_inv_exp_neg_req],
-      [uabd1s2_align3_log_req_compat], [uabd1s2_align3_log_inv_exp_neg_req],
-      [uabd1s2_aclose_log_req_compat], [uabd1s2_aclose_log_inv_exp_neg_req],
-      [uabd1s2_cauchy_log_lt_mono_cc], [uabd1s2_dpo_log_req_compat],
-      [uabd1s2_dpo_log_inv_exp_neg_req].
+    Mission.  formalize the FA-D1 D1-④ precedent log bridge as one same-domain
+      statement face: the upstream log compatibility statements
+      log_req_compat and log inverse statements log_inv_exp_neg_req restated
+      verbatim over R := Real from AlignIdUnclosed, UpReqAlign3,
+      UpReqAlignClose and UpReqDpoLoss, plus the strict form log_lt_mono_cc
+      from UpReqCauchy, so one module carries the whole reqlog precedent face.
 
-    Dependencies.  Requires [S01_BaseRing], [S02_CauchyComplete], [S03_QExp],
-      [S04_RealExpLogConv], [S05_AlignmentGRPO], [S06_DiffSamplingGibbs],
-      [S07_RealSetoidExpLog], [S08_RealMainlineDPO], [S09_EntropyReal],
-      [S10_KVQuantTrig], [S11_TP3B5], [S12_B5RecycleSF], [S13_NLiveAudit],
-      [S14_B5BatchBlock], [S15_TailFEPUp], [G05_LogSmall] of this development.
+    Dependencies.  S01_BaseRing, S02_CauchyComplete, S03_QExp, S04_RealExpLogConv, S05_AlignmentGRPO, S06_DiffSamplingGibbs, S07_RealSetoidExpLog, S08_RealMainlineDPO
+      S09_EntropyReal, S10_KVQuantTrig, S11_TP3B5, S12_B5RecycleSF, S13_NLiveAudit, S14_B5BatchBlock, S15_TailFEPUp, G05_LogSmall.
 
-    References.  This development, UpAblD1S2_reqlog_UpReqCauchy.v, the baseline module in
-      ConstructiveWorld-Main whose statement names are carried over here
-      verbatim (statement-face Set-carrier completion).
+    References.  AlignIdUnclosed.v L89, L92; UpReqAlign3.v L81, L84;
+      UpReqAlignClose.v L48, L51; UpReqCauchy.v L821-822; UpReqDpoLoss.v
+      L64, L67 (the slot anchors below); interface note: the four
+      le_antisym apply sites shed the retired Real binder shell for the
+      RealInterfaceEnhancedSetoid interface, whose Real carrier is folded
+      into the instance RealEnhancedReal (S07_RealSetoidExpLog.v; call-form
+      precedent S10_KVQuantTrig.v L12450), statement names untouched.
 
-    Constructivity.  All named statements and fields are carried by [Set]
-      (decidable Q-carriers and boolean identity carriers); statements
-      extract with [Obj.magic] = 0 and no erasure; [coqchk] reports
-      [Axioms: none].
+    Constructivity.  axiom-free and admission-free; the statement face is
+      Set-carried; Print Assumptions closes every item.
 
-    Build.  [coqc -native-compiler no -q -Q . "" UpAblD1S2_reqlog_UpReqCauchy.v] compiles cleanly
-      (exit 0); the artifact starts with [436f7121 000160bc]. *)
+    Build.  Rocq 9.3, [coqc -native-compiler no -Q . ""] wrapped in cpu_guard
+      load capping; artifact magic [436f7121 000160bc]. *)
+
+(* ============================ §1 FA-D1 D1-④ precedent log bridge (reqlog_AlignIdUnclosed branch) ============================ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -46,22 +45,7 @@ Require Import S15_TailFEPUp.
 Require Import G05_LogSmall.
 Import RealInterfaceEnhancedMod.
 
-(* extraction-face concrete-carrier binding (the G05_LogSmall.v:47-81 template
-   layer): the notation face binds the interface statement faces onto the
-   concrete Real-layer carriers, so Separate Extraction renders concrete types
-   (real_eq/real_lt) instead of the abstract projection types -- Obj.magic = 0,
-   the wrapper-indirect-consumption precedent (batch registered), statement
-   faces untouched. *)
-Abbreviation req := real_eq.
-Abbreviation req_sym := real_eq_sym.
-Abbreviation zero := real_zero.
-Abbreviation lt := real_lt.
-Abbreviation log := real_log.
-Abbreviation log_inv := real_log_inv.
-Abbreviation exp_neg := real_exp_neg.
-Abbreviation exp_neg_pos := real_exp_neg_pos.
-
-(* ---- slot 1, from AlignIdUnclosed.v: log_req_compat, verbatim with R := Real ---- *)
+(* ---- slot 1 ← AlignIdUnclosed.v L89 log_req_compat (verbatim, R := Real) ---- *)
 Theorem uabd1s2_aiu_log_req_compat :
   forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
@@ -74,7 +58,7 @@ Proof.
   right; exact (req_sym _ _ Hxy).
 Qed.
 
-(* ---- slot 2, from AlignIdUnclosed.v: log_inv_exp_neg_req, verbatim with R := Real ---- *)
+(* ---- slot 2 ← AlignIdUnclosed.v L92 log_inv_exp_neg_req (verbatim, R := Real) ---- *)
 Theorem uabd1s2_aiu_log_inv_exp_neg_req :
   forall x : Real, req (log_inv (exp_neg x) (exp_neg_pos x)) x.
 Proof.
@@ -82,11 +66,11 @@ Proof.
   exact (logd_log_inv_exp_neg_real x).
 Qed.
 
-(* ---- closing: the assumption face of every statement is printed as the audit record ---- *)
+(* ---- closing: per-item Print Assumptions at end of file (G2 record) ---- *)
 Print Assumptions uabd1s2_aiu_log_req_compat.
 Print Assumptions uabd1s2_aiu_log_inv_exp_neg_req.
 
-(* ============================ Section 2. FA-D1 D1-4 precedent log bridge, the reqlog_UpReqAlign3 branch ============================ *)
+(* ============================ §2 FA-D1 D1-④ precedent log bridge (reqlog_UpReqAlign3 branch) ============================ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -103,11 +87,9 @@ Require Import S13_NLiveAudit.
 Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import G05_LogSmall.
-(* filtered re-import: the bare interface names stay bound to the
-   concrete-carrier abbreviations declared in section 1 above *)
-Import RealInterfaceEnhancedMod (one).
+Import RealInterfaceEnhancedMod.
 
-(* ---- slot 1, fromUpReqAlign3.v: log_req_compat, verbatim with R := Real ---- *)
+(* ---- slot 1 ← UpReqAlign3.v L81 log_req_compat (verbatim, R := Real) ---- *)
 Theorem uabd1s2_align3_log_req_compat :
   forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
@@ -120,7 +102,7 @@ Proof.
   right; exact (req_sym _ _ Hxy).
 Qed.
 
-(* ---- slot 2, from UpReqAlign3.v: log_inv_exp_neg_req, verbatim with R := Real ---- *)
+(* ---- slot 2 ← UpReqAlign3.v L84 log_inv_exp_neg_req (verbatim, R := Real) ---- *)
 Theorem uabd1s2_align3_log_inv_exp_neg_req :
   forall x : Real, req (log_inv (exp_neg x) (exp_neg_pos x)) x.
 Proof.
@@ -128,11 +110,11 @@ Proof.
   exact (logd_log_inv_exp_neg_real x).
 Qed.
 
-(* ---- closing: the assumption face of every statement is printed as the audit record ---- *)
+(* ---- closing: per-item Print Assumptions at end of file (G2 record) ---- *)
 Print Assumptions uabd1s2_align3_log_req_compat.
 Print Assumptions uabd1s2_align3_log_inv_exp_neg_req.
 
-(* ============================ Section 3. FA-D1 D1-4 precedent log bridge, the reqlog_UpReqAlignClose branch ============================ *)
+(* ============================ §3 FA-D1 D1-④ precedent log bridge (reqlog_UpReqAlignClose branch) ============================ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -149,11 +131,9 @@ Require Import S13_NLiveAudit.
 Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import G05_LogSmall.
-(* filtered re-import: the bare interface names stay bound to the
-   concrete-carrier abbreviations declared in section 1 above *)
-Import RealInterfaceEnhancedMod (one).
+Import RealInterfaceEnhancedMod.
 
-(* ---- slot 1, fromUpReqAlignClose.v: log_req_compat, verbatim with R := Real ---- *)
+(* ---- slot 1 ← UpReqAlignClose.v L48 log_req_compat (verbatim, R := Real) ---- *)
 Theorem uabd1s2_aclose_log_req_compat :
   forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
@@ -166,7 +146,7 @@ Proof.
   right; exact (req_sym _ _ Hxy).
 Qed.
 
-(* ---- slot 2, from UpReqAlignClose.v: log_inv_exp_neg_req, verbatim with R := Real ---- *)
+(* ---- slot 2 ← UpReqAlignClose.v L51 log_inv_exp_neg_req (verbatim, R := Real) ---- *)
 Theorem uabd1s2_aclose_log_inv_exp_neg_req :
   forall x : Real, req (log_inv (exp_neg x) (exp_neg_pos x)) x.
 Proof.
@@ -174,7 +154,7 @@ Proof.
   exact (logd_log_inv_exp_neg_real x).
 Qed.
 
-(* ---- closing: the assumption face of every statement is printed as the audit record ---- *)
+(* ---- closing: per-item Print Assumptions at end of file (G2 record) ---- *)
 Print Assumptions uabd1s2_aclose_log_req_compat.
 Print Assumptions uabd1s2_aclose_log_inv_exp_neg_req.
 
@@ -194,11 +174,9 @@ Require Import S13_NLiveAudit.
 Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import G05_LogSmall.
-(* filtered re-import: the bare interface names stay bound to the
-   concrete-carrier abbreviations declared in section 1 above *)
-Import RealInterfaceEnhancedMod (one).
+Import RealInterfaceEnhancedMod.
 
-(* ---- slot 1, fromUpReqCauchy.v: log_lt_mono_cc, verbatim with R := Real ---- *)
+(* ---- slot 1 ← UpReqCauchy.v L821-822 log_lt_mono_cc (verbatim, R := Real) ---- *)
 Theorem uabd1s2_cauchy_log_lt_mono_cc :
   forall (a b : Real) (Ha : lt zero a) (Hb : lt zero b),
     lt a b -> lt (log a Ha) (log b Hb).
@@ -207,10 +185,10 @@ Proof.
   exact (logd_log_lt_mono_real a b Ha Hb Hlt).
 Qed.
 
-(* ---- closing: the assumption face of every statement is printed as the audit record ---- *)
+(* ---- closing: per-item Print Assumptions at end of file (G2 record) ---- *)
 Print Assumptions uabd1s2_cauchy_log_lt_mono_cc.
 
-(* ============================ Section 4. FA-D1 D1-4 precedent log bridge, the reqlog_UpReqDpoLoss branch ============================ *)
+(* ============================ §4 FA-D1 D1-④ precedent log bridge (reqlog_UpReqDpoLoss branch) ============================ *)
 Require Import S01_BaseRing.
 Require Import S02_CauchyComplete.
 Require Import S03_QExp.
@@ -227,11 +205,9 @@ Require Import S13_NLiveAudit.
 Require Import S14_B5BatchBlock.
 Require Import S15_TailFEPUp.
 Require Import G05_LogSmall.
-(* filtered re-import: the bare interface names stay bound to the
-   concrete-carrier abbreviations declared in section 1 above *)
-Import RealInterfaceEnhancedMod (one).
+Import RealInterfaceEnhancedMod.
 
-(* ---- slot 1, fromUpReqDpoLoss.v: rdl_log_req_compat, verbatim with R := Real ---- *)
+(* ---- slot 1 ← UpReqDpoLoss.v L64 rdl_log_req_compat (verbatim, R := Real) ---- *)
 Theorem uabd1s2_dpo_log_req_compat :
   forall (x y : Real) (Hx : lt zero x) (Hy : lt zero y),
     req x y -> req (log x Hx) (log y Hy).
@@ -244,7 +220,7 @@ Proof.
   right; exact (req_sym _ _ Hxy).
 Qed.
 
-(* ---- slot 2, from UpReqDpoLoss.v: rdl_log_inv_exp_neg_req, verbatim with R := Real ---- *)
+(* ---- slot 2 ← UpReqDpoLoss.v L67 rdl_log_inv_exp_neg_req (verbatim, R := Real) ---- *)
 Theorem uabd1s2_dpo_log_inv_exp_neg_req :
   forall x : Real, req (log_inv (exp_neg x) (exp_neg_pos x)) x.
 Proof.
@@ -252,6 +228,6 @@ Proof.
   exact (logd_log_inv_exp_neg_real x).
 Qed.
 
-(* ---- closing: the assumption face of every statement is printed as the audit record ---- *)
+(* ---- closing: per-item Print Assumptions at end of file (G2 record) ---- *)
 Print Assumptions uabd1s2_dpo_log_req_compat.
 Print Assumptions uabd1s2_dpo_log_inv_exp_neg_req.

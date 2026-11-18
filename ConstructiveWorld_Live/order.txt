@@ -559,3 +559,15 @@ DTPT_Bridge.v#R227-c0b8a38f
 DTPT_DigTheory.v#R227-5f2a1d35
 DTPT_Extract.v#R227-c31426a0
 DenPosGeneralClose.v#R227-c38285c0
+RealIdentity.v#R97-b51a001
+UpAblArchGeomBatch.v#R97-b51a002
+UpAblD1S3_sum_pos_AlignIdUnclosed.v#R97-b51a003
+UpAblT13_UpEntropyGainReq.v#R97-b51a004
+uabda_g13_evict_discharge.v#R97-b51a005
+abl_redischarge_sumd_inst.v#R97-b51a006
+Arch_UpAbl_01.v#R97-b51a007
+UpAblDeltaStarSuboptimal.v#R97-b51a008
+UpAblEps66Sum.v#R97-b51a009
+UpAblD1S2_reqlog_UpReqCauchy.v#R97-b51a010
+Arch_GibbsA_01.v#R97-b51a011
+EntropyMonoSplitInst.v#R97-b51a012
