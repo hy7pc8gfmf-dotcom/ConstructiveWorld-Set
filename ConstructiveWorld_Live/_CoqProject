@@ -555,3 +555,8 @@ EntropyMonoSplitInst.v
 UpAblT13c_G13.v
 MixTimeChain.v
 abl_mixchain_step_calc.v
+UpReqPinskerTransport.v
+DTPT_Bridge.v
+DTPT_DigTheory.v
+DTPT_Extract.v
+DenPosGeneralClose.v
