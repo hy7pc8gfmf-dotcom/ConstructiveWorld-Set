@@ -288,6 +288,7 @@ jobs:
             --tree ConstructiveWorld_Live \
             --order ConstructiveWorld_Live/order.txt \
             --workdir _gate7_work \
+            --timeout 600 \
             --gate --baseline scripts/gates/gate7_extract_baseline.json \
             --json gate7_report.json
 
