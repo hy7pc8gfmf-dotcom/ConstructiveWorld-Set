@@ -62,14 +62,10 @@ jobs:
             fi
           fi
 
-      - name: Check out triage driver (main)
-        if: env.RUN_ID != ''
-        uses: actions/checkout@v5
-        with:
-          ref: main
-          # Full checkout on purpose (sparse patterns leak across shared cached
-          # checkouts on this runner - Main #69 att2/att3 lesson).
-
+      # Driver is invoked DIRECTLY from the local aligned clone (zero network):
+      # the runner shares this machine with D:/ComplexAnalysis/ConstructiveWorld-Set,
+      # whose HEAD the desk keeps aligned to origin/main. NETRED-immune by design
+      # (20261119 lesson: the checkout step died on github.com 443 three-fold).
       - name: Reconcile pass (scheduled backlog recovery)
         if: env.RECONCILE == '1'
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
@@ -77,7 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$GITHUB_WORKSPACE/rocqwash-triage"
-          "/c/Program Files/Python313/python.exe" .github/scripts/rocqwash_triage.py \
+          "/c/Program Files/Python313/python.exe" "D:/ComplexAnalysis/ConstructiveWorld-Set/.github/scripts/rocqwash_triage.py" \
             --repo "${{ github.repository }}" \
             --run 0 \
             --out "$GITHUB_WORKSPACE/rocqwash-triage" \
@@ -92,7 +88,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$GITHUB_WORKSPACE/rocqwash-triage"
-          "/c/Program Files/Python313/python.exe" .github/scripts/rocqwash_triage.py \
+          "/c/Program Files/Python313/python.exe" "D:/ComplexAnalysis/ConstructiveWorld-Set/.github/scripts/rocqwash_triage.py" \
             --repo "${{ github.repository }}" \
             --run "$RUN_ID" \
             --out "$GITHUB_WORKSPACE/rocqwash-triage" \

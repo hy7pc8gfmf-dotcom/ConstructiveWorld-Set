@@ -358,8 +358,9 @@ jobs:
           export COQCHK="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqchk.exe"
           export COQLIB="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq"
           export ROCQLIB="$COQLIB"
-          export SET_CHK_JOBS=14
-          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live_parallel.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+          # 【20261119 回退】K 道轮转分片触发 admit 边界异常（missing dep zzm2_qpoly·串行同树同件绿）——
+          # 正式移植需 Main 级 packing（cost 表+skip-file 分区）非轮转可代；票已立。回退=绿基线串行。
+          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 20261026 跨机信任缓存通道（Windows 侧产物发布·绿后上传）：对侧（macOS）未来
       # 可经 vo_sync_once.sh 消费 vo-trust-cache-set-windows 实现一侧新增推送、对侧自动
