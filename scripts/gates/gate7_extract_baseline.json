@@ -3947,6 +3947,14 @@
       "missing_candidates": [],
       "driver_rc": 0,
       "exclusions": []
+    },
+    "UpAblD1S2_reqlog_UpReqCauchy": {
+      "names_total": 9,
+      "magic_ml": 41,
+      "magic_mli": 0,
+      "missing_candidates": [],
+      "driver_rc": 0,
+      "exclusions": []
     }
   }
 }
