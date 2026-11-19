@@ -571,3 +571,9 @@ UpAblEps66Sum.v#R97-b51a009
 UpAblD1S2_reqlog_UpReqCauchy.v#R97-b51a010
 Arch_GibbsA_01.v#R97-b51a011
 EntropyMonoSplitInst.v#R97-b51a012
+abl_tbase_logrest.v#R228-deca2d2e
+abl_tail_sum_pos_bridge.v#R228-5efb1ef0
+UpAblT2a_UpReqTempEntropy.v#R228-8361a6c6
+UpAblD1S8_UpReqPPOPlain.v#R228-839df043
+BoltzmannBridgeDischarge.v#R228-0d95b874
+planb4_sl4_skeleton.v#R228-8d845e62
