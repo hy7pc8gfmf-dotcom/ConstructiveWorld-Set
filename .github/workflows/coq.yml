@@ -345,17 +345,21 @@ jobs:
       # coqchk 认证：单 Live 树共享闭包单趟 -o（scripts/ci_coqchk_live.sh 自足实现，
       # 判据=EXIT=0 且 "Modules were successfully checked" → COQCHK_ALL_PASS，
       # 日志落 ConstructiveWorld_Live/_chk_all.log），温控包裹照旧。
-      - name: coqchk full-tree certification (shared-closure single pass, thermal-guarded)
+      - name: coqchk full-tree certification (K-lane parallel, whitepaper v1.3 section 8 flag, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           # 【20261026 温控正典三参数】同 Build 步——20261023 用户令三参数缺一即钳位饥饿。
           # 【20261102 Rocq 9.3 换基·形A 环境注入】脚本消费位=ci_coqchk_live.sh 形A 版
           # COQCHK="${COQCHK:-…9.1…}"＋SW2 同根推导（ci_switch/diffs/set_scripts_ci_coqchk_live_formA.diff）；
           # 三 export 全字面同 Build 步；形A 版未入树则 9.1 coqchk → gate2 banner 红出（fail-loud）。
+          # 【20261119 三捷径升级】认证面切换 ci_coqchk_live_parallel.sh（K 道分片·lane admit 互认·
+          # 合并日志保 gate2 契约；SET_CHK_JOBS=14 用户令 20261119·白皮书 v1.3 §8 字节码旗脚本内置；
+          # 回退=删 SET_CHK_JOBS 或换回 ci_coqchk_live.sh 一行）。
           export COQCHK="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/bin/coqchk.exe"
           export COQLIB="D:/ComplexAnalysis/attn/ocaml_work_20261101/opam-root/default/lib/coq"
           export ROCQLIB="$COQLIB"
-          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
+          export SET_CHK_JOBS=14
+          pwsh -File D:/ComplexAnalysis/infra/thermal/cpu_guard_v3.ps1 -Command "bash scripts/ci_coqchk_live_parallel.sh" -LoadLimit 60 -CoolSec 5 -MaxWaitSec 7200 -CoreN 2 -TempLimit 98 -AllowG3 -GearForce 0
 
       # 20261026 跨机信任缓存通道（Windows 侧产物发布·绿后上传）：对侧（macOS）未来
       # 可经 vo_sync_once.sh 消费 vo-trust-cache-set-windows 实现一侧新增推送、对侧自动

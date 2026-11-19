@@ -1,0 +1,111 @@
+# rocqwash-triage.yml (Set) - furnace red triage watch, observer v1 (20261119).
+# Ported from Main's rocqwash-triage.yml (same desk inbox, same driver family).
+#
+# Design notes:
+#   * Observer, not furnace: triggers on workflow_run of "Coq CI" and only acts
+#     when that furnace run concluded failure. The furnace yml is untouched.
+#   * v1 = observer only: triage report + desk inbox mirror + artifact. The heal
+#     leg (--heal/--autofix) is NOT enabled for Set yet - Set's triage table must
+#     be calibrated first (Main's R-table is Main-shaped); enabling the heal leg
+#     is a follow-up ticket with the desk.
+#   * A red triage verdict is data, not a tool failure: the job stays green as
+#     long as the watch leg itself works. A non-zero driver exit means the watch
+#     leg is broken - fail loud.
+#   * Rollback: delete this file (and optionally the driver copy); ledger
+#     entries already written stay valid history.
+name: rocqwash triage watch
+
+on:
+  workflow_run:
+    workflows: ["Coq CI"]
+    types: [completed]
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'CI run id to triage (test mode; empty = reconcile only)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  triage:
+    runs-on: [self-hosted, Windows]
+    steps:
+      - name: Guard (triage only red furnace runs, dispatch test, or schedule)
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            CONCL="${{ github.event.workflow_run.conclusion }}"
+            echo "watch: Coq CI run $RUN_ID concluded $CONCL"
+            if [ "$CONCL" = "failure" ]; then
+              echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+              echo "HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}" >> "$GITHUB_ENV"
+              echo "HEAD_SHA=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
+            fi
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "watch: scheduled reconcile pass"
+            echo "RECONCILE=1" >> "$GITHUB_ENV"
+          else
+            if [ -n "${{ inputs.run_id }}" ]; then
+              echo "watch: dispatch test mode, run ${{ inputs.run_id }}"
+              echo "RUN_ID=${{ inputs.run_id }}" >> "$GITHUB_ENV"
+            else
+              echo "watch: dispatch without run_id - reconcile only"
+              echo "RECONCILE=1" >> "$GITHUB_ENV"
+            fi
+          fi
+
+      - name: Check out triage driver (main)
+        if: env.RUN_ID != ''
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          # Full checkout on purpose (sparse patterns leak across shared cached
+          # checkouts on this runner - Main #69 att2/att3 lesson).
+
+      - name: Reconcile pass (scheduled backlog recovery)
+        if: env.RECONCILE == '1'
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/rocqwash-triage"
+          "/c/Program Files/Python313/python.exe" .github/scripts/rocqwash_triage.py \
+            --repo "${{ github.repository }}" \
+            --run 0 \
+            --out "$GITHUB_WORKSPACE/rocqwash-triage" \
+            --inbox "D:/ComplexAnalysis/attn/_rocqwash_watch_inbox" \
+            --state-dir "D:/ComplexAnalysis/attn/_rocqwash_watch_inbox" \
+            --reconcile
+
+      - name: Triage red run via local rocqwash MCP (observer v1)
+        if: env.RUN_ID != ''
+        shell: C:/Progra~1/Git/bin/bash.exe -e {0}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/rocqwash-triage"
+          "/c/Program Files/Python313/python.exe" .github/scripts/rocqwash_triage.py \
+            --repo "${{ github.repository }}" \
+            --run "$RUN_ID" \
+            --out "$GITHUB_WORKSPACE/rocqwash-triage" \
+            --inbox "D:/ComplexAnalysis/attn/_rocqwash_watch_inbox" \
+            --state-dir "D:/ComplexAnalysis/attn/_rocqwash_watch_inbox" \
+            --mirror "D:/ComplexAnalysis/ConstructiveWorld-Set" \
+            --head-branch "$HEAD_BRANCH" \
+            --head-sha "$HEAD_SHA"
+
+      - name: Upload triage artifacts
+        if: env.RUN_ID != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: rocqwash-triage-run-${{ env.RUN_ID }}
+          path: rocqwash-triage/
+          if-no-files-found: error
