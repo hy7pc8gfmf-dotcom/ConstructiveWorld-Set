@@ -576,3 +576,11 @@ UpAblT2a_UpReqTempEntropy.v
 UpAblD1S8_UpReqPPOPlain.v
 BoltzmannBridgeDischarge.v
 planb4_sl4_skeleton.v
+DTPT_a.v
+GaC2_10_EtaContinuation_cert.v
+GaC2_17_StripVerticalAsm_cert.v
+GaC2_18_ZetaDerivBound_cert.v
+GaC2_11_MaxModulusDisk_cert.v
+GaC3_Z03_NonzeroLine_cert.v
+GaC3_Z03_NonzeroLine_a.v
+DTPT_Entropy_a.v
