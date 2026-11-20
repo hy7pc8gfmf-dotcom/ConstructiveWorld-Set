@@ -575,3 +575,11 @@ UpAblT2a_UpReqTempEntropy.v#R228-8361a6c6
 UpAblD1S8_UpReqPPOPlain.v#R228-839df043
 BoltzmannBridgeDischarge.v#R228-0d95b874
 planb4_sl4_skeleton.v#R228-8d845e62
+DTPT_a.v#R229-2fa7720b
+GaC2_10_EtaContinuation_cert.v#R229-051a2bac
+GaC2_17_StripVerticalAsm_cert.v#R229-3f2fb095
+GaC2_18_ZetaDerivBound_cert.v#R229-d12c9da3
+GaC2_11_MaxModulusDisk_cert.v#R229-33109180
+GaC3_Z03_NonzeroLine_cert.v#R229-ff4ce8c7
+GaC3_Z03_NonzeroLine_a.v#R229-98c6f7ee
+DTPT_Entropy_a.v#R229-5d263b04
