@@ -591,3 +591,8 @@ DTPT_Entropy_b.v
 DTPT_b.v
 PsQReindex.v
 abl_arctan_diff_20.v
+abl_c1_lohi.v
+piu_zz_pnt_window.v
+SumDCarrierFeed.v
+BBDBridgeSupply.v
+sl3_d3_gf_carrier.v
