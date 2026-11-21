@@ -1,7 +1,7 @@
 # ConstructiveWorld-Set — Pure-Constructivity Constraint Canon (CONSTRAINTS.md)
 
 > **Version**: v1.1 (2026-11-05). **Authority chain**: the workspace white paper
-> 《纯构造性纲领与红线律白皮书》v2.4+ is the legislature; THIS file is its
+> "Pure-Constructivity Programme and Red-Line Law" (v2.4+) is the legislature; THIS file is its
 > in-repo execution canon for the ConstructiveWorld-Set repository — the single
 > authority every collaborator (Windows / macOS / future machines) reads and
 > obeys on this repo. Conflicts resolve upward to the white paper; propose
@@ -89,7 +89,7 @@ ruling registrar):
    criteria are ONLY: (a) first-hand controlled experiments, and (b)
    non-S-series precedents. Canonical coordinates of the two named non-S
    precedents: `abl_qpoly_divmod_gen` / `qpg_degge1` (Set-carried,
-   `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:82`) and
+   `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:46`) and
    `UpReqSymplecticBridge` L304 (the `QleT'`/`Qle` bridge face,
    `apply Qle_to_QleT'`).
 
@@ -149,7 +149,7 @@ ledger. Two standing forms:
 
 **Empty — born-clean in force.** Stock exceptions (lia/lra freeze, conversion
 bridge faces, Qlt grey-zone, Qlt-in-sigT mirror custody, lw0_qpoly_eq bridge)
-are registered in the workspace white paper §四 against the MAIN repo's trees;
+are registered in the workspace white paper §4 against the MAIN repo's trees;
 this repo carries none of them and accepts no new rows (registry frozen
 20261024). A violation here cannot be excused by a main-repo registration.
 
@@ -159,7 +159,7 @@ Flagship witnesses register a quantified budget here (reference precision,
 evaluation time/cost order-of-magnitude). Over-budget without a row here AND a
 white-paper registry admission = failing. Current rows: none yet — M10's
 UpReqSumD clearance established extraction cleanliness, budgets land with the
-first 4c/4d landing-gate receipt (候登记).
+first 4c/4d landing-gate receipt (registration pending).
 
 ## 7. Trust-cache channel (both-machine CI economics)
 
@@ -225,11 +225,6 @@ runbook §6.3, activation pending).
   batch, tiered timeouts). Rebaseline-freeze rejected; entity repair of the
   five modules proceeds in its own workflow. No existing section's semantics
   were altered.
-- v1.0 (2026-10-26): initial canon. gate6 (statement+field census, zero
-  baseline audited: 57 files / 5,373 names / 0 hits) and gate7 (per-module
-  extraction execution, 4a automation, baseline pending first green build)
-  standing in CI; trust-cache channel (seed/skip/upload) on the Windows job;
-  macOS observation job untouched by design.
 - v1.1 (2026-11-05): §11 added — Prop-face extraction policy
   (data-carrying vs proof-bridge consumption dichotomy, proof-bridge
   registry, placement-census classification), first standing item of the
@@ -237,6 +232,11 @@ runbook §6.3, activation pending).
   informative recast, 4a–4d full-ladder acceptance, PR regime). Appended
   on the main v1.0 state; the pending E3/E2 amendment set (PR #3) merges
   ahead of or after this via rebase.
+- v1.0 (2026-10-26): initial canon. gate6 (statement+field census, zero
+  baseline audited: 57 files / 5,373 names / 0 hits) and gate7 (per-module
+  extraction execution, 4a automation, baseline pending first green build)
+  standing in CI; trust-cache channel (seed/skip/upload) on the Windows job;
+  macOS observation job untouched by design.
 
 ## 10. Anti-verification anchors
 
@@ -287,7 +287,7 @@ consumption-face evidence points at the Gen2 programmatic placement census
 landing had placed the native informative faces on the pre-recast canonical
 names (`NatLe_drop`/`NatLe_lift`), breaking every old-name consumer
 library-wide (mechanical recompile 306/375 red, root cause
-`S03_QExp.v:280` `apply NatLe_lift. lia.` against the shifted signature).
+`S03_QExp.v:292` `apply NatLe_lift. lia.` against the shifted signature).
 The correction restores the pre-recast Prop faces **verbatim at their
 original names** (signature and proof body byte-identical to the main
 baseline, `git show main:ConstructiveWorld_Live/S01_BaseRing.v`) and moves
@@ -348,13 +348,13 @@ restored faces they accompany.
   and never serves as precedent or criterion; criteria come only from
   first-hand controlled experiments and non-S precedents: the `@Id bool`
   statement face (`qpg_degge1`,
-  `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:82`), the `Qle_to_QleT'`
+  `ConstructiveWorld_Live/abl_qpoly_divmod_gen.v:46`), the `Qle_to_QleT'`
   bridge face (`UpReqSymplecticBridge.v:304`; file absent from this tree
   at adoption, verified in the main workspace world copy
   `vo_local_world_unified_0930/`), the informative `Notation` carrier
-  binding (`UpReqAlign3.v:91-99`), and the Id-to-eq bridge forms
-  (`qeqT_imp_qeq`, `ConstructiveWorld_Live/S02_CauchyComplete.v:147`;
-  `z2v_idS_eq`, `ConstructiveWorld_Live/abl_z2_valbridge.v:91`). The
+  binding (`UpReqAlign3.v:49-57`), and the Id-to-eq bridge forms
+  (`qeqT_imp_qeq`, `ConstructiveWorld_Live/S02_CauchyComplete.v:249`;
+  `z2v_idS_eq`, `ConstructiveWorld_Live/abl_z2_valbridge.v:100`). The
   rebuild follows plan A: the S01 NatLe family is recast natively
   informative in the rebuild (the validated patch is semantic reference,
   not a construction blueprint); consumers are rewritten once, zero

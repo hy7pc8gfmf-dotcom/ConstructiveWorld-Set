@@ -4,7 +4,106 @@ All notable changes to this library are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [2026-11-11] — pool-erratum rows restored, dual-lane certification green run
+## [2026-11-21] — mainwash supply waves R230–R232
+
+### Added
+
+- mainwash-s3 supply, 7 pieces born-clean, batch R230 (`3e16c75`).
+- mainwash-nl supply, 5 pieces born-clean, batch R231 (`f7f7a7d`).
+- mainwash-n2 supply, 7 pieces born-clean, batch R232 (`f4dcb41`).
+
+## [2026-11-20] — mainwash-b1 supply, gate7 policy-debt registration
+
+### Added
+
+- mainwash-b1 supply, 6 pieces born-clean, batch R228 (`20efc43`).
+
+### Changed
+
+- gate7 baseline registered `UpAblD1S2_reqlog_UpReqCauchy` as policy-debt
+  magic=41 — the wash w1-b6 declared debt, extraction evidence in run
+  44562457343; red-line v2.3 4d registration: declaration in the wash
+  commit, reason=policy-debt Set-gen re-baseline, improvement path=open,
+  sunset=review on the next wash round (`666a957`).
+
+## [2026-11-19] — mainwash waves begin, w1-b6 supply, chk lane round-trip, LW3 park
+
+### Added
+
+- mainwash-inherit supply, 5 pieces born-clean, batch R227 (`8be387e`).
+- w1-b6 Main-to-Set supply, 12 pieces — carrier re-cast + Abbreviation
+  re-cast + interface alignment, gates green (`6716113`).
+
+### Changed
+
+- CI chk lane adopted the Main CI canon — K-lane parallel coqchk
+  (`SET_CHK_JOBS=14`, lane-admit partition, merged log keeps the gate2
+  contract; bytecode flag per whitepaper section 8), ci-ops whitepaper
+  v1.3 embedded (synced snapshot), rocqwash triage watch (observer v1)
+  (`fb0cba0`); reverted the same day to the serial green baseline after
+  K-lane round-robin admits tripped the admit-boundary anomaly on a
+  seeded stale-generation vo — the proper parallel_chk port with
+  cost-table packing is a follow-up ticket; triage watch invokes the
+  driver from the local aligned clone (NETRED-immune, no checkout step)
+  (`c3248fd`).
+- gate7 explicit per-module extraction timeout 600s — the tiered default
+  240s tree-killed heavy low-name-count modules (`LW3FamScale` /
+  `LW3JointFill` in run 44530406768); the script's WF-C tier by
+  names_total misses heavy low-name modules, the explicit timeout is
+  honored verbatim per the script docstring (`bc6fec7`).
+
+### Fixed
+
+- w1-b6 desk-review split held back 2 of the 12 pieces — the
+  `uabda_g13_evict_discharge` re-cast referenced `uab_ssUnit` (a Main
+  UpAblP2-family name absent in the Set tree) and the
+  `UpAblDeltaStarSuboptimal` re-cast broke in-tree consumer
+  `UpAblDeltaStarGeneral.v`; both files restored to main bytes, the
+  remaining 10 pieces proceed to CI (`5502cbf`).
+
+### Removed
+
+- `LW3FamScale` and `LW3JointFill` removed from the tree — Separate
+  Extraction diverges (>1500s no completion, quiet machine double
+  trial), red-line IV extraction-incompatible as inherited (mainwash
+  R227), zero consumers verified, extraction-safe re-cast ticket to the
+  wash author (`287c1d3`); registration lines removed with the source —
+  7b registry-build-certification consistency law, order coverage
+  assertion red (`69db5bf`).
+
+## [2026-11-14] — MixTimeChain leaf chain supply
+
+### Added
+
+- MixTimeChain leaf chain landed, 2 pieces born-clean, batch R226
+  (`740b525`).
+
+## [2026-11-13] — G1 witness pipeline landing, registry hygiene
+
+### Added
+
+- G1 witness pipeline landing, 8 pieces + orphan restoration
+  (2 pieces) (`0d58903`).
+
+### Changed
+
+- Registry hygiene: 12 duplicate `_CoqProject` rows deduplicated,
+  keep-first per the audit fix-plan (`d5153d5`).
+- Registry hygiene cycle-2: canonical form re-anchored (541 rows) +
+  orphan registration (3 pieces) (`987a1b5`).
+
+## [2026-11-12] — route2-tierA supply, mac-lane fix restoration
+
+### Added
+
+- route2-tierA supply, 7 pieces on top of main `429ed53` (`9b9631b`).
+
+### Fixed
+
+- The two mac-lane fixes lost in a rebase restored — gate7 tree
+  absolutization + seed pre-check fallthrough (`074eaa4`).
+
+## [2026-11-11] — pool-erratum rows restored, docs+comments wash, registry order move, dual-lane certification green run
 
 ### Changed
 
@@ -13,6 +112,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the commit message as rows from the pool erratum disclosed in
   `9a51c74` — restored to the registration order (`2f1ffbaf`): 530 → 537
   registered rows, re-anchored in the #R97 batch.
+- docs+comments wash: stale facts refreshed and oversized module headers
+  compressed across 35 tree modules, plus CONSTRAINTS.md, NOTICE.md and
+  the README pair (`eb4b557`).
+- Registry order: `uabd_supply_S05_Z_align_pos_unit` moved directly after
+  its dependency `UpAblT13c_G13` (`429ed53`).
 
 ### Certification
 

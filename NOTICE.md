@@ -1,5 +1,5 @@
-ConstructiveWorld-Main — 构造世界模块化形式化库（662 个在册模块）
-Copyright 2026 王宝军、夏挽岚（通讯作者 xiawanlan33@163.com）、祖光照、周志农、高雪峰 & Contributors
+ConstructiveWorld-Main — Constructive-world modular formalization library (604 registered modules·grows with registration)
+Copyright 2026 Baojun Wang, Wanlan Xia (corresponding author, xiawanlan33@163.com), Guangzhao Zu, Zhinong Zhou, Xuefeng Gao & Contributors
 
 ==========================================================================
 SOURCE CODE LICENSE
@@ -34,7 +34,7 @@ first release.
 
 | Component | Source | Status |
 |-----------|--------|--------|
-| （暂无已发布组件） | Coq Extraction（模块 .v → .ml → 可执行检查器） | 首次提取发布时登记；届时按 CLA/RLA.md 对商业使用实施保护 |
+| (none published yet) | Coq Extraction (module .v → .ml → executable checker) | To be registered upon its first extracted release; commercial use of that component will then be governed under the protections of CLA/RLA.md |
 
 The Apache 2.0 license covers the source code and the .vo trust caches
 (research / learning / reference / development use); the RLA governs
