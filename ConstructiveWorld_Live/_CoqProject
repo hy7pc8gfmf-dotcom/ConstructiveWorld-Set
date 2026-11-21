@@ -584,3 +584,10 @@ GaC2_11_MaxModulusDisk_cert.v
 GaC3_Z03_NonzeroLine_cert.v
 GaC3_Z03_NonzeroLine_a.v
 DTPT_Entropy_a.v
+planb4_calib_chain_glue_qred.v
+planb4_u4c3_freezewin_cert.v
+LW5SepComplexity.v
+DTPT_Entropy_b.v
+DTPT_b.v
+PsQReindex.v
+abl_arctan_diff_20.v
