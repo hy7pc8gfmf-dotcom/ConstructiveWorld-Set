@@ -596,3 +596,10 @@ piu_zz_pnt_window.v
 SumDCarrierFeed.v
 BBDBridgeSupply.v
 sl3_d3_gf_carrier.v
+UpAblD1_fa53_lpc_broadcast.v
+zz_u5c_extract.v
+zz_prrun_ext_mert.v
+b1_extract.v
+zz_prrun_ext_lcm.v
+planb5_u5c3_extwin_cert.v
+UpAblT4_SumCarrier.v

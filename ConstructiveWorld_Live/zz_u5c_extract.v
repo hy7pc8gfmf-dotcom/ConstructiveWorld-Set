@@ -1,0 +1,25 @@
+(* ===================================================================== *)
+(* zz_u5c_extract.v -- extraction driver for u5c_pr_mertens_nat          *)
+(* ===================================================================== *)
+(* Mission. Extraction driver (not a library module). Runs Separate      *)
+(*   Extraction on the main statement pzs_prime_recip_diverge of         *)
+(*   u5c_pr_mertens_nat to certify its extractability. The statement is  *)
+(*   Set-carried (sigT witnesses, conjunctions as products, NatLebT      *)
+(*   reflections) and transparent (Defined), so the OCaml output must    *)
+(*   contain no Obj.magic; the OCaml artifact is additionally compiled    *)
+(*   and run on sample inputs to record the divergence witness.          *)
+(* Dependencies. u5c_pr_mertens_nat (read-only Require; main statement   *)
+(*   pzs_prime_recip_diverge only); Stdlib Extraction.                   *)
+(* References. u5c_pr_mertens_nat: prime reciprocal sum divergence with  *)
+(*   explicit witness (n, C); see that module for the Isabelle AFP       *)
+(*   Prime_Number_Theorem and mathlib SumPrimeReciprocals signposts.     *)
+(* Constructivity. This file declares no statements and carries no       *)
+(*   proofs; it consists of Requires plus the extraction command alone.  *)
+(* Build. coqc -Q <world root> "" -o zz_u5c_extract.vo                   *)
+(*   zz_u5c_extract.v (this also emits the OCaml extraction output);     *)
+(*   then compile that output with ocamlc and run the sample driver.     *)
+(* ===================================================================== *)
+
+From Stdlib Require Import Extraction.
+Require Import u5c_pr_mertens_nat.
+Separate Extraction pzs_prime_recip_diverge.
