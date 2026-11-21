@@ -590,3 +590,8 @@ DTPT_Entropy_b.v#R230-98b05370
 DTPT_b.v#R230-4e5d967f
 PsQReindex.v#R230-b80c7c86
 abl_arctan_diff_20.v#R230-f90d387f
+abl_c1_lohi.v#R231-bf4eb39a
+piu_zz_pnt_window.v#R231-1d495176
+SumDCarrierFeed.v#R231-70f9640f
+BBDBridgeSupply.v#R231-a2ae81d3
+sl3_d3_gf_carrier.v#R231-dc3e1736
