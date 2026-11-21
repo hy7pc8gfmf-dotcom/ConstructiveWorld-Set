@@ -4,6 +4,31 @@ All notable changes to this library are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-11-22] — root-docs alignment wash and repair pass
+
+### Changed
+
+- Root five-document alignment wash (`README.md` / `README.en.md` /
+  `NOTICE.md` / `CONSTRAINTS.md` / this file): counts re-derived against
+  the current tree (595 `.v` sources in the tree; 604 registration rows,
+  9 files double-registered, 595 unique; batches `#R0`–`#R232`), stale
+  links and legal-anchor coordinates refreshed, bilingual pair re-synced,
+  and the CI-chain description corrected to the serial green baseline
+  (the 2026-11-19 K-lane parallel `coqchk` trial was reverted the same
+  day; the workflow calls the serial `scripts/ci_coqchk_live.sh`)
+  (`68ed639`).
+- Repair pass over the same wave (this commit): batch R229 changelog
+  entry backfilled (see 2026-11-20); NOTICE.md author line completed to
+  the six-author table (`Baiyuan Zeng` added) and its header de-tangled
+  (this repository is ConstructiveWorld-Set, 595 registered modules —
+  the old header carried the Main name with a Set row count); the `.vo`
+  trust-cache license wording aligned with the tracked face (no `.vo` is
+  tracked; caches circulate as CI artifacts and runner-local copies);
+  CONSTRAINTS §11 anchor coordinates re-verified with three stale sites
+  re-pointed and a §9 v1.2 entry added for the canon edits; the Windows
+  `coqchk` step name in `.github/workflows/coq.yml` corrected from its
+  stale K-lane label to the serial call it actually runs.
+
 ## [2026-11-21] — mainwash supply waves R230–R232
 
 ### Added
@@ -12,11 +37,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - mainwash-nl supply, 5 pieces born-clean, batch R231 (`f7f7a7d`).
 - mainwash-n2 supply, 7 pieces born-clean, batch R232 (`f4dcb41`).
 
-## [2026-11-20] — mainwash-b1 supply, gate7 policy-debt registration
+## [2026-11-20] — mainwash-b1/b2 supply, gate7 policy-debt registration
 
 ### Added
 
 - mainwash-b1 supply, 6 pieces born-clean, batch R228 (`20efc43`).
+- mainwash-b2 supply, 8 pieces born-clean, batch R229 (`4b8804b`).
 
 ### Changed
 

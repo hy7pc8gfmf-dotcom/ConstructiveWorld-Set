@@ -27,7 +27,7 @@
 
 **姊妹仓分工**：完整大库（已认证 1021 件，含 π 阶梯、五常数族与 ZZ 测度路线）见 [ConstructiveWorld-Main](https://github.com/hy7pc8gfmf-dotcom/ConstructiveWorld-Main)；Main 已于 Rocq 9.3.0 完成全库内核复核认证（2026-11-07 run #9·`coqchk` 14 组·`Axioms: <none>`，GPG 签名 tag `GREEN-CERTIFIED-v1`；发布信息见其 README §2）。本仓为 Set 层精简注册面。
 
-**π 支柱独立包**：π 的构造性强无理闭合已以独立 Rocq 包 [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) 发布（Leibniz 窗法·Set 载体·零公理·见证可提取），版本 `v1.0.4`（tag 解引用 commit `e1891fce`；该包 CI 状态与本仓无涉，以其仓库页面为准），Zenodo 归档 DOI：[10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983)（集成线，concept 23656982）；v1.0.0 批已合并进 Rocq opam 仓（rocq-prover/opam #3884），v1.0.1–1.0.4 合并式 PR [#3899](https://github.com/rocq-prover/opam/pull/3899)（supersedes #3896/#3897/#3898）状态以上游 PR 页为准。早期其通用逃逸窗判据引擎曾以 Issue #312／PR #313 提交上游标准库 rocq-prover/stdlib，后按维护者意见转为独立库发布路线（即上述包）。
+**π 支柱独立包**：π 的构造性强无理闭合已以独立 Rocq 包 [rocq-pi-leibniz](https://github.com/hy7pc8gfmf-dotcom/rocq-pi-leibniz) 发布（Leibniz 窗法·Set 载体·零公理·见证可提取），版本 `v1.0.5`（tag 解引用 commit `6a1cad69`；该包 CI 状态与本仓无涉，以其仓库页面为准），Zenodo 归档 DOI：[10.5281/zenodo.23656983](https://doi.org/10.5281/zenodo.23656983)（集成线，concept 23656982）；v1.0.0 批已合并进 Rocq opam 仓（rocq-prover/opam #3884），v1.0.1–1.0.5 合并式 PR [#3899](https://github.com/rocq-prover/opam/pull/3899)（supersedes #3896/#3897/#3898）状态以上游 PR 页为准。早期其通用逃逸窗判据引擎曾以 Issue #312／PR #313 提交上游标准库 rocq-prover/stdlib，后按维护者意见转为独立库发布路线（即上述包）。
 
 ## 2. 版本与认证记录
 
@@ -39,7 +39,7 @@
 | 注册序 | `order.txt` 共 604 行、无空行；9 件各双登记（18 行对应 9 件），去重后在册 595 件；批次 `#R0`–`#R232`（2026-11-22 实测） |
 | 许可 | Apache-2.0（见 `LICENSE`） |
 
-持续集成（`.github/workflows/coq.yml`）在每次推送时运行，含 Windows 认证任务与 macOS 观察任务 `coq-build-macos`（2026-11-03 起启用）。Windows 道步骤序列：gate1 禁词守卫（poison-token guard）→ gate4 注释守卫 → gate6 语句与字段 Prop 普查（较基线增长即红）→ 从本机 vo 树预置信任缓存（镜像语义，fail-open）→ 全树编译（单 Live 树·order 拓扑序·cpu_guard 温控护栏）→ gate7 提取执行（较基线增长即红）→ 树统计生成与上传 → gate5 vo 二进制隔离检查（token＋digest，对照校准）→ `coqchk` 全树内核复核（两道均为共享闭包单遍；2026-11-19 曾试 Windows 道 K 路并行、同日回退串行绿基线，正式并行移植另行立项；两道均经温控护栏）→ vo 信任缓存上传 → gate2 公理哨兵（块状态机解析 `coqchk` 日志判定 `Axioms: <none>`）→ `coqchk` 日志上传。gate3 跨树 diff 已随 2026-10-07 单树化（#C-S00c）撤除，守卫脚本位于 `scripts/gates/`。两道 gate2 步均校验 `coqchk` 日志含 `Welcome to Chicken 9.3.0`（Rocq 9.3.0·2026-11-02 换基）；工具链版本不等于认证结论，后者见上表「CI 认证」行。另有观察工作流 `.github/workflows/rocqwash-triage.yml`（2026-11-19 加入）：仅在 Coq CI 以失败收场时产出 triage 报告，不改变 CI 结论。
+持续集成（`.github/workflows/coq.yml`）在每次推送时运行，含 Windows 认证任务与 macOS 观察任务 `coq-build-macos`（2026-11-03 起启用）。Windows 道步骤序列：gate1 禁词守卫（poison-token guard）→ gate4 注释守卫 → gate6 语句与字段 Prop 普查（较基线增长即红）→ 从本机 vo 树预置信任缓存（镜像语义，fail-open）→ 全树编译（单 Live 树·order 拓扑序·cpu_guard 温控护栏）→ gate7 提取执行（较基线增长即红）→ 树统计生成与上传 → gate5 vo 二进制隔离检查（token＋digest，对照校准）→ `coqchk` 全树内核复核（两道均为共享闭包单遍；2026-11-19 曾试 Windows 道 K 路并行、同日回退串行绿基线，正式并行移植另行立项；两道均经温控护栏）→ vo 信任缓存上传 → gate2 公理哨兵（块状态机解析 `coqchk` 日志判定 `Axioms: <none>`）→ `coqchk` 日志上传。gate3 跨树 diff 已随 2026-10-07 单树化（#C-S00c）撤除；其脚本 `scripts/gates/gate3_cross_tree_diff.py` 仍留存树内，无 CI 步骤调用。守卫脚本位于 `scripts/gates/`。两道 gate2 步均校验 `coqchk` 日志含 `Welcome to Chicken 9.3.0`（Rocq 9.3.0·2026-11-02 换基）；工具链版本不等于认证结论，后者见上表「CI 认证」行。另有观察工作流 `.github/workflows/rocqwash-triage.yml`（2026-11-19 加入）：仅在 Coq CI 以失败收场时产出 triage 报告，不改变 CI 结论。
 
 ## 3. 环境前置
 
@@ -80,7 +80,7 @@ coqchk -silent -Q . "" <逻辑库名>.<件名>
 | `.github/workflows/coq.yml` | CI 全树驱动（编译＋`coqchk`＋守卫脚本·Rocq 9.3.0 校验） |
 | `.github/workflows/rocqwash-triage.yml` | 观察工作流：Coq CI 以失败收场时生成 triage 报告（observer v1，2026-11-19 加入，不改变 CI 结论） |
 | `docs/` | 设计与规划文档 |
-| `releases/` | 220 版时期的单文件合并版、扩展件、探针与提取产物（见附录） |
+| `releases/` | 220 版时期的单文件合并版 `CW_ConstructiveWorld_220.v`（见附录），及其后增补：`CW220_Extensions.v`、`_mc2_*` 探针／收尾目录与脚本、`extraction/` 目录、提取 `.ml`/`.mli` 对（`upcs`、`uphlogz`）、备份与脚本文件（`CW_ConstructiveWorld_220.v.bak`、`_merge220_compile.ps1`） |
 
 ## 6. 许可、引用与作者
 

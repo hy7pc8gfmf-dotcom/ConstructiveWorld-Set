@@ -346,7 +346,7 @@ jobs:
       # coqchk 认证：单 Live 树共享闭包单趟 -o（scripts/ci_coqchk_live.sh 自足实现，
       # 判据=EXIT=0 且 "Modules were successfully checked" → COQCHK_ALL_PASS，
       # 日志落 ConstructiveWorld_Live/_chk_all.log），温控包裹照旧。
-      - name: coqchk full-tree certification (K-lane parallel, whitepaper v1.3 section 8 flag, thermal-guarded)
+      - name: coqchk full-tree certification (shared closure, single pass, thermal-guarded)
         shell: C:/Progra~1/Git/bin/bash.exe -e {0}
         run: |
           # 【20261026 温控正典三参数】同 Build 步——20261023 用户令三参数缺一即钳位饥饿。
