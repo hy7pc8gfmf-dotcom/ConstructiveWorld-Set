@@ -1,14 +1,17 @@
-ConstructiveWorld-Main — Constructive-world modular formalization library (604 registered modules·grows with registration)
-Copyright 2026 Baojun Wang, Wanlan Xia (corresponding author, xiawanlan33@163.com), Guangzhao Zu, Zhinong Zhou, Xuefeng Gao & Contributors
+ConstructiveWorld-Set — Constructive-world modular formalization library (595 registered modules·grows with registration)
+Copyright 2026 Baojun Wang, Wanlan Xia (corresponding author, xiawanlan33@163.com), Guangzhao Zu, Baiyuan Zeng, Zhinong Zhou, Xuefeng Gao & Contributors
 
 ==========================================================================
 SOURCE CODE LICENSE
 ==========================================================================
 
 The Rocq/Coq formalization sources (.v) under ConstructiveWorld_Live/, the
-compiled trust caches (.vo), the single-file release builds (releases/),
-and the documentation (docs/) in this repository are licensed under the
-Apache License, Version 2.0.
+single-file release builds (releases/), and the documentation (docs/) in
+this repository are licensed under the Apache License, Version 2.0. The
+compiled trust caches (.vo) derived from these sources are build
+artifacts excluded from the tracked tree (.gitignore excludes *.vo),
+circulating as CI artifacts and runner-local caches; they are licensed
+under the same Apache License, Version 2.0.
 See LICENSE for the full license text.
 
 ==========================================================================
@@ -29,8 +32,9 @@ executable checkers and runtime components extracted from the project
 modules via Coq Extraction.
 
 No such component has been published as of this NOTICE (status verified
-2026-10-06). Each component will be registered in the table below upon its
-first release.
+2026-10-06; re-verified 2026-11-22 against the tracked tree and the
+releases/ face). Each component will be registered in the table below
+upon its first release.
 
 | Component | Source | Status |
 |-----------|--------|--------|

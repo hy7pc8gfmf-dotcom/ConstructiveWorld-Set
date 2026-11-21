@@ -1,6 +1,6 @@
 # ConstructiveWorld-Set — Pure-Constructivity Constraint Canon (CONSTRAINTS.md)
 
-> **Version**: v1.1 (2026-11-05). **Authority chain**: the workspace white paper
+> **Version**: v1.2 (2026-11-22). **Authority chain**: the workspace white paper
 > "Pure-Constructivity Programme and Red-Line Law" (v2.4+) is the legislature; THIS file is its
 > in-repo execution canon for the ConstructiveWorld-Set repository — the single
 > authority every collaborator (Windows / macOS / future machines) reads and
@@ -212,6 +212,26 @@ runbook §6.3, activation pending).
 
 ## 9. Revision chain
 
+- v1.2 (2026-11-22): documentation-correction revision; no law semantics
+  altered. The 2026-11-22 root-docs alignment wave edited this canon
+  (anchor coordinates, heading numerals, wording, the §4 gate-chain
+  `coqchk` description) without a revision-chain entry — this entry
+  closes that gap (precedent: the eb4b557 docs wash registered its own
+  pass in the CHANGELOG). Contents: §11 legal-anchor coordinates
+  re-verified against the current tree — five refreshed by the wave
+  (`abl_qpoly_divmod_gen.v:82`→`:46`, `S03_QExp.v:280`→`:292`,
+  `S02_CauchyComplete.v:147`→`:249`, `abl_z2_valbridge.v:91`→`:100`,
+  `UpReqAlign3.v:91-99`→`:49-57`), three stale census sites re-pointed by
+  the wave's repair pass (the Sole-S01-consumer lift sites
+  `b1_denom_control.v:80`→`:90`, `abl_Pr_core_01.v:148`→`:170`,
+  `S02_CauchyComplete.v:447`→`:610`; the lines moved in the
+  2026-11-06/07 recasts — all eight re-pointed coordinates grep to their
+  referents on the current tree); the §4 gate-chain `coqchk` line
+  corrected to the serial green baseline (the 2026-11-19 K-lane parallel
+  trial was reverted the same day; the workflow calls the serial
+  `scripts/ci_coqchk_live.sh`); two CJK-era wording residues normalized
+  to English (§5's white-paper section reference; §6's
+  registration-pending parenthetical).
 - v1.1 (2026-11-05): gate7 retro-revision after CI #178's full-tree sweep
   found 27 extraction-face `Obj.magic` hits in five modules that had landed
   with born-clean placement records (`UpAblMetaWindow`'s record claimed
@@ -331,9 +351,13 @@ restored faces they accompany.
   closure 353; universe = order.txt 375), with **176 live lift calls
   across 44 modules and zero live drop calls** at the extraction face.
   Sole-S01 consumers red at
-  `ConstructiveWorld_Live/b1_denom_control.v:80`,
-  `ConstructiveWorld_Live/abl_Pr_core_01.v:148`,
-  `ConstructiveWorld_Live/S02_CauchyComplete.v:447`. Per-site
+  `ConstructiveWorld_Live/b1_denom_control.v:90`,
+  `ConstructiveWorld_Live/abl_Pr_core_01.v:170`,
+  `ConstructiveWorld_Live/S02_CauchyComplete.v:610` (coordinates
+  re-verified against the current tree, 2026-11-22, after the
+  2026-11-06/07 recasts shifted the lines: the first two sites are now
+  served by the native `NatLe_liftI` face, the S02 site still consumes
+  the Prop `NatLe_lift` face, its `le_max_r` branch at `:614`). Per-site
   adjudication is settled (review round 1 re-verdict): **lift is the
   value-level leak site** — all 176 live information positions (incl.
   `abl_qpoly_divmod_gen.v:667`, whose baseline extraction body recomputes
