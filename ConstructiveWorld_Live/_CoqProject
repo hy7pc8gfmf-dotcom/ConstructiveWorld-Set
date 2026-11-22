@@ -603,3 +603,9 @@ b1_extract.v
 zz_prrun_ext_lcm.v
 planb5_u5c3_extwin_cert.v
 UpAblT4_SumCarrier.v
+ablt9_s06abs_sum_feed.v
+UpAblP7_UMixSelect.v
+UpAblAbsFeed.v
+UpAblT2b_fa53_lpc_broadcast.v
+abl_tbase_expf_bs_feed.v
+planb4_u5_carrier_align.v

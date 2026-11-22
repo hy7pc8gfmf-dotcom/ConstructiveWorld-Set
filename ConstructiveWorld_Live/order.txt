@@ -602,3 +602,9 @@ b1_extract.v#R232-7b260e2e
 zz_prrun_ext_lcm.v#R232-83125b99
 planb5_u5c3_extwin_cert.v#R232-39e17a0a
 UpAblT4_SumCarrier.v#R232-ee399229
+ablt9_s06abs_sum_feed.v#R233-ef967982
+UpAblP7_UMixSelect.v#R233-0be1160c
+UpAblAbsFeed.v#R233-c65473bb
+UpAblT2b_fa53_lpc_broadcast.v#R233-4f793115
+abl_tbase_expf_bs_feed.v#R233-70652f12
+planb4_u5_carrier_align.v#R233-fb0c2d36
