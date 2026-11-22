@@ -615,3 +615,8 @@ UpReqLatbMaxList.v
 abl_W9_slice57_10.v
 abl_tail_sum_readbridge.v
 UpAblEps49List.v
+NsepBudgetVerify.v
+Lw4cPiLicGate.v
+NsepFirstSufficiency.v
+NsepBudgetExhaustion.v
+UpReqPadeTransport.v
