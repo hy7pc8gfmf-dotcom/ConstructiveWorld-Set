@@ -608,3 +608,9 @@ UpAblAbsFeed.v#R233-c65473bb
 UpAblT2b_fa53_lpc_broadcast.v#R233-4f793115
 abl_tbase_expf_bs_feed.v#R233-70652f12
 planb4_u5_carrier_align.v#R233-fb0c2d36
+ToyR_UpAblP7_UMixSelect.v#R234-6c8492c7
+UpAblP6_ConcMixSelFeed.v#R234-08a5c75c
+UpReqLatbMaxList.v#R234-4586a79d
+abl_W9_slice57_10.v#R234-0b83e3f0
+abl_tail_sum_readbridge.v#R234-263ffe03
+UpAblEps49List.v#R234-56108c86
