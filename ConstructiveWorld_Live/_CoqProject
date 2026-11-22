@@ -620,3 +620,5 @@ Lw4cPiLicGate.v
 NsepFirstSufficiency.v
 NsepBudgetExhaustion.v
 UpReqPadeTransport.v
+LW0_SinPos.v
+LW2TrigBridge.v
