@@ -629,3 +629,10 @@ abl_z3_itg_carrier.v
 UpReqDpoLoss.v
 abl_prop_carrier.v
 LW3ExclusionCalc.v
+abl_ln2_tail_bound.v
+abl_ln2_theta_total.v
+abl_ln2_conv_core.v
+abl_ln2_assembly.v
+abl_ln2_numer_int.v
+abl_ln2_growth_budget.v
+abl_ln2_conv_mesh.v
