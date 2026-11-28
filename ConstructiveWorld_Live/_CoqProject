@@ -627,3 +627,5 @@ abl_Pr_erdos_theta.v
 DTPT_Bridge_Dig.v
 abl_z3_itg_carrier.v
 UpReqDpoLoss.v
+abl_prop_carrier.v
+LW3ExclusionCalc.v
