@@ -621,3 +621,10 @@ NsepBudgetExhaustion.v#R235-5e18eff7
 UpReqPadeTransport.v#R235-a5333b2b
 LW0_SinPos.v#R236-d9091f25
 LW2TrigBridge.v#R236-4a3cc4db
+abl_tbase_klcx_rppo_sum.v#R237-5ecd1f2b
+abl_Pr_erdos_theta.v#R237-1880ae93
+DTPT_Bridge_Dig.v#R237-24291e4d
+abl_prop_carrier.v#R237-18641edf
+abl_z3_itg_carrier.v#R237-8732f9e1
+UpReqDpoLoss.v#R237-a975fce0
+LW3ExclusionCalc.v#R237-be973e76
