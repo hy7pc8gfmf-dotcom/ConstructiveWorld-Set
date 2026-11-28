@@ -625,7 +625,5 @@ LW2TrigBridge.v
 abl_tbase_klcx_rppo_sum.v
 abl_Pr_erdos_theta.v
 DTPT_Bridge_Dig.v
-abl_prop_carrier.v
 abl_z3_itg_carrier.v
 UpReqDpoLoss.v
-LW3ExclusionCalc.v
