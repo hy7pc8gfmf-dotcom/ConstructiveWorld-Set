@@ -636,3 +636,4 @@ abl_ln2_assembly.v
 abl_ln2_numer_int.v
 abl_ln2_growth_budget.v
 abl_ln2_conv_mesh.v
+abl_tail_slot_upgrade.v
