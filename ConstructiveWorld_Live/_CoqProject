@@ -629,3 +629,11 @@ abl_z3_itg_carrier.v
 UpReqDpoLoss.v
 abl_prop_carrier.v
 LW3ExclusionCalc.v
+UpAblP6_StateSpace_inst.v
+abl_dyn_step_calc.v
+tlw1463_pade_r29_faces.v
+UpAblT13b_G06_BForm.v
+SqrtfCauchyDischarge.v
+FepIdentClass.v
+UpAblD1S5_UpReqEntropyMonoSplit.v
+abl_attn_step_calc.v
