@@ -636,3 +636,11 @@ abl_ln2_assembly.v
 abl_ln2_numer_int.v
 abl_ln2_growth_budget.v
 abl_ln2_conv_mesh.v
+MixingTimeG2.v
+abl_dtpt_dig_supply.v
+abl_tbase_lcsum_feed.v
+UpReqSamplingFeed.v
+abl_tbase_logbridge.v
+abl_mixlog_switch.v
+tlw1738_r2_res1_decay.v
+abl_tail_world_certs.v
