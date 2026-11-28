@@ -633,6 +633,13 @@ abl_prop_carrier.v#R237-ebb3f3b3
 abl_z3_itg_carrier.v#R237-8732f9e1
 UpReqDpoLoss.v#R237-a975fce0
 LW3ExclusionCalc.v#R237-e3228597
+abl_ln2_tail_bound.v#R238-c559c3d9
+abl_ln2_theta_total.v#R238-73f8c31f
+abl_ln2_conv_core.v#R238-a4d7a663
+abl_ln2_assembly.v#R238-849f4acd
+abl_ln2_numer_int.v#R238-059545c1
+abl_ln2_growth_budget.v#R238-3e5f605c
+abl_ln2_conv_mesh.v#R238-a7aafb9a
 FepIdentClass.v#R241-5be91c57
 SqrtfCauchyDischarge.v#R241-888b4dad
 UpAblD1S5_UpReqEntropyMonoSplit.v#R241-2de05597
