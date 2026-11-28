@@ -644,3 +644,11 @@ abl_tbase_logbridge.v
 abl_mixlog_switch.v
 tlw1738_r2_res1_decay.v
 abl_tail_world_certs.v
+Arch_ToyR_02.v
+Arch_UpReq_10.v
+DTPT_Rotation.v
+FreeEnergyKLGap.v
+G12_ZPosFam.v
+LW3CarrierFull.v
+LW3FamScale.v
+LW3JointFill.v

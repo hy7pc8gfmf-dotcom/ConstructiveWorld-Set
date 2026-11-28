@@ -648,3 +648,11 @@ abl_tbase_logbridge.v#R239-b3bc7e71
 abl_mixlog_switch.v#R239-884191d6
 tlw1738_r2_res1_decay.v#R239-cb428242
 abl_tail_world_certs.v#R239-46ba1790
+Arch_ToyR_02.v#R242-84ad29e3
+Arch_UpReq_10.v#R242-841f9b1b
+DTPT_Rotation.v#R242-6578fb10
+FreeEnergyKLGap.v#R242-ab55fc44
+G12_ZPosFam.v#R242-c0a12660
+LW3CarrierFull.v#R242-19d19b5c
+LW3FamScale.v#R242-f18dfe8a
+LW3JointFill.v#R242-fcd12e32
